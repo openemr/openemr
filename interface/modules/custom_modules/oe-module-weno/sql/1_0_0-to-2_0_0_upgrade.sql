@@ -1,10 +1,4 @@
-# -- DELETE FROM `user_settings` WHERE `setting_label` LIKE 'global:weno%';
-# -- DELETE FROM `globals` WHERE `gl_name` LIKE 'weno%';
-# -- DROP TABLE IF EXISTS `weno_pharmacy`;
-# -- DROP TABLE IF EXISTS `weno_assigned_pharmacy`;
-# -- DROP TABLE IF EXISTS `weno_download_log`;
 
--- New table structure for Weno Exchange
 #IfColumn weno_pharmacy App
 DROP TABLE IF EXISTS `weno_pharmacy`;
 #EndIf
@@ -42,25 +36,25 @@ CREATE TABLE `weno_pharmacy` (
 
 #IfNotTable weno_assigned_pharmacy
 CREATE TABLE `weno_assigned_pharmacy` (
-    `id`              INT(10)    NOT NULL AUTO_INCREMENT,
-    `pid`             BIGINT(20) NOT NULL,
-    `primary_ncpdp`   VARCHAR(8) NOT NULL,
-    `alternate_ncpdp` VARCHAR(8) NOT NULL,
-    `is_history`      TINYINT(1) DEFAULT 0,
-    `search_persist`  TINYTEXT,
-    PRIMARY KEY (`id`),
-    KEY (`pid`)
+  `id`              INT(10)    NOT NULL AUTO_INCREMENT,
+  `pid`             BIGINT(20) NOT NULL,
+  `primary_ncpdp`   VARCHAR(8) NOT NULL,
+  `alternate_ncpdp` VARCHAR(8) NOT NULL,
+  `is_history`      TINYINT(1) DEFAULT 0,
+  `search_persist`  TINYTEXT,
+  PRIMARY KEY (`id`),
+  KEY (`pid`)
 ) ENGINE = InnoDB;
 #EndIf
 
 #IfNotTable weno_download_log
 CREATE TABLE `weno_download_log` (
-    `id`         BIGINT(20)   NOT NULL AUTO_INCREMENT,
-    `value`      VARCHAR(63)  NOT NULL,
-    `status`     VARCHAR(255) NOT NULL,
-    `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `value` (`value`)
+     `id`         BIGINT(20)   NOT NULL AUTO_INCREMENT,
+     `value`      VARCHAR(63)  NOT NULL,
+     `status`     VARCHAR(255) NOT NULL,
+     `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     KEY `value` (`value`)
 ) ENGINE = InnoDB;
 #EndIf
 

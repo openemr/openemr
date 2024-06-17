@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Fax SMS Module Member
+ * Fax and SMS Module UI Member
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -34,8 +34,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
     Header::setupHeader(['opener', 'datetime-picker', 'jspdf', 'jstiff']);
-    echo "<script>const pid=" . js_escape($pid) . ";const portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
-        ";const currentService=" . js_escape($service) . ";const serviceType=" . js_escape($serviceType) . "</script>";
+    echo "<script>let pid=" . js_escape($pid ?? 0) . ";let portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
+        ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . "</script>";
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
     <script>
@@ -313,10 +313,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 
         function showDocument(_base64, _contentType = 'image/tiff') {
             try {
-                // Log the type and value of _base64 to debug
-                console.log('Type of _base64:', typeof _base64);
-                console.log('Content of _base64:', _base64);
-
                 // Ensure _base64 is a string
                 if (typeof _base64 !== 'string') {
                     throw new TypeError('Expected a base64 string');
@@ -356,54 +352,63 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             }
         }
 
-        // SMS status
+        // SMS Fax status
         function retrieveMsgs(e = '', req = '') {
             try {
                 top.restoreSession();
             } catch (error) {
-                console.log('Session restore failed!');
+                console.log('Session restore failed!', error);
             }
+
             if (e !== '') {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            let actionUrl = 'fetchSMSList?type=sms';
-            if (serviceType === 'fax') {
-                actionUrl = 'fax/getPending?type=fax';
-            }
-            let id = pid;
-            let datefrom = $('#fromdate').val();
-            let dateto = $('#todate').val();
-            let data = [];
-            $(".brand").addClass('fa fa-spinner fa-spin');
-            $("#rcvdetails tbody").empty();
-            $("#sent-details tbody").empty();
-            $("#msgdetails tbody").empty();
-            return $.post(actionUrl,
-                {
-                    'type': serviceType,
-                    'pid': pid,
-                    'datefrom': datefrom,
-                    'dateto': dateto
-                }, function () {
-                }, 'json').done(function (data) {
+
+            const actionUrl = (serviceType === 'fax') ? 'fax/getPending?type=fax' : 'fetchSMSList?type=sms';
+            const datefrom = $('#fromdate').val();
+            const dateto = $('#todate').val();
+
+            // Cache DOM elements
+            const brandElement = $(".brand");
+            const rcvDetailsBody = $("#rcvdetails tbody");
+            const sentDetailsBody = $("#sent-details tbody");
+            const msgDetailsBody = $("#msgdetails tbody");
+
+            // Start loading animation
+            brandElement.addClass('fa fa-spinner fa-spin');
+            rcvDetailsBody.empty();
+            sentDetailsBody.empty();
+            msgDetailsBody.empty();
+
+            return $.post(actionUrl, {
+                'type': serviceType,
+                'pid': pid,
+                'datefrom': datefrom,
+                'dateto': dateto
+            }, null, 'json').done(function (data) {
+                brandElement.removeClass('fa fa-spinner fa-spin');
+
                 if (data.error) {
-                    $(".brand").removeClass('fa fa-spinner fa-spin');
                     alertMsg(data.error);
                     return false;
                 }
-                // populate our cards
-                $("#rcvdetails tbody").empty().append(data[0]);
-                $("#sent-details tbody").empty().append(data[1]);
-                $("#msgdetails tbody").empty().append(data[2]);
-                // get call logs
+
+                // Populate our cards
+                rcvDetailsBody.append(data[0]);
+                sentDetailsBody.append(data[1]);
+                msgDetailsBody.append(data[2]);
+
+                // Get call logs if the service type is SMS
                 if (serviceType === 'sms') {
                     getLogs();
                 }
             }).fail(function (xhr, status, error) {
-                alertMsg(<?php echo xlj('Not Authenticated or not authorised. Ensure valid credentials are setup from Activity menu.'); ?>, 7000);
+                const message = `Error: ${error || 'Request to fetch pending new faxes failed with Unknown error!'}<br />Perhaps invalid or missing credentials. Verify, fix and try again if so.`;
+                alertMsg(message, 10000);
+                console.error('Request failed: ', status, error);
             }).always(function () {
-                $(".brand").removeClass('fa fa-spinner fa-spin');
+                brandElement.removeClass('fa fa-spinner fa-spin');
             });
         }
 

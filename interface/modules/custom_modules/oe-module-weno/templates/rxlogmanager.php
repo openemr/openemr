@@ -17,7 +17,7 @@ use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 /*
  * access control is on Weno side based on the user login
  */
-if (!AclMain::aclCheckCore('patient', 'med')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo TransmitProperties::styleErrors(xlt('Prescriptions Review Not Authorized'));
     exit;
 }

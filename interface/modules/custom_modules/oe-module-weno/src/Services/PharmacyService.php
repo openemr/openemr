@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
- * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023 Omega Systems Group International. <info@omegasystemsgroup.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,13 +27,15 @@ class PharmacyService
         $sql = "INSERT INTO weno_assigned_pharmacy SET ";
         $sql .= "pid = ?,";
         $sql .= "primary_ncpdp = ?,";
-        $sql .= "alternate_ncpdp = ? ";
+        $sql .= "alternate_ncpdp = ?, ";
+        $sql .= "search_persist = ? ";
 
         try {
             sqlInsert($sql, [
                 $pid,
                 $data['primary_pharmacy'],
                 $data['alternate_pharmacy'],
+                $data['search_persist'],
             ]);
         } catch (Exception $e) {
             return $e->getMessage();
@@ -40,19 +44,21 @@ class PharmacyService
 
     public function updatePatientWenoPharmacy($pid, $data)
     {
-        //check if pharmacies already exist for patient
+        // check if pharmacies already exist for patient
         if (!$this->getWenoPharmacy($pid)) {
             return $this->createWenoPharmaciesForPatient($pid, $data);
         }
         $sql = "UPDATE weno_assigned_pharmacy SET ";
         $sql .= "primary_ncpdp = ?, ";
-        $sql .= "alternate_ncpdp = ? ";
+        $sql .= "alternate_ncpdp = ?, ";
+        $sql .= "search_persist = ? ";
         $sql .= "WHERE pid = ?";
 
         try {
             sqlInsert($sql, [
                 $data['primary_pharmacy'],
                 $data['alternate_pharmacy'],
+                $data['search_persist'],
                 $pid
             ]);
         } catch (Exception $e) {
@@ -60,52 +66,28 @@ class PharmacyService
         }
     }
 
-    public function getPatientPrimaryPharmacy($pid)
+    public function getWenoLastSearch($pid)
     {
-        $sql = "SELECT pd.pharmacy_id, pd.pid, p.id, p.name, " ;
-        $sql .= "a.foreign_id, a.city, a.line1 FROM patient_data pd ";
-        $sql .= "LEFT JOIN pharmacies p ON pd.pharmacy_id = p.id ";
-        $sql .= "LEFT JOIN addresses a ON p.id = a.foreign_id WHERE pd.pid = ?";
-
-        $result = sqlQuery($sql, [$pid]);
-
-        return json_encode($result);
+        $sql = "SELECT `search_persist` FROM weno_assigned_pharmacy WHERE pid = ?";
+        return json_decode(sqlQuery($sql, array($pid))['search_persist'] ?? '');
     }
 
-    public function getWenoPharmacyForPatient($pid)
-    {
-        if ($pid !== 0) {
-            $sql = "SELECT p.pid,p.weno_pharmacy, w.state,w.ncpdp,w.business_name,";
-            $sql .= "w.address_line_1 FROM patient_data p ";
-            $sql .= "INNER JOIN weno_pharmacy w ON p.weno_pharmacy = w.ncpdp WHERE pid = ?";
-            $result = sqlQuery($sql, array($pid));
-        }
-        $pharmacy_data = array(
-            "name"      => $result['business_name'] ?? '',
-            "ncpdp"     => $result['ncpdp']  ?? '',
-            "state"     => $result['state']  ?? '',
-            "address"   => $result['address_line_1']  ?? ''
-        );
-
-        return json_encode($pharmacy_data);
-    }
-
-    public function getWenoPrimaryPharm($pid)
+    public function getWenoPrimaryPharm($pid): false|array|null
     {
         $sql = "SELECT wap.pid, wap.primary_ncpdp, wp.business_name, ";
-        $sql .= "wp.city, wp.address_line_1, wp.ncpdp, wp.state FROM weno_assigned_pharmacy wap ";
-        $sql .= "INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp ";
+        $sql .= "wp.city, wp.address_line_1, wp.ncpdp_safe, wp.state FROM weno_assigned_pharmacy wap ";
+        $sql .= "INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe ";
         $sql .= "WHERE wap.pid = ?";
         $result = sqlQuery($sql, array($pid));
 
         return $result;
     }
 
-    public function getWenoAlternatePharm($pid)
+    public function getWenoAlternatePharm($pid): false|array|null
     {
         $sql = "SELECT wap.pid, wap.alternate_ncpdp, wp.business_name, ";
-        $sql .= "wp.city, wp.address_line_1, wp.ncpdp, wp.state FROM weno_assigned_pharmacy wap ";
-        $sql .= "INNER JOIN weno_pharmacy wp ON wap.alternate_ncpdp = wp.ncpdp ";
+        $sql .= "wp.city, wp.address_line_1, wp.ncpdp_safe, wp.state FROM weno_assigned_pharmacy wap ";
+        $sql .= "INNER JOIN weno_pharmacy wp ON wap.alternate_ncpdp = wp.ncpdp_safe ";
         $sql .= "WHERE wap.pid = ?";
 
         $result = sqlQuery($sql, array($pid));
@@ -113,123 +95,13 @@ class PharmacyService
         return $result;
     }
 
-    public function checkWenoPharmacyLog()
-    {
-        $db_exist = sqlStatement("SELECT * FROM weno_download_log ORDER BY `created_at` DESC, `id` DESC LIMIT 1");
-        if (empty($db_exist)) {
-            return "empty";
-        } else {
-            return true;
-        }
-    }
-
-    public function insertPharmacies($insertdata): bool
-    {
-        $sql = "INSERT INTO weno_pharmacy (ncpdp, npi, business_name, address_line_1, address_line_2, city, state, zipcode, country_code, international, pharmacy_phone, on_weno, test_pharmacy, state_wide_mail_order, 24hr) ";
-            $sql .= "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
-            $sql .= "ON DUPLICATE KEY UPDATE ";
-            $sql .= "npi = ?, ";
-            $sql .= "business_name = ?, ";
-            $sql .= "address_line_1 = ?, ";
-            $sql .= "address_line_2 = ?, ";
-            $sql .= "city = ?, ";
-            $sql .= "state = ?, ";
-            $sql .= "zipcode = ?,";
-            $sql .= "country_code = ?, ";
-            $sql .= "international = ?, ";
-            $sql .= "pharmacy_phone = ?, ";
-            $sql .= "on_weno = ?, ";
-            $sql .= "test_pharmacy = ?, ";
-            $sql .= "state_wide_mail_order = ?, ";
-            $sql .= "24hr = ? ";
-        try {
-            sqlStatementNoLog($sql, [
-                $insertdata['ncpdp'],
-                $insertdata['npi'],
-                $insertdata['business_name'],
-                $insertdata['address_line_1'],
-                $insertdata['address_line_2'],
-                $insertdata['city'],
-                $insertdata['state'],
-                $insertdata['zipcode'],
-                $insertdata['country'],
-                $insertdata['international'],
-                $insertdata['pharmacy_phone'],
-                $insertdata['on_weno'],
-                $insertdata['test_pharmacy'],
-                $insertdata['state_wide_mail'] ?? '',
-                $insertdata['fullDay'],
-                $insertdata['npi'],
-                $insertdata['business_name'],
-                $insertdata['address_line_1'],
-                $insertdata['address_line_2'],
-                $insertdata['city'],
-                $insertdata['state'],
-                $insertdata['zipcode'],
-                $insertdata['country'],
-                $insertdata['international'],
-                $insertdata['pharmacy_phone'],
-                $insertdata['on_weno'],
-                $insertdata['test_pharmacy'],
-                $insertdata['state_wide_mail'] ?? '',
-                $insertdata['fullDay'],
-            ]);
-        } catch (Exception $e) {
-            $e = $e->getMessage();
-            return true;
-        }
-        return false;
-    }
-
-    public function updatePharmacies($insertdata): bool
-    {
-        $sql = "UPDATE weno_pharmacy SET ";
-        $sql .= "npi = ?, ";
-        $sql .= "business_name = ?, ";
-        $sql .= "address_line_1 = ?, ";
-        $sql .= "address_line_2 = ?, ";
-        $sql .= "city = ?, ";
-        $sql .= "state = ?, ";
-        $sql .= "zipcode = ?,";
-        $sql .= "country_code = ?, ";
-        $sql .= "international = ?, ";
-        $sql .= "pharmacy_phone = ?, ";
-        $sql .= "test_pharmacy = ?, ";
-        $sql .= "state_wide_mail_order = ?, ";
-        $sql .= "24hr = ? ";
-        $sql .= "WHERE ncpdp = ?";
-
-        try {
-            sqlStatement($sql, [
-                $insertdata['npi'],
-                $insertdata['business_name'],
-                $insertdata['address_line_1'],
-                $insertdata['address_line_2'],
-                $insertdata['city'],
-                $insertdata['state'],
-                $insertdata['zipcode'],
-                $insertdata['country'],
-                $insertdata['international'],
-                $insertdata['pharmacy_phone'],
-                $insertdata['test_pharmacy'],
-                $insertdata['state_wide_mail'],
-                $insertdata['fullDay'],
-                $insertdata['ncpdp']
-            ]);
-        } catch (Exception $e) {
-            $e = $e->getMessage();
-            return true;
-        }
-        return false;
-    }
-
-    public function removeWenoPharmacies()
+    public function removeWenoPharmacies(): void
     {
         $sql = "TRUNCATE TABLE weno_pharmacy";
         sqlStatement($sql);
     }
 
-    public function checkWenoDb()
+    public function checkWenoDb(): bool
     {
         $has_data = sqlQuery("SELECT 1 FROM weno_pharmacy LIMIT 1");
         if (!empty($has_data)) {
