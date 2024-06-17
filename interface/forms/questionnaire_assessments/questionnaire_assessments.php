@@ -3,6 +3,9 @@
 /**
  * Questionnaire Assessment Encounters Template
  *
+ * version 1.0.0 ruth moulton
+ *  move LOINC temrs of use  notice to the end of the form
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -371,13 +374,8 @@ try {
             <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($form['copyright'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
-            <div>
-                <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
-                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php echo xlt("terms of use.") . "</i>"; ?></php></a></p>
-                <p id="copyrightNotice">
-                    <?php echo text($form['copyright'] ?? ''); ?>
-                </p>
-            </div>
+            <!--    move copyright notice from here to the foot of the form -->
+
             <div class="mb-3">
                 <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
@@ -409,6 +407,15 @@ try {
             </div>
             <hr />
             <div id="formContainer"></div>
+
+              <div>
+                <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
+                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php echo xlt("terms of use.") . "</i>"; ?></php></a></p>
+                <p id="copyrightNotice">
+                    <?php echo text($form['copyright'] ?? ''); ?>
+                </p>
+            </div>
+
             <?php if (!$isPortal && !$patientPortalOther) { ?>
                 <div class="btn-group my-2">
                     <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
