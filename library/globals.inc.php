@@ -3804,6 +3804,12 @@ $GLOBALS_METADATA = array(
             'default',
             xl('Name of zend template for pdf export, possible to add custom template in the PrescriptionTemplate module')
         ),
+        'rx_send_email' => array(
+            xl('Allow email sending of prescriptions'),
+            'bool',                           // data type
+            '1',
+            xl('Enable email option (available on prescriptions list screen) for emailing prescriptions')
+        ),
     ),
     'PDF' => array(
         'pdf_layout' => array(
