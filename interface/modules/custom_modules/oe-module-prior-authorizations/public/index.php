@@ -110,8 +110,7 @@ const TABLE_TD = "</td><td>";
                 <input type="hidden" id="id" name="id" value="">
                 <div class="form-row">
                     <div class="col">
-                        <input class="form-control" id="authorization" name="authorization" value="" placeholder="
-                        <?php echo xla('Authorization Number') ?>">
+                        <input class="form-control" id="authorization" name="authorization" value="" placeholder="<?php echo xla('Authorization Number') ?>">
                     </div>
                     <div class="col">
                         <input class="form-control" id="units" name="units" value="" placeholder="<?php echo xla('Units') ?>">
