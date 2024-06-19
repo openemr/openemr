@@ -135,6 +135,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
 <body>
     <?php
     $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
+    error_log("Weno eRx URL: " . $urlOut);
     ?>
     <div class="container-xl">
         <div class="container-xl sticky-container bg-light text-dark">

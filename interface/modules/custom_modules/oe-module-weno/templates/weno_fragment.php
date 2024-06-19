@@ -72,8 +72,6 @@ foreach ($res as $row) {
     $pharmacies[] = $row;
 }
 $pharmacyCount = count($pharmacies);
-// title for the select dropdown events
-$titleMessage = xla("Click to select from a list of previously assigned pharmacies.");
 
 function getProviderByWenoId($external_id, $provider_id = ''): string
 {
@@ -116,42 +114,58 @@ if ($hasErrors) { ?>
         </div>
     </div>
 <?php } ?>
-    <button class="btn btn-link btn-refresh p-0 mr-4 float-right" onclick="refreshDemographics();"><?php echo xlt("Refresh Patient"); ?></button>
-<?php if ($pharmacyCount > 0) { ?>
+<button class="btn btn-link btn-refresh p-0 mr-4 float-right" onclick="refreshDemographics();"><?php echo xlt("Refresh Chart"); ?></button>
+<?php if ($pharmacyCount > 0) {
+    $titleMessage = xla("Quick Pharmacy Assignment");
+    $popoverContent = xla("Convenience feature for assigning pharmacy without having to edit Demographics. Click the label or existing pharmacy name, if assigned, to select a pharmacy from a list of all currently assigned pharmacies. The selected pharmacy will be assigned to this patient.");
+    ?>
     <div class="form-group mb-0 small">
-    <div class="input-group">
-        <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>">
-            <b><?php echo xlt("Assigned Primary"); ?>:</b>
-        </label>
-        <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe']); ?>" />
-        <cite><span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span></cite>
-        <select id="select-primary" class="d-none">
-            <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
-            <?php foreach ($pharmacies as $pharmacy) {
-                $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
-                ?>
-                <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
-            <?php } ?>
-        </select>
+        <div class="input-group">
+            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+                <b><?php echo xlt("Assigned Primary"); ?>:</b>
+            </label>
+            <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <cite>
+                <span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>"><?php echo text($primary_pharmacy); ?></span>
+            </cite>
+            <select id="select-primary" class="d-none">
+                <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
+                <?php foreach ($pharmacies as $pharmacy) {
+                    $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
+                    $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe'] ?? '') ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
+                <?php } ?>
+            </select>
+        </div>
+        <div class="input-group">
+            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+                <b><?php echo xlt("Assigned Alternate"); ?>:</b>
+            </label>
+            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe']); ?>" />
+            <cite>
+                <span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>"><?php echo text($alternate_pharmacy); ?></span>
+            </cite>
+            <select id="select-alternate" class="d-none">
+                <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
+                <?php foreach ($pharmacies as $pharmacy) {
+                    $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
+                    $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
+                <?php } ?>
+            </select>
+        </div>
+
+        <script>
+            $(document).ready(function(){
+                $('[data-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'top'
+                });
+            });
+        </script>
     </div>
-    <div class="input-group">
-        <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>">
-            <b><?php echo xlt("Assigned Alternate"); ?>:</b>
-        </label>
-        <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe']); ?>" />
-        <cite><span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span></cite>
-        <select id="select-alternate" class="d-none">
-            <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
-            <?php foreach ($pharmacies as $pharmacy) {
-                $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
-                ?>
-                <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
-            <?php } ?>
-        </select>
-    </div>
-</div>
 <?php } ?>
 <script>
 

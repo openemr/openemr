@@ -284,8 +284,14 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             document.getElementById('weno_city_select').style.display = 'none';
         }
 
-        // Initialize the search results
-        $('#list-search-button').trigger('click');
+        let triggerSearch = defaultFilters.weno_zipcode || defaultFilters.weno_state || defaultFilters.weno_city;
+        if (triggerSearch) {
+            // Initialize the search results
+            $('#list-search-button').trigger('click');
+            setInterval(function() {
+                $('#name-search-button').trigger('click');
+            }, 1000);
+        }
     };
 
     function initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy) {
@@ -425,7 +431,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             },
             minimumInputLength: 3,
             cache: true,
-            placeholder: 'Click and Type Filtered Pharmacy Name Search',
+            placeholder: 'Click here for Selected Filters Pharmacy Search by Name.',
             allowClear: true
         });
     }
@@ -500,12 +506,13 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             if (!coverage) {
                 $('#weno_coverage').addClass("is-invalid");
                 $('.warn').text(jsText('Coverage is required'));
-            }
-            if (!wenoState) {
+            } else if (!wenoState && coverage == 'Local') {
                 $('#weno_state').addClass("is-invalid");
                 $('.warn').text(jsText('State or Zipcode is required'));
-            }
-            if (!coverage && !wenoZipcode) {
+            } else if (!wenoState && coverage == 'State') {
+                $('#weno_state').addClass("is-invalid");
+                $('.warn').text(jsText('State is required'));
+            } else if (!coverage && !wenoZipcode) {
                 $('#weno_zipcode').addClass("is-invalid");
                 $('.warn').text(jsText('Zipcode is required'));
             }
