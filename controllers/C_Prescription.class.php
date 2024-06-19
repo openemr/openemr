@@ -70,9 +70,10 @@ class C_Prescription extends Controller
             while ($row = sqlFetchArray($res)) {
                 $tmp_output = $row['selector'];
                 if ($row['ndc_number']) {
-                    $tmp_output .= ' - Price of One Tab: ' . $row['ndc_number'];
-                    $tmp_output .= ' - No left in stock: ' . $row['on_hand'];
-                    $tmp_output .= ' - Expiry Date: ' . $row['expiration'];
+                    $tmp_output .= ' - ' . xl('Price of One Tab:') . ' ' . $row['ndc_number']; //xl function added for translation.
+                    $tmp_output .= ' - ' . xl('No left in stock:') . ' ' . $row['on_hand']; //xl function added for translation.
+                    $tmp_output .= ' - ' . xl('Expiry Date:') . ' ' . $row['expiration']; //xl function added for translation.
+
                 }
                 $drug_array_values[] = $row['drug_id'];
                 $drug_array_output[] = $tmp_output;
