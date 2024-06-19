@@ -101,23 +101,19 @@ class C_Prescription extends Controller
 
     function default_action()
     {
-        $this->assign("prescription", $this->prescriptions[0]);
+        $prescription = $this->prescriptions[0];
+        $this->assign("prescription", $prescription);
         $vars = $this->getTemplateVars();
-//        $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
-//        $vars['rx_show_drug_drug'] = $GLOBALS['rx_show_drug_drug'] ?? false;
-//        $vars['rx_zend_pdf_template'] = $GLOBALS['rx_zend_pdf_template'] ?? false;
-//        $vars['baseModDir'] = $GLOBALS['baseModDir'] ?? '';
-//        $vars['zendModDir'] = $GLOBALS['zendModDir'] ?? '';
-//        $vars['printm'] = null; // TODO: figure out where printm is used or defined
-//        $vars['rx_zend_pdf_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
-//        $vars['rx_zend_html_template'] = $GLOBALS['rx_zend_html_template'] ?? '';
-//        $vars['rx_zend_html_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
-//        $vars['rx_use_fax_template'] = $GLOBALS['rx_use_fax_template'] ?? '';
-//        $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
+        $vars['enable_amc_prompting'] = $GLOBALS['enable_amc_prompting'] ?? false;
+        $vars['weno_rx_enable'] = $GLOBALS['weno_rx_enable'] ?? false;
+
+        if ($GLOBALS['enable_amc_prompting']) {
+            $vars['amcCollectReturnFlag'] = amcCollect('e_prescribe_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
+            $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
+            $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
+        }
         $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
-
-        $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_edit.html");
     }
 
     function edit_action($id = "", $patient_id = "", $p_obj = null)
