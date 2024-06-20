@@ -16,6 +16,7 @@ require_once("../../../../globals.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
@@ -52,6 +53,8 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
+$cryptoGen = new CryptoGen();
+
 // set up the dependencies for the page.
 $pharmacyService = new PharmacyService();
 $wenoProperties = new TransmitProperties();
@@ -63,13 +66,13 @@ $vitals = $wenoProperties->getVitals();
 $provider_name = $wenoProperties->getProviderName();
 $patient_name = $wenoProperties->getPatientName();
 $facility_name = $wenoProperties->getFacilityInfo();
-
 //set the url for the iframe
 $newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -136,7 +139,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     <?php
     $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
     ?>
-    <div class="container-xl">
+    <div id="trigger-debug" class="container-xl">
         <div class="container-xl sticky-container bg-light text-dark">
             <form>
                 <header class="bg-light text-dark text-center">
@@ -197,7 +200,55 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
         </div>
         <footer>
             <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
+            <button id="triggerButton" class="btn btn-primary btn-sm m-2 ml-3"><?php echo xlt("Debug"); ?></button>
         </footer>
+        <!-- Modal Structure -->
+        <div class="modal fade" id="debugModal" tabindex="-1" role="dialog" aria-labelledby="debugModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="debugModalLabel"><?php echo xlt("Debug Information"); ?></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>
+                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5($provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function() {
+                // Function to generate debug info and create a downloadable file
+                function generateDebugInfo() {
+                    let debugInfo = 'Debug Information:';
+                    debugInfo += '\n\n- User Agent:' + navigator.userAgent;
+                    debugInfo += '\n\n- Platform:' + navigator.platform;
+                    debugInfo += '\n\n- Language:' + navigator.language;
+                    debugInfo += '\n\n- URL: <?php echo js_escape($urlOut); ?>';
+                    debugInfo += '\n\n- Data Raw: <?php echo js_escape($urlParam); ?>';
+                    debugInfo += '\n\n- Encoded Data: <?php echo js_escape(urlencode($urlParam)); ?>';
+
+                    const blob = new Blob([debugInfo], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    $('#downloadLink').attr('href', url);
+                }
+                // Event handler for double-click on the trigger button
+                $('#trigger-debug').dblclick(function() {
+                    generateDebugInfo();
+                    $('#debugModal').modal('show');
+                });
+                $('#triggerButton').click(function() {
+                    generateDebugInfo();
+                    $('#debugModal').modal('show');
+                });
+            });
+            </script>
     </div>
 </body>
 </html>

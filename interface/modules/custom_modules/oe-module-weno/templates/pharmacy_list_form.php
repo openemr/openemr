@@ -293,7 +293,6 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
                 $('#name-search-button').trigger('click');
             }, 2000);
         }
-
     };
 
     function initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy) {
