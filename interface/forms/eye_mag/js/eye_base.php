@@ -1032,13 +1032,12 @@ function editScripts(url) {
         let title = 'Prescriptions';
         let w = 810;
         w = 910;
+        function refreshme() {
+            top.restoreSession();
+            location.reload();
+        }
 
-        dlgopen(url, 'editScripts', w, 300, '', '', {
-            buttons: [
-                {text: 'Add', close: false, style: 'primary  btn-sm', click: AddScript},
-                {text: 'List', close: false, style: 'primary  btn-sm', click: ListScripts},
-                {text: 'Done', close: true, style: 'default btn-sm'}
-            ],
+        dlgopen(url, 'editScripts', w, 400, '', '', {
             onClosed: 'refreshme',
             allowResize: true,
             allowDrag: true,

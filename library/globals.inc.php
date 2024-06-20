@@ -76,6 +76,7 @@
 //   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -431,6 +432,13 @@ $GLOBALS_METADATA = array(
             ),
             '2',                              // default = true
             xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
+        'form_actionbar_position' => array(
+            xl('Form ActionBar (save, cancel, etc) position')
+            ,FormActionBarSettings::getGlobalSettingsList()
+            ,FormActionBarSettings::getDefaultSetting() // default = top of the form
+            ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
         ),
 
     ),

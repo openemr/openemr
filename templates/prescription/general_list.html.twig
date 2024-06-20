@@ -14,7 +14,7 @@
 #}
 <html>
 <head>
-{{ setupHeader(['no_textformat','no_dialog']) }}
+{{ setupHeader(['no_textformat']) }}
 
 
 <script>
@@ -180,8 +180,10 @@ $(function () {
             <div class="col-12 prescription-main-header">
                 <h3>{{'List'|xlt}}</h3>
             </div>
+            {% block prescriptionTopNavbar %}
             <div id="prescription-btn-navbar" class="col-12 d-flex justify-content-between">
                 <div class="btn-group">
+                    {% block prescriptionTopNavbarButtons %}
                     {% if rx_zend_pdf_template %}
                         <a target="_blank" id="multiprint" href="{{webroot}}/{{baseModDir}}{{zendModDir}}/public/prescription-pdf-template/{{ rx_zend_pdf_action}}?id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{{'Download'|xlt}} ({{'PDF'|xlt}})</a>
                     {% else %}
@@ -202,12 +204,14 @@ $(function () {
                     {% if CAMOS_FORM == true %}
                         <a id="four_panel_rx" href="{{webroot}}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{{'View Four Panel'|xlt}}</a>
                     {% endif %}
+                    {% endblock %}
                 </div>
                 <div class="btn-group">
                     <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{{'Check All'|xlt}}</span></a> |
                     <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{{'Clear All'|xlt}}</span></a>
                 </div>
             </div>
+            {% endblock %}
 
             {% if  process_result %}
                 <div class="col-12">
@@ -368,6 +372,15 @@ $(function () {
             <div class="text mt-3">{{ "There are currently no prescriptions"|xlt}}.</div>
             {% endif %}
         </div>
+        <div class="row">
+            <div class="col-12">
+                <hr />
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+                <a href="{{ CONTROLLER }}?prescription&edit&id=0&pid{{  pid|js_url }}" class="btn-primary btn-sm  mr-3" id="addButton">{{ "Add"|xlt }}</a>
+                <a href="#" class="btn-secondary btn-sm quitButton">{{ "Quit"|xlt }}</a>
+            </div>
+        </div>
     </div>
 </body>
 
@@ -420,6 +433,12 @@ $(function () {
     });
     $(".btn-delete").on("click", function() {
         deleteDrug(this.dataset['prescriptionId'])
+    });
+    $(".quitButton").on("click", function(evt) {
+        evt.preventDefault();
+        if (window.opener) {
+            dlgclose();
+        }
     });
     $("#multiprintSendEmail").on('click', function(evt) {
         evt.preventDefault();

@@ -95,7 +95,12 @@
             <tr>
                 <td class="title font-weight-bold">{{"Add"|xlt}}&nbsp;</td>
                 <td>
+                    {% if topActionBarDisplay %}
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save">{{'Save'|xlt}}</a>
+                    {% elseif bottomActionBarDisplay %}
+                        {# We want the back button to show up on top if the settings are to show the bottom action bar #}
+                        <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
+                    {% endif %}
                     {% if DRUG_ARRAY_VALUES is not empty%}
                     &nbsp; &nbsp; &nbsp; &nbsp;
                         {% if prescription.get_refills() >= prescription.get_dispensation_count() %}
@@ -107,7 +112,9 @@
                             {{'prescription has reached its limit of'|xlt}} {{prescription.get_refills()|text}} {{'refills'|xlt}}.
                         {% endif %}
                     {% endif %}
-                <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
+                    {% if topActionBarDisplay %}
+                        <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
+                    {% endif %}
                 </td>
             </tr>
         </table>
@@ -319,6 +326,14 @@
                 </div>
             {% endif %}
         </div>
+        {% if bottomActionBarDisplay %}
+            <div class="row">
+                <div class="col-12 justify-content-end">
+                    <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save mr-3">{{'Save'|xlt}}</a>
+                    <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
+                </div>
+            </div>
+        {% endif %}
 
         <input type="hidden" name="id" value="{{prescription.id|attr}}" />
         <input type="hidden" name="process" value="{{PROCESS|attr}}" />

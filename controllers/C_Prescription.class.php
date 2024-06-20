@@ -18,6 +18,7 @@ require_once($GLOBALS['fileroot'] . "/library/registry.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -106,6 +107,8 @@ class C_Prescription extends Controller
         $vars = $this->getTemplateVars();
         $vars['enable_amc_prompting'] = $GLOBALS['enable_amc_prompting'] ?? false;
         $vars['weno_rx_enable'] = $GLOBALS['weno_rx_enable'] ?? false;
+        $vars['topActionBarDisplay'] = FormActionBarSettings::shouldDisplayTopActionBar();
+        $vars['bottomActionBarDisplay'] = FormActionBarSettings::shouldDisplayBottomActionBar();
 
         if ($GLOBALS['enable_amc_prompting']) {
             $vars['amcCollectReturnFlag'] = amcCollect('e_prescribe_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
@@ -202,6 +205,7 @@ class C_Prescription extends Controller
         $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 
         $vars = $this->getTemplateVars();
+        $vars['pid'] = $id;
         $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
         $vars['rx_show_drug_drug'] = $GLOBALS['rx_show_drug_drug'] ?? false;
         $vars['rx_zend_pdf_template'] = $GLOBALS['rx_zend_pdf_template'] ?? false;
