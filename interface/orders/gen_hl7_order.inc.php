@@ -139,35 +139,25 @@ function loadPayerInfo($pid, $date = '')
         $date = date('Y-m-d');
     }
 
-    $payers = array();
-    $dres = sqlStatement(
-        "SELECT * FROM insurance_data WHERE " .
-        "pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC",
-        array($pid, $date)
-    );
-    $prevtype = ''; // type is primary, secondary or tertiary
-    while ($drow = sqlFetchArray($dres)) {
-        if (strcmp($prevtype, $drow['type']) == 0) {
-            continue;
-        }
+    $payers = getEffectiveInsurances($pid, $date);
 
-        $prevtype = $drow['type'];
+    foreach ($payers as $key => $drow) {
         // Very important to check for a missing provider because
         // that indicates no insurance as of the given date.
         if (empty($drow['provider'])) {
             continue;
         }
 
-        $ins = count($payers);
         $crow = sqlQuery(
             "SELECT * FROM insurance_companies WHERE id = ?",
             array($drow['provider'])
         );
+
         $orow = new InsuranceCompany($drow['provider']);
-        $payers[$ins] = array();
-        $payers[$ins]['data']    = $drow;
-        $payers[$ins]['company'] = $crow;
-        $payers[$ins]['object']  = $orow;
+        $payers[$key] = array();
+        $payers[$key]['data']    = $drow;
+        $payers[$key]['company'] = $crow;
+        $payers[$key]['object']  = $orow;
     }
 
     return $payers;
