@@ -73,7 +73,6 @@ class C_Prescription extends Controller
                     $tmp_output .= ' [' . $row['ndc_number'] . ']';
                     $tmp_output .= ' - ' . xl('No left in stock:') . ' ' . $row['on_hand']; //xl function added for translation.
                     $tmp_output .= ' - ' . xl('Expiry Date:') . ' ' . $row['expiration']; //xl function added for translation.
-
                 }
                 $drug_array_values[] = $row['drug_id'];
                 $drug_array_output[] = $tmp_output;
