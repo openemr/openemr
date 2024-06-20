@@ -57,30 +57,46 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
     throw new Exception("Could not get EventDispatcher from kernel", 1);
 }
 
+function getAcoSpec($formdir) {
+    $aco_spec = [];
+    if (substr($formdir, 0, 3) == 'LBF') {
+        // Skip LBF forms that we are not authorized to see.
+        $sql = "SELECT grp_aco_spec FROM layout_group_properties WHERE grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1";
+        $lrow = sqlQuery($sql, [$formdir]);
+        if (!empty($lrow)) {
+            if (!empty($lrow['grp_aco_spec'])) {
+                $aco_spec = explode('|', $lrow['grp_aco_spec']);
+            }
+        }
+    } else {
+        // Skip non-LBF forms that we are not authorized to see.
+        $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
+        if (!empty($tmp['aco_spec'])) {
+            $aco_spec = explode('|', $tmp['aco_spec']);
+        }
+    }
+    return $aco_spec;
+}
+
 ?>
 <!DOCTYPE html>
 <html>
-
 <head>
 
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
-
-<?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>
-
 <?php
+require_once $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php';
+Header::setupHeader(['common','esign','dygraphs', 'utility']);
 $esignApi = new Api();
-?>
-
-<?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
+// if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <script>
  var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
  </script>
  <script src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css">
-<?php } ?>
-
 <?php
+}
+
 // If the user requested attachment of any orphaned procedure orders, do it.
 if (!empty($_GET['attachid'])) {
     $attachid = explode(',', $_GET['attachid']);
@@ -825,60 +841,25 @@ if (!empty($docs_list) && count($docs_list) > 0) {
 <?php } ?>
 
 <?php
-if (
-    $pass_sens_squad &&
-    ($result = getFormByEncounter(
-        $attendant_id,
-        $encounter,
-        "id, date, form_id, form_name, formdir, user, deleted",
-        "",
-        "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC"
-    ))
-) {
+$result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted", "", "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC");
+if ($pass_sens_squad && $result) {
     echo "<div class='w-100' id='partable'>";
     $divnos = 1;
     foreach ($result as $iter) {
         $formdir = $iter['formdir'];
+        $aco_spec = getAcoSpec($formdir);
 
-        // skip forms whose 'deleted' flag is set to 1
-        if ($iter['deleted'] == 1) {
-            continue;
-        }
-
-        $aco_spec = false;
-
-        if (substr($formdir, 0, 3) == 'LBF') {
-            // Skip LBF forms that we are not authorized to see.
-            $lrow = sqlQuery(
-                "SELECT grp_aco_spec " .
-                "FROM layout_group_properties WHERE " .
-                "grp_form_id = ? AND grp_group_id = '' AND grp_activity = 1",
-                array($formdir)
-            );
-            if (!empty($lrow)) {
-                if (!empty($lrow['grp_aco_spec'])) {
-                    $aco_spec = explode('|', $lrow['grp_aco_spec']);
-                    if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
-                        continue;
-                    }
-                }
-            }
-        } else {
-          // Skip non-LBF forms that we are not authorized to see.
-            $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
-            if (!empty($tmp['aco_spec'])) {
-                $aco_spec = explode('|', $tmp['aco_spec']);
-                if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
-                    continue;
-                }
-            }
-        }
+        // Any condition returning true in this array will cause the form to be skipped
+        $continueConditions = [
+            $iter['deleted'] == 1
+            , !AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])
+        ];
 
         // $form_info = getFormInfoById($iter['id']);
         $form_class_list = (strtolower(substr($iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
         echo '<div id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" title="' . xla("Edit Form") . '" class="form-holder ' . $form_class_list . '">';
 
-        $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
+        $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write');
         $user = (new UserService())->getUserByUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);
@@ -994,8 +975,18 @@ if (
 
         echo "</div></div></div>";
         ++$divnos;
+
+        $formViewArgs = [
+            'form_header_container_class' => ["form-holder", $form_class_list]
+            , 'id' => $iter['form_id']
+            , 'name' => $form_name
+            , 'esign' => $esign
+            , 'author' => $form_author
+            , 'div_nums' => $div_nums
+            ,
+        ]
     }
-    echo "</div>";
+    echo "</div>"; // End div#partable
 }
 if (!$pass_sens_squad) {
     echo xlt("Not authorized to view this encounter");

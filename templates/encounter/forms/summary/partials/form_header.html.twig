@@ -1,0 +1,38 @@
+<div id="{{ formdir|attr }}~{{ f.form_id|attr }}" class="{{ f.form_header_container_class_list|default(["form-holder"])|join(" ") }}">
+    <div class="form-header border-bottom border-dark w-100 d-flex align-items-center justify-content-between">
+        <button class="btn btn-sm btn-text" data-toggle="collapse" data-target="#divid_{{ div_nums|attr }}" title="{{ title|attr }}">
+            <i class="fa fa-fw {{ chevron|attr }}"></i>
+        </button>
+        <div class="form_header flex-fill">
+            <a href="#" data-toggle="collapse" data-target="#divid_{{ div_nums|attr }}" class="" id="aid_{{ div_nums|attr }}">
+                <h5 class="mb-0">{{ f.name|text }} <small class="text-muted">({{ "by"|xlt }} {{ f.author|text }})</small></h5>
+            </a>
+        </div>
+        <div>
+            <div class='form_header_controls btn-group' role='group'>
+                {% if f.esign.isLocked() %}
+                    <a href='#' class='btn btn-text btn-sm form-edit-button-locked' id="form-edit-button-{{ formdir|attr }}"-"{{ f.id|attr }}"><i class="fa fa-lock fa-fw"></i>&nbsp;{{ "Locked"xlt }}</a>
+                {% else %}
+                    <a class='btn btn-text btn-sm form-edit-button btn-edit'
+                        id="form-edit-button-{{ formdir|attr }}-{{ f.id|attr }}"
+                        href="#"
+                        title="{{ "Edit this form"|xla }}"
+                        onclick="return openEncounterForm({{ formdir|attr_js }}, {{ f.name|attr_js }}, {{ f.id|attr_js }})">
+                        {{ "Edit"|xlt }}
+                    </a>
+                {% endif %}
+                {% if f.canEsign %}
+                    <a href="#" class="btn btn-danger">{{ "HOOK UP THE ESIGN BUTTON" }}</a>
+                {% endif %}
+                {% if f.isLBF %}
+                    <a href="{{ rootdir}}/forms/LBF/printable.php?formname={{ formdir|attr_url }}&formid={{ f.id|attr_url }}&visitid={{ encounter|attr_url }}&patientid={{ pid|attr_url }}" class="btn btn-sm btn-text" onclick="top.restoreSession();" target="_blank" title="{{ "Printable version"|xlt }}">
+                        <i class="fa fa-print fa-fw"></i>
+                {% endif %}
+                {% if f.canDelete %}
+                    <a href="{{ rootdir }}/patient_file/encounter/delete_form.php?formname={}&id={}&encounter={}&pid={}" class="btn btn-sm btn-text" onclick="top.restoreSession();">
+                        {{ "Delete"|xlt }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
