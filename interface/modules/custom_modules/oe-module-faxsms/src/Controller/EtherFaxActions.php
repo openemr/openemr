@@ -192,7 +192,11 @@ class EtherFaxActions extends AppDispatch
         $tag = $user['username'];
 
         if (empty($isContent)) {
-            $file = str_replace(["file://", "\\"], ['', "/"], realpath($file));
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $file = str_replace(["file://", "\\"], ['', "/"], realpath($file));
+            } else {
+                $file = substr($file, 7);
+            }
             if (!$file) {
                 return xlt('Error: No content');
             }
