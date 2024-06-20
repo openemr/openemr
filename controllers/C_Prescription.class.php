@@ -60,17 +60,20 @@ class C_Prescription extends Controller
             // $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
 
             $res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
-                "d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
-                "t.period, t.quantity, t.refills, d.drug_code " .
-                "FROM drug_templates AS t, drugs AS d WHERE " .
-                "d.drug_id = t.drug_id ORDER BY t.selector");
+            "d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
+            "t.period, t.quantity, t.refills, d.drug_code, i.on_hand,i.expiration " .
+            "FROM drug_templates AS t " .
+            "JOIN drugs AS d ON d.drug_id = t.drug_id " .
+            "JOIN drug_inventory AS i ON d.drug_id = i.drug_id " .
+            "ORDER BY t.selector");
 
             while ($row = sqlFetchArray($res)) {
                 $tmp_output = $row['selector'];
                 if ($row['ndc_number']) {
                     $tmp_output .= ' [' . $row['ndc_number'] . ']';
+                    $tmp_output .= ' - ' . xl('No left in stock:') . ' ' . $row['on_hand']; //xl function added for translation.
+                    $tmp_output .= ' - ' . xl('Expiry Date:') . ' ' . $row['expiration']; //xl function added for translation.
                 }
-
                 $drug_array_values[] = $row['drug_id'];
                 $drug_array_output[] = $tmp_output;
                 if ($drug_attributes) {
