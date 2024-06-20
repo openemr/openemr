@@ -291,7 +291,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             // Trigger the search after 1 second delay
             setTimeout(() => {
                 $('#name-search-button').trigger('click');
-            }, 1000);
+            }, 2000);
         }
 
     };

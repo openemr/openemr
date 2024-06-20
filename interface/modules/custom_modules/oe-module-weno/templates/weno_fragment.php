@@ -126,13 +126,13 @@ if ($hasErrors) { ?>
             </label>
             <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>" />
             <cite>
-                <span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>"><?php echo text($primary_pharmacy); ?></span>
+                <span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span>
             </cite>
             <select id="select-primary" class="d-none">
                 <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
                 <?php foreach ($pharmacies as $pharmacy) {
                     $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                    $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe'] ?? '') ? 'selected' : '';
+                    $isSelected = (($pharmacy['ncpdp_safe'] ?? '') == ($prim_pharmacy['ncpdp_safe'] ?? '')) ? 'selected' : '';
                     ?>
                     <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
                 <?php } ?>
@@ -142,21 +142,20 @@ if ($hasErrors) { ?>
             <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Alternate"); ?>:</b>
             </label>
-            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe']); ?>" />
+            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>" />
             <cite>
-                <span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>"><?php echo text($alternate_pharmacy); ?></span>
+                <span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span>
             </cite>
             <select id="select-alternate" class="d-none">
                 <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
                 <?php foreach ($pharmacies as $pharmacy) {
                     $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                    $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                    $isSelected = (($pharmacy['ncpdp_safe'] ?? '') == ($alt_pharmacy['ncpdp_safe'] ?? '')) ? 'selected' : '';
                     ?>
                     <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
                 <?php } ?>
             </select>
         </div>
-
         <script>
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({

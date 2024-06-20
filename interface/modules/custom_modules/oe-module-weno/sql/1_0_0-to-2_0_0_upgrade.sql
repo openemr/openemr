@@ -49,12 +49,12 @@ CREATE TABLE `weno_assigned_pharmacy` (
 
 #IfNotTable weno_download_log
 CREATE TABLE `weno_download_log` (
-     `id`         BIGINT(20)   NOT NULL AUTO_INCREMENT,
-     `value`      VARCHAR(63)  NOT NULL,
-     `status`     VARCHAR(255) NOT NULL,
-     `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     PRIMARY KEY (`id`),
-     KEY `value` (`value`)
+ `id`         BIGINT(20)   NOT NULL AUTO_INCREMENT,
+ `value`      VARCHAR(63)  NOT NULL,
+ `status`     VARCHAR(255) NOT NULL,
+ `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`),
+ KEY `value` (`value`)
 ) ENGINE = InnoDB;
 #EndIf
 
