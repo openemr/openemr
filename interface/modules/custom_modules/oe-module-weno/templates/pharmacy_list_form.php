@@ -288,10 +288,12 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         if (triggerSearch) {
             // Initialize the search results
             $('#list-search-button').trigger('click');
-            setInterval(function() {
+            // Trigger the search after 1 second delay
+            setTimeout(() => {
                 $('#name-search-button').trigger('click');
             }, 1000);
         }
+
     };
 
     function initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy) {
