@@ -33,7 +33,7 @@ CREATE TABLE `weno_pharmacy` (
      `State_Wide_Mail_Order` varchar(15) NOT NULL,
      `Mail_Order_US_State_Serviced` varchar(255) DEFAULT NULL,
      `Mail_Order_ US_Territories_Serviced` varchar(255) DEFAULT NULL,
-     `On_WENO` tinytext DEFAULT NULL,
+     `On_WENO` tinyint DEFAULT NULL,
      `24HR` varchar(3) DEFAULT NULL,
      PRIMARY KEY (`id`),
      UNIQUE KEY `ncpdp` (`NCPDP_safe`)

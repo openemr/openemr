@@ -42,9 +42,10 @@ class DownloadWenoPharmacies
             $sql = "TRUNCATE TABLE weno_pharmacy";
             sqlStatement($sql);
         }
-
-        // Database configuration. Create connection.
-        $connect = new mysqli($GLOBALS["host"], $GLOBALS["login"], $GLOBALS["pass"], $GLOBALS["dbase"]);
+        // Use existing connection.
+        // Compared to creating a new connection, this method is slower by 3 seconds.
+        // Using the sqlStatement() method is even slower by 10 seconds. That's 13 seconds slower overall.
+        $connect = $GLOBALS['dbh'];
         if ($connect->connect_error) {
             $wenoLog->insertWenoLog("pharmacy", "Connection Failed.");
             error_log("Connection failed: " . $connect->connect_error);
@@ -140,7 +141,7 @@ class DownloadWenoPharmacies
             }
 
             $connect->commit();
-            $connect->close();
+           // $connect->close();
         } catch (Exception $e) {
             $connect->rollback();
             error_log(text($e->getMessage()));
