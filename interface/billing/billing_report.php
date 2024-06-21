@@ -1115,24 +1115,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
                                     $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' class='form-control'>";
 
-                                    $query = "SELECT id.provider AS id, id.type, id.date, " .
-                                    "ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
-                                    "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
-                                    "ic.id = id.provider AND " .
-                                    "id.pid = ? AND " .
-                                    "(id.date <= ? OR id.date IS NULL) AND " .
-                                    "(id.date_end >= ? OR id.date_end IS NULL) " .
-                                    "ORDER BY id.type ASC, id.date DESC";
-
-                                    $result = sqlStatement(
-                                        $query,
-                                        array(
-                                        $iter['enc_pid'],
-                                        $raw_encounter_date,
-                                        $raw_encounter_date
-                                        )
-                                    );
-
                                     $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
                                     $effective_insurances = getEffectiveInsurances($iter['pid'], $iter['enc_date']);
 
