@@ -180,7 +180,7 @@ class EtherFaxActions extends AppDispatch
         // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
-        $docId = $this->getRequest('docId');
+        $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone'));
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
