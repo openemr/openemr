@@ -53,8 +53,8 @@ $small_form = $small_form ?? '';
 $pharmacyService = new PharmacyService();
 $prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
 $prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
-$prev_prim_pharmacy = json_encode($prev_prim_pharmacy);
-$prev_alt_pharmacy = json_encode($prev_alt_pharmacy);
+$prev_prim_pharmacy = js_escape($prev_prim_pharmacy);
+$prev_alt_pharmacy = js_escape($prev_alt_pharmacy);
 
 $sql = "SELECT list_id, option_id, title FROM list_options WHERE list_id = 'state'";
 $res = sqlStatement($sql);
@@ -170,7 +170,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
                         <?php
                     } ?>
                 </select>
-                <select class="form-control bg-light text-dark" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
+                <span id="weno_city_select"><select class="form-control bg-light text-dark" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select></span>
             </div>
         </div>
         <div>
@@ -179,8 +179,8 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             <?php echo xlt("Search Result Actions."); ?>
         </cite>
         <span class="ml-1 my-2" role="group">
-            <button type="button" class="btn btn-success btn-sm my-2" onclick="search()"><?php echo xlt("List Search"); ?></button>
-            <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
+            <button id="list-search-button" type="button" class="btn btn-success btn-sm my-2" onclick="search()"><?php echo xlt("List Search"); ?></button>
+            <button id="name-search-button" type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()"><?php echo xlt("Clear"); ?></button>
             <span class="h5 alert-danger mt-3" id="searchResults"></span>
         </span>
@@ -235,9 +235,9 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         const clone = document.importNode(template.content, true);
         wenoForm.appendChild(clone);
 
-        const pid = <?php echo json_encode($pid); ?>;
-        const prevPrimPharmacy = <?php echo json_encode($prev_prim_pharmacy); ?>;
-        const prevAltPharmacy = <?php echo json_encode($prev_alt_pharmacy); ?>;
+        const pid = <?php echo js_escape($pid); ?>;
+        const prevPrimPharmacy = <?php echo js_escape($prev_prim_pharmacy); ?>;
+        const prevAltPharmacy = <?php echo js_escape($prev_alt_pharmacy); ?>;
 
         if (pid > 0) {
             initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy);
@@ -276,6 +276,22 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         if (wenoOnlyEle) {
             wenoOnlyEle.checked = defaultFilters.weno_only === "on";
             wenoOnly = document.getElementById('weno_only').checked;
+        }
+
+        const defaultCoverage = defaultFilters.weno_coverage;
+        if (defaultCoverage == 'State') {
+            document.getElementById('weno_zipcode').style.display = 'none';
+            document.getElementById('weno_city_select').style.display = 'none';
+        }
+
+        let triggerSearch = defaultFilters.weno_zipcode || defaultFilters.weno_state || defaultFilters.weno_city;
+        if (triggerSearch) {
+            // Initialize the search results
+            $('#list-search-button').trigger('click');
+            // Trigger the search after 1 second delay
+            setTimeout(() => {
+                $('#name-search-button').trigger('click');
+            }, 2000);
         }
     };
 
@@ -335,7 +351,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         const coverageElement = document.getElementById('weno_coverage');
         const coverage = coverageElement.selectedOptions[0] ? coverageElement.selectedOptions[0].value : '';
         const zipcodeElement = document.getElementById('weno_zipcode');
-        const cityElement = document.getElementById('select2-weno_city-container');
+        const cityElement = document.getElementById('weno_city_select');
 
         if (coverage === 'State') {
             zipcodeElement.style.display = 'none';
@@ -416,7 +432,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             },
             minimumInputLength: 3,
             cache: true,
-            placeholder: 'Click and Type Filtered Pharmacy Name Search',
+            placeholder: 'Click here for Selected Filters Pharmacy Search by Name.',
             allowClear: true
         });
     }
@@ -453,6 +469,12 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         });
     }
 
+    function destroyWenoCitySelect2() {
+        if ($('#weno_city').data('select2')) {
+            $('#weno_city').select2('destroy');
+        }
+    }
+
     function searchOn() {
         let pharmacySelector = document.getElementById("weno_pharmacy");
         if ($('#weno_pharmacy').hasClass('select2-hidden-accessible')) {
@@ -471,9 +493,6 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         coverage = $('#weno_coverage').val();
         $("#searchResults").text('');
 
-        const isValidZipcode = wenoZipcode && coverage;
-        const isValidCityAndState = wenoCity && wenoState && !wenoZipcode;
-
         if (coverage && (wenoState || wenoZipcode)) {
             $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
             $('.warn').text('');
@@ -488,12 +507,13 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             if (!coverage) {
                 $('#weno_coverage').addClass("is-invalid");
                 $('.warn').text(jsText('Coverage is required'));
-            }
-            if (!wenoState) {
+            } else if (!wenoState && coverage == 'Local') {
                 $('#weno_state').addClass("is-invalid");
                 $('.warn').text(jsText('State or Zipcode is required'));
-            }
-            if (!coverage && !wenoZipcode) {
+            } else if (!wenoState && coverage == 'State') {
+                $('#weno_state').addClass("is-invalid");
+                $('.warn').text(jsText('State is required'));
+            } else if (!coverage && !wenoZipcode) {
                 $('#weno_zipcode').addClass("is-invalid");
                 $('.warn').text(jsText('Zipcode is required'));
             }
@@ -501,6 +521,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
     }
 
     function makeRequest() {
+        testPharmacies = document.getElementById('weno_test_pharmacies').checked;
         // clear main search fields
         if (testPharmacies) {
             wenoState = '';
@@ -510,7 +531,6 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         }
         wenoOnly = document.getElementById('weno_only').checked;
         fullDay = document.getElementById('24hr').checked;
-        testPharmacies = document.getElementById('weno_test_pharmacies').checked;
         let data = {
             searchFor: 'weno_drop',
             weno_state: wenoState,
