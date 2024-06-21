@@ -158,7 +158,7 @@
             <label>{{'Provider'|xlt}}</label>
             <select class="input sm form-control" name="provider_id">
                 {% for providerId, providerName in prescription.provider.utility_provider_array() %}
-                    <option value="{{ provider.id }}" {% if providerId == prescription.provider.get_id() %} selected="selected" {% endif %}>{{ providerName|text }}</option>
+                    <option value="{{ provider.id|attr }}" {% if providerId == prescription.provider.get_id() %} selected="selected" {% endif %}>{{ providerName|text }}</option>
                 {% endfor %}
             </select>
             <input type="hidden" name="patient_id" value="{{prescription.patient.id|attr}}" />
