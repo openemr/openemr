@@ -48,4 +48,3 @@ echo $twig->render("dicom/dicom-viewer.html.twig", [
     ,'state_url' => $state_url
     ,'docid' => $docid
 ]);
-?>
