@@ -72,8 +72,6 @@ foreach ($res as $row) {
     $pharmacies[] = $row;
 }
 $pharmacyCount = count($pharmacies);
-// title for the select dropdown events
-$titleMessage = xla("Click to select from a list of previously assigned pharmacies.");
 
 function getProviderByWenoId($external_id, $provider_id = ''): string
 {
@@ -93,7 +91,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
   }
 </style>
 <div class="row float-right mr-1">
-    <div>
+    <div id="widget-button-set">
         <a class="mr-2" href="#" onclick="top.restoreSession(); sync_weno();"><span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Sync"); ?></span></a>
         <a class="mr-2" onclick="top.restoreSession();" href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span></a>
     </div>
@@ -116,43 +114,71 @@ if ($hasErrors) { ?>
         </div>
     </div>
 <?php } ?>
-<?php if ($pharmacyCount > 0) { ?>
-    <div class="form-group mb-0 small">
-    <div class="input-group">
-        <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>">
-            <b><?php echo xlt("Assigned Primary"); ?>:</b>
-        </label>
-        <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe']); ?>" />
-        <cite><span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span></cite>
-        <select id="select-primary" class="d-none">
-            <option value=""><?php echo xlt("Select for No Pharmacy or Click for list"); ?></option>
-            <?php foreach ($pharmacies as $pharmacy) {
-                $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
-                ?>
-                <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
-            <?php } ?>
-        </select>
+<button class="btn btn-link btn-refresh p-0 mr-4 float-right" onclick="refreshDemographics();"><?php echo xlt("Refresh Chart"); ?></button>
+<?php if ($pharmacyCount > 0) {
+    $titleMessage = xla("Quick Pharmacy Assignment");
+    $popoverContent = xla("Convenience feature for assigning pharmacy without having to edit Demographics. Click the label or existing pharmacy name, if assigned, to select a pharmacy from a list of all currently assigned pharmacies. The selected pharmacy will be assigned to this patient.");
+    ?>
+    <div id="trigger-debug" class="form-group mb-0 small">
+        <div class="input-group">
+            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+                <b><?php echo xlt("Assigned Primary"); ?>:</b>
+            </label>
+            <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <cite>
+                <span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span>
+            </cite>
+            <select id="select-primary" class="d-none">
+                <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
+                <?php foreach ($pharmacies as $pharmacy) {
+                    if (empty($pharmacy['ncpdp_safe'] ?? '')) {
+                        continue;
+                    }
+                    $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
+                    $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
+                <?php } ?>
+            </select>
+        </div>
+        <div class="input-group">
+            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+                <b><?php echo xlt("Assigned Alternate"); ?>:</b>
+            </label>
+            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <cite>
+                <span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span>
+            </cite>
+            <select id="select-alternate" class="d-none">
+                <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
+                <?php foreach ($pharmacies as $pharmacy) {
+                    if (empty($pharmacy['ncpdp_safe'] ?? '')) {
+                        continue;
+                    }
+                    $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
+                    $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
+                <?php } ?>
+            </select>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('[data-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'top'
+                });
+            });
+        </script>
     </div>
-    <div class="input-group">
-        <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>">
-            <b><?php echo xlt("Assigned Alternate"); ?>:</b>
-        </label>
-        <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe']); ?>" />
-        <cite><span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span></cite>
-        <select id="select-alternate" class="d-none">
-            <option value=""><?php echo xlt("Select for No Pharmacy or Click for list"); ?></option>
-            <?php foreach ($pharmacies as $pharmacy) {
-                $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
-                ?>
-                <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
-            <?php } ?>
-        </select>
-    </div>
-</div>
 <?php } ?>
 <script>
+
+    function refreshDemographics() {
+        top.restoreSession();
+        window.location.href = './demographics.php';
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const csrfToken = document.getElementById('csrf_token_form').value;
         const pid = <?php echo $pid; ?>;
@@ -197,7 +223,11 @@ if ($hasErrors) { ?>
                 const result = await response.json();
                 top.restoreSession();
                 console.log('Save successful:', result);
-                window.location.replace('./demographics.php');
+                if (!document.getElementById('prim_ncpdp').value) {
+                    document.getElementById('widget-button-set').classList.add('d-none');
+                } else {
+                    document.getElementById('widget-button-set').classList.remove('d-none');
+                }
             } catch (error) {
                 console.error('Error saving selection:', error);
             }
