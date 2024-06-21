@@ -31,6 +31,7 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Common\Logging\SystemLogger;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
@@ -124,12 +125,11 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function unregister($modId, $currentActionStatus)
     {
-        $logMessage = 'Prior Auth table have been removed if empty else manually remove'; // Initialize an empty string to store log messages
         $records = sqlQuery("SELECT * FROM `module_prior_authorizations` ORDER BY id DESC LIMIT 1"); // Query the database for all records in the module_prior_authorizations table
         if (empty($records)) { // Check if the records array is empty
             $sql = "DROP TABLE `module_prior_authorizations`"; // Drop the module_prior_authorizations table if it is empty
-            $status = sqlStatement($sql); // Execute the SQL statement
-            error_log($logMessage . ' ' . text($status)); // Log the status of the SQL statement
+            sqlStatement($sql); // Execute the SQL statement
+            (new SystemLogger())->error('Prior Auth table have been removed if empty else manually remove'); // Log the status of the SQL statement
         }
         return $currentActionStatus;
     }
