@@ -1062,7 +1062,7 @@ class C_Document extends Controller
                 $d->set_name($docname);
                 $d->persist();
                 $d->populate();
-                $messages .= xl('Document successfully renamed.') . "<br />";
+                $messages .= xl('Document successfully renamed.') . "\n";
             }
 
             if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
@@ -1082,7 +1082,7 @@ class C_Document extends Controller
                 $sql = "UPDATE documents SET docdate = ?, list_id = ? WHERE id = ?";
                 $this->tree->_db->Execute($sql, [$docdate, $issue_id, $document_id]);
             }
-            $messages .= xl('Document date and issue updated successfully') . "<br />";
+            $messages .= xl('Document date and issue updated successfully') . "\n";
         }
 
         $this->_state = false;
@@ -1329,7 +1329,7 @@ class C_Document extends Controller
             $d->set_encounter_check($encounter_check);
             $d->persist();
 
-            $messages .= xlt('Document tagged to Encounter successfully') . "<br />";
+            $messages .= xlt('Document tagged to Encounter successfully') . "\n";
         }
 
         $this->_state = false;
