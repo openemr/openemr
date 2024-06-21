@@ -181,7 +181,6 @@ class EtherFaxActions extends AppDispatch
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docId');
-        file_put_contents('/var/www/traps/docid.txt', $docId, FILE_APPEND);
         $phone = $this->formatPhone($this->getRequest('phone'));
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
