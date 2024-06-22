@@ -56,7 +56,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $weno_zipcode = $_GET['weno_zipcode'] ?? false ?: '';
     $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
     $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
-    $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
+    $weno_test_pharmacies = $_GET['test_pharmacy'] ?? '' == 'true' ? 'True' : '';
 
 
     // mail order is special case.

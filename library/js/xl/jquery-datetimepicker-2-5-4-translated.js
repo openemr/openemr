@@ -47,7 +47,7 @@ function datetimepickerTranslated(selector, params) {
     let jsGlobals = window.top.jsGlobals || {};
     let languageDirection = jsGlobals.languageDirection || 'ltr';
     let formatters = window.top.oeFormatters || {};
-    let DateFormatRead = formatters.DateFormatRead || function (mode = 'legacy') { return "%Y-%m-%d"; };
+    let DateFormatRead = formatters.DateFormatRead || function (mode = 'legacy') { return "Y-m-d"; };
     if (typeof params === 'undefined') {
         params = {
             timepicker: false
