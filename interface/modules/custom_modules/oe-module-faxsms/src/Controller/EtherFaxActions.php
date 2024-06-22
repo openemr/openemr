@@ -180,7 +180,7 @@ class EtherFaxActions extends AppDispatch
         // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
-        $docId = $this->getRequest('docId');
+        $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone'));
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
@@ -192,8 +192,14 @@ class EtherFaxActions extends AppDispatch
         $tag = $user['username'];
 
         if (empty($isContent)) {
-            $file = str_replace(["file://", "\\"], ['', "/"], realpath($file));
-            if (!$file) {
+            if (str_starts_with($file, 'file://')) {
+                // Remove the "file://" prefix
+                $file = substr($file, 7);
+            }
+            $realPath = realpath($file);
+            if ($realPath !== false) {
+                $file = str_replace("\\", "/", $realPath);
+            } else {
                 return xlt('Error: No content');
             }
         }
@@ -658,7 +664,7 @@ class EtherFaxActions extends AppDispatch
     public function chartDocument(): string
     {
         $pid = $this->getRequest('pid');
-        $docId = $this->getRequest('docId');
+        $docId = $this->getRequest('docid') ?? $this->getRequest('docId');
         $fileName = $this->getRequest('file_name');
         $result = $this->chartFaxDocument($pid, $docId, $fileName);
 
