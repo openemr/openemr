@@ -101,16 +101,34 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchReminderCount(): string
     {
+        // removed polling API to download pending faxes.
+        // this is better served in a background task.
+        return json_encode($this->fetchQueueCount());
+    }
+
+    /**
+     * @return int
+     */
+    public function pollAndInsertAllPendingFax(): int
+    {
+        // authenticate and return if not successful. security measure
+        if (!$this->authenticate()) {
+            error_log('Error: Authentication failed polling fax server.');
+            return 0;
+        }
         $c = 0;
         while ($fax = $this->client->getNextUnreadFax(true)) {
             $c++;
+            if ($c > 20) {
+                break;
+            }
             if (!empty($fax->JobId)) {
                 $this->insertFaxQueue($fax);
                 $this->client->setFaxReceived($fax->JobId);
             }
         }
-
-        return json_encode($this->fetchQueueCount());
+        // return the count of faxes processed
+        return $c;
     }
 
     /**
@@ -162,7 +180,7 @@ class EtherFaxActions extends AppDispatch
         // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
-        $docId = $this->getRequest('docId');
+        $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone'));
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
@@ -174,8 +192,14 @@ class EtherFaxActions extends AppDispatch
         $tag = $user['username'];
 
         if (empty($isContent)) {
-            $file = str_replace(["file://", "\\"], ['', "/"], realpath($file));
-            if (!$file) {
+            if (str_starts_with($file, 'file://')) {
+                // Remove the "file://" prefix
+                $file = substr($file, 7);
+            }
+            $realPath = realpath($file);
+            if ($realPath !== false) {
+                $file = str_replace("\\", "/", $realPath);
+            } else {
                 return xlt('Error: No content');
             }
         }
@@ -328,11 +352,12 @@ class EtherFaxActions extends AppDispatch
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         }
-
+        // Let us fetch any new pending faxes to queue.
+        $newFaxCount = $this->pollAndInsertAllPendingFax();
         $pull = $this->fetchReminderCount();
         $dateFrom = date("Y-m-d H:i:s", strtotime(($this->getRequest('datefrom') . 'T00:00:01')));
         $dateTo = date("Y-m-d H:i:s", strtotime(($this->getRequest('dateto') . 'T23:59:59')));
-        $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo);
+        $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo, false);
         $responseMsgs = [0 => '', 2 => xlt('Not Implemented')];
 
         foreach ($faxStore as $faxDetails) {
@@ -581,8 +606,12 @@ class EtherFaxActions extends AppDispatch
      * @param $end
      * @return array
      */
-    public function fetchFaxQueue($start, $end): array
+    public function fetchFaxQueue($start, $end, $pollForNew = false): array
     {
+        if ($pollForNew) {
+            $this->pollAndInsertAllPendingFax();
+        }
+
         $rows = [];
         $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
@@ -635,7 +664,7 @@ class EtherFaxActions extends AppDispatch
     public function chartDocument(): string
     {
         $pid = $this->getRequest('pid');
-        $docId = $this->getRequest('docId');
+        $docId = $this->getRequest('docid') ?? $this->getRequest('docId');
         $fileName = $this->getRequest('file_name');
         $result = $this->chartFaxDocument($pid, $docId, $fileName);
 
