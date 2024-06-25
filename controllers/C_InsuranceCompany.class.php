@@ -69,7 +69,7 @@ class C_InsuranceCompany extends Controller
                 $iCompanies[] = $company;
             }
             usort($iCompanies, function ($a, $b) {
-                return strcasecmp($a['name'], $b['name']);
+                return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
             });
         }
         $templateVars = [
