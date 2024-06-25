@@ -17,96 +17,80 @@
 
 use OpenEMR\Common\Crypto\CryptoGen;
 
-// If to use utf-8 or not in my sql query
+// Set SQL mode and character set based on utf-8 settings
 if (!$GLOBALS['disable_utf8_flag']) {
-    if (!empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4")) {
-        $tmp = "SET NAMES 'UTF8MB4', sql_mode = ''";
-    } else {
-        $tmp = "SET NAMES 'UTF8', sql_mode = ''";
-    }
+    $charset = !empty($GLOBALS["db_encoding"]) && ($GLOBALS["db_encoding"] == "utf8mb4") ? 'UTF8MB4' : 'UTF8';
+    $tmp = "SET NAMES '$charset', sql_mode = ''";
 } else {
     $tmp = "SET sql_mode = ''";
 }
 $tmp .= ", time_zone = '" . (new DateTime())->format("P") . "'";
 
+// Determine PDO options based on connection pooling settings
 if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp, PDO::ATTR_PERSISTENT => true];
 } else {
     $utf8 = [PDO::MYSQL_ATTR_INIT_COMMAND => $tmp];
 }
 
-// Set mysql to use ssl, if applicable.
-// Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-// Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
+// Configure SSL for MySQL if certificates are available
 if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-    $utf8[PDO::MYSQL_ATTR_SSL_CA ] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
-    if (
-        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-    ) {
+    $utf8[PDO::MYSQL_ATTR_SSL_CA] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca";
+    if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") && file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
         $utf8[PDO::MYSQL_ATTR_SSL_KEY] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key";
         $utf8[PDO::MYSQL_ATTR_SSL_CERT] = $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert";
     }
 }
 
-// Sets default factory using the default database
-$factories = array(
+// Set up default database adapter factory
+$factories = [
     'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
         $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
-        \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
+        Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
         return $adapter;
     }
-);
+];
 
-// This settings can be change in the global settings under security tab
-$adapters = array();
+// Set up additional adapters if multiple databases are supported
+$adapters = [];
 if (!empty($GLOBALS['allow_multiple_databases'])) {
-    // Open pdo connection
-    $dbh = new PDO('mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'], $GLOBALS['login'], $GLOBALS['pass']);
+    // Open PDO connection
+    $dbh = new PDO("mysql:dbname={$GLOBALS['dbase']};host={$GLOBALS['host']};port={$GLOBALS['port']}", $GLOBALS['login'], $GLOBALS['pass']);
     $res = $dbh->prepare('SELECT * FROM multiple_db');
     if ($res->execute()) {
         foreach ($res->fetchAll() as $row) {
-            // Create new adapters using data from database
             $cryptoGen = new CryptoGen();
-            $adapters[$row['namespace']] = array(
+            $adapters[$row['namespace']] = [
                 'driver' => 'Pdo',
-                'dsn' => 'mysql:dbname=' . $row['dbname'] . ';host=' . $row['host'] . '',
+                'dsn' => "mysql:dbname={$row['dbname']};host={$row['host']};port={$row['port']}",
                 'driver_options' => $utf8,
-                'port' => $row['port'],
                 'username' => $row['username'],
-                'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
-            );
+                'password' => $cryptoGen->cryptCheckStandard($row['password']) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
+            ];
 
-            // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
                 $adapterAbstractServiceFactory = new Laminas\Db\Adapter\AdapterAbstractServiceFactory();
-                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
-                return $adapter;
+                return $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
             };
         }
     }
-
-    $dbh = null; // Close pdo connection
+    $dbh = null; // Close PDO connection
 }
 
-return array(
-    'db' => array(
+return [
+    'db' => [
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . ($GLOBALS['dbase'] ?? '') . ';host=' . ($GLOBALS['host'] ?? ''),
-        'username'       => $GLOBALS['login'] ?? '',
-        'password'       => $GLOBALS['pass'] ?? '',
-        'port'           => $GLOBALS['port'] ?? '',
+        'dsn'            => "mysql:dbname={$GLOBALS['dbase']};host={$GLOBALS['host']};port={$GLOBALS['port']}",
+        'username'       => $GLOBALS['login'],
+        'password'       => $GLOBALS['pass'],
         'driver_options' => $utf8,
-        'adapters' => $adapters
-
-    ),
-    'service_manager' => array(
+        'adapters'       => $adapters
+    ],
+    'service_manager' => [
         'factories' => $factories
-    )
-);
-
-
+    ]
+];
 
 /**
  * DEPRECATED; just keeping this for backward compatibility.
@@ -114,15 +98,10 @@ return array(
  * Decrypts the string
  * @param $value
  * @return bool|string
- *
- * DEPRECATED; just keeping this for backward compatibility.
  */
 
-function my_decrypt($data)
-{
-    // Remove the base64 encoding from our key
+function my_decrypt($data) {
     $encryption_key = base64_decode($GLOBALS['safe_key_database']);
-    // To decrypt, split the encrypted data from our IV - our unique separator used was "::"
     list($encrypted_data, $iv) = explode('::', base64_decode($data), 2);
     return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
 }
