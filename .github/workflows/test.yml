@@ -942,11 +942,11 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_83_83:
-    name: PHP 8.3 - Apache - MySQL 8.3 (short term release)
+  build_apache_83_84:
+    name: PHP 8.3 - Apache - MySQL 8.4
     runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_83_83
+      DOCKER_DIR: apache_83_84
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
