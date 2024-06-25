@@ -90,7 +90,7 @@ setup input screen:
  - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mariadb-old` or `mariadb-very-old` or
    `mariadb-very-very-old` or `mysql-old` (you have all
    mariadb/mysql/mariadb-\*/mysql-\* dockers ready to go to make testing either one easy;
-   `mysql` is version 8.0; `mysql-old` is version 5.7;
+   `mysql` is version 8.4; `mysql-old` is version 8.0; `mysql-old-old` is version 5.7;
    `mariadb` is version 10.11; `mariadb-ssl` is version 10.11 with support for ssl; `mariadb-old` is version 10.6; `mariadb-very-old` is
    version 10.5; `mariadb-very-very-old` is version 10.4)
  - for `Root Pass`, use `root`
@@ -130,6 +130,7 @@ docker pull mariadb:10.11
 docker pull mariadb:10.6
 docker pull mariadb:10.5
 docker pull mariadb:10.4
+docker pull mysql:8.4
 docker pull mysql:8.0
 docker pull mysql:5.7
 docker pull phpmyadmin/phpmyadmin
