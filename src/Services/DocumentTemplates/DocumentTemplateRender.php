@@ -109,7 +109,7 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempFile = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/purify';
+        $purifyTempFile = $GLOBALS['temporary_files_dir'] . '/htmlpurifier';
         if (
             !file_exists($purifyTempFile) &&
             !is_dir($purifyTempFile)
