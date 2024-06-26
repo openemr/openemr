@@ -38,7 +38,6 @@
 */
 
 use OpenEMR\Common\Logging\EventAuditLogger;
-use InsuranceCompany;
 
 require_once("$webserver_root/custom/code_types.inc.php");
 
