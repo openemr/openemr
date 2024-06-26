@@ -343,6 +343,15 @@ if (isset($_POST["mode"])) {
         }
 
         if ($doit == true) {
+            // google_signin_email has unique key constraint, needs to be handled differently
+            $googleSigninEmail = "NULL";
+            if (isset($_POST["google_signin_email"])) {
+                if (empty($_POST["google_signin_email"])) {
+                    $googleSigninEmail = "NULL";
+                } else {
+                    $googleSigninEmail = "'" . add_escape_custom(trim($_POST["google_signin_email"])) . "'";
+                }
+            }
             $insertUserSQL =
             "insert into users set " .
             "username = '"         . add_escape_custom(trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) .
@@ -351,8 +360,8 @@ if (isset($_POST["mode"])) {
             "', mname = '"         . add_escape_custom(trim((isset($_POST['mname']) ? $_POST['mname'] : ''))) .
             "', lname = '"         . add_escape_custom(trim((isset($_POST['lname']) ? $_POST['lname'] : ''))) .
             "', suffix = '"         . add_escape_custom(trim((isset($_POST['suffix']) ? $_POST['suffix'] : ''))) .
-            "', google_signin_email = '" . add_escape_custom(trim((isset($_POST['google_signin_email']) ? $_POST['google_signin_email'] : ''))) .
-            "', valedictory = '"         . add_escape_custom(trim((isset($_POST['valedictory']) ? $_POST['valedictory'] : ''))) .
+            "', google_signin_email = " . $googleSigninEmail .
+            ", valedictory = '"         . add_escape_custom(trim((isset($_POST['valedictory']) ? $_POST['valedictory'] : ''))) .
             "', federaltaxid = '"  . add_escape_custom(trim((isset($_POST['federaltaxid']) ? $_POST['federaltaxid'] : ''))) .
             "', state_license_number = '"  . add_escape_custom(trim((isset($_POST['state_license_number']) ? $_POST['state_license_number'] : ''))) .
             "', newcrop_user_role = '"  . add_escape_custom(trim((isset($_POST['erxrole']) ? $_POST['erxrole'] : ''))) .
