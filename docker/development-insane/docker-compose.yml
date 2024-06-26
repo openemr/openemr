@@ -109,7 +109,7 @@ services:
       EMPTY: "yes"
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.19
+    image: openemr/openemr:flex-3.20
     ports:
     - 8085:80
     - 9085:443
