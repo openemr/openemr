@@ -217,6 +217,10 @@ class C_Prescription extends Controller
         $vars['rx_zend_html_action'] = $GLOBALS['rx_zend_pdf_action'] ?? '';
         $vars['rx_use_fax_template'] = $GLOBALS['rx_use_fax_template'] ?? '';
         $vars['rx_send_email'] = $GLOBALS['rx_send_email'] ?? false;
+        $vars['faxSignatureMissing'] = false;
+        if (!($this->pconfig['use_signature'] && $this->current_user_has_signature())) {
+            $vars['faxSignatureMissing'] = true;
+        }
         $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
@@ -551,14 +555,29 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf);
     }
 
+    function current_user_has_signature()
+    {
+        if (!empty($this->pconfig['signature'])) {
+            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            if (file_exists($sigfile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function multiprint_footer(&$pdf)
     {
-        if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
+        if (
+            $this->pconfig['use_signature']
+            && $this->current_user_has_signature()
+            && ( $this->is_faxing || $this->is_print_to_fax )
+        ) {
             $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 $pdf->ezText(xl('Signature') . ": ", 12);
-                // $pdf->ezImage($sigfile, "", "", "none", "left");
-                $pdf->ezImage($sigfile, "", "", "none", "center");
+                $width = 0; // set to 0 so it uses the image width
+                $pdf->ezImage($sigfile, null, 0, "none", "center");
                 $pdf->ezText(xl('Date') . ": " . date('Y-m-d'), 12);
                 if ($this->is_print_to_fax) {
                     $pdf->ezText(xl('Please do not accept this prescription unless it was received via facsimile.'));
@@ -926,32 +945,6 @@ class C_Prescription extends Controller
         $this->multiprintcss_body($p);
         $this->multiprintcss_footer();
         $this->multiprintcss_postfooter();
-    }
-
-    function print_prescription_old($p, &$toFile)
-    {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        $pdf->selectFont('Helvetica');
-        if (!empty($this->pconfig['logo'])) {
-            $pdf->ezImage($this->pconfig['logo'], "", "", "none", "left");
-        }
-
-        $pdf->ezText($p->get_prescription_display(), 10);
-        if ($this->pconfig['use_signature']) {
-            $pdf->ezImage($this->pconfig['signature'], "", "", "none", "left");
-        } else {
-            $pdf->ezText("\n\n\n\nSignature:________________________________", 10);
-        }
-
-        if (!empty($toFile)) {
-            $toFile = $pdf->ezOutput();
-        } else {
-            $pdf->ezStream();
-            // $pdf->ezStream(array('compress' => 0)); // for testing with uncompressed output
-        }
-
-        return;
     }
 
     function email_prescription($id, $email, $sendAsPdf)

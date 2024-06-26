@@ -19,10 +19,47 @@
 
 <script>
 
+    {# TODO: @adunsulag should we just refactor all of these scripts, seems like quite the hodge podge of stuff here #}
     let prescriptionButtons = ['multiprint', 'multiprintcss', 'multiprintToFax'];
+    let prescriptionButtonChecks = {
+        'multiprint': [CheckForChecksConstraint]
+        ,'multiprintcss': [CheckForChecksConstraint]
+        ,'multiprintToFax': [CheckForChecksConstraint, checkFaxSignatureConfiguredConstraint]
+    };
     {% if rx_send_email %}
         prescriptionButtons.push('multiprintSendEmail');
+        prescriptionButtonChecks.multiprintSendEmail = [CheckForChecksConstraint, function(evt, btn) {
+            evt.preventDefault();
+            toggleEmailPrescriptionSection(evt);
+            return false;
+        }];
     {% endif %}
+
+    function checkFaxSignatureConfiguredConstraint(evt, faxButton) {
+        if (faxButton.dataset['signatureMissing']) {
+            if (!confirm(window.top.xl("Fax signature is not properly configured.  Continue?"))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function toggleEmailPrescriptionSection(evt) {
+        evt.preventDefault();
+        let section = $("#sendEmailSection");
+
+        section.toggleClass("d-none");
+        // will switch from d-flex to d-none and back on toggle
+        $("#addButton").toggleClass("d-none");
+        $(".prescription-main-header").toggleClass("d-none");
+        $("#prescription-btn-navbar").toggleClass("d-flex d-none");
+        $(".prescription_list a, .prescription_list button").toggleClass("d-none");
+        if (section.hasClass("d-none")) {
+            $(".prescription_list input:checked").removeAttr("disabled");
+        } else {
+            $(".prescription_list input:checked").attr("disabled", "disabled");
+        }
+    }
 
 function changeLinkHref(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
@@ -118,11 +155,12 @@ function Uncheck(chk) {
     updateSendEmailIdList();
 }
 
-var CheckForChecks = function(chk) {
+function CheckForChecksConstraint() {
+    let chk = document.presc.check_list
     // Checks for any checked boxes, if none are found than an alert is raised and the link is killed
     if (Checking(chk) == false) { return false; }
     return top.restoreSession();
-};
+}
 
 function Checking(chk) {
     var len=chk.length;
@@ -183,6 +221,7 @@ $(function () {
             {% block prescriptionTopNavbar %}
             <div id="prescription-btn-navbar" class="col-12 d-flex justify-content-between">
                 <div class="btn-group">
+                    {# Don't think the top.restoreSessions are needed here since the CheckForChecks function does that, but leaving it just in case #}
                     {% block prescriptionTopNavbarButtons %}
                     {% if rx_zend_pdf_template %}
                         <a target="_blank" id="multiprint" href="{{webroot}}/{{baseModDir}}{{zendModDir}}/public/prescription-pdf-template/{{ rx_zend_pdf_action}}?id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{{'Download'|xlt}} ({{'PDF'|xlt}})</a>
@@ -196,7 +235,9 @@ $(function () {
                         <a target="_script" id="multiprintcss" href="{{CONTROLLER}}prescription&multiprintcss&id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-print">{{'View Printable Version'|xlt}} ({{'HTML'|xlt}})</a>
                     {% endif %}
                     {%if rx_use_fax_template%}
-                        <a id="multiprintToFax" href="{{CONTROLLER}}prescription&multiprintfax&id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{{'Download'|xlt}} ({{'Fax'|xlt}})</a>
+                        <a id="multiprintToFax" href="{{CONTROLLER}}prescription&multiprintfax&id={% if printm is not empty%}{{printm|attr_url}}{% endif %}"
+                           {% if faxSignatureMissing %}data-signature-missing="true"{% endif %}
+                           onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{{'Download'|xlt}} ({{'Fax'|xlt}})</a>
                     {% endif %}
                     {% if rx_send_email %}
                         <a id="multiprintSendEmail" href="#" class="btn btn-primary btn-sm"><i class="fa fa-envelope"></i> {{'Send Email'|xlt}}</a>
@@ -387,28 +428,19 @@ $(function () {
 <script>
 
 $(function () {
-    function toggleEmailPrescriptionSection() {
-        let section = $("#sendEmailSection");
 
-        section.toggleClass("d-none");
-        // will switch from d-flex to d-none and back on toggle
-        $("#addButton").toggleClass("d-none");
-        $(".prescription-main-header").toggleClass("d-none");
-        $("#prescription-btn-navbar").toggleClass("d-flex d-none");
-        $(".prescription_list a, .prescription_list button").toggleClass("d-none");
-        if (section.hasClass("d-none")) {
-            $(".prescription_list input:checked").removeAttr("disabled");
-        } else {
-            $(".prescription_list input:checked").attr("disabled", "disabled");
-        }
-    }
+
     prescriptionButtons.forEach(function(selector) {
-        $("#" + selector).on("click", function(evt) {
-            if (!CheckForChecks(document.presc.check_list)) {
-                evt.preventDefault();
-                // we don't want other jquery events to occur if this fails
-                evt.stopImmediatePropagation();
-                return false;
+        $("#" + selector).on("click", function runConstraintsCheck(evt) {
+            for (var index in prescriptionButtonChecks[selector]) {
+                if (typeof prescriptionButtonChecks[selector][index] == 'function') {
+                    if (!prescriptionButtonChecks[selector][index](evt, this)) {
+                        evt.preventDefault();
+                        // we don't want other jquery events to occur if this fails
+                        evt.stopImmediatePropagation();
+                        return false;
+                    }
+                }
             }
             return true;
         });
@@ -439,10 +471,6 @@ $(function () {
         if (window.opener) {
             dlgclose();
         }
-    });
-    $("#multiprintSendEmail").on('click', function(evt) {
-        evt.preventDefault();
-        toggleEmailPrescriptionSection();
     });
     $("#sendEmailSectionCancel").on('click', function(evt) {
         evt.preventDefault();
