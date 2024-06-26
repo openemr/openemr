@@ -24,7 +24,7 @@
         {% for insurancecompany in icompanies %}
         <tr>
             <td>
-                <a href="{{webroot|attr_url}}/controller.php?practice_settings&insurance_company&action=edit&id={{insurancecompany.id|attr_url}}" onclick="top.restoreSession()">
+                <a href="{{webroot|attr}}/controller.php?practice_settings&insurance_company&action=edit&id={{insurancecompany.id|attr_url}}" onclick="top.restoreSession()">
                     {{insurancecompany.name|text}}
                 </a>
             </td>
