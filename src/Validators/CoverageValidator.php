@@ -115,9 +115,6 @@ class CoverageValidator extends BaseValidator
                                         // do a strict equality and then we can do multibyte comparison for localizations
                                         // note if we want to handle more comprehensive multibytes
                                         // we need to do some normalizations as per this stackoverflow post: https://stackoverflow.com/a/38855868
-                                        // I'm not incorporating the normalization techniques yet as we need to better understand their implications before
-                                        // applying the fix
-                                        // TODO: look at normalizing the multi-byte strings to better handle international languages where multiple unicode characters correspond to the same uppercase or lowercase character
                                         if (
                                             mb_is_string_equal_ci($previousName['previous_name_first'], $values['subscriber_fname'])
                                             && mb_is_string_equal_ci($previousName['previous_name_last'], $values['subscriber_lname'])
