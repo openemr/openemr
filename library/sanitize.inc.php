@@ -15,7 +15,6 @@
  */
 
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
-use Normalizer;
 
 // Function to collect ip address(es)
 function collectIpAddresses()
