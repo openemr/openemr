@@ -6323,7 +6323,7 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /api/patient/:puuid/insurance/$swap-insurance' => function ($puuid, HttpRestRequest $request) {
+    "GET /api/patient/:puuid/insurance/$swap-insurance" => function ($puuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             $puuid = $request->getPatientUUIDString();
         }
