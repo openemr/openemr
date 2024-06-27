@@ -452,12 +452,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             let w = 960; // for weno width
 
             dlgopen(url, 'editScripts', w, 400, '', '', {
-                onClosed: 'refreshme',
+                resolvePromiseOn: 'close',
                 allowResize: true,
                 allowDrag: true,
                 dialogId: 'editscripts',
                 type: 'iframe'
-            });
+            })
+            .then(() => refreshme());
             return false;
         }
 
