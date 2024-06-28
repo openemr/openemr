@@ -356,7 +356,7 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     if (!empty($porow['date_collected'])) {
         $C[17] = hl7Date(date("Ymd", strtotime($porow['date_collected'])));
     } else {
-        $C[17] = null;
+        $C[17] = '';
     }
     if (empty($porow['account'])) {
         return "ERROR! Missing this orders facility location account code (Facility Id) in Facility!";
