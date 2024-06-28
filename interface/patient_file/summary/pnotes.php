@@ -39,6 +39,8 @@ if ($docid) {
 <head>
 <?php Header::setupHeader(); ?>
 </head>
+
+
 <body class="body_bottom">
 
 <?php
@@ -172,6 +174,36 @@ if ($result != null) {
 </table>
 
 </div> <!-- end pnotes -->
+
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM fully loaded and parsed");
+
+    var knownDomains = ['open-emr.org'];
+    console.log("Known domains:", knownDomains);
+
+    function isDomainKnown(url) {
+        var hostname = (new URL(url)).hostname;
+        console.log("Checking hostname:", hostname);
+        return knownDomains.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+    }
+
+    document.querySelectorAll('a').forEach(function(link) {
+        console.log("Attaching event to:", link.href);
+        link.addEventListener('click', function(event) {
+            console.log("Link clicked:", this.href);
+            if (!isDomainKnown(this.href)) {
+                console.log("Unknown domain detected");
+                event.preventDefault(); // Prevent the default link behavior
+                if (confirm('You are being redirected to an unknown website. Do you want to continue?')) {
+                    window.location.href = this.href; // Proceed with the navigation
+                }
+            }
+        });
+    });
+});
+</script>
 
 </body>
 
