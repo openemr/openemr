@@ -81,7 +81,8 @@
     },
     "config": {
         "platform": {
-            "php": "8.1"
+            "php": "8.1",
+            "ext-intl": "8.1"
         },
         "allow-plugins": {
             "openemr/oe-module-installer-plugin": true,
