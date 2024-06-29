@@ -120,7 +120,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                     window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
                 });
             });
-            <?php } else if (!$isValidKey) { ?>
+            <?php } elseif (!$isValidKey) { ?>
             $(function () {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php
@@ -219,7 +219,7 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             </div>
         </div>
         <div class="container-xl mt-3">
-            <iframe id="wenoIfram" title="Weno IFRAME" width="100%" height="900" src="<?php echo $urlOut; ?>"></iframe>
+            <iframe id="wenoIfram" title="Weno IFRAME" width="100%" height="900" src="<?php echo attr($urlOut); ?>"></iframe>
         </div>
         <footer>
             <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
