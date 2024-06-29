@@ -242,6 +242,14 @@ class C_Prescription extends Controller
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_block.html");
     }
 
+    /**
+     * TODO: remove this function in a future expansion.
+     * @deprecated As far as we can see this function isn't used
+     * @param $id
+     * @param $sort
+     * @return void
+     * @throws SmartyException
+     */
     function fragment_action($id, $sort = "")
     {
         if (empty($id)) {
