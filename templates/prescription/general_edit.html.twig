@@ -89,8 +89,7 @@
 </head>
 <body id="prescription_edit">
 <div class="container">
-    {# TODO: @adunsulag shouldn't FORM_ACTION be escaped? #}
-    <form name="prescribe" id="prescribe"  method="post" action="{{FORM_ACTION}}" >
+    <form name="prescribe" id="prescribe"  method="post" action="{{ webroot }}/controller.php?prescription&edit&id={{ prescription.id|attr_url }}&pid={{ pid|attr_url }}" >
         <table>
             <tr>
                 <td class="title font-weight-bold">{{"Add"|xlt}}&nbsp;</td>

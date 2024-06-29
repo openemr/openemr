@@ -22,6 +22,7 @@ use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
 class C_Prescription extends Controller
@@ -38,7 +39,6 @@ class C_Prescription extends Controller
     {
         parent::__construct();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "prescription" . "&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
@@ -261,6 +261,7 @@ class C_Prescription extends Controller
 
     function lookup_action()
     {
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->do_lookup();
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_lookup.html");
     }
@@ -720,7 +721,7 @@ class C_Prescription extends Controller
     {
         $this->providerid = $p->provider->id;
         $sql = "SELECT f.name, f.street, f.state, f.postal_code, f.phone, if(f.fax != '', f.fax, '') FROM users JOIN facility AS f ON f.name = users.facility where users.id = ?";
-        $result = \OpenEMR\Common\Database\QueryUtils::fetchRecords($sql, [$p->provider->id]);
+        $result = QueryUtils::fetchRecords($sql, [$p->provider->id]);
         $address = '';
         if (!empty($result)) {
             $res = $result[0];
@@ -777,7 +778,7 @@ class C_Prescription extends Controller
         echo (xl('Patient Name & Address') . "\n");
         echo ($p->patient->get_name_display() . "\n");
         $sql = "SELECT street, city, `state`, postal_code, if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,''))) AS phone from patient_data where pid = ?";
-        $result = \OpenEMR\Common\Database\QueryUtils::fetchRecords($sql, [$p->patient->id]);
+        $result = QueryUtils::fetchRecords($sql, [$p->patient->id]);
         $address = '';
         if (!empty($result)) {
             $res = $result[0];
