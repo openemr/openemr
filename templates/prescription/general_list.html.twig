@@ -1,0 +1,520 @@
+{##
+ * Prescription list
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+#}
+<html>
+<head>
+{{ setupHeader(['no_textformat']) }}
+
+
+<script>
+
+    {# TODO: @adunsulag should we just refactor all of these scripts, seems like quite the hodge podge of stuff here #}
+    let prescriptionButtons = ['multiprint', 'multiprintcss', 'multiprintToFax'];
+    let prescriptionButtonChecks = {
+        'multiprint': [CheckForChecksConstraint]
+        ,'multiprintcss': [CheckForChecksConstraint]
+        ,'multiprintToFax': [CheckForChecksConstraint, checkFaxSignatureConfiguredConstraint]
+    };
+    {% if rx_send_email %}
+        prescriptionButtons.push('multiprintSendEmail');
+        prescriptionButtonChecks.multiprintSendEmail = [CheckForChecksConstraint, function(evt, btn) {
+            evt.preventDefault();
+            toggleEmailPrescriptionSection(evt);
+            return false;
+        }];
+    {% endif %}
+
+    function checkFaxSignatureConfiguredConstraint(evt, faxButton) {
+        if (faxButton.dataset['signatureMissing']) {
+            if (!confirm(window.top.xl("Fax signature is not properly configured.  Continue?"))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function toggleEmailPrescriptionSection(evt) {
+        evt.preventDefault();
+        let section = $("#sendEmailSection");
+
+        section.toggleClass("d-none");
+        // will switch from d-flex to d-none and back on toggle
+        $("#addButton").toggleClass("d-none");
+        $(".prescription-main-header").toggleClass("d-none");
+        $("#prescription-btn-navbar").toggleClass("d-flex d-none");
+        $(".prescription_list a, .prescription_list button").toggleClass("d-none");
+        if (section.hasClass("d-none")) {
+            $(".prescription_list input:checked").removeAttr("disabled");
+        } else {
+            $(".prescription_list input:checked").attr("disabled", "disabled");
+        }
+    }
+
+function changeLinkHref(id,addValue,value) {
+    var myRegExp = new RegExp(":" + value + ":");
+    if (addValue){ //add value to href
+        if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
+    }
+    else { //remove value from href
+        if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+    }
+}
+
+function changeLinkHrefAll(addValue, value) {
+    prescriptionButtons.forEach(function(selector) {
+        changeLinkHref(selector, addValue, value);
+    });
+}
+
+
+function changeLinkHref_All(id,addValue,value) {
+    var myRegExp = new RegExp(":" + value + ":");
+    if (addValue){ //add value to href
+        if(document.getElementById(id) !== null)document.getElementById(id).href += ':' + value + ':';
+    }
+    else { //remove value from href
+        if(document.getElementById(id) !== null)document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+        // TajEmo Work By CB 2012/06/14 02:17:16 PM remove the target change
+    //document.getElementById(id).target = '';
+    }
+}
+
+function Check(chk) {
+    var len=chk.length;
+    if (len==undefined) {
+        chk.checked=true;
+    }
+    else {
+        prescriptionButtons.forEach((btnLinkSelector) => {
+            var linkBtn =document.getElementById(btnLinkSelector);
+            if(linkBtn!==null) {
+                linkBtn.href = document.getElementById(btnLinkSelector).href.substring(0, document.getElementById(btnLinkSelector).href.indexOf('=') + 1);
+            }
+        });
+        //clean the checked id's before check all the list again
+        for (let pr = 0; pr < chk.length; pr++){
+            if($(chk[pr]).parents("tr.inactive").length==0)
+            {
+                chk[pr].checked=true;
+                prescriptionButtons.forEach((btnLinkSelector) => {
+                    changeLinkHref_All(btnLinkSelector,true,chk[pr].value);
+                });
+            }
+        }
+    }
+    updateSendEmailIdList();
+}
+
+function deleteDrug(d) {
+    let msg = {{ 'Do you really want to delete?'|xlj}};
+    let choice = confirm(msg);
+    if (choice == true) {
+        top.restoreSession();
+        $.ajax({
+                url: "./library/deletedrug.php",
+                type: 'POST',
+                data: {
+                    drugid: d,
+                    csrf_token_form: {{CSRF_TOKEN_FORM|js_escape}}
+            },
+            success: function(data) {
+            console.log(data);
+            document.location.href = '{{webroot}}/controller.php?prescription&list&id=' + {{session.pid|js_url}};
+        },
+        error: function(error) {
+            console.log(error)
+        },
+    });
+    }
+}
+
+function Uncheck(chk) {
+    var len=chk.length;
+    if (len==undefined) {
+        chk.checked=false;
+    }
+    else {
+        for (pr = 0; pr < chk.length; pr++){
+            chk[pr].checked=false;
+            prescriptionButtons.forEach(function(selector) {
+                changeLinkHref_All(selector,false,chk[pr].value);
+            });
+        }
+    }
+    updateSendEmailIdList();
+}
+
+function CheckForChecksConstraint() {
+    let chk = document.presc.check_list
+    // Checks for any checked boxes, if none are found than an alert is raised and the link is killed
+    if (Checking(chk) == false) { return false; }
+    return top.restoreSession();
+}
+
+function Checking(chk) {
+    var len=chk.length;
+    var foundone=false;
+
+    if (len==undefined) {
+            if (chk.checked == true){
+                foundone=true;
+            }
+    }
+    else {
+        for (pr = 0; pr < chk.length; pr++){
+            if (chk[pr].checked == true) {
+                foundone=true;
+            }
+        }
+    }
+    if (foundone) {
+        return true;
+    } else {
+        alert({{'Please select at least one prescription!'|xlj}});
+        return false;
+    }
+}
+
+function updateSendEmailIdList() {
+    let nodes = document.querySelectorAll(".check_list:checked");
+    let nodeValues = [];
+    nodes.forEach(n => nodeValues.push(n.value));
+    // keep it the same syntax... seems odd instead of any csv type format
+    if (nodes.length) {
+        $("#sendEmailPrescriptionIds").val(":" + nodeValues.join("::") + ":");
+    } else {
+        $("#sendEmailPrescriptionIds").val("");
+    }
+}
+
+$(function () {
+  $(":checkbox:checked").each(function () {
+      let checkedBox = this;
+      prescriptionButtons.forEach(function(selector) {
+          changeLinkHref(selector,checkedBox.checked, checkedBox.value);
+      });
+  });
+});
+
+</script>
+
+
+</head>
+<body id="prescription_list">
+    <div class="container-fluid">
+        <div class="row">
+            {% if prescriptions %}
+            <div class="col-12 prescription-main-header">
+                <h3>{{'List'|xlt}}</h3>
+            </div>
+            {% block prescriptionTopNavbar %}
+            <div id="prescription-btn-navbar" class="col-12 d-flex justify-content-between">
+                <div class="btn-group">
+                    {# Don't think the top.restoreSessions are needed here since the CheckForChecks function does that, but leaving it just in case #}
+                    {% block prescriptionTopNavbarButtons %}
+                    {% if rx_zend_pdf_template %}
+                        <a target="_blank" id="multiprint" href="{{webroot}}/{{baseModDir}}{{zendModDir}}/public/prescription-pdf-template/{{ rx_zend_pdf_action}}?id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{{'Download'|xlt}} ({{'PDF'|xlt}})</a>
+                    {% else %}
+                        <a id="multiprint" href="{{CONTROLLER}}prescription&multiprint&id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{{'Download'|xlt}} ({{'PDF'|xlt}})</a>
+                    {% endif %}
+                    {% if rx_zend_html_template %}
+                        <a target="_blank" id="multiprintcss" href="{{webroot}}/{{baseModDir}}{{zendModDir}}/public/prescription-html-template/{{rx_zend_html_action}}?id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{{'View Printable Version'|xlt}} ({{'HTML'|xlt}})</a>
+                    {% else %}
+                    <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
+                        <a target="_script" id="multiprintcss" href="{{CONTROLLER}}prescription&multiprintcss&id={% if printm is not empty%}{{printm|attr_url}}{% endif %}" onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-print">{{'View Printable Version'|xlt}} ({{'HTML'|xlt}})</a>
+                    {% endif %}
+                    {%if rx_use_fax_template%}
+                        <a id="multiprintToFax" href="{{CONTROLLER}}prescription&multiprintfax&id={% if printm is not empty%}{{printm|attr_url}}{% endif %}"
+                           {% if faxSignatureMissing %}data-signature-missing="true"{% endif %}
+                           onclick="top.restoreSession()" class="btn btn-primary btn-sm btn-download">{{'Download'|xlt}} ({{'Fax'|xlt}})</a>
+                    {% endif %}
+                    {% if rx_send_email %}
+                        <a id="multiprintSendEmail" href="#" class="btn btn-primary btn-sm"><i class="fa fa-envelope"></i> {{'Send Email'|xlt}}</a>
+                    {% endif %}
+                    {% if CAMOS_FORM == true %}
+                        <a id="four_panel_rx" href="{{webroot}}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="btn btn-primary btn-sm">{{'View Four Panel'|xlt}}</a>
+                    {% endif %}
+                    {% endblock %}
+                </div>
+                <div class="btn-group">
+                    <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{{'Check All'|xlt}}</span></a> |
+                    <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{{'Clear All'|xlt}}</span></a>
+                </div>
+            </div>
+            {% endblock %}
+
+            {% if  process_result %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        {{process_result|text}}
+                    </div>
+                </div>
+            {% endif %}
+            <div id="sendEmailSection" class="d-none col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>{{ "Email Prescriptions"|xlt }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {# Note this will call the send_action_process, there is no corresponding send_action method #}
+                        <form id="sendPrescriptionForm" name="send_prescription" method="post" action="{{TOP_ACTION}}send">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <input id="sendEmailPrescriptionIds" type="hidden" name="sendEmailPrescriptionIds" value="" />
+                                        <input type="hidden" name="process" value="true" />
+                                        <input type="text" name="email_to"  class="form-control" value="" placeholder="{{ "Recipient email address"|xla }}">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="useDefaultMailClient" type="checkbox" name="useDefaultMailClient" value="1" />
+                                        <label for="useDefaultMailClient" class="form-check-label">{{ "Use Default Mail Client"|xlt}}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="sendEmailAsPdf" type="checkbox" name="sendAsPdf" value="1" />
+                                        <label for="sendEmailAsPdf" class="form-check-label">{{ "Send as PDF"|xlt}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <input type="submit" name="submit" value="{{'Email'|xla}}" class="btn btn-sm btn-primary"/>
+                                        <a id="sendEmailSectionCancel" href="#" class="btn btn-sm btn-secondary">{{'Cancel'|xlt}}</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div id="prescription_list" class="prescription_list">
+                    <form name="presc">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                    <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->
+                                        <th>&nbsp;</th>
+                                        <th>&nbsp;</th>
+                                        <th>{{'Drug'|xlt}}</th>
+                                        <th>{{'RxNorm'|xlt}}</th>
+                                        <th>{{'Created'|xlt}}<br />{{'Changed'|xlt}}</th>
+                                        <th>{{'Dosage'|xlt}}</th>
+                                        <th>{{'Qty'|xlt}}.</th>
+                                        <th>{{'Unit'|xlt}}</th>
+                                        <th>{{'Refills'|xlt}}</th>
+                                        <th>{{'Provider'|xlt}}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prescription in prescriptions %}
+                                    <!-- TajEmo Changes 2012/06/14 02:03:17 PM by CB added cursor:pointer for easier user understanding -->
+                                    <tr id="{{prescription.id|attr}}" class="showborder onescript {% if prescription.active <= 0 %} inactive{% endif %}">
+                                        <td class="text-center">
+                                        <input class="check_list" id="check_list" type="checkbox" value="{{prescription.id|attr}}"
+                                            {% if prescription.encounter is not empty
+                                                and prescription.encounter == prescription.get_encounter()
+                                                and prescription.active > 0 %}
+                                            checked="checked"
+                                        {% endif %}
+                                               title="{{'Select for printing'|xla}}">
+                                        </td>
+                                        {% if prescription.erx_source is empty or prescription.erx_source==0 %}
+                                            <td class="editscript"  id="{{prescription.id|attr}}">
+                                                <a class='editscript btn btn-primary btn-sm btn-edit' id='{{prescription.id|attr}}' href="{{webroot}}/controller.php?prescription&edit&id={{prescription.id|attr_url}}">{{'Edit'|xlt}}</a>
+                                            </td>
+                                            <td class="editscript"  id="{{prescription.id|attr}}">
+                                                {% if prescription.active > 0%}
+                                                    <b>{{prescription.drug|text}}</b>
+                                                {% else %}
+                                                    {{prescription.drug|text}}
+                                                {% endif %}&nbsp;
+                                                <br />{{prescription.note|text}}
+                                            </td>
+                                        {% else %}
+                                            <td>&nbsp;</td>
+                                            <td id="{{prescription.id|attr}}">
+                                                {% if prescription.active > 0%}
+                                                    <b>{{prescription.drug|text}}</b>
+                                                {% else %}
+                                                    {{prescription.drug|text}}
+                                                {% endif %}&nbsp;
+                                                <br />{{prescription.note|text}}
+                                            </td>
+                                        {% endif %}
+                                        <td id="{{prescription.id|attr}}">
+                                            {{prescription.rxnorm_drugcode|text}}&nbsp;
+                                        </td>
+                                        <td id="{{prescription.id|attr}}">
+                                        {{prescription.date_added|shortDate|text}}<br />
+                                        {{prescription.date_modified|shortDate|text}}&nbsp;
+                                        </td>
+                                        <td id="{{prescription.id|attr}}">
+                                        {{prescription.get_dosage_display()|text}} &nbsp;
+                                        </td>
+                                        {%if prescription.erx_source is empty or prescription.erx_source==0%}
+                                        <td class="editscript" id="{{prescription.id|attr}}">
+                                        {{ prescription.quantity|text }} &nbsp;
+                                        </td>
+                                        {% else %}
+                                        <td id="{{prescription.id|attr}}">
+                                        {{prescription.quantity|text}} &nbsp;
+                                        </td>
+                                        {% endif %}
+                                        <td id="{{prescription.id|attr}}">
+                                        {{prescription.get_size()|text}} {{prescription.get_unit_display()|text}}&nbsp;
+                                        </td>
+                                        <td id="{{prescription.id|attr}}">
+                                        {{prescription.refills|text}} &nbsp;
+                                        </td>
+                                        <td id="{{prescription.id|attr}}">
+                                        {{prescription.provider.get_name_display()|text}}&nbsp;
+                                        </td>
+                                        <td>
+                                            <a href="#" id="deleteDrug" class="btn btn-danger btn-sm btn-delete" data-prescription-id="{{ prescription.id|attr }}">{{'Delete'|xlt}}</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% if rx_show_drug_drug %}
+                <div id="drug-drug">
+                    <hr>
+                    <h3>{{'Drug-Drug Interaction'|xlt}}</h3>
+                    <p title="{{'Severity information will be missing if interaction is found'|xla}}"><a href="#">*{{'Notice'|xlt}}</a></p>
+                    <div id="return_info">
+                        {{INTERACTION|text}}
+                    </div>
+                    <hr>
+                </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text mt-3">{{ "There are currently no prescriptions"|xlt}}.</div>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <hr />
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+                <a href="{{ CONTROLLER }}?prescription&edit&id=0&pid={{  pid|attr_url }}" class="btn-primary btn-sm  mr-3" id="addButton">{{ "Add"|xlt }}</a>
+                <a href="#" class="btn-secondary btn-sm quitButton">{{ "Quit"|xlt }}</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+$(function () {
+
+
+    prescriptionButtons.forEach(function(selector) {
+        $("#" + selector).on("click", function runConstraintsCheck(evt) {
+            for (var index in prescriptionButtonChecks[selector]) {
+                if (typeof prescriptionButtonChecks[selector][index] == 'function') {
+                    if (!prescriptionButtonChecks[selector][index](evt, this)) {
+                        evt.preventDefault();
+                        // we don't want other jquery events to occur if this fails
+                        evt.stopImmediatePropagation();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+
+    });
+    $(".check_list").on('click', function() {
+        let checkedNode = this;
+        prescriptionButtons.forEach(function (selector) {
+            changeLinkHref(selector, checkedNode.checked, checkedNode.value);
+
+        });
+        updateSendEmailIdList();
+    });
+    $(".editscript").on("click", function() {
+        ShowScript(this);
+    });
+    $(".onescript").on("mouseover", function() {
+        $(this).children().toggleClass("highlight");
+    });
+    $(".onescript").on("mouseout", function() {
+        $(this).children().toggleClass("highlight");
+    });
+    $(".btn-delete").on("click", function() {
+        deleteDrug(this.dataset['prescriptionId'])
+    });
+    $(".quitButton").on("click", function(evt) {
+        evt.preventDefault();
+        if (window.opener) {
+            dlgclose();
+        }
+    });
+    $("#sendEmailSectionCancel").on('click', function(evt) {
+        evt.preventDefault();
+        toggleEmailPrescriptionSection();
+    })
+    $("#sendPrescriptionForm").on('submit', function(evt) {
+        window.top.restoreSession();
+        let form = this;
+        // need to check to see if mailto submission is clicked
+        if (form.useDefaultMailClient.checked) {
+            evt.preventDefault();
+            $(form).find("input[type='submit']").attr("disabled", "disabled");
+            window.fetch("{{TOP_ACTION}}getDefaultMailClientText&ids=" + form.sendEmailPrescriptionIds.value)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("Failed to receive valid text response back");
+                    }
+                })
+                .then(jsonContent => {
+                    let mailTo = "mailto:" + form.email_to.value
+                        + "?subject=" + encodeURIComponent(jsonContent.subject)
+                        + "&body=" + encodeURIComponent(jsonContent.message);
+                    $(form).find("input[type='submit']").removeAttr("disabled");
+                    // console.log(textContent);
+                    window.open(mailTo);
+                })
+                .catch(error => {
+                    $(form).find("input[type='submit']").removeAttr("disabled");
+                    alert("Failed to generate prescription details for default mail client. Try again or contact support.");
+                    console.error(error);
+                })
+        }
+    })
+});
+
+var ShowScript = function(eObj) {
+    top.restoreSession();
+    objID = eObj.id;
+    document.location.href = "{{ webroot }}/controller.php?prescription&edit&id=" + encodeURIComponent(objID);
+    return true;
+};
+
+</script>
+
+</html>

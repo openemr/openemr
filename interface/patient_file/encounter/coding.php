@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * TODO: @adunsulag need to find out if this file is used anywhere anymore since it links out to prescriptions and will be impacted by encounter navigation changes.
  * coding.php
  *
  * @package   OpenEMR
