@@ -5288,6 +5288,82 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     *  @OA\Patch(
+     *      path="/api/appointment/{eid}",
+     *      description="Edits an appointment",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="eid",
+     *          in="path",
+     *          description="The eid for the appointment.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PATCH /api/appointment/:eid" => function ($eid) {
+        RestConfig::authorization_check("patients", "appt");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new AppointmentRestController())->patch($eid, $data);
+
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/api/appointment/{eid}",
+     *      description="Updates an appointment",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="eid",
+     *          in="path",
+     *          description="The eid for the appointment.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /api/appointment/:eid" => function ($eid) {
+        RestConfig::authorization_check("patients", "appt");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new AppointmentRestController())->put($eid, $data);
+
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
      *  @OA\Delete(
      *      path="/api/patient/{pid}/appointment/{eid}",
      *      description="Delete a appointment",
