@@ -77,7 +77,8 @@
         "vlucas/phpdotenv": "5.5.0",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "twilio/sdk": "7.12.0"
+        "twilio/sdk": "7.12.0",
+        "ringcentral/ringcentral-php": "3.0.1"
     },
     "config": {
         "platform": {
