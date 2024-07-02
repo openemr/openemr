@@ -72,12 +72,12 @@ install_configure() {
     sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php || failTest=true
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mariadb -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mariadb -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mariadb -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mariadb -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mariadb -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mariadb -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
     if $failTest; then
       exit 1
     fi
