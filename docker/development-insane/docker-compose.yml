@@ -246,7 +246,7 @@ services:
   mariadb:
     restart: always
     image: mariadb:11.4
-    command: ['mysqld','--character-set-server=utf8mb4']
+    command: ['mariadbd','--character-set-server=utf8mb4']
     ports:
     - 8210:3306
     environment:
@@ -254,7 +254,7 @@ services:
   mariadb-ssl:
     restart: always
     image: mariadb:11.4
-    command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
     - ../library/sql-ssl-certs-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
