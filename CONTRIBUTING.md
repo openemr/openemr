@@ -69,7 +69,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 8. To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
     ```console
     docker pull openemr/openemr:flex
-    docker pull mariadb:10.11
+    docker pull mariadb:11.4
     docker pull phpmyadmin/phpmyadmin
     docker pull couchdb
     docker pull openemr/dev-ldap:easy
