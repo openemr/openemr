@@ -21,6 +21,7 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -418,6 +419,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
     <div class="container-xl">
         <div class="row">
+            <?php if (FormActionBarSettings::shouldDisplayTopActionBar()) { ?>
             <div class="col-12">
                 <h2><?php echo xlt('Edit Current Patient');?></h2>
             </div>
@@ -432,6 +434,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 </div>
                 <hr>
             </div>
+            <?php } else { ?>
+            <div class="col-12">
+                <h2><?php echo xlt('Edit Current Patient');?></h2>
+            </div>
+            <?php } ?>
         </div>
     </div>
 <?php
@@ -450,6 +457,23 @@ $condition_str = '';
         <?php display_layout_tabs_data_editable('DEM', $result, $result2); ?>
     </div>
 </div>
+<?php if (FormActionBarSettings::shouldDisplayBottomActionBar()) { ?>
+<div class="container-xl">
+    <div class="row">
+        <div class="col-12">
+            <hr>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
+                    <?php echo xlt('Save'); ?>
+                </button>
+                <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
+                    <?php echo xlt('Cancel'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>
 </form>
 
 <br />
