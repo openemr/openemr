@@ -1125,7 +1125,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1) . $row['provider']) . "\"";
                                         if (
                                             $key == $last_level_closed
-                                            || $insuranceCount = 1
+                                            || $insuranceCount == 1
                                         ) {
                                             $lhtml .= " selected";
                                             $default_x12_partner = $x12Partner;
