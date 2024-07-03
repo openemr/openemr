@@ -368,7 +368,7 @@ function postcalendar_user_search()
         // build our search query
         foreach ($keywords as $word) {
             if (!empty($sqlKeywords)) {
-                $sqlKeywords .= " $k_andor ";
+                $sqlKeywords .= " " . add_escape_custom($k) . "_andor ";
             }
 
             $sqlKeywords .= '(';
