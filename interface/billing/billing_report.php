@@ -1117,12 +1117,16 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                                     $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
                                     $effective_insurances = getEffectiveInsurances($iter['pid'], $iter['enc_date']);
+                                    $insuranceCount = count($effective_insurances ?? []);
 
                                     foreach ($effective_insurances as $key => $row) {
                                         $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['name'];
                                         $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['x12_default_partner_id'];
                                         $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1) . $row['provider']) . "\"";
-                                        if ($key == $last_level_closed) {
+                                        if (
+                                            $key == $last_level_closed
+                                            || $insuranceCount == 1
+                                        ) {
                                             $lhtml .= " selected";
                                             $default_x12_partner = $x12Partner;
                                         }

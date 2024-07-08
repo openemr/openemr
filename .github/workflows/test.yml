@@ -11,11 +11,11 @@ permissions:
 
 jobs:
 
-  build_apache_81_1011:
-    name: PHP 8.1 - Apache - MariaDB 10.11
+  build_apache_81_114:
+    name: PHP 8.1 - Apache - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_81_1011
+      DOCKER_DIR: apache_81_114
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
@@ -104,11 +104,11 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_82_1011:
-    name: PHP 8.2 - Apache - MariaDB 10.11
+  build_apache_82_114:
+    name: PHP 8.2 - Apache - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_82_1011
+      DOCKER_DIR: apache_82_114
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
@@ -1036,7 +1036,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_81:
-    name: PHP 8.1 - Nginx - MariaDB 10.11
+    name: PHP 8.1 - Nginx - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_81
@@ -1129,7 +1129,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_82:
-    name: PHP 8.2 - Nginx - MariaDB 10.11
+    name: PHP 8.2 - Nginx - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_82
@@ -1222,7 +1222,7 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_83:
-    name: PHP 8.3 - Nginx - MariaDB 10.11
+    name: PHP 8.3 - Nginx - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_83
@@ -1316,7 +1316,7 @@ jobs:
 
 
   build_nginx_84:
-    name: PHP 8.4 - Nginx - MariaDB 10.11
+    name: PHP 8.4 - Nginx - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_84
