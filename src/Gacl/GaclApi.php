@@ -809,7 +809,7 @@ class GaclApi extends Gacl {
 			//Move the below line in to the LEFT JOIN above for PostgreSQL sake.
 			//'ac1' => 'ac.acl_id=a.id',
 			$where_query = array(
-				'ac2' => '(ac.section_value=' . $this->db->quote($aco_section_value) . ' AND ac.value IN (\'' . implode('\',\'', array_map(fn($val): string => add_escape_custom($val), $aco_value_array)) . '\'))'
+				'ac2' => '(ac.section_value=' . $this->db->quote($aco_section_value) . ' AND ac.value IN (\'' . implode('\',\'', array_map('add_escape_custom', $aco_value_array)) . '\'))'
 			);
 
 			//ARO
@@ -828,7 +828,7 @@ class GaclApi extends Gacl {
 				//Move the below line in to the LEFT JOIN above for PostgreSQL sake.
 				//$where_query['ar1'] = 'ar.acl_id=a.id';
 
-                $where_query['ar2'] = '(ar.section_value=' . $this->db->quote($aro_section_value) . ' AND ar.value IN (' . implode('\',\'', array_map(fn($val): string => add_escape_custom($val), $aro_value_array)) . '\'))';
+                $where_query['ar2'] = '(ar.section_value=' . $this->db->quote($aro_section_value) . ' AND ar.value IN (' . implode('\',\'', array_map('add_escape_custom', $aro_value_array)) . '\'))';
 
 				if (is_array($axo_array) AND count($axo_array) > 0) {
 					foreach ($axo_array as $axo_section_value => $axo_value_array) {
@@ -844,7 +844,7 @@ class GaclApi extends Gacl {
 
 						//$where_query['ax1'] = 'ax.acl_id=x.id';
 						$where_query['ax1'] = 'ax.acl_id=a.id';
-						$where_query['ax2'] = '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value IN (' . implode('\',\'', array_map(fn($val): string => add_escape_custom($val), $axo_value_array)) . '\'))';
+						$where_query['ax2'] = '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value IN (' . implode('\',\'', array_map('add_escape_custom', $axo_value_array)) . '\'))';
 
 						$where  = 'WHERE ' . implode(' AND ', $where_query);
 
