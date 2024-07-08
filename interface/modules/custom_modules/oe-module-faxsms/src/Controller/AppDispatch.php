@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
  */
 
@@ -15,7 +15,6 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Events\Messaging\SendNotificationEvent;
 
 /**
  * Class AppDispatch
@@ -223,7 +222,7 @@ abstract class AppDispatch
                 case 0:
                     break;
                 case 1:
-                    // for new service in future
+                    return new RCFaxClient();
                     break;
                 case 2:
                     return new TwilioSMSClient();
@@ -233,7 +232,7 @@ abstract class AppDispatch
                 case 0:
                     break;
                 case 1:
-                    // for new service in future
+                    return new RCFaxClient();
                     break;
                 case 3:
                     return new EtherFaxActions();
@@ -242,7 +241,7 @@ abstract class AppDispatch
             switch ($s) {
                 case 0:
                     break;
-                case 1:
+                case 4:
                     return new EmailClient();
             }
         }
@@ -283,6 +282,8 @@ abstract class AppDispatch
     {
         return self::$_apiModule;
     }
+
+    //abstract function faxProcessUploads();
 
     /**
      * @return string|bool
@@ -362,6 +363,7 @@ abstract class AppDispatch
             $smsNumber = $this->getRequest('smsnumber');
             $smsMessage = $this->getRequest('smsmessage');
             $smsHours = $this->getRequest('smshours');
+            $jwt = $this->getRequest('jwt');
             $setup = array(
                 'username' => "$username",
                 'extension' => "$ext",
@@ -370,13 +372,14 @@ abstract class AppDispatch
                 'password' => "$password",
                 'appKey' => "$appkey",
                 'appSecret' => "$appsecret",
-                'server' => "",
-                'portal' => "",
+                'server' => !$production ? 'https://platform.devtest.ringcentral.com' : "https://platform.ringcentral.com",
+                'portal' => !$production ? "https://service.devtest.ringcentral.com/" : "https://service.ringcentral.com/",
                 'smsNumber' => "$smsNumber",
                 'production' => $production,
-                'redirect_url' => "",
+                'redirect_url' => $this->getRequest('redirect_url'),
                 'smsHours' => $smsHours,
-                'smsMessage' => $smsMessage
+                'smsMessage' => $smsMessage,
+                'jwt' => $jwt ?? '',
             );
         }
 
@@ -418,7 +421,7 @@ abstract class AppDispatch
     {
         switch ((string)self::getServiceType()) {
             case '1':
-                return '_default_email';
+                return '_ringcentral';
             case '2':
                 return '_twilio';
             case '3':
@@ -458,13 +461,15 @@ abstract class AppDispatch
                 'redirect_url' => '',
                 'smsHours' => "50",
                 'smsMessage' => "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.",
+                'jwt' => '',
             );
             return $credentials;
         } else {
             $credentials = $credentials['credentials'];
         }
 
-        $decode = json_decode($this->crypto->decryptStandard($credentials), true);
+        $decrypt = $this->crypto->decryptStandard($credentials);
+        $decode = json_decode($decrypt, true);
         if (empty($decode['smsMessage'])) {
             $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
         }
@@ -564,11 +569,52 @@ abstract class AppDispatch
         return AclMain::aclCheckCore($sect, $v, $u);
     }
 
-    /**
-     * @return null
-     */
-    private function indexAction()
+    public function getMimeType($filename): string
     {
-        return null;
+        $mimeTypes = [
+            'txt' => 'text/plain',
+            'htm' => 'text/html',
+            'html' => 'text/html',
+            'php' => 'text/html',
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'json' => 'application/json',
+            'xml' => 'application/xml',
+            'swf' => 'application/x-shockwave-flash',
+            'flv' => 'video/x-flv',
+            'png' => 'image/png',
+            'jpe' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'jpg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'bmp' => 'image/bmp',
+            'ico' => 'image/vnd.microsoft.icon',
+            'tiff' => 'image/tiff',
+            'tif' => 'image/tiff',
+            'svg' => 'image/svg+xml',
+            'svgz' => 'image/svg+xml',
+            'zip' => 'application/zip',
+            'rar' => 'application/x-rar-compressed',
+            'exe' => 'application/x-msdownload',
+            'msi' => 'application/x-msdownload',
+            'cab' => 'application/vnd.ms-cab-compressed',
+            'mp3' => 'audio/mpeg',
+            'qt' => 'video/quicktime',
+            'mov' => 'video/quicktime',
+            'pdf' => 'application/pdf',
+            'psd' => 'image/vnd.adobe.photoshop',
+            'ai' => 'application/postscript',
+            'eps' => 'application/postscript',
+            'ps' => 'application/postscript',
+            'doc' => 'application/msword',
+            'rtf' => 'application/rtf',
+            'xls' => 'application/vnd.ms-excel',
+            'ppt' => 'application/vnd.ms-powerpoint',
+            'odt' => 'application/vnd.oasis.opendocument.text',
+            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+        ];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return $mimeTypes[$ext] ?? 'application/octet-stream';
     }
 }

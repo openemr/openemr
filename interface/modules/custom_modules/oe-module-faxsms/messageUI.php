@@ -19,7 +19,8 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
-$title = $service == "2" ? xlt('Twilio SMS') : '';
+$title = $service == "1" ? xlt('RingCentral') : '';
+$title = $service == "2" ? xlt('Twilio SMS') : $title;
 $title = $service == "3" ? xlt('etherFAX') : $title;
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 ?>
@@ -111,12 +112,16 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 console.log('Session restore failed!');
             }
             e.preventDefault();
+            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup.php';
+            if (currentService === '1') {
+                url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup_rc.php';
+            }
             let msg = <?php echo xlj('Credentials and Notifications') ?>;
             dlgopen('', 'setup', 'modal-md', 700, '', msg, {
                 buttons: [
                     {text: 'Cancel', close: true, style: 'secondary  btn-sm'}
                 ],
-                url: "./setup.php?type=" + encodeURIComponent(serviceType)
+                url: url + "?type=" + encodeURIComponent(serviceType)
             });
         };
 
@@ -365,7 +370,13 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 e.stopPropagation();
             }
 
-            const actionUrl = (serviceType === 'fax') ? 'fax/getPending?type=fax' : 'fetchSMSList?type=sms';
+            let actionUrl = (serviceType === 'fax') ? 'getPending?type=fax' : '';
+            if (serviceType === 'sms' && currentService == '1') { //RC
+                actionUrl = 'getPending?type=sms';
+            } else if (serviceType === 'sms') { //Twilio
+                actionUrl = 'fetchSMSList?type=sms';
+            }
+
             const datefrom = $('#fromdate').val();
             const dateto = $('#todate').val();
 

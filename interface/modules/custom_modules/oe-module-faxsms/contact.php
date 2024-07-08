@@ -24,6 +24,9 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $logged_in = $clientApp->authenticate();
+if ($logged_in != 1) {
+    die("<h3>" . text($logged_in) . "</h3>");
+}
 $isSMS = $clientApp->getRequest('isSMS', false);
 $isEmail = $clientApp->getRequest('isEmail', false);
 $isForward = $isFax = 0;

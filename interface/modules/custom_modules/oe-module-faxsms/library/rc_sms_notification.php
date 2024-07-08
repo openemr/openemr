@@ -74,7 +74,7 @@ if (!empty($runtime['type'])) {
 $CRON_TIME = 150;
 // use service if needed
 if ($TYPE === "SMS") {
-    $_SESSION['authUser'] = $runtime['user'] ?? '';
+    $_SESSION['authUser'] = $runtime['user'] ?? $_SESSION['authUser'];
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
     if (!$clientApp->verifyAcl('admin', 'docs', $runtime['user'] ?? '')) {
@@ -160,12 +160,17 @@ $db_sms_msg['message'] = $MESSAGE;
                         // send sms to patient - if not in test mode
                         if ($bTestRun == 0 && $isValid) {
                             cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                            $clientApp->sendSMS(
-                                $prow['phone_cell'],
-                                $db_sms_msg['email_subject'],
-                                $db_sms_msg['message'],
-                                $db_sms_msg['email_sender']
+                            $error = $clientApp->sendSMS(
+                                $prow['phone_cell'] ?? '',
+                                $db_sms_msg['email_subject'] ?? '',
+                                $db_sms_msg['message'] ?? '',
+                                $db_sms_msg['email_sender'] ?? ''
                             );
+                            if ($error !== true) {
+                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>";
+                                echo (nl2br($strMsg));
+                                exit;
+                            }
                         }
                         if (!$isValid) {
                             $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
