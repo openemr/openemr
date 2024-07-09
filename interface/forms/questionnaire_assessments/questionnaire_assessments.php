@@ -4,7 +4,8 @@
  * Questionnaire Assessment Encounters Template
  *
  *  ruth moulton
- *  configurable where to display the LOINC notice  - or don't display
+ *  configurable where to display the LOINC notice  - at the top, at the bottom, both or don't display
+ *  set in configuration/appearance
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
