@@ -3,8 +3,8 @@
 /**
  * Questionnaire Assessment Encounters Template
  *
- * version 1.0.0 ruth moulton
- *  move LOINC temrs of use  notice to the end of the form
+ *  ruth moulton
+ *  configurable where to display the LOINC notice  - or don't display
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -108,6 +108,15 @@ try {
 } catch (Exception $e) {
     die(xlt("Can not continue with reason.") . '<br />' . text($e->getMessage()));
 }
+/* where to put the LOINC statement */
+$top_note = $bottom_note = false; // value of '3' says don't display
+
+    switch ($GLOBALS['questionnaire_display_LOINCnote']){
+       case '0': $top_note = true; break;
+       case '1': $bottom_note = true; break;
+       case '2': $top_note = $bottom_note = true;
+    }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -374,7 +383,15 @@ try {
             <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($form['copyright'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
-            <!--    move copyright notice from here to the foot of the form -->
+            <!--    RM check where configured to display LOINC copyright notice -->
+            <div>
+               <p class="text-center"><?php if($top_note){ echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); } ?>
+                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php if($top_note){echo xlt("terms of use.") . "</i>"; } ?></a></p>
+                <p id="copyrightNotice">
+                    <?php echo text($form['copyright'] ?? ''); ?>
+                </p>
+
+            </div>
 
             <div class="mb-3">
                 <div class="input-group isNew d-none">
@@ -407,10 +424,10 @@ try {
             </div>
             <hr />
             <div id="formContainer"></div>
-
+            <!-- RM check if configured to print notice at bottom of window -->
               <div>
-                <p class="text-center"><?php echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); ?>
-                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php echo xlt("terms of use.") . "</i>"; ?></php></a></p>
+                <p class="text-center"><?php if($bottom_note){echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); }?>
+                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php if($bottom_note){echo xlt("terms of use.") . "</i>"; } ?> </a></p>
                 <p id="copyrightNotice">
                     <?php echo text($form['copyright'] ?? ''); ?>
                 </p>
