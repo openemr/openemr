@@ -114,13 +114,13 @@ $top_note = $bottom_note = false; // value of '3' says don't display
 
 switch ($GLOBALS['questionnaire_display_LOINCnote']) {
     case '0':
-            $top_note = true;
-            break;
+        $top_note = true;
+        break;
     case '1':
-            $bottom_note = true;
-            break;
+        $bottom_note = true;
+        break;
     case '2':
-            $top_note = $bottom_note = true;
+        $top_note = $bottom_note = true;
 }
 
 ?>
