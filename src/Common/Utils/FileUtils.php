@@ -5,14 +5,11 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @authors
- *    - Kevin McCormick Longview, Texas
- *    - Stephen Nielson <snielson@discoverandchange.com>
- *    - Jerry Padgett <sjpadgett@gmail.com>
- * @copyright
- *    - Kevin McCormick Longview, Texas
- *    - 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
- *    - 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Kevin McCormick Longview, Texas
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) Kevin McCormick Longview, Texas
+ * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -67,9 +64,11 @@ class FileUtils
     ];
 
     /**
-     * Converts bytes to a human-readable format.
+     * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
      *
-     * @param int $bytes
+     * @param int
+     * @author    Kevin McCormick Longview, Texas
+     *
      * @return string
      */
     public static function getHumanReadableFileSize($bytes): string
@@ -80,6 +79,7 @@ class FileUtils
         }
 
         $i = floor(log($bytes) / log(1024));
+        //$i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
         if ($i == 0) {
             return $bytes . ' ' . $sizes[$i];
         } else {
