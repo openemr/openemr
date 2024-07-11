@@ -109,8 +109,10 @@ try {
 } catch (Exception $e) {
     die(xlt("Can not continue with reason.") . '<br />' . text($e->getMessage()));
 }
-/* where to put the LOINC statement */
+/* where to put the LOINC statement , and the statement itself */
 $top_note = $bottom_note = false; // value of '3' says don't display
+
+$loinc_text =  "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " .  xlt("terms of use.") . "</i>" . "</a>";
 
 switch ($GLOBALS['questionnaire_display_LOINCnote']) {
     case '0':
@@ -396,9 +398,7 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
                <div>
 
                 <?php if ($top_note) : ?>
-                 <p class="text-center"><?php echo "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC");  ?>
-                    <a href="http://loinc.org/terms-of-use" target="_blank">
-                        <?php echo xlt("terms of use.") . "</i>";  ?></a></p>
+                 <p class="text-center"><?php echo $loinc_text ?></p>
                 <?php endif; ?>
 
                 <p id="copyrightNotice">
@@ -441,9 +441,7 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
             <!-- RM check if LOINC terms configured to display notice at bottom of window -->
            <?php if ($bottom_note) : ?>
                <div>
-                 <p class="text-center"><?php echo "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC");  ?>
-                    <a href="http://loinc.org/terms-of-use" target="_blank">
-                        <?php echo xlt("terms of use.") . "</i>";  ?></a></p>
+                 <p class="text-center"><?php echo $loinc_text ?></p>
               </div>
            <?php endif; ?>
 
