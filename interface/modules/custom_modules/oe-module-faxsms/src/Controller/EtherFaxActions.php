@@ -169,6 +169,7 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
+     * TODO: decrypt document
      * @return string
      * @throws \PHPMailer\PHPMailer\Exception
      */

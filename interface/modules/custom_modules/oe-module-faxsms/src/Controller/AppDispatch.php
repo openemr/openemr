@@ -98,7 +98,7 @@ abstract class AppDispatch
     public function getSession($param = null, $default = null): mixed
     {
         if ($param) {
-            return $_SESSION[$param] ?? $default;
+            return $_SESSION[$param] ?: $default;
         }
 
         return $this->_session;
@@ -112,7 +112,7 @@ abstract class AppDispatch
     public function getQuery($param = null, $default = null): mixed
     {
         if ($param) {
-            return $this->_query[$param] ?? $default;
+            return $this->_query[$param] ?: $default;
         }
 
         return $this->_query;
@@ -313,7 +313,7 @@ abstract class AppDispatch
     public function getPost($param = null, $default = null): mixed
     {
         if ($param) {
-            return $this->_post[$param] ?? $default;
+            return $this->_post[$param] ?: $default;
         }
 
         return $this->_post;
@@ -408,7 +408,7 @@ abstract class AppDispatch
     public function getRequest($param = null, $default = null): mixed
     {
         if ($param) {
-            return $this->_request[$param] ?? $default;
+            return $this->_request[$param] ?: $default;
         }
 
         return $this->_request;
@@ -567,54 +567,5 @@ abstract class AppDispatch
     public function verifyAcl($sect = 'admin', $v = 'docs', $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
-    }
-
-    public function getMimeType($filename): string
-    {
-        $mimeTypes = [
-            'txt' => 'text/plain',
-            'htm' => 'text/html',
-            'html' => 'text/html',
-            'php' => 'text/html',
-            'css' => 'text/css',
-            'js' => 'application/javascript',
-            'json' => 'application/json',
-            'xml' => 'application/xml',
-            'swf' => 'application/x-shockwave-flash',
-            'flv' => 'video/x-flv',
-            'png' => 'image/png',
-            'jpe' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'jpg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'bmp' => 'image/bmp',
-            'ico' => 'image/vnd.microsoft.icon',
-            'tiff' => 'image/tiff',
-            'tif' => 'image/tiff',
-            'svg' => 'image/svg+xml',
-            'svgz' => 'image/svg+xml',
-            'zip' => 'application/zip',
-            'rar' => 'application/x-rar-compressed',
-            'exe' => 'application/x-msdownload',
-            'msi' => 'application/x-msdownload',
-            'cab' => 'application/vnd.ms-cab-compressed',
-            'mp3' => 'audio/mpeg',
-            'qt' => 'video/quicktime',
-            'mov' => 'video/quicktime',
-            'pdf' => 'application/pdf',
-            'psd' => 'image/vnd.adobe.photoshop',
-            'ai' => 'application/postscript',
-            'eps' => 'application/postscript',
-            'ps' => 'application/postscript',
-            'doc' => 'application/msword',
-            'rtf' => 'application/rtf',
-            'xls' => 'application/vnd.ms-excel',
-            'ppt' => 'application/vnd.ms-powerpoint',
-            'odt' => 'application/vnd.oasis.opendocument.text',
-            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
-        ];
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        return $mimeTypes[$ext] ?? 'application/octet-stream';
     }
 }

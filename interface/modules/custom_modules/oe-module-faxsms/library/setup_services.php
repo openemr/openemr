@@ -32,7 +32,7 @@ $vendors = $boot->getVendorGlobals();
 <!DOCTYPE HTML>
 <html lang="eng">
 <head>
-    <title>><?php echo xlt("Enable Vendors") ?></title>
+    <title><?php echo xlt("Enable Vendors") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
     if (count($vendors ?? []) === 0) {
@@ -100,7 +100,8 @@ $vendors = $boot->getVendorGlobals();
     </script>
 </head>
 <body>
-    <div class="w-100">
+    <div class="w-100 container-xl">
+        <!--<h3 class="text-center bg-light text-dark col">Select Services</h3>-->
         <div class="form-group m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
