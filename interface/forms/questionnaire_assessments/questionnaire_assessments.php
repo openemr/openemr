@@ -391,13 +391,15 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
             <!--    RM check where configured to display LOINC copyright notice -->
             <div>
-               <p class="text-center"><?php if ($top_note) {
-                    echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); } ?>
-                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php if ($top_note) {
+            <?php if ($top_note) : ?>
+               <p class="text-center">
+                    <span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); } ?>
+                    <a href="http://loinc.org/terms-of-use" target="_blank">
                         echo xlt("terms of use.") . "</i>"; } ?></a></p>
                 <p id="copyrightNotice">
                     <?php echo text($form['copyright'] ?? ''); ?>
                 </p>
+                <?php endif; ?>
 
             </div>
 
