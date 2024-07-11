@@ -92,30 +92,30 @@ class FileUtils
      *
      * @param string $filePath
      * @param string $content
-     * @return false|string
+     * @return array
      */
-    public static function fileGetMimeType($filePath, &$content): false|string
+    public static function fileGetMimeType($filePath, &$content): false|array
     {
         $f_info = finfo_open(FILEINFO_MIME_TYPE);
-
         if (!empty($content)) {
             $mimeType = finfo_buffer($f_info, $content);
             finfo_close($f_info);
-
             // Check if filePath has an extension, if not add it based on MIME type
             $filePath = self::ensureExtension($filePath, $mimeType);
-            return $mimeType;
+            return ['type' => $mimeType, 'filePath' => $filePath];
         }
+
         if (!empty($filePath) && !file_exists($filePath)) {
             finfo_close($f_info);
             return false;
         }
+
         $mimeType = finfo_file($f_info, $filePath);
         finfo_close($f_info);
-
         // Check if filePath has an extension, if not add it based on MIME type
         $filePath = self::ensureExtension($filePath, $mimeType);
-        return $mimeType;
+
+        return ['type' => $mimeType, 'filePath' => $filePath];
     }
 
     /**
@@ -124,9 +124,9 @@ class FileUtils
      * @param string $extension
      * @return string
      */
-    public static function getMimeTypeFromExtension($extension): string
+    public static function getMimeTypeFromExtension($extension, $default = 'text/plain'): string
     {
-        return self::$mimeTypes[strtolower($extension)] ?? 'text/plain';
+        return self::$mimeTypes[strtolower($extension)] ?? $default;
     }
 
     /**
@@ -148,7 +148,7 @@ class FileUtils
      * @param string $mimeType
      * @return string
      */
-    private static function ensureExtension($filePath, $mimeType): string
+    public static function ensureExtension($filePath, $mimeType): string
     {
         $pathInfo = pathinfo($filePath);
         if (empty($pathInfo['extension'])) {
