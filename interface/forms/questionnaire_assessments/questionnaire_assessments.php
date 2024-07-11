@@ -124,6 +124,7 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
 }
 
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -360,6 +361,7 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
             saveButton.classList.remove("d-none");
             registryButton.classList.remove("d-none");
         }
+
     </script>
 </head>
 <body class="bg-light text-dark">
@@ -390,18 +392,20 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
             <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
             <!--    RM check where configured to display LOINC copyright notice -->
-            <div>
-            <?php if ($top_note) : ?>
-               <p class="text-center">
-                    <span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); } ?>
+
+               <div>
+
+                <?php if ($top_note) : ?>
+                 <p class="text-center"><?php echo "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC");  ?>
                     <a href="http://loinc.org/terms-of-use" target="_blank">
-                        echo xlt("terms of use.") . "</i>"; } ?></a></p>
+                        <?php echo xlt("terms of use.") . "</i>";  ?></a></p>
+                <?php endif; ?>
+
                 <p id="copyrightNotice">
                     <?php echo text($form['copyright'] ?? ''); ?>
                 </p>
-                <?php endif; ?>
+              </div>
 
-            </div>
 
             <div class="mb-3">
                 <div class="input-group isNew d-none">
@@ -434,18 +438,16 @@ switch ($GLOBALS['questionnaire_display_LOINCnote']) {
             </div>
             <hr />
             <div id="formContainer"></div>
-            <!-- RM check if configured to print notice at bottom of window -->
-              <div>
-                <p class="text-center"><?php if ($bottom_note) {
-                    echo "<span class='font-weight-bold'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC"); } ?>
-                    <a href="http://loinc.org/terms-of-use" target="_blank"><?php if ($bottom_note) {
-                        echo xlt("terms of use.") . "</i>"; } ?> </a></p>
-                <p id="copyrightNotice">
-                    <?php echo text($form['copyright'] ?? ''); ?>
-                </p>
-            </div>
+            <!-- RM check if LOINC terms configured to display notice at bottom of window -->
+           <?php if ($bottom_note) : ?>
+               <div>
+                 <p class="text-center"><?php echo "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC");  ?>
+                    <a href="http://loinc.org/terms-of-use" target="_blank">
+                        <?php echo xlt("terms of use.") . "</i>";  ?></a></p>
+              </div>
+           <?php endif; ?>
 
-            <?php if (!$isPortal && !$patientPortalOther) { ?>
+           <?php if (!$isPortal && !$patientPortalOther) { ?>
                 <div class="btn-group my-2">
                     <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
                     <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>" onclick="formMode = 'register'"><?php echo xlt("or Register New"); ?></button>
