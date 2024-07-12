@@ -466,7 +466,8 @@ function getAuthPortalUsers()
                             removeButtons: 'About,Table,Smiley,SpecialChar,PageBreak,Iframe,HorizontalRule,Anchor,Unlink,Link,NumberedList,BulletedList,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,CopyFormatting,RemoveFormat,Superscript,Subscript,Strike,Underline,Italic,Bold,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,SelectAll,Scayt,Find,Replace,PasteFromWord,Templates,NewPage,ExportPdf,Maximize,ShowBlocks,Source,Save,Preview,Print,Cut,Copy,Paste,PasteText,TextColor,BGColor',
                             height: 250,
                             width: '100%',
-                            resize_maxHeight: 650
+                            resize_maxHeight: 650,
+                            versionCheck: false
                         });
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose Reply Message"); ?>)
                         $scope.compose.task = mode;
@@ -511,7 +512,8 @@ function getAuthPortalUsers()
                             removeButtons: 'About,Table,Smiley,SpecialChar,PageBreak,Iframe,HorizontalRule,Anchor,Unlink,Link,NumberedList,BulletedList,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,CopyFormatting,RemoveFormat,Superscript,Subscript,Strike,Underline,Italic,Bold,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,SelectAll,Scayt,Find,Replace,PasteFromWord,Templates,NewPage,ExportPdf,Maximize,ShowBlocks,Source,Save,Preview,Print,Cut,Copy,Paste,PasteText,TextColor,BGColor',
                             height: 250,
                             width: '100%',
-                            resize_maxHeight: 650
+                            resize_maxHeight: 650,
+                            versionCheck: false
                         });
 
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>);
