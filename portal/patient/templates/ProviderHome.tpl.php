@@ -97,10 +97,6 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/messages.php"><?php echo xlt('Secure Mail') ?></a>
         </div>
         <div class="col">
-            <h4><i class="icon-cogs"></i><?php echo xlt('Chat') ?></h4>
-            <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/messaging/secure_chat.php"><?php echo xlt('Chat Messaging') ?></a>
-        </div>
-        <div class="col">
             <h4><i class="icon-signin"></i><?php echo xlt('Signature') ?></h4>
             <p><a data-type="admin-signature" class="btn btn-primary btn-sm" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">
              <span><?php echo xlt('Signature on File') . '  '; ?></span><i class="fa fa-sign-in"></i></a></p>

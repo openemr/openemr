@@ -96,13 +96,6 @@ function viewPortalMail()
     });
 }
 
-function viewPortalChats()
-{
-    navigateTab(webroot_url+"/portal/messaging/secure_chat.php","pop", function () {
-        activateTabByName("pop",true);
-    });
-}
-
 function viewPortalPayments()
 {
     navigateTab(webroot_url+"/portal/patient/onsiteactivityviews","msc", function () {

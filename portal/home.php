@@ -248,16 +248,6 @@ function buildNav($newcnt, $pid, $result)
 
     // Build sub nav items
 
-    if (!empty($GLOBALS['allow_portal_chat'])) {
-        $navItems[] = [
-            'url' => '#messagescard',
-            'label' => xl('Chat'),
-            'icon' => 'fa-comment-medical',
-            'dataToggle' => 'collapse',
-            'dataType' => 'cardgroup'
-        ];
-    }
-
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
         if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === ($result['fname'] . ' ' . $result['lname'])) {
             $navItems[$i]['children'][] = [
@@ -333,7 +323,6 @@ try {
         'payment_gateway' => $GLOBALS['payment_gateway'],
         'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
         'portal_two_payments' => $GLOBALS['portal_two_payments'],
-        'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
         'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
         'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
         'images_static_relative' => $GLOBALS['images_static_relative'],

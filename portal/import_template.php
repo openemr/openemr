@@ -410,6 +410,7 @@ function renderEditorHtml($template_id, $content)
             if (editor) {
                 editor.destroy(true);
             }
+            CKEDITOR.versionCheck = false;
             CKEDITOR.disableAutoInline = true;
             CKEDITOR.config.extraPlugins = "preview,save,docprops,justify";
             CKEDITOR.config.allowedContent = true;

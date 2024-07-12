@@ -3167,15 +3167,8 @@ $GLOBALS_METADATA = array(
             xl('Allow Patient to make and view appointments online.')
         ),
 
-        'allow_portal_chat' => array(
-            xl('Allow Online Secure Chat'),
-            'bool',                           // data type
-            '1',
-            xl('Allow Patient to use Secure Chat Application.')
-        ),
-
         'portal_two_ledger' => array(
-            xl('Allow Patient Ledger'),
+            xl('Allow Patient Accounting Online'),
             'bool',                           // data type
             '1',
             xl('Allow Patient to view their accounting ledger online.')
