@@ -564,7 +564,7 @@ abstract class AppDispatch
      * @param $u
      * @return bool
      */
-    public function verifyAcl($sect = 'admin', $v = 'docs', $u = ''): bool
+    public function verifyAcl($sect = 'Clinicians', $v = 'docs', $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
     }

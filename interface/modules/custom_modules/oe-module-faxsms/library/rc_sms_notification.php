@@ -77,7 +77,7 @@ if ($TYPE === "SMS") {
     $_SESSION['authUser'] = $runtime['user'] ?? $_SESSION['authUser'];
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
-    if (!$clientApp->verifyAcl('admin', 'docs', $runtime['user'] ?? '')) {
+    if (!$clientApp->verifyAcl('Clinicians', 'docs', $runtime['user'] ?? '')) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
 }

@@ -152,9 +152,9 @@ class RCFaxClient extends AppDispatch
      */
     public function authenticate(): int|string
     {
-        if (empty($this->credentials['username'])) {
+        if (empty($this->credentials['appKey'])) {
             $this->credentials = $this->getCredentials();
-            if (empty($this->credentials['username'])) {
+            if (empty($this->credentials['appKey'])) {
                 return 2;
                 // No credentials set
             }
@@ -921,6 +921,7 @@ class RCFaxClient extends AppDispatch
 
         $dateFrom = $this->getRequest('datefrom');
         $dateTo = $this->getRequest('dateto');
+        $serviceType = $this->getRequest('type', '');
 
         try {
             $messageStoreDir = $this->baseDir;
@@ -937,20 +938,16 @@ class RCFaxClient extends AppDispatch
                 'dateTo' => $dateTo,
             ])->json()->records;
 
-            $responseMsgs = $this->processMessageStoreList($messageStoreList);
+            $responseMsg = $this->processMessageStoreList($messageStoreList, $serviceType);
         } catch (ApiException $e) {
-            $responseMsgs = "<tr><td>" . $e->getMessage() . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
-            return json_encode(['error' => $responseMsgs]);
+            $responseMsg = "<tr><td>" . $e->getMessage() . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
+            return json_encode(['error' => $responseMsg]);
         }
 
-        return json_encode($responseMsgs ?: [xlt("Nothing to report"), xlt("Nothing to report"), xlt("Nothing to report")]);
+        return json_encode($responseMsg ?: [xlt("Nothing to report"), xlt("Nothing to report"), xlt("Nothing to report")]);
     }
 
-    /**
-     * @param $messageStoreList
-     * @return array
-     */
-    private function processMessageStoreList($messageStoreList): array
+    private function processMessageStoreList($messageStoreList, $serviceType): array
     {
         $responseMsg = [];
         foreach ($messageStoreList as $messageStore) {
@@ -965,16 +962,20 @@ class RCFaxClient extends AppDispatch
                     $updateDate = date('M j Y g:i:sa T', strtotime($messageStore->lastModifiedTime));
 
                     $links = $this->generateActionLinks($id, $uri);
-                    if (strtolower($messageStore->type) === "sms") {
+                    $checkbox = "<input type='checkbox' class='delete-fax-checkbox' value='" . text($id) . "'>";
+                    $type = strtolower($messageStore->type);
+                    $direction = strtolower($messageStore->direction);
+                    $readStatus = $messageStore->readStatus;
+                    if ($type === "sms") {
                         $messageText = $this->getMessageContent($uri);
-                        $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . $messageStore->type . "</td><td>" . $from . "</td><td>" . $to . "</td><td>" . $status . "</td><td><span class='$id'>" . text(substr($messageText, 0, 30)) . "</span><div class='d-none $id'>" . ($messageText) . "</div></td><td class='btn-group'>" . attr($links['sms']) . "</td></tr>";
-                    } elseif (strtolower($messageStore->direction) === "inbound") {
+                        $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->type) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td><span class='$id'>" . text(substr($messageText, 0, 30)) . "</span><div class='d-none $id'>" . text($messageText) . "</div></td><td class='btn-group'>" . attr($links['sms']) . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
+                    } elseif ($direction === "inbound" && $type === $serviceType) {
                         $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
-                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td></tr>";
-                    } elseif (strtolower($messageStore->direction) === "outbound") {
+                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
+                    } elseif ($direction === "outbound" && $type === $serviceType) {
                         $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
                         $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) .
-                        "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $links['outbound'] . "</td></tr>";
+                            "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $links['outbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
                     }
                 }
             }
@@ -983,11 +984,6 @@ class RCFaxClient extends AppDispatch
         return $responseMsg;
     }
 
-    /**
-     * @param $id
-     * @param $uri
-     * @return string[]
-     */
     private function generateActionLinks($id, $uri): array
     {
         $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";

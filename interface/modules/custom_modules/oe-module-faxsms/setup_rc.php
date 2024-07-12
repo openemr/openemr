@@ -85,12 +85,17 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
         });
 
         function openJwtWindow() {
-            var clientId = document.getElementById('form_key').value;
+            const clientId = document.getElementById('form_key').value;
             if (clientId) {
-                var url = 'https://developers.ringcentral.com/console/my-credentials/create?client_id=' + encodeURIComponent(clientId);
-                window.open(url, '_blank', 'width=800,height=600');
+                const url = 'https://developers.ringcentral.com/console/my-credentials/create?client_id=' + encodeURIComponent(clientId);
+                window.open(url, '_blank', 'width=1200,height=800');
             } else {
-                alert('Please enter your accounts Client ID before creating JWT.');
+                let message = xl("Please enter Client ID first.");
+                (async (message, time) => {
+                    await asyncAlertMsg(message, time, 'warning', 'lg');
+                })(message,1500).then(res => {
+                    console.log(res);
+                });
             }
         }
 
@@ -119,25 +124,26 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
             <div class="row">
                 <div class="col-md-12">
                     <div class="checkbox">
+                        <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
                         <label>
                             <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
                             <?php echo xlt("Production Check") ?>
                         </label>
                     </div>
-                    <div class="col-md">
+                    <!--<div class="col-md">
                         <div class="form-group">
-                            <label for="form_username"><?php echo xlt("Username") ?> *</label>
-                            <input id="form_username" type="text" name="username" class="form-control" required="required" value='<?php echo attr($c['username']) ?>'>
+                            <label for="form_username"><?php /*echo xlt("Username") */?> *</label>
+                            <input id="form_username" type="text" name="username" class="form-control" value='<?php /*echo attr($c['username']) */?>'>
                         </div>
                         <div class="form-group">
-                            <label for="form_password"><?php echo xlt("Password") ?> *</label>
+                            <label for="form_password"><?php /*echo xlt("Password") */?> *</label>
                             <div class="input-group">
-                                <input id="form_password" type="password" name="password" class="form-control" required="required" value='<?php echo attr($c['password']) ?>'>
+                                <input id="form_password" type="password" name="password" class="form-control" value='<?php /*echo attr($c['password']) */?>'>
                                 <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_password')">
                                     <span class="input-group-text"><i class="fa fa-eye"></i></span>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="form-group">
                             <label for="form_extension"><?php echo xlt("Extension") ?></label>
                             <input id="form_extension" type="text" name="extension" class="form-control" required="required" value='<?php echo attr($c['extension']) ?>'>
@@ -199,7 +205,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     <p class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
                 </div>
             </div>
-            <button type="submit" class="btn btn-success float-right" value=""><?php echo xlt("Save Settings") ?></button>
+            <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
         </form>
     </div>
 </body>
