@@ -155,7 +155,7 @@ class RCFaxClient extends AppDispatch
         if (empty($this->credentials['appKey'])) {
             $this->credentials = $this->getCredentials();
             if (empty($this->credentials['appKey'])) {
-                return 2;
+                return 'Missing or Invalid RingCentral Credentials. Please contact your administrator.';
                 // No credentials set
             }
         }
@@ -206,7 +206,7 @@ class RCFaxClient extends AppDispatch
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg);
+            return text(js_escape($authErrorMsg));
             // goes to alert
         }
 
@@ -226,7 +226,7 @@ class RCFaxClient extends AppDispatch
             }
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -241,13 +241,14 @@ class RCFaxClient extends AppDispatch
     }
 
     /**
+     * API Endpoint for sending
      * @return string
      */
     public function forwardFax(): string
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg); // goes to alert
+            return text(js_escape($authErrorMsg)); // goes to alert
         }
 
         $jobId = $this->getRequest('docid');
@@ -275,7 +276,6 @@ class RCFaxClient extends AppDispatch
             $apiResponse = $this->platform->get($contentUri);
             $contentType = $apiResponse->response()->getHeader('Content-Type')[0];
             $rawData = (string)$apiResponse->raw();
-
 
             $ext = $this->getExtensionFromContentType($contentType);
             $type = $this->getTypeFromContentType($contentType);
@@ -323,7 +323,7 @@ class RCFaxClient extends AppDispatch
         // Authenticate and refresh token if needed
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg); // goes to alert
+            return text(js_escape($authErrorMsg)); // goes to alert
         }
 
         // Ensure some needed args if not past in or from API abstracted endpoint sendFax().
@@ -463,7 +463,7 @@ class RCFaxClient extends AppDispatch
         $docuri = $this->getRequest('docuri');
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg);
+            return text(js_escape($authErrorMsg));
             // goes to alert
         }
 
@@ -534,7 +534,7 @@ class RCFaxClient extends AppDispatch
     }
 
     /**
-     * @param $content
+     * @param string $content
      * @return void
      */
     public function disposeDoc($content = ''): void
@@ -562,7 +562,7 @@ class RCFaxClient extends AppDispatch
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg); // goes to alert
+            return text(js_escape($authErrorMsg)); // goes to alert
         }
 
         $jobId = $this->getRequest('docid');
@@ -762,7 +762,7 @@ class RCFaxClient extends AppDispatch
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg); // goes to alert
+            return text(js_escape($authErrorMsg)); // goes to alert
         }
 
         try {
@@ -794,27 +794,6 @@ class RCFaxClient extends AppDispatch
             return json_encode(['error' => "API Error: " . $e->getMessage()]);
         } catch (Exception $e) {
             return json_encode(['error' => "Error: " . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * @param $messageId
-     * @return string
-     */
-    public function check_fax_message_status($messageId): string
-    {
-        try {
-            $endpoint = "/restapi/v1.0/account/~/extension/~/message-store/" . $messageId;
-            $resp = $this->platform->get($endpoint);
-            $jsonObj = $resp->json();
-            $status = "Message status: " . $jsonObj->messageStatus . PHP_EOL;
-            if ($jsonObj->messageStatus == "Queued") {
-                sleep(10);
-                return $this->check_fax_message_status($jsonObj->id);
-            }
-            return $status;
-        } catch (ApiException $e) {
-            return "Message: " . $e->getMessage();
         }
     }
 
@@ -864,7 +843,7 @@ class RCFaxClient extends AppDispatch
         $toDate = $this->getRequest('dateto');
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg);
+            return text(js_escape($authErrorMsg));
             // goes to alert
         }
 
@@ -1084,7 +1063,7 @@ class RCFaxClient extends AppDispatch
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg);
+            return text(js_escape($authErrorMsg));
             // goes to alert
         }
 
@@ -1173,7 +1152,7 @@ class RCFaxClient extends AppDispatch
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
-            return js_escape($authErrorMsg); // goes to alert
+            return text(js_escape($authErrorMsg)); // goes to alert
         }
 
         // Determine the category ID

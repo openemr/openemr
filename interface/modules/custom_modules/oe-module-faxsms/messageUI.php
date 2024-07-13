@@ -67,6 +67,10 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 $(".etherfax-hide").hide();
                 $(".etherfax").show();
             }
+            if (serviceType == 'sms') {
+                $(".sms-hide").hide();
+            }
+
             retrieveMsgs();
             $('#received').tab('show');
         });
@@ -683,7 +687,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                             <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ml-1" onclick="getNotificationLog(event, this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>"></span></a>
                         </li>
-                        <li class="nav-item etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
+                        <li class="nav-item sms-hide etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
                     </ul>
                     <!-- Tab panes -->
                     <?php if ($service != '1') { ?>
@@ -974,7 +978,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                     </table>
                                 </div>
                             </div>
-                            <div role="tabpanel" class="container-fluid tab-pane fade in active" id="upLoad">
+                            <div role="tabpanel" class="container-fluid tab-pane sms-hide fade in active" id="upLoad">
                                 <div class="panel container-fluid">
                                     <div id="fax-queue-container">
                                         <div id="fax-queue">

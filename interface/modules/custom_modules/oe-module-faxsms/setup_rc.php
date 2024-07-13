@@ -130,31 +130,17 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                             <?php echo xlt("Production Check") ?>
                         </label>
                     </div>
-                    <!--<div class="col-md">
-                        <div class="form-group">
-                            <label for="form_username"><?php /*echo xlt("Username") */?> *</label>
-                            <input id="form_username" type="text" name="username" class="form-control" value='<?php /*echo attr($c['username']) */?>'>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_password"><?php /*echo xlt("Password") */?> *</label>
-                            <div class="input-group">
-                                <input id="form_password" type="password" name="password" class="form-control" value='<?php /*echo attr($c['password']) */?>'>
-                                <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_password')">
-                                    <span class="input-group-text"><i class="fa fa-eye"></i></span>
-                                </div>
-                            </div>
-                        </div>-->
                         <div class="form-group">
                             <label for="form_extension"><?php echo xlt("Extension") ?></label>
                             <input id="form_extension" type="text" name="extension" class="form-control" required="required" value='<?php echo attr($c['extension']) ?>'>
                         </div>
                         <div class="form-group">
                             <label for="form_phone"><?php echo xlt("FAX Phone Number") ?></label>
-                            <input type="text" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>'>
+                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>'>
                         </div>
                         <div class="form-group">
                             <label for="form_smsnumber"><?php echo xlt("SMS Phone Number") ?></label>
-                            <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
+                            <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control"
                                 value='<?php echo attr($c['smsNumber']) ?>'>
                         </div>
                     </div>

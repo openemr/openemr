@@ -430,6 +430,56 @@ abstract class AppDispatch
         return null;
     }
 
+    public function getEmailSetup(): mixed
+    {
+        $vendor = '_email';
+        $this->authUser = (int)$this->getSession('authUserID');
+        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+            $this->authUser = 0;
+        }
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
+
+        if (empty($credentials['smtp_user']) || empty($credentials['smtp_host']) || empty($credentials['smtp_password'])) {
+            $credentials = array(
+                'sender_name' => $GLOBALS['patient_reminder_sender_name'],
+                'sender_email' => $GLOBALS['patient_reminder_sender_email'],
+                'notification_email' => $GLOBALS['practice_return_email_path'],
+                'email_transport' => $GLOBALS['EMAIL_METHOD'],
+                'smtp_host' => $GLOBALS['SMTP_HOST'],
+                'smtp_port' => $GLOBALS['SMTP_PORT'],
+                'smtp_user' => $GLOBALS['SMTP_USER'],
+                'smtp_password' => $GLOBALS['SMTP_PASS'],
+                'smtp_security' => $GLOBALS['SMTP_SECURE'],
+                'notification_hours' => $GLOBALS['EMAIL_NOTIFICATION_HOUR']
+            );
+            if (empty($credentials['smsMessage'] ?? '')) {
+                $credentials['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
+            }
+            return $credentials;
+        } else {
+            $credentials = $credentials['credentials'];
+            if (empty($credentials['smsMessage'] ?? '')) {
+                $credentials['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
+            }
+        }
+
+        $decrypt = $this->crypto->decryptStandard($credentials);
+        $decode = json_decode($decrypt, true);
+        return $decode;
+    }
+
+    public function saveEmailSetup($credentials): void
+    {
+        $vendor = '_email';
+        $this->authUser = (int)$this->getSession('authUserID');
+        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+            $this->authUser = 0;
+        }
+        $encoded = json_encode($credentials);
+        $encrypted = $this->crypto->encryptStandard($encoded);
+        sqlStatement("INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)", array($this->authUser, $vendor, $encrypted));
+    }
+
     /**
      * Common credentials storage between services
      * the service class will set specific credential.
@@ -505,7 +555,7 @@ abstract class AppDispatch
      * @param $email
      * @return bool
      */
-    protected function validEmail($email): bool
+    public function validEmail($email): bool
     {
         if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
             return true;
