@@ -145,6 +145,8 @@ $templateService = new DocumentTemplateService();
             page.init();
             pageAudit.init();
             if (isPortal) {
+                $(".template-body").addClass("bg-light");
+                $(".template-body").addClass("text-dark");
                 $('#Help').on('click', function (e) {
                     e.preventDefault();
                     $(".helpHide").addClass("d-none");
@@ -510,7 +512,6 @@ $templateService = new DocumentTemplateService();
                     <li class='nav-item mb-1'>
                         <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
                             <?php echo xlt('History') ?>
-                            <i class="history-direction ml-1 fa fa-arrow-down"></i>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
@@ -573,7 +574,7 @@ $templateService = new DocumentTemplateService();
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
-                                <div id="templatecontent" class="template-body">
+                                <div id="templatecontent" class="template-body bg-light">
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>

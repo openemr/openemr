@@ -410,7 +410,6 @@ function renderEditorHtml($template_id, $content)
             if (editor) {
                 editor.destroy(true);
             }
-            CKEDITOR.versionCheck = false;
             CKEDITOR.disableAutoInline = true;
             CKEDITOR.config.extraPlugins = "preview,save,docprops,justify";
             CKEDITOR.config.allowedContent = true;
@@ -425,6 +424,7 @@ function renderEditorHtml($template_id, $content)
             CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
             CKEDITOR.config.shiftEnterMode = CKEDITOR.ENTER_P;
             CKEDITOR.config.autoParagraph = false;
+            CKEDITOR.config.versionCheck = false;
             editor = CKEDITOR.replace('templateContent', {
                 removeButtons: 'PasteFromWord'
             });

@@ -80,9 +80,9 @@ $N = 7;
     <div class="card">
             <header class="card-header border border-bottom-0"><?php echo xlt('Profile Demographics'); ?>
             <?php if ($pending) {
-                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white">' . xlt('Pending Review') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-outline-danger btn-sm float-right">' . xlt('Edit Pending Changes.') . '</button>';
             } else {
-                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white">' . xlt('Revise') . '</button>';
+                echo '<button type="button" id="editDems" class="btn  btn-outline-success btn-sm float-right">' . xlt('Edit Demographics') . '</button>';
             }
             ?>
             </header>

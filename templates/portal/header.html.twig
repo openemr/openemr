@@ -1,4 +1,4 @@
-<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top container">
     <a class="navbar-brand" href="home.php">
         <img class="d-inline-block align-top" height="{{ primaryMenuLogoHeight|attr }}" src="{{ menuLogo | attr }}"/>
     </a>
@@ -12,7 +12,6 @@
             {% for item in navMenu %}
                 <li class="nav-item {% if item.children %}dropdown{% endif %}">
                     <a class="nav-link {% if item.children %}dropdown-toggle{% endif %}" href="{{ item.url | attr }}" {% if item.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% else %} data-toggle="{{ item.dataToggle | attr }}" data-parent="#cardgroup" {% endif %}>
-
 
                         {% if item.icon %}
                             <i class="fas {{ item.icon | attr}}"></i>

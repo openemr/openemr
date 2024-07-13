@@ -175,13 +175,6 @@ function buildNav($newcnt, $pid, $result)
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
-                /* Reserve item */
-                /*[
-                    'url' => '#documentscard',
-                    'label' => xl('My Documents'),
-                    'icon' => 'fa-file-medical',
-                    'dataToggle' => 'collapse'
-                ],*/
                 [
                     'url' => '#lists',
                     'label' => xl('My Health'),
@@ -202,32 +195,20 @@ function buildNav($newcnt, $pid, $result)
             'label' => xl('Reports'),
             'icon' => 'fa-book-medical',
             'dropdownID' => 'reports',
-            'children' => [
-                [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
-                    'label' => xl('View CCD'),
-                    'icon' => 'fa-eye',
-                    'target_blank' => 'true',
-                ],
-                [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
-                    'label' => xl('Download CCD'),
-                    'icon' => 'fa-download',
-                ]
-            ]
+            'children' => []
         ]
     ];
     if (($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments'])) {
         if (!empty($GLOBALS['portal_two_ledger'])) {
             $navItems[] = [
                 'url' => '#',
-                'label' => xl('Accountings'),
+                'label' => xl('Accounting'),
                 'icon' => 'fa-file-invoice-dollar',
                 'dropdownID' => 'accounting',
                 'children' => [
                     [
                         'url' => '#ledgercard',
-                        'label' => xl('Ledger'),
+                        'label' => xl('Billing Summary'),
                         'icon' => 'fa-folder-open',
                         'dataToggle' => 'collapse'
                     ]
@@ -235,7 +216,6 @@ function buildNav($newcnt, $pid, $result)
             ];
         }
     }
-
     if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
         $navItems[] = [
             'url' => '#procard',
@@ -247,6 +227,16 @@ function buildNav($newcnt, $pid, $result)
     }
 
     // Build sub nav items
+
+    if (!empty($GLOBALS['allow_portal_chat'])) {
+        $navItems[] = [
+            'url' => '#messagescard',
+            'label' => xl('Chat'),
+            'icon' => 'fa-comment-medical',
+            'dataToggle' => 'collapse',
+            'dataType' => 'cardgroup'
+        ];
+    }
 
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
         if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === ($result['fname'] . ' ' . $result['lname'])) {
@@ -273,19 +263,34 @@ function buildNav($newcnt, $pid, $result)
                 ]
             );
         }
-
+        if (($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3) && $navItems[$i]['label'] === xl('Reports')) {
+            array_push(
+                $navItems[$i]['children'],
+                [
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
+                    'label' => xl('View Continuity of Care Document'),
+                    'icon' => 'fa-eye',
+                    'target_blank' => 'true',
+                ],
+                [
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
+                    'label' => xl('Download Continuity of Care Document'),
+                    'icon' => 'fa-download',
+                ]
+            );
+        }
         if (!empty($GLOBALS['portal_onsite_document_download']) && $navItems[$i]['label'] === xl('Reports')) {
             array_push(
                 $navItems[$i]['children'],
                 [
                     'url' => '#reportcard',
-                    'label' => xl('Report Content'),
+                    'label' => xl('Create Report from Content'),
                     'icon' => 'fa-folder-open',
                     'dataToggle' => 'collapse'
                 ],
                 [
                     'url' => '#downloadcard',
-                    'label' => xl('Download Charted Documents'),
+                    'label' => xl('Download Patient Documents'),
                     'icon' => 'fa-download',
                     'dataToggle' => 'collapse'
                 ]
@@ -323,6 +328,7 @@ try {
         'payment_gateway' => $GLOBALS['payment_gateway'],
         'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
         'portal_two_payments' => $GLOBALS['portal_two_payments'],
+        'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
         'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
         'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
         'images_static_relative' => $GLOBALS['images_static_relative'],
