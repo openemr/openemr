@@ -70,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php echo xlt("Reminder Actions") ?>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
-                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr_js($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr_js($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
                 </div>
             </div>
         </div>
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="form_message"><?php echo xlt("Message Template") ?></label>
                 <span style="font-size:12px;font-style: italic;">&nbsp;
                     <?php echo xlt("Tags") ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***</span>
-                <textarea id="form_message" rows="3" name="smsmessage" class="form-control" required><?php echo attr($credentials['smsMessage']) ?></textarea>
+                <textarea id="form_message" rows="3" name="smsmessage" class="form-control" required><?php echo text($credentials['smsMessage']) ?></textarea>
             </div>
             <button type="submit" class="btn btn-success float-right m-2"><?php echo xlt("Save Settings") ?></button>
         </form>

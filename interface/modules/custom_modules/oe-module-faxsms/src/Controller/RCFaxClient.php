@@ -66,7 +66,7 @@ class RCFaxClient extends AppDispatch
                 return $this->loginWithJWT();
             }
         } catch (Exception $e) {
-            return $e->getMessage();
+            return text($e->getMessage());
         }
     }
 
@@ -115,9 +115,9 @@ class RCFaxClient extends AppDispatch
                 return 1;
             }
         } catch (ApiException $e) {
-            return "API Error: " . $e->getMessage() . " - " . $e->getCode();
+            return "API Error: " . text($e->getMessage()) . " - " . text($e->getCode());
         } catch (Exception $e) {
-            return "Error: " . $e->getMessage();
+            return "Error: " . text($e->getMessage());
         }
         return "Login with JWT failed.";
     }
@@ -222,7 +222,7 @@ class RCFaxClient extends AppDispatch
                 // RC may only allow 1/second.
                 return true;
             } catch (ApiException $e) {
-                return "API Error: " . $e->getMessage() . " - " . $e->getCode();
+                return text("API Error: " . $e->getMessage() . " - " . $e->getCode());
             }
         }
 
@@ -300,13 +300,13 @@ class RCFaxClient extends AppDispatch
                     );
                     $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
                 } catch (Exception $e) {
-                    return js_escape('Error: ' . $e->getMessage());
+                    return js_escape('Error: ' . text($e->getMessage()));
                 }
             }
             unlink($filePath);
             return js_escape($statusMsg);
         } catch (ApiException | Exception $e) {
-            return js_escape('Error: ' . $e->getMessage());
+            return js_escape('Error: ' . text($e->getMessage()));
         }
     }
 
@@ -418,7 +418,7 @@ class RCFaxClient extends AppDispatch
             if (empty($type)) {
                 $type = mime_content_type($content);
             }
-            error_log($phone . ' ' . $fileName . ' ' . $type . ' ' . $name);
+            //error_log($phone . ' ' . $fileName . ' ' . $type . ' ' . $name);
             $request = $this->rcsdk->createMultipartBuilder()
                 ->setBody([
                     'to' => [['phoneNumber' => $phone, 'name' => $name]],
@@ -449,10 +449,10 @@ class RCFaxClient extends AppDispatch
                     return 'Fax Successfully Sent';
                 }
             } catch (Exception $ex) {
-                return "Re-authentication Error: " . $ex->getMessage();
+                return "Re-authentication Error: " . text($ex->getMessage());
             }
         }
-        return "API Error: " . $e->getMessage() . " - " . $e->getCode() . "\n" . json_encode($e->apiResponse ? $e->apiResponse->json() : [], JSON_PRETTY_PRINT);
+        return "API Error: " . text($e->getMessage()) . " - " . text($e->getCode()) . "\n" . text(json_encode($e->apiResponse ? $e->apiResponse->json() : [], JSON_PRETTY_PRINT));
     }
 
     /**
@@ -470,7 +470,7 @@ class RCFaxClient extends AppDispatch
         try {
             $apiResponse = $this->platform->get($docuri);
         } catch (ApiException $e) {
-            return "Error: Retrieving Fax: " . $e->getMessage() . $e->apiResponse()->request()->getUri()->__toString();
+            return "Error: Retrieving Fax: " . text($e->getMessage() . $e->apiResponse()->request()->getUri()->__toString());
         }
 
         $contentType = $apiResponse->response()->getHeader('Content-Type')[0];
@@ -593,17 +593,14 @@ class RCFaxClient extends AppDispatch
             $contentType = $apiResponse->response()->getHeader('Content-Type')[0];
             $rawData = (string)$apiResponse->raw();
 
-            $dataUrl = $this->formatFaxDataUrl($rawData, $contentType);
-
             if ($isDownload) {
                 $filePath = $this->saveFaxToFile($rawData, $jobId, $contentType);
                 $this->setSession('where', $filePath);
-                return json_encode(['base64' => base64_encode($rawData), 'mime' => $contentType, 'path' => $filePath]);
+                return text(json_encode(['base64' => base64_encode($rawData), 'mime' => $contentType, 'path' => $filePath]));
             }
-
-            return json_encode(['base64' => base64_encode($rawData), 'mime' => $contentType]);
+            return text(json_encode(['base64' => base64_encode($rawData), 'mime' => $contentType]));
         } catch (ApiException $e) {
-            return json_encode(['error' => "Error: Retrieving Fax: " . $e->getMessage()]);
+            return text(json_encode(['error' => "Error: Retrieving Fax: " . $e->getMessage()]));
         }
     }
 
@@ -613,8 +610,9 @@ class RCFaxClient extends AppDispatch
      */
     public function fetchFaxFromQueue(string $jobId): mixed
     {
-        if ($this->authenticate() !== 1) {
-            return json_encode(['error' => $this->authErrorDefault]);
+        $authErrorMsg = $this->authenticate();
+        if ($authErrorMsg !== 1) {
+            return text(js_escape($authErrorMsg)); // goes to alert
         }
 
         try {
@@ -627,9 +625,9 @@ class RCFaxClient extends AppDispatch
                 'data' => base64_encode($rawData)
             ];
         } catch (ApiException $e) {
-            return json_encode(['error' => "API Error: " . $e->getMessage()]);
+            return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
         } catch (Exception $e) {
-            return json_encode(['error' => "Error: " . $e->getMessage()]);
+            return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
 
@@ -791,9 +789,9 @@ class RCFaxClient extends AppDispatch
 
             exit; // Stop further script execution
         } catch (ApiException $e) {
-            return json_encode(['error' => "API Error: " . $e->getMessage()]);
+            return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
         } catch (Exception $e) {
-            return json_encode(['error' => "Error: " . $e->getMessage()]);
+            return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
 
@@ -828,7 +826,7 @@ class RCFaxClient extends AppDispatch
                 $responseMsg .= "<tr><td>" . $nrow["pc_eid"] . "</td><td>" . $nrow["dSentDateTime"] . "</td><td>" . $adate . "</td><td>" . $pinfo . "</td><td>" . $msg . "</td></tr>";
             }
         } catch (\Exception $e) {
-            return 'Error: ' . $e->getMessage() . PHP_EOL;
+            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 
         return $responseMsg;
@@ -882,7 +880,7 @@ class RCFaxClient extends AppDispatch
                 }
             }
         } catch (ApiException $e) {
-            return xlt('HTTP Error') . ': ' . $e->getMessage() . PHP_EOL;
+            return xlt('HTTP Error') . ': ' . text($e->getMessage()) . PHP_EOL;
         }
 
         return $responseMsg;
@@ -919,7 +917,7 @@ class RCFaxClient extends AppDispatch
 
             $responseMsg = $this->processMessageStoreList($messageStoreList, $serviceType);
         } catch (ApiException $e) {
-            $responseMsg = "<tr><td>" . $e->getMessage() . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
+            $responseMsg = "<tr><td>" . text($e->getMessage()) . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
             return json_encode(['error' => $responseMsg]);
         }
 
@@ -1087,7 +1085,7 @@ class RCFaxClient extends AppDispatch
                         try {
                             $apiResponse = $this->platform->get($uri);
                         } catch (ApiException $e) {
-                            $responseMsgs .= "<tr><td>Errors: " . $e->getMessage() . $e->apiResponse()->request()->getUri()->__toString() . "</td></tr>";
+                            $responseMsgs .= "<tr><td>Errors: " . text($e->getMessage()) . $e->apiResponse()->request()->getUri()->__toString() . "</td></tr>";
                             continue;
                         }
 
@@ -1107,7 +1105,7 @@ class RCFaxClient extends AppDispatch
                 }
             }
         } catch (ApiException $e) {
-            echo "<tr><td>Error: " . $e->getMessage() . $e->apiResponse()->request()->getUri()->__toString() . "</td></tr>";
+            echo "<tr><td>Error: " . text($e->getMessage() . $e->apiResponse()->request()->getUri()->__toString()) . "</td></tr>";
         }
 
         exit;
@@ -1139,7 +1137,27 @@ class RCFaxClient extends AppDispatch
      */
     public function fetchReminderCount(): string|bool
     {
-        return '0';
+        $authErrorMsg = $this->authenticate();
+        if ($authErrorMsg !== 1) {
+            return text(js_escape($authErrorMsg)); // goes to alert
+        }
+
+        if (self::$_apiModule == 'sms') {
+            return '0';
+        }
+        try {
+            $platform = $this->rcsdk->platform();
+            $response = $platform->get('/restapi/v1.0/account/~/extension/~/message-store', [
+                'messageType' => 'Fax',
+                'direction' => 'Inbound',
+                'availability' => 'Alive'
+            ]);
+            $json = $response->json();
+            return (string) text(count($json->records));
+        } catch (Exception $e) {
+            error_log('Error fetching incoming faxes: ' . text($e->getMessage()));
+            return false;
+        }
     }
 
     /**
@@ -1180,9 +1198,9 @@ class RCFaxClient extends AppDispatch
 
             return $result ? xlt("Error: Failed to save document. Category Fax") : xlt("Chart Success");
         } catch (ApiException $e) {
-            return json_encode(['error' => "Error: Retrieving Fax: " . $e->getMessage()]);
+            return json_encode(['error' => "Error: Retrieving Fax: " . text($e->getMessage())]);
         } catch (Exception $e) {
-            return json_encode(['error' => "Error: " . $e->getMessage()]);
+            return json_encode(['error' => "Error: " . text($e->getMessage())]);
         }
     }
 

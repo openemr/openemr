@@ -235,6 +235,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 } catch {
                     data = json;
                 }
+                if (data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+
                 if (deleteFlag == 'true') {
                     if (massDelete) {
                         return false;

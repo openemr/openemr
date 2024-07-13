@@ -25,7 +25,7 @@ abstract class AppDispatch
 {
     const ACTION_DEFAULT = 'index';
     static $_apiService;
-    static $_apiModule;
+    static mixed $_apiModule;
     public string $authErrorDefault;
     public static $timeZone;
     protected $crypto;
