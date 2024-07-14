@@ -17,9 +17,9 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @author Tyler Wrenn <tyler@tylerwrenn.com>
- * @link http://www.open-emr.org
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @link    http://www.open-emr.org
  *
  */
 
@@ -71,52 +71,51 @@ $N = 7;
 </style>
 <body>
 
-<div class='demographics table-responsive' id='DEM'>
-
-    <?php
-    $result1 = getPatientData($pid);
-    $result2 = getEmployerData($pid);
-    ?>
-    <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Profile Demographics'); ?>
-            <?php if ($pending) {
-                echo '<button type="button" id="editDems" class="btn btn-outline-danger btn-sm float-right">' . xlt('Edit Pending Changes.') . '</button>';
-            } else {
-                echo '<button type="button" id="editDems" class="btn  btn-outline-success btn-sm float-right">' . xlt('Edit Demographics') . '</button>';
-            }
-            ?>
+    <div class='demographics table-responsive' id='DEM'>
+        <?php
+        $result1 = getPatientData($pid);
+        $result2 = getEmployerData($pid);
+        ?>
+        <div class="card">
+            <header class="card-header border border-bottom-0"><?php echo xlt('Demographics'); ?>
+                <?php if ($pending) {
+                    echo '<button type="button" id="editDems" class="btn btn-outline-danger btn-sm float-right">' . xlt('Edit Pending Changes.') . '</button>';
+                } else {
+                    echo '<button type="button" id="editDems" class="btn  btn-outline-success btn-sm float-right">' . xlt('Edit Demographics') . '</button>';
+                }
+                ?>
             </header>
             <div class="card-body border" id="dempanel">
                 <table class='table table-responsive table-sm'>
-    <?php
-                display_layout_rows('DEM', $result1, $result2);
-    ?>
+                    <?php
+                    display_layout_rows('DEM', $result1, $result2);
+                    ?>
                 </table>
             </div>
         </div>
     </div>
     <div class='insurance table-sm table-responsive'>
         <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance');?></header>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance'); ?></header>
             <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-?>
+                <?php
+                printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
+                ?>
             </div>
         </div>
         <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Secondary Insurance');?></header>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Secondary Insurance'); ?></header>
             <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-?></div>
+                <?php
+                printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
+                ?></div>
         </div>
         <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Tertiary Insurance');?></header>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Tertiary Insurance'); ?></header>
             <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
-?></div>
+                <?php
+                printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
+                ?></div>
         </div>
     </div>
     <div>

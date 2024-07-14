@@ -136,7 +136,7 @@ $templateService = new DocumentTemplateService();
     </style>
 </head>
 
-<body class="p-0 m-0">
+<body class="p-0 m-0 mt-1">
     <script>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
         $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
@@ -480,7 +480,7 @@ $templateService = new DocumentTemplateService();
     </script>
     <div class="container-xl px-1">
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
-            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("Document Actions") ?></h3></a>
+            <a class="navbar-brand mt-1 mr-1"><h4><?php echo xlt("Document and Forms") ?></h4></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -489,11 +489,10 @@ $templateService = new DocumentTemplateService();
                     <!-- Sticky actions toolbar -->
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+                            <!--<li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php /*echo xlt('Save'); */?></a></li>-->
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#"><?php echo xlt('Submit Document'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
@@ -509,9 +508,12 @@ $templateService = new DocumentTemplateService();
                             </div>
                         </div>
                     <?php } ?>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#"><?php echo xlt('Submit'); ?></a>
+                    </li>
                     <li class='nav-item mb-1'>
                         <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
-                            <?php echo xlt('History') ?>
+                            <?php echo xlt('Activities') ?>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
@@ -523,22 +525,16 @@ $templateService = new DocumentTemplateService();
                             <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <?php if (!empty($is_portal) && empty($auto_render)) { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
-                        </li>
-                    <?php } elseif (!$is_module && !$is_dashboard) {
-                        $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
-                        ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
-                        </li>
-                    <?php } ?>
-                    <li class='nav-item mb-1'>
-                        <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
-                    </li>
                 </ul>
-                <a id="idShow" class="btn btn-outline-primary float-right m-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'><?php echo xlt('Refresh'); ?></a>
+                <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                <?php if (!empty($is_portal) && empty($auto_render)) { ?>
+                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Return to Dashboard'); ?></a>
+                <?php } elseif (!$is_module && !$is_dashboard) {
+                    $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
+                    ?>
+                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
+                <?php } ?>
             </div>
         </nav>
         <div class="d-flex flex-row justify-content-center">
@@ -558,7 +554,7 @@ $templateService = new DocumentTemplateService();
                         <!-- File upload -->
                         <div class="card col-12 col-lg-5 col-md-3">
                             <div id="hideUpload" class="card-body" style="display: none;">
-                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('My Uploads') ?></h4>
+                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
                                 <div class="row">
                                     <div class="container-fluid h-25" id="file-queue-container">
                                         <div id="file-queue">
@@ -619,7 +615,7 @@ $templateService = new DocumentTemplateService();
         <!-- Now history table container template -->
         <script type="text/template" id="onsiteDocumentCollectionTemplate">
             <div class="table-responsive pt-3">
-                <h4 class="text-sm-center"><?php echo xlt('Your Document History') ?><small> (Click on label to sort.)</small></h4>
+                <h4 class="text-sm-center"><?php echo xlt('Document and Forms Activity') ?><small><cite> (Current and Past Status.)</cite></small></h4>
                 <table class="collection table table-sm table-hover">
                     <thead class='thead-dark'>
                     <tr class='cursor-pointer'>

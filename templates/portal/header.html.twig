@@ -1,4 +1,4 @@
-<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top container">
+<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top mx-3">
     <a class="navbar-brand" href="home.php">
         <img class="d-inline-block align-top" height="{{ primaryMenuLogoHeight|attr }}" src="{{ menuLogo | attr }}"/>
     </a>
@@ -27,6 +27,7 @@
                     {% if item.children | length > 0 %}
                         <ul class="dropdown-menu" aria-labelledby="{{ item.dropdownID | attr }}-dropdown">
                             {% for child in item.children %}
+                                {% if not child.hide %}
                                 <li>
                                     <a class="dropdown-item" {% if child.id %}id="{{ child.id | attr}}"{% endif %}  {% if child.target_blank %} target="_blank" {% endif %} href="{{ child.url | attr }}" {% if child.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% endif %} {% if child.dataToggle %} data-toggle="{{ child.dataToggle | attr }}" data-parent="#cardgroup" {% endif %}>
                                         {% if child.icon %}
@@ -39,6 +40,7 @@
                                         {% endif %}
                                     </a>
                                 </li>
+                                {% endif %}
                             {% endfor %}
                         </ul>
                     {% endif %}

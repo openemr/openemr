@@ -24,8 +24,8 @@ require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
+use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -143,8 +143,18 @@ function collectStyles(): array
     closedir($dh);
     return $styleArray;
 }
-function buildNav($newcnt, $pid, $result)
+
+function buildNav($newcnt, $pid, $result): array
 {
+    $hideLedger = false;
+    $hidePayment = false;
+    if (empty($GLOBALS['portal_two_ledger'])) {
+        $hideLedger = true;
+    }
+
+    if (empty($GLOBALS['portal_two_payments'])) {
+        $hidePayment = true;
+    }
     $navItems = [
         [
             'url' => '#',
@@ -156,34 +166,48 @@ function buildNav($newcnt, $pid, $result)
                 [
                     'url' => '#quickstart-card',
                     'id' => 'quickstart_id',
-                    'label' => xl('My Dashboard'),
+                    'label' => xl('Dashboard'),
                     'icon' => 'fa-tasks',
                     'dataToggle' => 'collapse',
                 ],
 
                 [
                     'url' => '#profilecard',
-                    'label' => xl('My Profile'),
+                    'label' => xl('Demographics'),
                     'icon' => 'fa-user',
                     'dataToggle' => 'collapse',
                 ],
 
                 [
                     'url' => '#secure-msgs-card',
-                    'label' => xl('My Messages'),
+                    'label' => xl('Secure Messaging'),
                     'icon' => 'fa-envelope',
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
                     'url' => '#lists',
-                    'label' => xl('My Health'),
+                    'label' => xl('Medical Health'),
                     'icon' => 'fa-list',
                     'dataToggle' => 'collapse'
                 ],
                 [
+                    'url' => '#ledgercard',
+                    'label' => xl('Billing Summary'),
+                    'icon' => 'fa-folder-open',
+                    'dataToggle' => 'collapse',
+                    'hide' => $hideLedger
+                ],
+                [
+                    'url' => '#paymentcard',
+                    'label' => xl('Make Payment'),
+                    'icon' => 'fa-credit-card',
+                    'dataToggle' => 'collapse',
+                    'hide' => $hidePayment
+                ],
+                [
                     'url' => '#openSignModal',
-                    'label' => xl('My Signature'),
+                    'label' => xl('Signature'),
                     'icon' => 'fa-file-signature',
                     'dataToggle' => 'modal',
                     'dataType' => 'patient-signature'
@@ -198,28 +222,11 @@ function buildNav($newcnt, $pid, $result)
             'children' => []
         ]
     ];
-    if (($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments'])) {
-        if (!empty($GLOBALS['portal_two_ledger'])) {
-            $navItems[] = [
-                'url' => '#',
-                'label' => xl('Accounting'),
-                'icon' => 'fa-file-invoice-dollar',
-                'dropdownID' => 'accounting',
-                'children' => [
-                    [
-                        'url' => '#ledgercard',
-                        'label' => xl('Billing Summary'),
-                        'icon' => 'fa-folder-open',
-                        'dataToggle' => 'collapse'
-                    ]
-                ]
-            ];
-        }
-    }
+
     if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
         $navItems[] = [
             'url' => '#procard',
-            'label' => xl('My Assessments'),
+            'label' => xl('Assessments'),
             'icon' => 'fas fa-file-medical',
             'dataToggle' => 'collapse',
             'dataType' => 'cardgroup'
@@ -242,7 +249,7 @@ function buildNav($newcnt, $pid, $result)
         if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === ($result['fname'] . ' ' . $result['lname'])) {
             $navItems[$i]['children'][] = [
                 'url' => '#appointmentcard',
-                'label' => xl('My Appointments'),
+                'label' => xl('Appointments'),
                 'icon' => 'fa-calendar-check',
                 'dataToggle' => 'collapse'
             ];
@@ -296,18 +303,11 @@ function buildNav($newcnt, $pid, $result)
                 ]
             );
         }
-        if (!empty($GLOBALS['portal_two_payments']) && $navItems[$i]['label'] === xl('Accountings')) {
-            $navItems[$i]['children'][] = [
-                'url' => '#paymentcard',
-                'label' => xl('Make Payment'),
-                'icon' => 'fa-credit-card',
-                'dataToggle' => 'collapse'
-            ];
-        }
     }
 
     return $navItems;
 }
+
 // Available Themes
 $styleArray = collectStyles();
 // Build our navigation

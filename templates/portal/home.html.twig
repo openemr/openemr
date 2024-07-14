@@ -147,8 +147,8 @@
             $("#labresults").load("./get_lab_results.php", {}, function () {
             });
 
-            $("#amendmentslist").load("./get_amendments.php", {}, function () {
-            });
+           /* $("#amendmentslist").load("./get_amendments.php", {}, function () {
+            });*/
 
             $("#problemslist").load("./get_problems.php", {}, function () {
             });
@@ -419,34 +419,34 @@
 
         <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
-                <div id="medicationlist" class="card-body bg-light"></div>
+                <header class="card-header p-1 bg-dark text-light">{{ 'Current Medications' | xlt }}</header>
+                <div id="medicationlist" class="card-body p-2 bg-light"></div>
             </div>
             <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Medications Allergy List' | xlt }}</header>
-                <div id="allergylist" class="card-body bg-light"></div>
+                <header class="card-header p-1 bg-dark text-light">{{ 'Medication Allergy List' | xlt }}</header>
+                <div id="allergylist" class="card-body p-2 bg-light"></div>
             </div>
             <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Issues List' | xlt }}</header>
-                <div id="problemslist" class="card-body bg-light"></div>
+                <header class="card-header p-1 bg-dark text-light">{{ 'Current Problems List' | xlt }}</header>
+                <div id="problemslist" class="card-body p-2 bg-light"></div>
             </div>
+            {#<div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Amendment List' | xlt }}</header>
+                <div id="amendmentslist" class="card-body p-2 bg-light"></div>
+            </div>#}
             <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Amendment List' | xlt }}</header>
-                <div id="amendmentslist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Lab Results' | xlt }}</header>
-                <div id="labresults" class="card-body bg-light"></div>
+                <header class="card-header p-1 bg-dark text-light">{{ 'Lab Results' | xlt }}</header>
+                <div id="labresults" class="card-body p-2 bg-light"></div>
             </div>
         </div>
 
         <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
-            <header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
+            <header class="card-header p-1 bg-dark text-light">{{ 'Reports' | xlt }}</header>
             <div id="reports" class="card-body"></div>
         </div>
 
         <div class="card collapse" data-parent="#cardgroup" id="profilecard">
-            <div id="profilereport" class="card-body bg-light"></div>
+            <div id="profilereport" class="card-body p-2 bg-light"></div>
         </div>
 
         <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
@@ -488,15 +488,15 @@
         {% if portal_two_payments %}
             <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
                 <div class="card">
-                    <header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
-                    <div id="payment" class="card-body bg-light"></div>
+                    <header class="card-header p-1 bg-dark text-light">{{ 'Payments' | xlt }}</header>
+                    <div id="payment" class="card-body p-2 bg-light"></div>
                 </div>
             </div>
         {% endif %}
 
         {% if portal_onsite_document_download %}
             <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
-                <header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
+                <header class="card-header p-1 bg-dark text-light">{{ 'Download Documents' | xlt }}</header>
                 <div id="docsdownload" class="card-body">
                     <div>
                         <span class="text">{{ 'Download all patient documents' | xlt }}</span>
@@ -505,14 +505,14 @@
                         </form>
                     </div>
                 </div>
-                <!-- /.card-body -->
+                <!-- /.card-body p-0 -->
             </div>
         {% endif %}
 
         {% if portal_two_ledger %}
             <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
                 <div class="card">
-                    <header class="card-header bg-primary text-light">{{ 'Billing Summary' | xlt }}</header>
+                    <header class="card-header p-1 bg-dark text-light">{{ 'Billing Summary' | xlt }}</header>
                     <div id="patledger" class="card-body">
                         <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
                     </div>
@@ -522,8 +522,8 @@
 
         {% if isEasyPro %}
             <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
-                <header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
-                <div id="pro" class="card-body bg-light"></div>
+                <header class="card-header p-1 bg-dark text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
+                <div id="pro" class="card-body p-2 bg-light"></div>
             </div>
         {% endif %}
 
@@ -584,9 +584,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="container-xl p-3">
+                    <div class="container-fluid p-3">
                         <div class="jumbotron jumbotron-fluid text-center p-1">
-                            <h3>{{ 'My Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
+                            <h3>{{ 'Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
                             <p>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
                             </p>
@@ -596,8 +596,29 @@
                                 <!-- Document -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'My Documents' | xlt }}</h4>
+                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'Clinical Forms' | xlt }}</h4>
                                         <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Messages -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'Secure Messaging' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Enter Messaging' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Demo -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'Demographics' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Demographics' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Health -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'Health Snapshot' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success" href="#lists" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Medical Lists' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Signature -->
@@ -610,7 +631,7 @@
                                 <!-- Theme -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title"><i class="fa fa-link mr-1"></i>{{ 'Settings' | xlt }}</h4>
+                                        <h4 class="card-title"><i class="fa fa-link mx-1"></i>{{ 'Settings' | xlt }}</h4>
                                         <div class="col-12 form-group">
                                             <div class="col">
                                                 <div class="input-group">

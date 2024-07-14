@@ -17,27 +17,27 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author Cassian LUP <cassi.lup@gmail.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @link http://www.open-emr.org
+ * @author  Cassian LUP <cassi.lup@gmail.com>
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @link    http://www.open-emr.org
  *
  */
 
-        require_once("verify_session.php");
+require_once("verify_session.php");
 
-    $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' ORDER BY begdate";
+$sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' ORDER BY begdate";
 
-    $res = sqlStatement($sql, array($pid));
+$res = sqlStatement($sql, array($pid));
 
 if (sqlNumRows($res) > 0) {
     ?>
-    <table class="table table-striped">
-        <tr>
+<table class="table table-striped table-sm">
+    <tr>
         <th><?php echo xlt('Drug'); ?></th>
         <th><?php echo xlt('Start Date'); ?></th>
         <th><?php echo xlt('End Date'); ?></th>
         <th><?php echo xlt('Referrer'); ?></th>
-        </tr>
+    </tr>
     <?php
     $even = false;
     while ($row = sqlFetchArray($res)) {
