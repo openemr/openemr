@@ -713,7 +713,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                                 <th><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a><?php echo xlt("Extracted") ?></th>
                                                 <th><?php echo xlt("MRN Match") ?></th>
                                                 <th><?php echo xlt("Actions") ?></th>
-                                                <th><i role="button" id="delete-selected-received" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
+                                                <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -884,7 +884,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Status") ?></th>
                                             <th><?php echo xlt("Actions") ?></th>
-                                            <th><i role="button" id="delete-selected-received" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
+                                            <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -907,7 +907,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Status") ?></th>
                                             <th><?php echo xlt("Actions") ?></th>
-                                            <th><i role="button" id="delete-selected-received" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
+                                            <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
                                         </tr>
                                         </thead>
                                         <tbody>

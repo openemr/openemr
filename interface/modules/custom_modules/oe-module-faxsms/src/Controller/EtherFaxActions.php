@@ -392,7 +392,7 @@ class EtherFaxActions extends AppDispatch
                 <td class='text-left'>" . $detailLink . "</td>
                 <td class='text-center'>" . text($pid_assumed) . "</td>
                 <td class='text-left'>" . $actionLinks . "</td>
-                <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . text($id) . "'></td></tr>";
+                <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'></td></tr>";
             } else {
                 $faxRow = "<tr>
                 <td>" . text($formattedDate) . "</td>
@@ -403,7 +403,7 @@ class EtherFaxActions extends AppDispatch
                 <td>" . text($docLen) . "</td>
                 <td>" . text($transactionType) . "</td>
                 <td class='text-left'>" . $actionLinks . "</td>
-                <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . text($id) . "'></td></tr>";
+                <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'></td></tr>";
             }
             $responseMsg[$faxDetails->TransactionType == '0' ? 0 : 1] .= $faxRow . $form;
         }
@@ -447,7 +447,7 @@ class EtherFaxActions extends AppDispatch
             return '';
         }
 
-        $form = "<tr id='" . text($id) . "' class='d-none collapse-all'><td colspan='12'><div class='container table-responsive'><table class='table table-sm table-bordered table-dark'>";
+        $form = "<tr id='" . attr($id) . "' class='d-none collapse-all'><td colspan='12'><div class='container table-responsive'><table class='table table-sm table-bordered table-dark'>";
         $form .= "<thead><tr><th>" . xlt("Parameter") . "</th><th>" . xlt("Value") . "</th><th>" . xlt("Confidence") . "</th></tr></thead><tbody>";
 
         foreach ($recognized as $r) {

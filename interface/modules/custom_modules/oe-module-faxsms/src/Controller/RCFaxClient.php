@@ -822,8 +822,8 @@ class RCFaxClient extends AppDispatch
             while ($nrow = sqlFetchArray($res)) {
                 $adate = ($nrow['pc_eventDate'] . '::' . $nrow['pc_startTime']);
                 $pinfo = str_replace("|||", " ", $nrow['patient_info']);
-                $msg = htmlspecialchars($nrow["message"], ENT_QUOTES);
-                $responseMsg .= "<tr><td>" . $nrow["pc_eid"] . "</td><td>" . $nrow["dSentDateTime"] . "</td><td>" . $adate . "</td><td>" . $pinfo . "</td><td>" . $msg . "</td></tr>";
+                $msg = text($nrow["message"]);
+                $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
             }
         } catch (\Exception $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
@@ -864,7 +864,7 @@ class RCFaxClient extends AppDispatch
                     'page' => $pageCount
                 ]);
                 foreach ($apiResponse->json()->records as $value) {
-                    $responseMsg .= "<tr><td>" . str_replace(["T", "Z"], " ", $value->startTime) . "</td><td>" . $value->type . "</td><td>" . $value->from->name . "</td><td>" . $value->to->name . "</td><td>" . $value->action . "</td><td>" . $value->result . "</td><td>" . $value->message->id . "</td></tr>";
+                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", $value->startTime)) . "</td><td>" . text($value->type) . "</td><td>" . text($value->from->name) . "</td><td>" . text($value->to->name) . "</td><td>" . text($value->action) . "</td><td>" . text($value->result) . "</td><td>" . text($value->message->id) . "</td></tr>";
                 }
 
                 $end = microtime(true);
@@ -939,7 +939,7 @@ class RCFaxClient extends AppDispatch
                     $updateDate = date('M j Y g:i:sa T', strtotime($messageStore->lastModifiedTime));
 
                     $links = $this->generateActionLinks($id, $uri);
-                    $checkbox = "<input type='checkbox' class='delete-fax-checkbox' value='" . text($id) . "'>";
+                    $checkbox = "<input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'>";
                     $type = strtolower($messageStore->type);
                     $direction = strtolower($messageStore->direction);
                     $readStatus = $messageStore->readStatus;
@@ -970,7 +970,7 @@ class RCFaxClient extends AppDispatch
         $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
         $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
 
-        $vtoggle = "<a href='javascript:' onclick=messageShow('" . $id . "')><span class='mx-1 fa fa-eye-slash fa-1x'></span></a>";
+        $vtoggle = "<a href='javascript:' onclick=messageShow(" . attr_js($id) . ")><span class='mx-1 fa fa-eye-slash fa-1x'></span></a>";
         $vreply = "<a href='javascript:' onclick=messageReply(" . attr_js($id) . ")><span class='mx-1 fa fa-reply'></span></a>";
 
         return [
@@ -1006,8 +1006,8 @@ class RCFaxClient extends AppDispatch
         $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($from) . "</td><td>" . text('todo: add caller id') . "</td><td>" . text($to) . "</td><td>" . text($messageStore->PagesReceived) . "</td><td>" . text($docLen) . "</td><td class='text-left'>" . /*$detailLink .*/
             "</td><td class='text-center'>" . text($pid_assumed ?? '') . "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink . "</td></tr>";
         //$responseMsg[0] .= $form;
-        $aUrl = "<a href='#' onclick=getDocument(event,'" . attr_js($uri) . "'," . attr_js($id) . ",'true')>" . text($id) . " <span class='fa fa-download'></span></a></br>";
-        $vUrl = "<a href='#' onclick=getDocument(event,'" . attr_js($uri) . "'," . attr_js($id) . ",'false')> <span class='fa fa-file-pdf-o'></span></a></br>";
+        $aUrl = "<a href='#' onclick=getDocument(event," . attr_js($uri) . "," . attr_js($id) . ",'true')>" . text($id) . " <span class='fa fa-download'></span></a></br>";
+        $vUrl = "<a href='#' onclick=getDocument(event," . attr_js($uri) . "," . attr_js($id) . ",'false')> <span class='fa fa-file-pdf-o'></span></a></br>";
         if ($status != 'failed' && $this->formatPhone($this->credentials['smsNumber']) != $messageStore->from) {
             $vreply = "<a href='javaScript:' onclick=messageReply(" . attr_js($messageStore->from) . ")><span class='mx-1 fa fa-reply'></span></a>";
         } else {
@@ -1092,7 +1092,7 @@ class RCFaxClient extends AppDispatch
                         $ext = $this->getExtensionFromContentType($apiResponse->response()->getHeader('Content-Type')[0]);
                         $type = $this->getTypeFromContentType($apiResponse->response()->getHeader('Content-Type')[0]);
                         $start = microtime(true);
-                        file_put_contents("${messageStoreDir}/${type}_${id}.${ext}", $apiResponse->raw());
+                        file_put_contents("{$messageStoreDir}/{$type}_{$id}.{$ext}", $apiResponse->raw());
                         $responseMsgs .= "<tr><td>" . $messageStore->creationTime . "</td><td>" . $messageStore->type . "</td><td>" . $messageStore->from->name . "</td><td>" . $messageStore->to->name . "</td><td>" . $messageStore->availability . "</td><td>" . $messageStore->messageStatus . "</td><td>" . $messageStore->message->id . "</td></tr>";
                         $end = microtime(true);
                         $time = ($end - $start);

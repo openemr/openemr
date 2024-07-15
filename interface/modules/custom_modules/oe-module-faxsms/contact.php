@@ -280,7 +280,7 @@ if (empty($isSMS)) {
                                     echo($isSMTP ? xla('Forward to email address if address is included.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
                                 }
                                 ?>"
-                                title="<?php echo xla('Attach and send to an email sddress.') ?>" />
+                                title="<?php echo xla('Attach and send to an email Address.') ?>" />
                         </div>
                         <div class="form-group">
                             <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>

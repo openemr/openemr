@@ -148,8 +148,7 @@ class EmailClient extends AppDispatch
         $mail->Subject = xlt("A Reminder for You");
         $mail->Body = $desc;
 
-        $err = $mail->Send();
-        return $err;
+        return $mail->Send();
     }
     /**
      * @return false|string
