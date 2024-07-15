@@ -63,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="container">
+        <div class="alert alert-info">
+            <?php echo xlt("Use Config Notifications to setup SMTP. Setup here is work in progress for a secondary client. Sending Email reminders is still available from Reminder Actions dropdown.") ?>
+        </div>
         <div class="d-flex justify-content-between align-items-center">
             <h4><?php echo xlt("Setup Patient Reminder Credentials") ?></h4>
             <div class="dropdown mr-1">
