@@ -58,19 +58,21 @@ $sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
 
 $auth = privQuery($sql, array($_SESSION['pid']));
+$password = trim($_POST['pass_current'] ?? '');
+$password_new = trim($_POST['pass_new']);
 $valid = ((!empty(trim($_POST['uname']))) &&
     (!empty(trim($_POST['login_uname']))) &&
-    (!empty(trim($_POST['pass_current']))) &&
-    (!empty(trim($_POST['pass_new']))) &&
+    (!empty($password)) &&
+    (!empty($password_new)) &&
     (trim($_POST['uname']) == $auth[COL_POR_USER]) &&
-    (AuthHash::passwordVerify(trim($_POST['pass_current']), $auth[COL_POR_PWD])));
+    (AuthHash::passwordVerify($password, $auth[COL_POR_PWD])));
 if (isset($_POST['submit'])) {
     if (!$valid) {
         $errmsg = xlt("Invalid Current Credentials Error.") . xlt("Unknown.");
         $logit->portalLog('Credential update attempt', '', ($_POST['uname'] . ':unknown'), '', '0');
         die($errmsg);
     }
-    $new_hash = (new AuthHash('auth'))->passwordHash(trim($_POST['pass_new']));
+    $new_hash = (new AuthHash('auth'))->passwordHash($password_new);
     if (empty($new_hash)) {
         // Something is seriously wrong
         error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
@@ -142,19 +144,23 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <form action="" method="POST" onsubmit="return process_new_pass()">
+            <div class="alert alert-info">
+                <p><?php echo xlt('Use this form to change your Password, Username or Both.'); ?></p>
+                <p><?php echo xlt('For example, to change the current Password, enter and use your current Username and enter new Password. You must still confirm Password and Username regardless.'); ?></p>
+            </div>
             <input style="display:none" type="text" name="dummyuname" />
             <input style="display:none" type="password" name="dummypassword" />
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken("portal_index_reset")); ?>" />
             <table class="table table-sm" style="border-bottom:0px;width:100%">
                 <tr>
-                    <td width="35%"><strong><?php echo xlt('Account Name'); ?><strong></td>
+                    <td width="35%"><strong><?php echo xlt('Portal Account ID for referrence'); ?><strong></td>
                     <td><input class="form-control" name="uname" id="uname" type="text" readonly
                             value="<?php echo attr($auth['portal_username']); ?>" /></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo xlt('New or Current Username'); ?><strong></td>
+                    <td><strong><?php echo xlt('New or Existing Username'); ?><strong></td>
                     <td><input class="form-control" name="login_uname" id="login_uname" type="text" required onblur="checkUserName()"
                             title="<?php echo xla('Change or keep current. Enter 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" pattern=".{12,80}"
                             value="<?php echo attr($auth['portal_login_username']); ?>" />
@@ -170,7 +176,7 @@ if (isset($_POST['submit'])) {
                 </tr>
                 </tr>
                 <tr>
-                    <td><strong><?php echo xlt('Current Password'); ?><strong></td>
+                    <td><strong><?php echo xlt('Current password to authorize changes'); ?><strong></td>
                     <td>
                         <input class="form-control" name="pass_current" id="pass_current" type="password" required
                             placeholder="<?php echo xla('Current password to authorize changes.'); ?>"
@@ -179,7 +185,7 @@ if (isset($_POST['submit'])) {
                     </td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo xlt('New or Current Password'); ?><strong></td>
+                    <td><strong><?php echo xlt('New or Existing Password'); ?><strong></td>
                     <td>
                         <input class="form-control" name="pass_new" id="pass_new" type="password" required
                             placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>"

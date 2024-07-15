@@ -529,7 +529,7 @@ $templateService = new DocumentTemplateService();
                 <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'><?php echo xlt('Refresh'); ?></a>
                 <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
-                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Return to Dashboard'); ?></a>
+                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Close'); ?></a>
                 <?php } elseif (!$is_module && !$is_dashboard) {
                     $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
                     ?>
