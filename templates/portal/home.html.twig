@@ -19,22 +19,9 @@
             <script src="https://jstest.authorize.net/v1/Accept.js"></script>
         {% endif %}
     {% endif %}
-    <script>
-        $(document).ready(function() {
-            $('#quickstart_dashboard').on('click', function(e) {
-                // Prevent default anchor behavior
-                e.preventDefault();
-                // Collapse all cards within the card group
-                $('#cardgroup .collapse').collapse('hide');
 
-                // Show the quickstart card
-                $('#quickstart-card').collapse('show');
-                //$('#quickstart-card').show();
-            });
-        });
-    </script>
     <script>
-        var cpid = {{ patientID | js_escape }},
+        let cpid = {{ patientID | js_escape }},
             cuser = {{ user | js_escape }},
             webRoot = {{ web_root | js_escape }},
             ptName = {{ patientName | js_escape }},
@@ -172,8 +159,6 @@
             $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
             });
 
-            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
-
             {% if portal_two_payments %}
             $("#payment").load("./portal_payment.php", {}, function () {
             });
@@ -230,9 +215,12 @@
                 page.updateModel();
             }
 
-            let gowhere = {{ whereto | js_escape }};
-            $(gowhere).collapse('show');
-
+            // start anew. unsure if keeping persist last card used
+            //let gowhere = {{ whereto | js_escape }};
+            //$(gowhere).collapse('show');
+            $('#cardgroup .collapse').collapse('hide');
+            $('#quickstart-card').collapse('show');
+            // prevent current card collapse
             $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
                 let target = this.attributes.id.nodeValue;
                 if (whereto.includes(target)) {
@@ -426,6 +414,116 @@
     <section class="flex-column accordion" id="cardgroup">
         <div id="popwait" class="alert alert-warning d-none"><strong>{{ 'Working!' | xlt }}</strong>{{ 'Please wait...' | xlt }}</div>
 
+        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
+            <div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Current Medications' | xlt }}</header>
+                <div id="medicationlist" class="card-body p-2 bg-light"></div>
+            </div>
+            <div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Medication Allergy List' | xlt }}</header>
+                <div id="allergylist" class="card-body p-2 bg-light"></div>
+            </div>
+            <div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Current Problems List' | xlt }}</header>
+                <div id="problemslist" class="card-body p-2 bg-light"></div>
+            </div>
+            {#<div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Amendment List' | xlt }}</header>
+                <div id="amendmentslist" class="card-body p-2 bg-light"></div>
+            </div>#}
+            <div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Lab Results' | xlt }}</header>
+                <div id="labresults" class="card-body p-2 bg-light"></div>
+            </div>
+        </div>
+
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
+            <header class="card-header p-1 bg-dark text-light">{{ 'Reports' | xlt }}</header>
+            <div id="reports" class="card-body"></div>
+        </div>
+
+        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
+            <div id="profilereport" class="card-body p-2 bg-light"></div>
+        </div>
+
+        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
+            <div class="card">
+                <div id="secure-msgs" class="card-body">
+                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
+
+        {% if allow_portal_appointments %}
+            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
+                <div class="container-fluid">
+                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
+                    <div class="row">
+                        {% if appointments|length > 0 %}
+                            {% for appt in appointments %}
+                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
+                            {% endfor %}
+
+                            {% if appointmentLimit == appointmentCount %}
+                                <p>{{ 'Display limit reached' | xlt }}
+                                    <br>
+                                    {{ 'More appointments may exist' | xlt }}</p>
+                            {% endif %}
+                        {% else %}
+                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
+                        {% endif %}
+
+                    </div>
+                    <div class="mb-3">
+                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        {% endif %}
+
+        {% if portal_two_payments %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
+                <div class="card">
+                    <header class="card-header p-1 bg-dark text-light">{{ 'Payments' | xlt }}</header>
+                    <div id="payment" class="card-body p-2 bg-light"></div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if portal_onsite_document_download %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Download Documents' | xlt }}</header>
+                <div id="docsdownload" class="card-body">
+                    <div>
+                        <span class="text">{{ 'Download all patient documents' | xlt }}</span>
+                        <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
+                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}" />
+                        </form>
+                    </div>
+                </div>
+                <!-- /.card-body p-0 -->
+            </div>
+        {% endif %}
+
+        {% if portal_two_ledger %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
+                <div class="card">
+                    <header class="card-header p-1 bg-dark text-light">{{ 'Billing Summary' | xlt }}</header>
+                    <div id="patledger" class="card-body">
+                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if isEasyPro %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
+                <div id="pro" class="card-body p-2 bg-light"></div>
+            </div>
+        {% endif %}
+
         <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
             <div id="quickstart-div" class="card-body">
                 <script>
@@ -587,116 +685,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
-            <div class="card">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Current Medications' | xlt }}</header>
-                <div id="medicationlist" class="card-body p-2 bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Medication Allergy List' | xlt }}</header>
-                <div id="allergylist" class="card-body p-2 bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Current Problems List' | xlt }}</header>
-                <div id="problemslist" class="card-body p-2 bg-light"></div>
-            </div>
-            {#<div class="card">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Amendment List' | xlt }}</header>
-                <div id="amendmentslist" class="card-body p-2 bg-light"></div>
-            </div>#}
-            <div class="card">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Lab Results' | xlt }}</header>
-                <div id="labresults" class="card-body p-2 bg-light"></div>
-            </div>
-        </div>
-
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
-            <header class="card-header p-1 bg-dark text-light">{{ 'Reports' | xlt }}</header>
-            <div id="reports" class="card-body"></div>
-        </div>
-
-        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
-            <div id="profilereport" class="card-body p-2 bg-light"></div>
-        </div>
-
-        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
-            <div class="card">
-                <div id="secure-msgs" class="card-body">
-                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
-                </div>
-            </div>
-        </div>
-
-        {% if allow_portal_appointments %}
-            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
-                <div class="container-fluid">
-                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
-                    <div class="row">
-                        {% if appointments|length > 0 %}
-                            {% for appt in appointments %}
-                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
-                            {% endfor %}
-
-                            {% if appointmentLimit == appointmentCount %}
-                                <p>{{ 'Display limit reached' | xlt }}
-                                    <br>
-                                    {{ 'More appointments may exist' | xlt }}</p>
-                            {% endif %}
-                        {% else %}
-                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
-                        {% endif %}
-
-                    </div>
-                    <div class="mb-3">
-                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
-                    </div>
-                </div>
-            </div>
-            <!-- /.row -->
-        {% endif %}
-
-        {% if portal_two_payments %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
-                <div class="card">
-                    <header class="card-header p-1 bg-dark text-light">{{ 'Payments' | xlt }}</header>
-                    <div id="payment" class="card-body p-2 bg-light"></div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if portal_onsite_document_download %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Download Documents' | xlt }}</header>
-                <div id="docsdownload" class="card-body">
-                    <div>
-                        <span class="text">{{ 'Download all patient documents' | xlt }}</span>
-                        <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}" />
-                        </form>
-                    </div>
-                </div>
-                <!-- /.card-body p-0 -->
-            </div>
-        {% endif %}
-
-        {% if portal_two_ledger %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
-                <div class="card">
-                    <header class="card-header p-1 bg-dark text-light">{{ 'Billing Summary' | xlt }}</header>
-                    <div id="patledger" class="card-body">
-                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if isEasyPro %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
-                <div id="pro" class="card-body p-2 bg-light"></div>
-            </div>
-        {% endif %}
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 
