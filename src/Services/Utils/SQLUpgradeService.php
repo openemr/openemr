@@ -1150,7 +1150,7 @@ class SQLUpgradeService
      */
     private function MigrateTableEngine($table, $engine)
     {
-        $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=?', $engine);
+        $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=?', [$engine]);
         return true;
     }
 
