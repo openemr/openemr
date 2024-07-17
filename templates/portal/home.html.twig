@@ -21,7 +21,7 @@
     {% endif %}
 
     <script>
-        let cpid = {{ patientID | js_escape }},
+        var cpid = {{ patientID | js_escape }},
             cuser = {{ user | js_escape }},
             webRoot = {{ web_root | js_escape }},
             ptName = {{ patientName | js_escape }},
@@ -216,14 +216,14 @@
             }
 
             // start anew. unsure if keeping persist last card used
-            //let gowhere = {{ whereto | js_escape }};
+            let gowhere = {{ whereto | js_escape }};
             //$(gowhere).collapse('show');
-            $('#cardgroup .collapse').collapse('hide');
+            //$('#cardgroup .collapse').collapse('hide');
             $('#quickstart-card').collapse('show');
             // prevent current card collapse
             $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
                 let target = this.attributes.id.nodeValue;
-                if (whereto.includes(target)) {
+                if (whereto.includes(target) && target.includes('quickstart_')) {
                     whereto = '';
                     return false;
                 }
@@ -414,6 +414,168 @@
     <section class="flex-column accordion" id="cardgroup">
         <div id="popwait" class="alert alert-warning d-none"><strong>{{ 'Working!' | xlt }}</strong>{{ 'Please wait...' | xlt }}</div>
 
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+            <div id="quickstart-div" class="card-body">
+                <script>
+                    $(function () {
+                        let ele = parent.document.getElementById('topNav');
+                        if ($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
+                            ele.classList.toggle('collapse');
+                        }
+                        // ensure top level shows in quickstart
+                        $(parent.document.getElementById('topNav')).removeClass("d-none");
+                        $("#my_theme").on('change', function (e) {
+                            let sel = $("#my_theme :selected").val() || '';
+                            persistPatientSetting(cpid, 'portal_theme', sel);
+                            $(parent.document.getElementById('homeRefresh')).click();
+                        });
+                    });
+
+                    function persistPatientSetting(pid, label, setting) {
+                        fetch('lib/persist.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                'csrf_token_form': {{ csrfUtils | js_escape }} ,
+                                'setting_patient': pid,
+                                'setting_label': label,
+                                'setting_value': setting
+                            }),
+                        });
+                    }
+                </script>
+                <script>
+                    {{ fireEvent(eventNames.dashboardRenderScripts) }}
+                </script>
+                <div id="card-div">
+                    <!-- About Dialog -->
+                    <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog bg-light">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">{{ 'About Portal Dashboard' | xlt }}</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <div>
+                                        <span>{{ 'Please see forum here' | xlt }}
+                                            <a href="{{ 'https://community.open-emr.org/' }} " target="_blank">{{ "Visit Forum" | xlt }} </a>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="okButton" data-dismiss="modal" class="btn btn-primary">{{ 'Close' | xlt }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid p-3">
+                        <div class="jumbotron jumbotron-fluid text-center p-1">
+                            <h3>{{ 'Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
+                            <p>
+                                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
+                            </p>
+                        </div>
+                        <div class='jumbotron jumbotron-fluid p-4'>
+                            <div class="row" id="inject_card">
+                                <!-- Signature -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4><i class="card-title fa fa-signature mr-1"></i>{{ 'Signature' | xlt }}</h4>
+                                        <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">{{ 'Manage Signature' | xlt }} </a>
+                                    </div>
+                                </div>
+                                <!-- Password -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4><i class="card-title fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login' | xlt }}</h4>
+                                        <a class="btn btn-primary" href="javascript:changeCredentials(event)">{{ 'Password Username Reset' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Theme -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body row">
+                                        <h4 class="card-title"><i class="fa fa-link mx-1"></i>{{ 'Settings' | xlt }}</h4>
+                                        <div class="col-12 form-group">
+                                            <div class="col">
+                                                <div class="input-group">
+                                                    <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
+                                                    <select class='form-control ml-2' id='my_theme'>
+                                                        {% for styleKey, styleValue in styleArray %}
+                                                            {{ "<option value='" ~ styleKey | attr ~ "'" }}
+                                                            {% if styleKey  ==  current_theme %}
+                                                                {{ " selected" }}
+                                                            {% endif %}
+                                                            {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group form-check-inline">
+                                                    <label class="form-check-label" for="exampleCheck1">
+                                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">{{ 'Auto Save Documents' | xlt  ~ " (Coming soon)" | text }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Document -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-file mr-1"></i>{{ 'Clinical Forms' | xlt }}</h4>
+                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Messages -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-envelope mr-1"></i>{{ 'Secure Messaging' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Enter Messaging' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Demo -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fas fa-user mr-1"></i>{{ 'Demographics' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Demographics' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Health -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-list mr-1"></i>{{ 'Health Snapshot' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success" href="#lists" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Medical Lists' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Report -->
+                                {% if portal_two_ledge or portal_two_payments %}
+                                    <div class="card d-flex mr-1 mb-1">
+                                        <div class="card-body">
+                                            <h4 class="card-title"><i class="fa fa-credit-card mr-1"></i>{{ 'Financial' | xlt }}</h4>
+                                            {% if portal_two_ledger %}
+                                                <a id="lists-go" class="btn btn-success" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Billing Summary' | xlt }}</a>
+                                            {% endif %}
+                                            {% if portal_two_payments %}
+                                                <a id="lists-go" class="btn btn-success" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Make Payment' | xlt }}</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {{ fireEvent(eventNames.dashboardInjectCard) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
                 <header class="card-header p-1 bg-dark text-light">{{ 'Current Medications' | xlt }}</header>
@@ -523,168 +685,6 @@
                 <div id="pro" class="card-body p-2 bg-light"></div>
             </div>
         {% endif %}
-
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
-            <div id="quickstart-div" class="card-body">
-                <script>
-                    $(function () {
-                        let ele = parent.document.getElementById('topNav');
-                        if ($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
-                            ele.classList.toggle('collapse');
-                        }
-                        // ensure top level shows in quickstart
-                        $(parent.document.getElementById('topNav')).removeClass("d-none");
-                        $("#my_theme").on('change', function (e) {
-                            let sel = $("#my_theme :selected").val() || '';
-                            persistPatientSetting(cpid, 'portal_theme', sel);
-                            $(parent.document.getElementById('homeRefresh')).click();
-                        });
-                    });
-
-                    function persistPatientSetting(pid, label, setting) {
-                        fetch('lib/persist.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                'csrf_token_form': {{ csrfUtils | js_escape }} ,
-                                'setting_patient': pid,
-                                'setting_label': label,
-                                'setting_value': setting
-                            }),
-                        });
-                    }
-                </script>
-                <script>
-                    {{ fireEvent(eventNames.dashboardRenderScripts) }}
-                </script>
-                <div id="card-div">
-                    <!-- About Dialog -->
-                    <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog bg-light">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h4 class="modal-title">{{ 'About Portal Dashboard' | xlt }}</h4>
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                </div>
-                                <div class="modal-body">
-                                    <div>
-                                        <span>{{ 'Please see forum here' | xlt }}
-                                            <a href="{{ 'https://community.open-emr.org/' }} " target="_blank">{{ "Visit Forum" | xlt }} </a>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button id="okButton" data-dismiss="modal" class="btn btn-primary">{{ 'Close' | xlt }}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="container-fluid p-3">
-                        <div class="jumbotron jumbotron-fluid text-center p-1">
-                            <h3>{{ 'Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
-                            <p>
-                                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
-                            </p>
-                        </div>
-                        <div class='jumbotron jumbotron-fluid p-4'>
-                            <div class="row" id="inject_card">
-                                <!-- Signature -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4><i class="card-title fa fa-signature mr-1"></i>{{ 'Signature' | xlt }}</h4>
-                                        <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">{{ 'Manage Signature' | xlt }} </a>
-                                    </div>
-                                </div>
-                                <!-- Password -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4><i class="card-title fa fa-cog fa-fw mr-1"></i>{{ 'Manage Credentials' | xlt }}</h4>
-                                        <a class="btn btn-primary" href="javascript:changeCredentials(event)">{{ 'Password Username Reset' | xlt }}</a>
-                                    </div>
-                                </div>
-                                <!-- Theme -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body row">
-                                        <h4 class="card-title"><i class="fa fa-link mx-1"></i>{{ 'Settings' | xlt }}</h4>
-                                        <div class="col-12 form-group">
-                                            <div class="col">
-                                                <div class="input-group">
-                                                    <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
-                                                    <select class='form-control ml-2' id='my_theme'>
-                                                        {% for styleKey, styleValue in styleArray %}
-                                                            {{ "<option value='" ~ styleKey | attr ~ "'" }}
-                                                            {% if styleKey  ==  current_theme %}
-                                                                {{ " selected" }}
-                                                            {% endif %}
-                                                            {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
-                                                        {% endfor %}
-                                                    </select>
-                                                    <div class="input-group-append">
-                                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-group form-check-inline">
-                                                    <label class="form-check-label" for="exampleCheck1">
-                                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">{{ 'Auto Save Documents' | xlt  ~ " (Coming soon)" | text }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Document -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-file mr-1"></i>{{ 'Clinical Forms' | xlt }}</h4>
-                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
-                                    </div>
-                                </div>
-                                <!-- Messages -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-envelope mr-1"></i>{{ 'Secure Messaging' | xlt }}</h4>
-                                        <a id="lists-go" class="btn btn-success" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Enter Messaging' | xlt }}</a>
-                                    </div>
-                                </div>
-                                <!-- Demo -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4 class="card-title"><i class="fas fa-user mr-1"></i>{{ 'Demographics' | xlt }}</h4>
-                                        <a id="lists-go" class="btn btn-success" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Demographics' | xlt }}</a>
-                                    </div>
-                                </div>
-                                <!-- Health -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-list mr-1"></i>{{ 'Health Snapshot' | xlt }}</h4>
-                                        <a id="lists-go" class="btn btn-success" href="#lists" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Medical Lists' | xlt }}</a>
-                                    </div>
-                                </div>
-                                <!-- Report -->
-                                {% if portal_two_ledge or portal_two_payments %}
-                                    <div class="card d-flex mr-1 mb-1">
-                                        <div class="card-body">
-                                            <h4 class="card-title"><i class="fa fa-credit-card mr-1"></i>{{ 'Financial' | xlt }}</h4>
-                                            {% if portal_two_ledger %}
-                                                <a id="lists-go" class="btn btn-success" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Billing Summary' | xlt }}</a>
-                                            {% endif %}
-                                            {% if portal_two_payments %}
-                                                <a id="lists-go" class="btn btn-success" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Make Payment' | xlt }}</a>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-
-                                {{ fireEvent(eventNames.dashboardInjectCard) }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 
