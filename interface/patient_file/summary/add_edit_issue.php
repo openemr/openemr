@@ -813,6 +813,7 @@ function getCodeText($code)
                                             $disabled = (!AclMain::aclCheckIssue($key, '', ['write', 'addonly'])) ? " disabled" : '';
                                             $str = '<input type="radio" name="form_type" value="%s" onclick="newtype(%s)" %s %s>';
                                             echo vsprintf($str, [attr($index), attr_js($index), $checked, $disabled]);
+                                            echo text($value[1]. " "); /*rm - display issue type name */
                                         }
 
                                         ++$index;
