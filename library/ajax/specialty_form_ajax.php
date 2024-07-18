@@ -15,7 +15,7 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\PatientService;
+use OpenEMR\Services\PatientNameHistoryService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -31,8 +31,8 @@ if ($post_items['task_name_history'] === 'delete') {
 
 function nameHistoryDelete($id)
 {
-    $patientService = new PatientService();
-    $is_ok = $patientService->deletePatientNameHistoryById($id);
+    $patientNameService = new PatientNameHistoryService();
+    $is_ok = $patientNameService->deletePatientNameHistoryById($id);
     $is_ok =  empty($is_ok) ? xlt("Success") : xlt("Failed");
     echo js_escape($is_ok);
     exit;
@@ -44,9 +44,9 @@ function nameHistorySave($post_items)
         $date = new DateTime($post_items['previous_name_enddate']);
         $post_items['previous_name_enddate'] = $date->format('Y-m-d');
     }
-    $patientService = new PatientService('patient_history');
-    $is_new = $patientService->createPatientNameHistory($post_items['pid'], $post_items);
-    $name = $patientService->formatPreviousName($post_items);
+    $patientNameService = new PatientNameHistoryService();
+    $is_new = $patientNameService->createPatientNameHistory($post_items['pid'], $post_items);
+    $name = $patientNameService->formatPreviousName($post_items);
 
     $ret = array();
     if (!empty($is_new)) {
