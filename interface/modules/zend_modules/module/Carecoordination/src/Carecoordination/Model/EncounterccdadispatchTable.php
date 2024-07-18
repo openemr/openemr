@@ -29,6 +29,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\SearchComparator;
@@ -204,8 +205,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPreviousNames($pid): array
     {
-        $patientService = new PatientService();
-        return $patientService->getPatientNameHistory($pid) ?? [];
+        $nameService = new PatientNameHistoryService();
+        return $nameService->getPatientNameHistory($pid) ?? [];
     }
 
     /* Fetch Patient data from EMR
