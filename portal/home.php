@@ -213,13 +213,6 @@ function buildNav($newcnt, $pid, $result): array
                     'dataType' => 'patient-signature'
                 ]
             ],
-        ],
-        [
-            'url' => '#',
-            'label' => xl('Reports'),
-            'icon' => 'fa-book-medical',
-            'dropdownID' => 'reports',
-            'children' => []
         ]
     ];
 
@@ -257,39 +250,6 @@ function buildNav($newcnt, $pid, $result): array
                     'url' => 'logout.php',
                     'label' => xl('Logout'),
                     'icon' => 'fa-ban fa-fw',
-                ]
-            );
-        }
-        if (($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3) && $navItems[$i]['label'] === xl('Reports')) {
-            array_push(
-                $navItems[$i]['children'],
-                [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
-                    'label' => xl('View Summary of Care Document'),
-                    'icon' => 'fa-eye',
-                    'target_blank' => 'true',
-                ],
-                [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
-                    'label' => xl('Download Summary of Care Document'),
-                    'icon' => 'fa-download',
-                ]
-            );
-        }
-        if (!empty($GLOBALS['portal_onsite_document_download']) && $navItems[$i]['label'] === xl('Reports')) {
-            array_push(
-                $navItems[$i]['children'],
-                [
-                    'url' => '#reportcard',
-                    'label' => xl('Create Report from Content'),
-                    'icon' => 'fa-folder-open',
-                    'dataToggle' => 'collapse'
-                ],
-                [
-                    'url' => '#downloadcard',
-                    'label' => xl('Download Patient Documents'),
-                    'icon' => 'fa-download',
-                    'dataToggle' => 'collapse'
                 ]
             );
         }
