@@ -3160,6 +3160,13 @@ $GLOBALS_METADATA = array(
             xl('Enable Patient Portal new patient to self register.')
         ),
 
+        'portal_two_pass_reset' => array(
+            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
+            'bool',                           // data type
+            '0',
+            xl('Patient may change their logon from portal login dialog.')
+        ),
+
         'allow_portal_appointments' => array(
             xl('Allow Online Appointments'),
             'bool',                           // data type
@@ -3167,15 +3174,15 @@ $GLOBALS_METADATA = array(
             xl('Allow Patient to make and view appointments online.')
         ),
 
-        'allow_portal_chat' => array(
-            xl('Allow Online Secure Chat'),
+        'allow_custom_report' => array(
+            xl('Allow Online Custom Content Report'),
             'bool',                           // data type
             '1',
-            xl('Allow Patient to use Secure Chat Application.')
+            xl('Allow Patient to use Custom Content Report.')
         ),
 
         'portal_two_ledger' => array(
-            xl('Allow Patient Accounting Online'),
+            xl('Allow Patient Billing Summary Report Online'),
             'bool',                           // data type
             '1',
             xl('Allow Patient to view their accounting ledger online.')
@@ -3186,13 +3193,6 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',
             xl('Allow Patient to make payments online.')
-        ),
-
-        'portal_two_pass_reset' => array(
-            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
-            'bool',                           // data type
-            '0',
-            xl('Patient may change their logon from portal login dialog.')
         ),
 
         'portal_onsite_document_download' => array(

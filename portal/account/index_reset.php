@@ -147,8 +147,8 @@ if (isset($_POST['submit'])) {
     <div class="container-fluid">
         <form action="" method="POST" onsubmit="return process_new_pass()">
             <div class="alert alert-info">
-                <p><?php echo xlt('Use this form to change your Password, Username or Both.'); ?></p>
-                <p><?php echo xlt('For example, to change the current Password, enter and use your current Username and enter new Password. You must still confirm Password and Username regardless.'); ?></p>
+                <p><?php echo xlt('Use this form to change your login Password, Username or Both.'); ?></p>
+                <p><?php echo xlt('For example, to change your current Password, enter and use your current Username and enter new Password. You must still confirm Password and Username regardless.'); ?></p>
             </div>
             <input style="display:none" type="text" name="dummyuname" />
             <input style="display:none" type="password" name="dummypassword" />
@@ -160,7 +160,7 @@ if (isset($_POST['submit'])) {
                             value="<?php echo attr($auth['portal_username']); ?>" /></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo xlt('New or Existing Username'); ?><strong></td>
+                    <td><strong><?php echo xlt('Change or Keep Existing Username'); ?><strong></td>
                     <td><input class="form-control" name="login_uname" id="login_uname" type="text" required onblur="checkUserName()"
                             title="<?php echo xla('Change or keep current. Enter 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" pattern=".{12,80}"
                             value="<?php echo attr($auth['portal_login_username']); ?>" />
@@ -168,7 +168,7 @@ if (isset($_POST['submit'])) {
                 </tr>
                 <tr>
                 <tr>
-                    <td><strong><?php echo xlt('Confirm Username'); ?><strong></td>
+                    <td><strong><?php echo xlt('Confirm Above Username'); ?><strong></td>
                     <td><input class="form-control" name="confirm_uname" id="confirm_uname" type="text" required
                             title="<?php echo xla('You must confirm this Username.'); ?>"
                             autocomplete="none" pattern=".{8,80}" value="" />
@@ -176,16 +176,16 @@ if (isset($_POST['submit'])) {
                 </tr>
                 </tr>
                 <tr>
-                    <td><strong><?php echo xlt('Current password to authorize changes'); ?><strong></td>
+                    <td><strong><?php echo xlt('Current Password to Authorize Changes'); ?><strong></td>
                     <td>
                         <input class="form-control" name="pass_current" id="pass_current" type="password" required
-                            placeholder="<?php echo xla('Current password to authorize changes.'); ?>"
+                            placeholder="<?php echo xla('Enter your current password used to login.'); ?>"
                             title="<?php echo xla('Enter your existing current password used to login.'); ?>"
                             pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo xlt('New or Existing Password'); ?><strong></td>
+                    <td><strong><?php echo xlt('Change or Keep Existing Password'); ?><strong></td>
                     <td>
                         <input class="form-control" name="pass_new" id="pass_new" type="password" required
                             placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>"

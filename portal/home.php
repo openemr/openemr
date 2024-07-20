@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Ben Marte <benmarte@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
@@ -235,16 +235,6 @@ function buildNav($newcnt, $pid, $result): array
 
     // Build sub nav items
 
-    if (!empty($GLOBALS['allow_portal_chat'])) {
-        $navItems[] = [
-            'url' => '#messagescard',
-            'label' => xl('Chat'),
-            'icon' => 'fa-comment-medical',
-            'dataToggle' => 'collapse',
-            'dataType' => 'cardgroup'
-        ];
-    }
-
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
         if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === ($result['fname'] . ' ' . $result['lname'])) {
             $navItems[$i]['children'][] = [
@@ -275,13 +265,13 @@ function buildNav($newcnt, $pid, $result): array
                 $navItems[$i]['children'],
                 [
                     'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
-                    'label' => xl('View Continuity of Care Document'),
+                    'label' => xl('View Summary of Care Document'),
                     'icon' => 'fa-eye',
                     'target_blank' => 'true',
                 ],
                 [
                     'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
-                    'label' => xl('Download Continuity of Care Document'),
+                    'label' => xl('Download Summary of Care Document'),
                     'icon' => 'fa-download',
                 ]
             );
@@ -307,7 +297,8 @@ function buildNav($newcnt, $pid, $result): array
 
     return $navItems;
 }
-
+// CCDA Alt Service
+$ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
 // Available Themes
 $styleArray = collectStyles();
 // Build our navigation
@@ -351,6 +342,8 @@ try {
         'language_defs' => $language_defs,
         'current_theme' => $current_theme,
         'styleArray' => $styleArray,
+        'ccdaOk' => $ccdaOk,
+        'allow_custom_report' => $GLOBALS['allow_custom_report'] ?? '0',
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,
