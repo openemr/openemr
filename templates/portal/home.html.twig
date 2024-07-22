@@ -202,7 +202,7 @@
             });
 
             function showProfileModal() {
-                const title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
+                const title = {{ 'Profile Edits' | xlj }};
                 const params = {
                     buttons: [
                         {
@@ -501,55 +501,49 @@
                     </div>
                     <div class="container-fluid p-3">
                         <div class="jumbotron jumbotron-fluid text-center p-1">
-                            <h3>{{ 'Portal Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
-                            <p>
+                            <h2>{{ 'Quick Start Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h2>
+                            {# <p>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
-                            </p>
+                            </p> #}
                         </div>
                         <div class='jumbotron jumbotron-fluid p-4'>
                             <div class="row" id="inject_card">
                                 <!-- Signature -->
                                 <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4><i class="card-title fa fa-signature mr-1"></i>{{ 'Signature' | xlt }}</h4>
-                                        <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">{{ 'Manage Signature' | xlt }} </a>
+                                    <div class="card-body row">
+                                        <h4 class="card-title d-flex align-items-center"><a role="button" href="#openSignModal" data-toggle="modal" data-parent="#cardgroup"><i class="fas fa-file-signature mr-1"></i>{{ 'Default Signature' | xlt }}</a></h4>
                                     </div>
                                 </div>
                                 <!-- Password -->
                                 <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4><i class="card-title fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login' | xlt }}</h4>
-                                        <a class="btn btn-primary" href="javascript:changeCredentials(event)">{{ 'Password Username Reset' | xlt }}</a>
+                                    <div class="card-body row">
+                                        <h4 class="card-title d-flex align-items-center" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login' | xlt }}</h4>
                                     </div>
                                 </div>
                                 <!-- Theme -->
-                                <div class="card d-flex mr-1 mb-1">
+                                <div class="card card-columns d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title"><i class="fa fa-link mx-1"></i>{{ 'Settings' | xlt }}</h4>
-                                        {#<a id="settings-go" class="btn btn-success" href="#portal-settings-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Settings' | xlt }}</a>#}
-                                        <div class="col-12 form-group">
-                                            <div class="col">
-                                                <div class="input-group">
-                                                    <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
-                                                    <select class='form-control ml-2' id='my_theme'>
-                                                        {% for styleKey, styleValue in styleArray %}
-                                                            {{ "<option value='" ~ styleKey | attr ~ "'" }}
-                                                            {% if styleKey  ==  current_theme %}
-                                                                {{ " selected" }}
-                                                            {% endif %}
-                                                            {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
-                                                        {% endfor %}
-                                                    </select>
-                                                    <div class="input-group-append">
-                                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                        <h4 class="card-title d-flex align-items-center" data-toggle="collapse" data-target="#settings-content" role="button">
+                                            <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
+                                        </h4>
+                                        <div id="settings-content" class="collapse col-12">
+                                            <div class="form-group">
+                                                <div class="col">
+                                                    <div class="input-group">
+                                                        <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
+                                                        <select class='form-control ml-2' id='my_theme'>
+                                                            {% for styleKey, styleValue in styleArray %}
+                                                                {{ "<option value='" ~ styleKey | attr ~ "'" }}
+                                                                {% if styleKey == current_theme %}
+                                                                    {{ " selected" }}
+                                                                {% endif %}
+                                                                {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <div class="input-group-append">
+                                                            <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-group form-check-inline">
-                                                    <label class="form-check-label" for="exampleCheck1">
-                                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">{{ 'Auto Save Documents' | xlt  ~ " (Coming soon)" | text }}
-                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
@@ -558,15 +552,17 @@
                                 <!-- Document -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-file mr-1"></i>{{ 'Clinical Forms' | xlt }}</h4>
-                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
+                                        <h4 class="card-title"><i class="fa fa-file mr-1"></i>{{ 'Clinical Forms or Documents' | xlt }}</h4>
+                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Forms and Documents' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Messages -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-envelope mr-1"></i>{{ 'Secure Messaging' | xlt }}</h4>
-                                        <a id="lists-go" class="btn btn-success" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Enter Messaging' | xlt }}</a>
+                                        <h4 class="card-title"><i class="fa fa-envelope mr-1"></i>{{ 'Secure Messaging' | xlt }}
+                                            {% if newcnt > 0 %}<small><span class="badge-pill badge-danger ml-1">{{ newcnt ~ " New" | text }}</span></small>{% endif %}
+                                        </h4>
+                                        <a id="lists-go" class="btn btn-success" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Securely Message with Providers' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Demo -->
@@ -584,7 +580,7 @@
                                     </div>
                                 </div>
                                 <!-- Report -->
-                                {% if portal_two_ledge or portal_two_payments %}
+                                {% if portal_two_ledger or portal_two_payments %}
                                     <div class="card d-flex mr-1 mb-1">
                                         <div class="card-body">
                                             <h4 class="card-title"><i class="fa fa-credit-card mr-1"></i>{{ 'Financial' | xlt }}</h4>
@@ -611,8 +607,8 @@
                                     <div class="card-body">
                                         <h4 class="card-title"><i class="fa fa-eye mr-1"></i>{{ 'Reports' | xlt }}</h4>
                                         {% if ccdaOk %}
-                                            <a id="view-summary-go" class="btn btn-success" target="_blank" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=view&csrf_token_form={{ csrfUtils | attr }}">{{ 'View Summary of Care' | xlt }}</a>
-                                            <a id="download-summary-go" class="btn btn-success" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form={{ csrfUtils | attr }}">{{ 'Download Summary of Care' | xlt }}</a>
+                                            <a id="view-summary-go" class="btn btn-success" target="_blank" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=view&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'View Summary of Care' | xlt }}</a>
+                                            <a id="download-summary-go" class="btn btn-success" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'Download Summary of Care' | xlt }}</a>
                                         {% endif %}
                                         {% if 'allow_custom_report' %}
                                             <a id="create-report-go" class="btn btn-success" href="#reportcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Custom Content Itemized Report' | xlt }}</a>
@@ -622,6 +618,15 @@
                                         {% endif %}
                                     </div>
                                 </div>
+
+                                {% if isEasyPro %}
+                                    <div class="card d-flex mr-1 mb-1">
+                                        <div class="card-body">
+                                            <h4 class="card-title"><i class="fa fa-calendar-check mr-1"></i>{{ 'PRO Assessment' | xlt }}</h4>
+                                            <a id="appointments-go" class="btn btn-success" href="#procard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Patient Reported Outcomes' | xlt }}</a>
+                                        </div>
+                                    </div>
+                                {% endif %}
 
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
                             </div>
@@ -636,15 +641,30 @@
                 <header class="card-header p-1 bg-dark text-light h3">{{ 'Health Snapshot (Medical Lists)' | xlt }}</header>
                 <div class="card-body">
                     <div class="card">
-                        <header class="card-header p-1 bg-dark text-light">{{ 'Current Medications' | xlt }}</header>
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Patient Immunization' | xlt }}</header>
+                        <div class="card-body border">
+                            {% for record in immunRecords %}
+                                <div>
+                                    {{ record.administered_formatted | xlt }} :
+                                    {{ record.code_text | xlt }} :
+                                    {{ record.note | xlt }} :
+                                    {{ record.completion_status | xlt }}
+                                </div>
+                            {% else %}
+                                <p>{{ 'No records found.' | xlt }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Medications' | xlt }}</header>
                         <div id="medicationlist" class="card-body p-2 bg-light"></div>
                     </div>
                     <div class="card">
-                        <header class="card-header p-1 bg-dark text-light">{{ 'Medication Allergy List' | xlt }}</header>
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Medication Allergy List' | xlt }}</header>
                         <div id="allergylist" class="card-body p-2 bg-light"></div>
                     </div>
                     <div class="card">
-                        <header class="card-header p-1 bg-dark text-light">{{ 'Current Problems List' | xlt }}</header>
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Problems List' | xlt }}</header>
                         <div id="problemslist" class="card-body p-2 bg-light"></div>
                     </div>
                     {# <div class="card">
@@ -652,7 +672,7 @@
                 <div id="amendmentslist" class="card-body p-2 bg-light"></div>
             </div> #}
                     <div class="card">
-                        <header class="card-header p-1 bg-dark text-light">{{ 'Lab Results' | xlt }}</header>
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Lab Results' | xlt }}</header>
                         <div id="labresults" class="card-body p-2 bg-light"></div>
                     </div>
                 </div>
@@ -673,61 +693,6 @@
                 <div id="secure-msgs" class="card-body">
                     <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
                 </div>
-            </div>
-        </div>
-
-        <div class="collapse" data-parent="#cardgroup" id="portal-settings-card">
-            <div class="card d-flex mr-1 mb-1">
-                {# Work in progress #}
-                <div class="card-body row">
-                    <h4 class="card-title"><i class="fa fa-link mx-1"></i>Settings</h4>
-                    <div class="col-12 form-group">
-                        <div class="col">
-                            <div class="input-group">
-                                <label class="m-0" for='my_theme'>Current Theme</label>
-                                <select class='form-control ml-2' id='my_theme'>
-                                    <!-- Options will be dynamically generated by JavaScript -->
-                                </select>
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" onclick="applyTheme()">Apply</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col mt-3">
-                            <div class="form-group form-check-inline">
-                                <label class="form-check-label" for="autoSave">
-                                    <input type="checkbox" class="form-check-input" id="autoSave"> Auto Save Documents (Coming soon)
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                    const styleArray = {
-                        'default': 'Default',
-                        'dark': 'Dark Mode',
-                        'light': 'Light Mode'
-                    };
-                    const current_theme = 'default'; // Set the current theme
-
-                    // Populate the theme dropdown
-                    $(document).ready(function () {
-                        const themeSelect = $('#my_theme');
-                        for (const [key, value] of Object.entries(styleArray)) {
-                            const isSelected = key === current_theme ? 'selected' : '';
-                            themeSelect.append(`<option value="${key}" ${isSelected}>${value}</option>`);
-                        }
-                    });
-
-                    // Apply theme function
-                    function applyTheme() {
-                        const selectedTheme = $('#my_theme').val();
-                        // Persist the theme selection (you may need to send this to the server)
-                        alert(`Applying theme: ${selectedTheme}`);
-                        // Add your theme application logic here
-                    }
-                </script>
             </div>
         </div>
 
@@ -755,7 +720,6 @@
                     </div>
                 </div>
             </div>
-            <!-- /.row -->
         {% endif %}
 
         {% if portal_two_payments %}

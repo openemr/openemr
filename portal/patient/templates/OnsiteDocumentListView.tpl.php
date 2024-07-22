@@ -527,9 +527,11 @@ $templateService = new DocumentTemplateService();
                     <?php } ?>
                 </ul>
                 <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'><?php echo xlt('Refresh'); ?></a>
-                <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
+                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                <?php } ?>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
-                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Close'); ?></a>
+                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Dashboard'); ?></a>
                 <?php } elseif (!$is_module && !$is_dashboard) {
                     $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
                     ?>
@@ -552,6 +554,7 @@ $templateService = new DocumentTemplateService();
                             <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
                         <!-- File upload -->
+                        <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
                         <div class="card col-12 col-lg-5 col-md-3">
                             <div id="hideUpload" class="card-body" style="display: none;">
                                 <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
@@ -567,6 +570,7 @@ $templateService = new DocumentTemplateService();
                                 </div>
                             </div>
                         </div>
+                        <?php } ?>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">

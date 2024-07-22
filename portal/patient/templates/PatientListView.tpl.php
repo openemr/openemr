@@ -158,13 +158,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
-                    <label class="plist-label" for="ss"><?php echo xlt('SSN')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
+                    <label class="plist-label" for="ss"><?php /*echo xlt('SSN')*/?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php echo xla('Social Security(Optional)'); ?>" value="<%= _.escape(item.get('ss') || '') %>">
+                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php /*echo xla('Social Security(Optional)'); */?>" value="<%= _.escape(item.get('ss') || '') %>">
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="sexInputContainer">
                     <label class="plist-label" for="sex"><?php echo xlt('Gender')?></label><br />
                     <div class="controls inline-inputs">

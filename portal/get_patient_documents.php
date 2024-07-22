@@ -1,12 +1,26 @@
 <?php
 
 /**
- * Display and download patient documents with checkboxes
+ * Download documents from OpenEMR to the patient portal in a zip file(get_patient_documents.php)
+ * This program is used to download patient documents in a zip file in the Patient Portal.
+ * Added parse and show documents for selection instead of all by default
+ * The original author did not pursue this but I thought it would be a good addition to
+ * the patient portal
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Giorgos Vasilakos <giorg.vasilakos@gmail.com>
+ * @author    Terry Hill <terry@lilysystems.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2012 Giorgos Vasilakos <giorg.vasilakos@gmail.com>
+ * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("./verify_session.php");
-$ignoreAuth_onsite_portal = true;
-require_once('../interface/globals.php');
 require_once("$srcdir/documents.php");
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
@@ -90,7 +104,7 @@ while ($file = sqlFetchArray($fres)) {
 <body>
     <div class="container-fluid">
         <h4><?php echo text("Select Documents to Download"); ?></h4>
-        <form id="download-form" action="./report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
+        <form id="download-form" action="report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">

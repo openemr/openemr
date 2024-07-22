@@ -3126,8 +3126,8 @@ $GLOBALS_METADATA = array(
         ),
 
         'enforce_signin_email' => array(
-            xl('Enforce E-Mail in Portal Log On Dialog'),
-            'bool',                           // data type
+            xl('Require patient on record E-Mail for Portal Login'),
+            'bool',
             '1',
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
         ),
@@ -3200,6 +3200,20 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',
             xl('Enables the ability to download documents in the Patient Portal by the user.')
+        ),
+
+        'allow_portal_uploads' => array(
+            xl('Allow Patient Uploads from Portal Documents'),
+            'bool',
+            '1',
+            xl('Enables the ability for patient to upload documents to Documents Onsite Patient category.')
+        ),
+
+        'show_insurance_in_profile' => array(
+            xl('Allow Insurances in Patient Profile'),
+            'bool',
+            '1',
+            xl('UnCheck to not show insurances in Profile.')
         ),
     ),
 

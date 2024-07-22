@@ -69,9 +69,11 @@ foreach ($msgs as $i) {
         $newcnt += 1;
     }
 }
-if ($newcnt > 0 && $_SESSION['portal_init']) {
+
+// force to message page if new messages.
+/*if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
-}
+}*/
 $messagesURL = $GLOBALS['web_root'] . '/portal/messaging/messages.php';
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
@@ -216,16 +218,6 @@ function buildNav($newcnt, $pid, $result): array
         ]
     ];
 
-    if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-        $navItems[] = [
-            'url' => '#procard',
-            'label' => xl('Assessments'),
-            'icon' => 'fas fa-file-medical',
-            'dataToggle' => 'collapse',
-            'dataType' => 'cardgroup'
-        ];
-    }
-
     // Build sub nav items
 
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
@@ -254,15 +246,36 @@ function buildNav($newcnt, $pid, $result): array
             );
         }
     }
-
     return $navItems;
 }
-// CCDA Alt Service
-$ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
-// Available Themes
-$styleArray = collectStyles();
+
 // Build our navigation
 $navMenu = buildNav($newcnt, $pid, $result);
+
+// Fetch immunization records
+$query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
+    DATE_FORMAT(administered_date,'%m/%d/%Y') AS administered_formatted, lo.title as route_of_administration,
+    u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
+    f.name, f.phone, lo.notes as route_code
+    FROM immunizations AS im
+    LEFT JOIN codes AS cd ON cd.code = im.cvx_code
+    JOIN code_types AS ctype ON ctype.ct_key = 'CVX' AND ctype.ct_id=cd.code_type
+    LEFT JOIN list_options AS lo ON lo.list_id = 'drug_route' AND lo.option_id = im.route
+    LEFT JOIN users AS u ON u.id = im.administered_by_id
+    LEFT JOIN facility AS f ON f.id = u.facility_id
+    WHERE im.patient_id=?";
+$result = sqlStatement($query, array($pid));
+$immunRecords = array();
+while ($row = sqlFetchArray($result)) {
+    $immunRecords[] = $row;
+}
+
+// CCDA Alt Service
+$ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
+
+// Available Themes
+$styleArray = collectStyles();
+
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 try {
@@ -304,6 +317,7 @@ try {
         'styleArray' => $styleArray,
         'ccdaOk' => $ccdaOk,
         'allow_custom_report' => $GLOBALS['allow_custom_report'] ?? '0',
+        'immunRecords' => $immunRecords,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,

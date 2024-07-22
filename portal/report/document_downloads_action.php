@@ -28,20 +28,20 @@ if (empty($_POST['documents'])) {
 // Get the temporary folder
 $tmp = $GLOBALS['temporary_files_dir'];
 $documentIds = $_POST['documents'];
-$pid = $_SESSION['pid']; // Adjust as necessary to get the patient ID
+$pid = $_SESSION['pid'];
 
 // Process each selected document
 foreach ($documentIds as $documentId) {
-    $sql = "SELECT url, id, mimetype, `name` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
-    $fres = sqlStatement($sql, array($documentId));
-    $file = sqlFetchArray($fres);
-
+    $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
+    $file = sqlQuery($sql, array($documentId));
+    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $_SESSION['pid']) {
+        die(xlt("Invalid document selected."));
+    }
     // Find the document category
     $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
             WHERE `categories_to_documents`.`category_id` = `categories`.`id`
             AND `categories_to_documents`.`document_id` = ?";
-    $catres = sqlStatement($sql, array($file['id']));
-    $cat = sqlFetchArray($catres);
+    $cat = sqlQuery($sql, array($file['id']));
 
     // Find the tree of the document's category
     $sql = "SELECT name FROM categories WHERE lft < ? AND rght > ? ORDER BY lft ASC";
@@ -82,7 +82,7 @@ foreach ($documentIds as $documentId) {
 
         file_put_contents($dest, $document);
     } else {
-        echo "Can't find file!";
+        echo xlt("Can't find file!");
     }
 }
 
