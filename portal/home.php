@@ -160,7 +160,7 @@ function buildNav($newcnt, $pid, $result): array
     $navItems = [
         [
             'url' => '#',
-            'label' => $result['fname'] . ' ' . $result['lname'],
+            'label' => xl('Menu'),
             'icon' => 'fa-user',
             'dropdownID' => 'account',
             'messageCount' => $newcnt ?? 0,
@@ -172,14 +172,6 @@ function buildNav($newcnt, $pid, $result): array
                     'icon' => 'fa-tasks',
                     'dataToggle' => 'collapse',
                 ],
-
-                [
-                    'url' => '#profilecard',
-                    'label' => xl('Demographics'),
-                    'icon' => 'fa-user',
-                    'dataToggle' => 'collapse',
-                ],
-
                 [
                     'url' => '#secure-msgs-card',
                     'label' => xl('Secure Messaging'),
@@ -188,12 +180,23 @@ function buildNav($newcnt, $pid, $result): array
                     'messageCount' => $newcnt ?? 0,
                 ],
                 [
+                    'url' => $GLOBALS['web_root'] . '/portal/patient/onsitedocuments?pid=' . urlencode($pid),
+                    'label' => xl('Forms and Documents'),
+                    'icon' => 'fa-file',
+                ],
+                [
+                    'url' => '#profilecard',
+                    'label' => xl('Profile'),
+                    'icon' => 'fa-user',
+                    'dataToggle' => 'collapse',
+                ],
+                [
                     'url' => '#lists',
-                    'label' => xl('Medical Health'),
+                    'label' => xl('Health Snapshot'),
                     'icon' => 'fa-list',
                     'dataToggle' => 'collapse'
                 ],
-                [
+                /*[
                     'url' => '#ledgercard',
                     'label' => xl('Billing Summary'),
                     'icon' => 'fa-folder-open',
@@ -206,14 +209,7 @@ function buildNav($newcnt, $pid, $result): array
                     'icon' => 'fa-credit-card',
                     'dataToggle' => 'collapse',
                     'hide' => $hidePayment
-                ],
-                [
-                    'url' => '#openSignModal',
-                    'label' => xl('Signature'),
-                    'icon' => 'fa-file-signature',
-                    'dataToggle' => 'modal',
-                    'dataType' => 'patient-signature'
-                ]
+                ],*/
             ],
         ]
     ];
@@ -221,7 +217,7 @@ function buildNav($newcnt, $pid, $result): array
     // Build sub nav items
 
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
-        if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === ($result['fname'] . ' ' . $result['lname'])) {
+        if ($GLOBALS['allow_portal_appointments'] && $navItems[$i]['label'] === xl('Menu')) {
             $navItems[$i]['children'][] = [
                 'url' => '#appointmentcard',
                 'label' => xl('Appointments'),
@@ -230,13 +226,20 @@ function buildNav($newcnt, $pid, $result): array
             ];
         }
 
-        if ($navItems[$i]['label'] === ($result['fname'] . ' ' . $result['lname'])) {
+        if ($navItems[$i]['label'] === xl('Menu')) {
             array_push(
                 $navItems[$i]['children'],
                 [
                     'url' => 'javascript:changeCredentials(event)',
-                    'label' => xl('Change Credentials'),
+                    'label' => xl('Manage Login Credentials'),
                     'icon' => 'fa-cog fa-fw',
+                ],
+                [
+                    'url' => '#openSignModal',
+                    'label' => xl('Manage Signature'),
+                    'icon' => 'fa-file-signature',
+                    'dataToggle' => 'modal',
+                    'dataType' => 'patient-signature'
                 ],
                 [
                     'url' => 'logout.php',

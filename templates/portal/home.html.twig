@@ -517,11 +517,11 @@
                                 <!-- Password -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title d-flex align-items-center" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login' | xlt }}</h4>
+                                        <h4 class="card-title d-flex align-items-center" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
                                     </div>
                                 </div>
                                 <!-- Theme -->
-                                <div class="card card-columns d-flex mr-1 mb-1">
+                                <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
                                         <h4 class="card-title d-flex align-items-center" data-toggle="collapse" data-target="#settings-content" role="button">
                                             <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
@@ -553,30 +553,30 @@
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
                                         <h4 class="card-title"><i class="fa fa-file mr-1"></i>{{ 'Clinical Forms or Documents' | xlt }}</h4>
-                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Forms and Documents' | xlt }}</a>
+                                        <a id="documents-go" class="btn btn-success mb-1" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Forms and Documents' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Messages -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
                                         <h4 class="card-title"><i class="fa fa-envelope mr-1"></i>{{ 'Secure Messaging' | xlt }}
-                                            {% if newcnt > 0 %}<small><span class="badge-pill badge-danger ml-1">{{ newcnt ~ " New" | text }}</span></small>{% endif %}
+                                            {% if newcnt > 0 %}<small><span class="badge-pill badge-danger ml-1">{{ newcnt ~ "(New)" | text }}</span></small>{% endif %}
                                         </h4>
-                                        <a id="lists-go" class="btn btn-success" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Securely Message with Providers' | xlt }}</a>
+                                        <a id="lists-go" class="btn btn-success mb-1" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Securely Message with Providers' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Demo -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
                                         <h4 class="card-title"><i class="fas fa-user mr-1"></i>{{ 'Profile' | xlt }}</h4>
-                                        <a id="lists-go" class="btn btn-success" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View or Edit Current.' | xlt }}</a>
+                                        <a id="lists-go" class="btn btn-success mb-1" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View or Edit Current.' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Health -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body">
                                         <h4 class="card-title"><i class="fa fa-list mr-1"></i>{{ 'Health Snapshot' | xlt }}</h4>
-                                        <a id="lists-go" class="btn btn-success" href="#lists" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Medical Lists' | xlt }}</a>
+                                        <a id="lists-go" class="btn btn-success mb-1" href="#lists" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Medical Lists' | xlt }}</a>
                                     </div>
                                 </div>
                                 <!-- Report -->
@@ -585,10 +585,10 @@
                                         <div class="card-body">
                                             <h4 class="card-title"><i class="fa fa-credit-card mr-1"></i>{{ 'Financial' | xlt }}</h4>
                                             {% if portal_two_ledger %}
-                                                <a id="lists-go" class="btn btn-success" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Billing Summary' | xlt }}</a>
+                                                <a id="lists-go" class="btn btn-success mb-1" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Billing Summary' | xlt }}</a>
                                             {% endif %}
                                             {% if portal_two_payments %}
-                                                <a id="lists-go" class="btn btn-success" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Make Payment' | xlt }}</a>
+                                                <a id="lists-go" class="btn btn-success mb-1" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Make Payment' | xlt }}</a>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -598,7 +598,7 @@
                                     <div class="card d-flex mr-1 mb-1">
                                         <div class="card-body">
                                             <h4 class="card-title"><i class="fa fa-calendar-check mr-1"></i>{{ 'Appointments' | xlt }}</h4>
-                                            <a id="appointments-go" class="btn btn-success" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View or Schedule Appointments' | xlt }}</a>
+                                            <a id="appointments-go" class="btn btn-success mb-1" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View or Schedule Appointments' | xlt }}</a>
                                         </div>
                                     </div>
                                 {% endif %}
@@ -607,14 +607,14 @@
                                     <div class="card-body">
                                         <h4 class="card-title"><i class="fa fa-eye mr-1"></i>{{ 'Reports' | xlt }}</h4>
                                         {% if ccdaOk %}
-                                            <a id="view-summary-go" class="btn btn-success" target="_blank" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=view&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'View Summary of Care' | xlt }}</a>
-                                            <a id="download-summary-go" class="btn btn-success" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'Download Summary of Care' | xlt }}</a>
+                                            <a id="view-summary-go" class="btn btn-success mb-1" target="_blank" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=view&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'View Summary of Care' | xlt }}</a>
+                                            <a id="download-summary-go" class="btn btn-success mb-1" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'Download Summary of Care' | xlt }}</a>
                                         {% endif %}
                                         {% if 'allow_custom_report' %}
-                                            <a id="create-report-go" class="btn btn-success" href="#reportcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Custom Content Itemized Report' | xlt }}</a>
+                                            <a id="create-report-go" class="btn btn-success mb-1" href="#reportcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Custom Content Itemized Report' | xlt }}</a>
                                         {% endif %}
                                         {% if portal_onsite_document_download %}
-                                            <a id="download-documents-go" class="btn btn-success" href="#downloadcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Download Medical Record Documents' | xlt }}</a>
+                                            <a id="download-documents-go" class="btn btn-success mb-1" href="#downloadcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Download Medical Record Documents' | xlt }}</a>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -623,7 +623,7 @@
                                     <div class="card d-flex mr-1 mb-1">
                                         <div class="card-body">
                                             <h4 class="card-title"><i class="fa fa-calendar-check mr-1"></i>{{ 'PRO Assessment' | xlt }}</h4>
-                                            <a id="appointments-go" class="btn btn-success" href="#procard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Patient Reported Outcomes' | xlt }}</a>
+                                            <a id="appointments-go" class="btn btn-success mb-1" href="#procard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Patient Reported Outcomes' | xlt }}</a>
                                         </div>
                                     </div>
                                 {% endif %}

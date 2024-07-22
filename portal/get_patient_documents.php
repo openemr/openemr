@@ -138,7 +138,7 @@ while ($file = sqlFetchArray($fres)) {
                     </div>
                 <?php } ?>
             </div>
-            <button type="submit" class="btn btn-primary float-right mt-3"><?php echo text("Download Selected Documents"); ?></button>
+            <button type="submit" class="btn btn-primary float-right mt-1"><?php echo text("Download Selected Documents"); ?></button>
         </form>
     </div>
 </body>
