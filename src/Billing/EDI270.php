@@ -28,6 +28,7 @@ require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_
 
 use edih_271_codes;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
+use OpenEMR\Billing\Service\EDI270EligibilityPartnerService;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -459,7 +460,7 @@ class EDI270
         $down_accum = $log = $error_accum = '';
         foreach ($res as $row) {
             if (!$X12info) {
-                $X12info = self::getX12Partner($row['partner']);
+                $X12info = EDI270EligibilityPartnerService::getX12Partner($row['partner']);
             }
             if ($row['providerID'] === 0 || !$row['provider_npi']) {
                 $error_accum .= xlt("Error") . ": " . xlt("Provider Missing NPI or Provider not selected in choices") . "\n";
@@ -741,28 +742,6 @@ class EDI270
         }
     }
 
-// return array of X12 partners
-// if id return just that id
-    public static function getX12Partner($id = 0)
-    {
-        // @TODO move to class
-        global $X12info;
-        $id = (int)$id;
-        $returnval = [];
-
-        if ((int)$id > 0) {
-            $returnval = sqlQuery("select * from x12_partners WHERE id = ?", array($id));
-            $X12info = $returnval;
-        } else {
-            $rez = sqlStatement("select * from x12_partners");
-            for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-                $returnval[$iter] = $row;
-            }
-        }
-
-        return $returnval;
-    }
-
 // return array of provider usernames
     public static function getUsernames()
     {
@@ -779,7 +758,7 @@ class EDI270
     {
         global $X12info;
         if (((int)$X12info['id'] !== (int)$partner) && (int)$partner > 0) {
-            $X12info = self::getX12Partner($partner);
+            $X12info = EDI270EligibilityPartnerService::getX12Partner($partner);
         }
 
         $payloadId = "3b8c13f5-11e2-43bf-bc47-737cca04f3fe"; // a default fallback

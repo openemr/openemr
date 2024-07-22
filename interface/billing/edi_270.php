@@ -28,6 +28,7 @@ require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
+use OpenEMR\Billing\Service\EDI270EligibilityPartnerService;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -52,7 +53,7 @@ $form_facility  = (!empty($_POST['form_facility'])) ? $_POST['form_facility'] : 
 $form_provider  = (!empty($_POST['form_users'])) ? $_POST['form_users'] : '';
 $exclude_policy = (!empty($_POST['removedrows'])) ? $_POST['removedrows'] : '';
 $x12_partner    = (!empty($_POST['form_x12'])) ? $_POST['form_x12'] : '';
-$X12info        = EDI270::getX12Partner($x12_partner);
+$X12info        = EDI270EligibilityPartnerService::getX12Partner($x12_partner);
 
 // grab appointments, sort by date and make unique to first upcoming appt by pid.
 $appts = fetchAppointments($from_date, $to_date);
@@ -152,14 +153,17 @@ if ($exclude_policy != "") {
     $facilities     = getUserFacilities($_SESSION['authUserID']);
 
     // Get the Providers information
-    $providers      = EDI270::getUsernames();
+    $providers      = EDI270EligibilityPartnerService::getUsernames();
 
     //Get the x12 partners information
-    $clearinghouses = EDI270::getX12Partner();
+    $clearinghouses = EDI270EligibilityPartnerService::getX12Partner();
 
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
         $eFlag = !$GLOBALS['disable_eligibility_log'];
         // make the batch request
+        //This should not be so tightly bound to the EDI270 class
+        //This should be an interface to implement different clearinghouses of 270 requests
+        //EDI270Interface::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag, (new EDI270WayStar()));
         $log = EDI270::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
         $e = strpos($log, "Error:");
         if ($e !== false) {
