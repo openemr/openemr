@@ -41,7 +41,7 @@ class SessionTracker
             error_log("OpenEMR Error: session_database_uuid session variable is missing");
             return true;
         }
-        $sessionTracker = sqlQueryNoLog("SELECT `last_updated`, NOW() as `current_time` FROM `session_tracker` WHERE `uuid` = ?", $_SESSION['session_database_uuid']);
+        $sessionTracker = sqlQueryNoLog("SELECT `last_updated`, NOW() as `current_time` FROM `session_tracker` WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
         if (empty($sessionTracker) || empty($sessionTracker['last_updated']) || empty($sessionTracker['current_time'])) {
             error_log("OpenEMR Error: session entry in session_tracker table is missing or invalid");
             return true;
@@ -63,5 +63,34 @@ class SessionTracker
     public static function updateSessionExpiration(): void
     {
         sqlStatementNoLog("UPDATE `session_tracker` SET `last_updated` = NOW() WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
+    }
+
+    // Function to update the throttle down function (ie. counting scripts)
+    //  Only basically used for the online demos to prevent abuse of demo farm
+    public static function updateSessionThrottleDown(): void
+    {
+        sqlStatementNoLog("UPDATE `session_tracker` SET `number_scripts` = `number_scripts` + 1 WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
+    }
+
+    // Function to throttle down requests when using the online demos to prevent abuse of the demo farm
+    public static function processSessionThrottleDown($throttleDownWaitMilliseconds): void
+    {
+        // calculate $timeThrottle['time_throttle'], which will be average time (in milliseconds) per script call
+        $timeThrottle = sqlQueryNoLog("SELECT `number_scripts`, `created`, NOW() as `current_timestamp` FROM `session_tracker` WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
+        $timeThrottle['time_throttle'] = ((new \DateTime($timeThrottle['created']))->format('Uv') + ((int)$throttleDownWaitMilliseconds * $timeThrottle['number_scripts'])) - (new \DateTime($timeThrottle['current_timestamp']))->format('Uv');
+
+        // ensure scripts on average do not go faster than the THROTTLE_DOWN_WAIT_MIllISECONDS' environment setting
+        if (($timeThrottle['time_throttle'] ?? 0) > 0) {
+            $dieMilliseconds = getenv('THROTTLE_DOWN_DIE_MILLISECONDS', true) ?? 0;
+            if ($dieMilliseconds > 0 && ($timeThrottle['time_throttle'] ?? 0) > $dieMilliseconds) {
+                // throttle down and die since the 'THROTTLE_DOWN_DIE_MILLISECONDS' environment setting has been exceeded
+                error_log("DEBUG: die for script number " . $timeThrottle['number_scripts'] . " for " . $timeThrottle['time_throttle'] . " milliseconds");
+                usleep($timeThrottle['time_throttle'] * 1000);
+                die(xlt("These demos are not meant for headless server testing. Please do this on your own servers."));
+            }
+            // throttle down since the 'THROTTLE_DOWN_WAIT_MILLISECONDS' environment setting has been exceeded
+            error_log("DEBUG: throttling down for script number " . $timeThrottle['number_scripts'] . " for " . $timeThrottle['time_throttle'] . " milliseconds");
+            usleep($timeThrottle['time_throttle'] * 1000);
+        }
     }
 }
