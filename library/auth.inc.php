@@ -118,6 +118,13 @@ if (empty($skipSessionExpirationCheck) && empty($_REQUEST['skip_timeout_reset'])
     }
 }
 
+// below 2 function calls are only completed when environment setting 'THROTTLE_DOWN_WAIT_MILLISECONDS' is set
+//  used predominantly by demo farm to prevent abuse of demo farm
+if (empty($skipSessionExpirationCheck)) {
+    SessionTracker::updateSessionThrottleDown();
+    SessionTracker::processSessionThrottleDown();
+}
+
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
 function authCloseSession()
 {
