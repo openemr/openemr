@@ -526,11 +526,13 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <div class="row">
-            <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
+        <div class="row mt-5  d-flex justify-content-center ">
+            <div class="col-8">
+                <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
+            </div>
         </div>
-        <div class="container-xl p-1">
-            <form class="text-center mx-1" action="get_patient_info.php" method="POST" onsubmit="return process()">
+        <div class="container-xl mt-3">
+            <form class="text-center col-8" action="get_patient_info.php" method="POST" onsubmit="return process()">
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
