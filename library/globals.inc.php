@@ -76,6 +76,7 @@
 //   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -191,7 +192,12 @@ $GLOBALS_METADATA = array(
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
-
+        'hide_dashboard_cards' => array(
+            xl('Hide selected cards on patient dashboard'),
+            'm_dashboard_cards',
+            '',
+            xl('Multi (Shift or CTRL) Select the cards you want to hide on the patient dashboard.')
+        ),
         'window_title_add_patient_name' => array(
             xl('Add Patient Name To Window Title'),
             'bool',                           // data type
@@ -426,6 +432,13 @@ $GLOBALS_METADATA = array(
             ),
             '2',                              // default = true
             xl('Recommended setting is warn and prevent web browser refresh. Only use other settings if needed and use at own risk.')
+        ),
+
+        'form_actionbar_position' => array(
+            xl('Form ActionBar (save, cancel, etc) position')
+            ,FormActionBarSettings::getGlobalSettingsList()
+            ,FormActionBarSettings::getDefaultSetting() // default = top of the form
+            ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
         ),
 
     ),
@@ -3799,6 +3812,12 @@ $GLOBALS_METADATA = array(
             'default',
             xl('Name of zend template for pdf export, possible to add custom template in the PrescriptionTemplate module')
         ),
+        'rx_send_email' => array(
+            xl('Allow email sending of prescriptions'),
+            'bool',                           // data type
+            '1',
+            xl('Enable email option (available on prescriptions list screen) for emailing prescriptions')
+        ),
     ),
     'PDF' => array(
         'pdf_layout' => array(
@@ -4308,6 +4327,12 @@ $GLOBALS_METADATA = array(
             xl('Show Encounter Class option on Encounters'),
         ],
 
+        'enc_enable_ordering_provider' => [
+            xl('Show Ordering Provider option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::HIDE_ALL,
+            xl('Display the Ordering Provider option on Encounters'),
+        ],
     ],
 );
 

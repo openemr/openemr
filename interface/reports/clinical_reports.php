@@ -238,13 +238,13 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td class='col-form-label' width="100"><?php echo xlt('Facility'); ?>: </td>
                         <td width="250"> <?php dropdown_facility($facility, 'facility', false); ?> </td>
                         <td class='col-form-label' width="100"><?php echo xlt('From'); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, "global", true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Patient ID'); ?>:</td>
                         <td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
                         <td class='col-form-label'><?php echo xlt('To{{Range}}'); ?>: </td>
-                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
+                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, "global", true)); ?>'></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Age Range'); ?>:</td>

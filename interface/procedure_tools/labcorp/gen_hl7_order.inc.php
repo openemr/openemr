@@ -39,8 +39,6 @@
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 
-require_once("$srcdir/classes/Address.class.php");
-require_once("$srcdir/classes/InsuranceCompany.class.php");
 require_once("$webserver_root/custom/code_types.inc.php");
 
 function hl7Text($s)
@@ -355,7 +353,11 @@ function gen_hl7_order($orderid, &$out, &$reqStr)
     $P[70] = $vitals['height'];
     $P[88] = $vitals['bps'] . '^' . $vitals['bpd'];
     $P[89] = $vitals['waist_circ'];
-    $C[17] = hl7Date(date("Ymd", strtotime($porow['date_collected'])));
+    if (!empty($porow['date_collected'])) {
+        $C[17] = hl7Date(date("Ymd", strtotime($porow['date_collected'])));
+    } else {
+        $C[17] = '';
+    }
     if (empty($porow['account'])) {
         return "ERROR! Missing this orders facility location account code (Facility Id) in Facility!";
     }
@@ -817,6 +819,10 @@ function send_hl7_order($ppid, $out)
         // Compute the target path/file name.
         $filename = $msgid . '.hl7';
         if ($pprow['orders_path']) {
+            if (!file_exists($pprow['orders_path'])) {
+                // attempt to make the directory
+                mkdir($pprow['orders_path']);
+            }
             $filename = $pprow['orders_path'] . '/' . $filename;
         }
 

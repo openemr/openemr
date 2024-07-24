@@ -266,7 +266,7 @@ insurance;
         }
         $a1 = explode('-', substr($dob, 0, 10));
         $a2 = explode('-', substr($as_of, 0, 10));
-        $age = $a2[0] - $a1[0];
+        $age = (int)$a2[0] - (int)$a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
         }
@@ -294,7 +294,7 @@ insurance;
     {
         $provider_info = ['email' => ($GLOBALS['weno_provider_email'] ?? '')];
         if (empty($provider_info['email'])) {
-            return "REQED:{user_settings}" . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
+            return "REQED:{user_settings}" . (xlt('Weno Prescriber Email is missing. Go to User Settings Weno Tab and enter your Weno User Email'));
         } else {
             return $provider_info;
         }
@@ -326,7 +326,7 @@ insurance;
             }
             if (empty($default_facility['weno_id'])) {
                 // still no joy so let user know and get it set!
-                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Weno eRx Tools then Weno eRx Service Setup. Enter the Weno ID of your facility');
+                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Weno eRx Tools then Weno eRx Service Setup. Enter the Weno Location ID of your facility');
             }
             return $default_facility;
         }
@@ -429,11 +429,11 @@ insurance;
         if (!empty($GLOBALS['weno_provider_password'])) {
             $ret = $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
             if (!$ret) {
-                return ("REQED:{user_settings}" . xlt('Your Provider Password fails decryption. Go to User Settings Weno Tab and reenter your Weno Provider Password'));
+                return ("REQED:{user_settings}" . xlt('Your Weno Prescriber Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
             }
             return $ret;
         } else {
-            return "REQED:{user_settings}" . xlt('Your Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
+            return "REQED:{user_settings}" . xlt('Your Weno Prescriber Password is missing. Go to User Settings Weno Tab and enter your Weno User Password');
         }
     }
 
@@ -469,7 +469,7 @@ insurance;
         $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
         $relation = $relation ?? ['subscriber_relationship' => ''];
 
-        return $relation['subscriber_relationship'];
+        return $relation['subscriber_relationship'] ?? '';
     }
 
     /**
@@ -533,20 +533,21 @@ insurance;
         if (empty($id)) {
             $id = $_SESSION['authUserID'] ?? '';
         }
-        // get the weno provider id from the user table (weno_prov_id)
+        // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
 
         if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
             $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
             if ($doIt) {
-                $GLOBALS['weno_provider_uid'] = $provider['weno_prov_id'];
+                $provider['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
                 $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
                     VALUES (?, ?, 'global:weno_provider_uid') 
                     ON DUPLICATE KEY UPDATE `setting_value` = ?";
                 sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
             }
-
-            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update globals
+            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update users
+            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
+            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
             return $provider['weno_prov_id'];
         } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
             $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
@@ -557,14 +558,13 @@ insurance;
             $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id'];
             return $provider['weno_prov_id'];
         } elseif (empty($provider['weno_prov_id'] ?? '') && !empty($GLOBALS['weno_provider_uid'])) {
-            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) 
-                ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
+            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
             sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
 
             $provider['weno_prov_id'] = $GLOBALS['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
             return $provider['weno_prov_id'];
         } else {
-            return "REQED:{users}" . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
+            return "REQED:{users}" . xlt("Weno User Id missing. Select Admin then Users and edit the user to add Weno User Id");
         }
     }
 }

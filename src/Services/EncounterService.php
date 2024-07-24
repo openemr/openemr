@@ -215,6 +215,7 @@ class EncounterService extends BaseService
 
                        fe.provider_id,
                        fe.referring_provider_id,
+                       fe.ordering_provider_id,
                        providers.provider_uuid,
                        providers.provider_username,
                        referrers.referrer_uuid,
@@ -249,6 +250,7 @@ class EncounterService extends BaseService
                                discharge_disposition,
                                pid as encounter_pid,
                                referring_provider_id,
+                               ordering_provider_id,
                                last_update
                            FROM form_encounter
                        ) fe
@@ -387,8 +389,7 @@ class EncounterService extends BaseService
             $data["provider_id"],
             $data["date"],
             $data['user'],
-            $data['group'],
-            $data['referring_provider_id']
+            $data['group']
         );
 
         if ($results) {
@@ -706,6 +707,22 @@ class EncounterService extends BaseService
         $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
         if ($encounterResult->hasData()) {
             return $encounterResult->getData()[0]['referring_provider_id'] ?? '';
+        }
+        return [];
+    }
+
+    /**
+     * Returns the ordering provider for the encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return string        ordering provider of first row of encounter data (it's an id from the users table)
+     */
+    public function getOrderingProviderID($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0]['ordering_provider_id'] ?? '';
         }
         return [];
     }

@@ -177,3 +177,26 @@ function dateEmptySql($sqlColumn, $time = false, $rev = false)
 
     return $stat;
 }
+
+/**
+ * Compares a multibyte unicode string identifier in a case insensitive way to see if the two strings
+ * are semantically identical.  Note that NFKC will treat several 'similar' semantically meaning texts as the same and so
+ * should be used for identifiers (things such as proper nouns, etc).
+ * @see https://learn.microsoft.com/en-us/windows/win32/intl/using-unicode-normalization-to-represent-strings - * Note if trying to understand string normalization, Microsoft has a good explanation here
+ * @see https://www.unicode.org/faq/normalization.html#2 for explanation on why we use NFKC
+ * @see https://stackoverflow.com/a/38855868
+ * @param $string1
+ * @param $string2
+ * @return bool
+ */
+function mb_is_string_equal_ci($string1, $string2): bool
+{
+    if ($string1 == $string2) {
+        return true;
+    }
+
+    $string1_normalized = Normalizer::normalize($string1, Normalizer::FORM_KC);
+    $string2_normalized = Normalizer::normalize($string2, Normalizer::FORM_KC);
+    return mb_strtolower($string1_normalized) === mb_strtolower($string2_normalized)
+        || mb_strtoupper($string1_normalized) === mb_strtoupper($string2_normalized);
+}

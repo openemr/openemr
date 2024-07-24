@@ -52,7 +52,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mariadb is version 10.11; mariadb-ssl is version 10.11 with support for ssl; mariadb-old is version 10.6; mariadb-very-old is version 10.5; mariadb-very-very-old is version 10.4)
+#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mysql-old-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.4; mysql-old is version 8.0; mysql-old-old is version 5.7; mariadb is version 11.4; mariadb-ssl is version 11.4 with support for ssl; mariadb-old is version 10.11; mariadb-very-old is version 10.6; mariadb-very-very-old is version 10.5)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -109,7 +109,7 @@ services:
       EMPTY: "yes"
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.19
+    image: openemr/openemr:flex-3.20
     ports:
     - 8085:80
     - 9085:443
@@ -245,14 +245,16 @@ services:
       EMPTY: "yes"
   mariadb:
     restart: always
-    image: mariadb:10.11
-    command: ['mysqld','--character-set-server=utf8mb4']
+    image: mariadb:11.4
+    command: ['mariadbd','--character-set-server=utf8mb4']
+    ports:
+    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-ssl:
     restart: always
-    image: mariadb:10.11
-    command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    image: mariadb:11.4
+    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
     - ../library/sql-ssl-certs-keys/insane/server-cert.pem:/etc/ssl/server-cert.pem:ro
@@ -261,33 +263,37 @@ services:
       MYSQL_ROOT_PASSWORD: root
   mariadb-old:
     restart: always
-    image: mariadb:10.6
+    image: mariadb:10.11
     command: ['mysqld','--character-set-server=utf8mb4']
-    ports:
-    - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-very-old:
     restart: always
-    image: mariadb:10.5
+    image: mariadb:10.6
     command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   mariadb-very-very-old:
     restart: always
-    image: mariadb:10.4
+    image: mariadb:10.5
     command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   mysql:
     restart: always
-    image: mysql:8.0
-    command: ['mysqld','--character-set-server=utf8mb4','--default-authentication-plugin=mysql_native_password']
+    image: mysql:8.4
+    command: ['mysqld','--character-set-server=utf8mb4']
     ports:
     - 8220:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   mysql-old:
+    restart: always
+    image: mysql:8.0
+    command: ['mysqld','--character-set-server=utf8mb4','--default-authentication-plugin=mysql_native_password']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  mysql-old-old:
     restart: always
     image: mysql:5.7
     command: ['mysqld','--character-set-server=utf8mb4']
@@ -299,7 +305,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mariadb-ssl
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mysql-old-old,mariadb-ssl
   couchdb:
     restart: always
     image: couchdb

@@ -24,6 +24,9 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $logged_in = $clientApp->authenticate();
+if ($logged_in != 1) {
+    die("<h3>" . text($logged_in) . "</h3>");
+}
 $isSMS = $clientApp->getRequest('isSMS', false);
 $isEmail = $clientApp->getRequest('isEmail', false);
 $isForward = $isFax = 0;
@@ -96,68 +99,77 @@ if (empty($isSMS)) {
                 }
             }
             // when the form is submitted
-            $('#contact-form').on('submit', function (e) {
-                if (!e.isDefaultPrevented()) {
-                    let wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
-                    let url = 'sendFax?type=fax';
-                    if (isSms) {
-                        url = 'sendSMS?type=sms';
-                    }
-                    if (isForward) {
-                        url = 'forwardFax?type=fax';
-                    }
-                    if (isEmail) {
-                        url = 'sendEmail?type=email';
-                    }
-                    if (isOnetime) {
-                        url = "./library/api_onetime.php?";
-                        if (isSms) {
-                            url += 'sendOneTime&type=sms'
-                        } else {
-                            url += 'sendOneTime&type=email';
-                        }
-                    }
+            $(document).ready(function() {
+                // Ensuring event handlers are set after the DOM is fully loaded
+                $('#contact-form').on('submit', function(e) {
+                    e.preventDefault(); // Prevent the default form submit
+
+                    const wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
                     $('#contact-form').find('.messages').html(wait);
-                    // POST values in the background the script URL
+
+                    const url = buildUrl();
+                    const formData = $(this).serialize();
+
                     $.ajax({
                         type: "POST",
                         url: url,
-                        data: $(this).serialize(),
-                        success: function (data) {
-                            try {
-                                let t_data = JSON.parse(data);
-                                data = t_data;
-                            } catch (e) {
-                            }
-                            let err = (data.search(/Exception/) !== -1 ? 1 : 0);
-                            if (!err) {
-                                err = (data.search(/Error:/) !== -1) ? 1 : 0;
-                            }
-                            // Type of the message: success or danger. Apply it to the alert.
-                            let messageAlert = 'alert-' + (err !== 0 ? 'danger' : 'success');
-                            let messageText = data;
-
-                            // let's compose alert box HTML
-                            let alertBox = '<div class="alert ' + messageAlert + ' alert-dismissable">' +
-                                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
-
-                            // If we have messageAlert and messageText
-                            if (messageAlert && messageText) {
-                                // inject the alert to messages div in our form
-                                $('#contact-form').find('.messages').html(alertBox);
-                                setTimeout(function () {
-                                    if (!err) {
-                                        // close dialog as we have success.
-                                        dlgclose();
-                                    }
-                                    // if error let user close dialog for time to read error message.
-                                }, 4000);
-                            }
+                        data: formData,
+                        success: handleResponse,
+                        error: function() {
+                            showErrorMessage('An unexpected error occurred and your request could not be completed.');
                         }
                     });
-                    return false;
+                });
+
+                function buildUrl() {
+                    // Simplify logic by directly mapping conditions to URLs
+                    if (isOnetime) {
+                        const type = isSms ? 'sms' : 'email';
+                        return `./library/api_onetime.php?sendOneTime&type=${encodeURIComponent(type)}`;
+                    }
+
+                    if (isSms) {
+                        return 'sendSMS?type=sms';
+                    } else if (isForward) {
+                        return 'forwardFax?type=fax';
+                    } else if (isEmail) {
+                        return 'sendEmail?type=email';
+                    } else {
+                        return 'sendFax?type=fax';
+                    }
                 }
-            })
+
+                function handleResponse(data) {
+                    let jsonData;
+                    try {
+                        jsonData = JSON.parse(data);
+                    } catch (e) {
+                        jsonData = data; // Use data as is if it can't be parsed as JSON
+                    }
+
+                    const isError = /Exception|Error:/.test(jsonData);
+                    const messageType = isError ? 'danger' : 'success';
+                    const messageText = jsonData;
+                    const alertBox = `<div class="alert alert-${messageType} alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            ${messageText}
+                          </div>`;
+
+                    $('#contact-form').find('.messages').html(alertBox);
+                    if (!isError) {
+                        setTimeout(() => { dlgclose(); }, 4000); // Auto-close dialog on success
+                    }
+                }
+
+                function showErrorMessage(message) {
+                    const alertBox = `<div class="alert alert-danger alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            ${message}
+                          </div>`;
+                    $('#contact-form').find('.messages').html(alertBox);
+                }
+            });
+
         });
 
         function sel_patient() {
@@ -206,12 +218,16 @@ if (empty($isSMS)) {
         const getContactBook = function (e, rtnpid) {
             e.preventDefault();
             let btnClose = <?php echo xlj("Cancel"); ?>;
-            dlgopen('', '', 'modal-lg', 500, '', '', {
+            dlgopen('', '', 'modal-lg', '', '', '', {
                 buttons: [
                     {text: btnClose, close: true, style: 'primary  btn-sm'}
                 ],
                 url: top.webroot_url + '/interface/usergroup/addrbook_list.php?popup=2&type=' + encodeURIComponent(<?php echo js_escape($serviceType); ?>),
-                dialogId: 'fax'
+                dialogId: 'fax',
+                resolvePromiseOn: 'close',
+                sizeHeight: 'full'
+            }).then(function (contact) {
+                top.restoreSession();
             });
         };
     </script>
@@ -239,20 +255,19 @@ if (empty($isSMS)) {
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group forwardExclude smsExclude faxExclude">
-                        <label for="form_pid"><?php echo xlt('MRN') ?></label>
+                        <label for="form_pid"><?php echo xlt('MRN or PID') ?></label>
                         <input id="form_pid" type="text" name="form_pid" class="form-control"
-                            placeholder="<?php echo xla('If Applicable for charting.') ?>"
+                            title="<?php echo xla('If Applicable for charting.') ?>"
                             value="<?php echo attr($interface_pid ?? 0) ?>" />
                     </div>
                     <div class="form-group show-detail">
                         <label for="form_name"><?php echo xlt('Name') ?></label>
                         <input id="form_name" type="text" name="name" class="form-control"
-                            placeholder="<?php echo xla('Not Required') ?>"
+                            placeholder="<?php echo xla('First name. Optionally if included then sent.') ?>"
                             value="<?php echo attr($details['fname'] ?? '') ?>" />
-                        <div class="form-group show-detail smsExclude faxExclude">
-                            <!--<label for="form_lastname"><?php /*echo xlt('Lastname') */ ?></label>-->
+                        <div class="form-group mt-1 show-detail smsExclude faxExclude">
                             <input id="form_lastname" type="text" name="surname" class="form-control"
-                                placeholder="<?php echo xla('Not Required') ?>"
+                                placeholder="<?php echo xla('Last name. Optionally if included then sent.') ?>"
                                 value="<?php echo attr($details['lname'] ?? '') ?>" />
                         </div>
                         <div class="form-group faxExclude smsExclude show-detail">
@@ -265,7 +280,7 @@ if (empty($isSMS)) {
                                     echo($isSMTP ? xla('Forward to email address if address is included.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
                                 }
                                 ?>"
-                                title="<?php echo xla('Forward to an email address.') ?>" />
+                                title="<?php echo xla('Attach and send to an email Address.') ?>" />
                         </div>
                         <div class="form-group">
                             <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
@@ -278,7 +293,7 @@ if (empty($isSMS)) {
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
                             <textarea id="form_message" name="comments" class="form-control" placeholder="
-                            <?php echo xla('Add a note to recipient.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
+                            <?php echo "\n" . xla('Add a note to recipient or cover sheet. If enabled, double click for Text Templates.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
                         </div>
                         <?php } ?>
                         <div>

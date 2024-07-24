@@ -1549,8 +1549,8 @@ function getEffectiveInsurances($patient_id, $encdate)
         $tmp = sqlQuery(
             "SELECT * FROM insurance_data " .
             "WHERE pid = ? AND type = ? " .
-            "AND (date <= ? OR date IS NULL) ORDER BY date DESC LIMIT 1",
-            array($patient_id, $instype, $encdate)
+            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1",
+            array($patient_id, $instype, $encdate, $encdate)
         );
         if (empty($tmp['provider'])) {
             break;
@@ -1598,7 +1598,7 @@ function getAllinsurances($pid)
  * @param int     Optional encounter id. If value is passed, will fetch only bills from specified encounter.
  * @return number The balance.
  */
-function get_patient_balance($pid, $with_insurance = false, $eid = false)
+function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false)
 {
     $balance = 0;
     $bindarray = array($pid);
@@ -1608,6 +1608,11 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
     if ($eid) {
         $sqlstatement .= " AND encounter = ?";
         array_push($bindarray, $eid);
+    }
+
+    if ($in_collection) {
+        $sqlstatement .= " AND in_collection = ?";
+        array_push($bindarray, 1);
     }
     $feres = sqlStatement($sqlstatement, $bindarray);
     while ($ferow = sqlFetchArray($feres)) {
@@ -1641,10 +1646,16 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false)
                 $balance += $ptbal;
             }
         } else {
-            // Including insurance or not out to insurance, everything is due.
-            $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-            "pid = ? AND encounter = ? AND " .
-            "activity = 1", array($pid, $encounter));
+            if (!$with_insurance && $ferow['last_level_closed'] >= $inscount && $in_collection) {
+                $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+                    "pid = ? AND encounter = ? AND " .
+                    "activity = 1", array($pid, $encounter));
+            } else {
+                // Including insurance or not out to insurance, everything is due.
+                $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+                    "pid = ? AND encounter = ? AND " .
+                    "activity = 1", array($pid, $encounter));
+            }
             $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
               "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
               "deleted IS NULL AND pid = ? AND encounter = ?", array($pid, $encounter));

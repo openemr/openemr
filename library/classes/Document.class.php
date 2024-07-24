@@ -1006,7 +1006,7 @@ class Document extends ORDataObject
              * Else resume the local file storage
              */
 
-            if ($GLOBALS['documentStoredRemotely']) {
+            if ($GLOBALS['documentStoredRemotely'] ?? '') {
                 return xlt("Document was uploaded to remote storage"); // terminate processing
             }
 

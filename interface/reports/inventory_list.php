@@ -286,7 +286,7 @@ function write_report_line(&$row)
             "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
             "AND s.pid != 0 $fwcond";
         $srow = sqlQuery($query, array_merge(array($drug_id, $facility_id), $fwbind));
-    } else if ($form_details == 2) { // warehouse details
+    } elseif ($form_details == 2) { // warehouse details
         $query = "SELECT " .
             "SUM(s.quantity) AS sale_quantity " .
             "FROM drug_sales AS s " .
@@ -428,7 +428,7 @@ function write_report_line(&$row)
             $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
             if ($expdays <= 0) {
                 addWarning(xl('Lot') . " '$lotno' " . xl('has expired'));
-            } else if ($expdays <= $gbl_expired_lot_warning_days) {
+            } elseif ($expdays <= $gbl_expired_lot_warning_days) {
                 addWarning(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days'));
             }
         }
@@ -621,7 +621,7 @@ if ($form_details == 1) {
         "pw.pw_warehouse = di.warehouse_id " .
         "WHERE 1 = 1 $fwcond $actcond " .
         "GROUP BY d.name, d.drug_id, lo.option_value ORDER BY $orderby, lo.option_value";
-} else if ($form_details == 2) {
+} elseif ($form_details == 2) {
     // Query for the main loop if warehouse/lot details are wanted.
     $query = "SELECT d.*, di.on_hand, di.inventory_id, di.lot_number, " .
         "di.expiration, di.warehouse_id, lo.title, fac.name AS facname, " .

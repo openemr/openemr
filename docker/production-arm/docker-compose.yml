@@ -2,6 +2,9 @@
 # MYSQL_HOST and MYSQL_ROOT_PASS are required for openemr
 # MYSQL_USER, MYSQL_PASS, OE_USER, MYSQL_PASS are optional for openemr and
 #   if not provided, then default to openemr, openemr, admin, and pass respectively.
+#
+# NOTE need to change command from mysqld to mariadbd when update to mariadb 11.4
+#
 version: '3.1'
 services:
   mysql:

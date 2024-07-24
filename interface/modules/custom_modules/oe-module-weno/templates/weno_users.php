@@ -29,7 +29,6 @@ if ($_POST) {
     }
 }
 
-
 $fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
@@ -38,6 +37,10 @@ while ($row = sqlFetchArray($fetch)) {
 if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
+        sqlQuery(
+            "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
+            array('global:weno_provider_uid', $weno_prov_id, $id, $weno_prov_id, $id)
+        );
     }
 
     unset($_POST['save']);
@@ -62,7 +65,7 @@ if (($_POST['save'] ?? false) == 'true') {
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     top.restoreSession();
-                    syncAlertMsg(successMsg, 1000, 'success').then(() => {
+                    syncAlertMsg(successMsg, 750, 'success').then(() => {
                         isPersistEvent = true;
                         $("#form_save_users").click();
                     });
@@ -83,7 +86,7 @@ if (($_POST['save'] ?? false) == 'true') {
                     <th><?php echo xlt("Username"); ?></th>
                     <th><?php echo xlt("Last"); ?></th>
                     <th><?php echo xlt("First"); ?></th>
-                    <th><?php echo xlt("Weno Provider"); ?></th>
+                    <th><?php echo xlt("Weno User"); ?></th>
                     <th><?php echo xlt("Facility"); ?></th>
                     <th><?php echo xlt("Edit"); ?></th>
                 </tr>
@@ -98,14 +101,14 @@ if (($_POST['save'] ?? false) == 'true') {
                     <td><?php echo text($user['username']); ?></td>
                     <td><?php echo text($user['lname']); ?></td>
                     <td><?php echo text($user['fname']); ?></td>
-                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xla("Weno provider id Uxxxx"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
+                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xla("Weno User id Uxxxx"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
                     <td><?php echo text($user['facility']); ?></td>
                     <td><i onclick='renderDialog("users", <?php echo attr_js($user['id']); ?>, event)' role='button' class='fas fa-pen text-warning'></i></td>
                     </tr>
                 <?php } ?>
                 </tbody>
             </table>
-            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno ID"); ?></button>
+            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno Location ID"); ?></button>
         </form>
     </div>
 </body>

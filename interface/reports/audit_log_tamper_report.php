@@ -142,12 +142,12 @@ $sortby = $_GET['sortby'] ?? null;
 <tr><td>
 <span class="text"><?php echo xlt('Start Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0, true)); ?>" title="<?php echo xla('Start date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 'global', true)); ?>" title="<?php echo xla('Start date'); ?>" />
 </td>
 <td>
 <span class="text"><?php echo xlt('End Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0, true)); ?>" title="<?php echo xla('End date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 'global', true)); ?>" title="<?php echo xla('End date'); ?>" />
 </td>
 
 <td>

@@ -16,6 +16,7 @@ require_once("../../../../globals.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
@@ -52,6 +53,8 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
+$cryptoGen = new CryptoGen();
+
 // set up the dependencies for the page.
 $pharmacyService = new PharmacyService();
 $wenoProperties = new TransmitProperties();
@@ -63,13 +66,15 @@ $vitals = $wenoProperties->getVitals();
 $provider_name = $wenoProperties->getProviderName();
 $patient_name = $wenoProperties->getPatientName();
 $facility_name = $wenoProperties->getFacilityInfo();
-
 //set the url for the iframe
 $newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
+
+$urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
+
 ?>
 <!doctype html>
 <html lang="en">
@@ -107,15 +112,15 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     <script>
         $(function () {
             $('#form_reset_key').addClass('d-none');
-        /* Toggle reset button. */
-        <?php if ((int)$isValidKey > 997) { ?>
+            /* Toggle reset button. */
+            <?php if ((int)$isValidKey > 997) { ?>
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
                 syncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
                     window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
                 });
             });
-        <?php } else if (!$isValidKey) { ?>
+            <?php } elseif (!$isValidKey) { ?>
             $(function () {
                 $('#form_reset_key').removeClass('d-none');
                 const warnMsg = "<?php
@@ -124,19 +129,45 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                         xlt('Afterwards you may continue and no other action is required by you.'); ?>";
                 syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
             });
-        <?php } else { ?>
-                $(function () {
-                    $('#form_reset_key').addClass('d-none');
-                });
-        <?php } ?>
+            <?php } else { ?>
+            $(function () {
+                $('#form_reset_key').addClass('d-none');
+            });
+            <?php } ?>
+        });
+        $(function () {
+            // Function to generate debug info and create a downloadable file
+            function generateDebugInfo() {
+                let debugInfo = 'Debug Information:';
+                debugInfo += '\n- User Agent:' + navigator.userAgent;
+                debugInfo += '\n- Platform:' + navigator.platform;
+                debugInfo += '\n- Language:' + navigator.language;
+                debugInfo += '\n\n- URL:\n <?php echo js_escape($urlOut); ?>';
+                debugInfo += '\n\n- Data Raw:\n <?php echo js_escape($urlParam); ?>';
+                debugInfo += '\n\n- Encoded Data:\n <?php echo js_escape(urlencode($urlParam)); ?>';
+
+                const blob = new Blob([debugInfo], {type: 'text/plain'});
+                const url = URL.createObjectURL(blob);
+                $('#downloadLink').attr('href', url);
+            }
+
+            // Event handler for double-click on the trigger button
+            $('#trigger-debug').dblclick(function () {
+                generateDebugInfo();
+                $('#debugModal').modal('show');
+            });
+            $('#triggerButton').click(function () {
+                generateDebugInfo();
+                $('#debugModal').modal('show');
+            });
+            $('#downloadLink').click(function () {
+                $('#debugModal').modal('hide');
+            });
         });
     </script>
 </head>
 <body>
-    <?php
-    $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
-    ?>
-    <div class="container-xl">
+    <div id="trigger-debug" class="container-xl">
         <div class="container-xl sticky-container bg-light text-dark">
             <form>
                 <header class="bg-light text-dark text-center">
@@ -183,21 +214,37 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                 <?php } ?>
                 <div class="col">
                     <div><b><?php echo xlt("Primary Pharmacy"); ?> : </b><?php echo text($primary_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
-                    <div><b><?php echo xlt("Weno Alt"); ?> : </b><?php echo text($alt_pharmacy['business_name'] . " / " . $alt_pharmacy['address_line_1'] . " / " . $alt_pharmacy['city']); ?></div>
+                    <div><b><?php echo xlt("Weno Alt"); ?> : </b><?php echo text($alt_pharmacy['business_name'] ?? '' . " / " . $alt_pharmacy['address_line_1'] ?? '' . " / " . $alt_pharmacy['city'] ?? ''); ?></div>
                 </div>
             </div>
         </div>
         <div class="container-xl mt-3">
-            <iframe id="wenoIfram"
-                title="Weno IFRAME"
-                width="100%"
-                height="900"
-                src="<?php echo $urlOut; ?>">
-            </iframe>
+            <iframe id="wenoIfram" title="Weno IFRAME" width="100%" height="900" src="<?php echo attr($urlOut); ?>"></iframe>
         </div>
         <footer>
             <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
+            <button id="triggerButton" class="btn btn-primary btn-sm m-2 ml-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
         </footer>
+        <!-- Modal Structure -->
+        <div class="modal fade" id="debugModal" tabindex="-1" role="dialog" aria-labelledby="debugModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="debugModalLabel"><?php echo xlt("Weno Debug Information"); ?></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>
+                        <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5($provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 {
     "name": "ccdaservice",
-    "version": "7.0.0",
+    "version": "7.0.2",
     "description": "OpenEMR C-CDA templating generator service",
     "main": "serveccda.js",
     "scripts": {},
@@ -13,7 +13,7 @@
         "net": "1.0.2",
         "oe-cqm-service": "6.0.0",
         "oe-schematron-service": "1.1.1",
-        "moment": "2.29.4",
+        "moment": "2.30.1",
         "uuid": "9.0.0",
         "xmljson": "0.2.0"
     }

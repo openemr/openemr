@@ -19,14 +19,15 @@ use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 /*
  * access control is on Weno side based on the user login
  */
-if (!AclMain::aclCheckCore('patient', 'med')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo TransmitProperties::styleErrors(xlt('Prescriptions Review Not Authorized'));
     exit;
 }
 
 $logProperties = new LogProperties();
 try {
-    $result = $logProperties->logSync();
+    $task = $_REQUEST['key'] ?? $_POST['key'] ??  '';
+    $result = $logProperties->logSync($task);
 } catch (Exception $e) {
     $result = false;
     error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));

@@ -166,6 +166,8 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("These items can be edited if the user has sufficient privilege");?>.</p>
 
+                    <p><?php echo xlt("Some of these data sections can be turned off if not being utilized by the clinic. Go to Admin, Config, Appearance to hide the cards to streamline the dashboard"); ?></p>
+
                     <p><?php echo xlt("Billing - provides a summary of the balances - Patient Balance Due, Insurance Balance Due, Total Balance Due and lists the name of the Primary Insurance along with its effective date");?>.</p>
 
                     <p><?php echo xlt("Demographics - patient demographics and insurance information");?>.</p>

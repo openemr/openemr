@@ -321,15 +321,15 @@ class CarecoordinationTable extends AbstractTableGateway
         } else {
             $tel = $xml['recordTarget']['patientRole']['telecom'] ?? '';
             if (!empty($tel)) {
-                if ($tel['use'] == 'MC') {
+                if ($tel['use'] ?? '' == 'MC') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif ($tel['use'] == 'HP') {
+                } elseif ($tel['use'] ?? '' == 'HP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif ($tel['use'] == 'WP') {
+                } elseif ($tel['use'] ?? '' == 'WP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif ($tel['use'] == 'EC') {
+                } elseif ($tel['use'] ?? '' == 'EC') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif (stripos($tel['value'], 'mailto:') !== false) {
+                } elseif (stripos($tel['value'] ?? '', 'mailto:') !== false) {
                     $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
                     $mail = explode('mailto:', ($tel['value'] ?? null));
                     $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
@@ -338,7 +338,7 @@ class CarecoordinationTable extends AbstractTableGateway
                         $this->documentData['field_name_value_array']['patient_data'][1]['email'] = $mailto;
                     }
                 } else {
-                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? ''));
                 }
             }
         }
@@ -519,7 +519,7 @@ class CarecoordinationTable extends AbstractTableGateway
                             $item = trim($item['value'] ?? '');
                         }
                     } else {
-                        $item = trim($item);
+                        $item = trim($item ?? '');
                     }
                     $resfield[] = ['table_name' => trim($row['table_name']), 'field_name' => trim($itemKey), 'field_value' => $item, 'entry_identification' => trim($row['entry_identification'])];
                 }
@@ -582,7 +582,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     // patient UUID from exported
                     $uuid = trim($newdata['patient_data']['referrerID']);
                     // have we already imported for this UUID?
-                    $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", array($uuid))['pid'];
+                    $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", array($uuid))['pid'] ?? '';
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
                         // We did so let check the type. If encounters then a CDA
                         $enc_exist = sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", array((int)$pid_exist))['cnt'] ?? 0;
@@ -677,9 +677,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_allergies['lists2'][$c]['outcome'] = $newdata['lists2']['outcome'];
                 $c++;
             } elseif ($table == 'encounter') {
-                $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'];
-                $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'];
-                $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'];
+                $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'] ?? '';
+                $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'] ?? '';
+                $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'] ?? null;
                 $arr_encounter['encounter'][$k]['date_end'] = $newdata['encounter']['date_end'] ?? null;
 
                 $arr_encounter['encounter'][$k]['provider_npi'] = $newdata['encounter']['provider_npi'];
