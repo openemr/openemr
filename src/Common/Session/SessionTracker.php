@@ -41,7 +41,7 @@ class SessionTracker
             error_log("OpenEMR Error: session_database_uuid session variable is missing");
             return true;
         }
-        $sessionTracker = sqlQueryNoLog("SELECT `last_updated`, NOW() as `current_time` FROM `session_tracker` WHERE `uuid` = ?", $_SESSION['session_database_uuid']);
+        $sessionTracker = sqlQueryNoLog("SELECT `last_updated`, NOW() as `current_time` FROM `session_tracker` WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
         if (empty($sessionTracker) || empty($sessionTracker['last_updated']) || empty($sessionTracker['current_time'])) {
             error_log("OpenEMR Error: session entry in session_tracker table is missing or invalid");
             return true;
@@ -76,7 +76,7 @@ class SessionTracker
     public static function processSessionThrottleDown($throttleDownWaitMilliseconds): void
     {
         // calculate $timeThrottle['time_throttle'], which will be average time (in milliseconds) per script call
-        $timeThrottle = sqlQueryNoLog("SELECT `number_scripts`, `created`, NOW() as `current_timestamp` FROM `session_tracker` WHERE `uuid` = ?", $_SESSION['session_database_uuid']);
+        $timeThrottle = sqlQueryNoLog("SELECT `number_scripts`, `created`, NOW() as `current_timestamp` FROM `session_tracker` WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
         $timeThrottle['time_throttle'] = ((new \DateTime($timeThrottle['created']))->format('Uv') + ((int)$throttleDownWaitMilliseconds * $timeThrottle['number_scripts'])) - (new \DateTime($timeThrottle['current_timestamp']))->format('Uv');
 
         error_log("DEBUG: timeThrottle is " . $timeThrottle['time_throttle'] . " milliseconds and number scripts is " . $timeThrottle['number_scripts']);
