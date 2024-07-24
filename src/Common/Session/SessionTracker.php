@@ -79,8 +79,6 @@ class SessionTracker
         $timeThrottle = sqlQueryNoLog("SELECT `number_scripts`, `created`, NOW() as `current_timestamp` FROM `session_tracker` WHERE `uuid` = ?", [$_SESSION['session_database_uuid']]);
         $timeThrottle['time_throttle'] = ((new \DateTime($timeThrottle['created']))->format('Uv') + ((int)$throttleDownWaitMilliseconds * $timeThrottle['number_scripts'])) - (new \DateTime($timeThrottle['current_timestamp']))->format('Uv');
 
-        error_log("DEBUG: timeThrottle is " . $timeThrottle['time_throttle'] . " milliseconds and number scripts is " . $timeThrottle['number_scripts']);
-
         // ensure scripts on average do not go faster than the THROTTLE_DOWN_WAIT_MIllISECONDS' environment setting
         if (($timeThrottle['time_throttle'] ?? 0) > 0) {
             $dieMilliseconds = getenv('THROTTLE_DOWN_DIE_MILLISECONDS', true) ?? 0;

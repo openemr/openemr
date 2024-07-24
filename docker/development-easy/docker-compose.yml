@@ -31,8 +31,6 @@ services:
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
-      THROTTLE_DOWN_WAIT_MILLISECONDS: 700
-      THROTTLE_DOWN_DIE_MILLISECONDS: 10000
       DEBUG_COLORS: "true"
       TERM: xterm-256color
       COLORTERM: truecolor
