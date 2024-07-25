@@ -532,9 +532,9 @@
                                         <div id="settings-content" class="collapse col-12">
                                             <div class="form-group">
                                                 <div class="col">
+                                                    <label class="" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
                                                     <div class="input-group">
-                                                        <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
-                                                        <select class='form-control ml-2' id='my_theme'>
+                                                        <select class='form-control' id='my_theme'>
                                                             {% for styleKey, styleValue in styleArray %}
                                                                 {{ "<option value='" ~ styleKey | attr ~ "'" }}
                                                                 {% if styleKey == current_theme %}
