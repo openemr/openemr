@@ -111,7 +111,8 @@ jobs:
             MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}
             OE_USER=${{ secrets.OE_USER }}
             OE_PASS=${{ secrets.OE_PASS }}
-            DOMAIN=${{ vars.DOMAIN }}" > .env
+            DOMAIN=${{ vars.DOMAIN }}
+            EMAIL=${{ vars.DOMAIN_EMAIL }}" > .env
             aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
             docker compose pull
             docker compose up -d
