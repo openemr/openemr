@@ -88,7 +88,7 @@ jobs:
         id: encode-docker-compose
         run: |
           sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}|g' docker/residen-production/docker-compose.yml
-          DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/docker-compose.yml | base64)
+          DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/docker-compose.yml | base64 -w 0)
           echo "DOCKER_COMPOSE_BASE64=$DOCKER_COMPOSE_BASE64" >> $GITHUB_ENV
       
       - name: Deploy App with AWS SSM Send Command
@@ -101,7 +101,7 @@ jobs:
           instance-ids: ${{ vars.AWS_INSTANCE_ID }}
           working-directory: "/home/ubuntu"
           command: |
-            echo ${{ env.DOCKER_COMPOSE_BASE64 }} | base64 --decode > docker-compose.yml
+            echo -e '${{ env.COMPOSE_FILE }}' | base64 -d > docker-compose.yml
             echo '# TFA Residen EMR Secrets
             MYSQL_USER=${{ secrets.MYSQL_USER }}
             MYSQL_PASS=${{ secrets.MYSQL_PASS }}
