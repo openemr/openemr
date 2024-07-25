@@ -14,7 +14,7 @@ services:
     image: 754476438638.dkr.ecr.us-east-1.amazonaws.com/residen-openemr
     container_name: openemr
     ports:
-      - 8080:80
+      - 80:80
       - 443:443
     volumes:
       - logvolume01:/var/log
@@ -34,4 +34,3 @@ volumes:
       type: none
       o: bind
       device: /home/ubuntu/openemr_sites
-      
