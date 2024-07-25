@@ -25,29 +25,28 @@
 
 require_once("verify_session.php");
 
-$sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medical_problem' ORDER BY begdate";
-
+$sql = "SELECT * FROM prescriptions WHERE `patient_id` = ? AND `end_date` IS NULL ORDER BY `start_date`";
 $res = sqlStatement($sql, array($pid));
 
-if (sqlNumRows($res) > 0) { ?>
-<table class="table table-sm table-striped">
-    <tr class="header">
-        <th><?php echo xlt('Title'); ?></th>
-        <th><?php echo xlt('Reported Date'); ?></th>
+if (sqlNumRows($res) > 0) {
+    ?>
+<table class="table table-striped table-sm">
+    <tr>
+        <th><?php echo xlt('Drug'); ?></th>
         <th><?php echo xlt('Start Date'); ?></th>
+        <th><?php echo xlt('Last Modified'); ?></th>
         <th><?php echo xlt('End Date'); ?></th>
     </tr>
     <?php
     $even = false;
     while ($row = sqlFetchArray($res)) {
         echo "<tr class='" . text($class ?? '') . "'>";
-        echo "<td>" . text($row['title']) . "</td>";
-        echo "<td>" . text($row['date']) . "</td>";
-        echo "<td>" . text($row['begdate']) . "</td>";
-        echo "<td>" . text($row['enddate']) . "</td>";
+        echo "<td>" . text($row['drug']) . "</td>";
+        echo "<td>" . text($row['date_added']) . "</td>";
+        echo "<td>" . text($row['date_modified']) . "</td>";
+        echo "<td>" . text($row['end_date']) . "</td>";
         echo "</tr>";
     }
-
     echo "</table>";
 } else {
     echo xlt("No Results");

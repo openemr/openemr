@@ -19,7 +19,25 @@
             <script src="https://jstest.authorize.net/v1/Accept.js"></script>
         {% endif %}
     {% endif %}
+    <style>
+      .dropdown-menu-right {
+        right: 0;
+        left: auto;
+      }
 
+      .navbar-nav .dropdown-menu {
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+      }
+
+      .navbar-nav .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+    </style>
     <script>
         var cpid = {{ patientID | js_escape }},
             cuser = {{ user | js_escape }},
@@ -119,6 +137,16 @@
                 persist($(e.target).attr('href'), false);
             });
 
+            $('#quickstart-card [data-parent="#cardgroup"]').on('click', (e) => {
+                persist($(e.target).attr('href'), false);
+            });
+
+            $('#quickstart_dashboard').on('click', (e) => {
+                if ($('#quickstart-card').hasClass('show')) {
+                    return false;
+                }
+            });
+
             if ($('body').css('direction') === "rtl") {
                 $('.float-left').each(function () {
                     $(this).addClass('float-right').removeClass('float-left');
@@ -144,11 +172,14 @@
             $("#medicationlist").load("./get_medications.php", {}, function () {
             });
 
+            $("#prescriptionlist").load("./get_prescriptions.php", {}, function () {
+            });
+
             $("#labresults").load("./get_lab_results.php", {}, function () {
             });
 
-            $("#amendmentslist").load("./get_amendments.php", {}, function () {
-            });
+            /* $("#amendmentslist").load("./get_amendments.php", {}, function () {
+             });*/
 
             $("#problemslist").load("./get_problems.php", {}, function () {
             });
@@ -158,8 +189,6 @@
 
             $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
             });
-
-            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
             {% if portal_two_payments %}
             $("#payment").load("./portal_payment.php", {}, function () {
@@ -176,9 +205,8 @@
             });
 
             function showProfileModal() {
-                const title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
-
-                var params = {
+                const title = {{ 'Profile Edits' | xlj }};
+                const params = {
                     buttons: [
                         {
                             text: {{ 'Help' | xlj }},
@@ -218,9 +246,11 @@
                 page.updateModel();
             }
 
+            // Persist last card used for returns for actions.
             let gowhere = {{ whereto | js_escape }};
             $(gowhere).collapse('show');
 
+            // TODO: prevent current card collapse. for top menu only remove later
             $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
                 let target = this.attributes.id.nodeValue;
                 if (whereto.includes(target)) {
@@ -288,7 +318,7 @@
 
         function changeCredentials(e) {
             title = {{ 'Please Enter New Credentials' | xlj }};
-            dlgopen("./account/index_reset.php", '', 575, 600, null, title, {});
+            dlgopen("./account/index_reset.php", '', 900, 700, null, title, {});
         }
 
         {% if isEasyPro %}
@@ -413,130 +443,7 @@
 {% block content %}
 
     <section class="flex-column accordion" id="cardgroup">
-        <div id="popwait" class="alert alert-warning d-none">
-            <strong>{{ 'Working!' | xlt }}</strong>
-            {{ 'Please wait...' | xlt }}</div>
-
-        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
-                <div id="medicationlist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Medications Allergy List' | xlt }}</header>
-                <div id="allergylist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Issues List' | xlt }}</header>
-                <div id="problemslist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Amendment List' | xlt }}</header>
-                <div id="amendmentslist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Lab Results' | xlt }}</header>
-                <div id="labresults" class="card-body bg-light"></div>
-            </div>
-        </div>
-
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
-            <header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
-            <div id="reports" class="card-body"></div>
-        </div>
-
-        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
-            <div id="profilereport" class="card-body bg-light"></div>
-        </div>
-
-        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
-            <div class="card">
-                <div id="secure-msgs" class="card-body">
-                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
-                </div>
-            </div>
-        </div>
-
-        {% if allow_portal_appointments %}
-            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
-                <div class="container-fluid">
-                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
-                    <div class="row">
-                        {% if appointments|length > 0 %}
-                            {% for appt in appointments %}
-                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
-                            {% endfor %}
-
-                            {% if appointmentLimit == appointmentCount %}
-                                <p>{{ 'Display limit reached' | xlt }}
-                                    <br>
-                                    {{ 'More appointments may exist' | xlt }}</p>
-                            {% endif %}
-                        {% else %}
-                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
-                        {% endif %}
-
-                    </div>
-                    <div class="mb-3">
-                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
-                    </div>
-                </div>
-            </div>
-            <!-- /.row -->
-        {% endif %}
-
-        {% if portal_two_payments %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
-                <div class="card">
-                    <header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
-                    <div id="payment" class="card-body bg-light"></div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if allow_portal_chat %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="messagescard">
-                <div class="card pt-0 pb-0">
-                    <header class="card-header bg-primary text-light">{{ 'Secure Chat' | xlt }}</header>
-                    <div id="chat" class="card-body p-0 overflow-auto">
-                        <iframe src="./messaging/secure_chat.php" class="w-100" style="height: calc(100vh - 120px);"></iframe>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if portal_onsite_document_download %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
-                <header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
-                <div id="docsdownload" class="card-body">
-                    <div>
-                        <span class="text">{{ 'Download all patient documents' | xlt }}</span>
-                        <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}" />
-                        </form>
-                    </div>
-                </div>
-                <!-- /.card-body -->
-            </div>
-        {% endif %}
-
-        {% if portal_two_ledger %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
-                <div class="card">
-                    <header class="card-header bg-primary text-light">{{ 'Ledger' | xlt }}</header>
-                    <div id="patledger" class="card-body">
-                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if isEasyPro %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
-                <header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
-                <div id="pro" class="card-body bg-light"></div>
-            </div>
-        {% endif %}
+        <div id="popwait" class="alert alert-warning d-none"><strong>{{ 'Working!' | xlt }}</strong>{{ 'Please wait...' | xlt }}</div>
 
         <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
             <div id="quickstart-div" class="card-body">
@@ -595,60 +502,134 @@
                             </div>
                         </div>
                     </div>
-                    <div class="container-xl p-3">
-                        <div class="jumbotron jumbotron-fluid text-center p-1">
-                            <h3>{{ 'My Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
-                            <p>
+                    <div class="container-fluid p-3">
+                        <div class="jumbotron jumbotron-fluid text-center mb-1 p-1">
+                            <h2>{{ 'Quick Start Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h2>
+                            {# <p>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
-                            </p>
+                            </p> #}
                         </div>
                         <div class='jumbotron jumbotron-fluid p-4'>
                             <div class="row" id="inject_card">
-                                <!-- Document -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'My Documents' | xlt }}</h4>
-                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
-                                    </div>
-                                </div>
                                 <!-- Signature -->
                                 <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4><i class="card-title fa fa-signature mr-1"></i>{{ 'Signature' | xlt }}</h4>
-                                        <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">{{ 'Manage Signature' | xlt }} </a>
+                                    <div class="card-body row">
+                                        <h4 class="card-title d-flex align-items-center btn-link"><a role="button" href="#openSignModal" data-toggle="modal" data-parent="#cardgroup"><i class="fas fa-file-signature mr-1"></i>{{ 'Default Signature' | xlt }}</a></h4>
+                                    </div>
+                                </div>
+                                <!-- Password -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body row">
+                                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
                                     </div>
                                 </div>
                                 <!-- Theme -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title"><i class="fa fa-link mr-1"></i>{{ 'Settings' | xlt }}</h4>
-                                        <div class="col-12 form-group">
-                                            <div class="col">
-                                                <div class="input-group">
-                                                    <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
-                                                    <select class='form-control ml-2' id='my_theme'>
-                                                        {% for styleKey, styleValue in styleArray %}
-                                                            {{ "<option value='" ~ styleKey | attr ~ "'" }}
-                                                            {% if styleKey  ==  current_theme %}
-                                                                {{ " selected" }}
-                                                            {% endif %}
-                                                            {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
-                                                        {% endfor %}
-                                                    </select>
-                                                    <div class="input-group-append">
-                                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                        <h4 class="card-title d-flex align-items-center btn-link" data-toggle="collapse" data-target="#settings-content" role="button">
+                                            <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
+                                        </h4>
+                                        <div id="settings-content" class="collapse col-12">
+                                            <div class="form-group">
+                                                <div class="col">
+                                                    <label class="" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
+                                                    <div class="input-group">
+                                                        <select class='form-control' id='my_theme'>
+                                                            {% for styleKey, styleValue in styleArray %}
+                                                                {{ "<option value='" ~ styleKey | attr ~ "'" }}
+                                                                {% if styleKey == current_theme %}
+                                                                    {{ " selected" }}
+                                                                {% endif %}
+                                                                {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <div class="input-group-append">
+                                                            <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-group form-check-inline">
-                                                    <label class="form-check-label" for="exampleCheck1">
-                                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">{{ 'Auto Save Documents' | xlt  ~ " (Coming soon)" | text }}</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Document -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-file mr-1"></i>{{ 'Clinical Forms or Documents' | xlt }}</h4>
+                                        <a id="documents-go" class="btn btn-success mb-1" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Forms and Documents' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Messages -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-envelope mr-1"></i>{{ 'Secure Messaging' | xlt }}
+                                            {% if newcnt > 0 %}<small><span class="badge-pill badge-danger ml-1">{{ newcnt ~ "(New)" | text }}</span></small>{% endif %}
+                                        </h4>
+                                        <a id="lists-go" class="btn btn-success mb-1" href="#secure-msgs-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Securely Message with Providers' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Demo -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fas fa-user mr-1"></i>{{ 'Profile' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success mb-1" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View or Edit Current.' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Health -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-list mr-1"></i>{{ 'Health Snapshot' | xlt }}</h4>
+                                        <a id="lists-go" class="btn btn-success mb-1" href="#lists" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View Medical Lists' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Report -->
+                                {% if portal_two_ledger or portal_two_payments %}
+                                    <div class="card d-flex mr-1 mb-1">
+                                        <div class="card-body">
+                                            <h4 class="card-title"><i class="fa fa-credit-card mr-1"></i>{{ 'Financial' | xlt }}</h4>
+                                            {% if portal_two_ledger %}
+                                                <a id="lists-go" class="btn btn-success mb-1" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Billing Summary' | xlt }}</a>
+                                            {% endif %}
+                                            {% if portal_two_payments %}
+                                                <a id="lists-go" class="btn btn-success mb-1" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Make Payment' | xlt }}</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <!-- Appointments -->
+                                {% if allow_portal_appointments %}
+                                    <div class="card d-flex mr-1 mb-1">
+                                        <div class="card-body">
+                                            <h4 class="card-title"><i class="fa fa-calendar-check mr-1"></i>{{ 'Appointments' | xlt }}</h4>
+                                            <a id="appointments-go" class="btn btn-success mb-1" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'View or Schedule Appointments' | xlt }}</a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <!-- Reports -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-eye mr-1"></i>{{ 'Reports' | xlt }}</h4>
+                                        {% if ccdaOk %}
+                                            <a id="view-summary-go" class="btn btn-success mb-1" target="_blank" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=view&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'View Summary of Care' | xlt }}</a>
+                                            <a id="download-summary-go" class="btn btn-success mb-1" href="{{ web_root }}/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form={{ csrfUtils | attr_url }}">{{ 'Download Summary of Care' | xlt }}</a>
+                                        {% endif %}
+                                        {% if 'allow_custom_report' %}
+                                            <a id="create-report-go" class="btn btn-success mb-1" href="#reportcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Custom Content Itemized Report' | xlt }}</a>
+                                        {% endif %}
+                                        {% if portal_onsite_document_download %}
+                                            <a id="download-documents-go" class="btn btn-success mb-1" href="#downloadcard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Download Medical Record Documents' | xlt }}</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if isEasyPro %}
+                                    <div class="card d-flex mr-1 mb-1">
+                                        <div class="card-body">
+                                            <h4 class="card-title"><i class="fa fa-calendar-check mr-1"></i>{{ 'PRO Assessment' | xlt }}</h4>
+                                            <a id="appointments-go" class="btn btn-success mb-1" href="#procard" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false">{{ 'Patient Reported Outcomes' | xlt }}</a>
+                                        </div>
+                                    </div>
+                                {% endif %}
 
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
                             </div>
@@ -657,6 +638,134 @@
                 </div>
             </div>
         </div>
+        {# End of quickstart-cards #}
+        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
+            <div class="card d-flex mr-1 mb-1">
+                <header class="card-header p-1 bg-dark text-light h3">{{ 'Health Snapshot (Medical Lists)' | xlt }}</header>
+                <div class="card-body">
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Patient Immunization' | xlt }}</header>
+                        <div class="card-body border">
+                            {% for record in immunRecords %}
+                                <div>
+                                    {{ record.administered_formatted | xlt }} :
+                                    {{ record.code_text | xlt }} :
+                                    {{ record.note | xlt }} :
+                                    {{ record.completion_status | xlt }}
+                                </div>
+                            {% else %}
+                                <p>{{ 'No records found.' | xlt }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Medications' | xlt }}</header>
+                        <div id="medicationlist" class="card-body p-2 bg-light"></div>
+                    </div>
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Active Prescriptions' | xlt }}</header>
+                        <div id="prescriptionlist" class="card-body p-2 bg-light"></div>
+                    </div>
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Medication Allergy List' | xlt }}</header>
+                        <div id="allergylist" class="card-body p-2 bg-light"></div>
+                    </div>
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Problems List' | xlt }}</header>
+                        <div id="problemslist" class="card-body p-2 bg-light"></div>
+                    </div>
+                    {# <div class="card">
+                <header class="card-header p-1 bg-dark text-light">{{ 'Amendment List' | xlt }}</header>
+                <div id="amendmentslist" class="card-body p-2 bg-light"></div>
+            </div> #}
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Lab Results' | xlt }}</header>
+                        <div id="labresults" class="card-body p-2 bg-light"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
+            <header class="card-header p-1 bg-dark text-light h3">{{ 'Custom Itemised Report' | xlt }}</header>
+            <div id="reports" class="card-body"></div>
+        </div>
+
+        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
+            <div id="profilereport" class="card-body p-2 bg-light"></div>
+        </div>
+
+        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
+            <div class="card">
+                <div id="secure-msgs" class="card-body">
+                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
+
+        {% if allow_portal_appointments %}
+            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
+                <div class="container-fluid">
+                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
+                    <div class="row">
+                        {% if appointments|length > 0 %}
+                            {% for appt in appointments %}
+                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
+                            {% endfor %}
+
+                            {% if appointmentLimit == appointmentCount %}
+                                <p>{{ 'Display limit reached' | xlt }}
+                                    <br>
+                                    {{ 'More appointments may exist' | xlt }}</p>
+                            {% endif %}
+                        {% else %}
+                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if portal_two_payments %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
+                <div class="card">
+                    <header class="card-header p-1 bg-dark text-light h3">{{ 'Payments' | xlt }}</header>
+                    <div id="payment" class="card-body p-2 bg-light"></div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if portal_onsite_document_download %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
+                <header class="card-header p-1 bg-dark text-light h3">{{ 'Download Documents From Medical Record' | xlt }}</header>
+                <div id="docsdownload" class="card-body">
+                    <div>
+                        <iframe src="./get_patient_documents.php" class="w-100 vh-100 border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if portal_two_ledger %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
+                <div class="card">
+                    <header class="card-header p-1 bg-dark text-light h3">{{ 'Billing Summary' | xlt }}</header>
+                    <div id="patledger" class="card-body">
+                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if isEasyPro %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
+                <header class="card-header p-1 bg-dark text-light h3">{{ 'Patient Reported Outcomes' | xlt }}</header>
+                <div id="pro" class="card-body p-2 bg-light"></div>
+            </div>
+        {% endif %}
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 

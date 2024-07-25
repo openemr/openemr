@@ -17,9 +17,9 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @author Tyler Wrenn <tyler@tylerwrenn.com>
- * @link http://www.open-emr.org
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @link    http://www.open-emr.org
  *
  */
 
@@ -70,85 +70,53 @@ $N = 7;
 
 </style>
 <body>
-
-<div class='demographics table-responsive' id='DEM'>
-
-    <?php
-    $result1 = getPatientData($pid);
-    $result2 = getEmployerData($pid);
-    ?>
-    <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Profile Demographics'); ?>
-            <?php if ($pending) {
-                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white">' . xlt('Pending Review') . '</button>';
-            } else {
-                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white">' . xlt('Revise') . '</button>';
-            }
-            ?>
+    <div class='demographics table-responsive' id='DEM'>
+        <?php
+        $result1 = getPatientData($pid);
+        $result2 = [];
+        ?>
+        <div class="card">
+            <header class="card-header border border-bottom-0 h3"><?php echo xlt('Profile From Medical Records'); ?>
+                <?php if ($pending) {
+                    echo '<button type="button" id="editDems" class="btn btn-outline-warning btn-sm float-right">' . xlt('Edit Pending Changes.') . '</button>';
+                } else {
+                    echo '<button type="button" id="editDems" class="btn  btn-success btn-sm float-right">' . xlt('Edit Profile') . '</button>';
+                }
+                ?>
             </header>
             <div class="card-body border" id="dempanel">
                 <table class='table table-responsive table-sm'>
-    <?php
-                display_layout_rows('DEM', $result1, $result2);
-    ?>
+                    <?php
+                    display_layout_rows('DEM', $result1, $result2);
+                    ?>
                 </table>
             </div>
         </div>
     </div>
+    <?php if ($GLOBALS['show_insurance_in_profile']) { ?>
     <div class='insurance table-sm table-responsive'>
         <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance');?></header>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance'); ?></header>
             <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-?>
+                <?php
+                printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
+                ?>
             </div>
         </div>
         <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Secondary Insurance');?></header>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Secondary Insurance'); ?></header>
             <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-?></div>
+                <?php
+                printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
+                ?></div>
         </div>
         <div class="card">
-            <header class="card-header border border-bottom-0"><?php echo xlt('Tertiary Insurance');?></header>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Tertiary Insurance'); ?></header>
             <div class="card-body border">
-<?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
-?></div>
+                <?php
+                printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
+                ?></div>
         </div>
     </div>
-    <div>
-        <?php
-        echo "<div class='card'>";
-        echo "<header class='card-header border border-bottom-0 immunizations'>" . xlt('Patient Immunization') . '</header>';
-        echo "<div class='card-body border'>";
-
-        $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
-            DATE_FORMAT(administered_date,'%m/%d/%Y') AS administered_formatted, lo.title as route_of_administration,
-            u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
-            f.name, f.phone, lo.notes as route_code
-            FROM immunizations AS im
-            LEFT JOIN codes AS cd ON cd.code = im.cvx_code
-            JOIN code_types AS ctype ON ctype.ct_key = 'CVX' AND ctype.ct_id=cd.code_type
-            LEFT JOIN list_options AS lo ON lo.list_id = 'drug_route' AND lo.option_id = im.route
-            LEFT JOIN users AS u ON u.id = im.administered_by_id
-            LEFT JOIN facility AS f ON f.id = u.facility_id
-            WHERE im.patient_id=?";
-        $result = $appsql->zQuery($query, array($pid));
-        $records = array();
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-        foreach ($records as $row) {
-            echo text($row['administered_formatted']) . ' : ';
-            echo text($row['code_text']) . ' : ';
-            echo text($row['note']) . ' : ';
-            echo text($row['completion_status']) . '<br />';
-        }
-        echo "</div></div>";
-        ?>
-    </div>
-
+    <?php } ?>
 </body>

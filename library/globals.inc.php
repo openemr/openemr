@@ -3117,9 +3117,16 @@ $GLOBALS_METADATA = array(
             xl('Use servers protocol and host in urls (portal internal only).')
         ),
 
+        'use_email_for_portal_username' => array(
+            xl('Use Patients on-record E-Mail for new Portal Login Username'),
+            'bool',
+            '1',
+            xl('Use contact email when creating portal credentials.')
+        ),
+
         'enforce_signin_email' => array(
-            xl('Enforce E-Mail in Portal Log On Dialog'),
-            'bool',                           // data type
+            xl('Require Patients to enter their on-record email for Portal Login'),
+            'bool',
             '1',
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
         ),
@@ -3152,6 +3159,13 @@ $GLOBALS_METADATA = array(
             xl('Enable Patient Portal new patient to self register.')
         ),
 
+        'portal_two_pass_reset' => array(
+            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
+            'bool',                           // data type
+            '0',
+            xl('Patient may change their logon from portal login dialog.')
+        ),
+
         'allow_portal_appointments' => array(
             xl('Allow Online Appointments'),
             'bool',                           // data type
@@ -3159,15 +3173,15 @@ $GLOBALS_METADATA = array(
             xl('Allow Patient to make and view appointments online.')
         ),
 
-        'allow_portal_chat' => array(
-            xl('Allow Online Secure Chat'),
+        'allow_custom_report' => array(
+            xl('Allow Online Custom Content Report'),
             'bool',                           // data type
             '1',
-            xl('Allow Patient to use Secure Chat Application.')
+            xl('Allow Patient to use Custom Content Report.')
         ),
 
         'portal_two_ledger' => array(
-            xl('Allow Patient Ledger'),
+            xl('Allow Patient Billing Summary Report Online'),
             'bool',                           // data type
             '1',
             xl('Allow Patient to view their accounting ledger online.')
@@ -3180,18 +3194,25 @@ $GLOBALS_METADATA = array(
             xl('Allow Patient to make payments online.')
         ),
 
-        'portal_two_pass_reset' => array(
-            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
-            'bool',                           // data type
-            '0',
-            xl('Patient may change their logon from portal login dialog.')
-        ),
-
         'portal_onsite_document_download' => array(
             xl('Enable Patient Portal Document Download'),
             'bool',                           // data type
             '1',
             xl('Enables the ability to download documents in the Patient Portal by the user.')
+        ),
+
+        'allow_portal_uploads' => array(
+            xl('Allow Patient Uploads from Portal Documents'),
+            'bool',
+            '1',
+            xl('Enables the ability for patient to upload documents to Documents Onsite Patient category.')
+        ),
+
+        'show_insurance_in_profile' => array(
+            xl('Allow Insurances in Patient Profile'),
+            'bool',
+            '1',
+            xl('UnCheck to not show insurances in Profile.')
         ),
     ),
 
