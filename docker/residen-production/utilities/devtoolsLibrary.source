@@ -1,0 +1,259 @@
+#!/bin/bash
+
+prepareVariables() {
+    CONFIGURATION="server=${MYSQL_HOST} rootpass=${MYSQL_ROOT_PASS} loginhost=%"
+    if [ "$MYSQL_ROOT_USER" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} root=${MYSQL_ROOT_USER}"
+        CUSTOM_ROOT_USER="$MYSQL_ROOT_USER"
+    else
+        CUSTOM_ROOT_USER="root"
+    fi
+    if [ "$MYSQL_USER" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} login=${MYSQL_USER}"
+        CUSTOM_USER="$MYSQL_USER"
+    else
+        CUSTOM_USER="openemr"
+    fi
+    if [ "$MYSQL_PASS" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} pass=${MYSQL_PASS}"
+        CUSTOM_PASSWORD="$MYSQL_PASS"
+    else
+        CUSTOM_PASSWORD="openemr"
+    fi
+    if [ "$MYSQL_DATABASE" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} dbname=${MYSQL_DATABASE}"
+        CUSTOM_DATABASE="$MYSQL_DATABASE"
+    else
+        CUSTOM_DATABASE="openemr"
+    fi
+    if [ "$MYSQL_PORT" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} port=${MYSQL_PORT}"
+        CUSTOM_PORT="$MYSQL_PORT"
+    else
+        CUSTOM_PORT=3306
+    fi
+    if [ "$OE_USER" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} iuser=${OE_USER}"
+    fi
+    if [ "$OE_PASS" != "" ]; then
+        CONFIGURATION="${CONFIGURATION} iuserpass=${OE_PASS}"
+    fi
+}
+
+setGlobalSettings() {
+    # Set requested openemr settings
+    OPENEMR_SETTINGS=`printenv | grep '^OPENEMR_SETTING_'`
+    if [ -n "$OPENEMR_SETTINGS" ]; then
+        echo "$OPENEMR_SETTINGS" |
+        while IFS= read -r line; do
+            SETTING_TEMP=`echo "$line" | cut -d "=" -f 1`
+            # note am omitting the letter O on purpose
+            CORRECT_SETTING_TEMP=`echo "$SETTING_TEMP" | awk -F 'PENEMR_SETTING_' '{print $2}'`
+            VALUE_TEMP=`echo "$line" | awk -F "${CORRECT_SETTING_TEMP}=" '{print $2}'`
+            echo "Set ${CORRECT_SETTING_TEMP} to ${VALUE_TEMP}"
+            mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = '${VALUE_TEMP}' WHERE gl_name = '${CORRECT_SETTING_TEMP}'" "$CUSTOM_DATABASE"
+        done
+    fi
+}
+
+resetOpenemr() {
+    echo "Remove database"
+    mysql -f -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "DROP DATABASE ${CUSTOM_DATABASE}"
+    echo "Remove database user"
+    mysql -f -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "Drop user '${CUSTOM_USER}'@'%';FLUSH PRIVILEGES;"
+    echo "Reset couchdb"
+    rsync --delete --recursive --links /couchdb/original/data /couchdb/
+    echo "Remove files"
+    rm -fr /var/www/localhost/htdocs/openemr/sites/*
+    rsync --delete --recursive --links --exclude .git /openemr/sites /var/www/localhost/htdocs/openemr/
+    chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+    chown -R apache /var/www/localhost/htdocs/openemr/
+}
+
+installOpenemr() {
+    echo "Re-installing OpenEMR"
+    cp /root/auto_configure.php /var/www/localhost/htdocs/
+    php /var/www/localhost/htdocs/auto_configure.php -f ${CONFIGURATION}
+    rm -f /var/www/localhost/htdocs/auto_configure.php
+}
+
+demoData() {
+    echo "Install demo data"
+    mysqldump -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" --add-drop-table --no-data "$CUSTOM_DATABASE" | grep ^DROP | awk ' BEGIN { print "SET FOREIGN_KEY_CHECKS=0;" } { print $0 } END { print "SET FOREIGN_KEY_CHECKS=1;" } ' | mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" "$CUSTOM_DATABASE"
+    mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" "$CUSTOM_DATABASE" < /root/demo_5_0_0_5.sql
+    upgradeOpenEMR 5.0.0
+    changeEncodingCollation utf8mb4 utf8mb4_general_ci
+}
+
+# parameter 1 is original version
+upgradeOpenEMR() {
+    sed -e "s@!empty(\$_POST\['form_submit'\])@true@" < /var/www/localhost/htdocs/openemr/sql_upgrade.php > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    sed -i "s@\$form_old_version = \$_POST\['form_old_version'\];@\$form_old_version = '${1}';@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    sed -i "1s@^@<?php \$_GET['site'] = 'default'; ?>@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+}
+
+sqlDataDrive() {
+    echo "Installing sql data from drive"
+    if [ "$SQL_DATA_DRIVE" != "" ]; then
+        cd "$SQL_DATA_DRIVE"
+        #Loop over all sql files inside of the current directory
+        for f in *.sql ; do
+            echo "Loading sql data from ${f}"
+            mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" "$CUSTOM_DATABASE" < "$f"
+        done
+    fi
+}
+
+# parameter 1 is identifier
+backupOpenemr() {
+    mkdir -p "/snapshots/${1}"
+    mysqldump --ignore-table="$CUSTOM_DATABASE".onsite_activity_view --hex-blob -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" "$CUSTOM_DATABASE" > "/snapshots/${1}/backup.sql"
+    rsync --delete --recursive --links /var/www/localhost/htdocs/openemr/sites "/snapshots/${1}/"
+    rsync --delete --recursive --links /couchdb/data "/snapshots/${1}/"
+    cd /snapshots
+    tar -czf "${1}.tgz" "${1}"
+    rm -fr "/snapshots/${1}"
+}
+
+# parameter 1 is identifier
+restoreOpenemr() {
+    cd /snapshots
+    tar -xzf "${1}.tgz"
+    # need to empty the database before the restore database import
+    mysqldump -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" --add-drop-table --no-data "$CUSTOM_DATABASE" | grep ^DROP | awk ' BEGIN { print "SET FOREIGN_KEY_CHECKS=0;" } { print $0 } END { print "SET FOREIGN_KEY_CHECKS=1;" } ' | mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" "$CUSTOM_DATABASE"
+    mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" "$CUSTOM_DATABASE" < "/snapshots/${1}/backup.sql"
+    # note keeping same sqlconf.php in case snapshot is from somewhere else (ie. such as the demo farm) with different credentials
+    sqlconf=`cat /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php`
+    rsync --delete --recursive --links "/snapshots/${1}/sites" /var/www/localhost/htdocs/openemr/
+    echo "$sqlconf" > /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+    chown -R apache /var/www/localhost/htdocs/openemr/
+    if [ -d "/snapshots/${1}/data" ]; then
+        rsync --delete --recursive --links "/snapshots/${1}/data" /couchdb/
+    fi
+    rm -fr "/snapshots/${1}"
+}
+
+# parameter 1 is character set
+# parameter 2 is collation
+changeEncodingCollation() {
+    mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e 'SELECT concat("ALTER DATABASE `",TABLE_SCHEMA,"` CHARACTER SET = '"${1}"' COLLATE = '"${2}"';") as _sql FROM `information_schema`.`TABLES` where `TABLE_SCHEMA` like "'"${CUSTOM_DATABASE}"'" and `TABLE_TYPE`="BASE TABLE" group by `TABLE_SCHEMA`;' | egrep '^ALTER' | mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT"
+    mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e 'SELECT concat("ALTER TABLE `",TABLE_SCHEMA,"`.`",TABLE_NAME,"` CONVERT TO CHARACTER SET '"${1}"' COLLATE '"${2}"';") as _sql FROM `information_schema`.`TABLES` where `TABLE_SCHEMA` like "'"${CUSTOM_DATABASE}"'" and `TABLE_TYPE`="BASE TABLE" group by `TABLE_SCHEMA`, `TABLE_NAME`;' | egrep '^ALTER' | mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT"
+}
+
+forceHttps() {
+    sed -i 's@#RewriteEngine On@ RewriteEngine On@' /etc/apache2/conf.d/openemr.conf
+    sed -i 's@#RewriteCond %{HTTPS} off@ RewriteCond %{HTTPS} off@' /etc/apache2/conf.d/openemr.conf
+    sed -i 's@#RewriteRule (\.\*) https://%{HTTP_HOST}/\$1 \[R,L\]@ RewriteRule (.*) https://%{HTTP_HOST}/$1 [R,L]@' /etc/apache2/conf.d/openemr.conf
+}
+
+unForceHttps() {
+    sed -i 's@[^#]RewriteEngine On@#RewriteEngine On@' /etc/apache2/conf.d/openemr.conf
+    sed -i 's@[^#]RewriteCond %{HTTPS} off@#RewriteCond %{HTTPS} off@' /etc/apache2/conf.d/openemr.conf
+    sed -i 's@[^#]RewriteRule (\.\*) https://%{HTTP_HOST}/\$1 \[R,L\]@#RewriteRule (.*) https://%{HTTP_HOST}/$1 [R,L]@' /etc/apache2/conf.d/openemr.conf
+}
+
+# parameter 1 is identifier
+setupClientCert() {
+    if [ ! -d "/certs/${1}" ]; then
+        mkdir -p "/certs/${1}"
+    fi
+    cp "/certs/${1}.zip" "/certs/${1}/"
+    cd "/certs/${1}"
+    unzip "${1}.zip"
+    # server certificate
+    cp "/certs/${1}/Server.crt" /etc/ssl/certs/customclientbased.cert.pem
+    rm -f /etc/ssl/certs/webserver.cert.pem
+    ln -s /etc/ssl/certs/customclientbased.cert.pem /etc/ssl/certs/webserver.cert.pem
+    # server key
+    cp "/certs/${1}/Server.key" /etc/ssl/private/customclientbased.key.pem
+    rm -f /etc/ssl/private/webserver.key.pem
+    ln -s /etc/ssl/private/customclientbased.key.pem /etc/ssl/private/webserver.key.pem
+    # ca certificate
+    cp "/certs/${1}/CertificateAuthority.crt" /etc/ssl/certs/CAcustomclientbased.cert.pem
+    rm -f /etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem
+    ln -s /etc/ssl/certs/CAcustomclientbased.cert.pem /etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem
+    # ca key
+    cp "/certs/${1}/CertificateAuthority.key" /etc/ssl/private/CAcustomclientbased.key.pem
+    rm -f /etc/ssl/private/CAcustomclientbasedwebserver.key.pem
+    ln -s /etc/ssl/private/CAcustomclientbased.key.pem /etc/ssl/private/CAcustomclientbasedwebserver.key.pem
+    # cleanup
+    rm -fr "/certs/${1}"
+    # configure apache
+    sed -i "s@#SSLVerifyClient@ SSLVerifyClient@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@#SSLVerifyDepth@ SSLVerifyDepth@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@#SSLOptions@ SSLOptions@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@#SSLCACertificateFile@ SSLCACertificateFile@" /etc/apache2/conf.d/openemr.conf
+    # configure openemr
+    mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'is_client_ssl_enabled'" "$CUSTOM_DATABASE"
+    mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = '/etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem' WHERE gl_name = 'certificate_authority_crt'" "$CUSTOM_DATABASE"
+    mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = '/etc/ssl/private/CAcustomclientbasedwebserver.key.pem' WHERE gl_name = 'certificate_authority_key'" "$CUSTOM_DATABASE"
+}
+
+toggleOnSelfSignedCert() {
+    # server certificate
+    rm -f /etc/ssl/certs/webserver.cert.pem
+    ln -s /etc/ssl/certs/selfsigned.cert.pem /etc/ssl/certs/webserver.cert.pem
+    # server key
+    rm -f /etc/ssl/private/webserver.key.pem
+    ln -s /etc/ssl/private/selfsigned.key.pem /etc/ssl/private/webserver.key.pem
+    # configure apache
+    sed -i "s@[^#]SSLVerifyClient@#SSLVerifyClient@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@[^#]SSLVerifyDepth@#SSLVerifyDepth@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@[^#]SSLOptions@#SSLOptions@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@[^#]SSLCACertificateFile@#SSLCACertificateFile@" /etc/apache2/conf.d/openemr.conf
+    # configure openemr
+    mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = 0 WHERE gl_name = 'is_client_ssl_enabled'" "$CUSTOM_DATABASE"
+    mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = '' WHERE gl_name = 'certificate_authority_crt'" "$CUSTOM_DATABASE"
+    mysql -u "$CUSTOM_USER" --password="$CUSTOM_PASSWORD" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "UPDATE globals SET gl_value = '' WHERE gl_name = 'certificate_authority_key'" "$CUSTOM_DATABASE"
+}
+
+# parameter 1 is number of random patients to create and import
+# parameter 2 has to be either "true" or "false" and is for the development setting in the import_ccda.php script call
+importRandomPatients() {
+    echo "Setting up for following number of random patients (each patient will take several seconds): ${1}"
+    echo "Development mode: ${2}"
+    if [ ! -d /root/synthea ]; then
+        echo "Setting up synthea first"
+        apk update
+        apk add openjdk11-jre
+        mkdir /root/synthea
+        cd /root/synthea
+        wget https://github.com/synthetichealth/synthea/releases/download/master-branch-latest/synthea-with-dependencies.jar
+    fi
+    rm -fr /root/synthea/output
+    cd /root/synthea
+    java -jar synthea-with-dependencies.jar --exporter.fhir.export false --exporter.ccda.export true --generate.only_alive_patients true -p "$1"
+    sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
+    php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php /root/synthea/output/ccda default /var/www/localhost/htdocs/openemr "$2"
+    sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
+    echo "Completed run for following number of random patients: ${1}"
+}
+
+# parameter 1 is number of multisites to create
+generateMultisiteBank() {
+    echo "Setting up a multisite bank with following number of multisites (labeled run1, run2, run3, ...): run1...run${1}"
+    sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php
+    a=1
+    while [ $a -le "$1" ]
+    do
+        run="run${a}"
+        echo "dropping ${run} sql database, sql user, and directory if they already exist (just ignore any errors that are displayed)"
+        mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "DROP DATABASE ${run}"
+        mysql -u "$CUSTOM_ROOT_USER" --password="$MYSQL_ROOT_PASS" -h "$MYSQL_HOST" -P "$CUSTOM_PORT" -e "DROP USER '${run}'"
+        rm -fr /var/www/localhost/htdocs/openemr/sites/${run}
+        rm /tmp/setup_dump.sql
+        echo "adding ${run} multisite"
+        php /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php rootpass="$MYSQL_ROOT_PASS" server="$MYSQL_HOST" port="$CUSTOM_PORT" loginhost=% login=${run} pass=${run} dbname=${run} site=${run} source_site_id=default clone_database=yes
+        chown -R apache /var/www/localhost/htdocs/openemr/sites/${run}
+        find /var/www/localhost/htdocs/openemr/sites/${run} -type d -print0 | xargs -0 chmod 500
+        find /var/www/localhost/htdocs/openemr/sites/${run} -type f -print0 | xargs -0 chmod 400
+        find /var/www/localhost/htdocs/openemr/sites/${run}/documents -type d -print0 | xargs -0 chmod 700
+        find /var/www/localhost/htdocs/openemr/sites/${run}/documents -type f -print0 | xargs -0 chmod 700
+        echo "completed adding ${run} multisite"
+        a=`expr $a + 1`
+    done
+    sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php
+    echo "Completed setting up a multisite bank with following number of multisites (labeled run1, run2, run3, ...): run1...run${1}"
+}

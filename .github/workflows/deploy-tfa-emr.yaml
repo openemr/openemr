@@ -1,0 +1,128 @@
+name: Build and Deploy TFA OpenEMR Docker to AWS EC2
+run-name: Build & Deploy - nr. ${{ github.run_number }}
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  packages: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+      
+
+jobs:
+  build-and-push-app:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    environment: tfa-emr
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+      
+      - name: Get Tags for Image
+        id: metadata
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=residen-emr-,suffix=
+
+      - name: Build and Push
+        id: build-image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          file: docker/residen-production/Dockerfile
+          tags: ${{ steps.metadata.outputs.tags }}
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
+
+      - name: Save ECR URL as Artifact
+        run: echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}" > ecr-url.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ecr-url
+          path: ecr-url.txt
+
+  deploy-app:
+    needs: build-and-push-app
+    name: Deploy Docker Image to AWS EC2
+    runs-on: ubuntu-latest
+    environment: tfa-emr
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: ecr-url
+        
+      - name: Read ECR URL from Artifact
+        id: ecr-url
+        run: |
+          ECR_URL=$(cat ecr-url.txt)
+          echo "ECR_URL=$ECR_URL" >> $GITHUB_ENV
+      
+      - name: Deploy App with AWS SSM Send Command
+        id: ssm
+        uses: peterkimzz/aws-ssm-send-command@master
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SSM_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SSM_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+          instance-ids: ${{ vars.AWS_INSTANCE_ID }}
+          working-directory: "/home/ubuntu"
+          command: |
+            echo '# TFA Residen EMR Secrets
+            MYSQL_USER=${{ secrets.MYSQL_USER }}
+            MYSQL_PASS=${{ secrets.MYSQL_PASS }}
+            MYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}
+            OE_USER=${{ secrets.OE_USER }}
+            OE_PASS=${{ secrets.OE_PASS }}
+            DOMAIN=${{ vars.DOMAIN }}' > .env
+            aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
+            docker-compose pull openemr
+            docker-compose stop openemr
+            docker-compose rm -f openemr
+            docker-compose up -d openemr
+            docker system prune -af
+
+      - name: Check command execution status
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_SSM_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SSM_SECRET_ACCESS_KEY }}
+          aws configure set default.region ${{ vars.AWS_REGION }}
+          COMMAND_ID=$(echo '${{ steps.ssm.outputs.command-id }}')
+          INSTANCE_ID=${{ vars.AWS_INSTANCE_ID }}
+          until [ "$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "CommandInvocations[0].Status" --output text)" != "InProgress" ]; do
+            echo "Waiting for command to complete..."
+            sleep 10
+          done
+          STATUS=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "CommandInvocations[0].Status" --output text)
+          echo "Command execution status: $STATUS"
+          if [ "$STATUS" != "Success" ]; then
+            echo "Command execution failed."
+            exit 1
+          fi
