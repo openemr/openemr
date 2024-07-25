@@ -172,6 +172,9 @@
             $("#medicationlist").load("./get_medications.php", {}, function () {
             });
 
+            $("#prescriptionlist").load("./get_prescriptions.php", {}, function () {
+            });
+
             $("#labresults").load("./get_lab_results.php", {}, function () {
             });
 
@@ -250,7 +253,7 @@
             // TODO: prevent current card collapse. for top menu only remove later
             $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
                 let target = this.attributes.id.nodeValue;
-                if (whereto.includes(target) && target.includes('quickstart_')) {
+                if (whereto.includes(target)) {
                     whereto = '';
                     return false;
                 }
@@ -500,7 +503,7 @@
                         </div>
                     </div>
                     <div class="container-fluid p-3">
-                        <div class="jumbotron jumbotron-fluid text-center p-1">
+                        <div class="jumbotron jumbotron-fluid text-center mb-1 p-1">
                             <h2>{{ 'Quick Start Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h2>
                             {# <p>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
@@ -511,19 +514,19 @@
                                 <!-- Signature -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title d-flex align-items-center"><a role="button" href="#openSignModal" data-toggle="modal" data-parent="#cardgroup"><i class="fas fa-file-signature mr-1"></i>{{ 'Default Signature' | xlt }}</a></h4>
+                                        <h4 class="card-title d-flex align-items-center btn-link"><a role="button" href="#openSignModal" data-toggle="modal" data-parent="#cardgroup"><i class="fas fa-file-signature mr-1"></i>{{ 'Default Signature' | xlt }}</a></h4>
                                     </div>
                                 </div>
                                 <!-- Password -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title d-flex align-items-center" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
+                                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
                                     </div>
                                 </div>
                                 <!-- Theme -->
                                 <div class="card d-flex mr-1 mb-1">
                                     <div class="card-body row">
-                                        <h4 class="card-title d-flex align-items-center" data-toggle="collapse" data-target="#settings-content" role="button">
+                                        <h4 class="card-title d-flex align-items-center btn-link" data-toggle="collapse" data-target="#settings-content" role="button">
                                             <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
                                         </h4>
                                         <div id="settings-content" class="collapse col-12">
@@ -658,6 +661,10 @@
                     <div class="card">
                         <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Medications' | xlt }}</header>
                         <div id="medicationlist" class="card-body p-2 bg-light"></div>
+                    </div>
+                    <div class="card">
+                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Active Prescriptions' | xlt }}</header>
+                        <div id="prescriptionlist" class="card-body p-2 bg-light"></div>
                     </div>
                     <div class="card">
                         <header class="card-header p-1 bg-dark text-light h5">{{ 'Medication Allergy List' | xlt }}</header>

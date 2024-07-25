@@ -647,7 +647,6 @@ function getAuthPortalUsers()
                                 <tr ng-repeat="item in pagedItems[currentPage]">
                                     <!--  | orderBy:sortingOrder:reverse -->
                                     <td role = "button" ng-click="readMessage($index)"><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
-                                        <span class="col-sm-1 px-1" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span>
                                         <span class="col-sm-1 px-1"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
                                         <span class="col-sm-2 px-1"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
                                         <span class="col-sm-3 px-1"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
@@ -689,7 +688,7 @@ function getAuthPortalUsers()
                                         <tbody>
                                         <tr class="animate-repeat" ng-repeat="item in allItems | Chained:selected.mail_chain">
                                             <td role = "button" ng-click="readMessage($index)">
-                                                <span class="col-sm" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span> <span class="col-sm px-1"><span>{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
+                                                <span class="col-sm px-1"><span>{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
                                                 <span class="col-sm"><span>{{item.message_status}}</span></span>
                                                 <span class="col-sm px-1"><span>{{item.sender_name}}
                                                         to {{item.recipient_name}}</span></span> <span class="col-sm-1"><span>{{item.title}}</span></span>

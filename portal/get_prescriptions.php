@@ -25,7 +25,7 @@
 
 require_once("verify_session.php");
 
-$sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' ORDER BY begdate";
+$sql = "SELECT * FROM prescriptions WHERE `patient_id` = ? AND `end_date` IS NULL ORDER BY `start_date`";
 $res = sqlStatement($sql, array($pid));
 
 if (sqlNumRows($res) > 0) {
@@ -41,10 +41,10 @@ if (sqlNumRows($res) > 0) {
     $even = false;
     while ($row = sqlFetchArray($res)) {
         echo "<tr class='" . text($class ?? '') . "'>";
-        echo "<td>" . text($row['title']) . "</td>";
-        echo "<td>" . text($row['begdate']) . "</td>";
-        echo "<td>" . text($row['modifydate']) . "</td>";
-        echo "<td>" . text($row['enddate']) . "</td>";
+        echo "<td>" . text($row['drug']) . "</td>";
+        echo "<td>" . text($row['date_added']) . "</td>";
+        echo "<td>" . text($row['date_modified']) . "</td>";
+        echo "<td>" . text($row['end_date']) . "</td>";
         echo "</tr>";
     }
     echo "</table>";
