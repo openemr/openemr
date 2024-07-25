@@ -101,7 +101,7 @@ jobs:
           instance-ids: ${{ vars.AWS_INSTANCE_ID }}
           working-directory: "/home/ubuntu"
           command: |
-            echo -e '${{ env.COMPOSE_FILE }}' | base64 -d > docker-compose.yml
+            echo -e '${{ env.DOCKER_COMPOSE_BASE64 }}' | base64 -d > docker-compose.yml
             echo '# TFA Residen EMR Secrets
             MYSQL_USER=${{ secrets.MYSQL_USER }}
             MYSQL_PASS=${{ secrets.MYSQL_PASS }}
