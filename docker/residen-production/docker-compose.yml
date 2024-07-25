@@ -1,0 +1,25 @@
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mariadb:10.11
+    container_name: openemr
+    command: ['mysqld','--character-set-server=utf8mb4']
+    volumes:
+      - /home/ubuntu/openemr_data:/var/lib/mysql
+    env_file:
+      - .env
+  openemr:
+    restart: always
+    image: REPLACEME_ECR_URL
+    container_name: openemr
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /home/ubuntu/openemr_logs:/var/log
+      - /home/ubuntu/openemr_sites:/var/www/localhost/htdocs/openemr/sites
+    env_file:
+      - .env
+    depends_on:
+      - mysql
