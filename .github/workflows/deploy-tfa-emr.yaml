@@ -104,6 +104,7 @@ jobs:
             sudo -u ubuntu bash -c '
             echo -e "${{ env.DOCKER_COMPOSE_BASE64 }}" | base64 -d > docker-compose.yml
             echo "# TFA Residen EMR Secrets
+            MYSQL_HOST=mysql
             MYSQL_USER=${{ secrets.MYSQL_USER }}
             MYSQL_PASS=${{ secrets.MYSQL_PASS }}
             MYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}

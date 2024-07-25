@@ -11,15 +11,27 @@ services:
       - .env
   openemr:
     restart: always
-    image: REPLACEME_ECR_URL
+    image: 754476438638.dkr.ecr.us-east-1.amazonaws.com/residen-openemr
     container_name: openemr
     ports:
-      - 80:80
+      - 8080:80
       - 443:443
     volumes:
-      - /home/ubuntu/openemr_logs:/var/log
-      - /home/ubuntu/openemr_sites:/var/www/localhost/htdocs/openemr/sites
+      - logvolume01:/var/log
+      - sitevolume:/var/www/localhost/htdocs/openemr/sites
     env_file:
       - .env
     depends_on:
       - mysql
+volumes:
+  logvolume01:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/openemr_logs
+  sitevolume:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/openemr_sites
+      
