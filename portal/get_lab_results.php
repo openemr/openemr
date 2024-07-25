@@ -19,10 +19,10 @@ require_once("verify_session.php");
 require_once('../library/options.inc.php');
 
 $selects =
-"po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
-"pt1.procedure_type_id AS order_type_id, pc.procedure_name, " .
-"pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, " .
-"pr.report_status, pr.review_status";
+    "po.procedure_order_id, po.date_ordered, pc.procedure_order_seq, " .
+    "pt1.procedure_type_id AS order_type_id, pc.procedure_name, " .
+    "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, " .
+    "pr.report_status, pr.review_status";
 
 $joins =
     "JOIN procedure_order_code AS pc ON pc.procedure_order_id = po.procedure_order_id " .
@@ -43,8 +43,8 @@ $res = sqlStatement("SELECT $selects " .
 
 if (sqlNumRows($res) > 0) {
     ?>
-    <table class="table table-striped table-sm table-bordered">
-        <tr class="header">
+<table class="table table-striped table-sm table-bordered">
+    <tr class="header">
         <th><?php echo xlt('Order Date'); ?></th>
         <th><?php echo xlt('Order Name'); ?></th>
         <th><?php echo xlt('Result Name'); ?></th>
@@ -54,23 +54,23 @@ if (sqlNumRows($res) > 0) {
         <th><?php echo xlt('Units'); ?></th>
         <th><?php echo xlt('Result Status'); ?></th>
         <th><?php echo xlt('Report Status'); ?></th>
-        </tr>
+    </tr>
     <?php
     $even = false;
 
     while ($row = sqlFetchArray($res)) {
-        $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id' ] + 0);
-        $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
+        $order_type_id = empty($row['order_type_id']) ? 0 : ($row['order_type_id'] + 0);
+        $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
 
         $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
-        "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
-        "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
-        "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.abnormal, ps.result, " .
-        "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
+            "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
+            "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
+            "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.abnormal, ps.result, " .
+            "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
 
         // procedure_type_id for order:
         $pt2cond = "pt2.parent = '" . add_escape_custom($order_type_id) . "' AND " .
-        "(pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%')";
+            "(pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%')";
 
         // pr.procedure_report_id or 0 if none:
         $pscond = "ps.procedure_report_id = '" . add_escape_custom($report_id) . "'";
@@ -81,13 +81,13 @@ if (sqlNumRows($res) > 0) {
         // result types defined for this order type, as well as any actual
         // results that do not have a matching result type.
         $query = "(SELECT $selects FROM procedure_type AS pt2 " .
-        "LEFT JOIN procedure_result AS ps ON $pscond AND $joincond " .
-        "WHERE $pt2cond" .
-        ") UNION (" .
-        "SELECT $selects FROM procedure_result AS ps " .
-        "LEFT JOIN procedure_type AS pt2 ON $pt2cond AND $joincond " .
-        "WHERE $pscond) " .
-        "ORDER BY seq, name, procedure_type_id, result_code";
+            "LEFT JOIN procedure_result AS ps ON $pscond AND $joincond " .
+            "WHERE $pt2cond" .
+            ") UNION (" .
+            "SELECT $selects FROM procedure_result AS ps " .
+            "LEFT JOIN procedure_type AS pt2 ON $pt2cond AND $joincond " .
+            "WHERE $pscond) " .
+            "ORDER BY seq, name, procedure_type_id, result_code";
 
         $rres = sqlStatement($query);
         while ($rrow = sqlFetchArray($rres)) {

@@ -24,7 +24,7 @@ $records = Easipro::assessmentsForPatient($pid);
 
 if (!empty($records)) { ?>
 <div class="font-weight-bold m-1" onclick="$('.assessment-row').toggleClass('d-none');" role="button">
-    <i class="font-weight-bold fa fa-eye mr-1"></i><?php echo xlt("My Assessments") ?>
+    <i class="font-weight-bold fa fa-eye mr-1"></i><?php echo xlt("Assessments") ?>
 </div>
 <div class="table-responsive">
     <table class="table table-sm table-striped">

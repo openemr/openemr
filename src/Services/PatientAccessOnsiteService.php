@@ -101,7 +101,7 @@ class PatientAccessOnsiteService
             ->setLoginUsername($loginUsername ?? '');
 
         $updatedEvent = $this->kernel->getEventDispatcher()->dispatch($preUpdateEvent, PortalCredentialsUpdatedEvent::EVENT_UPDATE_PRE) ?? $preUpdateEvent;
-        $query_parameters = array($updatedEvent->getUsername(),$updatedEvent->getLoginUsername());
+        $query_parameters = array($updatedEvent->getUsername(), $updatedEvent->getLoginUsername());
         $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
         if (empty($hash)) {
             // Something is seriously wrong
@@ -138,9 +138,9 @@ class PatientAccessOnsiteService
 
         return [
             'uname' => $updatedEvent->getUsername()
-            ,'login_uname' => $updatedEvent->getLoginUsername()
-            ,'pwd' => $clear_pass
-            ,'email_direct' => trim($trustedEmail['email_direct'])
+            , 'login_uname' => $updatedEvent->getLoginUsername()
+            , 'pwd' => $clear_pass
+            , 'email_direct' => trim($trustedEmail['email_direct'])
         ];
     }
 
@@ -150,14 +150,14 @@ class PatientAccessOnsiteService
         $fhirServerConfig = new ServerConfig();
         $data = [
             'portal_onsite_two_enable' => $GLOBALS['portal_onsite_two_enable']
-            ,'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
-            ,'enforce_signin_email' => $GLOBALS['enforce_signin_email']
-            ,'uname' => $username
-            ,'login_uname' => $loginUsername
-            ,'pwd' => $pwd
-            ,'email_direct' => trim($emailDirect)
-            ,'fhir_address' => $fhirServerConfig->getFhirUrl()
-            ,'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
+            , 'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
+            , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
+            , 'uname' => $username
+            , 'login_uname' => $loginUsername
+            , 'pwd' => $pwd
+            , 'email_direct' => trim($emailDirect)
+            , 'fhir_address' => $fhirServerConfig->getFhirUrl()
+            , 'fhir_requirements_address' => $fhirServerConfig->getFhir3rdPartyAppRequirementsDocument()
         ];
 
         // we run the twigs through this filterTwigTemplateData function as we want module writers to be able to modify the passed
@@ -168,12 +168,12 @@ class PatientAccessOnsiteService
         if ($this->emailLogin($pid, $htmlMessage, $plainMessage, $this->twig)) {
             return [
                 'success' => true
-                ,'plainMessage' => $plainMessage
+                , 'plainMessage' => $plainMessage
             ];
         } else {
             return [
                 'success' => false
-                ,'plainMessage' => $plainMessage
+                , 'plainMessage' => $plainMessage
             ];
         }
     }
@@ -183,6 +183,7 @@ class PatientAccessOnsiteService
      * Takes in a twig template and data for a given patient pid and notifies module listeners that we are about to
      * render a twig template and let them modify the data.   Note we do NOT allow the module writer to change the template
      * name here.
+     *
      * @param $pid
      * @param $templateName
      * @param $data
@@ -212,7 +213,6 @@ class PatientAccessOnsiteService
 
     public function getUniqueTrustedUsernameForPid($pid)
     {
-
         $trustedEmail = $this->getTrustedEmailForPid($pid);
         $row = $this->getOnsiteCredentialsForPid($pid);
         $trustedUserName = $trustedEmail['email_direct'];
@@ -227,11 +227,8 @@ class PatientAccessOnsiteService
                 $trustedUserName = '';
             }
         }
-        if (
-            empty($GLOBALS['enforce_signin_email'])
-            && empty($row['portal_username'])
-        ) {
-            $trustedUserName = $row['fname'] . $row['id'];
+        if (empty($GLOBALS['use_email_for_portal_username'])) {
+            $trustedUserName = $row['fname'] . $row['lname'] . $row['id'];
         }
         return $trustedUserName;
     }
@@ -261,8 +258,8 @@ class PatientAccessOnsiteService
             $this->logger->debug(
                 "PatientAccessOnSiteService->emailLogin() Skipping email send",
                 ['hipaa_allowemail' => $patientData['hipaa_allowemail']
-                , 'email' => empty($patientData['email']) ? "email is empty" : "patient has email"
-                , 'GLOBALS[patient_reminder_sender_email]' => $GLOBALS['patient_reminder_sender_email']]
+                    , 'email' => empty($patientData['email']) ? "email is empty" : "patient has email"
+                    , 'GLOBALS[patient_reminder_sender_email]' => $GLOBALS['patient_reminder_sender_email']]
             );
             return false;
         }

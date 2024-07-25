@@ -424,6 +424,7 @@ function renderEditorHtml($template_id, $content)
             CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
             CKEDITOR.config.shiftEnterMode = CKEDITOR.ENTER_P;
             CKEDITOR.config.autoParagraph = false;
+            CKEDITOR.config.versionCheck = false;
             editor = CKEDITOR.replace('templateContent', {
                 removeButtons: 'PasteFromWord'
             });
