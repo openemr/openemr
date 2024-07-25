@@ -3125,8 +3125,15 @@ $GLOBALS_METADATA = array(
             xl('Use servers protocol and host in urls (portal internal only).')
         ),
 
+        'use_email_for_portal_username' => array(
+            xl('Use Patients on-record E-Mail for new Portal Login Username'),
+            'bool',
+            '1',
+            xl('Use contact email when creating portal credentials.')
+        ),
+
         'enforce_signin_email' => array(
-            xl('Require patient on record E-Mail for Portal Login'),
+            xl('Require Patients to enter their on-record email for Portal Login'),
             'bool',
             '1',
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
