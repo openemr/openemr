@@ -302,7 +302,7 @@ try {
         'youHave' => xl('You have'),
         'navMenu' => $navMenu,
         'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
-        'pagetitle' => xl('Home') . ' | ' . $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
+        'pagetitle' => $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
         'messagesURL' => $messagesURL,
         'patientID' => $pid,
         'patientName' => $_SESSION['ptName'] ?? null,
