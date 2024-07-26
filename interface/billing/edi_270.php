@@ -161,9 +161,6 @@ if ($exclude_policy != "") {
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
         $eFlag = !$GLOBALS['disable_eligibility_log'];
         // make the batch request
-        //This should not be so tightly bound to the EDI270 class
-        //This should be an interface to implement different clearinghouses of 270 requests
-        //EDI270Interface::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag, (new EDI270WayStar()));
         $log = EDI270::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
         $e = strpos($log, "Error:");
         if ($e !== false) {
