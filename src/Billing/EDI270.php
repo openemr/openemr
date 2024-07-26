@@ -28,7 +28,7 @@ require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_
 
 use edih_271_codes;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
-use OpenEMR\Billing\Service\EDI270EligibilityPartnerService;
+use OpenEMR\Billing\Services\EDI270EligibilityPartnerService;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 

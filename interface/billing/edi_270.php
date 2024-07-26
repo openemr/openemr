@@ -28,7 +28,7 @@ require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
-use OpenEMR\Billing\Service\EDI270EligibilityPartnerService;
+use OpenEMR\Billing\Services\EDI270EligibilityPartnerService;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
