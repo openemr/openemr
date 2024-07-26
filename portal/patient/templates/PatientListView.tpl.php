@@ -135,13 +135,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
-                    <label class="plist-label" for="pid"><?php echo xlt('Pid')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
+                    <label class="plist-label" for="pid"><?php /*echo xlt('Pid')*/?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="pid" readonly placeholder="<?php echo xla('Pid')?>" value="<%= _.escape(item.get('pid') || '') %>">
+                        <input type="text" class="form-control" id="pid" readonly placeholder="<?php /*echo xla('Pid')*/?>" value="<%= _.escape(item.get('pid') || '') %>">
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="pubpidInputContainer">
                     <label class="plist-label" for="pubpid"><?php echo xlt('Public Patient Id')?></label>
                     <div class="controls inline-inputs">

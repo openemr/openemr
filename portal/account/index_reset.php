@@ -155,14 +155,14 @@ if (isset($_POST['submit'])) {
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken("portal_index_reset")); ?>" />
             <table class="table table-sm" style="border-bottom:0px;width:100%">
                 <tr>
-                    <td width="35%"><strong><?php echo xlt('Portal Account ID for referrence'); ?><strong></td>
+                    <td width="35%"><strong><?php echo xlt('Portal Account ID for reference'); ?><strong></td>
                     <td><input class="form-control" name="uname" id="uname" type="text" readonly
                             value="<?php echo attr($auth['portal_username']); ?>" /></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo xlt('Change or Keep Existing Username'); ?><strong></td>
                     <td><input class="form-control" name="login_uname" id="login_uname" type="text" required onblur="checkUserName()"
-                            title="<?php echo xla('Change or keep current. Enter 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" pattern=".{12,80}"
+                            title="<?php echo xla('Change or keep current. Enter a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" pattern=".{8,}"
                             value="<?php echo attr($auth['portal_login_username']); ?>" />
                     </td>
                 </tr>
@@ -188,7 +188,7 @@ if (isset($_POST['submit'])) {
                     <td><strong><?php echo xlt('Change or Keep Existing Password'); ?><strong></td>
                     <td>
                         <input class="form-control" name="pass_new" id="pass_new" type="password" required
-                            placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>"
+                            placeholder="<?php echo xla('Minimum length is 8 with upper,lowercase,numbers mix'); ?>"
                             title="<?php echo xla('You must enter a new or reenter current password to keep it. Even for Username change.'); ?>"
                             pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </td>
