@@ -71,6 +71,7 @@
     "@fortawesome/fontawesome-free": "6.4.2",
     "angular": "1.8.3",
     "angular-sanitize": "1.8.3",
+    "angular-summernote": "^0.8.1",
     "backbone": "1.5.0",
     "bootstrap": "4.6.2",
     "bootswatch": "4.6.2",
@@ -108,6 +109,7 @@
     "purecss": "3.0.0",
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
+    "summernote": "^0.8.20",
     "tiff": "git+https://github.com/seikichi/tiff.js.git",
     "underscore": "1.13.6",
     "validate.js": "0.13.1"
@@ -118,6 +120,7 @@
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/1.0.0.tar.gz",
     "jquery-ui": "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip",
     "jquery-ui-themes": "https://jqueryui.com/resources/download/jquery-ui-themes-1.12.1.zip",
+    "summernote-nugget": "https://github.com/pHAlkaline/summernote-plugins",
     "literallycanvas": "https://github.com/literallycanvas/literallycanvas/archive/v0.4.14.tar.gz",
     "react": "https://github.com/facebook/react/releases/download/v15.1.0/react-15.1.0.zip",
     "lforms": "https://clinicaltables.nlm.nih.gov/lforms-versions/lforms-33.0.0.zip"
