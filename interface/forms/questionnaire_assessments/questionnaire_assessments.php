@@ -115,7 +115,7 @@ $bottom_note = false;
 
 $loinc_text =  "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " .  xlt("terms of use.") . "</i>" . "</a>";
 
-if ( $GLOBALS['questionnaire_display_LOINCnote'] ){
+if ($GLOBALS['questionnaire_display_LOINCnote']) {
     switch ($GLOBALS['questionnaire_display_LOINCnote']) {
         case '0':
             $top_note = true;
