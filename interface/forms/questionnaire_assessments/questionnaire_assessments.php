@@ -110,19 +110,27 @@ try {
     die(xlt("Can not continue with reason.") . '<br />' . text($e->getMessage()));
 }
 /* where to put the LOINC statement , and the statement itself */
-$top_note = $bottom_note = false; // value of '3' says don't display
+$top_note = true; // default to top if not set in configuration
+$bottom_note = false;
 
 $loinc_text =  "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " .  xlt("terms of use.") . "</i>" . "</a>";
 
-switch ($GLOBALS['questionnaire_display_LOINCnote']) {
-    case '0':
-        $top_note = true;
-        break;
-    case '1':
-        $bottom_note = true;
-        break;
-    case '2':
-        $top_note = $bottom_note = true;
+if ( $GLOBALS['questionnaire_display_LOINCnote'] ){
+    switch ($GLOBALS['questionnaire_display_LOINCnote']) {
+        case '0':
+            $top_note = true;
+            $bottom_note = false; // not really neede as this is the default!!
+            break;
+        case '1':
+            $bottom_note = true;
+            $top_note = false;
+            break;
+        case '2':
+            $top_note = $bottom_note = true;
+            break;
+        case '3':
+            $top_note = $bottom_note = false;
+    }
 }
 
 ?>
