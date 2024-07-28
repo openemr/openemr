@@ -109,9 +109,9 @@ function getAuthPortalUsers()
     <meta charset="utf-8" />
     <?php
     if (IS_PORTAL) {
-        Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model', 'dompurify']);
+        Header::setupHeader(['no_main-theme',  'portal-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model', 'dompurify']);
     } else {
-        Header::setupHeader(['ckeditor', 'angular', 'angular-sanitize', 'checklist-model', 'dompurify']);
+        Header::setupHeader(['summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model', 'dompurify']);
     }
     ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
@@ -120,7 +120,7 @@ function getAuthPortalUsers()
 <body class="body_top">
     <script>
         (function () {
-            var app = angular.module("emrMessageApp", ['ngSanitize', "checklist-model"]);
+            var app = angular.module("emrMessageApp", ['ngSanitize', 'summernote', "checklist-model"]);
             app.controller('inboxCtrl', ['$scope', '$filter', '$http', '$window', function ($scope, $filter, $http, $window) {
                 $scope.date = new Date;
                 $scope.sortingOrder = 'id';
@@ -404,7 +404,7 @@ function getAuthPortalUsers()
                         compose.sender_name = $("#selForwardto option:selected").text();
                         compose.selrecip = compose.recipient_id;
                     } else {
-                        compose.inputBody = CKEDITOR.instances.inputBody.getData();
+                        compose.inputBody = $("#inputBody").summernote('code');
                     }
                     return true; // okay to submit
                 }
@@ -416,9 +416,7 @@ function getAuthPortalUsers()
                 $('#modalCompose').on('show.bs.modal', function (e) {
                     // Sets up the compose modal before we show it
                     $scope.compose = [];
-                    if ($scope.editor) {
-                        $scope.editor.destroy(true);
-                    }
+                    $('#inputBody').summernote('destroy');
                     var mode = $(e.relatedTarget).attr('data-mode');
                     $scope.compose.task = mode;
                     if (mode == 'forward') {
@@ -443,32 +441,7 @@ function getAuthPortalUsers()
                         $("textarea#finputBody").text(fmsg)
                         $scope.compose.noteid = $(e.relatedTarget).attr('data-noteid');
                     } else if (mode == 'reply') {
-                        $scope.editor = CKEDITOR.instances['inputBody'];
-                        if ($scope.editor) {
-                            $scope.editor.destroy(true);
-                        }
-                        $scope.editor = CKEDITOR.replace('inputBody', {
-                            toolbarGroups: [
-                                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-                                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
-                                { name: 'forms', groups: [ 'forms' ] },
-                                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
-                                { name: 'links', groups: [ 'links' ] },
-                                { name: 'insert', groups: [ 'insert' ] },
-                                { name: 'styles', groups: [ 'styles' ] },
-                                { name: 'colors', groups: [ 'colors' ] },
-                                { name: 'tools', groups: [ 'tools' ] },
-                                { name: 'others', groups: [ 'others' ] },
-                                { name: 'about', groups: [ 'about' ] }
-                            ],
-                            removeButtons: 'About,Table,Smiley,SpecialChar,PageBreak,Iframe,HorizontalRule,Anchor,Unlink,Link,NumberedList,BulletedList,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,CopyFormatting,RemoveFormat,Superscript,Subscript,Strike,Underline,Italic,Bold,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,SelectAll,Scayt,Find,Replace,PasteFromWord,Templates,NewPage,ExportPdf,Maximize,ShowBlocks,Source,Save,Preview,Print,Cut,Copy,Paste,PasteText,TextColor,BGColor',
-                            height: 250,
-                            width: '100%',
-                            resize_maxHeight: 650,
-                            versionCheck: false
-                        });
+                        $('#inputBody').summernote({focus: true, height: '225px', width: '100%'});
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose Reply Message"); ?>)
                         $scope.compose.task = mode;
                         //get data attributes of the clicked element (selected recipient) for replies only
@@ -489,34 +462,17 @@ function getAuthPortalUsers()
                         $scope.compose.recipient_id = recipId;
                         $scope.compose.noteid = chain;
                     } else {
-                        $scope.editor = CKEDITOR.instances['inputBody'];
-                        if ($scope.editor) {
-                            $scope.editor.destroy(true);
-                        }
-                        $scope.editor = CKEDITOR.replace('inputBody', {
-                            toolbarGroups: [
-                                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-                                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
-                                { name: 'forms', groups: [ 'forms' ] },
-                                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
-                                { name: 'links', groups: [ 'links' ] },
-                                { name: 'insert', groups: [ 'insert' ] },
-                                { name: 'styles', groups: [ 'styles' ] },
-                                { name: 'colors', groups: [ 'colors' ] },
-                                { name: 'tools', groups: [ 'tools' ] },
-                                { name: 'others', groups: [ 'others' ] },
-                                { name: 'about', groups: [ 'about' ] }
-                            ],
-                            removeButtons: 'About,Table,Smiley,SpecialChar,PageBreak,Iframe,HorizontalRule,Anchor,Unlink,Link,NumberedList,BulletedList,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,CopyFormatting,RemoveFormat,Superscript,Subscript,Strike,Underline,Italic,Bold,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,SelectAll,Scayt,Find,Replace,PasteFromWord,Templates,NewPage,ExportPdf,Maximize,ShowBlocks,Source,Save,Preview,Print,Cut,Copy,Paste,PasteText,TextColor,BGColor',
-                            height: 250,
+                        $('#inputBody').summernote({
                             width: '100%',
-                            resize_maxHeight: 650,
-                            versionCheck: false
+                            focus: true,
+                            height: '225px',
+                            popover: {
+                                image: [],
+                                link: [],
+                                air: []
+                            }
                         });
-
-                        $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>);
+                        $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose New Message"); ?>)
                         $scope.compose.task = 'add';
                         $(e.currentTarget).find('select[id="selSendto"]').prop("disabled", false);
                         $(e.currentTarget).find('input[name="title"]').prop("disabled", false);
