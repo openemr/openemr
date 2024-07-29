@@ -9,9 +9,18 @@ services:
       - /home/ubuntu/openemr_data:/var/lib/mysql
     env_file:
       - .env
+  couchdb:
+    image: couchdb:3.3.3
+    container_name: openemr_couchdb
+    ports:
+      - "5984:5984"
+    env_file:
+      - .env
+    volumes:
+      - couchdb_data:/opt/couchdb/data
   openemr:
     restart: always
-    image: 754476438638.dkr.ecr.us-east-1.amazonaws.com/residen-openemr
+    image: REPLACEME_ECR_URL
     container_name: openemr
     ports:
       - 8080:80
@@ -23,6 +32,7 @@ services:
       - .env
     depends_on:
       - mysql
+      - couchdb
 volumes:
   logvolume01:
     driver_opts:
@@ -34,3 +44,9 @@ volumes:
       type: none
       o: bind
       device: /home/ubuntu/openemr_sites
+  couchdb_data:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/openemr_documents
+      
