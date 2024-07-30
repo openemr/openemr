@@ -320,7 +320,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         function checkUserName() {
             let vacct = document.getElementById('uname').value;
             let vsuname = document.getElementById('login_uname').value;
-            if (vsuname.length < 12) {
+            if (vsuname.length < 8) {
                 alert(<?php echo xlj('User Name must be at least 12 characters!'); ?>);
                 return false;
             }
