@@ -2,12 +2,15 @@
     <a class="navbar-brand" href="home.php">
         <img class="d-inline-block align-top" height="{{ primaryMenuLogoHeight|attr }}" src="{{ menuLogo | attr }}"/>
     </a>
+    {% if navMenu|length > 0 %}
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
+    {% endif %}
     <a class="btn btn-outline-primary" id="quickstart_dashboard" href="#quickstart-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="true">
         <i class="ml-1 fas fa-tasks mr-1"></i>{{ 'Dashboard' | xlt }}
     </a>
+    {% if navMenu|length > 0 %}
     <div class="collapse navbar-collapse justify-content-end" id="nav">
         <ul class="navbar-nav mt-2 mt-lg-0">
             {% for item in navMenu %}
@@ -45,4 +48,5 @@
             {% endfor %}
         </ul>
     </div>
+    {% endif %}
 </nav>
