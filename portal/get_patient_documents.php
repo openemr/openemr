@@ -67,7 +67,7 @@ while ($file = sqlFetchArray($fres)) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo text("Download On File Documents"); ?></title>
+    <title><?php echo xlt("Download On File Documents"); ?></title>
     <?php Header::setupHeader(['no_main-theme', 'portal-theme']); ?>
     <script>
         // Function to toggle all checkboxes
@@ -95,7 +95,7 @@ while ($file = sqlFetchArray($fres)) {
         function validateForm(event) {
             let checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
             if (checkboxes.length === 0) {
-                alert("Please select at least one document to download.");
+                alert(<?php echo xlj("Please select at least one document to download.") ?>);
                 event.preventDefault(); // Prevent form submission
             }
         }
@@ -103,12 +103,12 @@ while ($file = sqlFetchArray($fres)) {
 </head>
 <body>
     <div class="container-fluid">
-        <h4><?php echo text("Select Documents to Download"); ?></h4>
+        <h4><?php echo xlt("Select Documents to Download"); ?></h4>
         <form id="download-form" action="report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">
-                <label class="form-check-label" for="selectAll"><?php echo text("Select All Toggle"); ?></label>
+                <label class="form-check-label" for="selectAll"><?php echo xlt("Select All Toggle"); ?></label>
             </div>
             <div class="row">
                 <?php foreach ($documents as $category => $docs) {
@@ -121,13 +121,13 @@ while ($file = sqlFetchArray($fres)) {
                                 <h5 class="mb-0"><?php echo text($normalizedTitle); ?></h5>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="selectAll<?php echo attr($normalizedTitle); ?>" onclick="toggleCheckboxes('category-<?php echo attr($normalizedTitle); ?>', this)">
-                                    <label class="form-check-label" for="selectAll<?php echo attr($normalizedTitle); ?>"><?php echo text("Select All"); ?></label>
+                                    <label class="form-check-label" for="selectAll<?php echo attr($normalizedTitle); ?>"><?php echo xlt("Select All"); ?></label>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <?php foreach ($docs as $doc) { ?>
                                     <div class="form-check">
-                                        <input class="form-check-input category-<?php echo attr($normalizedTitle); ?>" type="checkbox" name="documents[]" value="<?php echo attr($doc['id']); ?>" id="doc<?php echo text($doc['id']); ?>">
+                                        <input class="form-check-input category-<?php echo attr($normalizedTitle); ?>" type="checkbox" name="documents[]" value="<?php echo attr($doc['id']); ?>" id="doc<?php echo attr($doc['id']); ?>">
                                         <label class="form-check-label" for="doc<?php echo attr($doc['id']); ?>">
                                             <?php echo text($doc['name']); ?>
                                         </label>
@@ -138,7 +138,7 @@ while ($file = sqlFetchArray($fres)) {
                     </div>
                 <?php } ?>
             </div>
-            <button type="submit" class="btn btn-primary float-right mt-1"><?php echo text("Download Selected Documents"); ?></button>
+            <button type="submit" class="btn btn-primary float-right mt-1"><?php echo xlt("Download Selected Documents"); ?></button>
         </form>
     </div>
 </body>
