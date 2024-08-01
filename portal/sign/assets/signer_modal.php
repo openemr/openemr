@@ -33,8 +33,8 @@ if (empty($is_portal)) {
 
 require_once(__DIR__ . '/../../../interface/globals.php');
 
-use \OpenEMR\Common\Logging\SystemLogger;
-use \OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 
 $aud = "admin-signature";
 $cuser = attr($_SESSION['authUserID'] ?? "-patient-");
