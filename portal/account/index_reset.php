@@ -17,7 +17,7 @@ $ignoreAuth_onsite_portal = $ignoreAuth = false;
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-$landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = "./../index.php?site=" . urlencode($_SESSION['site_id'] ?? '');
 // kick out if patient not authenticated
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $ignoreAuth_onsite_portal = true;
@@ -56,12 +56,11 @@ DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
 
 $sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) .
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
-
 $auth = privQuery($sql, array($_SESSION['pid']));
 $password = trim($_POST['pass_current'] ?? '');
-$password_new = trim($_POST['pass_new']);
-$valid = ((!empty(trim($_POST['uname']))) &&
-    (!empty(trim($_POST['login_uname']))) &&
+$password_new = trim($_POST['pass_new'] ?? '');
+$valid = ((!empty(trim($_POST['uname'] ?? ''))) &&
+    (!empty(trim($_POST['login_uname'] ?? ''))) &&
     (!empty($password)) &&
     (!empty($password_new)) &&
     (trim($_POST['uname']) == $auth[COL_POR_USER]) &&

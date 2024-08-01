@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -320,8 +320,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         function checkUserName() {
             let vacct = document.getElementById('uname').value;
             let vsuname = document.getElementById('login_uname').value;
-            if (vsuname.length < 12) {
-                alert(<?php echo xlj('User Name must be at least 12 characters!'); ?>);
+            if (vsuname.length < 8) {
+                alert(<?php echo xlj('User Name must be at least 8 characters!'); ?>);
                 return false;
             }
             let data = {
