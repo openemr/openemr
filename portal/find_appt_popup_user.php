@@ -53,6 +53,7 @@ require_once("$srcdir/patient.inc.php");
 require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 
@@ -123,14 +124,8 @@ if ($_REQUEST['searchdays'] ?? null) {
 }
 
 // Get a start date.
-if (
-    $_REQUEST['startdate'] && preg_match(
-        "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-        $_REQUEST['startdate'],
-        $matches
-    )
-) {
-    $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+if (!empty($_REQUEST['startdate'])) {
+    $sdate = DateFormatterUtils::DateToYYYYMMDD($_REQUEST['startdate']);
 } else {
     $sdate = date("Y-m-d");
 }
@@ -287,7 +282,7 @@ if ($_REQUEST['providerid']) {
             <div class="form-row mx-0 align-items-center">
                 <label for="startdate" class="col-1 mx-2 col-form-label"><?php echo xlt('Start date:'); ?></label>
                 <div class="col-auto">
-                    <input type='text' class='datepicker form-control' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>' title='yyyy-mm-dd starting date for search' />
+                    <input type='text' class='datepicker form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(DateFormatterUtils::oeFormatShortDate($sdate)); ?>' title='starting date for search' />
                 </div>
                 <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('for'); ?></label>
                 <div class="col-auto">
@@ -410,7 +405,7 @@ if ($_REQUEST['providerid']) {
 
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
