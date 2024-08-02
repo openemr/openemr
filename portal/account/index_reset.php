@@ -31,7 +31,10 @@ require_once(dirname(__FILE__) . "/../lib/appsql.class.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
 
 $logit = new ApplicationTable();
 //exit if portal is turned off
@@ -85,126 +88,17 @@ if (isset($_POST['submit'])) {
     ));
 }
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title><?php echo xlt('Change Portal Credentials'); ?></title>
-    <?php
-    Header::setupHeader(['no_main-theme',  'portal-theme', 'opener']);
-    if (!empty($_POST['submit'])) {
-        unset($_POST['submit']);
-        echo "<script>dlgclose();</script>\n";
-    }
-    ?>
-    <script>
-        function checkUserName() {
-            let vacct = document.getElementById('uname').value;
-            let vsuname = document.getElementById('login_uname').value;
-            let data = {
-                'action': 'userIsUnique',
-                'account': vacct,
-                'loginUname': vsuname
-            };
-            $.ajax({
-                type: 'GET',
-                url: './account.php',
-                data: data
-            }).done(function (rtn) {
-                if (rtn === '1') {
-                    return true;
-                }
-                alert(<?php echo xlj('Log In Name is unavailable. Try again!'); ?>);
-                return false;
-            });
-        }
+$vars = [
+    'isSubmit' => !empty($_POST['submit'])
+    ,'auth' => $auth
+    ,'pid' => $_SESSION['pid']
+];
+try {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+}
+catch (\Exception $exception) {
+    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    die(xlt("Failed to render twig file"));
+}
 
-        function process_new_pass() {
-            if (document.getElementById('login_uname').value != document.getElementById('confirm_uname').value) {
-                alert(<?php echo xlj('The Username fields are not the same.'); ?>);
-                return false;
-            }
-            if (document.getElementById('pass_new').value != document.getElementById('pass_new_confirm').value) {
-                alert(<?php echo xlj('The new password fields are not the same.'); ?>);
-                return false;
-            }
-            if (document.getElementById('pass_current').value == document.getElementById('pass_new_confirm').value) {
-                if (!confirm(<?php echo xlj('The new password is the same as the current password. Click Okay to accept anyway.'); ?>)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    </script>
-    <style>
-        .table > tbody > tr > td {
-            border-top: 0px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <form action="" method="POST" onsubmit="return process_new_pass()">
-            <div class="alert alert-info">
-                <p><?php echo xlt('Use this form to change your login Password, Username or Both.'); ?></p>
-                <p><?php echo xlt('For example, to change your current Password, enter and use your current Username and enter new Password. You must still confirm Password and Username regardless.'); ?></p>
-            </div>
-            <input style="display:none" type="text" name="dummyuname" />
-            <input style="display:none" type="password" name="dummypassword" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken("portal_index_reset")); ?>" />
-            <table class="table table-sm" style="border-bottom:0px;width:100%">
-                <tr>
-                    <td width="35%"><strong><?php echo xlt('Portal Account ID for reference'); ?><strong></td>
-                    <td><input class="form-control" name="uname" id="uname" type="text" readonly
-                            value="<?php echo attr($auth['portal_username']); ?>" /></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo xlt('Change or Keep Existing Username'); ?><strong></td>
-                    <td><input class="form-control" name="login_uname" id="login_uname" type="text" required onblur="checkUserName()"
-                            title="<?php echo xla('Change or keep current. Enter a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" pattern=".{8,}"
-                            value="<?php echo attr($auth['portal_login_username']); ?>" />
-                    </td>
-                </tr>
-                <tr>
-                <tr>
-                    <td><strong><?php echo xlt('Confirm Above Username'); ?><strong></td>
-                    <td><input class="form-control" name="confirm_uname" id="confirm_uname" type="text" required
-                            title="<?php echo xla('You must confirm this Username.'); ?>"
-                            autocomplete="none" pattern=".{8,80}" value="" />
-                    </td>
-                </tr>
-                </tr>
-                <tr>
-                    <td><strong><?php echo xlt('Current Password to Authorize Changes'); ?><strong></td>
-                    <td>
-                        <input class="form-control" name="pass_current" id="pass_current" type="password" required
-                            placeholder="<?php echo xla('Enter your current password used to login.'); ?>"
-                            title="<?php echo xla('Enter your existing current password used to login.'); ?>"
-                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo xlt('Change or Keep Existing Password'); ?><strong></td>
-                    <td>
-                        <input class="form-control" name="pass_new" id="pass_new" type="password" required
-                            placeholder="<?php echo xla('Minimum length is 8 with upper,lowercase,numbers mix'); ?>"
-                            title="<?php echo xla('You must enter a new or reenter current password to keep it. Even for Username change.'); ?>"
-                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo xlt('Confirm Password'); ?><strong></td>
-                    <td>
-                        <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password"
-                            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" autocomplete="none" />
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2"><br /><input class="btn btn-primary float-right" type="submit" name="submit" value="<?php echo xla('Save'); ?>" /></td>
-                </tr>
-            </table>
-            <div><strong><?php echo '* ' . xlt("All credential fields are case sensitive!") ?></strong></div>
-        </form>
-    </div><!-- container -->
-</body>
-</html>
+?>
