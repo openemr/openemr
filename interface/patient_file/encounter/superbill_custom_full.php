@@ -289,6 +289,10 @@ if ($fend > ($count ?? null)) {
       overflow-y: auto;
       overflow-x: hidden;
     }
+    #rotate-text {
+        width: 25px;
+        transform: rotate(90deg);
+    }
 </style>
     <script>
     <?php if ($institutional) { ?>
@@ -690,7 +694,7 @@ if ($fend > ($count ?? null)) {
         $pres = sqlStatement("SELECT title FROM list_options " .
             "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
         while ($prow = sqlFetchArray($pres)) {
-            echo "  <td class='font-weight-bold text-right text-nowrap'>" . text(xl_list_label($prow['title'])) . "</td>\n";
+            echo "  <td class='font-weight-bold text-right text-wrap' id='rotate-text'>" . text(xl_list_label($prow['title'])) . "</td>\n";
         }
         ?>
         <td></td>
