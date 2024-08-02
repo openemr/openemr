@@ -758,6 +758,8 @@ if ($fend > ($count ?? null)) {
                 }
 
                 echo "</td>\n";
+            } else {
+                echo "  <td class='text'> </td>\n";
             }
 
             $pres = sqlStatement("SELECT p.pr_price " .
