@@ -563,7 +563,7 @@
                                 {% if portal_two_payments %}
                                     {% include "portal/partial/_nav_icon.html.twig"
                                         with {
-                                        url: "#paymentcard"|attr_url
+                                        url: "paymentcard"|attr_url
                                         , icon: "wallet"
                                         , navText: "Make Payment"|xl
                                         , id: "payments-go"
@@ -640,6 +640,14 @@
                                     , id: "help-go"
                                 } %}
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url:  webroot ~ "./logout.php"
+                                    ,localLink: false
+                                    , icon: "right-from-bracket"
+                                    , navText: "Logout"|xl
+                                    , id: "logout-go"
+                                } %}
                             </div>
                         </div>
                     </div>
