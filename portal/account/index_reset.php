@@ -61,37 +61,56 @@ $sql = "SELECT " . implode(",", array(COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER
     " FROM " . TBL_PAT_ACC_ON . " WHERE pid = ?";
 $auth = privQuery($sql, array($_SESSION['pid']));
 $password = trim($_POST['pass_current'] ?? '');
+unset($_POST['pass_current']);
+
 $password_new = trim($_POST['pass_new'] ?? '');
+$errmsg = "";
+unset($_POST['pass_new']);
+$isSaved = false;
 $valid = ((!empty(trim($_POST['uname'] ?? ''))) &&
     (!empty(trim($_POST['login_uname'] ?? ''))) &&
     (!empty($password)) &&
-    (!empty($password_new)) &&
     (trim($_POST['uname']) == $auth[COL_POR_USER]) &&
     (AuthHash::passwordVerify($password, $auth[COL_POR_PWD])));
 if (isset($_POST['submit'])) {
     if (!$valid) {
-        $errmsg = xlt("Invalid Current Credentials Error.") . xlt("Unknown.");
+        $errmsg = xl("The credentials you entered were invalid.");
         $logit->portalLog('Credential update attempt', '', ($_POST['uname'] . ':unknown'), '', '0');
-        die($errmsg);
+    } else {
+        $sql = " UPDATE " . TBL_PAT_ACC_ON . " SET ";
+        $bind = [];
+        $updateFields = [];
+        if (!empty($password_new)) {
+            $new_hash = (new AuthHash('auth'))->passwordHash($password_new);
+            unset($password_new);
+            if (empty($new_hash)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            }
+            $updateFields[] = COL_POR_PWD . "=? ";
+            $bind[] = $new_hash;
+        }
+        if (!empty($_POST['login_uname'])) {
+            $updateFields[] = COL_POR_LOGINUSER . "=? ";
+            $bind[] = $_POST['login_uname'];
+        }
+        // update username or password or both fields.
+        if (!empty($updateFields)) {
+            $sqlUpdatePwd = $sql . implode(",", $updateFields) . " WHERE " . COL_ID . "=?";
+            $bind[] = $auth[COL_ID];
+            privStatement($sqlUpdatePwd, $bind);
+        }
+        $isSaved = true;
     }
-    $new_hash = (new AuthHash('auth'))->passwordHash($password_new);
-    if (empty($new_hash)) {
-        // Something is seriously wrong
-        error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-        die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
-    }
-    $sqlUpdatePwd = " UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . "=?, " . COL_POR_LOGINUSER . "=?" . " WHERE " . COL_ID . "=?";
-    privStatement($sqlUpdatePwd, array(
-        $new_hash,
-        $_POST['login_uname'],
-        $auth[COL_ID]
-    ));
 }
 
 $vars = [
     'isSubmit' => !empty($_POST['submit'])
     ,'auth' => $auth
     ,'pid' => $_SESSION['pid']
+    ,'errMsg' => $errmsg
+    ,'isSaved' => $isSaved
 ];
 try {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
