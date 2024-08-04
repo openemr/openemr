@@ -30,7 +30,7 @@ composer_github_auth() {
 dockers_env_start() {
     failTest=false
     cd ci/${DOCKER_DIR} || failTest=true
-    docker-compose up -d || failTest=true
+    docker compose up -d || failTest=true
     cd ../../ || failTest=true
     if $failTest; then
       exit 1
