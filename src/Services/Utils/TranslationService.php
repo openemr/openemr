@@ -8,7 +8,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2024 Open Plan IT. <pete@openplanit.com>
+ * @copyright Copyright (c) 2024 Open Plan IT Ltd. <support@openplanit.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
