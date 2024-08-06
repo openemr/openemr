@@ -1025,8 +1025,9 @@ class SQLUpgradeService
     private function CreateOccupationList()
     {
         $res = sqlStatement("SELECT DISTINCT occupation FROM patient_data WHERE occupation <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
-            $records[] = $row['occupation'];
+            $records = $row['occupation'];
         }
 
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
@@ -1047,8 +1048,9 @@ class SQLUpgradeService
     private function CreateReactionList()
     {
         $res = sqlStatement("SELECT DISTINCT reaction FROM lists WHERE reaction <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
-            $records[] = $row['reaction'];
+            $records = $row['reaction'];
         }
 
         sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
