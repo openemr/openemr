@@ -1146,11 +1146,12 @@ class SQLUpgradeService
      * Convert table engine.
      * @param string $table
      * @param string $engine
+     * @param array  $tables tables needing migration
      * ADODB will fail if there was an error during conversion
      */
     private function MigrateTableEngine($table, $engine)
     {
-        $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=?', [$engine]);
+        $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=' . escape_identifier($engine, ['InnoDB']));
         return true;
     }
 
