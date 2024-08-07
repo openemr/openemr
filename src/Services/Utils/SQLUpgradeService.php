@@ -1147,7 +1147,7 @@ class SQLUpgradeService
     /**
      * Convert table engine.
      * @param string $table
-     * @param string $engine  hard coding to InnoDB 8-7-24
+     * @param string $engine  has to be set to InnoDB 8-7-24
      * ADODB will fail if there was an error during conversion
      */
     private function MigrateTableEngine($table, $engine)
