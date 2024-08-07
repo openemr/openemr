@@ -8,15 +8,18 @@
     <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
     <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
 
-    {% if payment_gateway == 'Stripe' %}
-        <script src="https://js.stripe.com/v3/"></script>
-    {% endif %}
+    {% if portal_two_payments %}
+        {# We don't include anything for payments if we don't have payments enabled #}
+        {% if payment_gateway == 'Stripe' %}
+            <script src="https://js.stripe.com/v3/"></script>
+        {% endif %}
 
-    {% if payment_gateway == 'AuthorizeNet' %}
-        {% if gateway_mode_production %}
-            <script src="https://js.authorize.net/v1/Accept.js"></script>
-        {% else %}
-            <script src="https://jstest.authorize.net/v1/Accept.js"></script>
+        {% if payment_gateway == 'AuthorizeNet' %}
+            {% if gateway_mode_production %}
+                <script src="https://js.authorize.net/v1/Accept.js"></script>
+            {% else %}
+                <script src="https://jstest.authorize.net/v1/Accept.js"></script>
+            {% endif %}
         {% endif %}
     {% endif %}
     <style>
