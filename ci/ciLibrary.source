@@ -70,14 +70,14 @@ install_configure() {
     sudo chmod 666 sites/default/sqlconf.php || failTest=true
     sudo chmod -R 777 sites/default/documents || failTest=true
     sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -85,7 +85,7 @@ install_configure() {
 
 build_test_unit() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite unit --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite unit --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -95,19 +95,19 @@ build_test_e2e() {
     # Since e2e testing is a bit inconsistent, gonna do up to three runs (and only one needs to pass to pass the e2e testing)
     # first run
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
     if [ "$failTest" == false ]; then
       exit
     fi
     # try run again
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
     if [ "$failTest" == false ]; then
       exit
     fi
     # hail mary run
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
     if [ "$failTest" == false ]; then
       exit
     fi
@@ -117,7 +117,7 @@ build_test_e2e() {
 
 build_test_api() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -125,7 +125,7 @@ build_test_api() {
 
 build_test_fixtures() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite fixtures --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite fixtures --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -133,7 +133,7 @@ build_test_fixtures() {
 
 build_test_services() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite services --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite services --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -141,7 +141,7 @@ build_test_services() {
 
 build_test_validators() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite validators --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite validators --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -149,7 +149,7 @@ build_test_validators() {
 
 build_test_controllers() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite controllers --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite controllers --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
@@ -157,7 +157,7 @@ build_test_controllers() {
 
 build_test_common() {
     failTest=false
-    docker exec -i $(docker ps | grep openemr- | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite common --testdox" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite common --testdox" || failTest=true
     if $failTest; then
       exit 1
     fi
