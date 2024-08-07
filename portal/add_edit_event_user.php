@@ -47,7 +47,7 @@ use OpenEMR\Services\AppointmentService;
 
 // Things that might be passed by our opener.
 //
-$eid = $_GET['eid'] ?? null;         // only for existing events
+$eid = intval($_GET['eid'] ?? 0);         // only for existing events
 $date = $_GET['date'] ?? null;        // this and below only for new events
 $userid = $_GET['userid'] ?? null;
 $default_catid = ($_GET['catid'] ?? null) ? $_GET['catid'] : '5';
@@ -59,7 +59,7 @@ $checkEidInAppt = false;
 $patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $pid);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
-if (!empty($eid) && !$checkEidInAppt) {
+if ($eid !== 0 && $checkEidInAppt === false) {
     echo js_escape("error");
     exit();
 }
