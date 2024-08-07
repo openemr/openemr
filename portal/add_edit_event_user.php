@@ -113,7 +113,7 @@ $info_msg = "";
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
 // edit event case - if there is no association made, then insert one with the first facility
-if ($eid) {
+if ($eid !== 0) {
     $selfacil = '';
     $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                         FROM openemr_postcalendar_events
@@ -287,7 +287,7 @@ if (($_POST['form_action'] ?? null) == "save") {
     /* =======================================================
     //                                  UPDATE EVENTS
     ========================================================*/
-    if ($eid) {
+    if ($eid !== 0) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
@@ -547,7 +547,7 @@ $hometext = "";
 $row = array();
 
 // If we are editing an existing event, then get its data.
-if ($eid) {
+if ($eid !== 0) {
     $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $date = $row['pc_eventDate'];
     $userid = $row['pc_aid'];
@@ -618,7 +618,7 @@ if ($userid) {
     $catoptions = "";
     $prefcat_options = "    <option value='0'>-- " . xlt("None{{Category}}") . " --</option>\n";
     $thisduration = 0;
-    if ($eid) {
+    if ($eid !== 0) {
         $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
     }
     while ($crow = sqlFetchArray($cres)) {
@@ -630,7 +630,7 @@ if ($userid) {
         // This section is to build the list of preferred categories:
         if ($duration) {
             $prefcat_options .= " <option value='" . attr($crow['pc_catid']) . "'";
-            if ($eid) {
+            if ($eid !== 0) {
                 if ($crow['pc_catid'] == $row['pc_prefcatid']) {
                     $prefcat_options .= " selected";
                 }
@@ -646,7 +646,7 @@ if ($userid) {
         echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . ";\n";
         // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
         $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
-        if ($eid) {
+        if ($eid !== 0) {
             if ($crow['pc_catid'] == $row['pc_catid']) {
                 $catoptions .= " selected";
             }
@@ -686,15 +686,15 @@ if ($userid) {
                     </div>
                     <div class="input-group col-12 col-md-6">
                         <label class="mr-2" for="form_date"><?php echo xlt('Date'); ?>:</label>
-                        <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
+                        <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid !== 0) ? attr($row['pc_eventDate']) : attr($date); ?>' />
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group form-inline col-12">
                         <div class="input-group mb-1">
                             <label class="mr-2"><?php echo xlt('Time'); ?>:</label>
-                            <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                            <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
                             <select class="form-control col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
                                 <option value='1'><?php echo xlt('AM'); ?></option>
                                 <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
@@ -874,7 +874,7 @@ if ($userid) {
                 return false;
             }
 
-            <?php if ($eid) { ?>
+            <?php if ($eid !== 0) { ?>
             set_display();
             <?php } ?>
             $(function () {
