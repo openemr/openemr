@@ -1,0 +1,25 @@
+{% set backButton = backButton is null ? false : backButton %}
+<div class="card collapse overflow-auto" data-parent="#cardgroup" id="{{ id|attr }}">
+    <header class="card-header p-1 bg-dark text-light h3">
+        {% if backButton %}
+            <a href="#{{ backButtonCard|attr_url }}"
+               data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false"
+               class="{{ backButtonClass|attr }} btn btn-light text-dark d-none"><i class="fa fa-arrow-left"></i> {{ "Back"|xlt }}</a>
+        {% endif %}
+        {{ title|text }}
+    </header>
+    {% if items|length > 0 %}
+    <div class="list-group">
+        {% for item in items %}
+            {% if item.enabled %}
+                <a class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1"><i class="fa fa-2x fa-{{ item.icon|attr}} text-dark mr-1"></i>{{ item.title|text }}</h5>
+                    </div>
+                    <p class="mb-1">{{ item.description|text }}</p>
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
