@@ -27,6 +27,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\Utils\TranslationService;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -46,16 +47,7 @@ $logoService = new LogoService();
 
 
 // Get language definitions for js
-$language = $_SESSION['language_choice'] ?? '1'; // defaults english
-$sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
-        JOIN lang_constants AS c ON d.cons_id = c.cons_id
-        WHERE d.lang_id = ?";
-$tarns = sqlStatement($sql, $language);
-$language_defs = array();
-while ($row = SqlFetchArray($tarns)) {
-    $language_defs[$row['constant_name']] = $row['definition'];
-}
-
+$language_defs = TranslationService::getLanguageDefinitionsForSession();
 $whereto = $_SESSION['whereto'] ?? null;
 
 $user = $_SESSION['sessionUser'] ?? 'portal user';

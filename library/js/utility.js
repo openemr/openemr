@@ -12,9 +12,10 @@
 /* We should really try to keep this library jQuery free ie javaScript only! */
 
 // Translation function
-// This calls the i18next.t function that has been set up in main.php
+// This calls the i18next.t function that has been set up in main.php, portal/base.html.twig, etc.
 function xl(string) {
-    if (typeof top.i18next.t == 'function') {
+    // safety check if for some reason the i18next is not included.
+    if (top.i18next && typeof top.i18next.t == 'function') {
         return top.i18next.t(string);
     } else {
         // Unable to find the i18next.t function, so log error
