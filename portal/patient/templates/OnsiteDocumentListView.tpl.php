@@ -93,9 +93,9 @@ $templateService = new DocumentTemplateService();
     echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
     if ($is_portal) {
-        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'i18next']);
     } else {
-        Header::setupHeader(['datetime-picker']);
+        Header::setupHeader(['datetime-picker', 'i18next']);
     }
     ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
@@ -111,7 +111,20 @@ $templateService = new DocumentTemplateService();
         $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js").script(
             "<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js").script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").script(
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
-            "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+            "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait();
+        i18next.init({
+            lng: 'selected',
+            debug: false,
+            nsSeparator: false,
+            keySeparator: false,
+            resources: {
+                selected: {
+                    translation: <?php echo js_escape($this->language_defs ?? []); ?>
+                }
+            }
+        }).catch(error => {
+            console.log(error.message);
+        });
     </script>
     <style>
       @media print {
