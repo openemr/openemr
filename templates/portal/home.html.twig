@@ -135,9 +135,21 @@
             }
         };
 
+        function updateWindowTitle(element) {
+            if (element && element.dataset && element.dataset.windowTitle) {
+                let textNode = document.createElement("div");
+                textNode.innerText = element.dataset.windowTitle;
+                document.title = textNode.innerText;
+            } else {
+                // if we don't have a valid element we are going to reset to our home page
+                document.title = {{ pagetitle|js_escape }};
+            }
+        }
+
         $(function () {
             $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
+                updateWindowTitle(e.target);
             });
 
             $('#quickstart-card [data-parent="#cardgroup"]' +
@@ -146,6 +158,7 @@
                 // we use currentTarget so we grab the event with the original data-parent, if there are buttons or
                 // other stuff inside we want to go to the href.
                 persist($(e.currentTarget).attr('href'), false);
+                updateWindowTitle(e.currentTarget);
                 return true;
             });
 
