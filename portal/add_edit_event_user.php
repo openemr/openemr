@@ -612,7 +612,7 @@ if ($userid) {
     $cattype = 0;
 
     // Get event categories.
-    $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
+    $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_constant_id, pc_catname, " .
         "pc_recurrtype, pc_duration, pc_end_all_day " .
         "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
     $catoptions = "";
@@ -639,7 +639,7 @@ if ($userid) {
             $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
         }
 
-        if ($crow['pc_cattype'] != $cattype) {
+        if ($crow['pc_cattype'] != $cattype || $crow['pc_constant_id'] === AppointmentService::CATEGORY_CONSTANT_NO_SHOW) {
             continue;
         }
 
