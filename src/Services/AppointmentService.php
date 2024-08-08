@@ -33,6 +33,8 @@ class AppointmentService extends BaseService
     const PRACTITIONER_TABLE = "users";
     const FACILITY_TABLE = "facility";
 
+    const CATEGORY_CONSTANT_NO_SHOW = 'no_show';
+
     /**
      * @var EncounterService
      */
