@@ -108,7 +108,7 @@ if ($appts) {
         }
 
         $formattedRecord = [
-            'appointmentDate' => $dayname . ', ' . $row['pc_eventDate'] . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
+            'appointmentDate' => $dayname . ', ' . oeFormatShortDate($row['pc_eventDate']) . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
             'appointmentType' => xl('Type') . ': ' . $row['pc_catname'],
             'provider' => xl('Provider') . ': ' . $row['ufname'] . ' ' . $row['ulname'],
             'status' => xl('Status') . ': ' . $status_title,
