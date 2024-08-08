@@ -395,7 +395,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\"
                                 method='post'>
                                 <input type='hidden' name='noteid' id='noteid' value='" . attr($noteid) . "' />
-                                
+
                                 <input type='hidden' name='task' id='task' value='add' />";
                         if ($task == "addnew") {
                             $attach_id = $_REQUEST['attach'] ?? null;
@@ -657,7 +657,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             }
                             $count++;
                             echo "
-                                <tr id=\"row" . attr($count) . "\" height='24'>
+                                <tr id=\"row" . attr($count) . "\" height='24' class='messages-item-row' role='button'>
                                     <td align='center'>
                                         <input type='checkbox' id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
                                         attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row" . attr(addslashes($count)) . "'); }else{ deselectRow('row" . attr(addslashes($count)) . "'); }\"></td>
@@ -665,7 +665,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <div>" . text($name) . "</div>
                                     </td>
                                     <td>
-                                        <div><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=edit&noteid=" .
+                                        <div><a class=\"messages-item-link\" href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=edit&noteid=" .
                                         attr_url($myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
                                         text($patient) . "</a></div>
                                     </td>
@@ -748,6 +748,25 @@ if (!empty($_REQUEST['go'])) { ?>
                             function deselectRow(row) {
                                 document.getElementById(row).style.background = "var(--light)";
                             }
+                            function makeMessageRowsClickable() {
+                                let items = document.querySelectorAll(".messages-item-row");
+                                items.forEach(function(item) {
+                                    item.addEventListener("click", function(event) {
+                                        if (event.currentTarget && event.currentTarget.querySelector) {
+                                            let link = event.currentTarget.querySelector(".messages-item-link");
+                                            if (link && link.href) {
+                                                window.top.restoreSession(); // make sure we sync up the session
+                                                // now let's go to the link.
+                                                window.location = link.href;
+                                            }
+                                        }
+                                    })
+                                })
+                            }
+
+                            document.addEventListener("DOMContentLoaded", function() {
+                                makeMessageRowsClickable();
+                            })
                         </script>
                         <?php
                     }
