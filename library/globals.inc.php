@@ -441,6 +441,17 @@ $GLOBALS_METADATA = array(
             ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
         ),
 
+        'questionnaire_display_LOINCnote' => array(
+            xl('Display LOINC note on questionnaires'),
+            array(
+                '0' => xl('At the top of the page only'),
+                '1' => xl('At the foot of the page only'),
+                '2' => xl('At the top of the page and at the foot of the page'),
+                '3' => xl('Do not display the note')
+            ),
+            '0' ,                          // default = display at top of form
+            xl('Configure where LOINC statement should be displayed')
+        ),
     ),
 
     'Branding' => [
