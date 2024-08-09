@@ -37,7 +37,7 @@ $menuLogo = $logoService->getLogo('core/menu/primary/');
 if (
     (empty($_SESSION['token_main_php'])) ||
     (empty($_GET['token_main'])) ||
-    ($_GET['token_main'] != $_SESSION['token_main_php'])
+    ($_GET['token_main'] != hash('sha512',$_SESSION['token_main_php']))
 ) {
     // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
