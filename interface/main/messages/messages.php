@@ -482,7 +482,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <?php } ?>
                                             <div class="col-6 col-sm-4 d-flex align-items-end flex-wrap">
                                                 <label for="assigned_to_text"><?php echo xlt('To{{Destination}}'); ?>:</label>
-                                                <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly' value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>' />
+                                                <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly' value='' placeholder='<?php echo xla("Select users from the dropdown list"); ?>' />
                                                 <input type='hidden' name='assigned_to' id='assigned_to' />
                                             </div>
                                             <div class="col-6 col-sm-4">
@@ -716,11 +716,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                         }
                                     }
                                     if (int_checked > 0){
-                                        if (confirm("<?php echo xls('Do you really want to delete the selection?'); ?>")) {
+                                        if (confirm(<?php echo xlj('Do you really want to delete the selection?'); ?>)) {
                                             document.MessageList.submit();
                                         }
                                     } else {
-                                        alert("<?php echo xls('Please select message(s) to delete'); ?>");
+                                        alert(<?php echo xlj('Please select message(s) to delete'); ?>);
                                     }
                                 }
 
@@ -933,7 +933,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
             //clear button in messages
             $("#clear_user").click(function(){
-                $("#assigned_to_text").val("<?php echo xls('Select Users From The Dropdown List'); ?>");
+                $("#assigned_to_text").val(<?php echo xlj('Select users from the dropdown list'); ?>);
                 $("#assigned_to").val("");
                 $("#users").val("--");
             });
@@ -949,7 +949,7 @@ if (!empty($_REQUEST['go'])) { ?>
             top.restoreSession();
             if(document.getElementById("form_message_status").value !== 'Done'){
                 collectvalidation.assigned_to = {
-                    presence: {message: "<?php echo xls('Recipient required unless status is Done'); ?>"}
+                    presence: {message: <?php echo xlj('Recipient required unless status is Done'); ?>}
                 }
             }
             else{
@@ -1062,9 +1062,9 @@ if (!empty($_REQUEST['go'])) { ?>
             var m = $("#sms_mobile").val();
             var allow = $("#sms_allow").val();
             if ((pid === '') || (m === '')) {
-                alert('<?php echo xls("MedEx needs a valid mobile number to send SMS messages..."); ?>');
+                alert(<?php echo xlj("MedEx needs a valid mobile number to send SMS messages..."); ?>);
             } else if (allow === 'NO') {
-                alert('<?php echo xls("This patient does not allow SMS messaging!"); ?>');
+                alert(<?php echo xlj("This patient does not allow SMS messaging!"); ?>);
             } else {
                 top.restoreSession();
                 window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
