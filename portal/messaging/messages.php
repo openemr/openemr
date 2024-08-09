@@ -557,17 +557,16 @@ function getAuthPortalUsers()
                     <!--inbox toolbar-->
                     <div class="row" ng-show="!isMessageSelected()">
                         <div class="col-12 mb-2">
-                            <a class="btn btn-secondary" data-toggle="tooltip" title="Refresh" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
-                            </a>
-                            <button class="btn btn-secondary" title="<?php echo xla("New Note"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
-                                <span class="fa fa-edit fa-lg"></span>
+                            <button class="btn btn-primary" title="<?php echo xla("Compose Message"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
+                                <span class="fa fa-edit fa-lg"></span> <?php echo xlt("Compose Message"); ?>
                             </button>
-
                             <?php
                             if (IS_DASHBOARD) {
                                 $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                             }
                             ?>
+                            <a class="btn btn-secondary" data-toggle="tooltip" title="<?php echo xla("Refresh to see new messages"); ?>" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
+                            </a>
                             <div class="btn-group btn-group float-right">
                                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
                                 <ul class="dropdown-menu dropdown-menu-right">
@@ -576,15 +575,15 @@ function getAuthPortalUsers()
                                     </li>
                                     <li class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i><?php echo xlt('Compose new'); ?></a>
+                                        <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><i class="fa fa-edit"></i> <?php echo xlt('Compose Message'); ?></a>
                                     </li>
                                     <li ng-show='!isTrash'>
-                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i><?php echo xlt('Send Selected to Archive'); ?></a></li>
+                                        <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
                                     <li>
-                                        <a href="javascript:;" onclick='window.location.replace("./messages.php")' ng-show="isPortal" class="dropdown-item"><i class="fa fa-sync"></i><?php echo xlt('Refresh'); ?></a>
+                                        <a href="javascript:;" onclick='window.location.replace("./messages.php")' ng-show="isPortal" class="dropdown-item"><i class="fa fa-sync"></i> <?php echo xlt('Refresh'); ?></a>
                                     </li>
                                     <li>
-                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i><?php echo xlt('Return Home'); ?></a>
+                                        <a href="<?php echo $GLOBALS['web_root'] ?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item"><i class="fa fa-home"></i> <?php echo xlt('Return Home'); ?></a>
                                     </li>
                                 </ul>
                             </div>
@@ -600,13 +599,22 @@ function getAuthPortalUsers()
                             <table class="table table-striped table-bordered table-hover refresh-container pull-down">
                                 <thead class="bg-info d-none"></thead>
                                 <tbody>
-                                <tr ng-repeat="item in pagedItems[currentPage]">
+                                <tr ng-repeat="item in pagedItems[currentPage]" role='button'>
                                     <!--  | orderBy:sortingOrder:reverse -->
-                                    <td role = "button" ng-click="readMessage($index)"><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
+                                    <td role = "button" ng-click="readMessage($index)" class="message-row"><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
+
                                         <span class="col-sm-1 px-1"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
                                         <span class="col-sm-2 px-1"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                        <span class="col-sm-3 px-1"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
-                                                {{item.recipient_name}}</span></span> <span class="col-sm-1"><span ng-class="{strong: !item.read}">{{item.title}}</span></span>
+                                        <span class="col-sm-3 px-1">
+                                            <a ng-click="readMessage($index)" class="btn-link">
+                                                <span ng-class="{strong: !item.read}">{{item.sender_name}} to {{item.recipient_name}}</span>
+                                            </a>
+                                        </span>
+                                        <span class="col-sm-1">
+                                            <a ng-click="readMessage($index)" class="btn-link">
+                                                <span ng-class="{strong: !item.read}">{{item.title}}</span>
+                                            </a>
+                                        </span>
                                         <span class="col-sm-4 px-1"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
                                         <!-- below for attachments, eventually -->
                                         <!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span ng-show="item.attachment"
