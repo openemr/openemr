@@ -739,7 +739,7 @@ if ($userid) {
                             ?>
                         </select>
                         <div class="text-right">
-                            <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+                            <input type='button' class='btn btn-success' value='<?php echo xla('See Availability'); ?>' onclick='find_available()' />
                         </div>
                     </div>
                 </div>
