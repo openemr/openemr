@@ -330,7 +330,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
 
         print "<div id='superbill_billingdata'>";
         print "<h1>" . xlt('Billing Information') . ":</h1>";
-        if (!empty($patient) && is_array($patient) && count($patient) > 0) {
+        if (!empty($patient)) {
             $billings = array();
             echo "<table class='table w-100'>";
             echo "<tr>";
