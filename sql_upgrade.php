@@ -78,12 +78,12 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default'] ?? ''));
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
 
-if (count($result2) == 1) {
+if (count($result2 ?? []) == 1) {
     $defaultLangID = $result2[0]["lang_id"];
     $defaultLangName = $result2[0]["lang_description"];
     $direction = (int)$result2[0]["lang_is_rtl"] === 1 ? 'rtl' : 'ltr';
@@ -94,7 +94,7 @@ if (count($result2) == 1) {
 }
 
 $_SESSION['language_choice'] = $defaultLangID;
-$_SESSION['language_direction'] = $direction;
+$_SESSION['language_direction'] = $direction ?? '';
 CsrfUtils::setupCsrfKey();
 session_write_close();
 
