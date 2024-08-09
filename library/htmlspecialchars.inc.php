@@ -258,7 +258,7 @@ function xlj($key)
 }
 
 /*
- * Deprecated
+ * @Deprecated
  *Translate via xl() and then escape via addslashes for use with javascript literals
  */
 function xls($key)
