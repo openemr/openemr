@@ -10,7 +10,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -113,7 +113,7 @@ try {
 $top_note = true; // default to top if not set in configuration
 $bottom_note = false;
 
-$loinc_text =  "<span class='font-weight-bold'>" .  xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " .  xlt("terms of use.") . "</i>" . "</a>";
+$loinc_text = "<span class='font-weight-bold bg-light text-dark'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " . xlt("terms of use.") . "</i>" . "</a>";
 
 if ($GLOBALS['questionnaire_display_LOINCnote']) {
     switch ($GLOBALS['questionnaire_display_LOINCnote']) {
@@ -130,6 +130,20 @@ if ($GLOBALS['questionnaire_display_LOINCnote']) {
             break;
         case '3':
             $top_note = $bottom_note = false;
+    }
+}
+
+if ($isPortal) {
+    if (stripos($GLOBALS['portal_css_header'], 'dark') !== false) {
+        $theme = 'dark';
+    } else {
+        $theme = 'light';
+    }
+} else {
+    if (stripos($GLOBALS['css_header'], 'dark') !== false) {
+        $theme = 'dark';
+    } else {
+        $theme = 'light';
     }
 }
 
@@ -374,14 +388,18 @@ if ($GLOBALS['questionnaire_display_LOINCnote']) {
 
     </script>
 </head>
-<body class="bg-light text-dark">
-    <div class="container-xl my-2">
-        <div class="title"><h3><?php if ($mode != 'new_form' && $mode != 'update') {
-                    echo xlt("Create Encounter Questionnaires");
-                               } else {
-                                   echo xlt("Edit Questionnaire");
-                               } ?></h3></div>
-        <?php if (!$is_authorized) { ?>
+<body class="bg-light" data-theme="<?php echo attr($theme); ?>">
+    <div class="container-fluid col">
+        <?php if (!$isPortal) { ?>
+            <div class="title bg-light text-dark">
+                <h4><?php if ($mode != 'new_form' && $mode != 'update') {
+                        echo xlt("Create Encounter Questionnaires");
+                    } else {
+                        echo xlt("Edit Questionnaire");
+                    } ?>
+                </h4>
+            </div>
+        <?php } if (!$is_authorized) { ?>
             <div class="d-flex flex-column w-100 align-items-center">
                 <?php
                 echo "<h3>" . xlt("Not Authorized") . "</h3>";
@@ -392,7 +410,7 @@ if ($GLOBALS['questionnaire_display_LOINCnote']) {
             </div>
             <?php die();
         } ?>
-        <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid ?? ''); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
+        <form class="form" method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid ?? ''); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
             <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?? ''); ?>" />
@@ -402,19 +420,14 @@ if ($GLOBALS['questionnaire_display_LOINCnote']) {
             <input type="hidden" id="questionnaire" name="questionnaire" value="<?php echo attr($form['questionnaire'] ?? ''); ?>" />
             <input type="hidden" id="questionnaire_response" name="questionnaire_response" value="<?php echo attr($form['questionnaire_response'] ?? ''); ?>" />
             <!--    RM check where configured to display LOINC copyright notice -->
-
-               <div>
-
-                <?php if ($top_note) : ?>
-                 <p class="text-center"><?php echo $loinc_text ?></p>
-                <?php endif; ?>
-
-                <p id="copyrightNotice">
-                    <?php echo text($form['copyright'] ?? ''); ?>
-                </p>
-              </div>
-
-
+            <?php if ($top_note && !$isPortal) { ?>
+                <div>
+                    <p class="text-center bg-light text-dark"><?php echo $loinc_text ?></p>
+                    <p id="copyrightNotice">
+                        <?php echo text($form['copyright'] ?? ''); ?>
+                    </p>
+                </div>
+            <?php } ?>
             <div class="mb-3">
                 <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
@@ -445,15 +458,14 @@ if ($GLOBALS['questionnaire_display_LOINCnote']) {
                 </div>
             </div>
             <hr />
-            <div id="formContainer"></div>
+            <div class="bg-light text-dark" id="formContainer"></div>
             <!-- RM check if LOINC terms configured to display notice at bottom of window -->
-           <?php if ($bottom_note) : ?>
-               <div>
-                 <p class="text-center"><?php echo $loinc_text ?></p>
-              </div>
-           <?php endif; ?>
-
-           <?php if (!$isPortal && !$patientPortalOther) { ?>
+            <?php if ($bottom_note && !$isPortal) { ?>
+                <div>
+                    <p class="bg-light text-dark text-center"><?php echo $loinc_text ?></p>
+                </div>
+            <?php } ?>
+            <?php if (!$isPortal && !$patientPortalOther) { ?>
                 <div class="btn-group my-2">
                     <button type="submit" class="btn btn-primary btn-save isNew" id="save_response" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
                     <button type="submit" class="btn btn-primary d-none" id="save_registry" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>" onclick="formMode = 'register'"><?php echo xlt("or Register New"); ?></button>
