@@ -121,3 +121,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfMissingColumn form_encounter ordering_provider_id
 ALTER TABLE `form_encounter` ADD `ordering_provider_id` INT(11) DEFAULT '0' COMMENT 'ordering provider, if any, for this visit';
 #EndIf
+
+#IfMissingColumn session_tracker number_scripts
+ALTER TABLE `session_tracker` ADD `number_scripts` bigint DEFAULT 1;
+#EndIf

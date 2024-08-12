@@ -32,6 +32,7 @@ class CdaTemplateImportDispose
     use CommandLineDebugStylerTrait;
 
     protected $codeService;
+    protected $userauthorized;
 
     public function __construct()
     {

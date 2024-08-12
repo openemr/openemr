@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This is a report to create a patient ledger of charges with payments
+ * This is a report to create a Patient Billing Summary of charges with payments
  * applied.
  *
  * @package   OpenEMR
@@ -354,7 +354,7 @@ function checkSubmit() {
 }
 </style>
 
-<title><?php echo xlt('Patient Ledger by Date') ?></title>
+<title><?php echo xlt('Patient Billing Summary by Date') ?></title>
 
 <script>
   $(function () {
@@ -369,7 +369,7 @@ function checkSubmit() {
 
 </head>
 <body class="skin-blue">
-<h2><?php echo xlt('Patient Ledger'); ?></h2>
+<h2><?php echo xlt('Patient Billing Summary'); ?></h2>
 <form method='post' action='./pat_ledger.php' id='theform'>
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -439,7 +439,7 @@ function checkSubmit() {
 <div id="report_header">
 <table width="98%" class="border-0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="title"><?php echo xlt('Patient Ledger'); ?></td>
+    <td class="title"><?php echo xlt('Patient Billing Summary'); ?></td>
   </tr>
     <tr>
         <?php

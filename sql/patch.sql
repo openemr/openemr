@@ -47,15 +47,3 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
-
-#IfRow2D list_options list_id recent_patient_columns option_id dob
-UPDATE list_options SET option_id='DOB' WHERE list_id='recent_patient_columns' AND option_id='dob';
-#EndIf
-
-#IfMissingColumn form_encounter last_update
-ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-#EndIf
-
-#IfMissingColumn form_encounter ordering_provider_id
-ALTER TABLE `form_encounter` ADD `ordering_provider_id` INT(11) DEFAULT '0' COMMENT 'ordering provider, if any, for this visit';
-#EndIf

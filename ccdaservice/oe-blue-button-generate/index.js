@@ -5,16 +5,16 @@ This script converts CCDA data in JSON format (originally generated from a Conti
 standard XML/CCDA format) back to XML/CCDA format.
 */
 
-var bbu = require("../oe-blue-button-util");
+const bbu = require("../oe-blue-button-util");
 
-var engine = require('./lib/engine');
-var documentLevel = require('./lib/documentLevel');
+const engine = require('./lib/engine');
+const documentLevel = require('./lib/documentLevel');
 
-var bbuo = bbu.object;
+const bbuo = bbu.object;
 
-var html_renderer = require('./lib/htmlHeaders');
+const html_renderer = require('./lib/htmlHeaders');
 
-var createContext = (function () {
+const createContext = (function () {
     var base = {
         nextReference: function (referenceKey) {
             var index = this.references[referenceKey] || 0;
@@ -49,12 +49,12 @@ var createContext = (function () {
     };
 })();
 
-var generate = exports.generate = function (template, input, options) {
+const generate = exports.generate = function (template, input, options) {
     if (!options.html_renderer) {
         options.html_renderer = html_renderer;
     }
     // set context
-    var context = createContext(options);
+    const context = createContext(options);
     // if unstructured, call it else CDA
     if (input.meta.ccda_header.template.root === '2.16.840.1.113883.10.20.22.1.10') {
         return engine.create(documentLevel.unstructured(), input, context);

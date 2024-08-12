@@ -356,9 +356,9 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                                         <td><?php echo isset($information['appointments']) ? text($information['appointments']) : 0; ?></td>
                                         <td><?php echo isset($information['newPatient']) ? text($information['newPatient']) : 0; ?></td>
                                         <td><?php echo isset($information['visits']) ? text($information['visits']) : 0; ?></td>
-                                        <td align="right"><?php echo isset($information['payments']) ? text(number_format($information['payments'], 2)) : number_format(0, 2); ?></td>
-                                        <td align="right"><?php echo isset($information['paidAmount']) ? text(number_format($information['paidAmount'], 2)) : number_format(0, 2); ?></td>
-                                        <td align="right">
+                                        <td><?php echo isset($information['payments']) ? text(number_format($information['payments'], 2)) : number_format(0, 2); ?></td>
+                                        <td><?php echo isset($information['paidAmount']) ? text(number_format($information['paidAmount'], 2)) : number_format(0, 2); ?></td>
+                                        <td>
                                             <?php
                                             if (isset($information['payments']) || isset($information['paidAmount'])) {
                                                 $dueAmount = number_format(floatval(str_replace(",", "", $information['payments'])) - floatval(str_replace(",", "", ($information['paidAmount'] ?? null))), 2);
@@ -403,9 +403,9 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                         <td><?php echo text($totalAppointments); ?></td>
                         <td><?php echo text($totalNewRegisterPatient); ?></td>
                         <td><?php echo text($totalVisits); ?></td>
-                        <td align="right"><?php echo text(number_format($totalPayments, 2)); ?></td>
-                        <td align="right"><?php echo text(number_format($totalPaidAmount, 2)); ?></td>
-                        <td align="right"><?php echo text(number_format($totalDueAmount, 2)); ?></td>
+                        <td><?php echo text(number_format($totalPayments, 2)); ?></td>
+                        <td><?php echo text(number_format($totalPaidAmount, 2)); ?></td>
+                        <td><?php echo text(number_format($totalDueAmount, 2)); ?></td>
                     </tr>
                     <?php
                 } else { // if there are no records then display message

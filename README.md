@@ -1,6 +1,6 @@
 ![Syntax Status](https://github.com/openemr/openemr/workflows/Syntax/badge.svg?branch=master)
-![Styling Status](https://github.com/openemr/openemr/workflows/Styling/badge.svg?branch=rel-702)
-![Testing Status](https://github.com/openemr/openemr/workflows/Test/badge.svg?branch=rel-702)
+![Styling Status](https://github.com/openemr/openemr/workflows/Styling/badge.svg?branch=master)
+![Testing Status](https://github.com/openemr/openemr/workflows/Test/badge.svg?branch=master)
 
 [![Backers on Open Collective](https://opencollective.com/openemr/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/openemr/sponsors/badge.svg)](#sponsors)
 
@@ -42,7 +42,7 @@ Check out [FHIR_README.md](FHIR_README.md)
 
 ### For Developers
 
-If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 18.* is required) :
+If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 20.* is required) :
 
 ```shell
 composer install --no-dev

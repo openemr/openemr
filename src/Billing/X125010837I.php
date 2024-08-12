@@ -67,7 +67,7 @@ class X125010837I
             "*" . trim($claim->x12gs03()) .
             "*" . date('Ymd', $today) .
             "*" . date('Hi', $today) .
-            "*" . BillingClaimBatchControlNumber::getGs06();
+            "*" . BillingClaimBatchControlNumber::getGs06() .
             "*X" .
             // "*" . $claim->x12gsversionstring() .
             "*" . "005010X223A2" .

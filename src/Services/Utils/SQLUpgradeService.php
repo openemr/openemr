@@ -1025,6 +1025,7 @@ class SQLUpgradeService
     private function CreateOccupationList()
     {
         $res = sqlStatement("SELECT DISTINCT occupation FROM patient_data WHERE occupation <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[] = $row['occupation'];
         }
@@ -1047,6 +1048,7 @@ class SQLUpgradeService
     private function CreateReactionList()
     {
         $res = sqlStatement("SELECT DISTINCT reaction FROM lists WHERE reaction <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[] = $row['reaction'];
         }
@@ -1145,12 +1147,17 @@ class SQLUpgradeService
     /**
      * Convert table engine.
      * @param string $table
-     * @param string $engine
+     * @param string $engine  has to be set to InnoDB 8-7-24
      * ADODB will fail if there was an error during conversion
      */
     private function MigrateTableEngine($table, $engine)
     {
-        $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=?', $engine);
+        if ($engine != "InnoDB") {
+            return false;
+        }
+
+        $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=InnoDB');
+
         return true;
     }
 

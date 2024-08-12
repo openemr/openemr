@@ -1,51 +1,52 @@
-<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top mx-3">
     <a class="navbar-brand" href="home.php">
         <img class="d-inline-block align-top" height="{{ primaryMenuLogoHeight|attr }}" src="{{ menuLogo | attr }}"/>
     </a>
-
+    {% if navMenu|length > 0 %}
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-
+    {% endif %}
+    <a class="btn btn-outline-primary" id="quickstart_dashboard" href="#quickstart-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="true">
+        <i class="ml-1 fas fa-tasks mr-1"></i>{{ 'Dashboard' | xlt }}
+    </a>
+    {% if navMenu|length > 0 %}
     <div class="collapse navbar-collapse justify-content-end" id="nav">
         <ul class="navbar-nav mt-2 mt-lg-0">
             {% for item in navMenu %}
-                <li class="nav-item {% if item.children %}dropdown{% endif %}">
+                <li class="nav-item {% if item.children %}dropdown h4 m-0 mr-4{% endif %}">
                     <a class="nav-link {% if item.children %}dropdown-toggle{% endif %}" href="{{ item.url | attr }}" {% if item.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% else %} data-toggle="{{ item.dataToggle | attr }}" data-parent="#cardgroup" {% endif %}>
-
-
                         {% if item.icon %}
                             <i class="fas {{ item.icon | attr}}"></i>
                         {% endif %}
-
                         {{ item.label | text }}
-
                         {% if item.messageCount %}
                             <i class="fa fa-envelope-open-text text-danger"></i>
                         {% endif %}
                     </a>
 
                     {% if item.children | length > 0 %}
-                        <ul class="dropdown-menu" aria-labelledby="{{ item.dropdownID | attr }}-dropdown">
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="{{ item.dropdownID | attr }}-dropdown">
                             {% for child in item.children %}
-                                <li>
-                                    <a class="dropdown-item" {% if child.id %}id="{{ child.id | attr}}"{% endif %}  {% if child.target_blank %} target="_blank" {% endif %} href="{{ child.url | attr }}" {% if child.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% endif %} {% if child.dataToggle %} data-toggle="{{ child.dataToggle | attr }}" data-parent="#cardgroup" {% endif %}>
-                                        {% if child.icon %}
-                                            <i class="fas {{ child.icon | attr }}"></i>
-                                        {% endif %}
-
-                                        {{ child.label | text }}
-                                        {% if child.messageCount > 0 %}
-                                            <span class="badge-pill badge-danger ml-1">{{ child.messageCount | text }}</span>
-                                        {% endif %}
-                                    </a>
-                                </li>
+                                {% if not child.hide %}
+                                    <li class="m-2">
+                                        <a class="dropdown-item" {% if child.id %}id="{{ child.id | attr}}"{% endif %}  {% if child.target_blank %} target="_blank" {% endif %} href="{{ child.url | attr }}" {% if child.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% endif %} {% if child.dataToggle %} data-toggle="{{ child.dataToggle | attr }}" data-parent="#cardgroup" {% endif %}>
+                                            {% if child.icon %}
+                                                <i class="fas {{ child.icon | attr }}"></i>
+                                            {% endif %}
+                                            {{ child.label | text }}
+                                            {% if child.messageCount > 0 %}
+                                                <span class="badge-pill badge-danger ml-1">{{ child.messageCount | text }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                {% endif %}
                             {% endfor %}
                         </ul>
                     {% endif %}
-
                 </li>
             {% endfor %}
         </ul>
     </div>
+    {% endif %}
 </nav>

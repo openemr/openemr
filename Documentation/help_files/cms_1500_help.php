@@ -62,7 +62,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("The CMS 1500 form has 33 boxes and is divided into two sections");?>.&nbsp;<a href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS1500.pdf" rel="noopener" target="_blank"><i id="show_hide" class="fa fa-eye fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a></p>
 
-                <p><?php echo xlt("Patient and Insured Informatiom - Boxes 1 - 13 and Physician or Supplier Information - Boxes 14 - 33");?>.</p>
+                <p><?php echo xlt("Patient and Insured Information - Boxes 1 - 13 and Physician or Supplier Information - Boxes 14 - 33");?>.</p>
 
                 <p><?php echo xlt("The information provided in the New Encounter Form and Fee Sheet in openEMR is used to generate the paper claim as well as electronic claims");?>.</p>
 

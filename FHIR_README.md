@@ -36,7 +36,7 @@ Easy-to-use JSON-based REST API for OpenEMR FHIR. See standard OpenEMR API docs 
 
 ## Prerequisite
 
-Enable the Standard FHIR service (/fhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard FHIR REST API"
+Enable the Standard FHIR service (/fhir/ endpoints) in OpenEMR menu: Administration->Config->Connectors->"Enable OpenEMR Standard FHIR REST API"
 
 ## Using FHIR API Internally
 
@@ -50,7 +50,7 @@ Multisite is supported by including the site in the endpoint. When not using mul
 
 ## Authorization
 
-OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required.
+OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Config->Connectors->'Site Address (required for OAuth2 and FHIR)' is required.
 
 See [Authorization](API_README.md#authorization) for more details.
 

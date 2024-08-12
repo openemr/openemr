@@ -41,6 +41,16 @@ class CarecoordinationController extends AbstractActionController
      */
     private $documentsController;
 
+    /**
+     * @var Application\Listener\Listener
+     */
+    private $listenerObject;
+
+    /**
+     * @var string
+     */
+    private $date_format;
+
     public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
     {
         $this->carecoordinationTable = $table;

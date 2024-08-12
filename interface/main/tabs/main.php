@@ -381,6 +381,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
+            <?php if ($GLOBALS['search_any_patient'] != 'none') : ?>
             <form name="frm_search_globals" class="form-inline">
                 <div class="input-group">
                     <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
@@ -389,6 +390,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
                     </div>
                 </div>
             </form>
+            <?php endif; ?>
             <span id="userData" data-bind="template: {name: 'user-data-template', data: application_data}"></span>
         </nav>
         <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>

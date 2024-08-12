@@ -4,46 +4,40 @@
 # -- DROP TABLE IF EXISTS `weno_assigned_pharmacy`;
 # -- DROP TABLE IF EXISTS `weno_download_log`;
 
+-- New table structure for Weno Exchange
+#IfColumn weno_pharmacy App
+DROP TABLE IF EXISTS `weno_pharmacy`;
+#EndIf
+
 #IfNotTable weno_pharmacy
 CREATE TABLE `weno_pharmacy` (
-    `id`                       int(20)    NOT NULL AUTO_INCREMENT,
-    `App`                      varchar(8)   DEFAULT NULL,
-    `NCPDP`                    varchar(8)   DEFAULT NULL,
-    `NCPDP_safe`               varchar(7)   DEFAULT NULL,
-    `Mutually_Defined_ID`      varchar(10)  DEFAULT NULL,
-    `Mutually_Defined_ID_safe` varchar(10)  DEFAULT NULL,
-    `NPI`                      varchar(10)  DEFAULT NULL,
-    `NPI_safe`                 varchar(10)  DEFAULT NULL,
-    `Business_Name`            varchar(255) DEFAULT NULL,
-    `Address_Line_1`           varchar(255) DEFAULT NULL,
-    `Address_Line_2`           varchar(255) DEFAULT NULL,
-    `City`                     varchar(20)  DEFAULT NULL,
-    `State`                    varchar(20)  DEFAULT NULL,
-    `ZipCode`                  varchar(5)   DEFAULT NULL,
-    `ZipCode_safe`             varchar(10)  DEFAULT NULL,
-    `Country_Code`             varchar(255) DEFAULT NULL,
-    `International`            tinyint(1)   DEFAULT NULL,
-    `Latitude`                 varchar(255) DEFAULT NULL,
-    `Longitude`                varchar(255) DEFAULT NULL,
-    `Pharmacy_Phone`           varchar(255) DEFAULT NULL,
-    `Pharmacy_Phone_safe`      varchar(255) DEFAULT NULL,
-    `Pharmacy_Fax`             varchar(255) DEFAULT NULL,
-    `Types`                    varchar(255) DEFAULT NULL,
-    `Script_Msg_Accepted`      varchar(255) DEFAULT NULL,
-    `Specialized_Msg_Accepted` varchar(255) DEFAULT NULL,
-    `Connectivity_Status`      varchar(255) DEFAULT NULL,
-    `Accept_TSO`               varchar(255) DEFAULT NULL,
-    `DEA_Audit_Exp`            varchar(255) DEFAULT NULL,
-    `Test_Pharmacy`            varchar(5)   DEFAULT NULL,
-    `State_Wide_Mail_Order`    varchar(6)   NOT NULL,
-    `Created`                  datetime     DEFAULT NULL,
-    `Modified`                 datetime     DEFAULT NULL,
-    `Deleted`                  datetime     DEFAULT NULL,
-    `24HR`                     varchar(3)   DEFAULT NULL,
-    `on_weno`                  tinytext,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `ncpdp` (`NCPDP`)
-) ENGINE = InnoDB;
+     `id` bigint(20) NOT NULL AUTO_INCREMENT,
+     `Created` datetime DEFAULT NULL,
+     `Modified` datetime DEFAULT NULL,
+     `Deleted` datetime DEFAULT NULL,
+     `NCPDP_safe` varchar(20) DEFAULT NULL,
+     `Mutually_Defined_ID_safe` varchar(10) DEFAULT NULL,
+     `NPI_safe` varchar(12) DEFAULT NULL,
+     `Business_Name` varchar(255) DEFAULT NULL,
+     `Address_Line_1` varchar(255) DEFAULT NULL,
+     `Address_Line_2` varchar(255) DEFAULT NULL,
+     `City` varchar(255) DEFAULT NULL,
+     `State` varchar(20) DEFAULT NULL,
+     `ZipCode_safe` varchar(11) DEFAULT NULL,
+     `Country_Code` varchar(64) DEFAULT NULL,
+     `International` varchar(5) DEFAULT NULL,
+     `Latitude` varchar(255) DEFAULT NULL,
+     `Longitude` varchar(255) DEFAULT NULL,
+     `Pharmacy_Phone_safe` varchar(24) DEFAULT NULL,
+     `Test_Pharmacy` varchar(15) DEFAULT NULL,
+     `State_Wide_Mail_Order` varchar(15) NOT NULL,
+     `Mail_Order_US_State_Serviced` varchar(255) DEFAULT NULL,
+     `Mail_Order_ US_Territories_Serviced` varchar(255) DEFAULT NULL,
+     `On_WENO` varchar(10) DEFAULT NULL,
+     `24HR` varchar(3) DEFAULT NULL,
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `ncpdp` (`NCPDP_safe`)
+) ENGINE=InnoDB;
 #EndIf
 
 #IfNotTable weno_assigned_pharmacy
@@ -52,8 +46,10 @@ CREATE TABLE `weno_assigned_pharmacy` (
     `pid`             BIGINT(20) NOT NULL,
     `primary_ncpdp`   VARCHAR(8) NOT NULL,
     `alternate_ncpdp` VARCHAR(8) NOT NULL,
-    KEY (`pid`),
-    PRIMARY KEY (`id`)
+    `is_history`      TINYINT(1) DEFAULT 0,
+    `search_persist`  TINYTEXT,
+    PRIMARY KEY (`id`),
+    KEY (`pid`)
 ) ENGINE = InnoDB;
 #EndIf
 
@@ -91,4 +87,12 @@ UPDATE `globals` SET gl_name='weno_admin_username' WHERE gl_name = 'weno_provide
 
 #IfNotColumnType weno_download_log status varchar(255)
 ALTER TABLE `weno_download_log` CHANGE `value` `value` VARCHAR(63) NOT NULL, CHANGE `status` `status` VARCHAR(255) NOT NULL;
+#EndIf
+
+#IfMissingColumn weno_assigned_pharmacy is_history
+ALTER TABLE `weno_assigned_pharmacy` ADD `is_history` TINYINT(1) NOT NULL DEFAULT '0', ADD `search_persist` TINYTEXT;
+#EndIf
+
+#IfMissingColumn weno_assigned_pharmacy search_persist
+ALTER TABLE `weno_assigned_pharmacy` ADD `search_persist` TINYTEXT;
 #EndIf

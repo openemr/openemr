@@ -4,7 +4,7 @@
             <i class='float-right fa fa-edit fa-lg {% if appt.pc_recurrtype > 0 %} text-danger {% else %} text-success {% endif %} bg-light font-weight-light'></i>
         </a>
     </div>
-    <div class="card-body font-weight-bold">
+    <div class="card-body p-0 font-weight-bold">
         <p>
             {{ appt.appointmentDate | text }}<br>
             {{ appt.appointmentType | text }}<br>

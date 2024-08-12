@@ -26,6 +26,7 @@ class CcdaServiceRequestModelGenerator
 {
     private $data;
     private $createdtime;
+    private $exportwithDocuments;
 
     /**
      * @var EncounterccdadispatchTable

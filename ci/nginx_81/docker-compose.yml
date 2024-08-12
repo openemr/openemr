@@ -1,10 +1,9 @@
 # docker-compose.yml for travis ci testing
-version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:10.11
-    command: ['mysqld','--character-set-server=utf8mb4']
+    image: mariadb:11.4
+    command: ['mariadbd','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   openemr:

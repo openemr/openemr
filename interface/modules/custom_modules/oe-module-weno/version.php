@@ -7,8 +7,8 @@
  * Module SQL version will be set in the database by MM on Install and Upgrades.
  * */
 
-$v_major = '1';
+$v_major = '2';
 $v_minor = '0';
 $v_patch = '0';
 $v_tag   = '';
-$v_database = 0;
+$v_database = 1;
