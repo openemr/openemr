@@ -25,7 +25,6 @@ services:
       - .env
     depends_on:
       - mysql
-      - couchdb
 volumes:
   logvolume01:
     driver_opts:
