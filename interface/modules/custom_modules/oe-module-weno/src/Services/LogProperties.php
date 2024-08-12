@@ -235,11 +235,10 @@ class LogProperties
     public function getProviderPassword(): mixed
     {
         if ($_SESSION['authUser']) {
-            if (!empty($GLOBALS['weno_provider_password'])) {
-                return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+            if (!empty($GLOBALS['weno_admin_password'])) {
+                return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
             } else {
                 echo xlt('Weno Prescriber Password is missing');
-                error_log("Weno Prescriber Password is missing");
                 die;
             }
         } elseif ($GLOBALS['weno_admin_password']) {

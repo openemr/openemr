@@ -75,7 +75,6 @@
     "bootstrap": "4.6.2",
     "bootswatch": "4.6.2",
     "chart.js": "4.4.0",
-    "chartjs-adapter-date-fns": "3.0.0",
     "checklist-model": "1.0.0",
     "ckeditor4": "4.22.1",
     "datatables.net": "1.13.6",

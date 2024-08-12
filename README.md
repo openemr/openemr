@@ -1,10 +1,10 @@
 ![Syntax Status](https://github.com/openemr/openemr/workflows/Syntax/badge.svg?branch=master)
-![Styling Status](https://github.com/openemr/openemr/workflows/Styling/badge.svg?branch=master)
-![Testing Status](https://github.com/openemr/openemr/workflows/Test/badge.svg?branch=master)
+![Styling Status](https://github.com/openemr/openemr/workflows/Styling/badge.svg?branch=rel-702)
+![Testing Status](https://github.com/openemr/openemr/workflows/Test/badge.svg?branch=rel-702)
 
 [![Backers on Open Collective](https://opencollective.com/openemr/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/openemr/sponsors/badge.svg)](#sponsors)
 
-# OpenEMR forked by Residen LLC
+# OpenEMR
 
 [OpenEMR](https://open-emr.org) is a Free and Open Source electronic health records and medical practice management application. It features fully integrated electronic health records, practice management, scheduling, electronic billing, internationalization, free support, a vibrant community, and a whole lot more. It runs on Windows, Linux, Mac OS X, and many other platforms.
 
@@ -42,7 +42,7 @@ Check out [FHIR_README.md](FHIR_README.md)
 
 ### For Developers
 
-If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 20.* is required) :
+If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 18.* is required) :
 
 ```shell
 composer install --no-dev

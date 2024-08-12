@@ -1,7 +1,6 @@
 ﻿CKEDITOR.editorConfig = function (config) {
     // config.language = 'fr';
     // config.uiColor = '#AADC6E';
-    config.versionCheck = false; //don't remove or will get security popup
     config.toolbarCanCollapse = true;
     config.toolbar = 'NNToolbar';
 

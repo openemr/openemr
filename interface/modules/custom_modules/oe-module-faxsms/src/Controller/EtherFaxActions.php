@@ -101,34 +101,16 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchReminderCount(): string
     {
-        // removed polling API to download pending faxes.
-        // this is better served in a background task.
-        return json_encode($this->fetchQueueCount());
-    }
-
-    /**
-     * @return int
-     */
-    public function pollAndInsertAllPendingFax(): int
-    {
-        // authenticate and return if not successful. security measure
-        if (!$this->authenticate()) {
-            error_log('Error: Authentication failed polling fax server.');
-            return 0;
-        }
         $c = 0;
         while ($fax = $this->client->getNextUnreadFax(true)) {
             $c++;
-            if ($c > 20) {
-                break;
-            }
             if (!empty($fax->JobId)) {
                 $this->insertFaxQueue($fax);
                 $this->client->setFaxReceived($fax->JobId);
             }
         }
-        // return the count of faxes processed
-        return $c;
+
+        return json_encode($this->fetchQueueCount());
     }
 
     /**
@@ -169,8 +151,6 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * TODO: decrypt document
-     *
      * @return string
      * @throws \PHPMailer\PHPMailer\Exception
      */
@@ -182,7 +162,7 @@ class EtherFaxActions extends AppDispatch
         // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
-        $docId = $this->getRequest('docid');
+        $docId = $this->getRequest('docId');
         $phone = $this->formatPhone($this->getRequest('phone'));
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
@@ -194,14 +174,8 @@ class EtherFaxActions extends AppDispatch
         $tag = $user['username'];
 
         if (empty($isContent)) {
-            if (str_starts_with($file, 'file://')) {
-                // Remove the "file://" prefix
-                $file = substr($file, 7);
-            }
-            $realPath = realpath($file);
-            if ($realPath !== false) {
-                $file = str_replace("\\", "/", $realPath);
-            } else {
+            $file = str_replace(["file://", "\\"], ['', "/"], realpath($file));
+            if (!$file) {
                 return xlt('Error: No content');
             }
         }
@@ -347,8 +321,6 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * Rest Endpoint
-     *
      * @return string|void
      */
     public function getPending()
@@ -357,139 +329,63 @@ class EtherFaxActions extends AppDispatch
             return $this->authErrorDefault;
         }
 
-        $this->pollAndInsertAllPendingFax();
-        $dateFrom = date("Y-m-d H:i:s", strtotime($this->getRequest('datefrom') . 'T00:00:01'));
-        $dateTo = date("Y-m-d H:i:s", strtotime($this->getRequest('dateto') . 'T23:59:59'));
-        $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo, false);
-
-        $responseMsg = [0 => '', 2 => xlt('Not Implemented')];
+        $pull = $this->fetchReminderCount();
+        $dateFrom = date("Y-m-d H:i:s", strtotime(($this->getRequest('datefrom') . 'T00:00:01')));
+        $dateTo = date("Y-m-d H:i:s", strtotime(($this->getRequest('dateto') . 'T23:59:59')));
+        $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo);
+        $responseMsgs = [0 => '', 2 => xlt('Not Implemented')];
 
         foreach ($faxStore as $faxDetails) {
             $id = $faxDetails->JobId;
             $record_id = $faxDetails->RecordId;
             $faxDate = strtotime($faxDetails->ReceivedOn . ' UTC');
-            $formattedDate = date('M j, Y g:i:sa T', $faxDate);
-            $docLen = round($faxDetails->DocumentParams->Length / 1000, 2) . "KB";
-            $transactionType = $this->getTransactionTypeWord($faxDetails->TransactionType);
+            $to = $faxDetails->CalledNumber;
+            $from = $faxDetails->CallingNumber;
+            $params = $faxDetails->DocumentParams;
+            $showFlag = 0;
+            $recogized = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults ?? [];
 
-            $recognizeResult = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults ?? [];
-            $form = $this->generateFaxForm($id, $recognizeResult);
+            $form = '';
+            foreach ($recogized as $r) {
+                $details = null;
+                $form = "<tr id='" . text($id) . "' class='d-none collapse-all'><td colspan='12'><div class='container table-responsive'><table class='table table-sm table-bordered table-dark'>";
+                $form .= "<thead><tr><th>" . xlt("Parameter") . "</th><th>" . xlt("Value") . "</th><th>" . xlt("Confidence") . " : " . text($r->DocTypeConfidence * 100) . "</th></tr></thead><tbody>";
+                $parse = $this->parseValidators($r->Fields) ?? [];
+                $pid_assumed = sqlQuery(
+                    "Select pid From patient_data Where fname = ? And lname = ? And DOB = ?",
+                    [$parse['fname'] ?? '', $parse['lname'] ?? '', date("Y-m-d", strtotime(($parse['DOB'] ?? '')))]
+                )['pid'] ?? 'No';
 
-            $pid_assumed = $this->getAssumedPatientId($recognizeResult);
-
-            $actionLinks = $this->generateActionLinks($id, $record_id, $pid_assumed);
-            $detailLink = $this->generateDetailLink($id, $recognizeResult);
-
-            if ($faxDetails->TransactionType == '0') {
-                $faxRow = "<tr>
-                <td>" . text($formattedDate) . "</td>
-                <td>" . text($faxDetails->CallingNumber) . "</td>
-                <td>" . text($faxDetails->RemoteId) . "</td>
-                <td>" . text($faxDetails->CalledNumber) . "</td>
-                <td>" . text($faxDetails->PagesReceived) . "</td>
-                <td>" . text($docLen) . "</td>
-                <td>" . text($transactionType) . "</td>
-                <td class='text-left'>" . $detailLink . "</td>
-                <td class='text-center'>" . text($pid_assumed) . "</td>
-                <td class='text-left'>" . $actionLinks . "</td>
-                <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'></td></tr>";
-            } else {
-                $faxRow = "<tr>
-                <td>" . text($formattedDate) . "</td>
-                <td>" . text($faxDetails->CallingNumber) . "</td>
-                <td>" . text($faxDetails->RemoteId) . "</td>
-                <td>" . text($faxDetails->CalledNumber) . "</td>
-                <td>" . text($faxDetails->PagesReceived) . "</td>
-                <td>" . text($docLen) . "</td>
-                <td>" . text($transactionType) . "</td>
-                <td class='text-left'>" . $actionLinks . "</td>
-                <td class='text-center'><input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'></td></tr>";
-            }
-            $responseMsg[$faxDetails->TransactionType == '0' ? 0 : 1] .= $faxRow . $form;
-        }
-
-        if (empty($responseMsg[0])) {
-            $responseMsg[0] = xlt("Currently inbox is empty.");
-        }
-
-        echo json_encode($responseMsg);
-        exit();
-    }
-
-    private function getTransactionTypeWord($transactionType)
-    {
-        $transactionTypes = [
-            '0' => xlt('Received'),
-            '1' => xlt('Sent'),
-            '2' => xlt('Forwarded'),
-            '3' => xlt('Failed')
-            // Add more as needed
-        ];
-
-        return $transactionTypes[$transactionType] ?? xlt('Unknown');
-    }
-
-    private function getAssumedPatientId($recognized)
-    {
-        foreach ($recognized as $r) {
-            $parse = $this->parseValidators($r->Fields) ?? [];
-            return sqlQuery(
-                "SELECT pid FROM patient_data WHERE fname = ? AND lname = ? AND DOB = ?",
-                [$parse['fname'] ?? '', $parse['lname'] ?? '', date("Y-m-d", strtotime($parse['DOB'] ?? ''))]
-            )['pid'] ?? 'No';
-        }
-        return 'No';
-    }
-
-    private function generateFaxForm($id, $recognized)
-    {
-        if (empty($recognized)) {
-            return '';
-        }
-
-        $form = "<tr id='" . attr($id) . "' class='d-none collapse-all'><td colspan='12'><div class='container table-responsive'><table class='table table-sm table-bordered table-dark'>";
-        $form .= "<thead><tr><th>" . xlt("Parameter") . "</th><th>" . xlt("Value") . "</th><th>" . xlt("Confidence") . "</th></tr></thead><tbody>";
-
-        foreach ($recognized as $r) {
-            foreach ($r->Fields as $field) {
-                if ($field->Text == 'unselected' || empty($field->Text)) {
-                    continue;
+                foreach ($r->Fields as $field) {
+                    if ($field->Text == 'unselected' || empty($field->Text)) {
+                        continue;
+                    }
+                    $showFlag++;
+                    $form .= "<tr><td>" . text(str_replace(" - ", "-", $field->Name)) . "</td><td>" . text($field->Text) . "</td><td>" . text($field->Confidence * 100) . "</td></tr>";
                 }
-
-                $form .= "<tr><td>" . text(str_replace(" - ", "-", $field->Name)) . "</td><td>" . text($field->Text) . "</td><td>" . text($field->Confidence * 100) . "</td></tr>";
+                $form .= "</tbody></table></div></td></tr>";
             }
+
+            $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode($parse ?? [])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
+            $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(($pid_assumed ?? 0)) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
+            $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
+            $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
+            $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
+            $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
+            $detailLink = $showFlag ? "<a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
+
+            $faxFormattedDate = date('M j, Y g:i:sa T', $faxDate);
+            $docLen = text(round($params->Length / 1000, 2)) . "KB";
+            $responseMsgs[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($from) . "</td><td>" . text($faxDetails->RemoteId) . "</td><td>" . text($to) . "</td><td>" . text($faxDetails->PagesReceived) . "</td><td>" . text($docLen) . "</td><td class='text-left'>" . $detailLink . "</td><td class='text-center'>" . text($pid_assumed ?? '') . "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink . "</td></tr>";
+            $responseMsgs[0] .= $form;
         }
 
-        $form .= "</tbody></table></div></td></tr>";
-        return $form;
-    }
+        if (empty($responseMsgs[0])) {
+            $responseMsgs[0] = xlt("Currently inbox is empty.");
+        }
 
-    private function generateActionLinks($id, $record_id, $pid_assumed)
-    {
-        return "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
-                <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
-            </a>
-            <a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($pid_assumed) . ")\">
-                <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i>
-            </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\">
-                <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i>
-            </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\">
-                <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i>
-            </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\">
-                <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i>
-            </a>
-            <a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\">
-                <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i>
-            </a>";
-    }
-
-    private function generateDetailLink($id, $recognized)
-    {
-        $showFlag = count($recognized);
-        return $showFlag ? "<a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
+        echo json_encode($responseMsgs);
+        exit();
     }
 
     /**
@@ -685,12 +581,8 @@ class EtherFaxActions extends AppDispatch
      * @param $end
      * @return array
      */
-    public function fetchFaxQueue($start, $end, $pollForNew = false): array
+    public function fetchFaxQueue($start, $end): array
     {
-        if ($pollForNew) {
-            $this->pollAndInsertAllPendingFax();
-        }
-
         $rows = [];
         $result = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
 
@@ -743,7 +635,7 @@ class EtherFaxActions extends AppDispatch
     public function chartDocument(): string
     {
         $pid = $this->getRequest('pid');
-        $docId = $this->getRequest('docid') ?? $this->getRequest('docId');
+        $docId = $this->getRequest('docId');
         $fileName = $this->getRequest('file_name');
         $result = $this->chartFaxDocument($pid, $docId, $fileName);
 

@@ -24,9 +24,6 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $logged_in = $clientApp->authenticate();
-if ($logged_in != 1) {
-    die("<h3>" . text($logged_in) . "</h3>");
-}
 $isSMS = $clientApp->getRequest('isSMS', false);
 $isEmail = $clientApp->getRequest('isEmail', false);
 $isForward = $isFax = 0;
@@ -218,16 +215,12 @@ if (empty($isSMS)) {
         const getContactBook = function (e, rtnpid) {
             e.preventDefault();
             let btnClose = <?php echo xlj("Cancel"); ?>;
-            dlgopen('', '', 'modal-lg', '', '', '', {
+            dlgopen('', '', 'modal-lg', 500, '', '', {
                 buttons: [
                     {text: btnClose, close: true, style: 'primary  btn-sm'}
                 ],
                 url: top.webroot_url + '/interface/usergroup/addrbook_list.php?popup=2&type=' + encodeURIComponent(<?php echo js_escape($serviceType); ?>),
-                dialogId: 'fax',
-                resolvePromiseOn: 'close',
-                sizeHeight: 'full'
-            }).then(function (contact) {
-                top.restoreSession();
+                dialogId: 'fax'
             });
         };
     </script>
@@ -255,19 +248,20 @@ if (empty($isSMS)) {
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group forwardExclude smsExclude faxExclude">
-                        <label for="form_pid"><?php echo xlt('MRN or PID') ?></label>
+                        <label for="form_pid"><?php echo xlt('MRN') ?></label>
                         <input id="form_pid" type="text" name="form_pid" class="form-control"
-                            title="<?php echo xla('If Applicable for charting.') ?>"
+                            placeholder="<?php echo xla('If Applicable for charting.') ?>"
                             value="<?php echo attr($interface_pid ?? 0) ?>" />
                     </div>
                     <div class="form-group show-detail">
                         <label for="form_name"><?php echo xlt('Name') ?></label>
                         <input id="form_name" type="text" name="name" class="form-control"
-                            placeholder="<?php echo xla('First name. Optionally if included then sent.') ?>"
+                            placeholder="<?php echo xla('Not Required') ?>"
                             value="<?php echo attr($details['fname'] ?? '') ?>" />
-                        <div class="form-group mt-1 show-detail smsExclude faxExclude">
+                        <div class="form-group show-detail smsExclude faxExclude">
+                            <!--<label for="form_lastname"><?php /*echo xlt('Lastname') */ ?></label>-->
                             <input id="form_lastname" type="text" name="surname" class="form-control"
-                                placeholder="<?php echo xla('Last name. Optionally if included then sent.') ?>"
+                                placeholder="<?php echo xla('Not Required') ?>"
                                 value="<?php echo attr($details['lname'] ?? '') ?>" />
                         </div>
                         <div class="form-group faxExclude smsExclude show-detail">
@@ -280,7 +274,7 @@ if (empty($isSMS)) {
                                     echo($isSMTP ? xla('Forward to email address if address is included.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
                                 }
                                 ?>"
-                                title="<?php echo xla('Attach and send to an email Address.') ?>" />
+                                title="<?php echo xla('Forward to an email address.') ?>" />
                         </div>
                         <div class="form-group">
                             <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
@@ -293,7 +287,7 @@ if (empty($isSMS)) {
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
                             <textarea id="form_message" name="comments" class="form-control" placeholder="
-                            <?php echo "\n" . xla('Add a note to recipient or cover sheet. If enabled, double click for Text Templates.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
+                            <?php echo xla('Add a note to recipient.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
                         </div>
                         <?php } ?>
                         <div>

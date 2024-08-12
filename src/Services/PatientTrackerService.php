@@ -35,7 +35,7 @@ class PatientTrackerService extends BaseService
      * @param bool $allow_sec
      * @return string
      */
-    public static function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
+    public function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
     {
 
         $tracker_time_calc = strtotime($tracker_to_time) - strtotime($tracker_from_time);
@@ -142,7 +142,7 @@ class PatientTrackerService extends BaseService
      * @param $eid
      * @return int
      */
-    public static function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
+    public function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
     {
         #Check to see if there is an encounter in the patient_tracker table.
         $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `apptdate` = ? AND encounter > 0 " .
@@ -282,7 +282,7 @@ class PatientTrackerService extends BaseService
      * @param $option
      * @return array
      */
-    public static function collectApptStatusSettings($option)
+    public function collectApptStatusSettings($option)
     {
         $color_settings = array();
         $row = sqlQuery("SELECT notes FROM list_options WHERE " .
@@ -301,7 +301,7 @@ class PatientTrackerService extends BaseService
      * @param $trackerid
      * @return mixed
      */
-    public static function collect_Tracker_Elements($trackerid)
+    public function collect_Tracker_Elements($trackerid)
     {
         $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", array($trackerid));
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -316,7 +316,7 @@ class PatientTrackerService extends BaseService
      * @param $trackerid
      * @return bool
      */
-    public static function collect_checkin($trackerid)
+    public function collect_checkin($trackerid)
     {
         $tracker = sqlQuery(
             "SELECT patient_tracker_element.start_datetime " .
@@ -340,7 +340,7 @@ class PatientTrackerService extends BaseService
      * @param $trackerid
      * @return bool
      */
-    public static function collect_checkout($trackerid)
+    public function collect_checkout($trackerid)
     {
         $tracker = sqlQuery(
             "SELECT patient_tracker_element.start_datetime " .
@@ -359,7 +359,7 @@ class PatientTrackerService extends BaseService
         }
     }
 
-    public static function getApptStatus($appointments)
+    public function getApptStatus($appointments)
     {
         $astat = array();
         $astat['count_all'] = count($appointments);

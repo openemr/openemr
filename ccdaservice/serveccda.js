@@ -3,13 +3,13 @@
  * @link      http://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 "use strict";
 
-const enableDebug = false;
+const enableDebug = true;
 
 const net = require('net');
 const server = net.createServer();
@@ -2449,13 +2449,13 @@ function getMeta(pd) {
         "identifiers": [
             {
                 "identifier": oidFacility || "NI",
-                "extension": "OE-DOC-0001"
+                "extension": "TT988"
             }
         ],
         "confidentiality": "Normal",
         "set_id": {
             "identifier": oidFacility || "NI",
-            "extension": "sOE-DOC-0001"
+            "extension": "sTT988"
         }
     }
     return meta;

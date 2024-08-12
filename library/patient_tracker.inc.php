@@ -34,7 +34,8 @@ use OpenEMR\Services\PatientTrackerService;
 
 function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
 {
-    return PatientTrackerService::get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec);
 }
 
 function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null)
@@ -55,13 +56,15 @@ function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null,
 #check to see if a status code exist as a check in
 function is_checkin($option)
 {
-    return AppointmentService::isCheckInStatus($option);
+    $appointmentStatus = new AppointmentService();
+    return $appointmentStatus->isCheckInStatus($option);
 }
 
 #check to see if a status code exist as a check out
 function is_checkout($option)
 {
-    return AppointmentService::isCheckOutStatus($option);
+    $service = new AppointmentService();
+    return $service->isCheckOutStatus($option);
 }
 
 
@@ -70,7 +73,8 @@ function is_checkout($option)
 #   2. If the tracker item does exist, but the encounter has not been set
 function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
 {
-    return PatientTrackerService::is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid);
 }
 
  # this function will return the tracker id that is managed
@@ -85,30 +89,35 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
 #list_options. Currently the color and alert time are the only items stored
 function collectApptStatusSettings($option)
 {
-    return PatientTrackerService::collectApptStatusSettings($option);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->collectApptStatusSettings($option);
 }
 
 # This is used to collect the tracker elements for the Patient Flow Board Report
 # returns the elements in an array
 function collect_Tracker_Elements($trackerid)
 {
-    return PatientTrackerService::collect_Tracker_Elements($trackerid);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->collect_Tracker_Elements($trackerid);
 }
 
 #used to determine check in time
 function collect_checkin($trackerid)
 {
-    return PatientTrackerService::collect_checkin($trackerid);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->collect_checkin($trackerid);
 }
 
 #used to determine check out time
 function collect_checkout($trackerid)
 {
-    return PatientTrackerService::collect_checkout($trackerid);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->collect_checkout($trackerid);
 }
 
 /* get information the statuses of the appointments*/
 function getApptStatus($appointments)
 {
-    return PatientTrackerService::getApptStatus($appointments);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->getApptStatus($appointments);
 }

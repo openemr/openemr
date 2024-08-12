@@ -389,7 +389,8 @@ class EncounterService extends BaseService
             $data["provider_id"],
             $data["date"],
             $data['user'],
-            $data['group']
+            $data['group'],
+            $data['referring_provider_id']
         );
 
         if ($results) {

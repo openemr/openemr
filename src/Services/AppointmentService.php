@@ -480,7 +480,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckInStatus($option)
+    public function isCheckInStatus($option)
     {
         $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
@@ -496,7 +496,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckOutStatus($option)
+    public function isCheckOutStatus($option)
     {
         $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));

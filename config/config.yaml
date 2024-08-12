@@ -202,7 +202,7 @@ assets:
         basePath: '%assets_static_relative%/underscore/'
         script: underscore-min.js
     ckeditor:
-        basePath: '%assets_static_relative%/ckeditor4/'
+        basePath: '%assets_static_relative%/modified/ckeditor4/'
         script: ckeditor.js
     search-highlight:
         basePath: '%webroot%/library/js/'
@@ -253,14 +253,9 @@ assets:
     u2f_api:
         basePath: '%webroot%/library/js/'
         script: u2f-api.js
-    chart:
-        basePath: '%assets_static_relative%/'
-        script:
-            - chart.js/dist/chart.umd.js
-            - chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js
     select2-translated:
         basePath: '%webroot%/library/js/xl/'
         script: select2-translated.js
     dompurify:
-        basePath: '%assets_static_relative%/'
+        basePath: '%assets_static_relative%/modified/'
         script: dompurify/dist/purify.js

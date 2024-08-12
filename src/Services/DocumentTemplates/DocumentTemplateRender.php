@@ -22,7 +22,6 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use RuntimeException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\VersionService;
 
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
@@ -110,16 +109,6 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempFile = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
-        if (
-            !file_exists($purifyTempFile) &&
-            !is_dir($purifyTempFile)
-        ) {
-            if (!mkdir($purifyTempFile)) {
-                (new SystemLogger())->error("Could not create directory ", [$purifyTempFile]);
-            }
-        }
-        $config->set('Cache.SerializerPath', $purifyTempFile);
         $config->set('Core.Encoding', 'UTF-8');
         $config->set('CSS.AllowedProperties', '*');
         $purify = new HTMLPurifier($config);

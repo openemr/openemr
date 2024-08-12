@@ -54,7 +54,7 @@ class TwilioSMSClient extends AppDispatch
      * @param $uiDateRangeFlag
      * @return false|string|null
      */
-    public function fetchSMSList($uiDateRangeFlag = true): false|string|null
+    public function fetchSMSList($uiDateRangeFlag = true)
     {
         return $this->_getPending($uiDateRangeFlag);
     }
@@ -62,7 +62,7 @@ class TwilioSMSClient extends AppDispatch
     /**
      * @return array|mixed
      */
-    public function getCredentials(): mixed
+    public function getCredentials()
     {
         $credentials = appDispatch::getSetup();
         $this->accountSID = $credentials['username'] ?? '';
@@ -77,9 +77,16 @@ class TwilioSMSClient extends AppDispatch
         return $credentials;
     }
 
-    public function sendSMS($toPhone = '', $subject = '', $message = '', $from = ''): mixed
+    /**
+     * @param $tophone
+     * @param $subject
+     * @param $message
+     * @param $from
+     * @return mixed
+     */
+    public function sendSMS($tophone = '', $subject = '', $message = '', $from = ''): mixed
     {
-        $toPhone = $toPhone ?: $this->getRequest('phone');
+        $tophone = $tophone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');
         $message = $message ?: $this->getRequest('comments');
 
@@ -88,11 +95,11 @@ class TwilioSMSClient extends AppDispatch
         } else {
             $from = $this->formatPhone($from);
         }
-        $toPhone = $this->formatPhone($toPhone);
+        $tophone = $this->formatPhone($tophone);
         try {
             $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
             $message = $twilio->messages->create(
-                $toPhone,
+                $tophone,
                 array(
                     "body" => text($message),
                     "from" => attr($from)
