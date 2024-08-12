@@ -246,17 +246,17 @@ class PatientService extends BaseService
             $this->saveCareTeamHistory($data, $dataBeforeUpdate['care_team_provider'], $dataBeforeUpdate['care_team_facility']);
         }
         // RM if  'allow_patient_portal' is YES, make sure portal login username has been created
-        if ($data['allow_patient_portal'] == 'YES' ) {
+        if ($data['allow_patient_portal'] == 'YES') {
             // we're about to set it to YES, so make sure credentials have been created
             $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
             $sqlget = sqlStatement($sql, $data['pid']);
             $names = sqlFetchArray($sqlget);
-            if ($names['portal_login_username'] == ""){
+            if ($names['portal_login_username'] == "") {
                 //RM - create a portal login username, as it's empty at the moment - use Account Name - portal_username in db
                 $sql =  "UPDATE patient_access_onsite SET portal_login_username = ?  WHERE pid = ?";
                 $update_parameters ['portal_login_username'] = $names['portal_username'];
                 $update_parameters ['pid'] = $data['pid'];
-                $sqlres = sqlStatement($sql,$update_parameters);
+                $sqlres = sqlStatement($sql, $update_parameters);
             }
         }
         if ($sqlResult) {
