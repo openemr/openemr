@@ -4,20 +4,13 @@ services:
     restart: always
     image: mariadb:10.11
     container_name: openemr_db
+    ports:
+      - "3306:3306"
     command: ['mysqld','--character-set-server=utf8mb4']
     volumes:
       - /home/ubuntu/openemr_data:/var/lib/mysql
     env_file:
       - .env
-  couchdb:
-    image: couchdb:3.3.3
-    container_name: openemr_couchdb
-    ports:
-      - "5984:5984"
-    env_file:
-      - .env
-    volumes:
-      - couchdb_data:/opt/couchdb/data
   openemr:
     restart: always
     image: REPLACEME_ECR_URL
@@ -44,9 +37,4 @@ volumes:
       type: none
       o: bind
       device: /home/ubuntu/openemr_sites
-  couchdb_data:
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/ubuntu/openemr_documents
       
