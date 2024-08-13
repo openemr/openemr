@@ -36,25 +36,25 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Get Tags for Image
-        id: metadata
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,prefix=residen-emr-,suffix=
+      # - name: Get Tags for Image
+      #   id: metadata
+      #   uses: docker/metadata-action@v3
+      #   with:
+      #     images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
+      #     tags: |
+      #       type=raw,value=latest
+      #       type=sha,prefix=residen-emr-,suffix=
 
-      - name: Build and Push
-        id: build-image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          file: docker/residen-production/Dockerfile
-          tags: ${{ steps.metadata.outputs.tags }}
-          cache-to: type=gha,mode=max
-          cache-from: type=gha
+      # - name: Build and Push
+      #   id: build-image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     push: true
+      #     file: docker/residen-production/Dockerfile
+      #     tags: ${{ steps.metadata.outputs.tags }}
+      #     cache-to: type=gha,mode=max
+      #     cache-from: type=gha
 
       - name: Save ECR URL as Artifact
         run: echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}" > ecr-url.txt
@@ -101,12 +101,12 @@ jobs:
           for PAIR in "${INSTANCE_DOMAIN_PAIRS[@]}"; do
             INSTANCE_ID=$(echo $PAIR | cut -d ':' -f 1)
             DOMAIN_NAME=$(echo $PAIR | cut -d ':' -f 2)
-            echo "DOCTOR_DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
+            echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
             echo "Deploying to instance $INSTANCE_ID, for Doctor $DOMAIN_NAME."
             COMMAND_ID=$(aws ssm send-command \
               --document-name "AWS-RunShellScript" \
               --instance-ids "$INSTANCE_ID" \
-              --parameters '{"commands":["sudo -u ubuntu bash -c '\''echo -e \"${{ env.DOCKER_COMPOSE_BASE64 }}\" | base64 -d > /home/ubuntu/docker-compose.yml && echo \"# TFA Residen EMR Secrets\nMYSQL_HOST=mysql\nMYSQL_USER=${{ secrets.MYSQL_USER }}\nMYSQL_PASS=${{ secrets.MYSQL_PASS }}\nMYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}\nMYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}\nOE_USER=${{ secrets.OE_USER }}\nOE_PASS=${{ secrets.OE_PASS }}\nDOMAIN=${{ env.DOCTOR_DOMAIN_NAME }}\nEMAIL=mircea.ene@assist.ro\" > /home/ubuntu/.env && mkdir -p /home/ubuntu/openemr_logs && mkdir -p /home/ubuntu/openemr_sites && mkdir -p /home/ubuntu/openemr_documents && aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }} && cd /home/ubuntu && docker compose pull && docker compose up -d && docker system prune -af'\''"]}' \
+              --parameters '{"commands":["sudo -u ubuntu bash -c '\''echo -e \"${{ env.DOCKER_COMPOSE_BASE64 }}\" | base64 -d > /home/ubuntu/docker-compose.yml && echo \"# TFA Residen EMR Secrets\nMYSQL_HOST=mysql\nMYSQL_USER=${{ secrets.MYSQL_USER }}\nMYSQL_PASS=${{ secrets.MYSQL_PASS }}\nMYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}\nMYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}\nOE_USER=${{ secrets.OE_USER }}\nOE_PASS=${{ secrets.OE_PASS }}\nDOMAIN=${{ env.DOMAIN_NAME }}\nEMAIL=mircea.ene@assist.ro\" > /home/ubuntu/.env && mkdir -p /home/ubuntu/openemr_logs && mkdir -p /home/ubuntu/openemr_sites && mkdir -p /home/ubuntu/openemr_documents && aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }} && cd /home/ubuntu && docker compose pull && docker compose up -d && docker system prune -af'\''"]}' \
               --query "Command.CommandId" \
               --output text)
 
