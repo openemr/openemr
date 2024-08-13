@@ -2,10 +2,24 @@
 :root {
   --background-color: #ffffff;
   --text-color: #000000;
-  --primary-color:#0a59ee;
+  --primary-color: #0a59ee;
   --secondary-color: #6c757d;
   --border-color: #ced4da;
   --hover-color: #f8f9fa;
+  --link-color: #0a59ee;
+  --link-hover-color: #6c757d;
+
+  --font-color-light: #e8e8e8;
+  --font-color-medium: #adb5bd;
+  --font-color-dark: #343a40;
+
+  --font-size-small: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-large: 1.25rem; /* 20px */
+  --font-size-xlarge: 1.5rem; /* 24px */
+  --font-size-xxlarge: 2rem; /* 32px */
+
+  --button-padding: 0.5rem 1rem;
 }
 
 [data-theme="dark"] {
@@ -17,6 +31,21 @@
   --hover-color: #495057;
   --link-color: #17a2b8;
   --link-hover-color: #adb5bd;
+
+  --font-color-light: #e8e8e8;
+  --font-color-medium: #495057;
+  --font-color-dark: #212529;
+}
+
+/* General Cleanup for Consistency */
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
 /* Base Anchor Styles */
@@ -31,12 +60,13 @@ a:hover {
 }
 
 ::placeholder {
-  color: var(--text-color);
+  color: var(--font-color-light);
   opacity: 0.7;
 }
 
+
 .lhc-form-title a {
-  color: var(--text-color);
+  color: var(--text-color); /* Inherit from general text color */
 }
 
 /* Base Form Styles */
@@ -51,17 +81,20 @@ p, span {
 
 .lhc-form {
   font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-size: var(--font-size-base);
   background-color: var(--background-color);
   color: var(--text-color);
 }
 
-.lhc-form-title {
+.lhc-form-title,
+.lhc-form-horizontal-table-title,
+.lhc-form-matrix-table-title {
+  font-size: var(--font-size-xlarge);
+  font-weight: 700;
+  color: var(--text-color);
   background-color: var(--primary-color);
-  color: #fff;
-  overflow: hidden;
-  padding: 8px;
-  margin: 4px 0;
+  padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 4px;
 }
 
@@ -69,15 +102,21 @@ p, span {
   color: #fff;
 }
 
-.lhc-form-title .lhc-item-question {
-  font-size: 120%;
-  vertical-align: text-top;
-}
-
 .lhc-form table {
-  padding: 0;
   width: 100%;
   table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.lhc-form .lhc-form-table-row {
+  border-top: 1px solid var(--border-color);
+  margin: 0 4px;
+}
+
+.lhc-form .lhc-form-table-row.lhc-item-group {
+  background-color: var(--hover-color);
+  border-radius: 4px;
+  margin: 0 4px;
 }
 
 /* Form Inputs and Textareas */
@@ -85,15 +124,13 @@ p, span {
 .lhc-form input[type="number"],
 .lhc-form textarea {
   border: 1px solid var(--border-color);
-  width: 100%;
-  height: 28px;
-  min-height: 14px;
-  padding: 2px 4px;
-  font-size: 90%;
-  font-weight: 700;
-  border-radius: 4px;
   background-color: var(--background-color);
   color: var(--text-color);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  padding: 0.5rem;
+  border-radius: 4px;
+  width: 100%;
 }
 
 .lhc-form textarea {
@@ -105,24 +142,25 @@ p, span {
   background-color: var(--hover-color);
   border-color: var(--primary-color);
   outline: none;
-  box-shadow: none;
 }
 
 .lhc-form input[readonly],
 .lhc-form textarea[readonly] {
-  background-color: #e8e8e8;
+  background-color: var(--font-color-light);
+  color: var(--font-color-dark);
 }
 
 /* Buttons */
 .lhc-form .lhc-button,
 .lhc-form .lhc-float-button {
   background-color: var(--primary-color);
-  border: none;
   color: #fff;
   font-weight: 700;
-  padding: 5px 10px;
+  padding: var(--button-padding);
   border-radius: 4px;
+  border: 1px solid var(--primary-color);
   cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .lhc-form .lhc-button:hover {
@@ -177,7 +215,7 @@ p, span {
   display: block;
 }
 
-/* Additional Utility Classes */
+/* Utility Classes */
 .screen_reader_only {
   position: absolute;
   width: 1px;
@@ -206,38 +244,37 @@ p, span {
 [data-theme="dark"] .lhc-form input[type="text"],
 [data-theme="dark"] .lhc-form input[type="number"],
 [data-theme="dark"] .lhc-form textarea {
-  background-color: #212529; /* Darker background for contrast */
-  border-color: #17a2b8; /* Brighter border color */
-  color: #f8f9fa; /* Light text color */
+  background-color: var(--font-color-dark);
+  border-color: var(--primary-color);
+  color: var(--font-color-light);
 }
 
 [data-theme="dark"] .lhc-form input:focus,
 [data-theme="dark"] .lhc-form textarea:focus {
-  background-color: #343a40; /* Slightly lighter background on focus */
-  border-color: #1a73e8; /* Distinct border color on focus */
+  background-color: var(--font-color-medium);
+  border-color: #1a73e8;
   outline: none;
   box-shadow: 0 0 5px 1px rgba(23, 162, 184, 0.75); /* Subtle glow effect */
 }
 
 [data-theme="dark"] ::placeholder {
-  color: #adb5bd; /* Lighter placeholder color */
-  opacity: 0.8; /* Increased opacity */
+  color: #adb5bd;
+  opacity: 0.8;
 }
 
 [data-theme="dark"] .lhc-form input[readonly],
 [data-theme="dark"] .lhc-form textarea[readonly] {
-  background-color: #495057; /* Darker gray background */
-  color: #adb5bd; /* Lighter text for disabled inputs */
+  background-color: var(--font-color-medium);
+  color: var(--font-color-light);
 }
 
 [data-theme="dark"] .lhc-form .lhc-button {
-  background-color: #17a2b8; /* Primary button color */
-  color: #ffffff; /* Ensure text visibility */
-  border: 1px solid #1a73e8; /* Border for definition */
+  background-color: #17a2b8;
+  border-color: #1a73e8;
 }
 
 [data-theme="dark"] .lhc-form .lhc-button:hover {
-  background-color: #138496; /* Darken button on hover */
+  background-color: #138496;
 }
 
 .lhc-item-question, .prefix {
@@ -748,8 +785,8 @@ lhc-item-date .ant-picker-input > input::-ms-input-placeholder, lhc-item-datetim
 }
 
 .lhc-form-title span {
-    background-color: var(--primary-color);
-    color: #fff;
+  background-color: var(--primary-color);
+  color: #fff;
 }
 
 .lhc-form lhc-item.lhc-invalid.lhc-datatype-DTM .lhc-validation-popover {
@@ -12115,7 +12152,7 @@ input.search_field, textarea.search_field {
 }
 
 .autocomp_selected {
-  border: 1px solid gray;
+  border: 1px solid rgb(128, 128, 128);
   padding: 1px;
   display: inline-block
 }
@@ -12186,7 +12223,7 @@ input.search_field, textarea.search_field {
 }
 
 #completionOptionsScroller th {
-  border-right: 1px solid gray;
+  border-right: 1px solid rgb(128, 128, 128);
   font-size: 85%;
   background-color: #d7dadd;
   padding-left: .25em;
