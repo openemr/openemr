@@ -36,25 +36,25 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v1
 
-      # - name: Get Tags for Image
-      #   id: metadata
-      #   uses: docker/metadata-action@v3
-      #   with:
-      #     images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
-      #     tags: |
-      #       type=raw,value=latest
-      #       type=sha,prefix=residen-emr-,suffix=
+      - name: Get Tags for Image
+        id: metadata
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=residen-emr-,suffix=
 
-      # - name: Build and Push
-      #   id: build-image
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     push: true
-      #     file: docker/residen-production/Dockerfile
-      #     tags: ${{ steps.metadata.outputs.tags }}
-      #     cache-to: type=gha,mode=max
-      #     cache-from: type=gha
+      - name: Build and Push
+        id: build-image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          file: docker/residen-production/Dockerfile
+          tags: ${{ steps.metadata.outputs.tags }}
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
 
       - name: Save ECR URL as Artifact
         run: echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}" > ecr-url.txt
