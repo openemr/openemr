@@ -14,13 +14,11 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
-      
 
 jobs:
   build-and-push-app:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    environment: tfa-emr
 
     steps:
       - uses: actions/checkout@v3
@@ -37,7 +35,7 @@ jobs:
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v1
-      
+
       - name: Get Tags for Image
         id: metadata
         uses: docker/metadata-action@v3
@@ -69,10 +67,16 @@ jobs:
     needs: build-and-push-app
     name: Deploy Docker Image to AWS EC2
     runs-on: ubuntu-latest
-    environment: tfa-emr
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_SSM_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SSM_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - uses: actions/download-artifact@v2
         with:
@@ -90,47 +94,33 @@ jobs:
           sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}|g' docker/residen-production/docker-compose.yml
           DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/docker-compose.yml | base64 -w 0)
           echo "DOCKER_COMPOSE_BASE64=$DOCKER_COMPOSE_BASE64" >> $GITHUB_ENV
-      
-      - name: Deploy App with AWS SSM Send Command
-        id: ssm
-        uses: peterkimzz/aws-ssm-send-command@master
-        with:
-          aws-access-key-id: ${{ secrets.AWS_SSM_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SSM_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-          instance-ids: ${{ vars.AWS_INSTANCE_ID }}
-          working-directory: "/home/ubuntu"
-          command: |
-            sudo -u ubuntu bash -c '
-            echo -e "${{ env.DOCKER_COMPOSE_BASE64 }}" | base64 -d > docker-compose.yml
-            echo "# TFA Residen EMR Secrets
-            MYSQL_HOST=mysql
-            MYSQL_USER=${{ secrets.MYSQL_USER }}
-            MYSQL_PASS=${{ secrets.MYSQL_PASS }}
-            MYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}
-            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}
-            OE_USER=${{ secrets.OE_USER }}
-            OE_PASS=${{ secrets.OE_PASS }}" > .env
-            aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }}
-            docker compose pull
-            docker compose up -d
-            docker system prune -af
-            '
 
-      - name: Check command execution status
+      - name: Deploy App to Each Instance
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_SSM_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SSM_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ vars.AWS_REGION }}
-          COMMAND_ID=$(echo '${{ steps.ssm.outputs.command-id }}')
-          INSTANCE_ID=${{ vars.AWS_INSTANCE_ID }}
-          until [ "$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "CommandInvocations[0].Status" --output text)" != "InProgress" ]; do
-            echo "Waiting for command to complete..."
-            sleep 10
+          INSTANCE_DOMAIN_PAIRS=(${{ vars.AWS_INSTANCE_IDS }})
+          for PAIR in "${INSTANCE_DOMAIN_PAIRS[@]}"; do
+            INSTANCE_ID=$(echo $PAIR | cut -d ':' -f 1)
+            DOMAIN_NAME=$(echo $PAIR | cut -d ':' -f 2)
+            echo "Deploying to instance $INSTANCE_ID, for Doctor $DOMAIN_NAME."
+            COMMAND_ID=$(aws ssm send-command \
+              --document-name "AWS-RunShellScript" \
+              --instance-ids "$INSTANCE_ID" \
+              --parameters '{"commands":["sudo -u ubuntu bash -c '\''echo -e \"${{ env.DOCKER_COMPOSE_BASE64 }}\" | base64 -d > docker-compose.yml && echo \"# TFA Residen EMR Secrets\nMYSQL_HOST=mysql\nMYSQL_USER=${{ secrets.MYSQL_USER }}\nMYSQL_PASS=${{ secrets.MYSQL_PASS }}\nMYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}\nOE_USER=${{ secrets.OE_USER }}\nOE_PASS=${{ secrets.OE_PASS }}\nDOMAIN=$DOMAIN_NAME\nEMAIL=mircea.ene@assist.ro\" > .env && mkdir -p /home/ubuntu/openemr_logs && mkdir -p /home/ubuntu/openemr_sites && mkdir -p /home/ubuntu/openemr_documents && aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }} && docker compose pull && docker compose up -d && docker system prune -af'\''"]}' \
+              --query "Command.CommandId" \
+              --output text)
+
+            echo "Command ID: $COMMAND_ID for instance $INSTANCE_ID"
+
+            # Check command execution status
+            until [ "$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "CommandInvocations[0].Status" --output text)" != "InProgress" ]; do
+              echo "Waiting for command to complete on instance $INSTANCE_ID..."
+              sleep 10
+            done
+
+            STATUS=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "CommandInvocations[0].Status" --output text)
+            echo "Command execution status for instance $INSTANCE_ID: $STATUS"
+            if [ "$STATUS" != "Success" ]; then
+              echo "Command execution failed on instance $INSTANCE_ID."
+              exit 1
+            fi
           done
-          STATUS=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "CommandInvocations[0].Status" --output text)
-          echo "Command execution status: $STATUS"
-          if [ "$STATUS" != "Success" ]; then
-            echo "Command execution failed."
-            exit 1
-          fi
