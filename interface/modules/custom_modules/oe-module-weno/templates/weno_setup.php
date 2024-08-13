@@ -214,8 +214,8 @@ $vendors = $boot->getVendorGlobals();
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="#">
             <div id="set-weno">
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <!-- never active and for persist submit. -->
                 <button type="submit" id="form_save_top" name="form_save_top" class="d-none" value="true"></button>
+                <!-- never active and for persist submit. -->
                 <div class="row form-group">
                     <div class="col-12 m-0 text-center">
                         <h5>
@@ -274,7 +274,7 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     </div>
                     <!-- Config User Settings Credentials -->
-                    <div id="scroll-to" class="row form-group">
+                    <div class="row form-group">
                         <div class="col-12 m-0 text-center">
                             <h6>
                                 <hr class="text-dark bg-light" />
@@ -310,7 +310,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="row form-group">
                         <div class="col-12 m-0 text-center">
                             <h5>
-                                <hr class="text-dark bg-light" />
+                                <hr id="scroll-to" class="text-dark bg-light" />
                                 <?php echo xlt("Map Weno User Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
                             </h5>
                         </div>

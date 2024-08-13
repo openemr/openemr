@@ -62,7 +62,6 @@ use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 
 $facilityService = new FacilityService();
@@ -1627,8 +1626,8 @@ function generate_form_field($frow, $currvalue)
     } elseif ($data_type == 52) {
         global $pid;
         $pid = ($frow['blank_form'] ?? null) ? null : $pid;
-        $patientNameService = new PatientNameHistoryService();
-        $res = $patientNameService->getPatientNameHistory($pid);
+        $patientService = new PatientService();
+        $res = $patientService->getPatientNameHistory($pid);
         echo "<div class='input-group w-75'>";
         echo "<select name='form_$field_id_esc" . "[]'" . " id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform select-previous-names' multiple='multiple'>";
         foreach ($res as $row) {
@@ -2855,8 +2854,8 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 52) {
         global $pid;
-        $patientNameService = new PatientNameHistoryService();
-        $rows = $patientNameService->getPatientNameHistory($pid);
+        $patientService = new PatientService();
+        $rows = $patientService->getPatientNameHistory($pid);
         $i = 0;
         foreach ($rows as $row) {
             // name escaped in fetch

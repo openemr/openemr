@@ -1643,10 +1643,7 @@ if (
                     echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Diagnosis') . "&nbsp;</td>\n";
                     echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
-                    // Start from 1000 to avoid collisions caused by sharing form_fs_bill[]  with services.
-                    // Keep track of only diagnoses to avoid gaps and thus potential collisions with newly added diagnoses.
-                    $lino = 1000;
-                    foreach ($fs->serviceitems as $li) {
+                    foreach ($fs->serviceitems as $lino => $li) {
                         // Skip anything that is not a diagnosis; those are in the Services section above.
                         if (!$code_types[$li['codetype']]['diag']) {
                             continue;
@@ -1663,7 +1660,6 @@ if (
                         }
                         echo "  </td>\n";
                         echo " </tr>\n";
-                        $lino += 1;
                     }
                     echo "</table>\n";
                     echo "</center>\n";

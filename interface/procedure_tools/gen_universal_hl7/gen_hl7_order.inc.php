@@ -112,11 +112,11 @@ function hl7Relation($s)
     $tmp = strtolower($s);
     if ($tmp == 'self' || $tmp == '') {
         return 'self';
-    } elseif ($tmp == 'spouse') {
+    } else if ($tmp == 'spouse') {
         return 'spouse';
-    } elseif ($tmp == 'child') {
+    } else if ($tmp == 'child') {
         return 'child';
-    } elseif ($tmp == 'other') {
+    } else if ($tmp == 'other') {
         return 'other';
     }
 
@@ -138,25 +138,35 @@ function loadPayerInfo($pid, $date = '')
         $date = date('Y-m-d');
     }
 
-    $payers = getEffectiveInsurances($pid, $date);
+    $payers = array();
+    $dres = sqlStatement(
+        "SELECT * FROM insurance_data WHERE " .
+        "pid = ? AND (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC",
+        array($pid, $date)
+    );
+    $prevtype = ''; // type is primary, secondary or tertiary
+    while ($drow = sqlFetchArray($dres)) {
+        if (strcmp($prevtype, $drow['type']) == 0) {
+            continue;
+        }
 
-    foreach ($payers as $key => $drow) {
+        $prevtype = $drow['type'];
         // Very important to check for a missing provider because
         // that indicates no insurance as of the given date.
         if (empty($drow['provider'])) {
             continue;
         }
 
+        $ins = count($payers);
         $crow = sqlQuery(
             "SELECT * FROM insurance_companies WHERE id = ?",
             array($drow['provider'])
         );
-
         $orow = new InsuranceCompany($drow['provider']);
-        $payers[$key] = array();
-        $payers[$key]['data']    = $drow;
-        $payers[$key]['company'] = $crow;
-        $payers[$key]['object']  = $orow;
+        $payers[$ins] = array();
+        $payers[$ins]['data']    = $drow;
+        $payers[$ins]['company'] = $crow;
+        $payers[$ins]['object']  = $orow;
     }
 
     return $payers;
@@ -455,9 +465,9 @@ function gen_hl7_order($orderid, &$out)
               $datatype = 'ST';
             if ($fldtype == 'N') {
                 $datatype = "NM";
-            } elseif ($fldtype == 'D') {
+            } else if ($fldtype == 'D') {
                   $answer = hl7Date($answer);
-            } elseif ($fldtype == 'G') {
+            } else if ($fldtype == 'G') {
                   $weeks = intval($answer / 7);
                   $days = $answer % 7;
                   $answer = $weeks . 'wks ' . $days . 'days';
@@ -514,7 +524,7 @@ function send_hl7_order($ppid, $out)
         header("Content-Description: File Transfer");
         echo $out;
         exit;
-    } elseif ($protocol == 'SFTP') {
+    } else if ($protocol == 'SFTP') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
         if ($pprow['orders_path']) {
@@ -530,7 +540,7 @@ function send_hl7_order($ppid, $out)
         if (!$sftp->put($filename, $out)) {
             return xl('Creating this file on remote host failed') . ": '$filename'";
         }
-    } elseif ($protocol == 'FS') {
+    } else if ($protocol == 'FS') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
         if ($pprow['orders_path']) {

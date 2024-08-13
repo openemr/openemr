@@ -17,54 +17,41 @@ class WenoPharmaciesJson
     private CryptoGen $cryptoGen;
     private string $encrypted;
 
-    public function __construct(CryptoGen $cryptoGen)
-    {
+    final public function __construct(
+        CryptoGen $cryptoGen
+    ) {
         $this->cryptoGen = $cryptoGen;
-        // Build the JSON data
-        $jobJson = $this->buildJson();
-        // Define encryption method and key
+        $job_j = $this->buildJson();
         $method = "aes-256-cbc";
         $key = substr(hash('sha256', $this->wenoEncryptionKey(), true), 0, 32);
-        // Define initialization vector (IV)
-        $iv = str_repeat(chr(0x0), 16);
-        // Encrypt the JSON data
-        $this->encrypted = base64_encode(openssl_encrypt($jobJson, $method, $key, OPENSSL_RAW_DATA, $iv));
+        $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);//$this->provider->wenoChr();
+        $this->encrypted = base64_encode(openssl_encrypt($job_j, $method, $key, OPENSSL_RAW_DATA, $iv));
     }
 
-    public function getEncryptedData(): string
+    public function storePharmacyDataJson()
     {
-        return $this->encrypted;
+        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
+        $getWenoPharmaciesCsv = new DownloadWenoPharmacies();
+        $storageLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+        return $getWenoPharmaciesCsv->retrieveDataFile($url, $storageLocation);
     }
 
-    private function buildJson(): string
+    private function buildJson()
     {
         $checkWenoDb = new PharmacyService();
         $has_data = $checkWenoDb->checkWenoDb();
-        $jobJson = [
+        $jobj = [
             "UserEmail" => $this->providerEmail(),
             "MD5Password" => $this->providerPassword(),
             "ExcludeNonWenoTest" => "N",
             "Daily" => 'N'
         ];
+
         if (date("l") != "Monday" && $has_data) {
-            $jobJson["Daily"] = "Y";
-        } elseif (date("l") != "Monday" && !$has_data) {
-            // get a weekly
-            $jobJson["Daily"] = "N"; // in case table was emptied unintentionally
+            $jobj["Daily"] = "Y";
         }
-        return text(json_encode($jobJson));
-    }
 
-    public function storePharmacyData(): ?string
-    {
-        $downloadWenoPharmacies = new DownloadWenoPharmacies();
-
-        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
-        $storageLocation = $storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
-        $path_to_extract = $storageLocation;
-        $storeLocation .= "weno_pharmacy.zip";
-        $downloadWenoPharmacies->retrieveDataFile($url, $storageLocation);
-        return $downloadWenoPharmacies->extractFile($path_to_extract, $storeLocation);
+        return text(json_encode($jobj));
     }
 
     private function providerEmail()
@@ -96,14 +83,14 @@ class WenoPharmaciesJson
         return "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
     }
 
-    public function checkBackgroundService(): bool|string
+    public function checkBackgroundService(): string
     {
         $sql = "SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'";
         $activeStatus = sqlQuery($sql);
         if ($activeStatus['active'] == 0) {
             sqlStatement("UPDATE `background_services` SET `active` = 1 WHERE `name` = 'WenoExchangePharmacies'");
-            error_log("WenoExchangePharmacies background service reactivated.");
+            return "active";
         }
-        return true;
+        return "live";
     }
 }

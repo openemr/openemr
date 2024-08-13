@@ -114,21 +114,6 @@ class ListService
         return null;
     }
 
-    /**
-     * Retrieves a list option for a given list by the code value
-     * @param string $list_id
-     * @param string $code The exact code(s) to match.  This must match the string precisely and fuzzy matching is not currently supported.
-     * @return array|null
-     */
-    public function getListOptionByCode(string $list_id, string $code)
-    {
-        $records = $this->getOptionsByListName($list_id, ['codes' => $code]);
-        if (!empty($records)) { // should only be one record
-            return $records[0];
-        }
-        return null;
-    }
-
     public function getOne($pid, $list_type, $list_id)
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? AND id=? ORDER BY date DESC";

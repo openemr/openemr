@@ -29,6 +29,7 @@ if ($_POST) {
     }
 }
 
+
 $fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
@@ -37,10 +38,6 @@ while ($row = sqlFetchArray($fetch)) {
 if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
-        sqlQuery(
-            "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-            array('global:weno_provider_uid', $weno_prov_id, $id, $weno_prov_id, $id)
-        );
     }
 
     unset($_POST['save']);
@@ -65,7 +62,7 @@ if (($_POST['save'] ?? false) == 'true') {
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     top.restoreSession();
-                    syncAlertMsg(successMsg, 750, 'success').then(() => {
+                    syncAlertMsg(successMsg, 1000, 'success').then(() => {
                         isPersistEvent = true;
                         $("#form_save_users").click();
                     });

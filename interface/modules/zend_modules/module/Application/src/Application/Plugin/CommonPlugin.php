@@ -21,7 +21,6 @@ use Interop\Container\ContainerInterface;
 class CommonPlugin extends AbstractPlugin
 {
     protected $application;
-    protected $listenerObject;
 
     /**
      * Application Table Object

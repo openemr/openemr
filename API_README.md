@@ -40,7 +40,7 @@ Easy-to-use JSON-based REST API for OpenEMR. FHIR is also supported, see FHIR AP
 
 ## Prerequisite
 
-Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Config->Connectors->"Enable OpenEMR Standard REST API"
+Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard REST API"
 
 ## Using API Internally
 
@@ -54,7 +54,7 @@ Multisite is supported by including the site in the endpoint. When not using mul
 
 ## Authorization
 
-OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Config->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. The listing of scopes can be found in below Scopes section.
+OpenEMR uses OIDC compliant authorization for API. SSL is required and setting baseurl at Administration->Globals->Connectors->'Site Address (required for OAuth2 and FHIR)' is required. The listing of scopes can be found in below Scopes section.
 
 ### Scopes
 
@@ -298,7 +298,7 @@ Response:
 
 ### Password Grant
 
-Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Config->Connectors->'Enable OAuth2 Password Grant (Not considered secure)'.
+Recommend not using this mechanism unless you know what you are doing. It is considered far less secure than the standard authorization code method. Because of security implications, it is not turned on by default. It can be turned on at Administration->Globals->Connectors->'Enable OAuth2 Password Grant (Not considered secure)'.
 
 Note that all scopes are included in these examples for demonstration purposes. For production purposes, should only include the necessary scopes.
 
@@ -413,7 +413,7 @@ The Patient Portal API is documented via Swagger. Can see this documentation (an
 
 This is under development and is considered EXPERIMENTAL.
 
-Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Config->Connectors->"Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)"
+Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)"
 
 OpenEMR patient portal endpoints Use `https://localhost:9300/apis/default/portal as base URI.`
 
@@ -433,7 +433,7 @@ curl -X GET 'https://localhost:9300/apis/default/portal/patient' \
 ## Security
 - OpenEMR adminstrators / installers should ensure that the API is protected using an end to end encryption protocol such as TLS
 - Password Grant SHOULD be turned off for any kind of production use as it has a number of security problems
-- Setting the Admin -> Config -> OAuth2 App Manual Approval Settings to be 'Manual Approval' prevents any OAuth2 application from accessing the API without manual approval from an administrator.  This is the most secure setting.  However, in the USA jurisdiction that must comply with CEHRT rules for ONC 2015 Cures Update, patient standalone apps must be approved within 48 hours of a patient requesting access in order to avoid pentalities under the Information Blocking Provisions from ONC.  EHR administrators are not allowed to vet a patient's choice of an app as long as the app complies with OpenEMR's OAuth2 security requirements.  If an app requests user/* or system/* scopes, administrators can vet an application and request additional information / security on an app by app basis.  Leaving the setting at the default will auto-approve any patient standalone app.
+- Setting the Admin -> Globals -> OAuth2 App Manual Approval Settings to be 'Manual Approval' prevents any OAuth2 application from accessing the API without manual approval from an administrator.  This is the most secure setting.  However, in the USA jurisdiction that must comply with CEHRT rules for ONC 2015 Cures Update, patient standalone apps must be approved within 48 hours of a patient requesting access in order to avoid pentalities under the Information Blocking Provisions from ONC.  EHR administrators are not allowed to vet a patient's choice of an app as long as the app complies with OpenEMR's OAuth2 security requirements.  If an app requests user/* or system/* scopes, administrators can vet an application and request additional information / security on an app by app basis.  Leaving the setting at the default will auto-approve any patient standalone app.
 - Public apps (ones that can't securely store a secret) MUST implement the PKCE standard specified in [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636).  Confidential apps are still highly encouraged to implement PKCE to mitigate forms of MITM attacks such as multiple native app devices registering for the same custom url scheme used as the OAUTH2 redirect_uri in the authorization_code grant.
 
 ## For Developers

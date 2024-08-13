@@ -55,14 +55,13 @@ function viewPtFinder(myMessage, searchAnyType, data, event)
         });
         srchBox.blur();
     } else if (srchBoxLength == 0 && srchBoxWidth > 50) {
-        // 'fixed is similar to dual'
-        if (searchAnyType == 'dual' || searchAnyType == 'fixed' ) {
+        if (searchAnyType == 'dual') {
             srchBox.blur();
             navigateTab(finderUrl,"fin", function () {
                 activateTabByName("fin",true);
             });
         } else if (searchAnyType == 'comprehensive') {
-            alert(arguments[0] );
+            alert(arguments[0]);
             srchBox.focus();
         }
     }

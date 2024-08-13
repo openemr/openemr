@@ -8632,7 +8632,6 @@ CREATE TABLE `session_tracker` (
   `uuid` binary(16) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   `last_updated` timestamp NULL,
-  `number_scripts` bigint DEFAULT 1,
   PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
 

@@ -29,7 +29,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\EncounterService;
-use OpenEMR\Services\PatientNameHistoryService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\SearchComparator;
@@ -205,8 +204,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPreviousNames($pid): array
     {
-        $nameService = new PatientNameHistoryService();
-        return $nameService->getPatientNameHistory($pid) ?? [];
+        $patientService = new PatientService();
+        return $patientService->getPatientNameHistory($pid) ?? [];
     }
 
     /* Fetch Patient data from EMR
@@ -1057,7 +1056,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $code_snomed = $get_code_details[1];
                     $code_text_snomed = lookup_code_descriptions($row['code']);
                 } else {
-                    $code = $get_code_details[1] ?? '';
+                    $code = $get_code_details[1];
                     $code_text = lookup_code_descriptions($single_code);
                 }
 
@@ -1100,8 +1099,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 <startdate>" . xmlEscape($row['begdate'] ? preg_replace('/-/', '', $row['begdate']) : "00000000") . "</startdate>
                 <enddate>" . xmlEscape($row['enddate'] ? preg_replace('/-/', '', $row['enddate']) : "00000000") . "</enddate>
                 <reaction_text>" . xmlEscape($reaction_text ? Listener::z_xlt($reaction_text) : "") . "</reaction_text>
-                <reaction_code>" . xmlEscape($reaction_code[1] ?? '') . "</reaction_code>
-                <reaction_code_type>" . xmlEscape(str_replace('-', ' ', $reaction_code[0] ?? '') ?: '') . "</reaction_code_type>
+                <reaction_code>" . xmlEscape($reaction_code[1] ?: '') . "</reaction_code>
+                <reaction_code_type>" . xmlEscape(str_replace('-', ' ', $reaction_code[0]) ?: '') . "</reaction_code_type>
                 <RxNormCode>" . xmlEscape($code_rx) . "</RxNormCode>
                 <RxNormCode_text>" . xmlEscape(!empty($code_text_rx) ? $code_text_rx : $row['title']) . "</RxNormCode_text>
                 </allergy>";

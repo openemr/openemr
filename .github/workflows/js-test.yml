@@ -2,9 +2,9 @@ name: JS Unit Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ rel-702 ]
   pull_request:
-    branches: [ master ]
+    branches: [ rel-702 ]
 
 permissions:
   contents: read
@@ -20,7 +20,7 @@ jobs:
       - name: Install npm package
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '18'
 
       - name: npm install
         run: |

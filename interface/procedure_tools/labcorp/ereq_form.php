@@ -70,13 +70,8 @@ STYLES;
         $pdfContent .= '<td style="width:55%;">';
         $pdfContent .= '<table>';
 
-        if (!empty($procedure['date_collected'])) {
-            $collection_date = date("m/d/Y", strtotime($procedure['date_collected']));
-            $collection_time = date("H:i", strtotime($procedure['date_collected']));
-        } else {
-            $collection_date = '';
-            $collection_time = '';
-        }
+        $collection_date = date("m/d/Y", strtotime($procedure['date_collected']));
+        $collection_time = date("H:i", strtotime($procedure['date_collected']));
         $pdfContent .= '<tr>';
         $pdfContent .= '<td style="text-align:right;width:35%;">Collection Date:</td>';
         $pdfContent .= '<td style="width:65%;">' . text($collection_date) . '</td>';
@@ -166,7 +161,6 @@ STYLES;
         $procedure_left = $proc_order - $procedure_right;
         $all_procedures = array();
         $all_diagnoses = array();
-
         if (!empty($procedure['order_diagnosis'])) {
             $all_diagnoses[] = $procedure['order_diagnosis'];
         }
@@ -187,9 +181,7 @@ STYLES;
             $pdfContent .= '<tr>';
             $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
             $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
-            foreach ($temp_diag as $sub_diag) {
-                $all_diagnoses[] = $sub_diag;
-            }
+            $all_diagnoses[] = $temp_diag;
             $pdfContent .= '</tr>';
         }
         $pdfContent .= '</table>';
@@ -209,9 +201,7 @@ STYLES;
             $pdfContent .= '<tr>';
             $pdfContent .= '<td class="width50">' . text($all_procedures[$i]['procedure_code']) . '</td>';
             $temp_diag = explode(";", $all_procedures[$i]['diagnoses']);
-            foreach ($temp_diag as $sub_diag) {
-                $all_diagnoses[] = $sub_diag;
-            }
+            $all_diagnoses[] = $temp_diag;
             $pdfContent .= '</tr>';
         }
         $pdfContent .= '</table>';
@@ -375,27 +365,25 @@ STYLES;
         $pdfContent .= '<td style="padding-left:8px;" colspan="8"><b>Diagnosis Codes:</b>List all applicable Diagnosis codes. Must be at Highest Level Specificity.</td>';
         $pdfContent .= '</tr>';
         $pdfContent .= '<tr>';
-        // need to remove the code system prefix
-        $codesOnlyArray = [];
-        foreach ($all_diagnoses as $diagnosis) {
-            $splitCode = explode(":", $diagnosis);
-            if (!empty($splitCode)) {
-                if (!empty($splitCode[1])) {
-                    $codesOnlyArray[] = $splitCode[1];
-                } else {
-                    $codesOnlyArray[] = $splitCode;
-                }
-            }
-        }
-        for ($i = 0; $i < 8; $i++) {
-            $pdfContent .= '<td style="width:12.5%;" >' . text($codesOnlyArray[$i] ?? '') . '</td>';
-        }
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[0])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[1])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[2])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[3])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[4])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[5])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[6])) . '</td>';
+        $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[7])) . '</td>';
         $pdfContent .= '</tr>';
         if (!empty($all_diagnoses[8])) {
             $pdfContent .= '<tr>';
-            for ($i = 8; $i < 16; $i++) {
-                $pdfContent .= '<td style="width:12.5%;" >' . text($codesOnlyArray[$i] ?? '') . '</td>';
-            }
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[8])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[9])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[10])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[11])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[12])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[13])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[14])) . '</td>';
+            $pdfContent .= '<td style="width:12.5%;" >' . text(str_replace('ICD10:', '', $all_diagnoses[15])) . '</td>';
             $pdfContent .= '</tr>';
         }
 
