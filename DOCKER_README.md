@@ -1,5 +1,6 @@
 # OpenEMR Docker Documentation
 
+
 ## Overview
 The OpenEMR community loves Docker. We eat and breathe Docker. The OpenEMR dockers and detailed documentation
 can be found on [dockerhub](https://hub.docker.com/r/openemr/openemr/). There are two main categories of
