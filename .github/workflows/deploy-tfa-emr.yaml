@@ -103,6 +103,7 @@ jobs:
             DOMAIN_NAME=$(echo $PAIR | cut -d ':' -f 2)
             echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
             echo "Deploying to instance $INSTANCE_ID, for Doctor $DOMAIN_NAME."
+            echo "This is a test for an env var: ${{ env.DOMAIN_NAME }}"
             COMMAND_ID=$(aws ssm send-command \
               --document-name "AWS-RunShellScript" \
               --instance-ids "$INSTANCE_ID" \
