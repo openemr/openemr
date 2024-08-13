@@ -64,16 +64,16 @@ class PortalCard extends CardModel
         $this->opts['templateVariables']['appendedInjection'] = $dispatchResult->getAppendedInjection();
     }
 
-    // used in portal.html.twig and card_base.html.twig
+    // used in twigs
     private function setOpts()
     {
         global $GLOBALS;
         global $pid;
         // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
         $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";
-        $res = sqlStatement ($sql);
+        $res = sqlStatement($sql);
         $nrow = sqlFetchArray($res);
-        $groupName = ($nrow['grp_title']  !=='' ? $nrow['grp_title'] : 'Choices');
+        $groupName = ($nrow['grp_title']  !== '' ? $nrow['grp_title'] : 'Choices');
 
         $this->opts = [
             'acl' => ['patients', 'demo'],
