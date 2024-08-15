@@ -187,11 +187,16 @@ if ($isPortal) {
 
         let formOptions = {
             "questionLayout": "vertical",
-            "hideTreeLine": true,
+            "hideTreeLine": false,
             "hideRepetitionNumber": true,
             "showCodingInstruction": false,
             "displayScoreWithAnswerText": false
         };
+
+        function toggleHideTreeLine() {
+            formOptions.hideTreeLine = !formOptions.hideTreeLine;
+            initUpdate();
+        }
 
         function saveQR() {
             if (!isPortal) {
@@ -313,8 +318,12 @@ if ($isPortal) {
                         return form.json();
                     }).then((data) => {
                         let saveButton = document.getElementById('save_response');
+                        let saveButtonTop = document.getElementById('save_response_top');
                         let registryButton = document.getElementById('save_registry');
+                        let registryButtonTop = document.getElementById('save_registry_top');
+                        registryButtonTop.classList.remove("d-none");
                         saveButton.classList.remove("d-none");
+                        saveButtonTop.classList.remove("d-none");
                         registryButton.classList.remove("d-none");
                         document.getElementById('form_name').value = jsAttr(data.name);
                         document.getElementById('lform').value = JSON.stringify(data);
@@ -361,8 +370,12 @@ if ($isPortal) {
                         return form.json();
                     }).then((data) => {
                         let saveButton = document.getElementById('save_response');
+                        let saveButtonTop = document.getElementById('save_response_top');
                         let registryButton = document.getElementById('save_registry');
+                        let registryButtonTop = document.getElementById('save_registry_top');
+                        registryButtonTop.classList.remove("d-none");
                         saveButton.classList.remove("d-none");
+                        saveButtonTop.classList.remove("d-none");
                         registryButton.classList.remove("d-none");
                         document.getElementById('lform').value = JSON.stringify(data);
                         document.getElementById('form_name').value = jsAttr(data.name);
@@ -381,8 +394,12 @@ if ($isPortal) {
 
             initNewForm(true);
             let saveButton = document.getElementById('save_response');
+            let saveButtonTop = document.getElementById('save_response_top');
             let registryButton = document.getElementById('save_registry');
+            let registryButtonTop = document.getElementById('save_registry_top');
+            registryButtonTop.classList.remove("d-none");
             saveButton.classList.remove("d-none");
+            saveButtonTop.classList.remove("d-none");
             registryButton.classList.remove("d-none");
         }
 
@@ -458,6 +475,14 @@ if ($isPortal) {
                 </div>
             </div>
             <hr />
+            <?php if (!$isPortal && !$patientPortalOther) { ?>
+                <div class="btn-group my-2">
+                    <button type="submit" class="btn btn-primary btn-save isNew" id="save_response_top" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
+                    <button type="submit" class="btn btn-primary d-none" id="save_registry_top" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>" onclick="formMode = 'register'"><?php echo xlt("or Register New"); ?></button>
+                    <button type='button' class="btn btn-secondary btn-cancel d-none" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
+                </div>
+            <?php } ?>
+            <button type='button' class="btn btn-success" onclick="toggleHideTreeLine()"><?php echo xlt('Toggle Guides'); ?></button>
             <div class="bg-light text-dark" id="formContainer"></div>
             <!-- RM check if LOINC terms configured to display notice at bottom of window -->
             <?php if ($bottom_note && !$isPortal) { ?>
@@ -474,14 +499,6 @@ if ($isPortal) {
             <?php } ?>
         </form>
     </div>
-    <!-- Below scripts must be in body. -->
-    <!--<script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/assets/lib/zone.min.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/scripts.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/runtime-es2015.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/polyfills-es2015.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/main-es2015.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/fhir/R4/lformsFHIR.min.js"></script>-->
-
     <!-- TODO Temporary dependencies location -->
     <?php require(__DIR__ . "/../../forms/questionnaire_assessments/lform_webcomponents.php") ?>
     <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
