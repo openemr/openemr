@@ -12,6 +12,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalRange;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
+
 ?>
 <?php require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php"); ?>
 <?php $rule = $viewBean->rule ?>
