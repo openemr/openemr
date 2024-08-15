@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Option;
+
 require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
 
 function getLabel($value, $list_id)

@@ -12,10 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
+
 ?>
 
-<script src="<?php js_src('list.js') ?>"></script>
-<script src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
+<script src="<?php Common::js_src('list.js') ?>"></script>
+<script src="<?php Common::js_src('jQuery.fn.sortElements.js') ?>"></script>
 
 <script>
     var list = new list_rules();

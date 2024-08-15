@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
+
 $rule = $viewBean->rule ?>
 
 <script src="<?php js_src('edit.js') ?>"></script>
