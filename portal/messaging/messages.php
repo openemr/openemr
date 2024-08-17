@@ -473,7 +473,7 @@ function getAuthPortalUsers()
                         $('#inputBody').summernote({
                             width: '100%',
                             focus: true,
-                            height: '225px',
+                            height: '375px',
                             tabsize: 4,
                             disableDragAndDrop: true,
                             dialogsInBody: true,
@@ -701,7 +701,7 @@ function getAuthPortalUsers()
                 </div>
                 <!-- /.modal compose message -->
                 <div class="modal fade" id="modalCompose">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>

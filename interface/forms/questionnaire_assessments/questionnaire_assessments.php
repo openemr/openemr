@@ -147,6 +147,17 @@ if ($isPortal) {
     }
 }
 
+if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
+    $theme = 'light';
+} elseif (($GLOBALS['questionnaire_display_style'] ?? 0) == 4) {
+    $theme = 'dark';
+}
+
+$container = 'container-fluid';
+if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
+    $container = 'container';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -411,7 +422,7 @@ if ($isPortal) {
     </script>
 </head>
 <body class="bg-light" data-theme="<?php echo attr($theme); ?>">
-    <div class="container-fluid col">
+    <div class="<?php echo attr($container); ?>">
         <?php if (!$isPortal) { ?>
             <div class="title bg-light text-dark">
                 <h4><?php if ($mode != 'new_form' && $mode != 'update') {

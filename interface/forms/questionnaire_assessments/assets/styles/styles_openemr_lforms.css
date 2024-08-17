@@ -93,7 +93,7 @@ p, span {
   font-weight: 600;
   color: var(--text-color);
   background-color: var(--primary-color);
-  padding: 1rem;
+  padding: 0.5rem;
   margin-bottom: 1rem;
   border-radius: 4px;
 }
@@ -237,7 +237,7 @@ p, span {
 
 .lhc-form .ant-checkbox-disabled, .lhc-form .ant-radio-disabled, .lhc-form input:disabled, .lhc-form .ant-picker-input > input-disabled, .lhc-form .ant-picker-input > input[disabled], .lhc-form .lhc-item-readyonly {
   color: #000000bf;
-  cursor: not-allowed
+    cursor: not-allowed;
 }
 
 /* Dark Theme - Enhanced Contrast for Inputs and Buttons */
@@ -298,7 +298,7 @@ p, span {
 
 lhc-item.lhc-last-item lhc-item-question-text {
   margin-bottom: .5rem;
-  color: #00ffa0 !important;
+  color: var(--text-color);
   font-weight: 500;
   line-height: 1.4;
 }
