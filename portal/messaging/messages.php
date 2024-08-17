@@ -441,7 +441,15 @@ function getAuthPortalUsers()
                         $("textarea#finputBody").text(fmsg)
                         $scope.compose.noteid = $(e.relatedTarget).attr('data-noteid');
                     } else if (mode == 'reply') {
-                        $('#inputBody').summernote({focus: true, height: '225px', width: '100%'});
+                        $('#inputBody').summernote({
+                            focus: true,
+                            height: '225px',
+                            width: '100%',
+                            tabsize: 4,
+                            disableDragAndDrop: true,
+                            dialogsInBody: true,
+                            dialogsFade: true
+                        });
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose Reply Message"); ?>)
                         $scope.compose.task = mode;
                         //get data attributes of the clicked element (selected recipient) for replies only
@@ -466,6 +474,10 @@ function getAuthPortalUsers()
                             width: '100%',
                             focus: true,
                             height: '225px',
+                            tabsize: 4,
+                            disableDragAndDrop: true,
+                            dialogsInBody: true,
+                            dialogsFade: true,
                             popover: {
                                 image: [],
                                 link: [],

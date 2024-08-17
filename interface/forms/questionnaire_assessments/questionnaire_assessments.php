@@ -154,7 +154,6 @@ if ($isPortal) {
 <head>
     <title id="main_title"><?php echo xlt('Questionnaire'); ?></title>
     <?php Header::setupHeader(); ?>
-    <!--<link href="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />-->
     <!-- TODO remove next release -->
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
@@ -187,7 +186,7 @@ if ($isPortal) {
 
         let formOptions = {
             "questionLayout": "vertical",
-            "hideTreeLine": false,
+            "hideTreeLine": true,
             "hideRepetitionNumber": true,
             "showCodingInstruction": false,
             "displayScoreWithAnswerText": false
@@ -195,7 +194,9 @@ if ($isPortal) {
 
         function toggleHideTreeLine() {
             formOptions.hideTreeLine = !formOptions.hideTreeLine;
+            saveQR();
             initUpdate();
+            $(".doCancel").toggleClass('d-none');
         }
 
         function saveQR() {
@@ -232,6 +233,7 @@ if ($isPortal) {
         }
 
         function initUpdate() {
+            $(".doCancel").toggleClass('d-none');
             // Merge QuestionnaireResponse
             let lForm = null;
             let qFhir = null;
@@ -264,6 +266,7 @@ if ($isPortal) {
         }
 
         function initNewForm(flag = false) {
+            $(".doCancel").toggleClass('d-none');
             let lform = <?php echo js_escape($lform); ?>;
             let qFhir = <?php echo js_escape($q_json); ?>;
             let formName = <?php echo js_escape($form_name); ?>;
@@ -299,6 +302,7 @@ if ($isPortal) {
             alertMsg(msg, 20000, 'danger', '', 'disable_form_disclaimer');
             <?php } ?>
             $(".isNew").toggleClass('d-none');
+            $(".doOption").toggleClass('d-none');
             // setup LOINC search listener
             let ac;
             ac = new LForms.Def.Autocompleter.Search(
@@ -343,7 +347,8 @@ if ($isPortal) {
 
         function initSearchForm() {
             initSelect();
-            $(".isNew").toggleClass('d-none');
+            //$(".isNew").toggleClass('d-none');
+            $(".doOption").toggleClass('d-none');
 
             document.getElementById('select_item').addEventListener('change', function () {
                 let el = document.getElementById('select_item');
@@ -479,10 +484,10 @@ if ($isPortal) {
                 <div class="btn-group my-2">
                     <button type="submit" class="btn btn-primary btn-save isNew" id="save_response_top" title="<?php echo xla('Save current form or create a new one time questionnaire for this encounter if this is a New Questionnaire form.'); ?>"><?php echo xlt("Save Current"); ?></button>
                     <button type="submit" class="btn btn-primary d-none" id="save_registry_top" name="save_registry" title="<?php echo xla('Register as a new encounter form for reuse in any encounter.'); ?>" onclick="formMode = 'register'"><?php echo xlt("or Register New"); ?></button>
-                    <button type='button' class="btn btn-secondary btn-cancel d-none" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
+                    <button type='button' class="btn btn-secondary btn-cancel doCancel d-none" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
                 </div>
             <?php } ?>
-            <button type='button' class="btn btn-success" onclick="toggleHideTreeLine()"><?php echo xlt('Toggle Guides'); ?></button>
+            <button type='button' class="btn btn-success float-right doOption" onclick="toggleHideTreeLine()"><?php echo xlt('Toggle Guides'); ?></button>
             <div class="bg-light text-dark" id="formContainer"></div>
             <!-- RM check if LOINC terms configured to display notice at bottom of window -->
             <?php if ($bottom_note && !$isPortal) { ?>

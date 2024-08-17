@@ -9157,7 +9157,7 @@ span.ant-radio + * {
   margin: 1rem 1rem;
   padding: 0;
   color: var(--text-color);
-  background-color: var(--font-color-dark);
+  background-color: var(--background-color);
   font-size: 16px;
   font-variant: tabular-nums;
   line-height: 1.5715;
@@ -9205,7 +9205,7 @@ span.ant-radio + * {
 }
 
 .ant-popover-inner {
-  background-color: var(--font-color-dark);
+  background-color: var(--background-color);
   background-clip: padding-box;
   border-radius: 2px;
   box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px #00000014, 0 9px 28px 8px #0000000d
@@ -9505,12 +9505,12 @@ span.ant-radio + * {
 
 .ant-picker {
   box-sizing: border-box;
-  color: #000000d9;
+  color: var(--text-color);
   font-variant: tabular-nums;
   padding: 4px 11px;
   display: inline-flex;
   align-items: center;
-  background: #fff;
+  background: var(--background-color);
   border: 1px solid #d9d9d9;
   border-radius: 2px;
   transition: border .3s, box-shadow .3s
@@ -10917,9 +10917,9 @@ textarea.ant-input-affix-wrapper {
   display: inline-block;
   min-width: 0;
   padding: 4px 11px;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
-  background-color: #fff;
+  background-color: var(--background-color);
   background-image: none;
   border: 1px solid #d9d9d9;
   border-radius: 2px;
@@ -12169,7 +12169,7 @@ input.search_field, textarea.search_field {
 
 .autocomp_selected input, .autocomp_selected textarea {
   border-width: 1px;
-  width: 100%;
+    width: 100%;
   box-sizing: border-box
 }
 
