@@ -441,7 +441,15 @@ function getAuthPortalUsers()
                         $("textarea#finputBody").text(fmsg)
                         $scope.compose.noteid = $(e.relatedTarget).attr('data-noteid');
                     } else if (mode == 'reply') {
-                        $('#inputBody').summernote({focus: true, height: '225px', width: '100%'});
+                        $('#inputBody').summernote({
+                            focus: true,
+                            height: '225px',
+                            width: '100%',
+                            tabsize: 4,
+                            disableDragAndDrop: true,
+                            dialogsInBody: true,
+                            dialogsFade: true
+                        });
                         $('#modalCompose .modal-header .modal-title').html(<?php xlt("Compose Reply Message"); ?>)
                         $scope.compose.task = mode;
                         //get data attributes of the clicked element (selected recipient) for replies only
@@ -465,7 +473,11 @@ function getAuthPortalUsers()
                         $('#inputBody').summernote({
                             width: '100%',
                             focus: true,
-                            height: '225px',
+                            height: '375px',
+                            tabsize: 4,
+                            disableDragAndDrop: true,
+                            dialogsInBody: true,
+                            dialogsFade: true,
                             popover: {
                                 image: [],
                                 link: [],
@@ -689,7 +701,7 @@ function getAuthPortalUsers()
                 </div>
                 <!-- /.modal compose message -->
                 <div class="modal fade" id="modalCompose">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>

@@ -123,7 +123,8 @@ $USER_SPECIFIC_TABS = array('Appearance',
     'Report',
     'Calendar',
     'CDR',
-    'Connectors');
+    'Connectors',
+    'Questionnaires');
 $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'default_second_tab',
     'theme_tabs_layout',
@@ -156,7 +157,10 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message'
+    'erx_import_status_message',
+    'questionnaire_display_LOINCnote',
+    'questionnaire_display_style',
+    'questionnaire_display_fullscreen'
 );
 
 // Gets array of time zones supported by PHP.
@@ -439,18 +443,6 @@ $GLOBALS_METADATA = array(
             ,FormActionBarSettings::getGlobalSettingsList()
             ,FormActionBarSettings::getDefaultSetting() // default = top of the form
             ,xl('Placement of the save/cancel, and other bottons where supported (Demographics, Encounter Forms, etc).')
-        ),
-
-        'questionnaire_display_LOINCnote' => array(
-            xl('Display LOINC note on questionnaires'),
-            array(
-                '0' => xl('At the top of the page only'),
-                '1' => xl('At the foot of the page only'),
-                '2' => xl('At the top of the page and at the foot of the page'),
-                '3' => xl('Do not display the note')
-            ),
-            '0' ,                          // default = display at top of form
-            xl('Configure where LOINC statement should be displayed')
         ),
     ),
 
@@ -4366,7 +4358,41 @@ $GLOBALS_METADATA = array(
             xl('Display the Ordering Provider option on Encounters'),
         ],
     ],
+
+    'Questionnaires' => [
+        'questionnaire_display_LOINCnote' => array(
+            xl('Display LOINC note on questionnaires'),
+            array(
+                '0' => xl('At the top of the page only'),
+                '1' => xl('At the foot of the page only'),
+                '2' => xl('At the top of the page and at the foot of the page'),
+                '3' => xl('Do not display the note')
+            ),
+            '0' ,                          // default = display at top of form
+            xl('Configure where LOINC statement should be displayed')
+        ),
+
+        'questionnaire_display_style' => array(
+            xl('Questionnaire Form Display Style'),
+            array(
+                '0' => xl('OpenEMR Auto Select Dark/Light Themed Version'),
+                '1' => xl('LForms Project Maintained Light Version(Original)'),
+                '3' => xl('OpenEMR Light Theme Version Always'),
+                '4' => xl('OpenEMR Dark Theme Version Always'),
+            ),
+            '0' ,                          // default = display at top of form
+            xl('Choose OpenEMR auto select based on core theme styles(OpenEMR dark theme turns on Questionnaire dark, LForms project maintained light styles(Original) or default to always dark or light regardless of core themes.')
+        ),
+
+        'questionnaire_display_fullscreen' => array(
+            xl('Turn off full screen display for Questionnaire Forms'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Default form width of Questionnaire display.')
+        ),
+    ],
 );
+
 
 if (!empty($GLOBALS['ippf_specific'])) {
     $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = array(

@@ -248,11 +248,19 @@ class QuestionnaireResponseService extends BaseService
         return $question_results;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUuidFields(): array
     {
         return ['questionnaire_response_uuid', 'encounter_uuid', 'puuid'];
     }
 
+    /**
+     * @param $search
+     * @param $isAndCondition
+     * @return ProcessingResult
+     */
     public function search($search, $isAndCondition = true)
     {
         $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
@@ -299,7 +307,7 @@ class QuestionnaireResponseService extends BaseService
                     FROM patient_data
              ) pd ON qr.patient_id = pd.pid "
             // we only grab users that are actual Practitioners with a valid NPI number
-            . " LEFT JOIN users ON qr.creator_user_id = users.id AND users.username IS NOT NULL and users.npi IS NOT NULL AND users.npi != ''" ;
+            . " LEFT JOIN users ON qr.creator_user_id = users.id AND users.username IS NOT NULL and users.npi IS NOT NULL AND users.npi != ''";
 
         $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
         $sqlUuids = $sqlSelectIds . " " . $sql . " " . $whereUuidClause->getFragment();
@@ -451,26 +459,26 @@ class QuestionnaireResponseService extends BaseService
 
         $dataValues = [
             'uuid' => $qr_uuid
-            ,'response_id' => $qr_id
-            ,'questionnaire_foreign_id' => $q_record_id
-            ,'questionnaire_id' => $q_id
-            ,'questionnaire_name' => $q_title
+            , 'response_id' => $qr_id
+            , 'questionnaire_foreign_id' => $q_record_id
+            , 'questionnaire_id' => $q_id
+            , 'questionnaire_name' => $q_title
             // if its created by a patient we won't have an authUserID
-            ,'audit_user_id' => $update_flag ? ($_SESSION['authUserID'] ?? null) : null
-            ,'creator_user_id' => $_SESSION['authUserID'] ?? null
-            ,'version' => $update_flag ? (int)$id['version'] + 1 : 1
-            ,'last_updated' => date("Y-m-d H:i:s")
-            ,'patient_id' => $pid
-            ,'encounter' => $encounter
-            ,'status' => $r_status ?: 'in-progress'
-            ,'questionnaire' => $q_content
-            ,'questionnaire_response' => $r_content
-            ,'form_response' => $form_response
-            ,'form_score' => null
-            ,'tscore' => null
-            ,'error' => null
-            ,'id' => $id['id'] ?? null
-            ,'isNew' => !$update_flag
+            , 'audit_user_id' => $update_flag ? ($_SESSION['authUserID'] ?? null) : null
+            , 'creator_user_id' => $_SESSION['authUserID'] ?? null
+            , 'version' => $update_flag ? (int)$id['version'] + 1 : 1
+            , 'last_updated' => date("Y-m-d H:i:s")
+            , 'patient_id' => $pid
+            , 'encounter' => $encounter
+            , 'status' => $r_status ?: 'in-progress'
+            , 'questionnaire' => $q_content
+            , 'questionnaire_response' => $r_content
+            , 'form_response' => $form_response
+            , 'form_score' => null
+            , 'tscore' => null
+            , 'error' => null
+            , 'id' => $id['id'] ?? null
+            , 'isNew' => !$update_flag
         ];
 
 
@@ -488,15 +496,15 @@ class QuestionnaireResponseService extends BaseService
         if ($update_flag) {
             $bind = array(
                 $dataValues['audit_user_id']
-                ,$dataValues['version']
-                ,$dataValues['last_updated']
-                ,$dataValues['status']
-                ,$dataValues['questionnaire_response']
-                ,$dataValues['form_response']
-                ,$dataValues['form_score']
-                ,$dataValues['tscore']
-                ,$dataValues['error']
-                ,$dataValues['id']
+            , $dataValues['version']
+            , $dataValues['last_updated']
+            , $dataValues['status']
+            , $dataValues['questionnaire_response']
+            , $dataValues['form_response']
+            , $dataValues['form_score']
+            , $dataValues['tscore']
+            , $dataValues['error']
+            , $dataValues['id']
             );
             $result = sqlQuery($sql_update, $bind);
             $id = $id['id'];
@@ -534,6 +542,43 @@ class QuestionnaireResponseService extends BaseService
      * @param string $prepend
      * @return array
      */
+    public function flattenQuestionnaireResponsePairs($items, string $delimiter = '.', string $prepend = ''): array
+    {
+        $flatArray = [];
+
+        foreach ($items as $key => $value) {
+            // If the current item is an array, recursively process it
+            if (is_array($value)) {
+                if ($key === 'answer') {
+                    // Extract answer value
+                    $flatArray[] = ['answer' => $this->setAnswer($value, true)];
+                } elseif ($key === 'item' || $key === 'linkId') {
+                    // Recursively process the items or linkId
+                    $flatArray = array_merge($flatArray, $this->flattenQuestionnaireResponse($value, $delimiter, $prepend));
+                } else {
+                    // Handle other nested arrays
+                    $flatArray = array_merge($flatArray, $this->flattenQuestionnaireResponse($value, $delimiter, $prepend . $key . $delimiter));
+                }
+            } else {
+                // Handle simple key-value pairs
+                if ($key === 'text' && isset($items['answer'])) {
+                    $flatArray[] = ['question' => $value];
+                } elseif ($key !== 'linkId') {
+                    // Exclude 'linkId' from the flat array
+                    $flatArray[] = [$key => $value];
+                }
+            }
+        }
+        // Merge all elements into a flat array
+        return $flatArray;
+    }
+
+    /**
+     * @param        $items
+     * @param string $delimiter
+     * @param string $prepend
+     * @return array
+     */
     public function flattenQuestionnaireResponse($items, string $delimiter = '.', string $prepend = ''): array
     {
         $flatArray = [];
@@ -563,56 +608,130 @@ class QuestionnaireResponseService extends BaseService
     }
 
     /**
-     * @param $source array - flattened
-     * @param $delimiter
+     * @param array $flattenedArray
+     * @return array
+     */
+    function groupByItemsRecursively(array $flattenedArray): array
+    {
+        $grouped = [];
+
+        foreach ($flattenedArray as $key => $value) {
+            // Split the key by the delimiter to handle nesting
+            $keys = explode('|', $key);
+            $current = &$grouped;
+
+            // Traverse through the key segments and build the nested structure
+            foreach ($keys as $segment) {
+                // If the segment is numeric, treat it as an array index
+                if (is_numeric($segment)) {
+                    $segment = (int)$segment;
+                    if (!isset($current[$segment])) {
+                        $current[$segment] = [];
+                    }
+                    $current = &$current[$segment];
+                } else {
+                    if (!isset($current[$segment])) {
+                        $current[$segment] = [];
+                    }
+                    $current = &$current[$segment];
+                }
+            }
+
+            // Assign the value to the final key segment
+            $current = $value;
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @param $response
      * @return string
      */
-    public function buildQuestionnaireResponseHtml($source, $delimiter = '|'): string
+    function buildQuestionnaireResponseHtml($response): string
     {
-        $html = <<<head
-        <div style="display: flex;flex-direction: column;flex-basis: 100%;">
-        <form>
-        head;
-        $title = true;
-        foreach ($source as $k => $value) {
-            $v = explode($delimiter, $k);
-            $last = count($v ?? []) - 1;
-            $item = $v[$last];
-            $margin_count = max(substr_count($k, 'item') - 1, 0);
-            $margin = attr($margin_count * 1.5 . 'rem');
-            if ($item === 'text') {
-                if ($title) {
-                    $html .= "<h4>" . text($value) . "</h4>\n";
-                    $title = false;
-                } else {
-                    $html .= "<div style='width:100%;margin:0 0;padding:0 0;'>\n<h5 style='margin:0.25rem auto 0.25rem $margin;'>" . text($value) . "</h5></div>\n";
-                }
-            }
-            if ($item === 'question') {
-                $html .= "<div style='margin: 0 auto 0;'>\n<label style='margin: 0 auto 0 $margin;'><strong>" . text($value) . ":</strong></label>\n";
-            }
-            if ($item === 'answer') {
-                if (is_array($value ?? null)) {
-                    if ($value['unit'] ?? null) {
-                        $value = $value['value'] . ' ' . $value['unit'];
-                    } else {
-                        $v = '';
-                        foreach ($value as $a) {
-                            $v .= $a . ' ';
-                        }
-                        $value = trim($v);
-                    }
-                }
-                $html .= "<span style='margin: 0 auto 0 0.5rem;'>" . text($value) . "</span></div>\n";
+        $html = '<div style="display: flex; flex-direction: column; flex-basis: 100%; line-height: 1.2 !important">';
+        $html .= '<form class="form">';
+
+        // Iterate over each top-level item (section)
+        if (isset($response['item']) && is_array($response['item'])) {
+            foreach ($response['item'] as $section) {
+                $html .= $this->renderItem($section, 0, 1);
             }
         }
-        $html .= <<<foot
-        </form>
-        </div>
-        foot;
+
+        $html .= '</form>';
+        $html .= '</div>';
 
         return $html;
     }
+
+    /**
+     * @param $item
+     * @param $indentLevel
+     * @param $flag
+     * @return string
+     */
+    function renderItem($item, $indentLevel = 0, $flag = 0): string
+    {
+        $html = '';
+        // Render item text if it exists
+        if (isset($item['text'])) {
+            $margin = str_repeat('&nbsp;', $indentLevel * 1); // Indent for nested items
+            $html .= "<div style='margin-left: {$indentLevel}rem; margin-top: 0.1rem;'>\n";
+            if ($flag === 1) {
+                $html .= "<span style='font-size: 1.15rem; font-weight: 550;'>{$margin}" . text($item['text']) . "</span>\n";
+            } else {
+                $html .= "<span style='font-size: 1.1rem; font-weight: 505;''>{$margin}" . text($item['text']) . "</span>\n";
+            }
+        }
+        // Render answer if it exists
+        if (isset($item['answer']) && is_array($item['answer'])) {
+            foreach ($item['answer'] as $answer) {
+                $answerValue = $this->extractAnswerValue($answer);
+                $html .= "<span style='font-size: 1.1rem; font-weight: 500;'>{$answerValue}</span>\n";
+                // Recursively render any nested items within the answer
+                if (isset($answer['item']) && is_array($answer['item'])) {
+                    foreach ($answer['item'] as $subItem) {
+                        $html .= $this->renderItem($subItem, $indentLevel + 1);
+                    }
+                }
+            }
+        }
+        // Level 2 Recursively render any nested items within the current item. Add a 3rd
+        if (isset($item['item']) && is_array($item['item'])) {
+            foreach ($item['item'] as $subItem) {
+                $html .= $this->renderItem($subItem, $indentLevel + 1);
+            }
+        }
+        $html .= "</div>\n"; // Close the current item
+
+        return $html;
+    }
+
+    /**
+     * @param $answer
+     * @return string
+     */
+    function extractAnswerValue($answer)
+    {
+        if (isset($answer['valueCoding'])) {
+            return $answer['valueCoding']['display'];
+        } elseif (isset($answer['valueDecimal'])) {
+            return $answer['valueDecimal'];
+        } elseif (isset($answer['valueString'])) {
+            return $answer['valueString'];
+        } elseif (isset($answer['valueBoolean'])) {
+            return $answer['valueBoolean'] ? 'Yes' : 'No';
+        } elseif (isset($answer['valueInteger'])) {
+            return $answer['valueInteger'];
+        } elseif (isset($answer['valueDate'])) {
+            return $answer['valueDate'];
+        } else {
+            return 'N/A';
+        }
+    }
+
 
     /**
      * @param      $name
@@ -673,6 +792,10 @@ class QuestionnaireResponseService extends BaseService
         return $resource ?: [];
     }
 
+    /**
+     * @param $qr_id
+     * @return array
+     */
     public function fetchQuestionnaireResponseByResponseId($qr_id)
     {
         return $this->fetchQuestionnaireResponse(null, $qr_id);
