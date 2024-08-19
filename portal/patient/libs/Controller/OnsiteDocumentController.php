@@ -336,7 +336,6 @@ class OnsiteDocumentController extends AppBasePortalController
                 if (!empty($existing)) {
                     $config = HTMLPurifier_Config::createDefault();
                     $config->set('Core.Encoding', 'UTF-8');
-                    $config->set('CSS.AllowedProperties', '*');
                     // purifier will only allow base64 data urls in img tag.
                     // all other element will be removed. Flatten document have already been sanitized
                     // by replacing all inputs, checks and radios tags to their answers.

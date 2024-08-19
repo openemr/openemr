@@ -335,23 +335,23 @@ function renderEditorHtml($template_id, $content)
     <!DOCTYPE html>
     <html>
     <head>
-        <?php Header::setupHeader(['ckeditor']); ?>
+        <?php Header::setupHeader(['summernote']); ?>
     </head>
     <style>
-      input:focus,
-      input:active {
-        outline: 0 !important;
-        -webkit-appearance: none;
-        box-shadow: none !important;
-      }
+        input:focus,
+        input:active {
+            outline: 0 !important;
+            -webkit-appearance: none;
+            box-shadow: none !important;
+        }
 
-      .list-group-item {
-        font-size: .9rem;
-      }
+        .list-group-item {
+            font-size: .9rem;
+        }
 
-      .cke_contents {
-        height: 78vh !important;
-      }
+        .note-editable {
+            height: 78vh !important;
+        }
     </style>
     <body>
         <div class="container-fluid">
@@ -406,29 +406,23 @@ function renderEditorHtml($template_id, $content)
                     input.select();
                 })
             })
-            editor = CKEDITOR.instances['templateContent'];
-            if (editor) {
-                editor.destroy(true);
-            }
-            CKEDITOR.disableAutoInline = true;
-            CKEDITOR.config.extraPlugins = "preview,save,docprops,justify";
-            CKEDITOR.config.allowedContent = true;
-            //CKEDITOR.config.fullPage = true;
-            CKEDITOR.config.height = height;
-            CKEDITOR.config.width = '100%';
-            CKEDITOR.config.resize_dir = 'both';
-            CKEDITOR.config.resize_minHeight = max / 2;
-            CKEDITOR.config.resize_maxHeight = max;
-            CKEDITOR.config.resize_minWidth = '50%';
-            CKEDITOR.config.resize_maxWidth = '100%';
-            CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
-            CKEDITOR.config.shiftEnterMode = CKEDITOR.ENTER_P;
-            CKEDITOR.config.autoParagraph = false;
-            CKEDITOR.config.versionCheck = false;
-            editor = CKEDITOR.replace('templateContent', {
-                removeButtons: 'PasteFromWord'
+        });
+        $(function () {
+            $('#templateContent').summernote({
+                placeholder: 'Start typing here...',
+                height: 550,
+                minHeight: 300,
+                maxHeight: 800,
+                width: '100%',
+                tabsize: 4,
+                focus: true,
+                disableDragAndDrop: true,
+                dialogsInBody: true,
+                dialogsFade: true
             });
         });
+    </script>
+    <script>
     </script>
     </html>
 <?php }
@@ -455,23 +449,27 @@ function renderProfileHtml()
         <?php } ?>
     </head>
     <style>
-      body {
-        overflow: hidden;
-      }
+        body {
+            overflow: hidden;
+        }
 
-      .list-group-item {
-        cursor: move;
-      }
+        .list-group-item {
+            cursor: move;
+        }
 
-      strong {
-        font-weight: 600;
-      }
+        strong {
+            font-weight: 600;
+        }
 
-      .col-height {
-        max-height: 95vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
+        .col-height {
+            max-height: 95vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .note-editor.dragover .note-dropzone {
+            display: none
+        }
     </style>
     <script>
         const profiles = <?php echo js_escape($profile_list); ?>;
@@ -518,6 +516,7 @@ function renderProfileHtml()
             });
         });
         top.restoreSession();
+
         function submitProfiles() {
             top.restoreSession();
             let target = document.getElementById('edit-profiles');
@@ -674,7 +673,8 @@ function renderProfileHtml()
                                         continue;
                                     }
                                     ?>
-                                    <li class='list-group-item bg-warning text-light px-1 py-1 mb-1' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>"><span class="p-1 font-weight-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
+                                    <li class='list-group-item bg-warning text-light px-1 py-1 mb-1' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>">
+                                        <span class="p-1 font-weight-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
                                         <!-- Notice! The notify event input is patched out until I get around to it. -->
                                         <form class='form form-inline bg-light text-dark py-1 pl-1'>
                                             <div class='input-group-sm input-group-prepend d-none'>

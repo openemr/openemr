@@ -30,8 +30,7 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id)
         if (json_last_error() !== JSON_ERROR_NONE) {
             die(xlt('Nothing to report. Parse error.'));
         }
-        $answers = $responseService->flattenQuestionnaireResponse($qr, '|', '');
-        $html = $responseService->buildQuestionnaireResponseHtml($answers, '|');
+        $html = $responseService->buildQuestionnaireResponseHtml($qr);
         echo $html;
     } catch (Exception $e) {
         echo xlt("Error") . " " . text($e->getMessage());
