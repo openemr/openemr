@@ -1093,7 +1093,7 @@ html {
 
 body {
   margin: 0;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
   font-variant: tabular-nums;
@@ -2349,7 +2349,7 @@ mark {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   font-variant: tabular-nums;
   list-style: none;
@@ -2473,7 +2473,7 @@ mark {
 }
 
 .ant-checkbox-group, .ant-checkbox-wrapper {
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   font-variant: tabular-nums;
   font-feature-settings: "tnum"
@@ -2586,7 +2586,7 @@ mark {
 .ant-radio, .ant-radio-group, .ant-radio-wrapper {
   box-sizing: border-box;
   padding: 0;
-  color: #000000d9;
+  color: var(--text-color);
   font-variant: tabular-nums;
   line-height: 1.5715;
   list-style: none;
@@ -2751,7 +2751,7 @@ span.ant-radio + * {
   height: 32px;
   margin: 0;
   padding: 0 15px;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   line-height: 30px;
   background: #fff;
@@ -9781,7 +9781,7 @@ span.ant-radio + * {
 .ant-picker-input > input {
   display: inline-block;
   width: 100%;
-  color: #000000d9;
+  color: var(--text-color);
   border-radius: 2px;
   transition: all .3s;
   flex: auto;
@@ -10010,7 +10010,7 @@ textarea.ant-picker-input > input {
 .ant-picker-dropdown {
   box-sizing: border-box;
   padding: 0;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   font-variant: tabular-nums;
   line-height: 1.5715;
@@ -10202,7 +10202,7 @@ textarea.ant-picker-input > input {
 .ant-picker-header {
   display: flex;
   padding: 0 8px;
-  color: #000000d9;
+  color: var(--text-color);
   border-bottom: 1px solid #f0f0f0
 }
 
@@ -10301,7 +10301,7 @@ textarea.ant-picker-input > input {
 
 .ant-picker-content th {
   height: 30px;
-  color: #000000d9;
+  color: var(--text-color);
   line-height: 30px
 }
 
@@ -10653,7 +10653,7 @@ textarea.ant-picker-input > input {
   height: 28px;
   margin: 0;
   padding: 0 0 0 14px;
-  color: #000000d9;
+  color: var(--text-color);
   line-height: 28px;
   border-radius: 0;
   cursor: pointer;
@@ -10850,7 +10850,7 @@ textarea.ant-picker-input > input {
   width: 100%;
   min-width: 0;
   padding: 4px 11px;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   line-height: 1.5715;
   background-color: #fff;
@@ -11214,7 +11214,7 @@ textarea.ant-input {
 
 .ant-input-group, .ant-input-group-addon {
   position: relative;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 14px
 }
 
@@ -12032,7 +12032,7 @@ nz-form-item-feedback-icon.ant-input-suffix {
 .ant-switch {
   margin: 0;
   padding: 0;
-  color: #000000d9;
+  color: var(--text-color);
   font-size: 16px;
   font-variant: tabular-nums;
   list-style: none;

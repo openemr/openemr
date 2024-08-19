@@ -680,9 +680,9 @@ class QuestionnaireResponseService extends BaseService
             $margin = str_repeat('&nbsp;', $indentLevel * 1); // Indent for nested items
             $html .= "<div style='margin-left: {$indentLevel}rem; margin-top: 0.1rem;'>\n";
             if ($flag === 1) {
-                $html .= "<span style='font-size: 1.25rem; font-weight: 550;'>{$margin}" . text($item['text']) . "</span>\n";
+                $html .= "<span style='font-size: 1.15rem; font-weight: 550;'>{$margin}" . text($item['text']) . "</span>\n";
             } else {
-                $html .= "<span style='font-size: 1.15rem; font-weight: 505;''>{$margin}" . text($item['text']) . "</span>\n";
+                $html .= "<span style='font-size: 1.1rem; font-weight: 505;''>{$margin}" . text($item['text']) . "</span>\n";
             }
         }
         // Render answer if it exists
@@ -725,6 +725,8 @@ class QuestionnaireResponseService extends BaseService
             return $answer['valueBoolean'] ? 'Yes' : 'No';
         } elseif (isset($answer['valueInteger'])) {
             return $answer['valueInteger'];
+        } elseif (isset($answer['valueDate'])) {
+            return $answer['valueDate'];
         } else {
             return 'N/A';
         }
