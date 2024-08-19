@@ -115,11 +115,11 @@ $bottom_note = false;
 
 $loinc_text = "<span class='font-weight-bold bg-light text-dark'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " . xlt("terms of use.") . "</i>" . "</a>";
 
-if ($GLOBALS['questionnaire_display_LOINCnote']) {
-    switch ($GLOBALS['questionnaire_display_LOINCnote']) {
+if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
+    switch ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
         case '0':
             $top_note = true;
-            $bottom_note = false; // not really neede as this is the default!!
+            $bottom_note = false; // not really needed as this is the default!!
             break;
         case '1':
             $bottom_note = true;
@@ -169,6 +169,14 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
         let portalOther = <?php echo js_escape($patientPortalOther); ?>;
+        let allowCopyright = <?php echo js_escape(!(($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) == '3')); ?>;
+        let formOptions = {
+            "questionLayout": "vertical",
+            "hideTreeLine": true,
+            "hideRepetitionNumber": true,
+            "showCodingInstruction": false,
+            "displayScoreWithAnswerText": false
+        };
 
         function initSelect() {
             let ourSelect = $('.select-dropdown');
@@ -194,14 +202,6 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
                 document.qa_form.submit();
             });
         }
-
-        let formOptions = {
-            "questionLayout": "vertical",
-            "hideTreeLine": true,
-            "hideRepetitionNumber": true,
-            "showCodingInstruction": false,
-            "displayScoreWithAnswerText": false
-        };
 
         function toggleHideTreeLine() {
             formOptions.hideTreeLine = !formOptions.hideTreeLine;
@@ -296,7 +296,7 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
             if (!flag) {
                 document.getElementById('form_name').value = jsAttr(formName);
             }
-            if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
+            if (allowCopyright && typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
                 document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                 document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
             }
@@ -342,7 +342,7 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
                         registryButton.classList.remove("d-none");
                         document.getElementById('form_name').value = jsAttr(data.name);
                         document.getElementById('lform').value = JSON.stringify(data);
-                        if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
+                        if (allowCopyright && typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
                             document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                             document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
                         }
@@ -395,7 +395,7 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
                         registryButton.classList.remove("d-none");
                         document.getElementById('lform').value = JSON.stringify(data);
                         document.getElementById('form_name').value = jsAttr(data.name);
-                        if (typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
+                        if (allowCopyright && typeof data.copyrightNotice !== 'undefined' && data.copyrightNotice > '') {
                             document.getElementById('copyright').value = jsAttr(data.copyrightNotice);
                             document.getElementById('copyrightNotice').innerHTML = jsText(data.copyrightNotice);
                         }

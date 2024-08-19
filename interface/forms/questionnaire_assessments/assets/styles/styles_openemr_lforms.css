@@ -2,10 +2,11 @@
 :root {
   --background-color: #ffffff;
   --text-color: #000000;
+  --title-color: #e6f1ff;
   --primary-color: #0a59ee;
   --secondary-color: #6c757d;
   --border-color: #ced4da;
-  --hover-color: #f8f9fa;
+  --hover-color: #e7eaec;
   --link-color: #0a59ee;
   --link-hover-color: #6c757d;
 
@@ -25,6 +26,7 @@
 [data-theme="dark"] {
   --background-color: #0f0f0f;
   --text-color: #ffffff;
+  --title-color: #458ac5;
   --primary-color: #0a59ee;
   --secondary-color: #adb5bd;
   --border-color: #495057;
@@ -167,6 +169,15 @@ p, span {
   background-color: var(--secondary-color);
 }
 
+.lhc-item-question.lhc-active-row {
+  background-color: var(--hover-color);
+}
+
+.lhc-form .lhc-required {
+  color: #8b0000;
+  font-weight: 700
+}
+
 .lhc-form .lhc-help-button,
 .lhc-form .lf-control-button,
 .lhc-form .lhc-copyright-button {
@@ -213,6 +224,212 @@ p, span {
 
 .lhc-form .lhc-invalid:hover .lhc-validation-popover {
   display: block;
+}
+/* ----------------------------------------------- */
+.lhc-form input[type=number]::-webkit-outer-spin-button,
+.lhc-form input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.lhc-form input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.lhc-form label {
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+.lhc-form-title {
+  background-color: var(--title-color);
+  color: var(--text-color);
+  overflow: hidden;
+  padding: 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+}
+
+.lhc-form-title .lhc-item-question {
+  font-size: 120%;
+  vertical-align: text-top;
+}
+
+.lhc-form input[type=text],
+.lhc-form input[type=number] {
+  border: 1px solid #ced5d9;
+  width: 100%;
+  height: 28px;
+  min-height: 14px;
+  overflow: hidden;
+  padding: 2px 2px 2px 4px;
+  font-size: 90%;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.lhc-form input:focus,
+.lhc-form textarea:focus,
+.lhc-form .ant-picker-input > input:focus {
+  background-color: #fff8c6;
+}
+
+.lhc-form input[readonly],
+.lhc-form textarea[readonly],
+.lhc-form .ant-picker-input > input[readonly] {
+  background-color: #e8e8e8;
+}
+
+span.loading-indicator-container {
+  width: 100%;
+}
+
+.lhc-form .lhc-button {
+  border: 0 none;
+  cursor: pointer;
+  overflow: visible;
+  padding: 0;
+  position: relative;
+  background-color: #066aa0;
+}
+
+.lhc-form .lhc-float-button {
+  min-width: 22px;
+  border-radius: 4px;
+  font-weight: 700;
+  color: #fff;
+  padding: 1px .5em;
+  margin-bottom: 2px;
+}
+
+.lhc-form .lhc-help-button,
+.lhc-form .lf-control-button,
+.lhc-form .lhc-copyright-button {
+  padding: 0;
+  margin-right: 2px;
+  margin-left: 2px;
+  vertical-align: middle;
+  background-color: transparent;
+  color: #066aa0;
+  border: none;
+}
+
+.lhc-form .lhc-help-button:hover,
+.lhc-form .lf-control-button:hover,
+.lhc-form .lhc-copyright-button:hover {
+  color: #0087fd;
+  cursor: pointer;
+}
+
+.lhc-form .lhc-form-title .lhc-help-button,
+.lhc-form .lhc-form-title .lf-control-button,
+.lhc-form .lhc-form-title .lhc-copyright-button {
+  background-color: inherit;
+  color: #fff;
+  font-weight: 700;
+}
+
+.lhc-form .lhc-form-table-row.button-row {
+  background: none;
+  padding: 2px 0;
+}
+
+.lhc-form.lf-template-table .lhc-layout-horizontal,
+.lhc-form.lf-template-table .lhc-layout-matrix {
+  padding-right: 6px;
+}
+
+.lf-top-section .lhc-layout-horizontal .lhc-form-horizontal-table-title,
+.lf-top-section .lhc-layout-matrix .lhc-form-matrix-table-title {
+  display: none;
+}
+
+.lhc-form-view {
+  margin: 15px;
+}
+
+.lhc-form-body {
+  border: 1px solid #ced5d9;
+  padding: 4px 0;
+  margin: 0 0 2px;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.lhc-form .lhc-form-table-row.lhc-item-group .lhc-de-label-button {
+  padding: 4px 0;
+}
+
+.lhc-form .lhc-item.lhc-datatype-TITLE {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.lhc-form .lhc-item.lhc-datatype-TITLE .lhc-item-display {
+  background-color: var(--title-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin: 0 4px 0 2px;
+  border-width: 0;
+  border-top: 2px solid var(--title-color);
+  padding: 4px 2px;
+}
+
+.lhc-form .lhc-item-group-title {
+  background: var(--title-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin: 0 4px 0 2px;
+  border-width: 0;
+  border-top: 2px solid white;
+  padding: 4px 2px;
+}
+
+.lhc-form lhc-item.lhc-first-item > lhc-item-question {
+  border-top: none;
+}
+
+.lhc-form .prefix {
+  padding-right: .25em;
+}
+
+div.ant-popover-title {
+  background-color: var(--hover-color);
+}
+
+div.cdk-overlay-pane {
+  max-width: 66%;
+}
+
+.lhc-popover-help .ant-popover-inner-content,
+.lhc-popover-copyright .ant-popover-inner-content,
+.lhc-form .lhc-inline-help,
+.lhc-form .lhc-inline-copyright {
+  white-space: pre-wrap;
+}
+
+screen_reader_only {
+  height: 0;
+  width: 0;
+  overflow: hidden;
+  position: fixed;
+  left: -1000px;
+  top: -1000px;
+}
+
+.lhc-form .ant-checkbox-disabled + span,
+.lhc-form .ant-radio-disabled + span,
+.lhc-form input:disabled,
+.lhc-form .ant-picker-input > input-disabled,
+.lhc-form .ant-picker-input > input[disabled],
+.lhc-form .lhc-item-readyonly {
+  color: #000000bf;
+  cursor: not-allowed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+  font-weight: 500;
 }
 
 /* Utility Classes */
@@ -639,7 +856,7 @@ lhc-item-date .ant-picker-input > input::-ms-input-placeholder, lhc-item-datetim
 }
 
 .lhc-layout-horizontal .lhc-form-horizontal-table-title {
-  background: #e6f1ff;
+  background: var(--title-color);
   border-radius: 4px;
   box-sizing: border-box;
   margin: 0 0 0 1px;
@@ -722,7 +939,7 @@ lhc-item-date .ant-picker-input > input::-ms-input-placeholder, lhc-item-datetim
 }
 
 .lhc-form .lhc-form-matrix-table-title {
-  background: #e6f1ff;
+  background: var(--title-color);
   border-radius: 4px;
   box-sizing: border-box;
   margin: 0 0 0 1px;
@@ -794,8 +1011,8 @@ lhc-item-date .ant-picker-input > input::-ms-input-placeholder, lhc-item-datetim
 }
 
 .lhc-form-title span {
-  background-color: var(--primary-color);
-  color: #fff;
+  background-color: var(--title-color);
+  color: #000;
 }
 
 .lhc-form lhc-item.lhc-invalid.lhc-datatype-DTM .lhc-validation-popover {
@@ -9166,7 +9383,7 @@ span.ant-radio + * {
   top: 0;
   left: 0;
   z-index: 1030;
-  max-width: 90vw;
+  max-width: 70vw;
   font-weight: 450;
   white-space: normal;
   text-align: left;
@@ -12050,7 +12267,7 @@ nz-form-item-feedback-icon.ant-input-suffix {
 
 .auto_complete {
   width: auto;
-  background-color: #fff;
+  background-color: var(--background-color);
   position: relative;
   overflow: auto;
   overflow-x: hidden
@@ -12169,7 +12386,7 @@ input.search_field, textarea.search_field {
 
 .autocomp_selected input, .autocomp_selected textarea {
   border-width: 1px;
-    width: 100%;
+  width: 100%;
   box-sizing: border-box
 }
 
@@ -12183,7 +12400,7 @@ input.search_field, textarea.search_field {
   display: inline-block;
   border-radius: 5px;
   border: 1px solid #444;
-  background-color: #d7dadd;
+  background-color: var(--hover-color);
   padding-left: .25em;
   padding-right: .25em;
   margin-right: .25em;
@@ -12193,7 +12410,7 @@ input.search_field, textarea.search_field {
 
 .autocomp_selected li > button {
   border: 0;
-  background-color: #d7dadd;
+  background-color:  var(--hover-color);
   font-weight: 800;
   padding-left: .25em;
   padding-right: .25em;
@@ -12235,7 +12452,7 @@ input.search_field, textarea.search_field {
 #completionOptionsScroller th {
   border-right: 1px solid rgb(128, 128, 128);
   font-size: 85%;
-  background-color: #d7dadd;
+  background-color:  var(--hover-color);
   padding-left: .25em;
   padding-right: .75em
 }
