@@ -1,0 +1,8 @@
+open URL from string with parameters "${homePrefix}/acknowledge_license_cert.html"
+check that page doesn't contain input "Username"
+check that page doesn't contain input "Password"
+check that page doesn't contain button "Login"
+open url from string with parameters "${homePrefix}/interface/main/tabs/main.php"
+check that page contains input "Username"
+check that page contains input "Password"
+check that page contains button "Login"

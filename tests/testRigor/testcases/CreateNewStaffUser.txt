@@ -1,0 +1,40 @@
+LoginAndValidate
+NavigateToUsersGroups
+click button "Add User"
+check that button "Save" is visible
+save "Testing#123" as "staff_pwd"
+generate by template "$$$$$$$$" and save it as "generated_username"
+enter saved value "generated_username" into field "rumple"
+enter saved value "staff_pwd" into field "stiltskin"
+generate unique name, then enter into "First Name:" and save as "gen_first_name"
+generate unique name, then enter into "Last Name:" and save as "gen_last_name"
+enter saved value "password" into field "adminPass"
+check that button "Save" is visible
+click button "Save"
+// assert staff was added to list
+check that page contains "User / Groups"
+check that page doesn't contain button "Save"
+check that table "table-responsive" at row saved value "generated_username" and column "Real Name" contains string with parameters "${gen_first_name} ${gen_last_name}"
+// login as staff in a new session
+start browser "Staff User" and switch
+check that page contains input "Username"
+check that page contains input "Password"
+check that page contains button "Login"
+LoginAsStaff
+ValidateLogin
+logout
+// Back to admin and clean up
+// switch to browser "default"
+LoginAndValidate
+NavigateToUsersGroups
+click saved value "generated_username"
+click checkbox "Active"
+click button "Save"
+// assert is not in list anymore
+check that page contains "User / Groups"
+check that page doesn't contain "generated_username"
+logout
+ValidateLogout
+start browser "Inactive Staff" and switch
+LoginAsStaff
+ValidateUnsuccessfulLogin
