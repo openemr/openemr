@@ -4,6 +4,7 @@
   "description": "UI toolkit, theme and component library for OpenEMR",
   "main": "index.js",
   "scripts": {
+    "prepare": "npm install -g testrigor-cli",
     "postinstall": "napa && gulp -i",
     "build": "gulp -b",
     "dev-build": "npm run gulp-build",
@@ -64,7 +65,8 @@
     "stylelint-config-sass-guidelines": "10.0.0",
     "stylelint-config-standard": "34.0.0",
     "stylelint-order": "6.0.3",
-    "stylelint-scss": "5.2.1"
+    "stylelint-scss": "5.2.1",
+    "testrigor-cli": "^0.0.30-beta"
   },
   "dependencies": {
     "@eastdesire/jscolor": "2.5.1",
