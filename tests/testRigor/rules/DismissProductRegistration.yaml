@@ -1,0 +1,12 @@
+labels:
+- autoapply
+- dismiss popup
+steps: |
+  click button "No Thanks"
+precondition: |
+  check that page contains "OpenEMR Product Registration"
+autoApplyRule: true
+autoApplyAtFirstSteps: 1
+applicationId: bpCriLgskAyPkTD9f
+limitAutoApplyRule: false
+maxAutoApplyNumber: 1
