@@ -1,0 +1,8 @@
+// TODO: add conditionals to use this in patient login too
+check that page contains button "Current user"
+check that page contains "Patient"
+check that page contains "Popups"
+check that page contains "Providers"
+check that page contains button "Day"
+check that page contains button "Week"
+check that page contains button "Month"

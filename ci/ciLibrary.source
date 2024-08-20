@@ -99,6 +99,20 @@ build_test_e2e() {
     fi
 }
 
+build_testrigor_tests() {
+    # curl http://localhost:80/portal/ || exit 1  # this redirects to login page
+    # curl http://localhost:80/portal/patient/index.php #     Opens portal dashboard but not login patient portal
+    # curl http://localhost:80/portal/index.php #   this redirects to login page
+    curl 'http://localhost:80/portal/verify_session.php?w&u'
+    sudo chmod +x "$WORKSPACE_DIR/tests/testRigor/run_testrigor_tests.sh"
+    "$WORKSPACE_DIR/tests/testRigor/run_testrigor_tests.sh" \
+        "$TEST_SUITE_ID" \
+        "$AUTH_TOKEN" \
+        "$WORKSPACE_DIR" \
+        "$BRANCH_NAME" \
+        "$COMMIT_NAME"
+}
+
 build_test_api() {
     failTest=false
     docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
