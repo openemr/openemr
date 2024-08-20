@@ -1,0 +1,16 @@
+LoginAndValidate
+NavigateToPatientCreationSearch
+CreatePatient
+//validate there is no appointments
+check that page contains "No Appointments" below "Future Appointments"
+check that page contains "No Recurring Appointments" below "Recurring Appointments"
+//Create Appointment
+click third element on the right of "Appointments"
+click "Ok" using the mouse using OCR only if page contains "New Due Clinical Reminders" using OCR only
+select "Office Visit" from "category"
+click "Save"
+if "Available Appointments Calendar" is visible
+click "close" on the right of "Available Appointments Calendar"
+end
+// Validate appointment created
+check that page contains "Office Visit" below "Future Appointments"

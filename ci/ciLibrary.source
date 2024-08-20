@@ -99,6 +99,37 @@ build_test_e2e() {
     fi
 }
 
+build_testrigor_tests() {
+    failTest=false
+
+    # should be accessible by testrigor cli 
+    curl -I http://localhost:80 -v
+    # CONTAINER_ID=$(docker ps | grep openemr[_\-] | cut -f 1 -d " ")
+    # if docker ps | grep -E 'openemr[_-]' | grep -q nginx; then
+    #   OPENEMR_PORT=9000
+    # else
+    #   OPENEMR_PORT=$(docker ps --format "{{.Names}} {{.Ports}}" | grep -E 'openemr[_-]' | grep -oP '(?<=->)\d+(?=/tcp)' | head -n 1)
+    # fi
+    # echo "Debug ====================="
+    # docker ps | grep openemr[_\-]
+    # echo "OpenEMR Port: $OPENEMR_PORT"
+    # echo "$WORKSPACE_DIR"
+    # echo "End ====================="
+    # docker cp "$WORKSPACE_DIR"/tests/testRigor/testcases "$CONTAINER_ID":/tmp/testcases
+    # docker cp "$WORKSPACE_DIR"/tests/testRigor/rules "$CONTAINER_ID":/tmp/rules
+    # docker cp "$WORKSPACE_DIR"/tests/testRigor/run_testrigor_tests.sh "$CONTAINER_ID":/tmp/run_testrigor_tests.sh
+    # docker exec -i "$CONTAINER_ID" sh -c \
+    #     "export OPENEMR_PORT=$OPENEMR_PORT && \
+    #     command -v npm >/dev/null || (curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs) && \
+    #     npm install -g testrigor-cli && \
+    #     testrigor --version && \
+    #     chmod +x /tmp/run_testrigor_tests.sh && \
+    #     /tmp/run_testrigor_tests.sh" || failTest=true
+    # if $failTest; then
+    #     exit 1
+    # fi
+}
+
 build_test_api() {
     failTest=false
     docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
