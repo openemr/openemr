@@ -1,0 +1,35 @@
+LoginAndValidate
+NavigateToPatientCreationSearch
+CreatePatient
+// create portal account
+CreatePatientPortalAccount
+// send message from patient to admin
+OpenPatientPortal
+click button "Securely Message" if exists
+click button "Secure Messaging" if exists
+click button "Actions"
+click "Compose"
+select "Administrator" from "To"
+enter "Test" into "Subject"
+save text "Testing 123" as "message"
+enter saved value "message" into field roughly below "Subject"
+click button "Send"
+check that "Loading..." is not visible
+click "Sent"
+validate that page contains saved value "message" roughly on the right of string with parameters "${firstName} ${lastName}"
+LogoutPatientPortal
+// validate message from receiver's account
+start browser "Validate" and switch
+LoginAndValidate
+check that page contains "Portal" below "Current User"
+click button "Portal"
+click "Portal Mail"
+click "Inbox"
+click "Refresh" up to 10 times until page contains string with parameters "${firstName} ${lastName}"
+check that page contains saved value "message"
+click saved value "message"
+//clean up
+click button "Delete" if exists
+click button "Archive this message" if exists
+click button "Refresh"
+check that page does not contain saved value "firstName" roughly below "Secure Messaging"
