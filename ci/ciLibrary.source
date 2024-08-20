@@ -99,6 +99,29 @@ build_test_e2e() {
     fi
 }
 
+build_testrigor_tests() {
+    failTest=false
+    CONTAINER_ID=$(docker ps | grep openemr[_\-] | cut -f 1 -d " ")
+    docker --debug cp "$WORKSPACE_DIR"/tests/testRigor/testcases "$CONTAINER_ID":/tmp/testcases
+    docker --debug cp "$WORKSPACE_DIR"/tests/testRigor/rules "$CONTAINER_ID":/tmp/rules
+    docker --debug cp "$WORKSPACE_DIR"/tests/testRigor/run_testrigor_tests.sh "$CONTAINER_ID":/tmp/run_testrigor_tests.sh
+
+    echo "Debug ====================="
+    echo "$WORKSPACE_DIR"
+    docker exec -i "$CONTAINER_ID" sh -c "ls -l /tmp"
+    docker exec -i "$CONTAINER_ID" sh -c "curl -I localhost:8300; curl -I 0.0.0.0:8300; curl -I 0.0.0.0 " || failTest=true
+    echo "End ====================="
+    docker --debug exec -i "$CONTAINER_ID" sh -c \
+        "command -v npm >/dev/null || (curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs) && \
+        npm install -g testrigor-cli && \
+        testrigor --version && \
+        chmod +x /tmp/run_testrigor_tests.sh && \
+        /tmp/run_testrigor_tests.sh" || failTest=true
+    if $failTest; then
+        exit 1
+    fi
+}
+
 build_test_api() {
     failTest=false
     docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
