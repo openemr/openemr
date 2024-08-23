@@ -85,7 +85,7 @@ class PortalCard extends CardModel
             'identifier' => self::CARD_ID,
             'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
             'templateVariables' => [
-                'allowpp' => (xl('Allow Patient Portal in Demographics') . ' ' . xl_layout_label($groupName)),
+               'allowpp' => $groupName,
                 'isPortalEnabled' => isPortalEnabled(),
                 'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
                 'isPortalAllowed' => isPortalAllowed($pid),
