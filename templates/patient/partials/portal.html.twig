@@ -33,7 +33,7 @@ The Patient Portal card for the Medical Record Dashboard
     {% if isPortalAllowed == false %}
         <div class="alert alert-warning" role="alert">
             <p class="font-weight-bold">{{  "Portal Access"|xlt }}</p>
-            <p> {{ "Allow Patient Portal in Demographics Choices."|xlt }} </p>
+            <p> {{ "Allow Patient Portal in Demographic"|xlt }} {{ allowpp|xlLayoutLabel|text }} </p>
         </div>
     {% elseif isContactEmail == false and isEnforceSigninEmailPortal == true %}
             <div class="alert alert-warning" role="alert">

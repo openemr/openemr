@@ -327,6 +327,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFilter(
+                'xlLayoutLabel',
+                function ($string) {
+                    return xl_layout_label($string);
+                }
+            ),
+            new TwigFilter(
                 'xlListLabel',
                 function ($string) {
                     return xl_list_label($string);

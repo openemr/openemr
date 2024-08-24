@@ -64,10 +64,17 @@ class PortalCard extends CardModel
         $this->opts['templateVariables']['appendedInjection'] = $dispatchResult->getAppendedInjection();
     }
 
+    // used in twigs
     private function setOpts()
     {
         global $GLOBALS;
         global $pid;
+        // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
+        $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";
+        $res = sqlStatement($sql);
+        $nrow = sqlFetchArray($res);
+        $groupName = ($nrow['grp_title']  !== '' ? $nrow['grp_title'] : 'Choices');
+
         $this->opts = [
             'acl' => ['patients', 'demo'],
             'initiallyCollapsed' => (getUserSetting(self::CARD_ID . '_expand') == 0),
@@ -78,6 +85,7 @@ class PortalCard extends CardModel
             'identifier' => self::CARD_ID,
             'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
             'templateVariables' => [
+               'allowpp' => $groupName,
                 'isPortalEnabled' => isPortalEnabled(),
                 'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
                 'isPortalAllowed' => isPortalAllowed($pid),
