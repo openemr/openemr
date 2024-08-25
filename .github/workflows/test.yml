@@ -19,7 +19,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -30,7 +30,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -112,7 +112,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -123,7 +123,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -206,7 +206,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -217,7 +217,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -299,7 +299,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -310,7 +310,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -392,7 +392,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -403,7 +403,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -485,7 +485,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -496,7 +496,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -578,7 +578,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -589,7 +589,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -671,7 +671,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -682,7 +682,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -764,7 +764,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -775,7 +775,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -857,7 +857,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -868,7 +868,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -950,7 +950,7 @@ jobs:
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -961,7 +961,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -1043,7 +1043,7 @@ jobs:
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1054,7 +1054,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -1136,7 +1136,7 @@ jobs:
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1147,7 +1147,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -1229,7 +1229,7 @@ jobs:
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1240,7 +1240,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -1323,7 +1323,7 @@ jobs:
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1334,7 +1334,7 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
