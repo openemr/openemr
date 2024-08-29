@@ -57,7 +57,7 @@ class InsuranceService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid'];
+        return ['uuid', 'puuid', 'insureruuid'];
     }
 
     public function validate($data)
@@ -79,13 +79,7 @@ class InsuranceService extends BaseService
                 FROM `insurance_data`
                 LEFT JOIN (
                     SELECT
-                    CONCAT_WS('-',
-                        HEX(SUBSTRING(`uuid`, 1, 4)),
-                        HEX(SUBSTRING(`uuid`, 5, 2)),
-                        HEX(SUBSTRING(`uuid`, 7, 2)),
-                        HEX(SUBSTRING(`uuid`, 9, 2)),
-                        HEX(SUBSTRING(`uuid`, 11, 6))
-                    ) AS `insureruuid`,
+                    `uuid` AS `insureruuid`,
                     `id` AS `insurerid`
                     FROM `insurance_companies` 
                     ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid` 
