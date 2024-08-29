@@ -74,12 +74,25 @@ class InsuranceService extends BaseService
     public function search($search, $isAndCondition = true)
     {
         $sql = "SELECT `insurance_data`.*,
-                       `puuid`
+                       `puuid`,
+                       `insureruuid`
                 FROM `insurance_data`
                 LEFT JOIN (
                     SELECT
+                    CONCAT_WS('-',
+                        HEX(SUBSTRING(`uuid`, 1, 4)),
+                        HEX(SUBSTRING(`uuid`, 5, 2)),
+                        HEX(SUBSTRING(`uuid`, 7, 2)),
+                        HEX(SUBSTRING(`uuid`, 9, 2)),
+                        HEX(SUBSTRING(`uuid`, 11, 6))
+                    ) AS `insureruuid`,
+                    `id` AS `insurerid`
+                    FROM `insurance_companies` 
+                    ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid` 
+                LEFT JOIN (
+                    SELECT
                     `pid` AS `patient_data_pid`,
-                    `uuid` as `puuid`
+                    `uuid` AS `puuid`
                     FROM `patient_data`
                 ) `patient_data` ON `insurance_data`.`pid` = `patient_data`.`patient_data_pid` ";
 
