@@ -761,7 +761,7 @@ if ($userid) {
             function change_provider() {
                 var f = document.forms.namedItem("theaddform");
                 // use today's date but reset everything else when changing providers so we can
-                // search on availability.
+                // search on availability. jsGlobals['date_display_format']
                 f.form_date.value = window.top.oeFormatters.I18NDateFormat(new Date());
                 f.form_hour.value = '';
                 f.form_minute.value = '';
@@ -804,7 +804,7 @@ if ($userid) {
                 if (s.selectedIndex >= 0) {
                     var catid = s.options[s.selectedIndex].value;
                     f.form_title.value = s.options[s.selectedIndex].text;
-                    f.form_duration.value = durations[catid];
+                    f.form_duration.value = durations[catid] || '15';
                     set_display();
                 }
             }
