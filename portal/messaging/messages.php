@@ -121,7 +121,7 @@ function getAuthPortalUsers()
     <script>
         (function () {
             var app = angular.module("emrMessageApp", ['ngSanitize', 'summernote', "checklist-model"]);
-            app.controller('inboxCtrl', ['$scope', '$filter', '$http', '$window', function ($scope, $filter, $http, $window) {
+            app.controller('inboxCtrl', ['$scope', '$filter', '$http', '$window', '$q', function ($scope, $filter, $http, $window, $q) {
                 $scope.date = new Date;
                 $scope.sortingOrder = 'id';
                 $scope.pageSizes = [5, 10, 20, 50, 100];
@@ -147,20 +147,29 @@ function getAuthPortalUsers()
                 $scope.xLate = [];
                 $scope.xLate.confirm = [];
                 $scope.xLate.fwd = <?php echo xlj('Forwarded Portal Message Re: '); ?>;
-                $scope.xLate.confirm.one = <?php echo xlj('Confirm to Delete Current Thread?'); ?>;
-                $scope.xLate.confirm.all = <?php echo xlj('Confirm to Delete Selected?'); ?>;
+                $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
+                $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
                 $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal')); ?>;
+                $scope.isInit = false;
 
                 $scope.init = function () {
                     $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-                    $scope.getSentMessages();
-                    $scope.getAllMessages();
-                    $scope.getDeletedMessages();
+                    let promises = [];
+                    promises.push($scope.getSentMessages());
+                    promises.push($scope.getAllMessages());
+                    promises.push($scope.getDeletedMessages());
                     $scope.isInboxSelected();
                     $scope.search();
-                    $scope.isInit = true;
-                    $('#main').show();
+                    $scope.errorLoadingMessages = false;
+                    $q.all(promises)
+                    .then(() => {
+                        $scope.isInit = true;
+                    })
+                    .catch(error => {
+                            $scope.errorLoadingMessages = true;
+                            $scope.isInit = true;
+                    });
                 }
 
                 const searchMatch = function (haystack, needle) {
@@ -343,18 +352,9 @@ function getAuthPortalUsers()
                     return jsText(hold.textContent || hold.innerText || '');
                 };
 
-                $scope.getInbox = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getinbox', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                        if (response.data) {
-                            $scope.inboxItems = angular.copy(response.data);
-                        } else alert(response.data);
-                    }, function errorCallback(response) {
-                        alert(response.data);
-                    });
-                };
-
+                // note backend supports a task of getinbox but we prefetch this on server so we don't have that here.
                 $scope.getAllMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getall', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
+                    return $http.post('handle_note.php', $.param({'task': 'getall', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.allItems = angular.copy(response.data);
                         } else alert(response.data);
@@ -364,7 +364,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getDeletedMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getdeleted', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
+                    return $http.post('handle_note.php', $.param({'task': 'getdeleted', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         if (response.data) {
                             $scope.deletedItems = [];
                             $scope.deletedItems = angular.copy(response.data);
@@ -375,7 +375,7 @@ function getAuthPortalUsers()
                 };
 
                 $scope.getSentMessages = function () {
-                    $http.post('handle_note.php', $.param({'task': 'getsent', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
+                    return $http.post('handle_note.php', $.param({'task': 'getsent', 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         $scope.sentItems = [];
                         $scope.sentItems = angular.copy(response.data);
                     }, function errorCallback(response) {
@@ -536,11 +536,16 @@ function getAuthPortalUsers()
         ?>
     </script>
     <ng ng-app="emrMessageApp">
-        <div class="container-fluid" id='main' style="display: none">
+        <div class="container-fluid" id='main'  ng-controller="inboxCtrl">
             <div class='my-3'>
                 <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
             </div>
-            <div class="row" ng-controller="inboxCtrl">
+            <div class="row" ng-class="{'d-none': isInit}">
+                <div class="col-12">
+                    <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ml-2"></i></h3></div>
+                </div>
+            </div>
+            <div class="row d-none"  ng-class="{'d-none': !isInit}">
                 <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
                     <div class="sticky-top">
                         <ul class="nav nav-pills nav-stacked flex-column">
@@ -613,21 +618,22 @@ function getAuthPortalUsers()
                                 <tbody>
                                 <tr ng-repeat="item in pagedItems[currentPage]" role='button'>
                                     <!--  | orderBy:sortingOrder:reverse -->
-                                    <td role = "button" ng-click="readMessage($index)" class="message-row"><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
+                                    <td role = "button" class="message-row">
+                                        <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
 
-                                        <span class="col-sm-1 px-1"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
-                                        <span class="col-sm-2 px-1"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                        <span class="col-sm-3 px-1">
+                                        <span class="col-sm-1 px-1"  ng-click="readMessage($index)" ><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
+                                        <span class="col-sm-2 px-1"  ng-click="readMessage($index)" ><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
+                                        <span class="col-sm-3 px-1"  ng-click="readMessage($index)" >
                                             <a ng-click="readMessage($index)" class="btn-link">
                                                 <span ng-class="{strong: !item.read}">{{item.sender_name}} to {{item.recipient_name}}</span>
                                             </a>
                                         </span>
-                                        <span class="col-sm-1">
+                                        <span class="col-sm-1"  ng-click="readMessage($index)">
                                             <a ng-click="readMessage($index)" class="btn-link">
                                                 <span ng-class="{strong: !item.read}">{{item.title}}</span>
                                             </a>
                                         </span>
-                                        <span class="col-sm-4 px-1"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
+                                        <span class="col-sm-4 px-1"  ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
                                         <!-- below for attachments, eventually -->
                                         <!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span ng-show="item.attachment"
                                     class="glyphicon glyphicon-paperclip float-right"></span> <span ng-show="item.priority==1"
@@ -672,7 +678,7 @@ function getAuthPortalUsers()
                                                 <span class='btn-group float-right m-0'>
                                                     <button ng-show="selected.sender_id != cUserId && selected.id == item.id" class="btn btn-primary btn-small" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-reply"></i></button>
                                                     <button ng-show="selected.id == item.id && selected.sender_id != cUserId && !isPortal" class="btn btn-primary btn-small" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-share"></i></button>
-                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Delete this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
+                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
                                                     </button>
                                                 </span>
                                                 <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
