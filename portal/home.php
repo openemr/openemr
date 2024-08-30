@@ -313,6 +313,10 @@ try {
         'ccdaOk' => $ccdaOk,
         'allow_custom_report' => $GLOBALS['allow_custom_report'] ?? '0',
         'immunRecords' => $immunRecords,
+        'languageDirection' => $_SESSION['language_direction'] ?? 'ltr',
+        'dateDisplayFormat' => $GLOBALS['date_display_format'],
+        'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
+        'assetVersion' => $GLOBALS['v_js_includes'],
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,

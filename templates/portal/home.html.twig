@@ -54,6 +54,13 @@
             tab_mode = true,
             isPortal = 1;
 
+        var jsLanguageDirection = {{ languageDirection | js_escape }};
+        var jsGlobals = {
+            languageDirection: jsLanguageDirection,
+            date_display_format: {{ dateDisplayFormat | js_escape }},
+            timezone: {{ timezone | js_escape }},
+            assetVersion: {{ assetVersion | js_escape }}
+        };
         function restoreSession() {
             return true;
         }
