@@ -321,53 +321,6 @@
             }
         }
 
-        function editAppointment(mode, deid) {
-            let mdata = {};
-            let title = '';
-
-            if (mode === 'add') {
-                title = {{ 'Request New Appointment' | xlj }};
-                mdata = {
-                    pid: deid
-                };
-            } else if (mode === 'recurring') {
-                let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
-                signerAlertMsg(msg, 8000);
-                return false;
-            } else {
-                title = {{ 'Edit Appointment' | xlj }};
-                mdata = {
-                    eid: deid
-                };
-            }
-
-            var params = {
-                dialogId: 'editpop',
-                buttons: [
-                    {
-                        text: 'Cancel',
-                        close: true,
-                        style: 'btn-sm btn-secondary'
-                    }
-                ],
-                allowDrag: false,
-                size: 800,
-                title: title,
-                type: "GET",
-                url: './add_edit_event_user.php',
-                data: mdata
-            };
-            /*
-            * A couple notes on dialog.ajax .alert etc.
-            * opener is not required. library will handle for you.
-            * these run in the same scope as calling script.
-            * so same styles, dependencies are in scope.
-            * a promise is returned for doing other neat stuff.
-            *
-            * */
-            dialog.ajax(params);
-        }
-
         function changeCredentials(e) {
             title = {{ 'Please Enter New Credentials' | xlj }};
             dlgopen("./account/index_reset.php", '', 900, 750, null, title, {});
@@ -967,29 +920,7 @@
 
         <!-- Appointments Card -->
         {% if allow_portal_appointments %}
-            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
-                <div class="container-fluid">
-                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
-                    <div class="row">
-                        {% if appointments|length > 0 %}
-                            {% for appt in appointments %}
-                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
-                            {% endfor %}
-
-                            {% if appointmentLimit == appointmentCount %}
-                                <p>{{ 'Display limit reached' | xlt }}
-                                    <br>
-                                    {{ 'More appointments may exist' | xlt }}</p>
-                            {% endif %}
-                        {% else %}
-                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
-                    </div>
-                </div>
-            </div>
+            {% include "portal/partial/cards/_appointment_card.html.twig" with {patientID: patientID} %}
         {% endif %}
 
         <!-- Payments Card -->
