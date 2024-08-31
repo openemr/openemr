@@ -50,19 +50,23 @@
         dialog.ajax(params);
     }
 </script>
-<div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
+<div class="collapse my-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
     <div class="container-fluid">
-        <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
+        <h3 class="text-center">{{ 'Future Appointments' | xlt }}</h3>
         <div class="row">
             {% if appointments|length > 0 %}
                 {% for appt in appointments %}
-                    {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
+                    {% include 'portal/appointment-item.html.twig' with {appt: appt, past: false} %}
                 {% endfor %}
 
                 {% if appointmentLimit == appointmentCount %}
-                    <p>{{ 'Display limit reached' | xlt }}
-                        <br>
-                        {{ 'More appointments may exist' | xlt }}</p>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>{{ 'Display limit reached' | xlt }}
+                                <br>
+                                {{ 'More upcoming appointments may exist' | xlt }}</h5>
+                        </div>
+                    </div>
                 {% endif %}
             {% else %}
                 <div class="col-12">
@@ -70,8 +74,32 @@
                 </div>
             {% endif %}
         </div>
-        <div class="mb-3">
+        <div class="mt-3">
             <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <h3 class="text-center">{{ 'Past Appointments' | xlt }}</h3>
+        <div class="row">
+            {% if pastAppointments|length > 0 %}
+                {% for appt in pastAppointments %}
+                    {% include 'portal/appointment-item.html.twig' with {appt: appt, past: true} %}
+                {% endfor %}
+
+                {% if appointmentLimit == pastAppointmentCount %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>{{ 'Display limit reached' | xlt }}
+                                <br>
+                                {{ 'More past appointments may exist' | xlt }}</h5>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info"><h5 class='text-center'>{{ 'No Past Appointments' | xlt }}</h5></div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
