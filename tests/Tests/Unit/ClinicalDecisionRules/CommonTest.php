@@ -101,33 +101,4 @@ class CommonTest extends TestCase
         $result = Common::library_src('somefile.php');
         $this->assertEquals($rootdir . '/super/rules/library/somefile.php', $result);
     }
-
-    /**
-     * Test for controller_base_dir method
-     */
-    public function testControllerBaseDir()
-    {
-        $expected = $GLOBALS['incdir'] . '/super/rules/controllers';
-        $result = Common::controller_base_dir();
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * Test for controller_dir method
-     */
-    public function testControllerDirValid()
-    {
-        $expected = $GLOBALS['incdir'] . '/super/rules/controllers/add';
-        $result = Common::controller_dir('add');
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * Test for controller_dir method with invalid controller
-     */
-    public function testControllerDirInvalid()
-    {
-        $this->expectException(\Exception::class);
-        Common::controller_dir('invalidController');
-    }
 }

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 
 /**
@@ -103,11 +104,11 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     {
         parent::updateFromRequest();
 
-        $this->table = _post("fld_table");
-        $this->column = _post("fld_column");
-        $this->value = _post("fld_value");
-        $this->valueComparator = _post("fld_value_comparator");
-        $this->frequency = _post("fld_frequency");
-        $this->frequencyComparator = _post("fld_frequency_comparator");
+        $this->table = Common::post("fld_table");
+        $this->column = Common::post("fld_column");
+        $this->value = Common::post("fld_value");
+        $this->valueComparator = Common::post("fld_value_comparator");
+        $this->frequency = Common::post("fld_frequency");
+        $this->frequencyComparator = Common::post("fld_frequency_comparator");
     }
 }

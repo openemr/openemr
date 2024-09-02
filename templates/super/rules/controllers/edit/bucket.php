@@ -13,10 +13,11 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 ?>
 <head>
-    <script src="<?php js_src('bucket.js') ?>"></script>
+    <script src="<?php Common::js_src('bucket.js') ?>"></script>
 
     <script>
         var bucket = new bucket({});

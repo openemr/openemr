@@ -15,12 +15,12 @@
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalRange;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 ?>
-<?php require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php"); ?>
 <?php $rule = $viewBean->rule ?>
 <?php $intervals = $rule->reminderIntervals ?>
-<script src="<?php js_src('edit.js') ?>"></script>
+<script src="<?php Common::js_src('edit.js') ?>"></script>
 <script>
     var edit = new rule_edit( {});
     edit.init();

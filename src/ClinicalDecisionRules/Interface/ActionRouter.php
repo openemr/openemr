@@ -32,11 +32,10 @@ class ActionRouter
     protected $action;
     protected $templateRoot;
 
-    public function __construct($controller, $action, $path)
+    public function __construct($controller, $action)
     {
         $this->controller = $controller;
         $this->action = $action;
-        $this->path = $path;
         $this->appRoot = Common::base_dir();
         $this->webRoot = $GLOBALS['webroot'];
         $this->templateRoot = Common::template_dir();
@@ -122,18 +121,5 @@ class ActionRouter
         } else {
             return $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'basic.php';
         }
-    }
-
-    protected function resolveHelper($name)
-    {
-        // try local
-        $location = $this->path . '/helper/' . $name;
-
-        if (!is_file($location)) {
-            $location = Common::base_dir() . 'base/helper/' . $name;
-        }
-
-        // return template if its found
-        return is_file($location) ? $location : null;
     }
 }

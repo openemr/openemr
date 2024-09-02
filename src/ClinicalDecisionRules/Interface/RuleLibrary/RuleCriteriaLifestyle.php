@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 
 /**
@@ -83,9 +84,9 @@ class RuleCriteriaLifestyle extends RuleCriteria
     {
         parent::updateFromRequest();
 
-        $lifestyle = _post("fld_lifestyle");
-        $value = _post("fld_value");
-        $matchType = _post("fld_value_type");
+        $lifestyle = Common::post("fld_lifestyle");
+        $value = Common::post("fld_value");
+        $matchType = Common::post("fld_value_type");
 
         $this->type = $lifestyle;
 

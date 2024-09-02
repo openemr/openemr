@@ -14,7 +14,9 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
+use OpenEMR\Services\ListService;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSex
@@ -47,7 +49,14 @@ class RuleCriteriaSex extends RuleCriteria
 
     function getOptions()
     {
-        return getListOptionsArray('sex');
+        $listService = new ListService();
+        $optionsByListName  = $listService->getOptionsByListName('sex', ['active' => 1]);
+        $options = [];
+        foreach ($optionsByListName as $row) {
+            $options[] = array( "id" => $row['option_id'], "label" => xl_list_label($row['title']) );
+        }
+
+        return $options;
     }
 
     function getDbView()
@@ -64,7 +73,7 @@ class RuleCriteriaSex extends RuleCriteria
     {
         parent::updateFromRequest();
 
-        $sex = _post("fld_sex");
+        $sex = Common::post("fld_sex");
         $this->value = $sex;
     }
 }

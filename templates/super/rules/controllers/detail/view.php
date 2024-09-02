@@ -12,9 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
+
 $rule = $viewBean->rule ?>
 
-<script src="<?php js_src('detail.js') ?>"></script>
+<script src="<?php Common::js_src('detail.js') ?>"></script>
 <script>
     var detail = new rule_detail( {editable: <?php echo $rule->isEditable() ? "true" : "false"; ?>});
     detail.init();
@@ -36,7 +38,7 @@ $rule = $viewBean->rule ?>
                class="action_link" id="edit_summary" onclick="top.restoreSession()">(<?php echo xlt('edit'); ?>)</a>
         </p>
         <p><b><?php echo xlt($rule->title); ?></b>
-        (<?php echo implode_funcs(", ", $rule->getRuleTypeLabels(), array('xlt')); ?>)
+        (<?php echo Common::implode_funcs(", ", $rule->getRuleTypeLabels(), array('xlt')); ?>)
         </p>
         <p><?php echo xlt('Bibliographic Citation'); ?><b>:</b>&nbsp;<?php echo text($rule->bibliographic_citation); ?></p>
         <p><?php echo xlt('Developer'); ?><b>:</b>&nbsp;<?php echo text($rule->developer); ?></p>

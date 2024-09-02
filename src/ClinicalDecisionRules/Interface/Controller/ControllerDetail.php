@@ -10,6 +10,7 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 class ControllerDetail extends BaseController
 {
@@ -20,7 +21,7 @@ class ControllerDetail extends BaseController
 
     function _action_view()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
         if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");

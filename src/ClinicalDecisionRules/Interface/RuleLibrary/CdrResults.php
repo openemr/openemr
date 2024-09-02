@@ -19,6 +19,8 @@
 //
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 class CdrResults
 {
     var $id;
@@ -31,7 +33,7 @@ class CdrResults
     function __construct($rule_id = "", $active_alert_flag = "", $passive_alert_flag = "", $patient_reminder_flag = "", $access_control = "")
     {
         $this->id = $rule_id;
-        $this->rule = getLabel($this->id, 'clinical_rules');
+        $this->rule = RuleTemplateExtension::getLabel($this->id, 'clinical_rules');
         $this->active_flag = $active_alert_flag;
         $this->passive_flag = $passive_alert_flag;
         $this->reminder_flag = $patient_reminder_flag;

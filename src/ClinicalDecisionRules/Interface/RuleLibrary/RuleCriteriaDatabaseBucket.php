@@ -8,7 +8,9 @@
 // of the License, or (at your option) any later version.
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 /**
  * Description of RuleCriteriaDatabaseBucketBuilder
@@ -92,13 +94,13 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
     {
         parent::updateFromRequest();
 
-        $category = _post("fld_category");
-        $categoryLbl = _post("fld_category_lbl");
-        $item = _post("fld_item");
-        $itemLbl = _post("fld_item_lbl");
-        $completed = _post("fld_completed");
-        $frequency = _post("fld_frequency");
-        $frequencyComparator = _post("fld_frequency_comparator");
+        $category = Common::post("fld_category");
+        $categoryLbl = Common::post("fld_category_lbl");
+        $item = Common::post("fld_item");
+        $itemLbl = Common::post("fld_item_lbl");
+        $completed = Common::post("fld_completed");
+        $frequency = Common::post("fld_frequency");
+        $frequencyComparator = Common::post("fld_frequency_comparator");
 
         $this->completed = $completed == 'yes';
         $this->frequency = $frequency;
@@ -107,7 +109,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         // update labels
         // xxx todo abstract this out to a manager (which may or may not defer to core options handling code)!
         // xxx this belongs more in the rule manager
-        $dbLbl = getLabel($category, 'rule_action_category');
+        $dbLbl = RuleTemplateExtension::getLabel($category, 'rule_action_category');
         if ($category && $dbLbl != $categoryLbl) {
             // update
             sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
@@ -115,7 +117,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
                 $category));
         }
 
-        $dbLbl = getLabel($item, 'rule_action');
+        $dbLbl = RuleTemplateExtension::getLabel($item, 'rule_action');
         if ($item && $dbLbl != $itemLbl) {
             // update
             sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(

@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 ?>
 <!DOCTYPE html>
@@ -31,7 +32,7 @@ use OpenEMR\Core\Header;
         <?php $rule = $viewBean->rule ?>
         <?php $criteria = $viewBean->criteria ?>
 
-        <script src="<?php js_src('edit.js') ?>"></script>
+        <script src="<?php Common::js_src('edit.js') ?>"></script>
         <script>
             var edit = new rule_edit({});
             edit.init();

@@ -11,6 +11,7 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 require_once(Common::src_dir() . "/clinical_rules.php");
 
@@ -40,7 +41,7 @@ class ControllerBrowse extends BaseController
 
         $rules = resolve_rules_sql('', '0', true);
         foreach ($rules as $rowRule) {
-            $title = getLabel($rowRule['id'], 'clinical_rules');
+            $title = RuleTemplateExtension::getLabel($rowRule['id'], 'clinical_rules');
             $type = xl("Reminder");
 
             $row = array(

@@ -13,13 +13,14 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 ?>
 <?php $action = $viewBean->action ?>
 <?php $rule = $viewBean->rule ?>
 
-<script src="<?php js_src('edit.js') ?>"></script>
-<script src="<?php js_src('bucket.js') ?>"></script>
+<script src="<?php Common::js_src('edit.js') ?>"></script>
+<script src="<?php Common::js_src('bucket.js') ?>"></script>
 <script>
     var edit = new rule_edit({});
     edit.init();
