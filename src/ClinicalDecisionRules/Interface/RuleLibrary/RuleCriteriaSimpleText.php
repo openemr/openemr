@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 
 /**
@@ -44,7 +45,7 @@ abstract class RuleCriteriaSimpleText extends RuleCriteria
     function updateFromRequest()
     {
         parent::updateFromRequest();
-        $value = _post("fld_value");
+        $value = Common::post("fld_value");
         $this->value = $value;
     }
 }

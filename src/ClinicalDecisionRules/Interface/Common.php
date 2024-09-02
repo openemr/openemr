@@ -105,19 +105,4 @@ class Common
     {
         echo self::base_url() . '/www/css/' . $file;
     }
-
-    public static function controller_base_dir(): string
-    {
-        return realpath(self::base_dir() . '/controllers/');
-    }
-
-    public static function controller_dir($controller): string
-    {
-        $dir = self::controller_base_dir() . '/' . $controller;
-        if (realpath($dir . '/../') != self::controller_base_dir()) {
-            throw new \Exception("Invalid controller '$controller'");
-        }
-
-        return $dir;
-    }
 }

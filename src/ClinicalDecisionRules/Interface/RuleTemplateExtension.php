@@ -90,4 +90,36 @@ class RuleTemplateExtension
             array( "data-grp-tgt" => $args['target'] )
         );
     }
+
+    public static function getLabel($value, $list_id)
+    {
+        require_once($GLOBALS["srcdir"] . "/options.inc.php");
+
+        // get from list_options
+        $result = generate_display_field(array('data_type' => '1','list_id' => $list_id), $value);
+        // trap for fa-exclamation-circle used to indicate empty input from layouts options.
+        if ($result != '' && stripos($result, 'fa-exclamation-circle') === false) {
+            return $result;
+        }
+
+        // if not found, default to the passed-in value
+        return $value;
+    }
+
+
+    public static function getLayoutLabel($value, $form_id)
+    {
+        // get from layout_options
+        $sql = sqlStatement(
+            "SELECT title from layout_options WHERE form_id = ? and field_id = ?",
+            array($form_id, $value)
+        );
+        if (sqlNumRows($sql) > 0) {
+            $result = sqlFetchArray($sql);
+            return xl($result['title']);
+        }
+
+// if not found, default to the passed-in value
+        return $value;
+    }
 }

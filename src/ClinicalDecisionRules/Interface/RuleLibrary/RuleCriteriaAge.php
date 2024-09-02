@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
 
@@ -78,10 +79,10 @@ class RuleCriteriaAge extends RuleCriteria
     function updateFromRequest()
     {
         parent::updateFromRequest();
-        $age = _post("fld_value");
-        $timeUnit = TimeUnit::from(_post("fld_timeunit"));
+        $age = Common::post("fld_value");
+        $timeUnit = TimeUnit::from(Common::post("fld_timeunit"));
         if ($timeUnit == null) {
-            $timeUnit = TimeUnit::from(_post("fld_target_interval_type"));
+            $timeUnit = TimeUnit::from(Common::post("fld_target_interval_type"));
         }
 
         $this->value = $age;

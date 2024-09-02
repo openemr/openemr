@@ -8,9 +8,11 @@
 // of the License, or (at your option) any later version.
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDbView;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria
@@ -86,12 +88,12 @@ abstract class RuleCriteria
 
     protected function getLabel($value, $list_id)
     {
-        return getLabel($value, $list_id);
+        return RuleTemplateExtension::getLabel($value, $list_id);
     }
 
     protected function getLayoutLabel($value, $form_id)
     {
-        return getLayoutLabel($value, $form_id);
+        return RuleTemplateExtension::getLayoutLabel($value, $form_id);
     }
 
     protected function decodeComparator($comparator)
@@ -136,11 +138,11 @@ abstract class RuleCriteria
 
     function updateFromRequest()
     {
-        $inclusion = "yes" == _post("fld_inclusion");
-        $optional = "yes" == _post("fld_optional");
-        $groupId = _post("group_id");
-        $interval = _post("fld_target_interval");
-        $intervalType = TimeUnit::from(_post("fld_target_interval_type"));
+        $inclusion = "yes" == Common::post("fld_inclusion");
+        $optional = "yes" == Common::post("fld_optional");
+        $groupId = Common::post("group_id");
+        $interval = Common::post("fld_target_interval");
+        $intervalType = TimeUnit::from(Common::post("fld_target_interval_type"));
 
         $this->groupId = $groupId;
         $this->optional = $optional;

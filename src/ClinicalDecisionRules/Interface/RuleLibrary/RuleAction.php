@@ -8,6 +8,8 @@
 // of the License, or (at your option) any later version.
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleAction
  *
@@ -33,13 +35,13 @@ class RuleAction
 
     function getTitle()
     {
-        return getLabel($this->category, 'rule_action_category') . " - " . getLabel($this->item, 'rule_action');
+        return RuleTemplateExtension::getLabel($this->category, 'rule_action_category') . " - " . RuleTemplateExtension::getLabel($this->item, 'rule_action');
     }
 
     function getCategoryLabel()
     {
         if (!$this->categoryLbl) {
-            $this->categoryLbl = getLabel($this->category, 'rule_action_category');
+            $this->categoryLbl = RuleTemplateExtension::getLabel($this->category, 'rule_action_category');
         }
 
         return $this->categoryLbl;
@@ -48,7 +50,7 @@ class RuleAction
     function getItemLabel()
     {
         if (!$this->itemLbl) {
-            $this->itemLbl = getLabel($this->item, 'rule_action');
+            $this->itemLbl = RuleTemplateExtension::getLabel($this->item, 'rule_action');
         }
 
         return $this->itemLbl;

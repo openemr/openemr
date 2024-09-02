@@ -13,10 +13,11 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 ?>
 <head>
-    <script src="<?php js_src('custom.js') ?>"></script>
+    <script src="<?php Common::js_src('custom.js') ?>"></script>
 
     <script>
         var custom = new custom( { selectedColumn: <?php echo js_escape($criteria->column); ?> } );

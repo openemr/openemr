@@ -19,8 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ControllerRouter
 {
-    protected function createActionRouter(BaseController $controller, string $action, string $controllerDir) {
-        return new ActionRouter($controller, $action, $controllerDir);
+    protected function createActionRouter(BaseController $controller, string $action) {
+        return new ActionRouter($controller, $action);
     }
     /**
      * xxx todo: error handling
@@ -32,19 +32,12 @@ class ControllerRouter
         $paramParts = explode('!', $actionParam);
         $controller = $paramParts[0] ?? '';
         $action = $paramParts[1] ?? '';
-
-        $controllerDir = Common::controller_dir($controller);
-
-
-//        $controllerFile = $controllerDir . '/controller.php';
-//        require_once $controllerFile;
         $classFQCN = __NAMESPACE__ . "\\Controller\\Controller" . ucfirst($controller);
         $controllerInstance = new $classFQCN();
 
         $actionRouter = $this->createActionRouter(
             $controllerInstance,
-            $action,
-            $controllerDir
+            $action
         );
 
         return $actionRouter->route($request);

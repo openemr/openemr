@@ -13,10 +13,11 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 $rule = $viewBean->rule ?>
 
-<script src="<?php js_src('edit.js') ?>"></script>
+<script src="<?php Common::js_src('edit.js') ?>"></script>
 <script>
     var edit = new rule_edit( {});
     edit.init();
