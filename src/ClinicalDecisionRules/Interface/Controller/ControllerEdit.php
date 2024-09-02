@@ -10,6 +10,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleAction;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 
 /**
  * interface/super/rules/controllers/edit/controller.php
@@ -31,7 +32,7 @@ class ControllerEdit extends BaseController
 
     function _action_summary()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
         if (is_null($rule)) {
             $rule = $this->getRuleManager()->newRule();
@@ -43,16 +44,17 @@ class ControllerEdit extends BaseController
 
     function _action_submit_summary()
     {
-        $ruleId = _post('id');
-        $types = _post('fld_ruleTypes');
-        $title = _post('fld_title');
-        $developer = _post('fld_developer');
-        $funding = _post('fld_funding_source');
-        $release = _post('fld_release');
-        $web_ref = _post('fld_web_reference');
-        $bibliographic_citation = _post('fld_bibliographic_citation');
-        $linked_referential_cds = _post('fld_linked_referential_cds');
-        if (is_null($rule_id ?? null)) {
+        $ruleId = Common::post('id');
+        $types = Common::post('fld_ruleTypes');
+        $title = Common::post('fld_title');
+        $developer = Common::post('fld_developer');
+        $funding = Common::post('fld_funding_source');
+        $release = Common::post('fld_release');
+        $web_ref = Common::post('fld_web_reference');
+        $bibliographic_citation = Common::post('fld_bibliographic_citation');
+        $linked_referential_cds = Common::post('fld_linked_referential_cds');
+        // if ruleId is empty, then it is a new rule
+        if ($ruleId === '') {
             // its a new rule submit
             $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds);
             // redirect to the intervals page
@@ -64,7 +66,7 @@ class ControllerEdit extends BaseController
 
     function _action_intervals()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
 
         $this->viewBean->rule = $rule;
@@ -74,7 +76,7 @@ class ControllerEdit extends BaseController
     function _action_submit_intervals()
     {
         // parse results from response
-        $ruleId = _post('id');
+        $ruleId = Common::post('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
 
         // new intervals object
@@ -85,8 +87,8 @@ class ControllerEdit extends BaseController
                 $amtKey = $type->code . "-" . $range->code;
                 $timeKey = $amtKey . "-timeunit";
 
-                $amt = _post($amtKey);
-                $timeUnit = TimeUnit::from(_post($timeKey));
+                $amt = Common::post($amtKey);
+                $timeUnit = TimeUnit::from(Common::post($timeKey));
 
                 if ($amt && $timeUnit) {
                     $detail = new ReminderIntervalDetail($type, $range, $amt, $timeUnit);
@@ -105,9 +107,9 @@ class ControllerEdit extends BaseController
 
     function _action_filter()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $guid = _get('guid');
+        $guid = Common::get('guid');
         $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $guid);
 
         $this->viewBean->type = "filter";
@@ -121,18 +123,18 @@ class ControllerEdit extends BaseController
 
     function _action_delete_filter()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $guid = _get('guid');
+        $guid = Common::get('guid');
         $this->getRuleManager()->deleteRuleFilter($rule, $guid);
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
     function _action_target()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $guid = _get('guid');
+        $guid = Common::get('guid');
         $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $guid);
 
         $this->viewBean->type = "target";
@@ -146,16 +148,16 @@ class ControllerEdit extends BaseController
 
     function _action_delete_target()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $guid = _get('guid');
+        $guid = Common::get('guid');
         $this->getRuleManager()->deleteRuleTarget($rule, $guid);
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
     function _action_codes()
     {
-        $search = _get('q');
+        $search = Common::get('q');
         $codes = $this->getCodeManager()->search($search);
         foreach ($codes as $code) {
             echo text($code->display()) . "|" . text($code->id) . "\n";
@@ -185,7 +187,7 @@ class ControllerEdit extends BaseController
     function _action_columns()
     {
         $columns = array();
-        $table = _get('table');
+        $table = Common::get('table');
         $stmts = sqlStatement("SHOW COLUMNS FROM " . escape_table_name($table));
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
             $columns[] = $row['Field'];
@@ -197,12 +199,12 @@ class ControllerEdit extends BaseController
     function _action_submit_criteria()
     {
         // parse results from response
-        $ruleId = _post('id');
-        $groupId = _post('group_id');
+        $ruleId = Common::post('id');
+        $groupId = Common::post('group_id');
         $rule = $this->getRuleManager()->getRule($ruleId);
 
-        $guid = _post('guid');
-        $type = _post('type');
+        $guid = Common::post('guid');
+        $type = Common::post('type');
         if ($type == "filter") {
             $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $guid);
         } else {
@@ -210,7 +212,7 @@ class ControllerEdit extends BaseController
         }
 
         if (is_null($criteria)) {
-            $criteriaType = RuleCriteriaType::from(_post('criteriaTypeCode'));
+            $criteriaType = RuleCriteriaType::from(Common::post('criteriaTypeCode'));
             $criteria = $this->getRuleManager()->createFilterRuleCriteria($rule, $criteriaType);
         }
 
@@ -231,9 +233,9 @@ class ControllerEdit extends BaseController
 
     function _action_action()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $guid = _get('guid');
+        $guid = Common::get('guid');
         $action = $this->getRuleManager()->getRuleAction($rule, $guid);
         $this->viewBean->action = $action;
         $this->viewBean->rule = $rule;
@@ -243,17 +245,17 @@ class ControllerEdit extends BaseController
 
     function _action_delete_action()
     {
-        $ruleId = _get('id');
+        $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $guid = _get('guid');
+        $guid = Common::get('guid');
         $action = $this->getRuleManager()->deleteRuleAction($rule, $guid);
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
     }
 
     function _action_add_action()
     {
-        $ruleId = _get('id');
-        $groupId = _get('group_id');
+        $ruleId = Common::get('id');
+        $groupId = Common::get('group_id');
         $rule = $this->getRuleManager()->getRule($ruleId);
         $action = new RuleAction();
         $action->id = $ruleId;
@@ -266,19 +268,19 @@ class ControllerEdit extends BaseController
 
     function _action_submit_action()
     {
-        $ruleId = _post('id');
+        $ruleId = Common::post('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        $groupId = _post('group_id');
-        $guid = _post('guid');
+        $groupId = Common::post('group_id');
+        $guid = Common::post('guid');
 
-        $category = _post("fld_category");
-        $categoryLbl = _post("fld_category_lbl");
-        $item = _post("fld_item");
-        $itemLbl = _post("fld_item_lbl");
-        $link = _post("fld_link");
-        $message = _post("fld_message");
-        $fld_target_guid = _post("fld_target");
-        $customOption = _post("fld_custom_input") == "yes" ? 1 : 0;
+        $category = Common::post("fld_category");
+        $categoryLbl = Common::post("fld_category_lbl");
+        $item = Common::post("fld_item");
+        $itemLbl = Common::post("fld_item_lbl");
+        $link = Common::post("fld_link");
+        $message = Common::post("fld_message");
+        $fld_target_guid = Common::post("fld_target");
+        $customOption = Common::post("fld_custom_input") == "yes" ? 1 : 0;
 
         $action = $this->getRuleManager()->getRuleAction($rule, $guid);
         if (is_null($action)) {
@@ -303,9 +305,9 @@ class ControllerEdit extends BaseController
 
     function _action_add_criteria()
     {
-        $type = _get("criteriaType");
-        $id = _get("id");
-        $groupId = _get("group_id");
+        $type = Common::get("criteriaType");
+        $id = Common::get("id");
+        $groupId = Common::get("group_id");
 
         if ($type == "filter") {
             $allowed = $this->getRuleManager()->getAllowedFilterCriteriaTypes();
@@ -325,11 +327,11 @@ class ControllerEdit extends BaseController
 
     function _action_choose_criteria()
     {
-        $type = _get("type");
-        $id = _get("id");
-        $groupId = _get("group_id");
+        $type = Common::get("type");
+        $id = Common::get("id");
+        $groupId = Common::get("group_id");
 
-        $criteriaType = RuleCriteriaType::from(_get("criteriaType"));
+        $criteriaType = RuleCriteriaType::from(Common::get("criteriaType"));
         $rule = $this->getRuleManager()->getRule($id);
 
         if ($type == "filter") {

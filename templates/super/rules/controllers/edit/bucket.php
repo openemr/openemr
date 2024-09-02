@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 ?>
 <head>
     <script src="<?php js_src('bucket.js') ?>"></script>
@@ -25,7 +27,7 @@
 <!-- category -->
 <?php
 $change_link = '<a href="javascript:;" id="change_category" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-echo textfield_row(array("id" => "fld_category_lbl",
+echo RuleTemplateExtension::textfield_row(array("id" => "fld_category_lbl",
     "name" => "fld_category_lbl",
     "title" => xl("Category"),
     "value" => $criteria->getCategoryLabel(),
@@ -35,7 +37,7 @@ echo textfield_row(array("id" => "fld_category_lbl",
 <!-- item -->
 <?php
 $change_link = '<a href="javascript:;" id="change_item" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-echo textfield_row(array("id" => "fld_item_lbl",
+echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
     "name" => "fld_item_lbl",
     "title" => xl("Item"),
     "value" => $criteria->getItemLabel(),
@@ -77,4 +79,4 @@ echo textfield_row(array("id" => "fld_item_lbl",
     <br />
 
     <!-- optional/required and inclusion/exclusion fields -->
-    <?php echo common_fields(array("criteria" => $criteria)); ?>
+    <?php echo RuleTemplateExtension::common_fields(array("criteria" => $criteria)); ?>

@@ -22,11 +22,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ActionRouter
 {
+    /**
+     * @var BaseController
+     */
     protected $controller;
     protected $path;
     protected $webRoot;
     protected $appRoot;
     protected $action;
+    protected $templateRoot;
 
     public function __construct($controller, $action, $path)
     {
@@ -35,6 +39,7 @@ class ActionRouter
         $this->path = $path;
         $this->appRoot = Common::base_dir();
         $this->webRoot = $GLOBALS['webroot'];
+        $this->templateRoot = Common::template_dir();
     }
 
     public function route(Request $request): Response
@@ -81,6 +86,7 @@ class ActionRouter
             return ''; // No view template found, return empty string.
         }
 
+        $viewBean->_templateRoot = $this->templateRoot;
         $viewBean->_appRoot = $this->appRoot;
         $viewBean->_webRoot = $this->webRoot;
         $viewBean->_view_body = $viewLocation;
@@ -93,9 +99,10 @@ class ActionRouter
 
     protected function resolveViewLocation($viewName)
     {
-        $viewLocation = $this->path . '/view/' . $viewName;
+        $controllerName = strtolower($this->controller->getControllerName());
+        $viewLocation = $this->templateRoot . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $viewName;
         if (!is_file($viewLocation)) {
-            $viewLocation = Common::base_dir() . 'base/view/' . $viewName;
+            $viewLocation = $this->templateRoot . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . $viewName;
         }
 
         return $viewLocation;
@@ -103,17 +110,13 @@ class ActionRouter
 
     protected function resolveTemplate($templateName)
     {
-        $templateLocation = $this->path . '/template/' . $templateName;
-
-        if (!is_file($templateLocation)) {
-            $templateLocation = Common::base_dir() . 'base/template/' . $templateName;
-        }
+        $templateLocation = $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $templateName;
 
         // return template if its found
         if (is_file($templateLocation)) {
             return $templateLocation;
         } else {
-            return Common::base_dir() . 'base/template/basic.php';
+            return $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . 'basic.php';
         }
     }
 

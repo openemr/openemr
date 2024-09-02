@@ -2,10 +2,12 @@
 
 namespace OpenEMR\Tests\Unit\ClinicalDecisionRules;
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CodeManager;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleManager;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\ClinicalDecisionRules\Interface\ControllerEdit;
-use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 
 class ControllerEditTest extends TestCase
 {
@@ -53,9 +55,9 @@ class ControllerEditTest extends TestCase
         $this->assertEquals("summary.php", $this->controller->viewBean->_view);
     }
 
-    public function testActionSubmitSummary()
+    public function testActionSubmitSummaryWithNewRule()
     {
-        $_POST['id'] = 'test_rule_id';
+//        $_POST['id'] = 'test_rule_id';
         $_POST['fld_ruleTypes'] = 'type1';
         $_POST['fld_title'] = 'Test Title';
         $_POST['fld_developer'] = 'Test Developer';
@@ -68,7 +70,7 @@ class ControllerEditTest extends TestCase
         $this->ruleManagerMock->expects($this->once())
             ->method('updateSummary')
             ->with(
-                'test_rule_id',
+                null,
                 'type1',
                 'Test Title',
                 'Test Developer',
@@ -77,10 +79,11 @@ class ControllerEditTest extends TestCase
                 'http://test.com',
                 'Test Citation',
                 'Test Linked CDS'
-            );
+            )
+            ->willReturn('test_rule_id');
 
         $this->controller->_action_submit_summary();
-        $this->expectOutputRegex('/index\.php\?action=detail!view&id=test_rule_id/');
+        $this->assertMatchesRegularExpression('/index\.php\?action=edit!intervals&id=test_rule_id/', $this->controller->viewBean->_redirect);
     }
 
     public function testActionIntervals()
@@ -104,7 +107,8 @@ class ControllerEditTest extends TestCase
         $this->ruleManagerMock->method('getRule')->with('test_rule_id')->willReturn($ruleMock);
 
         $this->controller->_action_submit_intervals();
-        $this->expectOutputRegex('/index\.php\?action=detail!view&id=test_rule_id/');
+        $this->assertMatchesRegularExpression('/index\.php\?action=detail!view&id=test_rule_id/', $this->controller->viewBean->_redirect);
+        $this->markTestIncomplete("Test needs to check if the intervals are updated");
     }
 
     public function testActionFilter()
@@ -113,7 +117,7 @@ class ControllerEditTest extends TestCase
         $_GET['guid'] = 'test_guid';
 
         $ruleMock = $this->createMock(Rule::class);
-        $criteriaMock = $this->createMock(Criteria::class);
+        $criteriaMock = $this->createMock(RuleCriteria::class);
 
         $this->ruleManagerMock->method('getRule')->with('test_rule_id')->willReturn($ruleMock);
         $this->ruleManagerMock->method('getRuleFilterCriteria')->with($ruleMock, 'test_guid')->willReturn($criteriaMock);

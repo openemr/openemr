@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 ?>
 
 <head>
@@ -20,9 +22,9 @@
     <?php } else { ?>
         <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } ?>
-    
+
     <script src="../../../library/dialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-    
+
     <script>
         // This invokes the find-code popup.
         function sel_diagnosis() {
@@ -50,4 +52,4 @@
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>

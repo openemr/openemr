@@ -19,13 +19,3 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
     exit;
 }
-
-// recursively require all .php files in the base library folder
-foreach (glob(base_dir() . "base/library/*.php") as $filename) {
-    require_once($filename);
-}
-
-// recursively require all .php files in the application library folder
-foreach (glob(library_dir() . "/*.php") as $filename) {
-    require_once($filename);
-}

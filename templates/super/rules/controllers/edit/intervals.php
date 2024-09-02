@@ -14,6 +14,7 @@
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalRange;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 ?>
 <?php require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php"); ?>
@@ -60,7 +61,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
                 <input class="form-control" data-grp-tgt="<?php echo attr($type->code) ?>" type="text" name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>" value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
             </span>
             <span class="end_col">
-            <?php echo timeunit_select(array( "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit ?? null )); ?>
+            <?php echo RuleTemplateExtension::timeunit_select(array( "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit ?? null )); ?>
             </span>
         </p>
             <?php $first = false; ?>

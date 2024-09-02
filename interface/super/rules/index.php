@@ -9,14 +9,5 @@ $request = Request::createFromGlobals();
 $controllerRouter = new ControllerRouter();
 $response = $controllerRouter->route($request);
 
-// Check if the response is a redirect (302)
-if ($response->getStatusCode() === 302) {
-    $redirectUrl = $response->headers->get('Location');
-    echo "<script>
-            top.restoreSession();
-            window.location = '" . htmlspecialchars($redirectUrl, ENT_QUOTES, 'UTF-8') . "';
-          </script>";
-} else {
-    // Send the normal response
-    $response->send();
-}
+// Send the normal response
+$response->send();
