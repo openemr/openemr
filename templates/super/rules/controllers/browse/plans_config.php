@@ -43,13 +43,9 @@
 <script>
     $(function () {
         //load plans
-        $("#cdr-plans").load('<?php library_src('RulesPlanMappingEventHandlers_ajax.php') ?>');
-
         $.post(
-            '<?php echo _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=getNonCQMPlans'; ?>'
-        ).done(function (resp) {
-            var data = $.parseJSON(resp);
-
+            'index.php?action=ajax!getNonCQMPlans'
+        ).done(function (data) {
             $.each(data, function (idx, obj) {
                 $('<option id="' + jsAttr(obj.plan_id) + '" p_id="' + jsAttr(obj.plan_pid) + '" value="' + jsAttr(obj.plan_id) + '">' + jsText(obj.plan_title) + '</option>').insertAfter('#select_plan').insertBefore('#divider');
             });
@@ -95,8 +91,7 @@
 
                 $.post
                 (
-                    '<?php echo _base_url() .
-                        "/library/RulesPlanMappingEventHandlers_ajax.php?action=deletePlan&plan_id="; ?>' + encodeURIComponent(selected_plan)
+                    'index.php?action=ajax!deletePlan&plan_id=' + encodeURIComponent(selected_plan)
                     + '&plan_pid=' + encodeURIComponent(selected_plan_pid)
                 ).done(function (resp) {
                     $("body").removeClass("loading");
@@ -165,9 +160,8 @@
             var dataString = JSON.stringify(postData);
 
             $.post(
-                '<?php echo _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=commitChanges'; ?>',
-                dataString).done(function (resp) {
-                var obj = $.parseJSON(resp);
+                'index.php?action=ajax!commitChanges',
+                dataString).done(function (obj) {
                 if (obj.status_code == '000') {
                     //Success
                     if (is_new_plan) {
@@ -238,11 +232,8 @@
 
             $.post
             (
-                '<?php echo _base_url() .
-                    '/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + encodeURIComponent(selected_plan)
-            ).done(function (resp) {
-                var data = $.parseJSON(resp);
-
+                'index.php?action=ajax!getRulesInAndNotInPlan&plan_id=' + encodeURIComponent(selected_plan)
+            ).done(function (data) {
                 $('#cdr_rules').append('<select id="cdr_rules_select" class="multiselect" multiple="multiple" name="cdr_rules_select[]"/>');
 
                 $.each(data, function (idx, obj) {
@@ -269,11 +260,9 @@
     $loadPlanStatus = function (selected_plan, selected_plan_pid) {
         $.post
         (
-            '<?php echo _base_url() .
-                '/library/RulesPlanMappingEventHandlers_ajax.php?action=getPlanStatus&plan_id='; ?>' + encodeURIComponent(selected_plan)
+            'index.php?action=ajax!getPlanStatus&plan_id=' + encodeURIComponent(selected_plan)
             + '&plan_pid=' + encodeURIComponent(selected_plan_pid)
-        ).done(function (resp) {
-            var obj = $.parseJSON(resp);
+        ).done(function (obj) {
 
             if (obj.is_plan_active) {
                 $activatePlan();
@@ -312,9 +301,8 @@
         var dataStringToggle = JSON.stringify(postToggle);
 
         $.post(
-            '<?php echo _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=togglePlanStatus'; ?>'
-            , dataStringToggle).done(function (resp) {
-            var obj = $.parseJSON(resp);
+            'index.php?action=ajax!togglePlanStatus'
+            , dataStringToggle).done(function (obj) {
             if (obj == '007') {
                 alert(<?php echo xlj('Plan Status Changed'); ?>);
             }

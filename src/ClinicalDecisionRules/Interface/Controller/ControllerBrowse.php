@@ -31,6 +31,9 @@ class ControllerBrowse extends BaseController
         $this->set_view("plans_config.php");
     }
 
+    /**
+     * @deprecated does not appear to be used
+     */
     function _action_getrows()
     {
         $rows = array();
