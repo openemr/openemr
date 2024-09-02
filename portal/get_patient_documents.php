@@ -125,20 +125,21 @@ while ($file = sqlFetchArray($fres)) {
                     } else {
                         $normalizedTitle = $title;
                     }
+                    $normalizedCategory = preg_replace('/[^a-zA-Z0-9]/', '', $title);
                     ?>
                     <div class="col-md-6">
                         <div class="card mb-4">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><?php echo text($normalizedTitle); ?></h5>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="selectAll<?php echo attr($normalizedTitle); ?>" onclick="toggleCheckboxes('category-<?php echo attr($normalizedTitle); ?>', this)">
-                                    <label class="form-check-label" for="selectAll<?php echo attr($normalizedTitle); ?>"><?php echo xlt("Select All"); ?></label>
+                                    <input class="form-check-input" type="checkbox" id="selectAll<?php echo attr($normalizedCategory); ?>" onclick="toggleCheckboxes('category-<?php echo attr($normalizedCategory); ?>', this)">
+                                    <label class="form-check-label" for="selectAll<?php echo attr($normalizedCategory); ?>"><?php echo xlt("Select All"); ?></label>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <?php foreach ($docs as $doc) { ?>
                                     <div class="form-check">
-                                        <input class="form-check-input category-<?php echo attr($normalizedTitle); ?>" type="checkbox" name="documents[]" value="<?php echo attr($doc['id']); ?>" id="doc<?php echo attr($doc['id']); ?>">
+                                        <input class="form-check-input category-<?php echo attr($normalizedCategory); ?>" type="checkbox" name="documents[]" value="<?php echo attr($doc['id']); ?>" id="doc<?php echo attr($doc['id']); ?>">
                                         <label class="form-check-label" for="doc<?php echo attr($doc['id']); ?>">
                                             <?php echo text($doc['name']); ?>
                                         </label>

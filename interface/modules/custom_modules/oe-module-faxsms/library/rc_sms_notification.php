@@ -115,142 +115,144 @@ $check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, d
 $db_sms_msg['sms_gateway_type'] = "SMS";
 $db_sms_msg['message'] = $MESSAGE;
 ?>
-    <!DOCTYPE html>
-    <html lang="eng">
-    <head>
-        <title><?php echo xlt("SMS Notification") ?></title>
-    </head>
-    <style>
-        html {
-            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-            font-size: 14px;
-        }
-    </style>
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+    <title><?php echo xlt("Notifications") ?></title>
+</head>
+<style>
+  html {
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 14px;
+  }
+</style>
+<body>
     <body>
-        <body>
+        <div>
             <div>
-                <div>
-                    <p class="text-center">
-                    <h2><?php echo xlt("Working and may take a few minutes to finish.") ?></h2></p>
-                </div>
-                <?php
-                if ($bTestRun) {
-                    echo xlt("We are in Test Mode and no reminders will be sent. This test will check what reminders will be sent in when running Live Mode.");
-                }
-                $db_patient = cron_GetAlertPatientData();
-                echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . text($SMS_NOTIFICATION_HOUR) . ' ' . xlt("hrs from now.");
+                <p class="text-center">
+                <h2><?php echo xlt("Working and may take a few minutes to finish.") ?></h2></p>
+            </div>
+            <?php
+            if ($bTestRun) {
+                echo xlt("We are in Test Mode and no reminders will be sent. This test will check what reminders will be sent in when running Live Mode.");
+            }
+            $db_patient = cron_GetAlertPatientData();
+            echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . text($SMS_NOTIFICATION_HOUR) . ' ' . xlt("hrs from now.");
+            ob_flush();
+            flush();
+            // for every event found
+            $plast = '';
+            echo "<h3>======================== " . text($TYPE) . " | " . text(date("Y-m-d H:i:s")) . " =========================</h3>";
+            for ($p = 0; $p < count($db_patient); $p++) {
                 ob_flush();
                 flush();
-                // for every event found
-                $plast = '';
-                echo "<h3>======================== " . text($TYPE) . " | " . text(date("Y-m-d H:i:s")) . " =========================</h3>";
-                for ($p = 0; $p < count($db_patient); $p++) {
-                    ob_flush();
-                    flush();
-                    $prow = $db_patient[$p];
-                    $db_sms_msg['sms_gateway_type'] = "RCSMS";
-                    $db_sms_msg['message'] = $MESSAGE;
+                $prow = $db_patient[$p];
+                $db_sms_msg['sms_gateway_type'] = "RCSMS";
+                $db_sms_msg['message'] = $MESSAGE;
 
-                    $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
-                    $app_time = strtotime($app_date);
+                $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
+                $app_time = strtotime($app_date);
 
-                    $app_time_hour = round($app_time / 3600);
-                    $curr_total_hour = round(time() / 3600);
+                $app_time_hour = round($app_time / 3600);
+                $curr_total_hour = round(time() / 3600);
 
-                    $remaining_app_hour = round($app_time_hour - $curr_total_hour);
-                    $remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
+                $remaining_app_hour = round($app_time_hour - $curr_total_hour);
+                $remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
 
-                    if ($plast != $prow['ulname']) {
-                        echo "<h4>" . xlt("For Provider") . ": " . text($prow['utitle']) . ' ' . text($prow['ufname']) . ' ' . text($prow['ulname']) . "</h4>";
-                        $plast = $prow['ulname'];
-                    }
-                    $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . text($SMS_NOTIFICATION_HOUR) . " | " . xlt("CRONJOB RUNS EVERY:") . text($CRON_TIME) . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
+                if ($plast != $prow['ulname']) {
+                    echo "<h4>" . xlt("For Provider") . ": " . text($prow['utitle']) . ' ' . text($prow['ufname']) . ' ' . text($prow['ulname']) . "</h4>";
+                    $plast = $prow['ulname'];
+                }
+                $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . text($SMS_NOTIFICATION_HOUR) . " | " . xlt("CRONJOB RUNS EVERY:") . text($CRON_TIME) . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
 
-                    // check in the interval
-                    if ($remain_hour >= -($CRON_TIME) && $remain_hour <= $CRON_TIME) {
-                        //set message
-                        $db_sms_msg['message'] = cron_SetMessage($prow, $db_sms_msg);
+                // check in the interval
+                if ($remain_hour >= -($CRON_TIME) && $remain_hour <= $CRON_TIME) {
+                    //set message
+                    $db_sms_msg['message'] = cron_SetMessage($prow, $db_sms_msg);
+                    // send sms to patient - if not in test mode
+                    if ($TYPE == 'SMS' && $clientApp != null) {
+                        $isValid = isValidPhone($prow['phone_cell']);
                         // send sms to patient - if not in test mode
-                        if ($bTestRun == 0) {
-                            cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                            if ($TYPE == 'SMS' && $clientApp != null) {
-                                $isValid = isValidPhone($prow['phone_cell']);
-                                if ($isValid) {
-                                    $error = $clientApp->sendSMS(
-                                        $prow['phone_cell'] ?? '',
-                                        $db_sms_msg['email_subject'] ?? '',
-                                        $db_sms_msg['message'] ?? '',
-                                        $db_sms_msg['email_sender'] ?? ''
-                                    );
-                                    if (stripos($error, 'error') !== false) {
-                                        $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>";
-                                        echo(nl2br($strMsg));
-                                        exit;
-                                    }
-                                }
-                                if (!$isValid) {
-                                    $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
-                                    $db_sms_msg['message'] = xlt("Error: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
-                                    if ($bTestRun == 0) {
-                                        cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                                    }
-                                } else {
-                                    $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                                    cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
-                                }
-                                if ((int)$prow['pc_recurrtype'] > 0) {
-                                    $row = fetchRecurrences($prow['pid']);
-                                    $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occuring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
-                                }
-                                $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
+                        if ($bTestRun == 0 && $isValid) {
+                            $error = $clientApp->sendSMS(
+                                $prow['phone_cell'] ?? '',
+                                $db_sms_msg['email_subject'] ?? '',
+                                $db_sms_msg['message'] ?? '',
+                                $db_sms_msg['email_sender'] ?? ''
+                            );
+                            if (stripos($error, 'error') !== false) {
+                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong> \n";
                                 echo(nl2br($strMsg));
-                            }
-                            if ($TYPE == 'EMAIL' && $emailApp != null) {
-                                $isValid = $emailApp->validEmail($prow['email']);
-                                if ($isValid) {
-                                    try {
-                                        $error = $emailApp->emailReminder(
-                                            $prow['email'] ?? '',
-                                            $db_sms_msg['message'],
-                                        );
-                                    } catch (\PHPMailer\PHPMailer\Exception $e) {
-                                        $error = 'Error' . ' ' . $e->getMessage();
-                                    }
-                                    if (stripos($error, 'error') !== false) {
-                                        $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>";
-                                        echo(nl2br($strMsg));
-                                        exit;
-                                    }
-                                }
-                                if (!$isValid) {
-                                    $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Email") . text('$prow["email"]') . " " . xlt("EMAIL NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
-                                    $db_sms_msg['message'] = xlt("Error: INVALID EMAIL") . '# ' . text($prow['email']) . xlt("EMAIL NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
-                                    if ($bTestRun == 0) {
-                                        cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                                    }
-                                } else {
-                                    $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                                    cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
-                                }
-                                if ((int)$prow['pc_recurrtype'] > 0) {
-                                    $row = fetchRecurrences($prow['pid']);
-                                    $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occuring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
-                                }
-                                $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
-                                echo(nl2br($strMsg));
+                                continue;
+                            } else {
+                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
                             }
                         }
+                        if (!$isValid) {
+                            $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
+                            $db_sms_msg['message'] = xlt("Error: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
+                            if ($bTestRun == 0) {
+                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                            }
+                        } else {
+                            $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
+                            cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                        }
+                        if ((int)$prow['pc_recurrtype'] > 0) {
+                            $row = fetchRecurrences($prow['pid']);
+                            $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occurring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
+                        }
+                        $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
+                        echo(nl2br($strMsg));
+                    }
+                    if ($TYPE == 'EMAIL' && $emailApp != null) {
+                        $isValid = $emailApp->validEmail($prow['email']);
+                        if ($bTestRun == 0 && $isValid) {
+                            try {
+                                $error = $emailApp->emailReminder(
+                                    $prow['email'] ?? '',
+                                    $db_sms_msg['message'],
+                                );
+                            } catch (\PHPMailer\PHPMailer\Exception $e) {
+                                $error = 'Error' . ' ' . $e->getMessage();
+                            }
+                            if (stripos($error, 'error') !== false) {
+                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong>\n";
+                                echo(nl2br($strMsg));
+                                continue;
+                            } else {
+                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                            }
+                        }
+                        if (!$isValid) {
+                            $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Email") . text('$prow["email"]') . " " . xlt("EMAIL NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
+                            $db_sms_msg['message'] = xlt("Error: INVALID EMAIL") . '# ' . text($prow['email']) . xlt("EMAIL NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
+                            if ($bTestRun == 0) {
+                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                            }
+                        } else {
+                            $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
+                            cron_UpdateEntry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
+                        }
+                        if ((int)$prow['pc_recurrtype'] > 0) {
+                            $row = fetchRecurrences($prow['pid']);
+                            $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occurring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
+                        }
+                        $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
+                        echo(nl2br($strMsg));
                     }
                 }
-                unset($clientApp);
-                unset($emailApp);
-                echo "<br /><h2>" . xlt("Done!") . "</h2>";
-                ?>
-            </div>
-        </body>
-    </html>
-<?php
+            }
+            unset($clientApp);
+            unset($emailApp);
+            echo "<br /><h2>" . xlt("Done!") . "</h2>";
+            ?>
+        </div>
+    </body>
+</html>
 
+<?php
 function isValidPhone($phone): array|bool|string|null
 {
     $justNums = preg_replace("/[^0-9]/", '', $phone);
@@ -288,6 +290,8 @@ function cron_UpdateEntry($type, $pid, $pc_eid, $recur = ''): int
 
     if ($type == 'SMS') {
         $query .= " pc_sendalertsms='YES', pc_apptstatus='SMS' ";
+    } elseif ($type == 'EMAIL') {
+        $query .= " pc_sendalertemail='YES', pc_apptstatus='EMAIL' ";
     } else {
         $query .= " pc_sendalertemail='YES' ";
     }
@@ -306,8 +310,11 @@ function cron_UpdateEntry($type, $pid, $pc_eid, $recur = ''): int
  */
 function cron_GetAlertPatientData(): array
 {
-    global $SMS_NOTIFICATION_HOUR;
+    global $SMS_NOTIFICATION_HOUR, $TYPE;
     $where = " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')";
+    if ($TYPE == 'EMAIL') {
+        $where = " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND e.pc_sendalertemail != 'YES' AND e.pc_apptstatus != 'x')";
+    }
     $adj_date = date("h") + $SMS_NOTIFICATION_HOUR;
     $check_date = date("Y-m-d", mktime($adj_date, 0, 0, date("m"), date("d"), date("Y")));
     $patient_array = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');

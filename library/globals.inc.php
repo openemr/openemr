@@ -1897,6 +1897,13 @@ $GLOBALS_METADATA = array(
             xl('The appointment status changes and encounter creations are managed through the Patient Tracker.')
         ),
 
+        'auto_create_prevent_reason' => array(
+            xl('Prevent Appointment Comment as Visit Reason'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Check this if you do not want to allow the appointments comment as the visit reason when auto-creating new encounter for appointment.')
+        ),
+
         'allow_early_check_in' => array(
             xl('Allow Early Check In'),
             'bool',                           // data type
