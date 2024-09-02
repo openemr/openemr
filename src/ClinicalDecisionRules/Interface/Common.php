@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Common.php
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Aron Racho <aron@mi-squared.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Discover And Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
 class Common
@@ -45,9 +58,9 @@ class Common
      *
      * @param string $var
      * @param string $default
-     * @return string
+     * @return string|string[] returns a string value or an array of string values
      */
-    public static function post($var, $default = ''): string
+    public static function post($var, $default = ''): string|array
     {
         $val = $_POST[$var] ?? null;
         return isset($val) && $val !== '' ? $val : $default;
@@ -61,6 +74,11 @@ class Common
     public static function src_dir(): string
     {
         return $GLOBALS['srcdir'];
+    }
+
+    public static function template_dir() : string
+    {
+        return $GLOBALS['template_dir'] . 'super' . DIRECTORY_SEPARATOR . 'rules' . DIRECTORY_SEPARATOR;
     }
 
     public static function base_dir(): string

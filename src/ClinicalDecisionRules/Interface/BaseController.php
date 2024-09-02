@@ -33,6 +33,12 @@ abstract class BaseController
     }
 
 
+    public function getControllerName() {
+        $class = get_class($this);
+        $parts = explode('\\', $class);
+        $name = str_replace('Controller', '', end($parts));
+        return $name;
+    }
     public function _action_error()
     {
         $this->viewBean->_view = "error.php";

@@ -12,11 +12,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 ?>
 <p class="form-row">
     <span class="left_col colhead req" data-fld="fld_lifestyle"><?php echo text($criteria->getTitle()); ?></span>
     <span class="end_col">
-    <?php echo render_select(array( "target"   =>  "fld_lifestyle",
+    <?php echo RuleTemplateExtension::render_select(array( "target"   =>  "fld_lifestyle",
                                      "name"     =>  "fld_lifestyle",
                                      "value"    =>  $criteria->type,
                                      "options"  =>  $criteria->getOptions() )); ?>
@@ -45,4 +47,4 @@
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>

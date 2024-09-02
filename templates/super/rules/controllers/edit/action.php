@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 ?>
 <?php $action = $viewBean->action ?>
 <?php $rule = $viewBean->rule ?>
@@ -52,7 +54,7 @@
         <!-- category -->
         <?php
         $change_link = '<a href="javascript:;" id="change_category" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-        echo textfield_row(array("id" => "fld_category_lbl",
+        echo RuleTemplateExtension::textfield_row(array("id" => "fld_category_lbl",
             "name" => "fld_category_lbl",
             "title" => xl("Category"),
             "value" => $action->getCategoryLabel(),
@@ -62,7 +64,7 @@
         <!-- item -->
         <?php
         $change_link = '<a href="javascript:;" id="change_item" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-        echo textfield_row(array("id" => "fld_item_lbl",
+        echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
             "name" => "fld_item_lbl",
             "title" => xl("Item"),
             "value" => $action->getItemLabel(),
@@ -70,13 +72,13 @@
         <input type="hidden" id="fld_item" name="fld_item" value="<?php echo attr($action->item); ?>" />
 
         <!-- reminder link  -->
-        <?php echo textfield_row(array("id" => "fld_link",
+        <?php echo RuleTemplateExtension::textfield_row(array("id" => "fld_link",
             "name" => "fld_link",
             "title" => xl("Link"),
             "value" => $action->reminderLink)); ?>
 
         <!-- reminder message  -->
-        <?php echo textfield_row(array("id" => "fld_message",
+        <?php echo RuleTemplateExtension::textfield_row(array("id" => "fld_message",
             "name" => "fld_message",
             "title" => xl("Message"),
             "value" => $action->reminderMessage)); ?>
