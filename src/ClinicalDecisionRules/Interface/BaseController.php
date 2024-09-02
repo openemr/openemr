@@ -54,8 +54,9 @@ abstract class BaseController
 
     public function emit_json($object)
     {
-        header('Content-type: application/json');
-        echo json_encode($object);
+        // if we ever need to do anything funky... we could create a json.php view...
+//        $this->set_view("json.php", "json.php");
+        $this->viewBean->_json = $object;
     }
 
     public function set_view($view, $template = '')

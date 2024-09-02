@@ -60,7 +60,11 @@ class ActionRouter
             return new Response('', 302, ['Location' => $_redirect]);
         }
 
-        $responseContent = $this->renderView($result);
+        if (isset($this->controller->viewBean->_json)) {
+            return new Response(json_encode($this->controller->viewBean->_json), 200, ['Content-Type' => 'application/json']);
+        } else {
+            $responseContent = $this->renderView($result);
+        }
         return new Response($responseContent);
     }
 
@@ -102,7 +106,7 @@ class ActionRouter
         $controllerName = strtolower($this->controller->getControllerName());
         $viewLocation = $this->templateRoot . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $viewName;
         if (!is_file($viewLocation)) {
-            $viewLocation = $this->templateRoot . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . $viewName;
+            $viewLocation = $this->templateRoot . 'base' . DIRECTORY_SEPARATOR . 'template' . DIRECTORY_SEPARATOR . $viewName;
         }
 
         return $viewLocation;
