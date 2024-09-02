@@ -71,10 +71,11 @@ $messagesURL = $GLOBALS['web_root'] . '/portal/messaging/messages.php';
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
 
 $current_date2 = date('Y-m-d');
-$apptLimit = 30;
+$apptLimit = 10;
 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
+$past_appts = fetchXPastAppts($pid, 10);
 
-$appointments = array();
+$appointments = $past_appointments = array();
 if ($appts) {
     $stringCM = '(' . xl('Comments field entry present') . ')';
     $stringR = '(' . xl('Recurring appointment') . ')';
@@ -113,7 +114,44 @@ if ($appts) {
         $appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
     }
 }
+if ($past_appts) {
+    $stringCM = '(' . xl('Comments field entry present') . ')';
+    $stringR = '(' . xl('Recurring appointment') . ')';
+    $pastCount = 0;
+    foreach ($past_appts as $row) {
+        $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
+        $pastCount++;
+        $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
+        $dispampm = 'am';
+        $disphour = (int)substr($row['pc_startTime'], 0, 2);
+        $dispmin = substr($row['pc_startTime'], 3, 2);
+        if ($disphour >= 12) {
+            $dispampm = 'pm';
+            if ($disphour > 12) {
+                $disphour -= 12;
+            }
+        }
 
+        if ($row['pc_hometext'] != '') {
+            $etitle = xl('Comments') . ': ' . $row['pc_hometext'] . "\r\n";
+        } else {
+            $etitle = '';
+        }
+
+        $formattedRecord = [
+            'appointmentDate' => $dayname . ', ' . oeFormatShortDate($row['pc_eventDate']) . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
+            'appointmentType' => xl('Type') . ': ' . $row['pc_catname'],
+            'provider' => xl('Provider') . ': ' . $row['ufname'] . ' ' . $row['ulname'],
+            'status' => xl('Status') . ': ' . $status_title,
+            'mode' => (int)$row['pc_recurrtype'] > 0 ? 'recurring' : $row['pc_recurrtype'],
+            'icon_type' => (int)$row['pc_recurrtype'] > 0,
+            'etitle' => $etitle,
+            'pc_eid' => $row['pc_eid'],
+        ];
+        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
+    }
+}
 $current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", array($pid, 'portal_theme'))['setting_value'] ?? '';
 function collectStyles(): array
 {
@@ -301,9 +339,11 @@ try {
         'csrfUtils' => CsrfUtils::collectCsrfToken(),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
+        'pastAppointments' => $past_appointments,
         'appts' => $appts,
         'appointmentLimit' => $apptLimit,
         'appointmentCount' => $count ?? null,
+        'pastAppointmentCount' => $pastCount ?? null,
         'displayLimitLabel' => xl('Display limit reached'),
         'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
         'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
@@ -313,6 +353,10 @@ try {
         'ccdaOk' => $ccdaOk,
         'allow_custom_report' => $GLOBALS['allow_custom_report'] ?? '0',
         'immunRecords' => $immunRecords,
+        'languageDirection' => $_SESSION['language_direction'] ?? 'ltr',
+        'dateDisplayFormat' => $GLOBALS['date_display_format'],
+        'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
+        'assetVersion' => $GLOBALS['v_js_includes'],
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,

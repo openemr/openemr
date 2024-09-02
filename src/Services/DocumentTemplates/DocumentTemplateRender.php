@@ -121,7 +121,6 @@ class DocumentTemplateRender
         }
         $config->set('Cache.SerializerPath', $purifyTempFile);
         $config->set('Core.Encoding', 'UTF-8');
-        $config->set('CSS.AllowedProperties', '*');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
         // Purify escapes URIs.
