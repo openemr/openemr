@@ -6,6 +6,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CodeManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleManager;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 
@@ -57,33 +58,51 @@ class ControllerEditTest extends TestCase
 
     public function testActionSubmitSummaryWithNewRule()
     {
-//        $_POST['id'] = 'test_rule_id';
-        $_POST['fld_ruleTypes'] = 'type1';
-        $_POST['fld_title'] = 'Test Title';
-        $_POST['fld_developer'] = 'Test Developer';
-        $_POST['fld_funding_source'] = 'Test Funding';
-        $_POST['fld_release'] = 'Test Release';
-        $_POST['fld_web_reference'] = 'http://test.com';
-        $_POST['fld_bibliographic_citation'] = 'Test Citation';
-        $_POST['fld_linked_referential_cds'] = 'Test Linked CDS';
+        $values = [
+            'title' => 'Test Title'
+            ,'developer' => 'Test Developer'
+            ,'funding_source' => 'Test Funding'
+            ,'release' => 'Test Release'
+            ,'web_reference' => 'http://test.com'
+            ,'bibliographic_citation' => 'Test Citation'
+            ,'linked_referential_cds' => 'Test Linked CDS'
+            ,'patient_dob_usage' => 'Test DOB is used'
+            ,'patient_ethnicity_usage' => 'Test Eth is used'
+            ,'patient_health_status_usage' => 'Test Health Status is used'
+            ,'patient_gender_identity_usage' => 'Test Gender Identity is used'
+            ,'patient_language_usage' => 'Test Language is used'
+            ,'patient_race_usage' => 'Test Race is used'
+            ,'patient_sex_usage' => 'Test Sex is used'
+            ,'patient_sexual_orientation_usage' => 'Test Sexual Orientation is used'
+            ,'patient_sodh_usage' => 'Test SODH is used'
+        ];
+        foreach ($values as $key => $value) {
+            $_POST['fld_' . $key] = $value;
+        }
+
+        // TODO: This isn't a true unit test as it relies on another function... can we fix this?
+        $expectedRuleId = 2;
+        $fullExpectedRuleId = 'rule_' . $expectedRuleId;
+
+        $this->ruleManagerMock->expects($this->atLeast(1))
+            ->method('newRule')
+            ->willReturn(new Rule());
 
         $this->ruleManagerMock->expects($this->once())
-            ->method('updateSummary')
-            ->with(
-                null,
-                'type1',
-                'Test Title',
-                'Test Developer',
-                'Test Funding',
-                'Test Release',
-                'http://test.com',
-                'Test Citation',
-                'Test Linked CDS'
-            )
-            ->willReturn('test_rule_id');
+            ->method('updateSummaryForRule')
+            ->with(self::callback(function($rule)  use ($values) : bool {
+                self::assertInstanceOf(Rule::class, $rule);
+                foreach ($values as $key => $value) {
+                    $this->assertEquals($value, $rule->$key);
+                }
+                $this->assertEmpty($rule->id);
+                return true;
+            }))
+            ->willReturn($fullExpectedRuleId);
 
         $this->controller->_action_submit_summary();
-        $this->assertMatchesRegularExpression('/index\.php\?action=edit!intervals&id=test_rule_id/', $this->controller->viewBean->_redirect);
+        $this->assertMatchesRegularExpression('/index\.php\?action=edit!intervals&id=' . $fullExpectedRuleId
+            . '/', $this->controller->viewBean->_redirect);
     }
 
     public function testActionIntervals()

@@ -125,3 +125,24 @@ ALTER TABLE `form_encounter` ADD `ordering_provider_id` INT(11) DEFAULT '0' COMM
 #IfMissingColumn session_tracker number_scripts
 ALTER TABLE `session_tracker` ADD `number_scripts` bigint DEFAULT 1;
 #EndIf
+
+#IfMissingColumn clinical_rules patient_sodh_usage
+ALTER TABLE `clinical_rules` ADD `patient_dob_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient DOB is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_ethnicity_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient ethnicity is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_health_status_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient health status assessments are used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_gender_identity_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient gender identity information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_language_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient language information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_race_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient race information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_sex_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient birth sex information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_sexual_orientation_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient sexual orientation is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_sodh_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient social determinants of health are used by this rule';
+#EndIf

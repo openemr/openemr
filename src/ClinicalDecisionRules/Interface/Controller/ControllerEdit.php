@@ -45,23 +45,48 @@ class ControllerEdit extends BaseController
     function _action_submit_summary()
     {
         $ruleId = Common::post('id');
-        $types = Common::post('fld_ruleTypes');
-        $title = Common::post('fld_title');
-        $developer = Common::post('fld_developer');
-        $funding = Common::post('fld_funding_source');
-        $release = Common::post('fld_release');
-        $web_ref = Common::post('fld_web_reference');
-        $bibliographic_citation = Common::post('fld_bibliographic_citation');
-        $linked_referential_cds = Common::post('fld_linked_referential_cds');
-        // if ruleId is empty, then it is a new rule
-        if ($ruleId === '') {
+        $values = [
+            'title'
+            ,'developer'
+            ,'funding_source'
+            ,'release'
+            ,'web_reference'
+            ,'bibliographic_citation'
+            ,'linked_referential_cds'
+            ,'patient_dob_usage'
+            ,'patient_ethnicity_usage'
+            ,'patient_health_status_usage'
+            ,'patient_gender_identity_usage'
+            ,'patient_language_usage'
+            ,'patient_race_usage'
+            ,'patient_sex_usage'
+            ,'patient_sexual_orientation_usage'
+            ,'patient_sodh_usage'
+        ];
+        $rule = $this->getRuleManager()->getRule($ruleId);
+        if (is_null($rule)) {
+            $rule = $this->getRuleManager()->newRule();
+        }
+            $ruleTypes = Common::post('fld_ruleTypes') ?? [];
+            if (!is_array($ruleTypes)) {
+                $ruleTypes = [$ruleTypes];
+            }
+            $rule->ruleTypes = array_map('intval', $ruleTypes);
+
+            // TODO: could write a validator here
+            foreach ($values as $val) {
+                if (property_exists($rule, $val)) {
+                    $rule->$val = Common::post('fld_' . $val, '');
+                }
+            }
             // its a new rule submit
-            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds);
+            $ruleId = $this->getRuleManager()->updateSummaryForRule($rule);
             // redirect to the intervals page
             $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
-        } else {
-            $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
-        }
+//        }
+//        else {
+//            $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
+//        }
     }
 
     function _action_intervals()

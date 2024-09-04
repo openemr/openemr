@@ -654,6 +654,15 @@ CREATE TABLE `clinical_rules` (
   `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference',
   `linked_referential_cds` VARCHAR(50) NOT NULL DEFAULT '',
   `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control',
+  `patient_dob_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient DOB is used by this rule',
+  `patient_ethnicity_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient ethnicity is used by this rule',
+  `patient_health_status_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient health status assessments are used by this rule',
+  `patient_gender_identity_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient gender identity information is used by this rule',
+  `patient_language_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient language information is used by this rule',
+  `patient_race_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient race information is used by this rule',
+  `patient_sex_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient birth sex information is used by this rule',
+  `patient_sexual_orientation_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient sexual orientation is used by this rule',
+  `patient_sodh_usage` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Description of how patient social determinants of health are used by this rule',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=InnoDB;
 
