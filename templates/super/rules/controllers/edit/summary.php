@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   There are segments of code in this file that have been generated via ChatGPT and are licensed as Public Domain, they are marked with a header and footer.
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
@@ -88,20 +89,68 @@ $rule = $viewBean->rule ?>
     </div>
 
     <div class="form-row">
-    <span class="left_col colhead" data-fld="fld_release"><?php echo xlt('Release'); ?></span>
+    <span class="left_col colhead" data-fld="fld_release"><?php echo xlt('Date of Last Review or Update'); ?></span>
     <span class="end_col"><input type="text" name="fld_release" class="form-control field" id="fld_release" value="<?php echo attr($rule->release); ?>" maxlength="255" /></span>
     </div>
 
     <div class="form-row">
     <span class="left_col colhead" data-fld="fld_web_reference"><?php echo xlt('Web Reference'); ?></span>
-    <span class="end_col"><input type="text" name="fld_web_reference" class="form-control field" id="fld_web_reference" value="<?php echo attr($rule->web_ref); ?>" maxlength="255" /></span>
+    <span class="end_col"><input type="text" name="fld_web_reference" class="form-control field" id="fld_web_reference" value="<?php echo attr($rule->web_reference); ?>" maxlength="255" /></span>
     </div>
 
     <div class="form-row">
     <span class="left_col colhead" data-fld="fld_linked_referential_cds"><?php echo xlt('Referential CDS'); ?></span>
     <span class="end_col"><input type="text" name="fld_linked_referential_cds" class="form-control field" id="fld_linked_referential_cds" onclick="sel_referential_cds()" value="<?php echo attr($rule->linked_referential_cds); ?>" maxlength="50" /></span>
     </div>
+    <?php
+    /** Note the following code is in the Public Domain and was generated using ChatGPT */
+    ?>
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_race_usage"><?php echo xlt('Use of Patient\'s Race'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_race_usage" class="form-control field" id="fld_patient_race_usage" value="<?php echo attr($rule->patient_race_usage); ?>" maxlength="50"></span>
+    </div>
 
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_ethnicity_usage"><?php echo xlt('Use of Patient\'s Ethnicity'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_ethnicity_usage" class="form-control field" id="fld_patient_ethnicity_usage" value="<?php echo attr($rule->patient_ethnicity_usage); ?>" maxlength="50"></span>
+    </div>
+
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_language_usage"><?php echo xlt('Use of Patient\'s Language'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_language_usage" class="form-control field" id="fld_patient_language_usage" value="<?php echo attr($rule->patient_language_usage); ?>" maxlength="50"></span>
+    </div>
+
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_sexual_orientation_usage"><?php echo xlt('Use of Patient\'s Sexual Orientation'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_sexual_orientation_usage" class="form-control field" id="fld_patient_sexual_orientation_usage" value="<?php echo attr($rule->patient_sexual_orientation_usage); ?>" maxlength="50"></span>
+    </div>
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_gender_identity_usage"><?php echo xlt('Use of Patient\'s Gender Identity'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_gender_identity_usage" class="form-control field" id="fld_patient_gender_identity_usage" value="<?php echo attr($rule->patient_gender_identity_usage); ?>" maxlength="50"></span>
+    </div>
+
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_sex_usage"><?php echo xlt('Use of Patient\'s Sex'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_sex_usage" class="form-control field" id="fld_patient_sex_usage" value="<?php echo attr($rule->patient_sex_usage); ?>" maxlength="50"></span>
+    </div>
+
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_dob_usage"><?php echo xlt('Use of Patient\'s Date of Birth'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_dob_usage" class="form-control field" id="fld_patient_dob_usage" value="<?php echo attr($rule->patient_dob_usage); ?>" maxlength="50"></span>
+    </div>
+
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_sodh_usage"><?php echo xlt('Use of Patient\'s Social Determinants of Health'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_sodh_usage" class="form-control field" id="fld_patient_sodh_usage" value="<?php echo attr($rule->patient_sodh_usage); ?>" maxlength="50"></span>
+    </div>
+
+    <div class="form-row">
+        <span class="left_col colhead" data-fld="fld_patient_health_status_usage"><?php echo xlt('Use of Patient\'s Health Status Assessments'); ?></span>
+        <span class="end_col"><input type="text" name="fld_patient_health_status_usage" class="form-control field" id="fld_patient_health_status_usage" value="<?php echo attr($rule->patient_health_status_usage); ?>" maxlength="50"></span>
+    </div>
+    <?php
+    /** End ChatGPT Public Domain Code */
+    ?>
     </form>
 
 </div>

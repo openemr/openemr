@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   There are segments of code in this file that have been generated via ChatGPT and are licensed as Public Domain, they are marked with a header and footer.
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
@@ -46,6 +47,21 @@ $rule = $viewBean->rule ?>
         <p><?php echo xlt('Release'); ?><b>:</b>&nbsp;<?php echo text($rule->release); ?></p>
         <p><?php echo xlt('Web Reference'); ?><b>:</b>&nbsp;<?php echo text($rule->web_ref); ?></p>
         <p><?php echo xlt('Referential CDS (codetype:code)'); ?><b>:</b>&nbsp;<?php echo text($rule->linked_referential_cds); ?></p>
+        <?php
+        /** Note the following code is in the Public Domain and was generated using ChatGPT */
+        ?>
+        <p><?php echo xlt('Use of Patient\'s Race'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_race_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Ethnicity'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_ethnicity_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Language'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_language_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Sexual Orientation'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_sexual_orientation_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Gender Identity'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_gender_identity_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Sex'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_sex_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Date of Birth'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_dob_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Social Determinants of Health'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_sodh_usage); ?></p>
+        <p><?php echo xlt('Use of Patient\'s Health Status Assessments'); ?><b>:</b>&nbsp;<?php echo text($rule->patient_health_status_usage); ?></p>
+        <?php
+        /** End ChatGPT Public Domain Code */
+        ?>
     </div>
     <!--                    -->
     <!-- reminder intervals -->

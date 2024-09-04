@@ -203,3 +203,24 @@ ALTER TABLE `drugs` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTA
 #IfMissingColumn patient_data last_updated
 ALTER TABLE `patient_data` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
+
+#IfMissingColumn clinical_rules patient_sodh_usage
+ALTER TABLE `clinical_rules` ADD `patient_dob_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient DOB is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_ethnicity_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient ethnicity is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_health_status_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient health status assessments are used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_gender_identity_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient gender identity information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_language_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient language information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_race_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient race information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_sex_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient birth sex information is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_sexual_orientation_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient sexual orientation is used by this rule';
+ALTER TABLE `clinical_rules` ADD `patient_sodh_usage` VARCHAR(255) NOT NULL DEFAULT ''
+    COMMENT 'Description of how patient social determinants of health are used by this rule';
+#EndIf

@@ -31,6 +31,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargetActionGroup;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
+use OpenEMR\Common\Database\QueryUtils;
 
 // TODO: Look at turning this file into a class so we can load it instead of doing this dynamic stuff
 require_once(Common::src_dir() . "/clinical_rules.php");
@@ -165,14 +166,7 @@ class RuleManager
         }
 
         $rule = new Rule($id, $ruleResult['title']);
-
-        $rule->setBibliographicCitation($ruleResult['bibliographic_citation']);
-        $rule->setDeveloper($ruleResult['developer']);
-        $rule->setFunding($ruleResult['funding_source']);
-        $rule->setRelease($ruleResult['release_version']);
-        $rule->setWeb_ref($ruleResult['web_reference']);
-        $rule->setLinkedReferentialCds($ruleResult['linked_referential_cds']);
-
+        $rule->populateSummaryDataWithPersistedValues($ruleResult);
         $this->fillRuleTypes($rule, $ruleResult);
         $this->fillRuleReminderIntervals($rule);
         $this->fillRuleFilterCriteria($rule);
@@ -513,62 +507,44 @@ class RuleManager
         sqlStatement("DELETE FROM rule_filter WHERE SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?", [$guid]);
     }
 
-    function updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds)
-    {
-        $rule = $this->getRule($ruleId);
+    public function updateSummaryForRule(Rule $rule) {
 
-        // if $types is empty, then set to empty array so the in_array() calls below will work
-        $types = $types ?: [];
-
-        if (is_null($rule)) {
-            // add
-            $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
-            $ruleId = "rule_" . $result['id'];
-            sqlStatement(
-                "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference, bibliographic_citation, linked_referential_cds ) " .
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ",
-                array(
-                    $ruleId,
-                    0,
-                    in_array(RuleType::ActiveAlert, $types) ? 1 : 0,
-                    in_array(RuleType::PassiveAlert, $types) ? 1 : 0,
-                    in_array(RuleType::CQM, $types) ? 1 : 0,
-                    in_array(RuleType::AMC, $types) ? 1 : 0,
-                    in_array(RuleType::PatientReminder, $types) ? 1 : 0,
-                    $developer,
-                    $funding,
-                    $release,
-                    $web_ref,
-                    $bibliographic_citation,
-                    $linked_referential_cds
-                )
-            );
-
-            // do label
-            $this->doRuleLabel(false, "clinical_rules", $ruleId, $title);
-            return $ruleId;
+        $exists = !empty($rule->id);
+        if (!$exists) {
+            $dataToPersist = $rule->getSummaryDataToPersist();
+            // seems odd to have this here.
+            $dataToPersist['id'] = $this->getNextRuleId();
+            $dataToPersist['pid'] = 0;
+            $values = str_repeat("?,", count($dataToPersist) - 1) . "?";
+            $sql = "INSERT INTO `clinical_rules` (" . implode(",", array_keys($dataToPersist))
+                    . ") VALUES (" .  $values . ")";
+            $bind = array_values($dataToPersist);
+            QueryUtils::sqlInsert($sql, $bind);
+            $ruleId = $dataToPersist['id'];
         } else {
-            // edit
-            // update flags
-            sqlStatement(self::SQL_UPDATE_FLAGS, array(
-                in_array(RuleType::ActiveAlert, $types) ? 1 : 0,
-                in_array(RuleType::PassiveAlert, $types) ? 1 : 0,
-                in_array(RuleType::CQM, $types) ? 1 : 0,
-                in_array(RuleType::AMC, $types) ? 1 : 0,
-                in_array(RuleType::PatientReminder, $types) ? 1 : 0,
-                $developer,
-                $funding,
-                $release,
-                $web_ref,
-                $bibliographic_citation,
-                $linked_referential_cds,
-                $rule->id));
-
-            // update title
-            sqlStatement(self::SQL_UPDATE_TITLE, array($title,
-                $ruleId));
-            return $ruleId;
+            $dataToPersist = $rule->getSummaryDataToPersist();
+            $ruleId = $dataToPersist['id'];
+            unset($dataToPersist['id']);
+            $sql = "UPDATE `clinical_rules` SET ";
+            foreach ($dataToPersist as $key => $value) {
+                $sql .= $key . " = ?,";
+            }
+            $sql = rtrim($sql, ",");
+            $sql .= " WHERE id = ?";
+            $bind = array_values($dataToPersist);
+            $bind[] = $rule->id;
+            QueryUtils::sqlStatementThrowException($sql, $bind);
         }
+
+        // update title
+        $this->doRuleLabel($exists, "clinical_rules", $ruleId, $rule->title);
+        return $ruleId;
+    }
+
+    public function getNextRuleId() {
+        $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
+        $ruleId = "rule_" . $result['id'];
+        return $ruleId;
     }
 
     /**
