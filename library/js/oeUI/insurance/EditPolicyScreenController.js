@@ -56,6 +56,8 @@ export class EditPolicyScreenController
 
     __updatingSubscriberSelfRelationship = false;
 
+    __removeInsurance = false;
+
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
@@ -129,6 +131,7 @@ export class EditPolicyScreenController
         this.toggleDisplay(true); // make sure we are on.
         this.#setupInsuranceTypeNavigation();
         this.#setupSavePolicyButton();
+        this.#setupRemovePolicyButton();
         this.#setupWindowEvents();
         this.#populateSelectDropdowns();
         // this is where we would populate the most current insurance
@@ -211,6 +214,22 @@ export class EditPolicyScreenController
             btnSavePolicy.forEach(b => {
                 b.addEventListener('click', savePolicyHandler);
                 this.#boundSetupEvents.push({node: b, event: 'click', callback: savePolicyHandler});
+            });
+        }
+    }
+    #setupRemovePolicyButton() {
+        // setup event listener for btn-remove-policy to remove the policy
+        let btnRemovePolicy = document.querySelectorAll('.btn-remove-policy');
+
+        if (btnRemovePolicy) {
+            let removePolicyHandler = (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                this.removePolicy();
+            }
+            btnRemovePolicy.forEach(b => {
+                b.addEventListener('click', removePolicyHandler);
+                this.#boundSetupEvents.push({node: b, event: 'click', callback: removePolicyHandler});
             });
         }
     }
@@ -428,6 +447,25 @@ export class EditPolicyScreenController
                 this.render(); // re-render the screen to update the display
             });
     }
+    removePolicy() {
+        console.log("Remove policy");
+            // we don't have an id so we can't remove the policy
+        this.__removeInsurance = true;
+        this.render();
+        this.__insurancePolicyService.removeInsurance(this.selectedInsurance)
+            .then(result => {
+                this.__removeInsurance = false;
+                this.selectedInsurance = null;
+                this.setupInitialInsurance();
+                this.render();
+            })
+            .catch(error => {
+                console.error(error);
+                this.__removeInsurance = false;
+                alert(window.top.xl("An error occurred while removing the insurance policy. Please try again or contact your system administrator."));
+                this.render();
+            });
+    }
 
     setupInitialInsurance() {
         if (this.selectedInsurance === null) {
@@ -615,6 +653,12 @@ export class EditPolicyScreenController
                 buttonTabContainer.querySelector('.insurance-save-success').classList.remove("d-none");
             } else {
                 buttonTabContainer.querySelector('.insurance-save-success').classList.add("d-none");
+            }
+
+            if (this.__removeInsurance) {
+                buttonTabContainer.querySelector('.insurance-removed-success').classList.remove("d-none");
+            } else {
+                buttonTabContainer.querySelector('.insurance-removed-success').classList.add("d-none")
             }
         }
 

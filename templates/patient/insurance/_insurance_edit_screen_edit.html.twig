@@ -24,9 +24,14 @@ Partial twig file that represents the insurance edit screen for a patient
                         <div class="btn-group">
                             <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary btn-save-policy" />
                             <button type="button" class="btn btn-primary btn-saving d-none">{{ "Saving..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
+                            <input type="button" value="{{ 'Remove Policy'|xla }}" class="btn btn-primary btn-remove-policy" />
+                            <button type="button" class="btn btn-primary btn-remove d-none">{{ "Removing..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
                         </div>
                         <div class="alert-success alert d-none insurance-save-success p-2 mt-2">
                             <p>{{ "Policy saved successfully."|xlt }}</p>
+                        </div>
+                        <div class="alert-success alert d-none insurance-removed-success p-2 mt-2">
+                            <p>{{ "Policy removed successfully."|xlt }}</p>
                         </div>
                     </div>
                     <div class="col-md-6">

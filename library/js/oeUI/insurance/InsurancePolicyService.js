@@ -387,6 +387,9 @@ export class InsurancePolicyService
                 }
             });
     }
+    removeInsurance(insurancePolicy) {
+        return 'DELETE';
+    }
 
     #removePolicyInMemory(policy) {
         let index = this.insurancesByType[policy.type].findIndex(ins => ins.id === policy.id);
