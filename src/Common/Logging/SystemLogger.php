@@ -57,7 +57,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function emergency($message, array $context = array())
+    public function emergency($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->emergency($message, $context);
@@ -73,7 +73,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function alert($message, array $context = array())
+    public function alert($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->alert($message, $context);
@@ -88,7 +88,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function critical($message, array $context = array())
+    public function critical($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->critical($message, $context);
@@ -102,7 +102,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function error($message, array $context = array())
+    public function error($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->error($message, $context);
@@ -115,7 +115,7 @@ class SystemLogger implements LoggerInterface
      * @param $message
      * @param array $context
      */
-    public function errorLogCaller($message, array $context = array())
+    public function errorLogCaller($message, array $context = array()): void
     {
         // we skip over arguments and go 2 stack traces to get the current call and the caller function into this one.
         $dbt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
@@ -141,7 +141,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function warning($message, array $context = array())
+    public function warning($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->warning($message, $context);
@@ -154,7 +154,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function notice($message, array $context = array())
+    public function notice($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->notice($message, $context);
@@ -169,7 +169,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function info($message, array $context = array())
+    public function info($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->info($message, $context);
@@ -182,7 +182,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function debug($message, array $context = array())
+    public function debug($message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->debug($message, $context);
@@ -196,7 +196,7 @@ class SystemLogger implements LoggerInterface
      * @param array $context
      * @return void
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = array()): void
     {
         $context = $this->escapeVariables($context);
         $this->logger->log($level, $message, $context);
