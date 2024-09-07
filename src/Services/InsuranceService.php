@@ -57,7 +57,7 @@ class InsuranceService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid'];
+        return ['uuid', 'puuid', 'insureruuid'];
     }
 
     public function validate($data)
@@ -74,12 +74,19 @@ class InsuranceService extends BaseService
     public function search($search, $isAndCondition = true)
     {
         $sql = "SELECT `insurance_data`.*,
-                       `puuid`
+                       `puuid`,
+                       `insureruuid`
                 FROM `insurance_data`
                 LEFT JOIN (
                     SELECT
+                    `uuid` AS `insureruuid`,
+                    `id` AS `insurerid`
+                    FROM `insurance_companies` 
+                    ) `insurance_company_data` ON `insurance_data`.`provider` = `insurance_company_data`.`insurerid` 
+                LEFT JOIN (
+                    SELECT
                     `pid` AS `patient_data_pid`,
-                    `uuid` as `puuid`
+                    `uuid` AS `puuid`
                     FROM `patient_data`
                 ) `patient_data` ON `insurance_data`.`pid` = `patient_data`.`patient_data_pid` ";
 
