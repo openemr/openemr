@@ -64,5 +64,5 @@ Users wanting to keep their psychotherapy notes confidential that are stored ins
 
 OpenEMR does not have a way of marking records as education records and so education records should not be stored in OpenEMR if using this system as a certified product.
 
-The ONC 2015 Certification public URL documentation for this export can be found at
+The ONC Certification public URL documentation for this export can be found at
 https://raw.githubusercontent.com/openemr/openemr/7.0.2/Documentation/EHI_Exports/docs/
