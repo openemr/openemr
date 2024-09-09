@@ -1,0 +1,61 @@
+{% extends "interface/smart/admin-client/external-cdr.html.twig" %}
+{% block title %}{{ "External CDR List"|xlt }}{% endblock %}
+{% block header %}
+    {{ setupHeader(['questionnaires']) }}
+{% endblock %}
+{% block cdrContents %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{{ 'Service Name / Service ID'|xlt }}</th>
+            <th>{{ 'Enabled'|xlt }}</th>
+            <th>{{ 'Service Type'|xlt }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                {{ service.client.name|text }}
+                <br />
+                <em>{{ service.client.identifier|text }}</em>
+            </td>
+            <td>{{ service.client.isEnabled() ? "Enabled"|xlt : "Disabled"|xlt }}</td>
+            {# TODO: @adunsulag need to switch this to be service type, evidence / vs predictive DSI #}
+            <td>{{ service.type == 'evidence-based' ? "Evidence Based DSI"|xlt : "Predictive DSI"|xlt }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<hr />
+<h3>{{ "Details"|xlt }}</h3>
+{#{% include 'interface/smart/admin-client/_external-cdr-service-summary.html.twig' with {service: service} %}#}
+    <div id="formContainer"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <button id="saveBtn" class="btn btn-primary">{{ "Save"|xlt }}</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let questionnaire = {{ questionnaire|json_encode|raw }};
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!LForms) {
+                console.error('LForms is not loaded');
+                return;
+            } else {
+                console.log('LForms is loaded');
+                console.log("questionnaire is ", questionnaire);
+            }
+            // let qform = LForms.Util.getFormFHIRData("Questionnaire", 'R4', obj);
+            // let lform = LForms.Util.convertFHIRQuestionnaireToLForms(obj, 'R4');
+            LForms.Util.addFormToPage(questionnaire, 'formContainer');
+
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                let form = LForms.Util.getFormFHIRData('QuestionnaireResponse', 'R4');
+                console.log('form data is ', form);
+            });
+        });
+    </script>
+{% endblock %}
