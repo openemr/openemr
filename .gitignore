@@ -27,3 +27,41 @@ ccdaservice/node_modules
 # testing
 .phpunit.result.cache
 coverage/js-unit
+
+# custom client dockers
+docker/development-cmsvt/
+docker/development-drjillmanning/
+docker/development-openplanit/
+
+# export folders
+cardio/
+DC_exports/
+db/
+patches/
+
+# custom modules developed
+interface/modules/custom_modules/oe-module-cmsvt-rri-billing/
+interface/modules/custom_modules/oe-module-comlink-webhooks/
+interface/modules/custom_modules/oe-module-cqm/
+interface/modules/custom_modules/oe-module-custom-skeleton/
+interface/modules/custom_modules/oe-module-dc-assessments/
+interface/modules/custom_modules/oe-module-fhir-experimental/
+interface/modules/custom_modules/oe-module-g9-ccda-exporter/
+interface/modules/custom_modules/oe-module-manning-custom-theme/
+interface/modules/custom_modules/oe-module-menu-customizer/
+interface/modules/custom_modules/oe-openplanit-module/
+
+# miscellaneous
+videos/
+
+# custom scripts
+bin/build-themes.sh
+bin/console-profile
+bin/logs.sh
+bin/patchDocker.sh
+
+# ONC work
+contrib/rxnorm/RxNorm_full_05062024.zip
+openemr_onc_.sql
+sites/default/documents/phimail_server_pem/
+
