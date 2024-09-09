@@ -63,6 +63,7 @@ class ClientEntity implements ClientEntityInterface
     {
         $this->scopes = [];
         $this->skipEHRLaunchAuthorizationFlow = false;
+        $this->isEnabled = false;
     }
 
     public function setName($name): void

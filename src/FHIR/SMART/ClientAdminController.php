@@ -13,6 +13,7 @@ namespace OpenEMR\FHIR\SMART;
 
 use Lcobucci\JWT\Parser;
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
@@ -30,6 +31,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
+use Twig\Environment;
 
 class ClientAdminController
 {
@@ -54,16 +56,28 @@ class ClientAdminController
     const CSRF_TOKEN_NAME = 'ClientAdminController';
     const SCOPE_PREVIEW_DISPLAY = 6;
 
+    private RouteController $externalCDRController;
+
+    private ActionUrlBuilder $actionUrlBuilder;
     /**
      * ClientAdminController constructor.
      * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
      * @param $actionURL The URL that we will send requests back to
      */
-    public function __construct(ClientRepository $repo, LoggerInterface $logger, $actionURL)
+    public function __construct(ClientRepository $repo, LoggerInterface $logger
+    , Environment $twig
+    , $actionURL)
     {
         $this->clientRepo = $repo;
         $this->logger = $logger;
         $this->actionURL = $actionURL;
+        $this->actionUrlBuilder = new ActionUrlBuilder($actionURL, self::CSRF_TOKEN_NAME);
+        $this->externalCDRController = new RouteController($repo,$logger, $twig, $this->actionUrlBuilder);
+
+    }
+
+    public function setExternalCDRController(RouteController $controller) {
+        $this->externalCDRController = $controller;
     }
 
     /**
@@ -72,9 +86,9 @@ class ClientAdminController
      * @throws CsrfInvalidException If the CSRF token is required but invalid for the given action request
      * @throws AccessDeniedException If the user does not have permission to make the requested action
      */
-    public function checkSecurity($request)
+    public function checkSecurity(string $action, Request $request)
     {
-        if ($this->shouldCheckCSRFTokenForRequest($request)) {
+        if ($this->shouldCheckCSRFTokenForRequest($action)) {
             $CSRFToken = $this->getCSRFToken();
             if (!CsrfUtils::verifyCsrfToken($CSRFToken, self::CSRF_TOKEN_NAME)) {
                 throw new CsrfInvalidException(xlt('Authentication Error'));
@@ -93,10 +107,10 @@ class ClientAdminController
      * @param $request
      * @throws AccessDeniedException
      */
-    public function dispatch($action, $request)
+    public function dispatch(Request $request)
     {
-        $request = $this->normalizeRequest($request);
-        $this->checkSecurity($request);
+        $action = $this->normalizeAction($request);
+        $this->checkSecurity($action, $request);
 
         if (empty($action)) {
             return $this->listAction($request);
@@ -146,6 +160,8 @@ class ClientAdminController
             } else {
                 return $this->notFoundAction($request);
             }
+        } else if ($this->externalCDRController->supportsRequest($request)) {
+            return $this->externalCDRController->dispatch($request);
         } else {
             return $this->notFoundAction($request);
         }
@@ -368,7 +384,7 @@ class ClientAdminController
      * @param ClientEntity $client
      * @param $request
      */
-    private function renderEdit(ClientEntity $client, $request)
+    private function renderEdit(ClientEntity $client, Request $request)
     {
         $listAction = $this->getActionUrl(['list']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
@@ -382,6 +398,8 @@ class ClientAdminController
             $skipAuthorizationFlow = false; // globals overrides this setting
         }
         $scopes = $client->getScopes();
+
+        $requestMessage = $request->get('message', '');
 
         $formValues = [
             'id' => [
@@ -478,9 +496,9 @@ class ClientAdminController
             <div class="card-body">
                 <div class="row">
                     <div class="col-6">
-                        <?php if (!empty($request['message'])) : ?>
+                        <?php if (!empty($requestMessage)) : ?>
                         <div class="alert alert-info">
-                            <?php echo text($request['message']); ?>
+                            <?php echo text($requestMessage); ?>
                         </div>
                         <?php endif; ?>
                         <?php if (!$isEnabled) : ?>
@@ -720,29 +738,28 @@ class ClientAdminController
      * @param $request
      * @return array
      */
-    private function normalizeRequest($request)
+    private function normalizeAction(Request $request)
     {
+        $action = $request->query->get('action', '');
         // if the request is empty with us on a list page we want to populate it
         // anything else we do to the request should be put there
-        if (empty($request)) {
-            return [
-                'action' => '/list'
-            ];
+        if (empty($action)) {
+           $action = 'list/';
         }
-        return $request;
+        return $action;
     }
 
     /**
      * Checks to see if the request needs a CSRF check.  Which everything but
      * the list action (default page) does.
-     * @param $request
+     * @param string $action
      * @return bool True if CSRF is required, false otherwise.
      */
-    private function shouldCheckCSRFTokenForRequest($request)
+    private function shouldCheckCSRFTokenForRequest(string $action) : bool
     {
         // we don't check CSRF for a basic get and list action
         // anything else requires the CSRF token
-        if ($request['action'] === '/list') {
+        if ($action === 'list/') {
             return false;
         }
         return true;
@@ -840,6 +857,7 @@ class ClientAdminController
                             <?php echo text($title); ?>
                             <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
                             <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
                         </h2>
                     </div>
                 </div>
@@ -876,9 +894,9 @@ class ClientAdminController
      * @param array $request
      * @throws AccessDeniedException
      */
-    private function revokeTrustedUserAction($clientId, array $request)
+    private function revokeTrustedUserAction($clientId, Request $request)
     {
-        $action = $request['action'] ?? '';
+        $action = $request->query->get('action', '');
         $parts = explode("/", $action);
         $trustedUserId = $parts[3] ?? null;
         if (empty($trustedUserId)) {
@@ -899,9 +917,9 @@ class ClientAdminController
         exit;
     }
 
-    private function revokeRefreshToken($clientId, array $request)
+    private function revokeRefreshToken($clientId, Request $request)
     {
-        $action = $request['action'] ?? '';
+        $action = $request->query->get('action', '');
         $parts = explode("/", $action);
         $tokenId = $parts[3] ?? null;
         if (empty($tokenId)) {
@@ -921,10 +939,10 @@ class ClientAdminController
         exit;
     }
 
-    private function toolsRevokeAccessTokenAction(array $request)
+    private function toolsRevokeAccessTokenAction(Request $request)
     {
-        $clientId = $request['clientId'] ?? null;
-        $token = $request['token'] ?? null;
+        $clientId = $request->query->get('clientId', null);
+        $token = $request->query->get('token', null);
         $service = new AccessTokenRepository();
         $accessToken = $service->getTokenById($token);
         // make sure the client is the same
@@ -938,10 +956,10 @@ class ClientAdminController
         exit;
     }
 
-    private function toolsRevokeRefreshToken(array $request)
+    private function toolsRevokeRefreshToken(Request $request)
     {
-        $clientId = $request['clientId'] ?? null;
-        $token = $request['token'] ?? null;
+        $clientId = $request->query->get('clientId', null);
+        $token = $request->query->get('token', null);
         $service = new RefreshTokenRepository();
         $accessToken = $service->getTokenById($token);
         // make sure the client is the same
@@ -957,7 +975,7 @@ class ClientAdminController
 
     private function revokeAccessToken($clientId, array $request)
     {
-        $action = $request['action'] ?? '';
+        $action = $request->query->get('action', '');
         $parts = explode("/", $action);
         $accessToken = $parts[3] ?? null;
         if (empty($accessToken)) {
@@ -977,7 +995,7 @@ class ClientAdminController
         exit;
     }
 
-    private function tokenToolsAction(array $request)
+    private function tokenToolsAction(Request $request)
     {
         $this->renderTokenToolsHeader($request);
         $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
@@ -997,18 +1015,19 @@ class ClientAdminController
         $this->renderTokenToolsFooter();
     }
 
-    private function parseTokenAction(array $request)
+    private function parseTokenAction(Request $request)
     {
         $parts = null;
+        $token = $request->query->get('token', null);
         $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
         $textSetting = [
-                'value' => $request['token'] ?? null
+                'value' => $token
                 ,'label' => 'Token to parse'
                 ,'type' => 'textarea'
                 ,'enabled' => true
         ];
-        if (!empty($request['token'])) {
-            $parts = $this->parseTokenIntoParts($request['token']);
+        if (!empty($token)) {
+            $parts = $this->parseTokenIntoParts($token);
             $databaseRecord = $this->getDatabaseRecordForToken($parts['jti'], $parts['token_type']);
             if (!empty($databaseRecord)) {
                 $parts['client_id'] = $databaseRecord['client_id'];
@@ -1099,10 +1118,10 @@ class ClientAdminController
         return $tokenParts;
     }
 
-    private function renderTokenToolsHeader(array $request)
+    private function renderTokenToolsHeader(Request $request)
     {
         $listAction = $this->getActionUrl(['list']);
-        $message = $request['message'] ?? null;
+        $message = $request->query->get('message') ?? null;
 
         $this->renderHeader();
         ?>
