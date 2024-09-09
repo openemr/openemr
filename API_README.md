@@ -12,7 +12,7 @@
     - [Authorization Code Grant](API_README.md#authorization-code-grant)
     - [Refresh Token Grant](API_README.md#refresh-token-grant)
     - [Password Grant](API_README.md#password-grant)
-    - [Client Credentials Grant](API_README#client-credentials-grant)
+    - [Client Credentials Grant](API_README.md#client-credentials-grant)
     - [Logout](API_README.md#logout)
     - [OpenID Connect](API_README.md#openid-connect)
     - [More Details](API_README.md#more-details)
@@ -347,7 +347,7 @@ This is an advanced grant that uses JSON Web Key Sets(JWKS) to authenticate and 
 required to be used for access to any **system/\*.$export** scopes.  API clients must register either web accessible JWKS URI that hosts
 a RSA384 compatible key, or provide their JWKS as part of the registration. Client Credentials Grant access tokens are short
 lived and valid for only 1 minute and no refresh token is issued.  Tokens are requested at `/oauth2/default/token`
-To walk you through how to do this process you can follow [this guide created by HL7](https://hl7.org/fhir/uv/bulkdata/authorization/index.html).
+To walk you through how to do this process you can follow [this guide created by HL7](https://hl7.org/fhir/uv/bulkdata/STU1/authorization/index.html).
 
 ### Logout
 
