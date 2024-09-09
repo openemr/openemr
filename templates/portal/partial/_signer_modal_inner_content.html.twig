@@ -16,7 +16,7 @@
                                         <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>{{ 'Clear Canvas'|xlt }}</button>
                                         <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='{{ aud|attr }}' id='signatureModal'>{{ "Use Current"|xlt }}</button>
                                         <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>{{ "Cancel"|xlt }}</button>
-                                        <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>{{ 'Sign and Save'|text }}</button>
+                                        <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>{{ 'Sign and Save'|xlt}}</button>
                                         <span><h6 id='labelName'></h6></span>
                                     {% endblock %}
                                     <input type='hidden' id='name' /><input type='hidden' id='user' value='{{ cuser|attr }}' /><input type='hidden' id='pid' value='{{ cpid|attr }}' />
