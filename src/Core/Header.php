@@ -284,6 +284,7 @@ class Header
         $script = (isset($opts['script'])) ? $opts['script'] : false;
         $link = (isset($opts['link'])) ? $opts['link'] : false;
         $path = (isset($opts['basePath'])) ? $opts['basePath'] : '';
+
         $basePath = self::parsePlaceholders($path);
 
         $scripts = [];
@@ -295,17 +296,24 @@ class Header
             }
 
             if (is_string($script)) {
-                $script = [$script];
+                // default is a non-module javascript file
+                $script = [['src' => $script, 'type' => 'text/javascript']];
             }
 
             foreach ($script as $k) {
-                $k = self::parsePlaceholders($k);
-                if ($alreadyBuilt) {
-                    $path = $k;
-                } else {
-                    $path = self::createFullPath($basePath, $k);
+                if (is_string($k)) {
+                    $k = ['src' => $k, 'type' => 'text/javascript'];
+                } else if (empty($k['src'])) {
+                    throw new \InvalidArgumentException("Script must be of type string or object with src property");
                 }
-                $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
+                $k['src'] = self::parsePlaceholders($k['src']);
+                if ($alreadyBuilt) {
+                    $path = $k['src'];
+                } else {
+                    $path = self::createFullPath($basePath, $k['src']);
+                }
+                unset($k['src']);
+                $scripts[] = self::createElement($path, 'script', $alreadyBuilt, $k);
             }
         }
 
@@ -364,11 +372,24 @@ class Header
      * @param string $type Must be `script` or `link`
      * @return string mixed HTML element
      */
-    private static function createElement($path, $type, $alreadyBuilt)
+    private static function createElement($path, $type, $alreadyBuilt, $nodeAttributes = array())
     {
-
-        $script = "<script src=\"%path%\"></script>\n";
-        $link = "<link rel=\"stylesheet\" href=\"%path%\" />\n";
+        $attrs = '';
+        // make sure we clear out any attributes we don't want overriden
+        if (isset($nodeAttributes['src'])) {
+            unset($nodeAttributes['src']);
+        }
+        if (isset($nodeAttributes['href'])) {
+            unset($nodeAttributes['href']);
+        }
+        if (isset($nodeAttributes['rel'])) {
+            unset($nodeAttributes['rel']);
+        }
+        foreach ($nodeAttributes as $k => $v) {
+            $attrs .= " " . $k . '="' . attr($v) . '"';
+        }
+        $script = "<script src=\"%path%\"" . $attrs . "></script>\n";
+        $link = "<link rel=\"stylesheet\" " . $attrs . " href=\"%path%\" />\n";
 
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
