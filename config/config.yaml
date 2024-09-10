@@ -7,10 +7,20 @@
 # assets: Top-level key name (Required)
 #     asset-short-name: Short name
 #         basePath: %assets_static_relative%/full/path/to/deepest/common/file
-#         script: null filename or null
+#         script: null filename or null or array of filenames or array of objects
 #         link: jquery-ui.min.css filename or null
 #         autoload: true (defaults to false)
 #         loadInFile: relative path to file, load always in specific file (defaults to false) for custom assets.
+
+# Example scripts config can be in the following format
+# script: null
+# script: filename.js
+# script: - filename1.js
+#         - filename2.js
+# script: - src: filename1.js
+#           type: module
+#         - src: filename2.js
+#           type: text/javascript
 assets:
     jquery:
         basePath: '%assets_static_relative%/jquery/dist/'
@@ -274,3 +284,31 @@ assets:
     dompurify:
         basePath: '%assets_static_relative%/'
         script: dompurify/dist/purify.js
+    questionnaires:
+        basePath: '%webroot%/interface/forms/questionnaire_assessments/'
+        script:
+            - src: lforms/webcomponent/assets/lib/zone.min.js
+              type: module
+            - src: lforms/webcomponent/runtime.js
+              type: module
+            - src: lforms/webcomponent/polyfills.js
+              type: module
+            - src: lforms/webcomponent/main.js
+              type: module
+            - src: lforms/fhir/R4/lformsFHIR.min.js
+              type: module
+        link: /assets/styles/styles_openemr_lforms.css
+    questionnaires-lform:
+        basePath: '%webroot%/interface/forms/questionnaire_assessments/'
+        script:
+            -   src: lforms/webcomponent/assets/lib/zone.min.js
+                type: module
+            -   src: lforms/webcomponent/runtime.js
+                type: module
+            -   src: lforms/webcomponent/polyfills.js
+                type: module
+            -   src: lforms/webcomponent/main.js
+                type: module
+            -   src: lforms/fhir/R4/lformsFHIR.min.js
+                type: module
+        link: /assets/styles/styles_openemr_lforms.css
