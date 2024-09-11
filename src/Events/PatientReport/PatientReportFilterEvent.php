@@ -42,10 +42,10 @@ class PatientReportFilterEvent extends Event
      */
     public function populateData(array $data): void
     {
-       $this->clearData();
-       foreach ($data as $key => $value) {
-           $this->setDataElement($key, $value);
-       }
+        $this->clearData();
+        foreach ($data as $key => $value) {
+            $this->setDataElement($key, $value);
+        }
     }
 
     /**
@@ -58,7 +58,7 @@ class PatientReportFilterEvent extends Event
         $this->data[$key] = $data;
     }
 
-    public function getDataElement(int|string $key) : mixed
+    public function getDataElement(int|string $key): mixed
     {
         return $this->data[$key];
     }
@@ -68,7 +68,8 @@ class PatientReportFilterEvent extends Event
      * @param int|string $key
      * @return void
      */
-    public function removeDataElement(int|string $key) {
+    public function removeDataElement(int|string $key)
+    {
         unset($this->data[$key]);
     }
 
@@ -76,7 +77,8 @@ class PatientReportFilterEvent extends Event
      * Removes the data elements from the filtered data.
      * @return void
      */
-    public function clearData() {
+    public function clearData()
+    {
         $this->data = [];
     }
 

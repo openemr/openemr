@@ -6,7 +6,8 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class PortalPatientReportController
 {
-    public function getDocuments($pid) {
+    public function getDocuments($pid)
+    {
 
         // show available documents
         $db = $GLOBALS['adodb']['db'];
@@ -69,7 +70,8 @@ class PortalPatientReportController
         return $procedures;
     }
 
-    public function getIssues(array $ISSUE_TYPES, int $pid) {
+    public function getIssues(array $ISSUE_TYPES, int $pid)
+    {
         $issuesByType = [];
         // get issues
         $pres = sqlStatement("SELECT lists.* FROM lists "
@@ -118,7 +120,8 @@ class PortalPatientReportController
         }
         return $issuesByType;
     }
-    public function getEncounters($pid) {
+    public function getEncounters($pid)
+    {
 
         $isfirst = 1;
         $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
@@ -160,7 +163,6 @@ class PortalPatientReportController
                 $encounter['date'] = date("Y-m-d", strtotime($result["date"]));
                 $encountersByDate[] = $encounterId;
                 $encountersByEncounter[$encounterId] = $encounter;
-
             } else {
                 $form_name = trim($result["form_name"]);
                 // TODO: @adunsulag we need to investigate why procedure order form saves
@@ -199,7 +201,7 @@ class PortalPatientReportController
                 ];
             }
         }
-        $encounters = array_map(function($encounterId) use ($encountersByEncounter) {
+        $encounters = array_map(function ($encounterId) use ($encountersByEncounter) {
             return $encountersByEncounter[$encounterId];
         }, $encountersByDate);
         return $encounters;

@@ -131,12 +131,10 @@ try {
     $updatedEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientReportFilterEvent::FILTER_PORTAL_TWIG_DATA);
     $updatedData  = $event->getDataAsArray();
     echo $twig->render("portal/portal_patient_report.html.twig", $updatedData);
-}
-catch (SyntaxError $exception) {
+} catch (SyntaxError $exception) {
     (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
     echo $twig->render("error/general_http_error.html.twig", []);
-}
-catch (\Exception $exception) {
+} catch (\Exception $exception) {
     (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 }
