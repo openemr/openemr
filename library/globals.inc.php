@@ -3232,6 +3232,30 @@ $GLOBALS_METADATA = array(
             '1',
             xl('UnCheck to not show insurances in Profile.')
         ),
+
+        'show_portal_primary_logo' => [
+            xl('Show Primary Logo on portal login page'),
+            'bool',
+            '1',
+            xl('Show primary logo on login'),
+        ],
+
+        'extra_portal_logo_login' => array(
+            xl('Show Secondary Logo on portal  Login page'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Show Secondary Logo on Login')
+        ),
+
+        'secondary_portal_logo_position' => [
+            xl('Order of the Secondary logo'),
+            [
+                'first' => xl('First Position'),
+                'second' => xl('Second Position'),
+            ],
+            'second',
+            xl('Place the secondary logo first, or second'),
+        ],
     ),
 
     // Connectors Tab
