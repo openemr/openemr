@@ -51,7 +51,7 @@ use OpenEMR\Services\LogoService;
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
-$logo2ndSrc = $logoService->getLogo("portal/login/secondary","logoHSE.png"); /*rm - add secondary logo */
+$logo2ndSrc = $logoService->getLogo("portal/login/secondary", "logoHSE.png"); /*rm - add secondary logo */
 
 // allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
 // actually do anything with the redirect
@@ -552,15 +552,15 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             ?> <!-- Main logon -->
         <div class="container-xl p-1">
         <!-- Optionally show two logos, and in either order -->
-        <?php if($GLOBALS['secondary_portal_logo_position'] == 'second'){ ?>
-              <?php if ($GLOBALS['show_portal_primary_logo']) { ?>
-                <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
-              <?php } ?>
-              <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
-                <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
-              <?php } ?>
-        <?php } else {
-               if($GLOBALS['secondary_portal_logo_position'] == 'first'){ ?>
+            <?php if ($GLOBALS['secondary_portal_logo_position'] == 'second') { ?>
+                <?php if ($GLOBALS['show_portal_primary_logo']) { ?>
+                  <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
+                <?php } ?>
+                <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
+                  <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
+                <?php } ?>
+           <?php } else {
+                if ($GLOBALS['secondary_portal_logo_position'] == 'first') { ?>
                   <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                   <?php } ?>
@@ -568,7 +568,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                        <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                    <?php } ?>
                <?php  } ?>
-          <?php } ?>
+           <?php } ?>
             <legend class="text-center bg-light text-dark pt-2 py-1"><h2><?php echo $GLOBALS['openemr_name'] . ' ' . xlt('Portal Login'); ?></h2></legend>
             <form class="mx-1" action="get_patient_info.php" method="POST" onsubmit="return process()">
                 <?php if (isset($redirectUrl)) { ?>
