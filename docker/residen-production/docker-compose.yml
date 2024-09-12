@@ -4,11 +4,18 @@ services:
     restart: always
     image: mariadb:10.11
     container_name: openemr_db
-    ports:
-      - "3306:3306"
     command: ['mysqld','--character-set-server=utf8mb4']
     volumes:
       - /home/ubuntu/openemr_data:/var/lib/mysql
+    env_file:
+      - .env
+  mysql_second:
+    restart: always
+    image: mariadb:10.11
+    container_name: openemr_db_second
+    command: ['mysqld','--character-set-server=utf8mb4']
+    volumes:
+      - /home/ubuntu/openemr_data_second:/var/lib/mysql
     env_file:
       - .env
   openemr:
@@ -25,6 +32,7 @@ services:
       - .env
     depends_on:
       - mysql
+      - mysql_second
 volumes:
   logvolume01:
     driver_opts:
