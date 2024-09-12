@@ -1,0 +1,23 @@
+{% block openSignScripts %}
+<script>
+    const msgSignator= {{ "Signatory"|xlj }};
+    const msgNeedSign= {{ 'Please provide a signature first'|xlj }};
+
+    {# Couldn't see where these next messages are used anywhere in the codebase. #}
+    const msgBusy= {{ "Remote is Currently Busy"|xlj }};
+    const msgWaiting= {{ 'Waiting for Signature on Signer Pad'|xlj }};
+    const msgAnswering={{ "A Remote Signing Device is not answering."|xlj }} + "<br /><h4>" + {{ "Using this device until remote becomes available."|xlj }};
+    const msgCheckIn= {{ 'Signer Pad Checked In and Available'|xlj }};
+    const msgFail= {{ 'Transaction Failed'|xlj }};
+    const msgNoSign= {{ 'Signatory did not sign or Signer was closed.'|xlj }};
+
+    var apiToken= {{ api_id|js_escape }};
+// override templates or source to ensure these are set correctly for signer api.
+// you'll always have two signatures, portal(not witnessed, that's coming) and clinic.
+    {% if is_portal %}
+        var isPortal= {{is_portal|js_escape }};
+        var cuser= {{ cuser|js_escape }};
+        var cpid= {{ cpid|js_escape }};
+    {% endif %}
+</script>
+{% endblock %}
