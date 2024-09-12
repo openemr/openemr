@@ -561,12 +561,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <?php } ?>
            <?php } else {
                 if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'first') { ?>
-                  <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
+                    <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
-                  <?php } ?>
-                   <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
+                    <?php } ?>
+                    <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
                        <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
-                   <?php } ?>
+                    <?php } ?>
                <?php  } ?>
            <?php } ?>
             <legend class="text-center bg-light text-dark pt-2 py-1"><h2><?php echo $GLOBALS['openemr_name'] . ' ' . xlt('Portal Login'); ?></h2></legend>
