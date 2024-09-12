@@ -44,12 +44,12 @@ set_time_limit(0);
 // Warning. If you set $allow_multisite_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the multisite procedure.
-$allow_multisite_setup = false;
+$allow_multisite_setup = true;
 
 // Warning. If you set $allow_cloning_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
-$allow_cloning_setup = false;
+$allow_cloning_setup = true;
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
     require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
     OpenEMR\Common\Session\SessionUtil::setupScriptSessionStart();
