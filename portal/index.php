@@ -51,7 +51,7 @@ use OpenEMR\Services\LogoService;
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
-$logo2ndSrc = $logoService->getLogo("portal/login/secondary", "logoHSE.png"); /*rm - add secondary logo */
+$logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
 
 // allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
 // actually do anything with the redirect
@@ -552,19 +552,19 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             ?> <!-- Main logon -->
         <div class="container-xl p-1">
         <!-- Optionally show two logos, and in either order -->
-            <?php if ($GLOBALS['secondary_portal_logo_position'] == 'second') { ?>
-                <?php if ($GLOBALS['show_portal_primary_logo']) { ?>
+            <?php if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'second') { ?>
+                <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
                   <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                 <?php } ?>
-                <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
+                <?php if ($GLOBALS['extra_portal_logo_login'] ?? null) { ?>
                   <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                 <?php } ?>
            <?php } else {
-                if ($GLOBALS['secondary_portal_logo_position'] == 'first') { ?>
+                if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'first') { ?>
                   <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                   <?php } ?>
-                   <?php if ($GLOBALS['show_portal_primary_logo']) { ?>
+                   <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
                        <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                    <?php } ?>
                <?php  } ?>
