@@ -4,7 +4,7 @@ run-name: Multi Site Build & Deploy - nr. ${{ github.run_number }}
 on:
   push:
     branches:
-      - "mircea/nultisite-setup"
+      - mircea/multisite-setup
 
 permissions:
   id-token: write
@@ -125,4 +125,4 @@ jobs:
             echo "Command execution failed on instance $INSTANCE_ID."
             exit 1
           fi
-          
+
