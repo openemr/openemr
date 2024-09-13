@@ -160,7 +160,7 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                     document.querySelector(".errorResponse").classList.add("hidden");
                     document.querySelector("#clientID").value = resultJSON.client_id;
                     document.querySelector("#clientSecretID").value = resultJSON.client_secret;
-                    msgText = js_xl('Your app has been registered!');
+                    msgText = window.top.xl('Your app has been registered!');
                     document.querySelector(".successResponse").classList.remove("hidden");
                     document.querySelector("#successResponseContainer").textContent = msgText;
                 })
