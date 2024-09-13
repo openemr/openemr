@@ -28,8 +28,7 @@ services:
     volumes:
       - logvolume01:/var/log
       - sitevolume:/var/www/localhost/htdocs/openemr/sites
-      - /home/ubuntu/openemr_letsencrypt:/etc/letsencrypt/live/
-      - /home/ubuntu/openemr_ssl:/etc/ssl/certs/
+      - /home/ubuntu/openemr_letsencrypt:/etc/letsencrypt
     env_file:
       - .app_env
     depends_on:
