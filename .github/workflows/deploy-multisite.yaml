@@ -42,7 +42,7 @@ jobs:
         with:
           images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
           tags: |
-            type=raw,value=latest
+            type=raw,value=mircea
             type=sha,prefix=residen-emr-,suffix=
 
       - name: Build and Push
@@ -91,7 +91,7 @@ jobs:
       - name: Prepare Docker Compose file to Base64
         id: encode-docker-compose
         run: |
-          sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}|g' docker/residen-production/docker-compose.yml
+          sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}:mircea|g' docker/residen-production/docker-compose.yml
           DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/docker-compose.yml | base64 -w 0)
           echo "DOCKER_COMPOSE_BASE64=$DOCKER_COMPOSE_BASE64" >> $GITHUB_ENV
 
@@ -107,7 +107,7 @@ jobs:
           COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --instance-ids "$INSTANCE_ID" \
-            --parameters '{"commands":["sudo -u ubuntu bash -c '\''echo -e \"${{ env.DOCKER_COMPOSE_BASE64 }}\" | base64 -d > /home/ubuntu/docker-compose.yml && echo \"# TFA Residen EMR Secrets\nMYSQL_HOST=mysql\nMYSQL_USER=${{ secrets.MYSQL_USER }}\nMYSQL_PASS=${{ secrets.MYSQL_PASS }}\nMYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}\nMYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}\nOE_USER=${{ secrets.OE_USER }}\nOE_PASS=${{ secrets.OE_PASS }}\nDOMAIN='$DOMAIN_NAME'\nEMAIL=mircea.ene@assist.ro\" > /home/ubuntu/.env && mkdir -p /home/ubuntu/openemr_logs && mkdir -p /home/ubuntu/openemr_sites && aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }} && cd /home/ubuntu && docker compose pull && docker compose up -d && docker system prune -af'\''"]}' \
+            --parameters '{"commands":["sudo -u ubuntu bash -c '\''echo -e \"${{ env.DOCKER_COMPOSE_BASE64 }}\" | base64 -d > /home/ubuntu/docker-compose.yml && echo \"# TFA Residen EMR Secrets\nMYSQL_HOST=mysql\nMYSQL_USER=${{ secrets.MYSQL_USER }}\nMYSQL_PASS=${{ secrets.MYSQL_PASS }}\nMYSQL_ROOT_PASS=${{ secrets.MYSQL_ROOT_PASS }}\nMYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASS }}\nOE_USER=${{ secrets.OE_USER }}\nOE_PASS=${{ secrets.OE_PASS }}\nDOMAIN='$DOMAIN_NAME'\nEMAIL=mircea.ene@assist.ro\" > /home/ubuntu/.db_env && echo \"# TFA Residen EMR Secrets\nOE_USER=${{ secrets.OE_USER }}\nOE_PASS=${{ secrets.OE_PASS }}\nDOMAIN='$DOMAIN_NAME'\nEMAIL=mircea.ene@assist.ro\" > /home/ubuntu/.app_env && mkdir -p /home/ubuntu/openemr_logs && mkdir -p /home/ubuntu/openemr_sites && aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URL }} && cd /home/ubuntu && docker compose pull && docker compose up -d && docker system prune -af'\''"]}' \
             --query "Command.CommandId" \
             --output text)
 

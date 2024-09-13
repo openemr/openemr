@@ -83,6 +83,11 @@ COPY docker/residen-production/utilities/devtoolsLibrary.source /root/
 RUN mkdir /swarm-pieces \
     && rsync --owner --group --perms --delete --recursive --links /etc/ssl /swarm-pieces/ \
     && rsync --owner --group --perms --delete --recursive --links /var/www/localhost/htdocs/openemr/sites /swarm-pieces/
+
+RUN chmod -R 755 /var/www/localhost/htdocs/openemr/sites
+COPY setup.php .
+COPY admin.php .
+
 #go
 CMD [ "./openemr.sh" ]
 
