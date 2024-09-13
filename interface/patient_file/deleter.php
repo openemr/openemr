@@ -176,7 +176,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
 
 // Delete a specified document including its associated relations.
 //  Note the specific file is not deleted (instead flagged as deleted), since required to keep file for
-//   ONC 2015 certification purposes.
+//   ONC certification purposes.
 //
 function delete_document($document)
 {
