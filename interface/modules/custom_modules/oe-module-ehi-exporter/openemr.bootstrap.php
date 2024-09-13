@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Module to handle the 2015 ONC certification (b)(10) requirement for
+ * Module to handle the ONC certification (b)(10) requirement for
  * Electronic Health Information Export.
  *
  * This module fulfills the following requirements:
