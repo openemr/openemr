@@ -3241,7 +3241,7 @@ $GLOBALS_METADATA = array(
         ],
 
         'extra_portal_logo_login' => array(
-            xl('Show Secondary Logo on portal  Login page'),
+            xl('Show Secondary Logo on portal Login page'),
             'bool',                           // data type
             '0',                              // default = false
             xl('Show Secondary Logo on Login')
