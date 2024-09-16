@@ -97,7 +97,7 @@ jobs:
 
       - name: Deploy App to Each Instance
         run: |
-          PAIR=(${{ vars.MULTISITE_INSTANCE_ID }})
+          PAIR=(${{ vars.LIVE_INSTANCE_ID }})
           INSTANCE_ID=$(echo $PAIR | cut -d ':' -f 1)
           DOMAIN_NAME=$(echo $PAIR | cut -d ':' -f 2)
 
