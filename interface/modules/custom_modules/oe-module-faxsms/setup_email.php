@@ -16,7 +16,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 
 $emailSetup = new EmailClient();
-$credentials = $emailSetup->getEmailSetup();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $credentials = array(
@@ -30,9 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'smtp_password' => $_POST['smtp_password'],
         'smtp_security' => $_POST['smtp_security'],
         'notification_hours' => $_POST['notification_hours'],
-        'smsMessage' => $_POST['smsmessage']
+        'email_message' => $_POST['email_message']
     );
     $emailSetup->saveEmailSetup($credentials);
+}
+
+$credentials = $emailSetup->getEmailSetup();
+if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_message']) < 10) {
+    $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
 }
 
 ?>
@@ -64,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="container">
         <div class="alert alert-info">
-            <?php echo xlt("Use Config Notifications to setup SMTP. Setup here is work in progress for a secondary client. Sending Email reminders is still available from Reminder Actions dropdown.") ?>
+            <?php echo xlt("Use Config Notifications to setup SMTP. Setup here is work in progress for a secondary client. Sending Email reminders is still available from Reminder Actions dropdown. However, the Message Template and Email Notification Hours below are used for reminders.") ?>
         </div>
         <div class="d-flex justify-content-between align-items-center">
             <h4><?php echo xlt("Setup Patient Reminder Credentials") ?></h4>
@@ -154,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="form_message"><?php echo xlt("Message Template") ?></label>
                 <span style="font-size:12px;font-style: italic;">&nbsp;
                     <?php echo xlt("Tags") ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***</span>
-                <textarea id="form_message" rows="3" name="smsmessage" class="form-control" required><?php echo text($credentials['smsMessage']) ?></textarea>
+                <textarea id="form_message" rows="3" name="email_message" class="form-control" required><?php echo text($credentials['email_message']) ?></textarea>
             </div>
             <button type="submit" class="btn btn-success float-right m-2"><?php echo xlt("Save Settings") ?></button>
         </form>

@@ -243,7 +243,7 @@ class WenoValidate extends ModuleService
      * @param $resetOnInvalid
      * @return bool
      */
-    public function validateAdminCredentials($resetOnInvalid = false, $where = "prescription"): bool
+    public function validateAdminCredentials($resetOnInvalid = false, $where = "Sync Report"): bool
     {
         $newKey = false;
         $isKeyValid = $this->verifyEncryptionKey();

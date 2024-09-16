@@ -1,0 +1,59 @@
+name: Automated product release
+
+on:
+  pull_request:
+    branches: [master]
+    types: [closed]
+
+jobs:
+  check-release:
+    name: Check release required
+    if: github.event.pull_request.merged && endsWith(github.repository, '-private') != true
+    runs-on:
+      group: Default
+    outputs:
+      release: ${{ steps.check.outputs.ready }}
+    steps:
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
+      - id: check
+        name: Check pre-release completed
+        uses: ./.github/.release/actions/actions/checks/release
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+  publish:
+    name: Publish package
+    needs: check-release
+    if: needs.check-release.outputs.release == 'true'
+    runs-on:
+      group: Default
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # This should be the same as the one specified for on.pull_request.branches
+          ref: master
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
+      - name: Publish to Packagist
+        uses: ./.github/.release/actions/actions/services/composer
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          packagist-username: ${{ secrets.PACKAGIST_USERNAME }}
+          packagist-token: ${{ secrets.PACKAGIST_TOKEN }}
+      - name: Create Release
+        uses: ./.github/.release/actions/actions/services/github-release
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          jira-api-key: ${{ secrets.JIRA_API_KEY }}
+          last-service: true

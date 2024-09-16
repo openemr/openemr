@@ -1,0 +1,44 @@
+name: Commands processor
+
+on:
+  issue_comment:
+    types: [created]
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  process:
+    name: Process command
+    if: github.event.issue.pull_request && endsWith(github.repository, '-private') != true
+    runs-on:
+      group: Default
+    steps:
+      - name: Check referred user
+        id: user-check
+        env:
+          CLEN_BOT: ${{ secrets.CLEN_BOT }}
+        run: echo "expected-user=${{ startsWith(github.event.comment.body, format('@{0} ', env.CLEN_BOT)) }}" >> $GITHUB_OUTPUT
+      - name: Regular comment
+        if: steps.user-check.outputs.expected-user != 'true'
+        run: echo -e "\033[38;2;19;181;255mThis is regular commit which should be ignored.\033[0m"
+      - name: Checkout repository
+        if: steps.user-check.outputs.expected-user == 'true'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout release actions
+        if: steps.user-check.outputs.expected-user == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
+      - name: Process changelog entries
+        if: steps.user-check.outputs.expected-user == 'true'
+        uses: ./.github/.release/actions/actions/commands
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          listener: ${{ secrets.CLEN_BOT }}
+          jira-api-key: ${{ secrets.JIRA_API_KEY }}

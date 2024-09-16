@@ -1,0 +1,41 @@
+name: Generate and Publish Documentation
+
+on:
+  push:
+    branches:
+      - master
+      - addDocs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [ 8.3.6 ]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          ini-values: phar.readonly=0
+      - name: Composer update
+        run: composer update
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Generate Documentation
+        run: |
+          rm -rf .phpdoc
+          wget https://phpdoc.org/phpDocumentor.phar && chmod +x phpDocumentor.phar
+          php phpDocumentor.phar
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .phpdoc/build
