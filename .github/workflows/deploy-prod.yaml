@@ -42,7 +42,7 @@ jobs:
         with:
           images: ${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}
           tags: |
-            type=raw,value=mircea
+            type=raw,value=prod
             type=sha,prefix=residen-emr-,suffix=
 
       - name: Build and Push
@@ -91,7 +91,7 @@ jobs:
       - name: Prepare Docker Compose file to Base64
         id: encode-docker-compose
         run: |
-          sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}:mircea|g' docker/residen-production/docker-compose.yml
+          sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}:prod|g' docker/residen-production/docker-compose.yml
           DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/docker-compose.yml | base64 -w 0)
           echo "DOCKER_COMPOSE_BASE64=$DOCKER_COMPOSE_BASE64" >> $GITHUB_ENV
 
