@@ -24,7 +24,6 @@ services:
       - .app_env
     depends_on:
       - mysql
-      - mysql_second
 volumes:
   logvolume01:
     driver_opts:
@@ -36,4 +35,3 @@ volumes:
       type: none
       o: bind
       device: /home/ubuntu/openemr_sites
-      
