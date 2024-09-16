@@ -4,6 +4,8 @@ services:
     restart: always
     image: mariadb:10.11
     container_name: openemr_db
+    ports:
+      - 3306:3306
     command: ['mysqld','--character-set-server=utf8mb4']
     volumes:
       - /home/ubuntu/openemr_data:/var/lib/mysql
