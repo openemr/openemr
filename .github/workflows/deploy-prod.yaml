@@ -124,5 +124,5 @@ jobs:
           if [ "$STATUS" != "Success" ]; then
             echo "Command execution failed on instance $INSTANCE_ID."
             exit 1
-          fi
+          fi 
 
