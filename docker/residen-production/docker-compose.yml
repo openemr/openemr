@@ -1,16 +1,5 @@
 version: '3.8'
 services:
-  mysql:
-    restart: always
-    image: mariadb:10.11
-    container_name: openemr_db
-    ports:
-      - 3306:3306
-    command: ['mysqld','--character-set-server=utf8mb4']
-    volumes:
-      - /home/ubuntu/openemr_data:/var/lib/mysql
-    env_file:
-      - .db_env
   openemr:
     restart: always
     image: REPLACEME_ECR_URL
@@ -24,8 +13,6 @@ services:
       - /home/ubuntu/openemr_letsencrypt:/etc/letsencrypt
     env_file:
       - .app_env
-    depends_on:
-      - mysql
 volumes:
   logvolume01:
     driver_opts:
