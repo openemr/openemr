@@ -1,6 +1,5 @@
 <?php
 
-use Exception;
 use RingCentral\SDK\Mocks\Mock;
 use RingCentral\SDK\Test\TestCase;
 use RingCentral\SDK\Http\ApiException;
