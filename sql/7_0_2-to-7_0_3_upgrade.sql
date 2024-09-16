@@ -125,3 +125,13 @@ ALTER TABLE `form_encounter` ADD `ordering_provider_id` INT(11) DEFAULT '0' COMM
 #IfMissingColumn session_tracker number_scripts
 ALTER TABLE `session_tracker` ADD `number_scripts` bigint DEFAULT 1;
 #EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2024-10-01 load_filename icd10OrderFiles2025_0.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2024-10-01', 'icd10OrderFiles2025_0.zip', '783c2e3c92778295a76b8d7e0ebcf8fd');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2024-10-01 load_filename Zip File 3 2025 ICD-10-PCS Codes File.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2024-10-01', 'Zip File 3 2025 ICD-10-PCS Codes File.zip', 'a47ceb9a09fcc475fec19cee6526a335');
+#EndIf
