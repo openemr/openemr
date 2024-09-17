@@ -195,7 +195,7 @@ $vendors = $boot->getVendorGlobals();
     </script>
 </head>
 <body>
-    <div class="container-xl border mt-2">
+    <div class="container-xl border mt-2 mb-5">
         <div class="form-group text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
         </div>
@@ -324,7 +324,7 @@ $vendors = $boot->getVendorGlobals();
                                 <?php echo xlt("Map Weno Location and local Facility Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
                             </h5>
                         </div>
-                        <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
+                        <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 150px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
                     </div>
                     <!-- Users Weno Location ID's -->
                     <div class="row form-group">
@@ -334,7 +334,7 @@ $vendors = $boot->getVendorGlobals();
                                 <?php echo xlt("Map Weno User Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
                             </h5>
                         </div>
-                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Users") ?>"></iframe>
+                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:800px;" height="800" title="<?php echo xla("Users") ?>"></iframe>
                     </div>
                 </div>
             </div>

@@ -41,8 +41,9 @@ $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
-//$classLoader->registerNamespaceIfNotExists('RingCentral\\SDK\\', __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'RingCentral-php' . DIRECTORY_SEPARATOR . 'src');
+
 require __DIR__ . '/vendor/autoload.php';
+
 /**
  * @var EventDispatcherInterface $eventDispatcher
  * @var array                    $module

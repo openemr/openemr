@@ -126,17 +126,30 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
 
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
 
+<div>
+    <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
+        <a role="button" id="prescribeLink" class="text-primary" onclick="top.restoreSession(); setPrescribeLocation();">
+            <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
+        </a>
+        <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
+            <span><i id="sync-icon" class="fa-solid fa-refresh mr-1"></i><?php echo xlt("Sync"); ?></span>
+        </a>
+        <a role="button" class="text-primary" onclick="refreshDemographics();">
+            <span><i id="reload-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Reload"); ?></span>
+        </a>
+    </span>
+</div>
+<br />
 <?php
 if ($reSync === true) {
     // Trigger the sync_report function to sync the patient's prescriptions
     $reSync = '';
     $_GET['resync'] = '';
     unset($_GET['resync']);
-    echo "<script>sync_report($pid);</script>";
+    echo "<script>sync_report($pid)</script>";
     echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
 }
 ?>
-
 <div id="sync-alert" class=""><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
     <div id="sync-alert" class="d-none"></div>
@@ -156,6 +169,8 @@ if ($hasErrors) { ?>
 <?php if ($pharmacyCount > 0) {
     $titleMessage = xla("Quick Pharmacy Assignment");
     $popoverContent = xla("Convenience feature for assigning pharmacy without having to edit Demographic Choices. By clicking the label or pharmacy name, you may select a pharmacy from a list of all currently assigned pharmacies of patients. The selected pharmacy will then be assigned to current patient.");
+    $titleMessage = xla("Use Location Assignment");
+    $popoverLocation = xla("If desired, select a different location other than your default. Remember that the selected location must have been assigned to you in your Weno account. If it hasn't been assigned to you, you will not be able to prescribe from that location.");
     ?>
     <div id="trigger-debug" class="form-group mb-0">
         <div class="input-group small">
@@ -201,39 +216,31 @@ if ($hasErrors) { ?>
             </select>
         </div>
         <div class="form-group">
-            <label for="facilitySelect" class="mt-2"><?php echo xlt("Use Location"); ?></label>
+            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
+                <b><?php echo xlt("Use Location"); ?>:</b>
+            </label>
             <select id="facilitySelect" name="facilitySelect" class="form-control-sm mt-2 border-0 bg-light text-dark">
                 <?php foreach ($facilities as $facility) {
                     $flag = $facility['id'] == $defaultUserFacility['facility_id'] ? 'selected' : '';
-                    $default = !empty($flag) ? '(User Default)' : '';
+                    $default = !empty($flag) ? '(Default)' : '';
                     ?>
                     <option value="<?php echo attr($facility['weno_id']); ?>"
-                        <?php echo $flag; ?>><?php echo text($default) . ' ' . text($facility['name']); ?>
+                        <?php echo $flag; ?>><?php echo text($default) . ' ' . text($facility['name']) . ' ' . text($facility['weno_id']); ?>
                     </option>
                 <?php } ?>
             </select>
-            <span id="widget-button-set">
-                <a id="prescribeLink" class="ml-2 mt-2 text-primary" href="#" onclick="top.restoreSession(); setPrescribeLocation();">
-                    <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
-                </a>
-                <!-- Sync Button -->
-                <a class="mr-2 text-primary" href="#" onclick="top.restoreSession(); sync_weno();">
-                    <span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Sync"); ?></span>
-                </a>
-                <a role="button" class="text-primary btn-refresh" onclick="refreshDemographics();"><?php echo xlt("Reload"); ?></a>
-            </span>
         </div>
         <script>
-            $(document).ready(function () {
-                $('[data-toggle="popover"]').popover({
-                    trigger: 'hover',
-                    placement: 'top'
-                });
-            });
         </script>
     </div>
 <?php } ?>
 <script>
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover({
+            trigger: 'hover',
+            placement: 'top'
+        });
+    });
 
     function refreshDemographics() {
         top.restoreSession();

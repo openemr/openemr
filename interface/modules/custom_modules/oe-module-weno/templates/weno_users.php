@@ -37,6 +37,13 @@ while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1 and id = ?", array($_SESSION['authUserID'] ?? 0));
+$list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
+$facilities = [];
+while ($row = sqlFetchArray($list)) {
+    $facilities[] = $row;
+}
+
 if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
