@@ -10,7 +10,6 @@ services:
     volumes:
       - logvolume01:/var/log
       - sitevolume:/var/www/localhost/htdocs/openemr/sites
-      - /home/ubuntu/openemr_letsencrypt:/etc/letsencrypt
     env_file:
       - .app_env
 volumes:
