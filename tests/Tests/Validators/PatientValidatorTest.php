@@ -69,7 +69,7 @@ class PatientValidatorTest extends TestCase
     public function testValidationUpdateFailure()
     {
         $this->patientFixture["uuid"] = $this->fixtureManager->getUnregisteredUuid();
-        $this->patientFixture["fname"] = "A";
+        $this->patientFixture["fname"] = "";
         $this->patientFixture["sex"] = "M";
 
         $actualResult = $this->patientValidator->validate($this->patientFixture, PatientValidator::DATABASE_UPDATE_CONTEXT);

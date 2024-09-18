@@ -53,7 +53,7 @@ class PatientValidator extends BaseValidator
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context) {
-                $context->required("fname", "First Name")->lengthBetween(2, 255);
+                $context->required("fname", "First Name")->lengthBetween(1, 255);
                 $context->required("lname", 'Last Name')->lengthBetween(2, 255);
                 $context->required("sex", 'Gender')->lengthBetween(4, 30);
                 $context->required("DOB", 'Date of Birth')->datetime('Y-m-d');
