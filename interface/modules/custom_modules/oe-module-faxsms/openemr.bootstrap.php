@@ -151,7 +151,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     foreach ($menu as $item) {
         if ($item->menu_id == 'service') {
             // ensure service is on in globals.
-            if (!empty($allowSMS) || !empty($allowFax)) {
+            if (!empty($allowSMS) || !empty($allowFax) || !empty($allowEmail)) {
                 $item->children[] = $menuItemSetup;
             }
             if (!empty($allowFax)) {
