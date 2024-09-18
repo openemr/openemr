@@ -85,8 +85,12 @@ RUN mkdir /swarm-pieces \
     && rsync --owner --group --perms --delete --recursive --links /var/www/localhost/htdocs/openemr/sites /swarm-pieces/
 
 RUN chmod -R 755 /var/www/localhost/htdocs/openemr/sites
+
 COPY setup.php .
 COPY admin.php .
+
+RUN chown apache:apache setup.php
+RUN chown apache:apache admin.php
 
 #go
 CMD [ "./openemr.sh" ]
