@@ -26,7 +26,7 @@ function downloadWenoPharmacy(): void
     $wenoValidate = new WenoValidate();
     $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
 
-    $isKey = $wenoValidate->validateAdminCredentials(true, "pharmacy");
+    $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
     if ((int)$isKey >= 998) {
         handleDownloadError("Background Initiated Pharmacy download attempt failed. Internet problem!");
     }
@@ -35,8 +35,6 @@ function downloadWenoPharmacy(): void
     }
 
     $localPharmacyJson->checkBackgroundService();
-    $wenoLog->insertWenoLog("pharmacy", "Download started");
-    error_log('Background Initiated Pharmacy Download Started.');
 
     // The breadwinner!
     $status = $localPharmacyJson->storePharmacyData();
@@ -52,20 +50,35 @@ function downloadWenoPharmacy(): void
  */
 function downloadWenoPrescriptionLog(): void
 {
+    $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
     $isKey = $wenoValidate->validateAdminCredentials(true);
 
     if ((int)$isKey >= 998) {
-        handleDownloadError("Prescription download attempt failed. Internet problem!");
+        $wenoLog->insertWenoLog("Sync Report", "Failed import Internet problem!");
+        handleDownloadError("Sync Report download attempt failed. Internet problem!");
     }
 
     if ($isKey === false) {
         requireGlobals();
     }
 
-    $logSync = new LogProperties();
-    if (!$logSync->logSync('background')) {
+    try {
+        $logSync = new LogProperties();
+        $rtn = $logSync->logSync('background');
+    } catch (Exception $e) {
+        $rtn = false;
+        $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
+        error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));
+        http_response_code(500);
+        exit;
+    }
+
+    if ($rtn != true) {
         error_log("Background services failed for prescription log.");
+    } else {
+        $wenoLog->insertWenoLog("Sync Report", "Success");
+        error_log("Background services success for prescription log.");
     }
 }
 

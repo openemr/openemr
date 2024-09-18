@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -29,9 +30,18 @@ if ($_POST) {
     }
 }
 
+$wenoLog = new WenoLogService();
+
 $fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
+}
+
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1 and id = ?", array($_SESSION['authUserID'] ?? 0));
+$list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
+$facilities = [];
+while ($row = sqlFetchArray($list)) {
+    $facilities[] = $row;
 }
 
 if (($_POST['save'] ?? false) == 'true') {
@@ -43,6 +53,8 @@ if (($_POST['save'] ?? false) == 'true') {
         );
     }
 
+    $posted = json_encode($_POST);
+    $wenoLog->insertWenoLog("Module setup modified.", "Setup Users modified", $posted);
     unset($_POST['save']);
     Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
@@ -87,7 +99,7 @@ if (($_POST['save'] ?? false) == 'true') {
                     <th><?php echo xlt("Last"); ?></th>
                     <th><?php echo xlt("First"); ?></th>
                     <th><?php echo xlt("Weno User"); ?></th>
-                    <th><?php echo xlt("Facility"); ?></th>
+                    <th><?php echo xlt("Assigned Default Facility"); ?></th>
                     <th><?php echo xlt("Edit"); ?></th>
                 </tr>
                 </thead>

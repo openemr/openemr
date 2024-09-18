@@ -439,7 +439,7 @@ abstract class AppDispatch
         }
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
 
-        if (empty($credentials['smtp_user']) || empty($credentials['smtp_host']) || empty($credentials['smtp_password'])) {
+        if (empty($credentials)) {
             $credentials = array(
                 'sender_name' => $GLOBALS['patient_reminder_sender_name'],
                 'sender_email' => $GLOBALS['patient_reminder_sender_email'],
@@ -450,22 +450,23 @@ abstract class AppDispatch
                 'smtp_user' => $GLOBALS['SMTP_USER'],
                 'smtp_password' => $GLOBALS['SMTP_PASS'],
                 'smtp_security' => $GLOBALS['SMTP_SECURE'],
-                'notification_hours' => $GLOBALS['EMAIL_NOTIFICATION_HOUR']
+                'notification_hours' => $GLOBALS['EMAIL_NOTIFICATION_HOUR'],
+                'email_message' => $GLOBALS['EMAIL_MESSAGE'] ?? '',
             );
-            if (empty($credentials['smsMessage'] ?? '')) {
-                $credentials['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
+            if (empty($credentials['email_message'] ?? '')) {
+                $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
             }
             return $credentials;
         } else {
             $credentials = $credentials['credentials'];
-            if (empty($credentials['smsMessage'] ?? '')) {
-                $credentials['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
-            }
         }
 
         $decrypt = $this->crypto->decryptStandard($credentials);
-        $decode = json_decode($decrypt, true);
-        return $decode;
+        $credentials = json_decode($decrypt, true);
+        if (empty($credentials['email_message'] ?? '')) {
+            $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
+        }
+        return $credentials;
     }
 
     public function saveEmailSetup($credentials): void
@@ -614,7 +615,7 @@ abstract class AppDispatch
      * @param $u
      * @return bool
      */
-    public function verifyAcl($sect = 'Clinicians', $v = 'docs', $u = ''): bool
+    public function verifyAcl($sect = 'patients', $v = 'docs', $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
     }

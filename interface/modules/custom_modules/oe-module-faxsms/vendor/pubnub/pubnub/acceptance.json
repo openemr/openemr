@@ -1,0 +1,37 @@
+{
+  "name": "pubnub/pubnub",
+  "type": "library",
+  "description": "The Only Global Network For Real-Time Data -- PubNub!",
+  "keywords": ["api", "real-time", "realtime", "real time", "ajax", "push"],
+  "homepage": "http://www.pubnub.com/",
+  "license": "MIT",
+  "version": "4.6.0",
+  "authors": [
+    {
+      "name": "PubNub",
+      "email": "support@pubnub.com"
+    }
+  ],
+  "scripts": {
+    "test": "./vendor/bin/phpunit tests/  --verbose --coverage-clover=coverage.clover"
+  },
+  "require": {
+    "php": ">=5.6.0",
+    "rmccue/requests": "^1.0",
+    "monolog/monolog": "^1.26"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0",
+    "behat/behat": "^3.10"
+  },
+  "autoload": {
+    "psr-0": {
+      "PubNub\\": "src/",
+      "PubNubFeatures\\": "tests/features/"
+    }
+  },
+  "autoload-dev": {
+    "psr-0": {
+    }
+  }
+}

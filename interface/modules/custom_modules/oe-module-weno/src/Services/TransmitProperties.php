@@ -18,6 +18,8 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FacilityService;
 
 class TransmitProperties
@@ -37,12 +39,33 @@ class TransmitProperties
     private mixed $wenoProviderID;
     private string|false $csrf;
     private mixed $responsibleParty;
+    public mixed $wenoLocation;
+
+    /**
+     * @param mixed $wenoLocation
+     * @return TransmitProperties
+     */
+    public function setWenoLocation(mixed $wenoLocation): TransmitProperties
+    {
+        $this->wenoLocation = $wenoLocation;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWenoLocation(): mixed
+    {
+        return $this->wenoLocation;
+    }
 
     /**
      * AdminProperties constructor.
      */
     public function __construct($returnFlag = false)
     {
+        $this->wenoLocation = $_GET['location'] ?? '';
+        $this->setWenoLocation($this->wenoLocation);
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
         $this->csrf = js_escape(CsrfUtils::collectCsrfToken());
         $this->cryptoGen = new CryptoGen();
@@ -52,7 +75,11 @@ class TransmitProperties
         $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
         $this->provider_pass = $this->getProviderPassword();
-        $this->locid = $this->getFacilityInfo();
+        if (!empty($this->wenoLocation)) {
+            $this->locid = $this->getFacilityForWenoId();
+        } else {
+            $this->locid = $this->getFacilityInfo();
+        }
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
         // check if patient is under 19 years old
@@ -75,6 +102,15 @@ class TransmitProperties
         }
         // validated so create json object
         $this->payload = $this->createJsonObject();
+    }
+
+    public function parseExternalId($external_id): mixed
+    {
+        $match = explode(":", $external_id);
+        if (is_countable($match) && count($match) > 1) {
+            $external_id = $match;
+        }
+        return $external_id;
     }
 
     /**
@@ -307,7 +343,7 @@ insurance;
     {
         // is user logged into a facility
         if (!empty($_SESSION['facilityId'])) {
-            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId'] ?? null]);
+            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' and id = ?", [$_SESSION['facilityId'] ?? null]);
         } else {
             // from users facility
             $facilityService = new FacilityService();
@@ -318,11 +354,11 @@ insurance;
             if (!empty($locId['id'])) {
                 // weno_id is not set in service so at least we have their facility id
                 // so we'll look if it's set there anyway. Bottom line is get users default facility.
-                $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility where `id` = ? limit 1", [$locId['id']]);
+                $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' and `id` = ? limit 1", [$locId['id']]);
             }
             if (empty($default_facility['weno_id'] ?? '')) {
                 //if no default for user then get the first facility location id as default
-                $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
+                $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility where weno_id > '' order by id limit 1");
             }
             if (empty($default_facility['weno_id'])) {
                 // still no joy so let user know and get it set!
@@ -332,6 +368,12 @@ insurance;
         }
 
         return $locId;
+    }
+
+    public function getFacilityForWenoId()
+    {
+        $record = array();
+        return sqlQuery("SELECT * from facility where weno_id = ? limit 1", [$this->wenoLocation]);
     }
 
     /**

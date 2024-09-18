@@ -47,13 +47,13 @@ class DownloadWenoPharmacies
         // Using the sqlStatement() method is even slower by 10 seconds. That's 13 seconds slower overall.
         $connect = $GLOBALS['dbh'];
         if ($connect->connect_error) {
-            $wenoLog->insertWenoLog("pharmacy", "Connection Failed.");
+            $wenoLog->insertWenoLog("Pharmacy Directory", "Connection Failed.");
             error_log("Connection failed: " . $connect->connect_error);
             return false;
         }
         // Check if file exists and is readable
         if (!file_exists($filePath) || !is_readable($filePath)) {
-            $wenoLog->insertWenoLog("pharmacy", "Download file not found or not readable");
+            $wenoLog->insertWenoLog("Pharmacy Directory", "Download file not found or not readable");
             error_log("Download file not found or not readable: " . $filePath);
             return false;
         }
@@ -163,6 +163,7 @@ class DownloadWenoPharmacies
         if (!is_dir($path_to_extract)) {
             mkdir($path_to_extract, 0775, true);
         }
+        unlink($storelocation);
         $fp = fopen($storelocation, 'w+');
 
         $ch = curl_init($url);
@@ -206,12 +207,12 @@ class DownloadWenoPharmacies
                     }
                 }
                 $zip->close();
-                unlink($storeLocation); // TODO: uncomment this line
+                //unlink($storeLocation); // TODO: uncomment this line
                 if ($csvFile) {
                     // process the csv file
                     // Number of rows imported or false if error
                     $logMessage = "Background Initiated Pharmacy Update";
-                    $wenoLog->insertWenoLog("pharmacy", $logMessage);
+                    $wenoLog->insertWenoLog("Pharmacy Directory", $logMessage);
                     error_log($logMessage);
 
                     // process the csv file
@@ -225,7 +226,7 @@ class DownloadWenoPharmacies
                             1,
                             "Background Task Pharmacy Download Imported $count Pharmacies Successfully."
                         );
-                        $wenoLog->insertWenoLog("pharmacy", "Success $count pharmacies Updated");
+                        $wenoLog->insertWenoLog("Pharmacy Directory", "Success $count pharmacies Updated");
                         error_log("Background Task Pharmacy Imported $count Pharmacies");
                     } else {
                         EventAuditLogger::instance()->newEvent(
@@ -235,12 +236,12 @@ class DownloadWenoPharmacies
                             0,
                             "Pharmacy Import download failed."
                         );
-                        $wenoLog->insertWenoLog("pharmacy", "Failed");
+                        $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
                         error_log("Background Task Pharmacy Import Failed");
                     }
                     // remove the files
                     foreach ($files as $file) {
-                        if (is_file($file)) {
+                        if (is_file($file) && stripos($file, 'logsync.csv') === false) {
                             unlink($file);
                         }
                     }
@@ -253,7 +254,7 @@ class DownloadWenoPharmacies
                         0,
                         "No CSV file found in the zip archive."
                     );
-                    $wenoLog->insertWenoLog("pharmacy", "Failed");
+                    $wenoLog->insertWenoLog("Pharmacy Directory", "Failed not found in archive.");
                     return false;
                 }
             } else {
@@ -263,11 +264,11 @@ class DownloadWenoPharmacies
                 if ($isError['is_error']) {
                     EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
                     error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
-                    $wenolog->insertWenoLog("pharmacy", errorLogEscape($isError['messageText']));
+                    $wenolog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
                 } else {
                     EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
                     error_log("Pharmacy Failed download! Weno error: Other");
-                    $wenoLog->insertWenoLog("pharmacy", "Failed");
+                    $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
                 }
                 die;
             }

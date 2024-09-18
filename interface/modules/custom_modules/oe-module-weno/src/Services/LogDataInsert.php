@@ -23,7 +23,8 @@ class LogDataInsert
     {
         $sql = "INSERT INTO prescriptions SET ";
         $sql .= "active = ?, ";
-        $sql .= "date_added = NOW(), ";
+        $sql .= "date_added = ?, ";
+        $sql .= "datetime = NOW(), ";
         $sql .= "patient_id = ?, ";
         $sql .= "provider_id = ?, ";
         $sql .= "drug = ?, ";
@@ -38,6 +39,7 @@ class LogDataInsert
         try {
             sqlInsert($sql, [
                 $insertdata['active'],
+                $insertdata['date_added'],
                 $insertdata['patient_id'],
                 $insertdata['user_id'],
                 $insertdata['drug'],

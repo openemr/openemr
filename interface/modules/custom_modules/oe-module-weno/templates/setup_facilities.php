@@ -17,10 +17,12 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 //ensure user has proper access
-if (!AclMain::aclCheckCore('admin', 'super')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno Admin")]);
     exit;
 }
+
+$wenoLog = new WenoLogService();
 
 if ($_POST) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
@@ -30,6 +32,9 @@ if ($_POST) {
     foreach ($_POST as $location) {
         sqlQuery("update facility set weno_id = ? where id = ?", [$location[1], $location[0]]);
     }
+
+    $posted = json_encode($_POST);
+    $wenoLog->insertWenoLog("Module setup modified.", "Facilty Locations save.", $posted);
 }
 
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility");

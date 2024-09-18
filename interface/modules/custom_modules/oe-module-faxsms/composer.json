@@ -18,5 +18,6 @@
         "psr-4": {"OpenEMR\\Modules\\FaxSMS\\": "src/"}
     },
     "require": {
+        "ringcentral/ringcentral-php": "3.0.3"
     }
 }

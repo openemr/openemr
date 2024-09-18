@@ -1,0 +1,10 @@
+default:
+    autoload:
+        - "%paths.base%/tests/features/bootstrap/"
+    suites:
+        access:
+            paths:    [ "%paths.base%/tests/features/bootstrap/access" ]
+            contexts: [ AccessManagerContext ]
+        utilities:
+            paths:    [ "%paths.base%/tests/features/bootstrap/utilities" ]
+            contexts: [ TimeContext ]

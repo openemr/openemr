@@ -18,11 +18,12 @@ class WenoLogService
 {
     public function __construct()
     {
+        $this->validateTable();
     }
 
     public function getLastPrescriptionLogStatus(): bool|array|null
     {
-        $params  = "prescription";
+        $params  = "Sync Report";
         $sql = "SELECT * FROM weno_download_log WHERE VALUE = ?  ORDER BY `created_at` DESC, `id` DESC LIMIT 1";
 
         return sqlQuery($sql, [$params]);
@@ -30,7 +31,7 @@ class WenoLogService
 
     public function getLastPharmacyDownloadStatus($lastStatus = ''): bool|array|null
     {
-        $params = "pharmacy";
+        $params = "Pharmacy Directory";
         $v = ['count' => 0, 'created_at' => 'Never', 'status' => 'Possibly download is in progress.'];
         $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC, `id` DESC LIMIT 1", [$params]);
         if (!$vsql) {
@@ -50,11 +51,12 @@ class WenoLogService
         return $v;
     }
 
-    public function insertWenoLog($value, $status): bool|string
+    public function insertWenoLog($value, $status, $data_in_context = ''): bool|string
     {
-        $sql = "INSERT INTO weno_download_log SET value = ?, status = ?";
+        $bind = [$value, $status, $data_in_context];
+        $sql = "INSERT INTO weno_download_log SET value = ?, status = ?, data_in_context = ?";
         try {
-            sqlInsert($sql, [$value, $status]);
+            sqlInsert($sql, $bind);
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -91,5 +93,15 @@ class WenoLogService
             $type = "Exceeded_download_limits";
         }
         return ['is_error' => true, 'type' => $type, 'messageText' => trim($message), 'messageHtml' => trim($content_html)];
+    }
+
+    public function validateTable()
+    {
+        $isIt = sqlQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'weno_download_log' AND COLUMN_NAME = 'data_in_context'");
+        if (empty($isIt)) {
+            sqlStatement("ALTER TABLE `weno_download_log` ADD `data_in_context` TEXT");
+            return true;
+        }
+        return false;
     }
 }

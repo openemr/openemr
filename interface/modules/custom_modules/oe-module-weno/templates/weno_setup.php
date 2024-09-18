@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -44,6 +45,10 @@ $saveAction = false;
 $saveActionPersist = false;
 $isValidKey = true;
 
+$wenoLog = new WenoLogService();
+$posts = $_POST;
+$posts['weno_admin_password'] = 'Privileged';
+$posts['weno_provider_password'] = 'Privileged';
 if (($_POST['form_save'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -52,6 +57,9 @@ if (($_POST['form_save'] ?? null)) {
     $boot->saveVendorGlobals($_POST);
     $isValidKey = $wenoValidate->verifyEncryptionKey();
     $saveAction = true;
+    $posted = json_encode($posts);
+    $msg = 'isKeyValid:' . ($isValidKey ? 'true' : 'false') . ': POSTED Data: ' . $posted;
+    $wenoLog->insertWenoLog("Module setup modified.", "Primary Admin verify Encryption Key", text($msg));
 }
 if (($_POST['form_save_top'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -60,6 +68,8 @@ if (($_POST['form_save_top'] ?? null)) {
     unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $saveActionPersist = true;
+    $posted = json_encode($posts);
+    $wenoLog->insertWenoLog("Module setup modified.", "Primary Admin Auto Save", $posted);
 }
 if (isset($_REQUEST['form_reset_key'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -71,6 +81,8 @@ if (isset($_REQUEST['form_reset_key'])) {
     $wenoValidate->setNewEncryptionKey($newKey);
     // Redirect to the same page to refresh the page with the new key.
     $isValidKey = true;
+    $posted = json_encode($posts);
+    $wenoLog->insertWenoLog("Module setup modified.", "Encryption Key Reset validation", $posted);
 }
 
 $thisUser = $boot->getProviderName();
@@ -183,18 +195,26 @@ $vendors = $boot->getVendorGlobals();
     </script>
 </head>
 <body>
-    <div class="container-xl border mt-2">
+    <div class="container-xl border mt-2 mb-5">
         <div class="form-group text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
         </div>
         <div class="card mb-1">
             <div class="card-header p-1 mb-3 bg-light text-dark collapsed collapsed" role="button" data-toggle="collapse" href="#collapseOne">
-                <h6 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Setup Help"); ?></h6>
+                <h6 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Click for Setup Help"); ?></h6>
             </div>
             <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
                 <!-- Currently no plans to translate. -->
                 <?php
-                echo nl2br(text("This page is enabled in Module Config and at Admin->Weno eRx Tools->Weno eRx Service after module is enabled.\nThere are three sections within the Weno eRx Service Admin Setup that allow the user to setup almost all the necessary settings to successfully start e-prescribing. An additional item is each Weno prescriber credentials are set up in their individual User Settings.\n
+                echo "<div>" .
+                    nl2br(text(" * Sign up for EZ Integration at ") .
+                    "<a class='btn text-primary btn-link m-0 p-0 pb-1' href='https://online.wenoexchange.com/' target='_blank' rel='noopener noreferrer'>" . text(" online.wenoexchange.com") .     "</a>" .
+                        text(" & Developer's page has the OpenEMR Set Up Steps to go live.\n* Find prices & demo on Weno's website: ") .
+                    "<a class='btn text-primary btn-link m-0 p-0 pb-1' href='https://wenoexchange.com/' target='_blank' rel='noopener noreferrer'>" . text(" wenoexchange.com") . "</a>" .
+                        text("->Services->Integrations->for EHRs ->EZ Integration.\n* To contact WENO or set up a meeting go to their website: ")) .
+                    "<a class='btn text-primary btn-link m-0 p-0 pb-1' href='https://wenoexchange.com/' target='_blank' rel='noopener noreferrer'>" . text(" wenoexchange.com") .
+                    "</a></div>";
+                echo nl2br(text("\nThis page is enabled in Module Config and at Admin->Weno eRx Tools->Weno eRx Service after module is enabled.\nThere are three sections within the Weno eRx Service Admin Setup that allow the user to setup almost all the necessary settings to successfully start e-prescribing. An additional item is each Weno prescriber credentials are set up in their individual User Settings.\n
 *** The Weno Primary Admin Section.
 - All values must be entered and validated.
 - If validation fails because either email and/or password are invalid an alert will be shown stating such.
@@ -304,7 +324,7 @@ $vendors = $boot->getVendorGlobals();
                                 <?php echo xlt("Map Weno Location and local Facility Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
                             </h5>
                         </div>
-                        <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
+                        <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 150px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
                     </div>
                     <!-- Users Weno Location ID's -->
                     <div class="row form-group">
@@ -314,7 +334,7 @@ $vendors = $boot->getVendorGlobals();
                                 <?php echo xlt("Map Weno User Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
                             </h5>
                         </div>
-                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Users") ?>"></iframe>
+                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:800px;" height="800" title="<?php echo xla("Users") ?>"></iframe>
                     </div>
                 </div>
             </div>
