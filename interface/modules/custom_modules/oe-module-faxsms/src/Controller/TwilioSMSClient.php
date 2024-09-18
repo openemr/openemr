@@ -28,6 +28,14 @@ class TwilioSMSClient extends AppDispatch
     private $sid;
     private $appKey;
     private $appSecret;
+    /**
+     * @var mixed|string
+     */
+    private mixed $accountSID;
+    /**
+     * @var mixed|string
+     */
+    private mixed $authToken;
 
     public function __construct()
     {
@@ -70,8 +78,7 @@ class TwilioSMSClient extends AppDispatch
         $this->sid = $credentials['username'] ?? '';
         $this->appKey = $credentials['appKey'] ?? '';
         $this->appSecret = $credentials['appSecret'] ?? '';
-        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-                "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;

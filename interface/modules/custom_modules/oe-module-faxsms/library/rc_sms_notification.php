@@ -17,6 +17,7 @@
  */
 
 //hack add for command line version
+use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
@@ -81,7 +82,7 @@ if ($TYPE === "SMS") {
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
 
-    if (!$clientApp->verifyAcl('Clinicians', 'docs', $runtime['user'] ?? '')) {
+    if (!$clientApp->verifyAcl('patients', 'appt', $runtime['user'] ?? '')) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
 }
@@ -90,7 +91,7 @@ if ($TYPE === "EMAIL") {
     $emailApp = AppDispatch::getApiService('email');
     $cred = $emailApp->getEmailSetup();
 
-    if (!$emailApp->verifyAcl('Clinicians', 'docs', $runtime['user'] ?? '')) {
+    if (!$emailApp->verifyAcl('patients', 'appt', $runtime['user'] ?? '')) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
 }
@@ -98,8 +99,8 @@ if ($TYPE === "EMAIL") {
 session_write_close();
 set_time_limit(0);
 
-$SMS_NOTIFICATION_HOUR = $cred['smsHours'];
-$MESSAGE = $cred['smsMessage'];
+$SMS_NOTIFICATION_HOUR = $cred['smsHours'] ?? $cred['notification_hours'] ?? 24;
+$MESSAGE = $cred['smsMessage'] ?? $cred['email_message'];
 
 // check command line for quite option
 $bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
@@ -119,6 +120,7 @@ $db_sms_msg['message'] = $MESSAGE;
 <html lang="eng">
 <head>
     <title><?php echo xlt("Notifications") ?></title>
+    <?php Header::setupHeader(); ?>
 </head>
 <style>
   html {
@@ -130,8 +132,7 @@ $db_sms_msg['message'] = $MESSAGE;
     <body>
         <div>
             <div>
-                <p class="text-center">
-                <h2><?php echo xlt("Working and may take a few minutes to finish.") ?></h2></p>
+                <div class="text-center mt-2"><h2><?php echo xlt("Working and may take a few minutes to finish.") ?></h2></div>
             </div>
             <?php
             if ($bTestRun) {
@@ -278,7 +279,7 @@ function isValidPhone($phone): array|bool|string|null
  * @param string $recur
  * @return int
  */
-function cron_UpdateEntry($type, $pid, $pc_eid, $recur = ''): int
+function cron_UpdateEntry($type, $pid, $pc_eid, $recur = '')
 {
     global $bTestRun;
 
@@ -293,7 +294,7 @@ function cron_UpdateEntry($type, $pid, $pc_eid, $recur = ''): int
     } elseif ($type == 'EMAIL') {
         $query .= " pc_sendalertemail='YES', pc_apptstatus='EMAIL' ";
     } else {
-        $query .= " pc_sendalertemail='YES' ";
+        $query .= " pc_sendalertsms='NO' ";
     }
 
     $query .= " where pc_pid=? and pc_eid=? ";
@@ -308,12 +309,12 @@ function cron_UpdateEntry($type, $pid, $pc_eid, $recur = ''): int
  * @param $type
  * @return array
  */
-function cron_GetAlertPatientData(): array
+function cron_GetAlertPatientData()
 {
     global $SMS_NOTIFICATION_HOUR, $TYPE;
-    $where = " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')";
+    $where = " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')";
     if ($TYPE == 'EMAIL') {
-        $where = " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND e.pc_sendalertemail != 'YES' AND e.pc_apptstatus != 'x')";
+        $where = " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')";
     }
     $adj_date = date("h") + $SMS_NOTIFICATION_HOUR;
     $check_date = date("Y-m-d", mktime($adj_date, 0, 0, date("m"), date("d"), date("Y")));

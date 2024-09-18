@@ -1,0 +1,42 @@
+name: Validations
+
+on:
+  push:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  pubnub-yml:
+    name: "Validate .pubnub.yml"
+    runs-on:
+      group: Default
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Checkout validator action
+        uses: actions/checkout@v4
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
+      - name: "Run '.pubnub.yml' file validation"
+        uses: ./.github/.release/actions/actions/validators/pubnub-yml
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
+  all-validations:
+    name: Validations
+    needs: [pubnub-yml]
+    runs-on:
+      group: Default
+    steps:
+      - name: Validations summary
+        run: echo -e "\033[38;2;95;215;0m\033[1mAll validations passed"

@@ -18,7 +18,7 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'rx', '', 'write')) {
     echo xlt("Not Authorized to use this widget.");
     return;
 }
@@ -35,7 +35,7 @@ if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
 $logService = new WenoLogService();
 $pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');
 
-$status = xlt("Last pharmacy update") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Number Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0);
+$status = xlt("Last pharmacy update") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0);
 $cite = <<<CITE
 <cite class="h6 text-danger p-1 mt-1">
     <span>$status</span>
@@ -49,8 +49,6 @@ $hasErrors = !empty($validate->errors['errors']);
 $validate_errors = $validate->errors['string'];
 
 $pid = ($pid ?? '') ?: $_SESSION['pid'] ?? '';
-$res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL", array($pid));
-
 $pharmacyService = new PharmacyService();
 $prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
 $alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
@@ -63,9 +61,9 @@ $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy
 ($alt_pharmacy['address_line_1'] ?? '') . ' ' . ($alt_pharmacy['city'] ?? '') .
 ', ' . $alt_pharmacy['state'] ?? '') : '';
 
+// get only pharmacies that are assigned to patients
 $res = sqlStatement(
-    "SELECT DISTINCT wp.ncpdp_safe, wp.business_name, wp.address_line_1, wp.city, wp.state FROM weno_assigned_pharmacy wap INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe OR wap.alternate_ncpdp = wp.ncpdp_safe;
-"
+    "SELECT DISTINCT wp.ncpdp_safe, wp.business_name, wp.address_line_1, wp.city, wp.state FROM weno_assigned_pharmacy wap INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe OR wap.alternate_ncpdp = wp.ncpdp_safe;"
 );
 $pharmacies = array();
 foreach ($res as $row) {
@@ -73,15 +71,37 @@ foreach ($res as $row) {
 }
 $pharmacyCount = count($pharmacies);
 
+$reSync = '';
+if (isset($_GET['resync'])) {
+    $reSync = true;
+}
+
 function getProviderByWenoId($external_id, $provider_id = ''): string
 {
+    // parse user weno id and location. If location is present, it is separated by a colon
+    // $provider_id is the user id that was passed in the prescription when prescribed.
+    // If all else fails then use logged in user id;
+    $match = explode(":", $external_id);
+    if (is_countable($match) && count($match) > 1) {
+        $external_id = $match[0];
+    }
     $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $provider_id));
     if ($provider) {
-        return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
+        return $provider['fname'] . " " . $provider['lname'];
     } else {
         return xlt("Weno User Id missing.");
     }
 }
+
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1 and id = ?", array($_SESSION['authUserID'] ?? 0));
+$list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
+$facilities = [];
+while ($row = sqlFetchArray($list)) {
+    $facilities[] = $row;
+}
+
+// get weno drugs for patient
+$resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", array($pid));
 
 ?>
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
@@ -90,14 +110,46 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     font-size: 14px;
   }
 </style>
-<div class="row float-right mr-1">
-    <div id="widget-button-set">
-        <a class="mr-2" href="#" onclick="top.restoreSession(); sync_weno();"><span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Sync"); ?></span></a>
-        <a class="mr-2" onclick="top.restoreSession();" href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span></a>
-    </div>
-</div>
+<script>
+    function setPrescribeLocation() {
+        const facilitySelect = document.getElementById('facilitySelect');
+        let newLocation = facilitySelect.value;
+
+        if (!newLocation) {
+            alert("Please select a facility before prescribing.");
+            return;
+        }
+        // Redirect to the new location
+        window.location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php?location=" + encodeURIComponent(newLocation);
+    }
+</script>
+
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
 
+<div>
+    <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
+        <a role="button" id="prescribeLink" class="text-primary" onclick="top.restoreSession(); setPrescribeLocation();">
+            <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
+        </a>
+        <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
+            <span><i id="sync-icon" class="fa-solid fa-refresh mr-1"></i><?php echo xlt("Sync"); ?></span>
+        </a>
+        <a role="button" class="text-primary" onclick="refreshDemographics();">
+            <span><i id="reload-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Reload"); ?></span>
+        </a>
+    </span>
+</div>
+<br />
+<?php
+if ($reSync === true) {
+    // Trigger the sync_report function to sync the patient's prescriptions
+    $reSync = '';
+    $_GET['resync'] = '';
+    unset($_GET['resync']);
+    echo "<script>sync_report($pid)</script>";
+    echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
+}
+?>
 <div id="sync-alert" class=""><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
     <div id="sync-alert" class="d-none"></div>
@@ -114,13 +166,14 @@ if ($hasErrors) { ?>
         </div>
     </div>
 <?php } ?>
-<button class="btn btn-link btn-refresh p-0 mr-4 float-right" onclick="refreshDemographics();"><?php echo xlt("Refresh Chart"); ?></button>
 <?php if ($pharmacyCount > 0) {
     $titleMessage = xla("Quick Pharmacy Assignment");
-    $popoverContent = xla("Convenience feature for assigning pharmacy without having to edit Demographics. Click the label or existing pharmacy name, if assigned, to select a pharmacy from a list of all currently assigned pharmacies. The selected pharmacy will be assigned to this patient.");
+    $popoverContent = xla("Convenience feature for assigning pharmacy without having to edit Demographic Choices. By clicking the label or pharmacy name, you may select a pharmacy from a list of all currently assigned pharmacies of patients. The selected pharmacy will then be assigned to current patient.");
+    $titleMessage = xla("Use Location Assignment");
+    $popoverLocation = xla("If desired, select a different location other than your default. Remember that the selected location must have been assigned to you in your Weno account. If it hasn't been assigned to you, you will not be able to prescribe from that location.");
     ?>
-    <div id="trigger-debug" class="form-group mb-0 small">
-        <div class="input-group">
+    <div id="trigger-debug" class="form-group mb-0">
+        <div class="input-group small">
             <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Primary"); ?>:</b>
             </label>
@@ -141,7 +194,7 @@ if ($hasErrors) { ?>
                 <?php } ?>
             </select>
         </div>
-        <div class="input-group">
+        <div class="input-group small">
             <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Alternate"); ?>:</b>
             </label>
@@ -162,17 +215,32 @@ if ($hasErrors) { ?>
                 <?php } ?>
             </select>
         </div>
+        <div class="form-group">
+            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
+                <b><?php echo xlt("Use Location"); ?>:</b>
+            </label>
+            <select id="facilitySelect" name="facilitySelect" class="form-control-sm mt-2 border-0 bg-light text-dark">
+                <?php foreach ($facilities as $facility) {
+                    $flag = $facility['id'] == $defaultUserFacility['facility_id'] ? 'selected' : '';
+                    $default = !empty($flag) ? '(Default)' : '';
+                    ?>
+                    <option value="<?php echo attr($facility['weno_id']); ?>"
+                        <?php echo $flag; ?>><?php echo text($default) . ' ' . text($facility['name']) . ' ' . text($facility['weno_id']); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
         <script>
-            $(document).ready(function () {
-                $('[data-toggle="popover"]').popover({
-                    trigger: 'hover',
-                    placement: 'top'
-                });
-            });
         </script>
     </div>
 <?php } ?>
 <script>
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover({
+            trigger: 'hover',
+            placement: 'top'
+        });
+    });
 
     function refreshDemographics() {
         top.restoreSession();
@@ -264,26 +332,30 @@ if ($hasErrors) { ?>
     });
 </script>
 
-<div class="table-responsive">
+<div class="table-responsive drug-table" style="max-height: 175px; overflow-y: auto;">
     <table class="table table-sm table-hover table-striped w-100">
         <thead class="thead thead-light border-bottom">
         <tr>
-            <th><?php echo xlt("Drug Name"); ?></th>
+            <th><?php echo xlt("Weno Prescribed Drug"); ?></th>
             <th><?php echo xlt("Prescriber"); ?></th>
+            <th><?php echo xlt("Location"); ?></th>
+            <th><?php echo xlt("Date"); ?></th>
         </tr>
         </thead>
         <tbody>
         <?php
-        if (empty($res->_numOfRows)) {
+        if (empty($resDrugs->_numOfRows)) {
             echo "<tr>" .
                 "<td>" . xlt("No Weno eRx prescriptions found.") . "</td>" .
                 "<td>" . xlt("Verify from your Weno account if any are expected.") . "</td>" .
-                "</tr>";
+                "<td> </td></tr>";
         }
-        while ($row = sqlFetchArray($res)) { ?>
+        while ($row = sqlFetchArray($resDrugs)) { ?>
             <tr>
                 <td><?php echo text($row["drug"]); ?></td>
-                <td><?php echo text(getProviderByWenoId($row['external_id'], $row['provider_id'])); ?></td>
+                <td><?php echo text(getProviderByWenoId(null, $row['provider_id'])); ?></td>
+                <td><?php echo text($validate->parseExternalId($row["external_id"])[1]); ?></td>
+                <td><?php echo text($row["date_added"]); ?></td>
             </tr>
         <?php } ?>
         </tbody>

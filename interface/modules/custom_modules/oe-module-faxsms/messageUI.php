@@ -653,6 +653,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                             <button type="button" class="btn btn-primary btn-search" onclick="retrieveMsgs(event,this)" title="<?php echo xla('Click to get current history.') ?>"></button>
                         </div>
                     </form>
+                    <?php if ($clientApp->verifyAcl('admin', 'demo')) { ?>
                     <div class="nav-item dropdown ml-auto">
                         <button class="btn btn-lg btn-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                             <?php echo xlt('Account Actions'); ?><span class="caret"></span>
@@ -668,6 +669,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                         <button type="button" class="nav-item etherfax d-none btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
                         </button>
                     </div>
+                    <?php } ?>
                 </div><!-- /.navbar-collapse -->
         </nav>
     </div>

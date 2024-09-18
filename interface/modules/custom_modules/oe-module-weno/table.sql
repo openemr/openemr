@@ -59,6 +59,7 @@ CREATE TABLE `weno_download_log` (
     `value`      VARCHAR(63)  NOT NULL,
     `status`     VARCHAR(255) NOT NULL,
     `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `data_in_context` TEXT,
     PRIMARY KEY (`id`),
     KEY `value` (`value`)
 ) ENGINE = InnoDB;
@@ -95,4 +96,8 @@ ALTER TABLE `weno_assigned_pharmacy` ADD `is_history` TINYINT(1) NOT NULL DEFAUL
 
 #IfMissingColumn weno_assigned_pharmacy search_persist
 ALTER TABLE `weno_assigned_pharmacy` ADD `search_persist` TINYTEXT;
+#EndIf
+
+#IfMissingColumn weno_download_log data_in_context
+ALTER TABLE `weno_download_log` ADD `data_in_context` TEXT;
 #EndIf

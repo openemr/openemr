@@ -19,6 +19,7 @@ function sync_weno() {
         } else {
             // setting alert details
             wenoAlertManager("success", syncAlert, syncIcon);
+            refreshDemographics();
         }
     }).catch(error => {
         console.log(error.message)
@@ -26,13 +27,32 @@ function sync_weno() {
     });
 }
 
-function wenoAlertManager(option, element, spinElement) {
+function sync_report(pid = '') {
+    top.restoreSession();
+    const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
+    let formData = new FormData();
+    formData.append("key", "sync");
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Server responded with an error status: ' + response.status);
+        }
+        refreshDemographics();
+    }).catch(error => {
+        console.log(error.message);
+    });
+}
+
+function wenoAlertManager(option, element, spinElement, msg = "Successfully updated") {
     top.restoreSession();
     spinElement.classList.remove("fa-spin");
     if (option === "success") {
         element.classList.remove("d-none");
         element.classList.add("alert", "alert-success");
-        element.innerHTML = "Successfully updated";
+        element.innerHTML = msg;
         setTimeout(
             function () {
                 element.classList.add("d-none");

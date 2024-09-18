@@ -43,13 +43,14 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         });
     </script>
     <script>
-        function downloadPharmacies(daily){
+        function downloadPharmacies(daily) {
             if (!window.confirm(
                 xl("This import takes anywhere from a couple seconds to less than a minute depending on your connection speed but will normally take 25-30 seconds for a full import.") +
                 "\n\n" + xl("Do you want to continue?")
             )) {
                 return false;
             }
+            top.restoreSession();
             let notchPhar = daily === 'Y' ? $('#notch-pharm') : $('#notch-pharm-full');
             notchPhar.removeClass("hide");
             $('#btn-pharm').attr("disabled", true);
@@ -64,7 +65,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                         let errorMsgSpan = document.getElementById('error-msg');
                         errorMsgSpan.textContent = jsText(data);
                         $("#alertDiv").removeClass("d-none");
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.location.replace(window.location.href);
                         }, 10000);
                     }
@@ -83,7 +84,9 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 }
             });
         }
-        function downloadPresLog(){
+
+        function downloadPresLog() {
+            top.restoreSession();
             $('#notch-presc').removeClass("hide");
             $('#btn-pharm').attr("disabled", true);
             $('#btn-pharm-full').attr("disabled", true);
@@ -91,14 +94,14 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $.ajax({
                 url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
                 type: "GET",
-                data: {key:'downloadLog'},
+                data: {key: 'downloadLog'},
                 success: function (data) {
                     if (data.includes('Error') || data.includes('failed')) {
                         let alertDiv = document.getElementById('alertDiv');
                         let errorMsgSpan = document.getElementById('error-msg');
                         errorMsgSpan.textContent = jsText(data);
                         $("#alertDiv").removeClass("d-none");
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.location.replace(window.location.href);
                         }, 10000);
                     }
@@ -117,11 +120,21 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 }
             });
         }
+
+        function areYouSure() {
+            let yn = confirm('<?php echo xlt("Are you sure you want to download logs?"); ?>');
+            if (yn) {
+                top.restoreSession();
+                let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php?key=" + encodeURIComponent('downloadStatusLog')
+                window.location.href = url;
+            }
+            return false;
+        }
     </script>
 </head>
 <body>
     <div class="container mt-2">
-        <h1><?php print xlt("Weno Downloads Management") ?></h1>
+        <h2><?php print xlt("Weno Downloads Management") ?></h2>
     </div>
     <div class="container mt-3" id="pharmacy">
         <?php
@@ -130,16 +143,20 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         if ($backGroundTask ?? false) {
             echo '<h6 class="mb-2">';
             while ($task = sqlFetchArray($backGroundTask)) {
-                $title = $task['title'];
+                if ($task['name'] === 'WenoExchangePharmacies') {
+                    $title = xlt("Pharmacy Directory");
+                } else {
+                    $title = xlt("Sync Report");
+                }
                 $nextRun = $task['next_run'];
-                echo '<span class="mr-5 text-success">' . text($title) . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
+                echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }
             echo '</h6>';
         }
         ?>
         <h3><?php print xlt("Weno Downloads") ?></h3>
         <div>
-            <cite class="text-info text-center p-1 mx-1"><?php echo xlt("Use this section to download Weno Pharmacy Directory and Weno Prescription Log"); ?></cite>
+            <cite class="text-info text-center p-1 mx-1"><?php echo xlt("Use this section to download Weno Pharmacy Directory and Weno Sync Report"); ?></cite>
         </div>
         <div id="alertDiv" class="alert alert-danger d-none">
             <button type="button" class="close" onclick="window.location.replace(window.location.href);">&times;</button>
@@ -157,7 +174,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             </thead>
             <tbody>
             <tr>
-                <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
+                <td><?php echo xlt("Pharmacy Directory"); ?></td>
                 <td><?php echo text($pharm_log['created_at'] ?? 'Never'); ?></td>
                 <td><?php echo xlt($pharm_log['status'] ?? 'Needs download'); ?></td>
                 <td>
@@ -176,12 +193,12 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 </td>
             </tr>
             <tr>
-                <td><?php echo xlt("Prescription log"); ?></td>
+                <td><?php echo xlt("Sync Report"); ?></td>
                 <td><?php echo text($pres_log['created_at'] ?? ''); ?></td>
                 <td><?php echo xlt($pres_log['status'] ?? ''); ?></td>
                 <td>
                     <button type="button" id="presc-btn" onclick="downloadPresLog();" class="btn btn-primary btn-sm">
-                        <?php echo xlt("Download") ?>
+                        <?php echo xlt("Sync Report Now") ?>
                         <span class="hide" id="notch-presc"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
                     </button>
                 </td>
@@ -190,9 +207,9 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         </table>
     </div>
     <div class="container mt-2">
-        <h3 class="mb-0"><?php echo xlt('Weno Download Log'); ?></h3>
+        <h3 class="mb-0"><?php echo xlt('Activity Status Log'); ?></h3>
         <cite class="h6 text-info p-1 mx-1">
-            <span><?php echo xlt("Note: Only prescription logs are deleted. Pharmacy status and errors are preserved."); ?></span>
+            <span><?php echo xlt("Note: Log only maintains the last 60 days of activity."); ?></span>
         </cite>
         <form method="GET" class="mb-2">
             <div class="form-row">
@@ -208,10 +225,11 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                     <label>&nbsp;</label>
                     <div>
                         <button type="submit" name="search" class="btn btn-primary"><?php echo xlt("Filter Logs"); ?></button>
-                        <button type="submit" onclick="function areYouSure() {
-                            top.restoreSession();
-                            return confirm('<?php echo xlt("Are you sure you want to delete date range logs?"); ?>');
-                            } return areYouSure();" name="delete" class="btn btn-danger"><?php echo xlt("Delete Date Range"); ?></button>
+                        <button type="button" id="log-btn" onclick="return areYouSure();" name="archive" class="btn btn-danger"><?php echo xlt("Download Log History"); ?>
+                            <span class="hide" id="notch-log">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -220,30 +238,21 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         $fmtStartDate = date('Y-m-d', strtotime($startDate));
         $fmtEndDate = date('Y-m-d', strtotime($endDate));
 
-        if (isset($_GET['delete']) || isset($_GET['search'])) {
+        if (isset($_GET['search'])) {
             if ($fmtStartDate > $fmtEndDate) {
                 echo '<div class="alert alert-danger" role="alert">' . xlt("End date must be after start date!") . '</div>';
                 exit;
             }
         }
-        if (isset($_GET['delete'])) {
-            if ($startDate == date('m/d/Y')) {
-                echo '<div class="alert alert-danger" role="alert">' . xlt("Cannot delete today's logs!") . '</div>';
-                exit;
-            }
-            if ($endDate == date('m/d/Y')) {
-                $fmtEndDate = date('m/d/Y', strtotime('-1 day')); // only up till yesterday
-            }
-            // keep pharmacy and error history. Only delete prescription history as only concerned with current status.
-            // TODO possibly allow cleaning of all logs separate button.
-            $sql = "DELETE FROM `weno_download_log` WHERE `created_at` BETWEEN ? AND ? AND `value` = 'prescription'";
-            sqlStatement($sql, [$fmtStartDate . ' 00:00:00', $fmtEndDate . ' 23:59:59']);
-            $message = '<div class="alert alert-success alert-dismissible fade show" role="alert">' .
-                xlt("Prescription Logs deleted successfully. Showing results.") .
-                '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-            echo $message;
+        if (isset($_GET['archive'])) {
         }
-        if (isset($_GET['search']) || isset($_GET['delete'])) {
+
+        if (isset($_GET['search'])) {
+            // Delete all entries older than 60 days
+            $until = date('Y-m-d', strtotime('-60 days'));
+            $sql = "DELETE FROM `weno_download_log` WHERE `created_at` < ?";
+            sqlStatement($sql, [$until . ' 00:00:00']);
+
             $sql = "SELECT `id`, `value`, `status`, `created_at` FROM `weno_download_log` WHERE `created_at` BETWEEN ? AND ? ORDER BY `created_at` DESC, `id` DESC";
             $result = sqlStatement($sql, [$fmtStartDate . ' 00:00:00', $fmtEndDate . ' 23:59:59']);
             // Display logs in a table
@@ -274,10 +283,8 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 echo '<div class="alert alert-info" role="alert">' . xlt("No logs found within the selected date range.") . '</div>';
             }
         }
-        unset($_GET['delete']);
+        unset($_GET['archive']);
         ?>
     </div>
 </body>
-
 </html>
-
