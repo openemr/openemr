@@ -663,7 +663,7 @@ class X125010837P
         $proccount = $claim->procCount();
         $clm_total_charges = 0;
         for ($prockey = 0; $prockey < $proccount; ++$prockey) {
-            $clm_total_charges += $claim->cptCharges($prockey);
+            $clm_total_charges += floatval($claim->cptCharges($prockey));
         }
         if (!$clm_total_charges) {
             $log .= "*** This claim has no charges!\n";
