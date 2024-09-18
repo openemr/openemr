@@ -51,7 +51,7 @@ class PatientServiceTest extends TestCase
      */
     public function testInsertFailure()
     {
-        $this->patientFixture["fname"] = "A";
+        $this->patientFixture["fname"] = "";
         $this->patientFixture["DOB"] = "12/27/2017";
         unset($this->patientFixture["sex"]);
 
@@ -93,7 +93,7 @@ class PatientServiceTest extends TestCase
     {
         $this->patientService->insert($this->patientFixture);
 
-        $this->patientFixture["fname"] = "A";
+        $this->patientFixture["fname"] = "";
 
         $actualResult = $this->patientService->update("not-a-uuid", $this->patientFixture);
 
