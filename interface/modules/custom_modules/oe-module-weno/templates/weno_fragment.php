@@ -116,7 +116,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
         let newLocation = facilitySelect.value;
 
         if (!newLocation) {
-            alert("Please select a facility before prescribing.");
+            alert(<?php echo xlj("Please select a facility before prescribing."); ?>);
             return;
         }
         // Redirect to the new location
@@ -146,7 +146,7 @@ if ($reSync === true) {
     $reSync = '';
     $_GET['resync'] = '';
     unset($_GET['resync']);
-    echo "<script>sync_report($pid)</script>";
+    echo "<script>sync_report(<?php echo js_escape($pid); ?>)</script>";
     echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
 }
 ?>
@@ -169,7 +169,7 @@ if ($hasErrors) { ?>
 <?php if ($pharmacyCount > 0) {
     $titleMessage = xla("Quick Pharmacy Assignment");
     $popoverContent = xla("Convenience feature for assigning pharmacy without having to edit Demographic Choices. By clicking the label or pharmacy name, you may select a pharmacy from a list of all currently assigned pharmacies of patients. The selected pharmacy will then be assigned to current patient.");
-    $titleMessage = xla("Use Location Assignment");
+    $titleLocation = xla("Use Location Assignment");
     $popoverLocation = xla("If desired, select a different location other than your default. Remember that the selected location must have been assigned to you in your Weno account. If it hasn't been assigned to you, you will not be able to prescribe from that location.");
     ?>
     <div id="trigger-debug" class="form-group mb-0">
