@@ -344,115 +344,115 @@ if (empty($state)) {
 ?>
 <html>
 <head>
-<title>OpenEMR Setup Tool</title>
-<!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
-<link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
-<script src="public/assets/jquery/dist/jquery.min.js"></script>
-<script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
-<link rel="shortcut icon" href="public/images/favicon.ico" />
+    <title>OpenEMR Setup Tool</title>
+    <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
+    <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
+    <script src="public/assets/jquery/dist/jquery.min.js"></script>
+    <script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="shortcut icon" href="public/images/favicon.ico" />
 
-<style>
-    .noclone { }
-    table.phpset {
-        border-collapse:collapse;
-    }
-    table.phpset td, table.phpset th {
-        font-size:9pt;
-        border:1px solid gray;
-        padding:2px;
-    }
-    .table.no-border tr td, .table.no-border tr th {
-        border-width: 0;
-    }
-    td {
-        font-size:10pt;
-    }
-    .inputtext {
-         padding-left:2px;
-         padding-right:2px;
-    }
-
-    .button {
-         font-family:sans-serif;
-         font-size:9pt;
-         font-weight:bold;
-    }
-
-    .label-div > a {
-        display:none;
-    }
-    .label-div:hover > a {
-       display:inline-block;
-    }
-    div[id$="_info"] {
-        background: #F7FAB3;
-        padding: 20px;
-        margin: 10px 15px 0px 15px;
-    }
-    div[id$="_info"] > a {
-        margin-left:10px;
-    }
-    .checkboxgroup {
-      display: inline-block;
-      text-align: center;
-    }
-    .checkboxgroup label {
-      display: block;
-    }
-    .oe-pull-away{
-        float:right;
-    }
-    .oe-help-x {
-        color: grey;
-        padding: 0 5px;
-    }
-    .oe-superscript {
-        position: relative;
-        top: -.5em;
-        font-size: 70%!important;
-    }
-    .oe-setup-legend{
-        background-color: #f5f5f5;
-        padding:0 10px;
-    }
-    .button-wait {
-        color: grey;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-    @media only screen {
-        fieldset > [class*="col-"] {
-            width: 100%;
-            text-align:left!Important;
+    <style>
+        .noclone { }
+        table.phpset {
+            border-collapse:collapse;
         }
-    }
-</style>
-<script>
-// onclick handler for "clone database" checkbox
-function cloneClicked() {
- var cb = document.forms[0].clone_database;
- $('.noclone').css('display', cb.checked ? 'none' : 'block');
-}
-</script>
+        table.phpset td, table.phpset th {
+            font-size:9pt;
+            border:1px solid gray;
+            padding:2px;
+        }
+        .table.no-border tr td, .table.no-border tr th {
+            border-width: 0;
+        }
+        td {
+            font-size:10pt;
+        }
+        .inputtext {
+            padding-left:2px;
+            padding-right:2px;
+        }
+
+        .button {
+            font-family:sans-serif;
+            font-size:9pt;
+            font-weight:bold;
+        }
+
+        .label-div > a {
+            display:none;
+        }
+        .label-div:hover > a {
+            display:inline-block;
+        }
+        div[id$="_info"] {
+            background: #F7FAB3;
+            padding: 20px;
+            margin: 10px 15px 0px 15px;
+        }
+        div[id$="_info"] > a {
+            margin-left:10px;
+        }
+        .checkboxgroup {
+            display: inline-block;
+            text-align: center;
+        }
+        .checkboxgroup label {
+            display: block;
+        }
+        .oe-pull-away{
+            float:right;
+        }
+        .oe-help-x {
+            color: grey;
+            padding: 0 5px;
+        }
+        .oe-superscript {
+            position: relative;
+            top: -.5em;
+            font-size: 70%!important;
+        }
+        .oe-setup-legend{
+            background-color: #f5f5f5;
+            padding:0 10px;
+        }
+        .button-wait {
+            color: grey;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        @media only screen {
+            fieldset > [class*="col-"] {
+                width: 100%;
+                text-align:left!Important;
+            }
+        }
+    </style>
+    <script>
+        // onclick handler for "clone database" checkbox
+        function cloneClicked() {
+            var cb = document.forms[0].clone_database;
+            $('.noclone').css('display', cb.checked ? 'none' : 'block');
+        }
+    </script>
 
 </head>
 <body>
-    <nav class="navbar navbar-expand navbar-light bg-light">
-       <div class="container">
+<nav class="navbar navbar-expand navbar-light bg-light">
+    <div class="container">
         <a class="navbar-brand" href="#">OpenEMR Setup</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
-                    </li>
-                </ul>
-            </div>
-       </div>
-    </nav>
-    <div class='mt-3 container'>
-        <div class="row">
-            <div class="col-12">
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help">Help</span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class='mt-3 container'>
+    <div class="row">
+        <div class="col-12">
             <?php
             $error = "<span class='text-danger font-weight-bold'>ERROR</span>";
             $caution = "<span class='text-danger font-weight-bold'>CAUTION</span>";
@@ -461,8 +461,8 @@ function cloneClicked() {
 
             if (strtolower(ini_get('register_globals')) != 'off' && (bool) ini_get('register_globals')) {
                 echo "$caution: It appears that you have register_globals enabled in your php.ini\n" .
-                "configuration file.  This causes unacceptable security risks.  You must\n" .
-                "turn it off before continuing with installation.\n";
+                    "configuration file.  This causes unacceptable security risks.  You must\n" .
+                    "turn it off before continuing with installation.\n";
                 exit(1);
             }
 
@@ -490,45 +490,45 @@ function cloneClicked() {
             <?php
             if ($state == 7) {
                 ?>
-            <h3 class="mb-3 border-bottom">Final step - Success</h3>
-            <div class="jumbotron p-5">
-            <p>Congratulations! OpenEMR is now installed.</p>
-            <ul>
-                <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
-                    OpenEMR's admin->acl menu.</li>
-                <li>Reviewing <code> <?php echo text($OE_SITE_DIR); ?>/config.php </code> is a good idea. This file
-                    contains some settings that you may want to change.</li>
-                <li>There's much information and many extra tools bundled within the OpenEMR installation directory.
-                    Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
-                <li>To ensure a consistent look and feel throughout the application,
-                    <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> and <a href="https://www.google.com/chrome/browser/desktop/index.html">Chrome</a> are recommended. The OpenEMR development team exclusively tests with modern versions of these browsers.</li>
-                <li>The OpenEMR project home page, documentation, and forums can be found at <a href = "https://www.open-emr.org" rel='noopener' target="_blank">https://www.open-emr.org</a></li>
-                <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:hello@open-emr.org">hello@open-emr.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
-            </ul>
-            <p>We recommend you print these instructions for future reference.</p>
-                <?php
-                echo "<p> The selected theme is :</p>";
-                $installer->displayNewThemeDiv();
-                if (empty($installer->clone_database)) {
-                    echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'" . text($installer->iuser) . "'</span> and the password is <span class='text-primary'>'" . text($installer->iuserpass) . "'</span></b></p>";
-                } else {
-                    echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'" . text($installer->source_site_id) . "'</span></b></p>";
-                }
-                echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
-                echo "<p>In Linux use the following command:</p>";
-                echo "<p><code>sudo apachectl -k restart</code></p>";
+                <h3 class="mb-3 border-bottom">Final step - Success</h3>
+                <div class="jumbotron p-5">
+                    <p>Congratulations! OpenEMR is now installed.</p>
+                    <ul>
+                        <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
+                            OpenEMR's admin->acl menu.</li>
+                        <li>Reviewing <code> <?php echo text($OE_SITE_DIR); ?>/config.php </code> is a good idea. This file
+                            contains some settings that you may want to change.</li>
+                        <li>There's much information and many extra tools bundled within the OpenEMR installation directory.
+                            Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
+                        <li>To ensure a consistent look and feel throughout the application,
+                            <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> and <a href="https://www.google.com/chrome/browser/desktop/index.html">Chrome</a> are recommended. The OpenEMR development team exclusively tests with modern versions of these browsers.</li>
+                        <li>The OpenEMR project home page, documentation, and forums can be found at <a href = "https://www.open-emr.org" rel='noopener' target="_blank">https://www.open-emr.org</a></li>
+                        <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:hello@open-emr.org">hello@open-emr.org</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
+                    </ul>
+                    <p>We recommend you print these instructions for future reference.</p>
+                    <?php
+                    echo "<p> The selected theme is :</p>";
+                    $installer->displayNewThemeDiv();
+                    if (empty($installer->clone_database)) {
+                        echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'" . text($installer->iuser) . "'</span> and the password is <span class='text-primary'>'" . text($installer->iuserpass) . "'</span></b></p>";
+                    } else {
+                        echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'" . text($installer->source_site_id) . "'</span></b></p>";
+                    }
+                    echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
+                    echo "<p>In Linux use the following command:</p>";
+                    echo "<p><code>sudo apachectl -k restart</code></p>";
 
-                ?>
-            <p>Click to start using OpenEMR.</p>
-            <div class="row">
-                <div class="col-12">
-                    <a href='./?site=<?php echo attr_url($site_id); ?>' class='btn btn-primary'>
-                        <i class="fas fa-chevron-right"></i> Start
-                    </a>
+                    ?>
+                    <p>Click to start using OpenEMR.</p>
+                    <div class="row">
+                        <div class="col-12">
+                            <a href='./?site=<?php echo attr_url($site_id); ?>' class='btn btn-primary'>
+                                <i class="fas fa-chevron-right"></i> Start
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
-
-            </div>
                 <?php
                 $installer->setCurrentTheme();
 
@@ -899,7 +899,7 @@ STP2TBLTOP2;
                                 <div>
                                     <select name='source_site_id'id='source_site_id' class='form-control'>
 SOURCESITETOP;
-                                            echo $source_site_top . "\r\n";
+                        echo $source_site_top . "\r\n";
                         foreach ($siteslist as $sfname) {
                             echo "<option value='" . attr($sfname) . "'";
                             if ($sfname == 'default') {
@@ -908,7 +908,7 @@ SOURCESITETOP;
 
                             echo ">" . text($sfname) . "</option>";
                         }
-                                    $source_site_bot = <<<SOURCESITEBOT
+                        $source_site_bot = <<<SOURCESITEBOT
                                     </select>
 
                                 </div>
@@ -1444,8 +1444,8 @@ TOTP;
                         echo "<input type='hidden' name='clone_database' value='" . attr($installer->clone_database) . "' />";
                         echo "<input name='source_site_id' type='hidden' value='" . attr($installer->source_site_id) . "' />";
                     }
-                                $btn_text_esc = text($btn_text);
-                                $form_bottom = <<<FRMBOT
+                    $btn_text_esc = text($btn_text);
+                    $form_bottom = <<<FRMBOT
                                 <div class="form-row">
                                     <div class="col-12">
                                         <button type='submit' id='step-4-btn' class="btn btn-primary" value='Continue'>
@@ -1456,7 +1456,7 @@ TOTP;
                                 </form>
                                 </div>
 FRMBOT;
-                                echo $form_bottom . "\r\n";
+                    echo $form_bottom . "\r\n";
                     break;
 
                 case 4:
@@ -1701,18 +1701,18 @@ STP4TOP;
                                     </li>
                                 </ul>
 TOP;
-                                echo $top;
+                    echo $top;
                     if ($checkPermissions) {
                         echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";
                         echo "<p class='text-success m-0'>Ensuring following file is world-writable...</p>\n";
                         $errorWritable = 0;
                         foreach ($writableFileList as $tempFile) {
                             if (is_writable($tempFile)) {
-                                    echo "<code class='ml-5'>" . text(realpath($tempFile)) . "</code> file is <span class='text-success font-weight-bold'>ready</span><br /><br />\n";
+                                echo "<code class='ml-5'>" . text(realpath($tempFile)) . "</code> file is <span class='text-success font-weight-bold'>ready</span><br /><br />\n";
                             } else {
-                                    echo "<p><span class='text-danger'>UNABLE</span> to open file '" . text(realpath($tempFile)) . "' for writing.<br />\n";
-                                    echo "(configure file permissions; see below for further instructions)</p>\n";
-                                    $errorWritable = 1;
+                                echo "<p><span class='text-danger'>UNABLE</span> to open file '" . text(realpath($tempFile)) . "' for writing.<br />\n";
+                                echo "(configure file permissions; see below for further instructions)</p>\n";
+                                $errorWritable = 1;
                             }
                         }
 
@@ -1796,61 +1796,61 @@ FRM;
 FRM;
                         echo $form . "\r\n";                        }
             }
-                        $bot = <<<BOT
+            $bot = <<<BOT
                                     </div>
                                 </div>
                             </div>
 BOT;
-                        echo $bot . "\r\n";
+            echo $bot . "\r\n";
             ?>
 
 
-    </div><!--end of container div -->
-    <?php $installer->setupHelpModal();?>
-    <script>
-        //jquery-ui tooltip
-        $(function () {
-            $('.icon-tooltip').prop( "title", "Click to see more information").tooltip({
-                show: {
-                    delay: 700,
-                    duration: 0
-                }
-            });
-            $('.enter-details-tooltip').prop( "title", "Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section").tooltip();
-            $('.2fa-section-tooltip').prop( "title", "Two factor authentication prevents unauthorized access to openEMR thus improves security. It is optional. More information is available in the help file under Step 2 Database and OpenEMR Initial User Setup Details.").tooltip();
-
-
-        });
-    </script>
-    <script>
-        $(function () {
-            $("input[type='radio']").click(function() {
-                var radioValue = $("input[name='stylesheet']:checked").val();
-                var imgPath = "public/images/stylesheets/";
-                var currStyle = $("#current_theme_title").text();
-                var currStyleTitle = currStyle;
-                currStyle = currStyle.replace(/\b\w/g, l => l.toLowerCase());
-                currStyle = currStyle.split(" ");
-                currStyle = currStyle.join("_");
-                currStyle = "style_" + currStyle + ".png";
-                if (radioValue) {
-                    var currThemeText = radioValue.split("_");
-                    currThemeText = currThemeText.join(" ");
-                    currThemeText = currThemeText.replace(/\b\w/g, l => l.toUpperCase());
-                    var styleSelected = confirm("You have selected style  - " + currThemeText + "\n" + "Click OK to apply selection");
-                    if (styleSelected) {
-                        $("#current_theme").attr("src", imgPath + "style_" + radioValue + ".png");
-                        $("#current_theme_title").text(currThemeText);
-                        $("#new_theme").val("style_" + radioValue + ".css");
-                    } else {
-                        $("#current_theme").attr("src", imgPath + currStyle);
-                        $("#current_theme_title").text(currStyleTitle);
-                        $(this).prop("checked", false);
+        </div><!--end of container div -->
+        <?php $installer->setupHelpModal();?>
+        <script>
+            //jquery-ui tooltip
+            $(function () {
+                $('.icon-tooltip').prop( "title", "Click to see more information").tooltip({
+                    show: {
+                        delay: 700,
+                        duration: 0
                     }
-                }
+                });
+                $('.enter-details-tooltip').prop( "title", "Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section").tooltip();
+                $('.2fa-section-tooltip').prop( "title", "Two factor authentication prevents unauthorized access to openEMR thus improves security. It is optional. More information is available in the help file under Step 2 Database and OpenEMR Initial User Setup Details.").tooltip();
+
+
             });
-            $('.check').click(function() {
-                $('.check').not(this).prop('checked', false);
+        </script>
+        <script>
+            $(function () {
+                $("input[type='radio']").click(function() {
+                    var radioValue = $("input[name='stylesheet']:checked").val();
+                    var imgPath = "public/images/stylesheets/";
+                    var currStyle = $("#current_theme_title").text();
+                    var currStyleTitle = currStyle;
+                    currStyle = currStyle.replace(/\b\w/g, l => l.toLowerCase());
+                    currStyle = currStyle.split(" ");
+                    currStyle = currStyle.join("_");
+                    currStyle = "style_" + currStyle + ".png";
+                    if (radioValue) {
+                        var currThemeText = radioValue.split("_");
+                        currThemeText = currThemeText.join(" ");
+                        currThemeText = currThemeText.replace(/\b\w/g, l => l.toUpperCase());
+                        var styleSelected = confirm("You have selected style  - " + currThemeText + "\n" + "Click OK to apply selection");
+                        if (styleSelected) {
+                            $("#current_theme").attr("src", imgPath + "style_" + radioValue + ".png");
+                            $("#current_theme_title").text(currThemeText);
+                            $("#new_theme").val("style_" + radioValue + ".css");
+                        } else {
+                            $("#current_theme").attr("src", imgPath + currStyle);
+                            $("#current_theme_title").text(currStyleTitle);
+                            $(this).prop("checked", false);
+                        }
+                    }
+                });
+                $('.check').click(function() {
+                    $('.check').not(this).prop('checked', false);
                     if($('.check:checked').val() == 'show_theme'){
                         $(".hideaway").show();
                     } else if($('.check:checked').val() == 'keep_current'){
@@ -1863,29 +1863,29 @@ BOT;
                         $(".hide_button").hide();
                         $(".hideaway").hide();
                     }
-            });
-            $('.wait').removeClass('button-wait');
+                });
+                $('.wait').removeClass('button-wait');
 
-            $( "#create_db_button" ).hover(
-                function() {
-                    if (($('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked'))){
+                $( "#create_db_button" ).hover(
+                    function() {
+                        if (($('#iuserpass' ).val().length > 11 && $('#iuser' ).val().length > 11 ) || ($('#clone_database').prop('checked'))){
 
-                        $("button").click(function(){
-                           $(".oe-spinner").css("visibility", "visible");
-                        });
+                            $("button").click(function(){
+                                $(".oe-spinner").css("visibility", "visible");
+                            });
 
-                        $('.wait').click(function(){
-                             $('.wait').addClass('button-wait');
-                        });
+                            $('.wait').click(function(){
+                                $('.wait').addClass('button-wait');
+                            });
+                        }
                     }
-                }
-            );
+                );
 
-            $("#step-4-btn").click(function(){
-               $(".oe-spinner").css("visibility", "visible");
-               $(this).addClass('button-wait');
+                $("#step-4-btn").click(function(){
+                    $(".oe-spinner").css("visibility", "visible");
+                    $(this).addClass('button-wait');
+                });
             });
-        });
-    </script>
+        </script>
 </body>
 </html>
