@@ -18,52 +18,31 @@ use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 /**
- * Download Weno Pharmacy data.
+ * Download Weno Pharmacy data called by background service.
  */
-function downloadWenoPharmacy()
+function downloadWenoPharmacy(): void
 {
+    $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
-    $isKey = $wenoValidate->validateAdminCredentials(true, "pharmacy");
+    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
 
+    $isKey = $wenoValidate->validateAdminCredentials(true, "pharmacy");
     if ((int)$isKey >= 998) {
         handleDownloadError("Background Initiated Pharmacy download attempt failed. Internet problem!");
     }
-
     if ($isKey === false) {
         requireGlobals();
     }
 
-    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
-    $value = $localPharmacyJson->checkBackgroundService();
-
-    if ($value == 'active' || $value == 'live') {
-        $wenoLog = new WenoLogService();
-        $wenoLog->insertWenoLog("pharmacy", "Download started");
-
-        performPharmacyDownload($localPharmacyJson);
-    }
-}
-
-/**
- * Perform the pharmacy data download.
- *
- * @param WenoPharmaciesJson $localPharmacyJson
- */
-function performPharmacyDownload(WenoPharmaciesJson $localPharmacyJson)
-{
+    $localPharmacyJson->checkBackgroundService();
+    $wenoLog->insertWenoLog("pharmacy", "Download started");
     error_log('Background Initiated Pharmacy Download Started.');
 
-    $status = $localPharmacyJson->storePharmacyDataJson();
+    // The breadwinner!
+    $status = $localPharmacyJson->storePharmacyData();
 
-    EventAuditLogger::instance()->newEvent(
-        "pharmacy_background",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
-        1,
-        "Background Initiated Pharmacy Download Completed with Status:" . ($status)
-    );
-
-    error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
+    EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
+    error_log('Background Initiated Weno pharmacies Updated:' . text($status) . " Pharmacies");
 }
 
 /**

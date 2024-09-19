@@ -16,6 +16,5 @@ $module_config = 1;
 ?>
 
 <div id="set-services">
-    <h3 class="text-center"><?php echo xlt("Select Services"); ?></h3>
     <iframe src="library/setup_services.php?module_config=1" style="border:none;height:100vh;width:100%;"></iframe>
 </div>

@@ -172,6 +172,53 @@ $mode = $_REQUEST['mode'] ?? null;
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
                                 value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
                         </div>
+                    <?php } elseif ($service == '1') {
+                        ?> <!-- RC -->
+                        <div class="checkbox">
+                            <label>
+                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                <?php echo xlt("Production Check") ?>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
+                            <input id="form_username" type="text" name="username" class="form-control"
+                                required="required" value='<?php echo attr($c['username']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
+                            <input id="form_password" type="password" name="password" class="form-control"
+                                required="required" value='<?php echo attr($c['password']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
+                            <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
+                                value='<?php echo attr($c['smsNumber']) ?>' required />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
+                            <input id="form_key" type="text" name="key" class="form-control"
+                                required="required" value='<?php echo attr($c['appKey']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
+                            <input id="form_secret" type="password" name="secret" class="form-control"
+                                required="required" value='<?php echo attr($c['appSecret']) ?>' />
+                        </div>
+                        <div class=" form-group">
+                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
+                            <input id="form_nhours" type="text" name="smshours" class="form-control"
+                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
+                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
+                            <span style="font-size:12px;font-style: italic">&nbsp;
+                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
+                            </span>
+                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
                     <?php } ?>
                     <div>
                         <span class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </span>

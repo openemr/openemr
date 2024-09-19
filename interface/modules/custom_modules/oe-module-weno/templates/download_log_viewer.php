@@ -43,16 +43,20 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         });
     </script>
     <script>
-        function downloadPharmacies(){
+        function downloadPharmacies(daily){
             if (!window.confirm(
-                xl("This download may take several minutes depending on connection speed but normally is under one minute. Do you want to continue?")
+                xl("This import takes anywhere from a couple seconds to less than a minute depending on your connection speed but will normally take 25-30 seconds for a full import.") +
+                "\n\n" + xl("Do you want to continue?")
             )) {
                 return false;
             }
-            $('#notch-pharm').removeClass("hide");
-            $('#pharm-btn').attr("disabled", true);
+            let notchPhar = daily === 'Y' ? $('#notch-pharm') : $('#notch-pharm-full');
+            notchPhar.removeClass("hide");
+            $('#btn-pharm').attr("disabled", true);
+            $('#btn-pharm-full').attr("disabled", true);
+            $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily),
                 type: "GET",
                 success: function (data) {
                     if (data.includes('Error') || data.includes('failed')) {
@@ -64,17 +68,16 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                             window.location.replace(window.location.href);
                         }, 10000);
                     }
-                    $('#notch-pharm').addClass("hide");
-                    $('#pharm-btn').attr("disabled", false);
+                    notchPhar.addClass("hide");
+                    $('#presc-btn').attr("disabled", false);
                     if (!data.includes('Error') && !data.includes('failed')) {
-                        alert('Update Complete');
                         window.location.replace(window.location.href);
                     }
                 },
                 // Error handling
                 error: function (error) {
-                    $('#notch-pharm').addClass("hide");
-                    $('#pharm-btn').attr("disabled", false);
+                    notchPhar.addClass("hide");
+                    $('#presc-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
                     window.location.replace(window.location.href);
                 }
@@ -82,6 +85,8 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         }
         function downloadPresLog(){
             $('#notch-presc').removeClass("hide");
+            $('#btn-pharm').attr("disabled", true);
+            $('#btn-pharm-full').attr("disabled", true);
             $('#presc-btn').attr("disabled", true);
             $.ajax({
                 url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
@@ -100,7 +105,6 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     if (!data.includes('Error') && !data.includes('failed')) {
-                        alert('Update Complete');
                         window.location.replace(window.location.href);
                     }
                 },
@@ -157,11 +161,17 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 <td><?php echo text($pharm_log['created_at'] ?? 'Never'); ?></td>
                 <td><?php echo xlt($pharm_log['status'] ?? 'Needs download'); ?></td>
                 <td>
-                    <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
-                        <?php echo xlt("Download") ?>
+                    <button type="button" id="btn-pharm" onclick="downloadPharmacies('Y');" class="btn btn-primary btn-sm">
+                        <?php echo xlt("Update Directory") ?>
                         <span class="hide" id="notch-pharm">
                                 <i class="fa-solid fa-circle-notch fa-spin"></i>
-                            </span>
+                        </span>
+                    </button>
+                    <button type="button" id="btn-pharm-full" onclick="downloadPharmacies('N');" class="btn btn-primary btn-sm">
+                        <?php echo xlt("Full Directory") ?>
+                        <span class="hide" id="notch-pharm-full">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        </span>
                     </button>
                 </td>
             </tr>

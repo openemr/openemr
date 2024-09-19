@@ -65,7 +65,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem->requirement = 0;
     $menuItem->target = 'sms';
     $menuItem->menu_id = 'mod0';
-    $menuItem->label = $allowSMS == '2' ? xlt("Manage Twilio Messaging") : xlt("Manage Messaging");
+    $menuItem->label = $allowSMS == '2' ? xlt("Manage Twilio Messaging") : xlt("RingCentral SMS");
     $menuItem->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=sms";
     $menuItem->children = [];
     $menuItem->acl_req = ["patients", "docs"];
@@ -75,15 +75,29 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : xlt("Manage FAX");
+    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : xlt("RingCentral FAX");
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "docs"];
     $menuItem2->global_req = ["oefax_enable_fax"];
+
+    $menuItemSetup = new stdClass();
+    $menuItemSetup->requirement = 0;
+    $menuItemSetup->target = 'setup';
+    $menuItemSetup->menu_id = 'mod2';
+    $menuItemSetup->label = xlt("Setup Module Services");
+    $menuItemSetup->url = "/interface/modules/custom_modules/oe-module-faxsms/library/setup_services.php?module_config=1";
+    $menuItemSetup->children = [];
+    $menuItemSetup->acl_req = ["patients", "docs"];
+    $menuItemSetup->global_req = ["oefax_enable_fax"];
+
     // Child of Manage Modules top menu.
     foreach ($menu as $item) {
         if ($item->menu_id == 'modimg') {
             // ensure service is on in globals.
+            if (!empty($allowSMS) || !empty($allowFax)) {
+                $item->children[] = $menuItemSetup;
+            }
             if (!empty($allowFax)) {
                 $item->children[] = $menuItem2;
             }
@@ -155,10 +169,15 @@ function doFax(e, filePath, mime='') {
     e.preventDefault();
     let btnClose = <?php echo xlj("Cancel"); ?>;
     let title = <?php echo xlj("Send To Contact"); ?>;
-    let url = top.webroot_url +
-    '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
+    let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
     encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
-    dlgopen(url, 'faxto', 'modal-md', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'primary'}]});
+    dlgopen(url, 'faxto', 'modal-md', 'full', '', title, {
+    buttons: [],
+    sizeHeight: 'full',
+    resolvePromiseOn: 'close'
+    }).then(function () {
+        top.restoreSession();
+    });
     return false;
 }
 <?php }

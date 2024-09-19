@@ -114,9 +114,9 @@ class BootstrapService
 
     /**
      * @param $settings
-     * @return mixed
+     * @return array|false|null
      */
-    public function persistSetupSettings($settings): mixed
+    public function persistSetupSettings($settings): array|null|false
     {
         // vendor for backup of setup globals.
         $vendor = '_persisted';

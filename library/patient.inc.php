@@ -1549,8 +1549,8 @@ function getEffectiveInsurances($patient_id, $encdate)
         $tmp = sqlQuery(
             "SELECT * FROM insurance_data " .
             "WHERE pid = ? AND type = ? " .
-            "AND (date <= ? OR date IS NULL) ORDER BY date DESC LIMIT 1",
-            array($patient_id, $instype, $encdate)
+            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1",
+            array($patient_id, $instype, $encdate, $encdate)
         );
         if (empty($tmp['provider'])) {
             break;

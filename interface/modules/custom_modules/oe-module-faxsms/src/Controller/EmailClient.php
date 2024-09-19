@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use PHPMailer\PHPMailer\Exception;
 use Symfony\Component\HttpClient\HttpClient;
 
 class EmailClient extends AppDispatch
@@ -22,10 +23,11 @@ class EmailClient extends AppDispatch
     public $baseDir;
     public $uriDir;
     public $serverUrl;
-    public $credentials;
+    public mixed $credentials;
     public string $portalUrl;
     protected $crypto;
     private EmailClient $client;
+    private bool $smtpEnabled;
 
     public function __construct()
     {
@@ -35,6 +37,7 @@ class EmailClient extends AppDispatch
         $this->crypto = new CryptoGen();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         parent::__construct();
     }
 
@@ -54,10 +57,6 @@ class EmailClient extends AppDispatch
 
         return $credentials;
     }
-
-    /**
-     * @return bool|string
-     */
 
     /**
      * @return string
@@ -81,7 +80,7 @@ class EmailClient extends AppDispatch
      * @param $acl
      * @return int
      */
-    public function authenticate($acl = ['admin', 'doc']): int
+    public function authenticate($acl = ['patient', 'doc']): int
     {
         list($s, $v) = $acl;
         return $this->verifyAcl($s, $v);
@@ -107,6 +106,50 @@ class EmailClient extends AppDispatch
         return js_escape($statusMsg);
     }
 
+    /**
+     * @throws Exception
+     */
+    public function emailDocument($email, $body, $file, array $user = []): string
+    {
+        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
+        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
+        $mail = new MyMailer();
+        $from_name = text($from_name);
+        $from = $GLOBALS["practice_return_email_path"];
+        $mail->AddReplyTo($from, $from_name);
+        $mail->SetFrom($from, $from);
+        $mail->AddAddress($email, $email);
+        $mail->Subject = xlt("Forwarded Fax Document");
+        $mail->Body = $desc;
+        $mail->AddAttachment($file);
+
+        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function emailReminder($email, $body): false|string
+    {
+        $hasEmail = $this->validEmail($email);
+        if (!$hasEmail) {
+            return js_escape(xlt("Error: Missing valid email address. Try again."));
+        }
+        if (!$this->smtpEnabled) {
+            return text(js_escape('SMTP not setup.'));
+        }
+        $from_name = text($GLOBALS["Patient Reminder Sender Name"] ?? 'UNK');
+        $desc = text($body);
+        $mail = new MyMailer();
+        $from = text($GLOBALS["practice_return_email_path"]);
+        $mail->AddReplyTo($from, $from_name);
+        $mail->SetFrom($from, $from);
+        $mail->AddAddress($email, $email);
+        $mail->Subject = xlt("A Reminder for You");
+        $mail->Body = $desc;
+
+        return $mail->Send();
+    }
     /**
      * @return false|string
      */

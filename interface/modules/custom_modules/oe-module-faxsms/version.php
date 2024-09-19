@@ -7,5 +7,5 @@
  * */
 
 $v_major = '4';
-$v_minor = '0';
+$v_minor = '1';
 $v_patch = '0';

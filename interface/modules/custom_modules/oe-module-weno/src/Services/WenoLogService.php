@@ -41,7 +41,7 @@ class WenoLogService
         $v['count'] = $count['count'] ?? 0;
 
         if (!empty($lastStatus)) {
-            $vsql = sqlQuery("SELECT `created_at` FROM `weno_download_log` WHERE `value` = ? AND `status` = ? ORDER BY `created_at` DESC, `id` DESC LIMIT 1", [$params, $lastStatus]);
+            $vsql = sqlQuery("SELECT `created_at` FROM `weno_download_log` WHERE `value` = ? AND `status` LIKE ? ORDER BY `created_at` DESC, `id` DESC LIMIT 1", [$params, "$lastStatus%"]);
             if ($vsql) {
                 $v['created_at'] = $vsql['created_at'];
             }

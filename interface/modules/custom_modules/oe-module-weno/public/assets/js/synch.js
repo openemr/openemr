@@ -38,7 +38,7 @@ function wenoAlertManager(option, element, spinElement) {
                 element.classList.add("d-none");
                 element.classList.remove("alert", "alert-success");
                 element.innerHTML = "";
-                window.location.replace(window.location.href)
+                window.location.replace(window.location.href);
             }, 3000
         );
 
@@ -47,6 +47,7 @@ function wenoAlertManager(option, element, spinElement) {
             element.classList.add("d-none");
             element.classList.remove("alert", "alert-danger");
             element.innerHTML = "";
+            window.location.replace(window.location.href);
         }, 5000);
         element.classList.remove("d-none");
         element.classList.add("alert", "alert-danger");
