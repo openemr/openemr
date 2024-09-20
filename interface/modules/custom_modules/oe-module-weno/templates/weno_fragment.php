@@ -146,7 +146,7 @@ if ($reSync === true) {
     $reSync = '';
     $_GET['resync'] = '';
     unset($_GET['resync']);
-    echo "<script>sync_report(<?php echo js_escape($pid); ?>)</script>";
+    echo "<script>sync_report(" . js_escape($pid) . ")</script>";
     echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
 }
 ?>
