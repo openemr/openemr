@@ -441,6 +441,7 @@ echo " > https://opencollective.com/openemr/donate"
 echo ""
 
 chmod -R 755 /var/www/localhost/htdocs/openemr/sites/
+chmod -R 755 /var/www/localhost/htdocs/openemr/vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache
 
 if [ "$OPERATOR" == "yes" ]; then
     echo "Starting apache!"
