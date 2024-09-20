@@ -440,6 +440,8 @@ echo "Love OpenEMR? You can now support the project via the open collective:"
 echo " > https://opencollective.com/openemr/donate"
 echo ""
 
+chmod -R 755 /var/www/localhost/htdocs/openemr/sites/
+
 if [ "$OPERATOR" == "yes" ]; then
     echo "Starting apache!"
     /usr/sbin/httpd -D FOREGROUND
