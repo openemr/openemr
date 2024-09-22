@@ -22,7 +22,7 @@
             <td>&nbsp;</td>
             <td>
                 <label class="d-block" for='issue_{{ issue.id|attr }}'>
-                    <input type='checkbox' name='issue_{{ issue.id|attr }}' id='issue_{{ issue.id|attr }}' class='issuecheckbox' value='/{{ issue.encounter|join("/")|text }}' />
+                    <input type='checkbox' name='issue_{{ issue.id|attr }}' id='issue_{{ issue.id|attr }}' class='issuecheckbox' value='/{{ issue.encounter|join("/")|attr }}' />
                     {{ issue.title|text }}
                 </label>
             </td>

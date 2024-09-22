@@ -42,8 +42,8 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Controllers\Portal\PortalPatientReportController;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Portal\PortalPatientReportController;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use Twig\Error\SyntaxError;
 

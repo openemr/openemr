@@ -24,15 +24,15 @@ require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
+use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\TranslationService;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
-use OpenEMR\Common\Logging\SystemLogger;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
     require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');

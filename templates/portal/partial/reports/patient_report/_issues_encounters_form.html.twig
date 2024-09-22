@@ -33,7 +33,7 @@
                         <label>
                             <input type="checkbox" name="{{ form.formdir|attr }}_{{ form.form_id|attr }}"
                                    id="{{ form.formdir|attr }}_{{ form.form_id|attr }}"
-                                   value="{{ form.encounter|attr }}" class="encounter_form">{{ form.display|attr }} ({{ form.date|date("Y-m-d")|attr }})
+                                   value="{{ form.encounter|attr }}" class="encounter_form">{{ form.display|text }} ({{ form.date|date("Y-m-d")|text }})
                         </label>
                         <br />
                         {% endfor %}
