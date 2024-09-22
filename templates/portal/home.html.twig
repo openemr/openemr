@@ -1,3 +1,20 @@
+{#
+* home.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
+ * @author    Ben Marte <benmarte@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
+ * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 {% extends "portal/base.html.twig" %}
 
 {% block head %}
@@ -195,24 +212,6 @@
                 $("#editDems").click(function () {
                     showProfileModal()
                 });
-            });
-
-            $("#medicationlist").load("./get_medications.php", {}, function () {
-            });
-
-            $("#prescriptionlist").load("./get_prescriptions.php", {}, function () {
-            });
-
-            $("#labresults").load("./get_lab_results.php", {}, function () {
-            });
-
-            /* $("#amendmentslist").load("./get_amendments.php", {}, function () {
-             });*/
-
-            $("#problemslist").load("./get_problems.php", {}, function () {
-            });
-
-            $("#allergylist").load("./get_allergies.php", {}, function () {
             });
 
             $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
@@ -635,60 +634,7 @@
         {# End of quickstart-cards #}
 
         <!-- Health Snapshot Card -->
-        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
-            <div class="card d-flex mr-1 mb-1">
-                <header class="card-header p-1 bg-dark text-light h3">{{ 'Health Snapshot (Medical Lists)' | xlt }}</header>
-                <div class="card-body">
-                    <div class="card">
-                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Patient Immunization' | xlt }}</header>
-                        <div class="card-body border">
-                            {% for record in immunRecords %}
-                                <div>
-                                    {{ record.administered_formatted | xlt }} :
-                                    {{ record.code_text | xlt }} :
-                                    {{ record.note | xlt }} :
-                                    {{ record.completion_status | xlt }}
-                                </div>
-                            {% else %}
-                                <p>{{ 'No records found.' | xlt }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="card">
-                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Medications' | xlt }}</header>
-                        <div id="medicationlist" class="card-body p-2 bg-light">
-                            {% include "portal/partial/_alert_loading.html.twig" %}
-                        </div>
-                    </div>
-                    <div class="card">
-                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Active Prescriptions' | xlt }}</header>
-                        <div id="prescriptionlist" class="card-body p-2 bg-light">
-                            {% include "portal/partial/_alert_loading.html.twig" %}
-                        </div>
-                    </div>
-                    <div class="card">
-                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Medication Allergy List' | xlt }}</header>
-                        <div id="allergylist" class="card-body p-2 bg-light"></div>
-                    </div>
-                    <div class="card">
-                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Current Problems List' | xlt }}</header>
-                        <div id="problemslist" class="card-body p-2 bg-light">
-                            {% include "portal/partial/_alert_loading.html.twig" %}
-                        </div>
-                    </div>
-                    {# <div class="card">
-                <header class="card-header p-1 bg-dark text-light">{{ 'Amendment List' | xlt }}</header>
-                <div id="amendmentslist" class="card-body p-2 bg-light"></div>
-            </div> #}
-                    <div class="card">
-                        <header class="card-header p-1 bg-dark text-light h5">{{ 'Lab Results' | xlt }}</header>
-                        <div id="labresults" class="card-body p-2 bg-light">
-                            {% include "portal/partial/_alert_loading.html.twig" %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "portal/partial/cards/_health_snapshot_card.html.twig" with {healthSnapshot: healthSnapshot}%}
 
         <!-- Help Card -->
         {% include "portal/partial/_help_card.html.twig" with {

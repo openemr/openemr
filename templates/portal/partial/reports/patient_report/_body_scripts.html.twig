@@ -1,0 +1,274 @@
+{#
+* _body_scripts.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script>
+    function checkAll(check) {
+        var f = document.forms['report_form'];
+        for (var i = 0; i < f.elements.length; ++i) {
+            if (f.elements[i].type == 'checkbox') f.elements[i].checked = check;
+        }
+        return false;
+    }
+
+    function show_date_fun() {
+        if (document.getElementById('show_date').checked == true) {
+            document.getElementById('date_div').style.display = '';
+        } else {
+            document.getElementById('date_div').style.display = 'none';
+        }
+        return;
+    }
+
+    var mypcc = {{ phone_country_code|js_escape }};
+    initReport = function () {
+        $("body").on("click", ".genreport", function () {
+            document.report_form.pdf.value = 0;
+            showCustom();
+
+            return false;
+        });
+        $(".genpdfrep").click(function () {
+            document.report_form.pdf.value = 1;
+            $("#report_form").submit();
+        });
+        $(".genportal").click(function () {
+            document.report_form.pdf.value = 2;
+            $("#report_form").submit();
+        });
+        $("#genfullreport").click(function () {
+            location.href = {{ returnurl|json_encode }};
+        });
+//$("#printform").click(function() { PrintForm(); });
+        $(".issuecheckbox").click(function () {
+            issueClick(this);
+        });
+
+// check/uncheck all Forms of an encounter
+        $(".encounter").click(function () {
+            SelectForms(this);
+        });
+
+        function showCustom() {
+            var formval = $("#report_form").serializeArray();
+            var title = {{ "Custom Report"|xlj }};
+            var params = {
+                sizeHeight: 'full',
+                size: 'modal-lg',
+                title: title,
+                type: "POST",
+                url: './report/portal_custom_report.php',
+                data: formval
+            };
+
+// returns a promise after dialog inits. Just an empty fulfill for an example.
+// Could do an alert or confirm etc.
+            return dialog.ajax(params).then(function (dialog) {
+                $('div.modal-body', dialog).addClass('overflow-auto');
+            });
+        }
+
+        $(".generateCCR").click(
+            function () {
+                if (document.getElementById('show_date').checked == true) {
+                    if (document.getElementById('Start').value == '' || document.getElementById('End').value == '') {
+                        alert({{ 'Please select a start date and end date'|xlj }});
+                        return false;
+                    }
+                }
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'no';
+
+                ccr_form.setAttribute("target", "_blank");
+                $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
+            });
+        $(".generateCCR_raw").click(
+            function () {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'yes';
+
+                ccr_form.setAttribute("target", "_blank");
+                $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
+            });
+        $(".generateCCR_download_h").click(
+            function () {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'hybrid';
+
+                $("#ccr_form").submit();
+            });
+        $(".generateCCR_download_p").click(
+            function () {
+                if (document.getElementById('show_date').checked === true) {
+                    if (document.getElementById('Start').value === '' || document.getElementById('End').value === '') {
+                        alert({{'Please select a start date and end date'|xlj }});
+                        return false;
+                    }
+                }
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'pure';
+
+                $("#ccr_form").submit();
+            });
+        $(".viewCCD").click(
+            function () {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'no';
+
+                ccr_form.setAttribute("target", "_blank");
+                $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
+            });
+        $(".viewCCD_raw").click(
+            function () {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'yes';
+
+                ccr_form.setAttribute("target", "_blank");
+                $("#ccr_form").submit();
+                ccr_form.setAttribute("target", "");
+            });
+        $(".viewCCD_download").click(
+            function () {
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'pure';
+                $("#ccr_form").submit();
+            });
+        {% if phimail_enable and phimail_ccr_enable %}
+        $(".viewCCR_send_dialog").click(
+            function () {
+                $("#ccr_send_dialog").toggle();
+            });
+        $(".viewCCR_transmit").click(
+            function () {
+                $(".viewCCR_transmit").attr('disabled', 'disabled');
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'generate';
+                var ccrRecipient = $("#ccr_send_to").val();
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'send ' + ccrRecipient;
+                if (ccrRecipient === "") {
+                    $("#ccr_send_message").html("{{ 'Please enter a valid Direct Address above.'|xla }}");
+                    $("#ccr_send_result").show();
+                } else {
+                    $(".viewCCR_transmit").attr('disabled', 'disabled');
+                    $("#ccr_send_message").html("{{ 'Working... this may take a minute.'|xla }}");
+                    $("#ccr_send_result").show();
+                    var action = $("#ccr_form").attr('action');
+                    $.post(action, {ccrAction: 'generate', raw: 'send ' + ccrRecipient, requested_by: 'user'},
+                        function (data) {
+                            if (data === "SUCCESS") {
+                                $("#ccr_send_message").html("{{ 'Your message was submitted for delivery to'|xla }} "
+                                    + ccrRecipient);
+                                $("#ccr_send_to").val("");
+                            } else {
+                                $("#ccr_send_message").html(data);
+                            }
+                            $(".viewCCR_transmit").removeAttr('disabled');
+                        });
+                }
+            });
+        {% endif %}
+
+        {% if phimail_enable and phimail_ccd_enable %}
+        $(".viewCCD_send_dialog").click(
+            function () {
+                $("#ccd_send_dialog").toggle();
+            });
+        $(".viewCCD_transmit").click(
+            function () {
+                $(".viewCCD_transmit").attr('disabled', 'disabled');
+                var ccrAction = document.getElementsByName('ccrAction');
+                ccrAction[0].value = 'viewccd';
+                var ccdRecipient = $("#ccd_send_to").val();
+                var raw = document.getElementsByName('raw');
+                raw[0].value = 'send ' + ccdRecipient;
+                if (ccdRecipient === "") {
+                    $("#ccd_send_message").text("{{ 'Please enter a valid Direct Address above.'|xla }}");
+                    $("#ccd_send_result").show();
+                } else {
+                    $(".viewCCD_transmit").attr('disabled', 'disabled');
+                    $("#ccd_send_message").text("{{ 'Working... this may take a minute.'|xla }}");
+                    $("#ccd_send_result").show();
+                    var action = $("#ccr_form").attr('action');
+                    $.post(action, {ccrAction: 'viewccd', raw: 'send ' + ccdRecipient, requested_by: 'user'},
+                        function (data) {
+                            if (data === "SUCCESS") {
+                                $("#ccd_send_message").text("{{ 'Your message was submitted for delivery to'|xla }} "
+                                    + ccdRecipient);
+                                $("#ccd_send_to").val("");
+                            } else {
+                                $("#ccd_send_message").text(data);
+                            }
+                            $(".viewCCD_transmit").removeAttr('disabled');
+                        });
+                }
+            });
+        {% endif %}
+    }; // end initReport
+
+    $(function () {
+
+        initReport();
+
+        datetimepickerTranslated('.datepicker', {
+            timepicker: false
+            , formatInput: false
+        });
+    });
+
+    // select/deselect the Forms related to the selected Encounter
+    // (it ain't pretty code folks)
+    var SelectForms = function (selectedEncounter) {
+        if ($(selectedEncounter).prop("checked")) {
+            $(selectedEncounter).parent().children().each(function (i, obj) {
+                $(this).children().each(function (i, obj) {
+                    $(this).prop("checked", true);
+                });
+            });
+        } else {
+            $(selectedEncounter).parent().children().each(function (i, obj) {
+                $(this).children().each(function (i, obj) {
+                    $(this).prop("checked", false);
+                });
+            });
+        }
+    }
+
+    // When an issue is checked, auto-check all the related encounters and forms
+    function issueClick(issue) {
+// do nothing when unchecked
+        if (!$(issue).prop("checked")) return;
+
+        $("#report_form :checkbox").each(function (i, obj) {
+            if ($(issue).val().indexOf('/' + $(this).val() + '/') >= 0) {
+                $(this).prop("checked", true);
+            }
+
+        });
+    }
+
+</script>

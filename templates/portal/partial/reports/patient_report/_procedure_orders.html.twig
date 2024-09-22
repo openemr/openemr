@@ -1,0 +1,42 @@
+{#
+* _procedure_orders.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<hr />
+<table class="table">
+    <tr>
+        <td class='bold'>{{ 'Procedures'|xlt }}&nbsp;&nbsp;</td>
+        <td class='text'>{{ 'Order Date'|xlt }}&nbsp;&nbsp;</td>
+        <td class='text'>{{ 'Encounter Date'|xlt }}&nbsp;&nbsp;</td>
+        <td class='text'>{{ 'Order Descriptions'|xlt }}</td>
+    </tr>
+    {% for row in procedureOrders %}
+        <tr>
+            <td class='text text-left'>
+                <label class="d-block"><input id="procedure_{{ id|attr }}" type='checkbox' name='procedures[]' value='{{ row.id|attr }}' />&nbsp;&nbsp;
+                </label>
+            </td>
+            <td class='text'><label class="d-block" for="procedure_{{ id|attr }}">{{ row.date_ordered|shortDate|text }}&nbsp;&nbsp;</label></td>
+            <td class='text'><label class="d-block" for="procedure_{{ id|attr }}">{{ row.date|shortDate|text }}</label></td>
+            <td class='text'>
+                <label class="d-block" for="procedure_{{ id|attr }}">
+                    {% for procedure in row.procedures %}
+                        {% if procedure.name is empty %}
+                            {{ procedure.code|text }}
+                        {% else %}
+                            {{ procedure.name|text }}
+                        {% endif %}
+                        <br />
+                    {% endfor %}
+                </label>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
