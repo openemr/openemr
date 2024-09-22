@@ -24,7 +24,9 @@ require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
+use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\TranslationService;
@@ -312,7 +314,14 @@ $styleArray = collectStyles();
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 try {
-    echo $twig->render('portal/home.html.twig', [
+    $healthSnapshot = [
+        'immunizationRecords' => $immunRecords,
+        'patientID' => $pid
+    ];
+    $patientReportEvent = new PatientReportFilterEvent();
+    $patientReportEvent->setDataElement('healthSnapshot', $healthSnapshot);
+    $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
+    $data = [
         'user' => $user,
         'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
         'result' => $result,
@@ -352,7 +361,7 @@ try {
         'styleArray' => $styleArray,
         'ccdaOk' => $ccdaOk,
         'allow_custom_report' => $GLOBALS['allow_custom_report'] ?? '0',
-        'immunRecords' => $immunRecords,
+        'healthSnapshot' => $filteredEvent->getDataElement('healthSnapshot'),
         'languageDirection' => $_SESSION['language_direction'] ?? 'ltr',
         'dateDisplayFormat' => $GLOBALS['date_display_format'],
         'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
@@ -363,8 +372,13 @@ try {
             'dashboardInjectCard' => RenderEvent::EVENT_DASHBOARD_INJECT_CARD,
             'dashboardRenderScripts' => RenderEvent::EVENT_DASHBOARD_RENDER_SCRIPTS
         ]
-    ]);
+    ];
+
+    echo $twig->render('portal/home.html.twig', $data);
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    if ($e instanceof SyntaxError) {
+        (new SystemLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
+    }
     die(text($e->getMessage()));
 }

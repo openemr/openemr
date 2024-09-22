@@ -1,0 +1,24 @@
+{#
+* _documents.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<hr />
+<span class="bold">{{ 'Documents'|xlt }}</span>:<br />
+<ul>
+    {% for document in documents %}
+        <li class='bold'>
+            <label>
+                <input type="checkbox" name="documents[]" value="{{ document.id|attr }}" />
+                &nbsp;&nbsp;<i>{{ document.category|text }}</i>
+                &nbsp;&nbsp;{{ "Name"|xlt}}: <i>{{ document.url|text }}</i>
+            </label>
+        </li>
+    {% endfor %}
+</ul>

@@ -498,7 +498,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                             }
                                             if ($fldtype == GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION) {
                                                 // if the field is an html display box we want to take over the entire real estate so we will continue from here.
-                                                include_once 'templates/field_html_display_section.php';
+                                                include 'templates/field_html_display_section.php';
                                                 ++$i; // make sure we advance the iterator here...
                                                 continue;
                                             }
