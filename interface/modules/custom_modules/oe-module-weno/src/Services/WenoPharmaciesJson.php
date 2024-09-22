@@ -11,6 +11,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
@@ -57,12 +58,15 @@ class WenoPharmaciesJson
 
     public function storePharmacyData(): ?string
     {
+        $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
         $storageLocation = $storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
         $path_to_extract = $storageLocation;
         $storeLocation .= "weno_pharmacy.zip";
+        $wenoLog->insertWenoLog("Pharmacy Directory", "'Background Initiated Download started", $url);
+        error_log('Background Initiated Pharmacy Download Started.');
         $downloadWenoPharmacies->retrieveDataFile($url, $storageLocation);
         return $downloadWenoPharmacies->extractFile($path_to_extract, $storeLocation);
     }

@@ -13,6 +13,7 @@
 /** import supporting libraries */
 
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
+use OpenEMR\Services\Utils\TranslationService;
 
 require_once("AppBasePortalController.php");
 require_once("Model/OnsiteDocument.php");
@@ -75,6 +76,9 @@ class OnsiteDocumentController extends AppBasePortalController
         unset($_GET['auto_render_name']);
         unset($_GET['audit_render_id']);
 
+        $language_defs = TranslationService::getLanguageDefinitionsForSession();
+
+        $this->Assign("language_defs", $language_defs);
         $this->Assign('doc_edit', $doc_edit);
         $this->Assign('recid', $recid);
         $this->Assign('help_id', $help_id);
@@ -332,7 +336,6 @@ class OnsiteDocumentController extends AppBasePortalController
                 if (!empty($existing)) {
                     $config = HTMLPurifier_Config::createDefault();
                     $config->set('Core.Encoding', 'UTF-8');
-                    $config->set('CSS.AllowedProperties', '*');
                     // purifier will only allow base64 data urls in img tag.
                     // all other element will be removed. Flatten document have already been sanitized
                     // by replacing all inputs, checks and radios tags to their answers.

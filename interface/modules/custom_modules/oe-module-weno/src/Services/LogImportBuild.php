@@ -10,6 +10,9 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
+use DateTime;
+use DateTimeZone;
+
 class LogImportBuild
 {
     public $rxsynclog;
@@ -32,7 +35,7 @@ class LogImportBuild
         if ($provider) {
             return $provider['id'];
         } else {
-            // logged in user is auth weno user so let's ensure a user is set.
+            // logged-in user is auth weno user so let's ensure a user is set.
             return "REQED:{users}" . xlt("Weno User Id missing. Select Admin then Users and edit the user to add Weno User Id");
         }
     }
@@ -59,9 +62,20 @@ class LogImportBuild
         return $entry['count'];
     }
 
+    function convertToUTC($dateString)
+    {
+        $date = new DateTime($dateString, new DateTimeZone('UTC'));
+        $tz = new DateTimeZone(date_default_timezone_get());
+        $date->setTimezone($tz);
+
+        return $date->format('Y-m-d H:i:s');
+    }
+
     public function buildPrescriptionInserts(): bool|string
     {
+        $wenoLog = new WenoLogService();
         $l = 0;
+        $rxCnt = 0;
         if (file_exists($this->rxsynclog)) {
             $records = fopen($this->rxsynclog, "r");
 
@@ -76,7 +90,7 @@ class LogImportBuild
                     continue;
                 }
                 if (isset($line[4])) {
-                    $this->messageid = $line[4] ?? '';
+                    $this->messageid = $line[4];
                     $is_saved = $this->checkMessageId();
                     if ($is_saved > 0) {
                         continue;
@@ -85,19 +99,15 @@ class LogImportBuild
                 if (!empty($line)) {
                     $pr = $line[2] ?? '';
                     $provider = explode(":", $pr);
+                    $pr = trim($pr);
                     $windate = $line[16] ?? '';
-                    $idate = substr(trim($windate), 0, -5);
-                    $idate = explode(" ", $idate);
-                    $idate = explode("/", $idate[0]);
-                    $year = $idate[2] ?? '';
-                    $month = $idate[0] ?? '';
-                    $day = $idate[1] ?? '';
-                    $idate = $year . '-' . $month . '-' . $day;
-                    $ida = preg_replace('/T/', ' ', $line[0]);
+                    $windate = $this->convertToUTC($windate);
+                    $ida = $this->convertToUTC($line[0] ?? '');
                     $p = $line[1] ?? '';
                     $pid_and_encounter = explode(":", $p);
                     $pid = intval($pid_and_encounter[0]);
                     $uid = intval($pid_and_encounter[1]);
+                    $locId = ($provider[1] ?? '');
                     $r = $line[22] ?? '';
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);
 
@@ -117,19 +127,28 @@ class LogImportBuild
                     $insertdata['substitute'] = $sub ?? '';
                     $insertdata['note'] = $line[21] ?? '';
                     $insertdata['rxnorm_drugcode'] = $line[12] ?? '';
-                    $insertdata['provider_id'] = $provider[0];
+                    $insertdata['provider_id'] = $pr;
                     $insertdata['user_id'] = ($uid > 0) ? $uid : $this->getUserIdByWenoId($provider[0]);
                     $insertdata['prescriptionguid'] = $line[4] ?? '';
                     $insertdata['txDate'] = $ida;
                     $loginsert = new LogDataInsert();
                     $loginsert->insertPrescriptions($insertdata);
+                    ++$rxCnt;
                     ++$l;
                 }
             }
             fclose($records);
         } else {
-            return xlt("File is missing!");
+            $wenoLog->insertWenoLog("Sync Report", "Missing report file.");
+            return false;
         }
+
+        if ($rxCnt == 0) {
+            $status = xl("No new prescriptions to sync.");
+        } else {
+            $status = xl("Synced") . " " . text($rxCnt) . " " . xl("prescriptions.");
+        }
+        $wenoLog->insertWenoLog("Sync Report", $status);
         return true;
     }
 }

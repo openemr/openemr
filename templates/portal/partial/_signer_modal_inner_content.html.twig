@@ -1,0 +1,31 @@
+{% block openSignModal %}
+    <div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
+        <div class='modal-dialog modal-xl'>
+            <div class='modal-content signature-pad'>
+                <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
+                <input style='display:none;' type='checkbox' id='isAdmin' name='isAdmin' />{{ 'Is Authorizing Signature'|xlt }}</label></span>
+                    <div class='row signature-pad-content'>
+                        <div class='embed-responsive embed-responsive-21by7 border border-dark'>
+                            <canvas class="canvas embed-responsive-item"></canvas>
+                        </div>
+                        <div class='signature-pad-footer text-dark'>
+                            {% block signaturePadFooter %}
+                                <div class='description'>{{ 'Sign Above'|xlt }}</div>
+                                <div class='btn-group signature-pad-actions bg-light'>
+                                    {% block signaturePadActions %}
+                                        <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>{{ 'Clear Canvas'|xlt }}</button>
+                                        <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='{{ aud|attr }}' id='signatureModal'>{{ "Use Current"|xlt }}</button>
+                                        <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>{{ "Cancel"|xlt }}</button>
+                                        <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>{{ 'Sign and Save'|xlt}}</button>
+                                        <span><h6 id='labelName'></h6></span>
+                                    {% endblock %}
+                                    <input type='hidden' id='name' /><input type='hidden' id='user' value='{{ cuser|attr }}' /><input type='hidden' id='pid' value='{{ cpid|attr }}' />
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -531,7 +531,6 @@ var page = {
         } else {
             $('.modelContainer').addClass("d-none");
         }
-        $('.history-direction').toggleClass("fa-arrow-down").toggleClass("fa-arrow-up");
     },
     /**
      * Fetch the passed in document id in editing status

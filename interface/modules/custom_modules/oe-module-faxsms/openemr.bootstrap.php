@@ -42,6 +42,8 @@ $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
  */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
+require __DIR__ . '/vendor/autoload.php';
+
 /**
  * @var EventDispatcherInterface $eventDispatcher
  * @var array                    $module
@@ -59,13 +61,14 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
 {
     $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
     $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
+    $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
     $menu = $event->getMenu();
     // Our SMS menu
     $menuItem = new stdClass();
     $menuItem->requirement = 0;
     $menuItem->target = 'sms';
     $menuItem->menu_id = 'mod0';
-    $menuItem->label = $allowSMS == '2' ? xlt("Manage Twilio Messaging") : xlt("Manage Messaging");
+    $menuItem->label = $allowSMS == '2' ? xlt("Twilio Messaging") : xlt("RingCentral SMS");
     $menuItem->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=sms";
     $menuItem->children = [];
     $menuItem->acl_req = ["patients", "docs"];
@@ -75,15 +78,82 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : xlt("Manage FAX");
+    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : xlt("RingCentral FAX");
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "docs"];
     $menuItem2->global_req = ["oefax_enable_fax"];
-    // Child of Manage Modules top menu.
+
+    // email reminders
+    $menuItem3 = new stdClass();
+    $menuItem3->requirement = 0;
+    $menuItem3->target = 'fax';
+    $menuItem3->menu_id = 'mod1';
+    $menuItem3->label = xlt("Test Email Reminders");
+    $menuItem3->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?dryrun=1&alert=0&type=email&site=" . $_SESSION['site_id'];
+    $menuItem3->children = [];
+    $menuItem3->acl_req = ["patients", "docs"];
+    $menuItem3->global_req = ["oe_enable_email"];
+
+    $menuItem4 = new stdClass();
+    $menuItem4->requirement = 0;
+    $menuItem4->target = 'fax';
+    $menuItem4->menu_id = 'mod1';
+    $menuItem4->label = xlt("Send Email Reminders");
+    $menuItem4->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?alert=1&type=email&site=" . $_SESSION['site_id'];
+    $menuItem4->children = [];
+    $menuItem4->acl_req = ["patients", "docs"];
+    $menuItem4->global_req = ["oe_enable_email"];
+
+    $menuItemSetup = new stdClass();
+    $menuItemSetup->requirement = 0;
+    $menuItemSetup->target = 'setup';
+    $menuItemSetup->menu_id = 'mod2';
+    $menuItemSetup->label = xlt("Setup Services");
+    $menuItemSetup->url = "/interface/modules/custom_modules/oe-module-faxsms/library/setup_services.php?module_config=1";
+    $menuItemSetup->children = [];
+    $menuItemSetup->acl_req = ["admin", "docs"];
+
+    $subMenu = new stdClass();
+    $subMenu->requirement = 0;
+    $subMenu->target = 'subsrv';
+    $subMenu->menu_id = 'reminders';
+    $subMenu->label = xlt("Notifications");
+    $subMenu->children = [$menuItem3, $menuItem4];
+    $subMenu->acl_req = [
+        "admin",
+        "demo"
+    ];
+
+    // Top level menu
+    $topMenu = new stdClass();
+    $topMenu->requirement = 0;
+    $topMenu->target = 'serv';
+    $topMenu->menu_id = 'service';
+    $topMenu->label = xlt("Services");
+    $topMenu->children = [$subMenu];
+    $topMenu->acl_req = [
+        "patients",
+        "demo"
+    ];
+
+    $i = 0;
     foreach ($menu as $item) {
         if ($item->menu_id == 'modimg') {
+            $menu[++$i] = $topMenu;
+            $i++;
+            continue;
+        }
+        $menu[$i] = $item;
+        $i++;
+    }
+        // Child of Services top menu.
+    foreach ($menu as $item) {
+        if ($item->menu_id == 'service') {
             // ensure service is on in globals.
+            if (!empty($allowSMS) || !empty($allowFax) || !empty($allowEmail)) {
+                $item->children[] = $menuItemSetup;
+            }
             if (!empty($allowFax)) {
                 $item->children[] = $menuItem2;
             }
@@ -155,10 +225,15 @@ function doFax(e, filePath, mime='') {
     e.preventDefault();
     let btnClose = <?php echo xlj("Cancel"); ?>;
     let title = <?php echo xlj("Send To Contact"); ?>;
-    let url = top.webroot_url +
-    '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
+    let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
     encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
-    dlgopen(url, 'faxto', 'modal-md', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'primary'}]});
+    dlgopen(url, 'faxto', 'modal-md', 'full', '', title, {
+    buttons: [],
+    sizeHeight: 'full',
+    resolvePromiseOn: 'close'
+    }).then(function () {
+        top.restoreSession();
+    });
     return false;
 }
 <?php }

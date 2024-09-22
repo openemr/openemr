@@ -1,3 +1,20 @@
+{#
+* home.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
+ * @author    Ben Marte <benmarte@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
+ * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 {% extends "portal/base.html.twig" %}
 
 {% block head %}
@@ -8,18 +25,39 @@
     <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
     <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
 
-    {% if payment_gateway == 'Stripe' %}
-        <script src="https://js.stripe.com/v3/"></script>
-    {% endif %}
+    {% if portal_two_payments %}
+        {# We don't include anything for payments if we don't have payments enabled #}
+        {% if payment_gateway == 'Stripe' %}
+            <script src="https://js.stripe.com/v3/"></script>
+        {% endif %}
 
-    {% if payment_gateway == 'AuthorizeNet' %}
-        {% if gateway_mode_production %}
-            <script src="https://js.authorize.net/v1/Accept.js"></script>
-        {% else %}
-            <script src="https://jstest.authorize.net/v1/Accept.js"></script>
+        {% if payment_gateway == 'AuthorizeNet' %}
+            {% if gateway_mode_production %}
+                <script src="https://js.authorize.net/v1/Accept.js"></script>
+            {% else %}
+                <script src="https://jstest.authorize.net/v1/Accept.js"></script>
+            {% endif %}
         {% endif %}
     {% endif %}
+    <style>
+      .dropdown-menu-right {
+        right: 0;
+        left: auto;
+      }
 
+      .navbar-nav .dropdown-menu {
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+      }
+
+      .navbar-nav .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+    </style>
     <script>
         var cpid = {{ patientID | js_escape }},
             cuser = {{ user | js_escape }},
@@ -33,6 +71,13 @@
             tab_mode = true,
             isPortal = 1;
 
+        var jsLanguageDirection = {{ languageDirection | js_escape }};
+        var jsGlobals = {
+            languageDirection: jsLanguageDirection,
+            date_display_format: {{ dateDisplayFormat | js_escape }},
+            timezone: {{ timezone | js_escape }},
+            assetVersion: {{ assetVersion | js_escape }}
+        };
         function restoreSession() {
             return true;
         }
@@ -114,9 +159,37 @@
             }
         };
 
+        function updateWindowTitle(element) {
+            if (element && element.dataset && element.dataset.windowTitle) {
+                let textNode = document.createElement("div");
+                textNode.innerText = element.dataset.windowTitle;
+                document.title = textNode.innerText;
+            } else {
+                // if we don't have a valid element we are going to reset to our home page
+                document.title = {{ pagetitle|js_escape }};
+            }
+        }
+
         $(function () {
             $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
+                updateWindowTitle(e.target);
+            });
+
+            $('#quickstart-card [data-parent="#cardgroup"]' +
+                ', #reports-list-card [data-parent="#cardgroup"]'
+                + ',.reports-list-back-btn').on('click', (e) => {
+                // we use currentTarget so we grab the event with the original data-parent, if there are buttons or
+                // other stuff inside we want to go to the href.
+                persist($(e.currentTarget).attr('href'), false);
+                updateWindowTitle(e.currentTarget);
+                return true;
+            });
+
+            $('#quickstart_dashboard').on('click', (e) => {
+                if ($('#quickstart-card').hasClass('show')) {
+                    return false;
+                }
             });
 
             if ($('body').css('direction') === "rtl") {
@@ -141,25 +214,8 @@
                 });
             });
 
-            $("#medicationlist").load("./get_medications.php", {}, function () {
-            });
-
-            $("#labresults").load("./get_lab_results.php", {}, function () {
-            });
-
-            $("#amendmentslist").load("./get_amendments.php", {}, function () {
-            });
-
-            $("#problemslist").load("./get_problems.php", {}, function () {
-            });
-
-            $("#allergylist").load("./get_allergies.php", {}, function () {
-            });
-
             $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
             });
-
-            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
             {% if portal_two_payments %}
             $("#payment").load("./portal_payment.php", {}, function () {
@@ -176,9 +232,8 @@
             });
 
             function showProfileModal() {
-                const title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
-
-                var params = {
+                const title = {{ 'Profile Edits' | xlj }};
+                const params = {
                     buttons: [
                         {
                             text: {{ 'Help' | xlj }},
@@ -218,15 +273,22 @@
                 page.updateModel();
             }
 
+            // Persist last card used for returns for actions.
             let gowhere = {{ whereto | js_escape }};
             $(gowhere).collapse('show');
+            // grab the navigation element that we persisted, if there is no element we default to our page title
+            updateWindowTitle(document.querySelector("a[href='" + gowhere + "']"));
+            // update home button in case our last location is the quickstart
+            updateDashboardHomeButton();
 
+            // TODO: prevent current card collapse. for top menu only remove later
             $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
                 let target = this.attributes.id.nodeValue;
                 if (whereto.includes(target)) {
                     whereto = '';
                     return false;
                 }
+                updateDashboardHomeButton();
             });
 
             $('#popwait').addClass('d-none');
@@ -239,56 +301,28 @@
             activityMonitor();
         });
 
-        function editAppointment(mode, deid) {
-            let mdata = {};
-            let title = '';
-
-            if (mode === 'add') {
-                title = {{ 'Request New Appointment' | xlj }};
-                mdata = {
-                    pid: deid
-                };
-            } else if (mode === 'recurring') {
-                let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
-                signerAlertMsg(msg, 8000);
-                return false;
+        function updateDashboardHomeButton() {
+            // the navigation between places isn't very extensible / maintainable.
+            // for now we'll just go with it, but may need to refactor the entire routing system
+            // in order to make this all more extensible
+            let isDashboard = whereto == '#quickstart-card'; // $("#quickstart-card").hasClass('show');
+            let isReportsList = whereto == '#reportcard' || whereto == '#downloadcard' || whereto == '#help-card-reports-list';
+            // we only want to show dashboard home button when not on dashboard.
+            if (isDashboard) {
+                $("#quickstart_dashboard").addClass('active');
             } else {
-                title = {{ 'Edit Appointment' | xlj }};
-                mdata = {
-                    eid: deid
-                };
+                $("#quickstart_dashboard").removeClass('active');
             }
-
-            var params = {
-                dialogId: 'editpop',
-                buttons: [
-                    {
-                        text: 'Cancel',
-                        close: true,
-                        style: 'btn-sm btn-secondary'
-                    }
-                ],
-                allowDrag: false,
-                size: 800,
-                title: title,
-                type: "GET",
-                url: './add_edit_event_user.php',
-                data: mdata
-            };
-            /*
-            * A couple notes on dialog.ajax .alert etc.
-            * opener is not required. library will handle for you.
-            * these run in the same scope as calling script.
-            * so same styles, dependencies are in scope.
-            * a promise is returned for doing other neat stuff.
-            *
-            * */
-            dialog.ajax(params);
+            if (isReportsList) {
+                $(".reports-list-back-btn").removeClass('d-none');
+            } else {
+                $(".reports-list-back-btn").addClass('d-none');
+            }
         }
 
         function changeCredentials(e) {
-            title = {{ 'Please Enter New Credentials' | xlj }};
-            dlgopen("./account/index_reset.php", '', 575, 600, null, title, {});
+            title = {{ 'Manage Login Credentials' | xlj }};
+            dlgopen("./account/index_reset.php", '', 900, 750, null, title, {});
         }
 
         {% if isEasyPro %}
@@ -407,139 +441,18 @@
 {% endblock %}
 
 {% block header %}
-    {% include "portal/header.html.twig" %}
+    {# We disable the header for now #}
+    {% include "portal/header.html.twig" with {navMenu: []} %}
 {% endblock %}
 
 {% block content %}
 
     <section class="flex-column accordion" id="cardgroup">
-        <div id="popwait" class="alert alert-warning d-none">
-            <strong>{{ 'Working!' | xlt }}</strong>
-            {{ 'Please wait...' | xlt }}</div>
+        <div id="popwait" class="alert alert-warning d-none"><strong>{{ 'Working!' | xlt }}</strong>{{ 'Please wait...' | xlt }}</div>
 
-        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
-                <div id="medicationlist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Medications Allergy List' | xlt }}</header>
-                <div id="allergylist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Issues List' | xlt }}</header>
-                <div id="problemslist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Amendment List' | xlt }}</header>
-                <div id="amendmentslist" class="card-body bg-light"></div>
-            </div>
-            <div class="card">
-                <header class="card-header bg-primary text-light">{{ 'Lab Results' | xlt }}</header>
-                <div id="labresults" class="card-body bg-light"></div>
-            </div>
-        </div>
-
-        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
-            <header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
-            <div id="reports" class="card-body"></div>
-        </div>
-
-        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
-            <div id="profilereport" class="card-body bg-light"></div>
-        </div>
-
-        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
-            <div class="card">
-                <div id="secure-msgs" class="card-body">
-                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
-                </div>
-            </div>
-        </div>
-
-        {% if allow_portal_appointments %}
-            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
-                <div class="container-fluid">
-                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
-                    <div class="row">
-                        {% if appointments|length > 0 %}
-                            {% for appt in appointments %}
-                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
-                            {% endfor %}
-
-                            {% if appointmentLimit == appointmentCount %}
-                                <p>{{ 'Display limit reached' | xlt }}
-                                    <br>
-                                    {{ 'More appointments may exist' | xlt }}</p>
-                            {% endif %}
-                        {% else %}
-                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
-                        {% endif %}
-
-                    </div>
-                    <div class="mb-3">
-                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
-                    </div>
-                </div>
-            </div>
-            <!-- /.row -->
-        {% endif %}
-
-        {% if portal_two_payments %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
-                <div class="card">
-                    <header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
-                    <div id="payment" class="card-body bg-light"></div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if allow_portal_chat %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="messagescard">
-                <div class="card pt-0 pb-0">
-                    <header class="card-header bg-primary text-light">{{ 'Secure Chat' | xlt }}</header>
-                    <div id="chat" class="card-body p-0 overflow-auto">
-                        <iframe src="./messaging/secure_chat.php" class="w-100" style="height: calc(100vh - 120px);"></iframe>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if portal_onsite_document_download %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
-                <header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
-                <div id="docsdownload" class="card-body">
-                    <div>
-                        <span class="text">{{ 'Download all patient documents' | xlt }}</span>
-                        <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}" />
-                        </form>
-                    </div>
-                </div>
-                <!-- /.card-body -->
-            </div>
-        {% endif %}
-
-        {% if portal_two_ledger %}
-            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
-                <div class="card">
-                    <header class="card-header bg-primary text-light">{{ 'Ledger' | xlt }}</header>
-                    <div id="patledger" class="card-body">
-                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if isEasyPro %}
-            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
-                <header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
-                <div id="pro" class="card-body bg-light"></div>
-            </div>
-        {% endif %}
-
+        <!-- Dashboard Quickstart Card Main Screen originally shown -->
         <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
-            <div id="quickstart-div" class="card-body">
+            <div id="quickstart-div" class="card-body p-0 p-sm-2">
                 <script>
                     $(function () {
                         let ele = parent.document.getElementById('topNav');
@@ -595,68 +508,413 @@
                             </div>
                         </div>
                     </div>
-                    <div class="container-xl p-3">
-                        <div class="jumbotron jumbotron-fluid text-center p-1">
-                            <h3>{{ 'My Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
-                            <p>
+                    <div class="container-fluid p-0 p-sm-3">
+                        <div class="jumbotron jumbotron-fluid text-center mb-1 p-1">
+                            <h2>{{ 'Dashboard' | xlt }}</h2>
+                            {# <p>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
-                            </p>
+                            </p> #}
                         </div>
                         <div class='jumbotron jumbotron-fluid p-4'>
-                            <div class="row" id="inject_card">
-                                <!-- Document -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'My Documents' | xlt }}</h4>
-                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }}/portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
-                                    </div>
-                                </div>
-                                <!-- Signature -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body">
-                                        <h4><i class="card-title fa fa-signature mr-1"></i>{{ 'Signature' | xlt }}</h4>
-                                        <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">{{ 'Manage Signature' | xlt }} </a>
-                                    </div>
-                                </div>
-                                <!-- Theme -->
-                                <div class="card d-flex mr-1 mb-1">
-                                    <div class="card-body row">
-                                        <h4 class="card-title"><i class="fa fa-link mr-1"></i>{{ 'Settings' | xlt }}</h4>
-                                        <div class="col-12 form-group">
-                                            <div class="col">
-                                                <div class="input-group">
-                                                    <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
-                                                    <select class='form-control ml-2' id='my_theme'>
-                                                        {% for styleKey, styleValue in styleArray %}
-                                                            {{ "<option value='" ~ styleKey | attr ~ "'" }}
-                                                            {% if styleKey  ==  current_theme %}
-                                                                {{ " selected" }}
-                                                            {% endif %}
-                                                            {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
-                                                        {% endfor %}
-                                                    </select>
-                                                    <div class="input-group-append">
-                                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-group form-check-inline">
-                                                    <label class="form-check-label" for="exampleCheck1">
-                                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">{{ 'Auto Save Documents' | xlt  ~ " (Coming soon)" | text }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
+                            <div class="row" id="inject_card">
+                                <!-- Forms and Documents -->
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url: web_root~"/portal/patient/onsitedocuments?pid="~patientID|attr_url
+                                    , icon: "file"
+                                    , navText: "Clinical Documents"|xl
+                                    , localLink: false
+                                    , id: "documents-go"
+                                } %}
+                                <!-- Appointments -->
+                                {% if allow_portal_appointments %}
+                                    {% include "portal/partial/_nav_icon.html.twig"
+                                        with {
+                                        url: "appointmentcard"|attr_url
+                                        , icon: "calendar-check"
+                                        , navText: "Appointments"|xl
+                                        , id: "appointments-go"
+                                    } %}
+                                {% endif %}
+                                {% if portal_two_payments %}
+                                    {% include "portal/partial/_nav_icon.html.twig"
+                                        with {
+                                        url: "paymentcard"|attr_url
+                                        , icon: "wallet"
+                                        , navText: "Make Payment"|xl
+                                        , id: "payments-go"
+                                    } %}
+                                {% endif %}
+                                <!-- Messages -->
+                                {% include "portal/partial/_nav_icon_secure_messaging.html.twig"
+                                    with {
+                                    url: "secure-msgs-card"|attr_url
+                                    , icon: "envelope"
+                                    , navText: "Secure Messaging"|xl
+                                    , newcnt: newcnt
+                                    , id: "messages-go"
+                                } %}
+                                <!-- Health -->
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url: "lists"|attr_url
+                                    , icon: "list"
+                                    , navText: "Health Snapshot"|xl
+                                    , id: "lists-go"
+                                } %}
+                                <!-- Demo -->
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url: "profilecard"|attr_url
+                                    , icon: "user"
+                                    , navText: "Profile"|xl
+                                    , id: "profile-go"
+                                } %}
+                                <!-- Ledger / Billing Summary -->
+                                {% if portal_two_ledger %}
+                                    {% include "portal/partial/_nav_icon.html.twig"
+                                        with {
+                                        url: "ledgercard"|attr_url
+                                        , icon: "credit-card"
+                                        , navText: "Billing Summary"|xl
+                                        , id: "ledger-go"
+                                    } %}
+                                {% endif %}
+                                <!-- Reports -->
+                                {% if ccdaOk or 'allow_custom_report' or portal_onsite_document_download %}
+                                    {% include "portal/partial/_nav_icon.html.twig"
+                                        with {
+                                        url: "reports-list-card"|attr_url
+                                        , icon: "file-download"
+                                        , navText: "Medical Reports"|xl
+                                        , id: "reports-go"
+                                    } %}
+                                {% endif %}
+                                {% if isEasyPro %}
+                                    {% include "portal/partial/_nav_icon.html.twig"
+                                        with {
+                                        url: "procard"|attr_url
+                                        , icon: "flask-vial"
+                                        , navText: "PRO Assessment"|xl
+                                        , id: "easypro-go"
+                                    } %}
+                                {% endif %}
+                                <!-- Settings -->
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url: "settings-card"|attr_url
+                                    , icon: "gear"
+                                    , navText: "Settings"|xl
+                                    , id: "settings-go"
+                                } %}
+                                <!-- Help -->
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url: "help-card"|attr_url
+                                    , icon: "question-circle"
+                                    , navText: "Help"|xl
+                                    , id: "help-go"
+                                } %}
                                 {{ fireEvent(eventNames.dashboardInjectCard) }}
+                                {% include "portal/partial/_nav_icon.html.twig"
+                                    with {
+                                    url:  webroot ~ "./logout.php"
+                                    ,localLink: false
+                                    , icon: "right-from-bracket"
+                                    , navText: "Logout"|xl
+                                    , id: "logout-go"
+                                } %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        {# End of quickstart-cards #}
+
+        <!-- Health Snapshot Card -->
+        {% include "portal/partial/cards/_health_snapshot_card.html.twig" with {healthSnapshot: healthSnapshot}%}
+
+        <!-- Help Card -->
+        {% include "portal/partial/_help_card.html.twig" with {
+            id: "help-card"
+            ,title: "Dashboard Help"|xl
+            ,items: [
+                {
+                    title: "Clinical Documents"|xl
+                    ,icon: "file"
+                    ,description: "Clinical forms and documents that have been sent by your clinical staff to be filled out."|xl
+                    ,enabled: true
+                }
+                ,{
+                    title: "Appointments"|xl
+                    ,icon: "calendar-check"
+                    ,description: "View upcoming appointments and if allowed by your clinical staff make new appointments."|xl
+                    ,enabled: allow_portal_appointments
+                }
+                ,{
+                    title: "Make Payment"|xl
+                    ,icon: "wallet"
+                    ,description: "Submit payments for amounts you owe for your medical care."|xl
+                    ,enabled: portal_two_payments
+                }
+                ,{
+                    title: "Secure Messaging"|xl
+                    ,icon: "envelope"
+                    ,description: "You can send and receive secure communications with your care team staff through this system."|xl
+                    ,enabled: true
+                }
+                ,{
+                    title: "Health Snapshot"|xl
+                    ,icon: "clipboard"
+                    ,description: "See your immunization, medications, active prescriptions, allergy list, current problems list, and lab results."|xl
+                    ,enabled: true
+                }
+                ,{
+                    title: "Profile"|xl
+                    ,icon: "user"
+                    ,description: "Review and edit your medical profile information. This includes your basic demographics (name, address, emergency contact). You can also review your insurance information if you use a third party insurer to help pay for treatment of care."|xl
+                    ,enabled: true
+                }
+                ,{
+                    title: "Billing Summary"|xl
+                    ,icon: "credit-card"
+                    ,description: ""|xl
+                    ,enabled: portal_two_ledger
+                }
+                ,{
+                    title: "Medical Reports"|xl
+                    ,icon: "gear"
+                    ,description: "Setup your digital signature for signing your clinical documents, update your login credentials, or change application settings in the portal."|xl
+                    ,enabled: ccdaOk or 'allow_custom_report' or portal_onsite_document_download
+                }
+                ,{
+                    title: "PRO Assessment"|xl
+                    ,icon: "flask-vial"
+                    ,description: "Questionnaires/Assessments using the Patient-Reported Outcomes Measurement Information System (PROMIS)."|xl
+                    ,enabled: isEasyPro
+                }
+                ,{
+                    title: "Settings"|xl
+                    ,icon: "gear"
+                    ,description: "Setup your digital signature for signing your clinical documents, update your login credentials, or change application settings in the portal."|xl
+                    ,enabled: true
+                }
+            ]
+        } %}
+
+        <!-- Help Card Reports List -->
+        {% include "portal/partial/_help_card.html.twig" with {
+            id: "help-card-reports-list"
+            ,backButton: true
+            ,backButtonCard: "reports-list-card"
+            ,backButtonClass: "reports-list-back-btn"
+            ,title: "Medical Reports Help"|xl
+            ,items: [
+                {
+                    title: "View Summary of Care"|xl
+                    ,icon: "notes-medical"
+                    ,description: "View your Summary of Care document that includes a printable version of your healthcare information. This document can be used to transfer your care to another healthcare facility. In technical terms it is called a C-CDA."|xl
+                    ,enabled: ccdaOk
+                }
+                ,{
+                    title: "Download Summary of Care"|xl
+                    ,icon: "notes-medical"
+                    ,description: "Download a copy of your Summary of Care document. This document can be used to transfer your care to another healthcare facility. In technical terms it is called a C-CDA."|xl
+                    ,enabled: ccdaOk
+                }
+                ,{
+                    title: "Customized Medical History Report"|xl
+                    ,icon: "clipboard"
+                    ,description: "View, Print, or Download individual items of your medical history based upon your custom selections"|xl
+                    ,enabled: true
+                }
+                ,{
+                    title: "Download Medical Record Documents"|xl
+                    ,icon: "notes-medical"
+                    ,description: "Select stored documents in your medical file that have been uploaded by your clinical staff or yourself to be downloaded."|xl
+                    ,enabled: portal_onsite_document_download
+                }
+
+            ]
+        } %}
+
+        <!-- Reports List Card -->
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reports-list-card">
+            <header class="card-header p-1 bg-dark text-light h3">{{ 'Medical Reports' | xlt }}</header>
+            <div class="row no-gutters">
+                {% if ccdaOk %}
+                    {% include "portal/partial/_nav_icon.html.twig"
+                        with {
+                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=" ~ csrfUtils|attr_url
+                        , icon: "notes-medical"
+                        , navText: "View Summary of Care"|xl
+                        , id: "view-summary-go"
+                        , localLink: false
+                    } %}
+                    {% include "portal/partial/_nav_icon.html.twig"
+                        with {
+                        url: web_root ~ "/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=" ~ csrfUtils|attr_url
+                        , icon: "download"
+                        , navText: "Download Summary of Care"|xl
+                        , id: "download-summary-go"
+                        , localLink: false
+                    } %}
+                {% endif %}
+                {% if 'allow_custom_report' %}
+                    {% include "portal/partial/_nav_icon.html.twig"
+                        with {
+                        url: "reportcard"|attr_url
+                        , icon: "clipboard"
+                        , navText: "Customized Medical History Report"|xl
+                        , id: "create-report-go"
+                    } %}
+                {% endif %}
+                {% if portal_onsite_document_download %}
+                    {% include "portal/partial/_nav_icon.html.twig"
+                        with {
+                        url: "downloadcard"|attr_url
+                        , icon: "file-zipper"
+                        , navText: "Download Medical Record Documents"|xl
+                        , id: "download-documents-go"
+                    } %}
+                {% endif %}
+                {% include "portal/partial/_nav_icon.html.twig"
+                    with {
+                    url: "help-card-reports-list"|attr_url
+                    , icon: "question-circle"
+                    , navText: "Help"|xl
+                    , id: "help-reports-list-go"
+                } %}
+            </div>
+        </div>
+
+        <!-- Custom Itemised Report Card -->
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
+            <header class="card-header p-1 bg-dark text-light h3">
+                <a href="#reports-list-card"
+                     data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false"
+                     class="reports-list-back-btn btn btn-light text-dark d-none"><i class="fa fa-arrow-left"></i> {{ "Back"|xlt }}</a>
+                {{ 'Customized Medical History Report' | xlt }}</header>
+            <div id="reports" class="card-body">{% include "portal/partial/_alert_loading.html.twig" %}</div>
+        </div>
+
+        <!-- Settings Card -->
+        <div class="card collapse" data-parent="#cardgroup" id="settings-card">
+            <header class="card-header p-1 bg-dark text-light h3">{{ 'Settings' | xlt }}</header>
+            <div>
+                <!-- Signature -->
+                <div class="card d-flex mr-1 mb-1">
+                    <div class="card-body row">
+                        <h4 class="card-title d-flex align-items-center btn-link"><a role="button" href="#openSignModal" data-toggle="modal" data-parent="#cardgroup"><i class="fas fa-file-signature mr-1"></i>{{ 'Default Digital Signature' | xlt }}</a></h4>
+                    </div>
+                </div>
+                <!-- Password -->
+                <div class="card d-flex mr-1 mb-1">
+                    <div class="card-body row">
+                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
+                    </div>
+                </div>
+                <!-- Theme -->
+                <div class="card d-flex mr-1 mb-1">
+                    <div class="card-body row">
+                        <h4 class="card-title d-flex align-items-center btn-link" data-toggle="collapse" data-target="#settings-content" role="button">
+                            <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
+                        </h4>
+                        <div id="settings-content" class="collapse col-12">
+                            <div class="form-group">
+                                <div class="col">
+                                    <label class="" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
+                                    <div class="input-group">
+                                        <select class='form-control' id='my_theme'>
+                                            {% for styleKey, styleValue in styleArray %}
+                                                {{ "<option value='" ~ styleKey | attr ~ "'" }}
+                                                {% if styleKey == current_theme %}
+                                                    {{ " selected" }}
+                                                {% endif %}
+                                                {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="input-group-append">
+                                            <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
+            <div id="profilereport" class="card-body p-2 bg-light">
+                {% include "portal/partial/_alert_loading.html.twig" %}
+            </div>
+        </div>
+
+        <!-- Secure Messages Card -->
+        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
+            <div class="card">
+                <div id="secure-msgs" class="card-body">
+                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments Card -->
+        {% if allow_portal_appointments %}
+            {% include "portal/partial/cards/_appointment_card.html.twig" with {patientID: patientID} %}
+        {% endif %}
+
+        <!-- Payments Card -->
+        {% if portal_two_payments %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
+                <div class="card">
+                    <header class="card-header p-1 bg-dark text-light h3">{{ 'Payments' | xlt }}</header>
+                    <div id="payment" class="card-body p-2 bg-light">{% include "portal/partial/_alert_loading.html.twig" %}</div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Download Documents Card -->
+        {% if portal_onsite_document_download %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
+                <header class="card-header p-1 bg-dark text-light h3">
+                    <a href="#reports-list-card"
+                       data-toggle="collapse" data-parent="#cardgroup" aria-expanded="false"
+                       class="reports-list-back-btn btn btn-light text-dark d-none"><i class="fa fa-arrow-left"></i> {{ "Back"|xlt }}</a>
+                    {{ 'Download Documents From Medical Record' | xlt }}
+                </header>
+                <div id="docsdownload" class="card-body">
+                    <div>
+                        <iframe src="./get_patient_documents.php" class="w-100 vh-100 border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Billing Summary Card -->
+        {% if portal_two_ledger %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
+                <div class="card">
+                    <header class="card-header p-1 bg-dark text-light h3">{{ 'Billing Summary' | xlt }}</header>
+                    <div id="patledger" class="card-body">
+                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Assessments PRO Card -->
+        {% if isEasyPro %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
+                <header class="card-header p-1 bg-dark text-light h3">{{ 'Patient Reported Outcomes' | xlt }}</header>
+                <div id="pro" class="card-body p-2 bg-light">{% include "portal/partial/_alert_loading.html.twig" %}</div>
+            </div>
+        {% endif %}
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 

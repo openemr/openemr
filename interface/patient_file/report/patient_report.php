@@ -2,6 +2,8 @@
 
 /**
  * Patient report
+ * TODO: Note that this file can be refactored to re-use shared code with the portal_patient_report.php file
+ * that file has been refactored to use twig templates and this file could be reworked to re-use much of that code
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

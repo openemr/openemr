@@ -33,6 +33,8 @@ class AppointmentService extends BaseService
     const PRACTITIONER_TABLE = "users";
     const FACILITY_TABLE = "facility";
 
+    const CATEGORY_CONSTANT_NO_SHOW = 'no_show';
+
     /**
      * @var EncounterService
      */
@@ -613,6 +615,10 @@ class AppointmentService extends BaseService
             [$appointment['pc_facility']]
         );
 
+        $visit_reason = $appointment['pc_hometext'] ?? xl('Please indicate visit reason');
+        if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+            $visit_reason = 'Please indicate visit reason';
+        }
         $data = [
             'pc_catid' => $appointment['pc_catid']
             // TODO: where would we get this information if it wasn't defaulted to ambulatory?  Should this be a globals setting?
@@ -621,7 +627,7 @@ class AppointmentService extends BaseService
             ,'puuid' => $patientUuid
             ,'pid' => $appointment['pid']
             ,'provider_id' => $user['id']
-            ,'reason' => $appointment['pc_hometext'] ?? xl('Please indicate visit reason')
+            ,'reason' => $visit_reason
             ,'facility_id' => $appointment['pc_facility']
             ,'billing_facility' => $appointment['pc_billing_location']
             ,'pos_code' => $pos_code

@@ -729,7 +729,10 @@ foreach ($providers as $provider) {
                 if ($event['recurrtype'] > 0) {
                     $content .= "<img class='border-0' src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' style='margin: 0 2px 0 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "' />";
                 }
-                if ($comment) $content .= " " . text($comment);
+                if ($comment) {
+
+                    $content .= " " . text($comment);
+                }
             }
             else {
                 // some sort of patient appointment
@@ -742,19 +745,24 @@ foreach ($providers as $provider) {
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
                 $content .= '&nbsp;' . text($event['apptstatus']);
                 if ($patientid) {
-                    $link_title = $fname . " " . $lname . " \n";
-                    $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . " $comment" . "\n";
-                    $link_title .= "(" . xl('Click to view') . ")";
-                    $content .= "<a class='link_title' data-pid='". attr($patientid) . "' href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
-                    $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='" . attr($link_title) . "'></i>";
+                    // include patient name and link to their details
+                    $link_title = attr($fname) . " " . attr($lname) . " \n";
+                    // note we don't escape comment as its already been escaped in pnuserapi
+                    $link_title .= xla('Age') . ": " . attr($patient_age) . "\n" . xla('DOB') . ": " . attr($patient_dob) . " $comment" . "\n";
+                    $link_title .= "(" . xla('Click to view') . ")";
+                    $content .= "<a class='link_title' data-pid='". attr($patientid) . "' href='javascript:goPid(" . attr_js($patientid) . ")' title='" . $link_title . "'>";
+                    $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".urlencode($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='" . $link_titles . "'></i>";
                     if ($catid == 1) $content .= "<s>";
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         $content .= "," . text($fname);
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
-                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                            $content .= ": <span class='text-success'>" . text(trim($event['hometext'])) . "</span>";
+                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4) {
+                                // note hometext is already escaped in pnuserapi.php via the pcVarPrepHTMLDisplay function
+                                // we don't double escape it here.
+                                $content .= ": <span class='text-success'>" . trim($event['hometext']) . "</span>";
+                            }
                             $content .= ")";
                         }
                     }
@@ -773,8 +781,11 @@ foreach ($providers as $provider) {
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
-                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                            $content .= ": <span class='text-success'>" . text(trim($event['hometext'])) . "</span>";
+                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4) {
+                                // note hometext is already escaped in pnuserapi.php via the pcVarPrepHTMLDisplay function
+                                // we don't double escape it here.
+                                $content .= ": <span class='text-success'>" . trim($event['hometext']) . "</span>";
+                            }
                             $content .= ")";
                         }
                     }

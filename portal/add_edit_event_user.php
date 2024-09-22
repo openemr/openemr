@@ -47,7 +47,7 @@ use OpenEMR\Services\AppointmentService;
 
 // Things that might be passed by our opener.
 //
-$eid = $_GET['eid'] ?? null;         // only for existing events
+$eid = intval($_GET['eid'] ?? 0);         // only for existing events
 $date = $_GET['date'] ?? null;        // this and below only for new events
 $userid = $_GET['userid'] ?? null;
 $default_catid = ($_GET['catid'] ?? null) ? $_GET['catid'] : '5';
@@ -59,7 +59,7 @@ $checkEidInAppt = false;
 $patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $pid);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
-if (!empty($eid) && !$checkEidInAppt) {
+if ($eid !== 0 && $checkEidInAppt === false) {
     echo js_escape("error");
     exit();
 }
@@ -87,6 +87,8 @@ if ($date) {
 } else {
     $date = date("Y-m-d");
 }
+// internationalize the date
+$date = oeFormatShortDate($date);
 
 //
 $starttimem = '00';
@@ -113,7 +115,7 @@ $info_msg = "";
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
 // edit event case - if there is no association made, then insert one with the first facility
-if ($eid) {
+if ($eid !== 0) {
     $selfacil = '';
     $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                         FROM openemr_postcalendar_events
@@ -287,7 +289,7 @@ if (($_POST['form_action'] ?? null) == "save") {
     /* =======================================================
     //                                  UPDATE EVENTS
     ========================================================*/
-    if ($eid) {
+    if ($eid !== 0) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
@@ -547,9 +549,9 @@ $hometext = "";
 $row = array();
 
 // If we are editing an existing event, then get its data.
-if ($eid) {
+if ($eid !== 0) {
     $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-    $date = $row['pc_eventDate'];
+    $date = oeFormatShortDate($row['pc_eventDate']);
     $userid = $row['pc_aid'];
     $patientid = $row['pc_pid'];
     $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
@@ -612,13 +614,13 @@ if ($userid) {
     $cattype = 0;
 
     // Get event categories.
-    $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
+    $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_constant_id, pc_catname, " .
         "pc_recurrtype, pc_duration, pc_end_all_day " .
         "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
     $catoptions = "";
     $prefcat_options = "    <option value='0'>-- " . xlt("None{{Category}}") . " --</option>\n";
     $thisduration = 0;
-    if ($eid) {
+    if ($eid !== 0) {
         $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
     }
     while ($crow = sqlFetchArray($cres)) {
@@ -630,7 +632,7 @@ if ($userid) {
         // This section is to build the list of preferred categories:
         if ($duration) {
             $prefcat_options .= " <option value='" . attr($crow['pc_catid']) . "'";
-            if ($eid) {
+            if ($eid !== 0) {
                 if ($crow['pc_catid'] == $row['pc_prefcatid']) {
                     $prefcat_options .= " selected";
                 }
@@ -639,14 +641,14 @@ if ($userid) {
             $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
         }
 
-        if ($crow['pc_cattype'] != $cattype) {
+        if ($crow['pc_cattype'] != $cattype || $crow['pc_constant_id'] === AppointmentService::CATEGORY_CONSTANT_NO_SHOW) {
             continue;
         }
 
         echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . ";\n";
         // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
         $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
-        if ($eid) {
+        if ($eid !== 0) {
             if ($crow['pc_catid'] == $row['pc_catid']) {
                 $catoptions .= " selected";
             }
@@ -686,15 +688,15 @@ if ($userid) {
                     </div>
                     <div class="input-group col-12 col-md-6">
                         <label class="mr-2" for="form_date"><?php echo xlt('Date'); ?>:</label>
-                        <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
+                        <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid !== 0) ? attr(oeFormatShortDate($row['pc_eventDate'])) : attr($date); ?>' />
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group form-inline col-12">
                         <div class="input-group mb-1">
                             <label class="mr-2"><?php echo xlt('Time'); ?>:</label>
-                            <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                            <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
                             <select class="form-control col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
                                 <option value='1'><?php echo xlt('AM'); ?></option>
                                 <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
@@ -737,7 +739,7 @@ if ($userid) {
                             ?>
                         </select>
                         <div class="text-right">
-                            <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+                            <input type='button' class='btn btn-success' value='<?php echo xla('See Availability'); ?>' onclick='find_available()' />
                         </div>
                     </div>
                 </div>
@@ -758,7 +760,9 @@ if ($userid) {
         <script>
             function change_provider() {
                 var f = document.forms.namedItem("theaddform");
-                f.form_date.value = '';
+                // use today's date but reset everything else when changing providers so we can
+                // search on availability. jsGlobals['date_display_format']
+                f.form_date.value = window.top.oeFormatters.I18NDateFormat(new Date());
                 f.form_hour.value = '';
                 f.form_minute.value = '';
             }
@@ -800,7 +804,7 @@ if ($userid) {
                 if (s.selectedIndex >= 0) {
                     var catid = s.options[s.selectedIndex].value;
                     f.form_title.value = s.options[s.selectedIndex].text;
-                    f.form_duration.value = durations[catid];
+                    f.form_duration.value = durations[catid] || '15';
                     set_display();
                 }
             }
@@ -808,9 +812,9 @@ if ($userid) {
             // This is for callback by the find-available popup.
             function setappt(year, mon, mday, hours, minutes) {
                 var f = document.forms.namedItem("theaddform");
-                f.form_date.value = '' + year + '-' +
-                    ('' + (mon + 100)).substring(1) + '-' +
-                    ('' + (mday + 100)).substring(1);
+                // note that month is 0 based, 0-11 so need to subtract 1 as the api caller is 1 based (1-12)
+                let date= new Date(year, mon-1, mday, hours, minutes);
+                f.form_date.value = window.top.oeFormatters.I18NDateFormat(date);
                 f.form_ampm.selectedIndex = (hours > 12) ? 1 : 0;
                 if (hours == 0) {
                     f.form_hour.value = 12;
@@ -874,7 +878,7 @@ if ($userid) {
                 return false;
             }
 
-            <?php if ($eid) { ?>
+            <?php if ($eid !== 0) { ?>
             set_display();
             <?php } ?>
             $(function () {

@@ -82,32 +82,60 @@ class LogProperties
         $this->weno_admin_password = $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
     }
 
-    /**
+    public function fetchLogSyncDates(): array
+    {
+        $wenoLog = new WenoLogService();
+        $workday = date("l");
+        if ($workday == 'Monday') {
+            $from = date("Y-m-d", strtotime("-2 days"));
+        } else {
+            $from = date("Y-m-d", strtotime("yesterday"));
+        }
+        // Retrieve the last sync date
+        $lastSync = sqlQuery("SELECT * FROM `weno_download_log` WHERE value='Sync Report' AND status = 'Success' ORDER BY `id` DESC LIMIT 1;")['created_at'];
+        $lastSync = date("Y-m-d", strtotime($lastSync));
+        // Ensure `to` is today and `from` defaults to yesterday or earlier
+        $to = date("Y-m-d", strtotime("tomorrow"));
+        // Ensure `from` and `to` are within a 7-day range
+        $sevenDaysAgo = date("Y-m-d", strtotime("$to -6 days"));
+        // If last sync is before the current `from`, adjust the `from` date
+        if ($lastSync < $from) {
+            $from = $lastSync;
+            if ($from < $sevenDaysAgo) {
+                $from = $sevenDaysAgo;
+                $status = xl("Syncing Report was behind. Syncing last 7 days.");
+                $wenoLog->insertWenoLog("Sync Report (May be first sync)", $status);
+            }
+        }
+        // Ensure the date range is not greater than 7 days
+        if ((strtotime($to) - strtotime($from)) > (7 * 86400)) { // 86400 seconds in a day
+            $to = date("Y-m-d", strtotime("$from +6 days"));
+        }
+        return [$from, $to];
+    }
+
+        /**
      * @return string
      */
-    public function logEpcs()
+    public function logEpcs(): string
     {
         $email['email'] = $this->weno_admin_email;
         $prov_pass = $this->weno_admin_password; // gets the password stored for the
         $md5 = md5($prov_pass); // hash the current password
-        $workday = date("l");
-        //Checking Saturday for any prescriptions that were written.
-        if ($workday == 'Monday') {
-            $yesterday = date("Y-m-d", strtotime("-2 day"));
-        } else {
-            $yesterday = date("Y-m-d", strtotime("yesterday"));
-        }
 
-        $today = date("Y-m-d", strtotime("today"));
+        $syncDates = $this->fetchLogSyncDates();
+        $from = $syncDates[0];
+        $to = $syncDates[1];
 
         $p = [
             "UserEmail" => $email['email'],
             "MD5Password" => $md5,
-            "FromDate" => $yesterday,
-            "ToDate" => $today,
+            "FromDate" => $from,
+            "ToDate" => $to,
             "ResponseFormat" => "CSV"
         ];
-        $plaintext = json_encode($p); //json encode email and password
+        $plaintext = json_encode($p); // json encode email and password
+
         if ($this->enc_key && $md5) {
             return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));
         } else {
@@ -152,6 +180,9 @@ class LogProperties
         }
 
         $urlOut = $syncLogs . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
+
+        $wenoLog->insertWenoLog("Sync Report", "Sent a Sync Request", $urlOut);
+
         $ch = curl_init($urlOut);
         curl_setopt($ch, CURLOPT_TIMEOUT, 200);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -170,31 +201,30 @@ class LogProperties
                 EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
                 // if background task then return false
                 if ($tasked == 'background') {
-                    $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Background Service.");
+                    $wenoLog->insertWenoLog("Sync Report", $error);
                     return false;
                 }
                 if ($tasked == 'downloadLog') {
-                    $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials User Download.");
+                    $wenoLog->insertWenoLog("Sync Report", $error);
                     echo(js_escape($error));
                     exit;
                 }
-                $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Hint:see previous errors.");
+                $wenoLog->insertWenoLog("Sync Report", "Invalid Prescriber Credentials Hint:see previous errors.");
                 echo(js_escape($error));
                 return false;
             }
-            $wenoLog->insertWenoLog("prescription", "Success");
         } else {
             // yes record failures.
             EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ("$statusCode"));
             error_log("Prescription download failed: errorLogEscape($statusCode)");
-            $wenoLog->insertWenoLog("prescription", "http_error_$statusCode");
+            $wenoLog->insertWenoLog("Sync Report", "Failed http_error_$statusCode");
             return false;
         }
 
         if (file_exists($this->rxsynclog)) {
             $log = new LogImportBuild();
             $rtn = $log->buildPrescriptionInserts();
-            if (!$rtn) {
+            if ($rtn != true) {
                 return false;
             }
         } else {

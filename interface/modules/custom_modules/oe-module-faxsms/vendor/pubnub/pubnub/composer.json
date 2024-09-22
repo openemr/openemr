@@ -1,0 +1,39 @@
+{
+  "name": "pubnub/pubnub",
+  "type": "library",
+  "description": "This is the official PubNub PHP SDK repository.",
+  "keywords": ["api", "real-time", "realtime", "real time", "ajax", "push"],
+  "homepage": "http://www.pubnub.com/",
+  "license": "proprietary",
+  "version": "6.3.0",
+  "authors": [
+    {
+      "name": "PubNub",
+      "email": "support@pubnub.com"
+    }
+  ],
+  "scripts": {
+    "test": "./vendor/bin/phpunit tests/  --verbose --coverage-clover=coverage.clover"
+  },
+  "require": {
+    "php": "^7.4|>=8.0",
+    "rmccue/requests": "^2.0",
+    "psr/log": "^1.1|^2.0|^3.0"
+  },
+  "require-dev": {
+    "monolog/monolog": "^2.9 || ^3.0",
+    "phpunit/phpunit": "^9.5",
+    "squizlabs/php_codesniffer": "^3.7",
+    "phpstan/phpstan": "^1.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "PubNub\\": "src/PubNub"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PubNubTests\\": "tests"
+    }
+  }
+}

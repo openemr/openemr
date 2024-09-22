@@ -87,7 +87,7 @@ $audit_status_blank = array(
     <meta charset="UTF-8">
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
-    <?php Header::setupHeader(['datetime-picker', 'select2', 'ckeditor']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'select2', 'summernote']); ?>
     <script>
         const profiles = <?php echo js_escape($profile_list); ?>;
         let currentEdit = "";
@@ -477,6 +477,8 @@ $audit_status_blank = array(
       caption {
         caption-side: top !important;
       }
+
+      .note-editor.dragover .note-dropzone {display:none}
     </style>
 </head>
 <body class="body-top">

@@ -66,6 +66,13 @@ Compound Helpers
 <!-- -->
 <!-- -->
 <!-- -->
+
+<!--
+HR: I inverted the meaning of these radios to match what gets saved in db. Db meaning controls logic. 
+Db field is "required_flag", and its label says has value 0 for required, and 1 for optional. but this is inverted.
+If field's value is 1, logic treats as "required"
+-->
+
 <?php function common_fields($args)
 {
     ?>
@@ -73,10 +80,10 @@ Compound Helpers
     <p class="form-row">
         <span class="left_col colhead req" data-field="fld_optional"><?php echo xlt('Optional'); ?></span>
         <span class="end_col">
-            <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
-                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes'); ?>
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="no"
-                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
+                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes');?>
+            <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
+                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
         </span>
     </p>
 

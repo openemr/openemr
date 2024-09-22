@@ -121,7 +121,6 @@ class DocumentTemplateRender
         }
         $config->set('Cache.SerializerPath', $purifyTempFile);
         $config->set('Core.Encoding', 'UTF-8');
-        $config->set('CSS.AllowedProperties', '*');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
         // Purify escapes URIs.
@@ -160,15 +159,15 @@ class DocumentTemplateRender
 
             if ($this->keySearch($s, '{PatientSignature}')) {
                 $sigfld = '<script>page.presentPatientSignature=true;</script>';
-                $sigfld .= '<img class="signature bg-light m-1" name="patient_signature' . ++$this->signed_cnt . '" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['patient_signature' . $this->signed_cnt] ?? '') . '" />';
+                $sigfld .= '<img class="signature m-1" name="patient_signature' . ++$this->signed_cnt . '" id="patientSignature" style="background-color: white;cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['patient_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{AdminSignature}')) {
                 $sigfld = '<script>page.presentAdminSignature=true;</script>';
-                $sigfld .= '<img class="signature bg-light m-1" name="admin_signature' . ++$this->signed_cnt . '" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['admin_signature' . $this->signed_cnt] ?? '') . '" />';
+                $sigfld .= '<img class="signature m-1" name="admin_signature' . ++$this->signed_cnt . '" id="adminSignature" style="background-color: white;cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['admin_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{WitnessSignature}')) {
                 $sigfld = '<script>page.presentWitnessSignature=true;</script>';
-                $sigfld .= '<img class="signature bg-light m-1" name="witness_signature' . ++$this->signed_cnt . '" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['witness_signature' . $this->signed_cnt] ?? '') . '" />';
+                $sigfld .= '<img class="signature m-1" name="witness_signature' . ++$this->signed_cnt . '" id="witnessSignature" style="background-color: white;cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['witness_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{SignaturesRequired}')) {
                 $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";

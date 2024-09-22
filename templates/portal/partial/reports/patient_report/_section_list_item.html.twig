@@ -1,0 +1,11 @@
+{#
+* _section_list_item.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<input type='checkbox' name='include_{{ sectionId|attr }}' id='include_{{ sectionId|attr }}' value="{{ sectionId|attr }}"
+    {% if section.selected %}checked{% endif %}>{{ section.label|text }}<br />

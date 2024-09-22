@@ -1,0 +1,26 @@
+{#
+* _health_snapshot_immunization_card.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="card">
+    <header class="card-header p-1 bg-dark text-light h5">{{ 'Patient Immunization' | xlt }}</header>
+    <div class="card-body border">
+        {% for record in immunizationRecords %}
+            <div>
+                {{ record.administered_formatted | xlt }} :
+                {{ record.code_text | xlt }} :
+                {{ record.note | xlt }} :
+                {{ record.completion_status | xlt }}
+            </div>
+        {% else %}
+            <p>{{ 'No records found.' | xlt }}</p>
+        {% endfor %}
+    </div>
+</div>

@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
@@ -24,6 +26,7 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
+use OpenEMR\Services\Utils\SQLUpgradeService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
@@ -63,6 +66,11 @@ class Bootstrap
      */
     private SelectedPatientPharmacy $selectedPatientPharmacy;
     public string $installPath;
+    /**
+     * @var mixed|string
+     */
+    public mixed $isWenoUser;
+    public bool $isAuthorized;
 
     public function __construct(EventDispatcher $dispatcher)
     {
@@ -73,6 +81,8 @@ class Bootstrap
         $this->modulePath = dirname(__DIR__);
         $this->logger = new SystemLogger();
         $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
+        $this->isWenoUser = !empty($this->isWenoUser());
+        $this->isAuthorized = AclMain::aclCheckCore('patients', 'rx');
     }
 
     /**
@@ -109,6 +119,9 @@ class Bootstrap
      */
     public function addGlobalWenoSettings(GlobalsInitializedEvent $event): void
     {
+        if (!$this->isWenoUser) {
+            return;
+        }
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
         $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
@@ -163,6 +176,10 @@ class Bootstrap
      */
     public function renderWenoSection(pRenderEvent $event): void
     {
+        if (!$this->isWenoUser || !$this->isAuthorized) {
+            return;
+        }
+
         $path = __DIR__;
         $path = str_replace("src", "templates", $path);
         $pid = $event->getPid();
@@ -241,7 +258,7 @@ class Bootstrap
         $menuItem->label = xlt("Weno Prescription Log");
         $menuItem->url = "/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php";
         $menuItem->children = [];
-        $menuItem->acl_req = ["patients", "demo", 'write'];
+        $menuItem->acl_req = ["patients", "rx"];
         $menuItem->global_req = ["weno_rx_enable"];
         //Weno log
         $dlMenu = new \stdClass();
@@ -289,6 +306,9 @@ class Bootstrap
             if ($item->menu_id == 'repimg') {
                 foreach ($item->children as $clientReport) {
                     if ($clientReport->label == 'Clients') {
+                        if (!$this->isWenoUser) {
+                            continue;
+                        }
                         $clientReport->children[] = $menuItem;
                         break;
                     }
@@ -314,6 +334,10 @@ class Bootstrap
      */
     public function renderWenoPharmacySelector(): void
     {
+        if (!$this->isWenoUser) {
+            return;
+        }
+
         include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
     }
 
@@ -369,6 +393,34 @@ class Bootstrap
         $updatedPatientData = $event->getUpdatedPatientData();
         $this->selectedPatientPharmacy->prepForUpdatePharmacy($updatedPatientData);
     }
-}
 
-?>
+    public function isWenoUser()
+    {
+        if (empty($id)) {
+            $id = $_SESSION['authUserID'] ?? '';
+        }
+        // get the Weno User id from the user table (weno_prov_id)
+        $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+
+        return $provider['weno_prov_id'] ?? '';
+    }
+
+    public function moduleSqlUpgrade($installScript): string
+    {
+        try {
+            $fileName = basename($installScript);
+            $dir = dirname($installScript);
+            $sqlUpgradeService = new SQLUpgradeService();
+            $sqlUpgradeService->setThrowExceptionOnError(true);
+            $sqlUpgradeService->setRenderOutputToScreen(false);
+            $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
+            return true;
+        } catch (SqlQueryException $exception) {
+            (new SystemLogger())->errorLogCaller(
+                "Error: " . $exception->getMessage(),
+                ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
+            );
+            return false;
+        }
+    }
+}

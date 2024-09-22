@@ -135,13 +135,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
-                    <label class="plist-label" for="pid"><?php echo xlt('Pid')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group  dynhide hide" id="pidInputContainer">
+                    <label class="plist-label" for="pid"><?php /*echo xlt('Pid')*/?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="pid" placeholder="<?php echo xla('Pid')?>" value="<%= _.escape(item.get('pid') || '') %>">
+                        <input type="text" class="form-control" id="pid" readonly placeholder="<?php /*echo xla('Pid')*/?>" value="<%= _.escape(item.get('pid') || '') %>">
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="pubpidInputContainer">
                     <label class="plist-label" for="pubpid"><?php echo xlt('Public Patient Id')?></label>
                     <div class="controls inline-inputs">
@@ -158,13 +158,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
-                    <label class="plist-label" for="ss"><?php echo xlt('SSN')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group" id="ssInputContainer">
+                    <label class="plist-label" for="ss"><?php /*echo xlt('SSN')*/?></label>
                     <div class="controls inline-inputs">
-                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php echo xla('Social Security(Optional)'); ?>" value="<%= _.escape(item.get('ss') || '') %>">
+                        <input type="text" class="form-control" id="ss" title="###-##-####" placeholder="<?php /*echo xla('Social Security(Optional)'); */?>" value="<%= _.escape(item.get('ss') || '') %>">
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group" id="sexInputContainer">
                     <label class="plist-label" for="sex"><?php echo xlt('Gender')?></label><br />
                     <div class="controls inline-inputs">
@@ -480,14 +480,13 @@ if ($this->exclude) {
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
-                    <label class="plist-label" for="careTeam"><?php echo xlt('Care Team')?></label>
+                <!--<div class="col-sm-auto px-3 form-group plist-group dynhide" id="careTeamInputContainer">
+                    <label class="plist-label" for="careTeam"><?php /*echo xlt('Care Team')*/?></label>
                     <div class="controls inline-inputs">
-                        <!-- disabled for now. Patient doesn't have a need to select what care team they belong -->
                         <select disabled class="form-control" id="careTeam"
-                            title="<?php echo xla('Care Team'); ?>" value="<?php echo $row['careTeam']; ?>">
+                            title="<?php /*echo xla('Care Team'); */?>" value="<?php /*echo $row['careTeam']; */?>">
                             <?php
-                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
+/*                            echo "<option value=''>" . xlt('Unassigned') . "</option>";
                             foreach ($this->users_list as $user) {
                                 $user_name = text($user['fname'] . ' ' . $user['lname']);
                                 $id = attr($user['id']);
@@ -497,11 +496,11 @@ if ($this->exclude) {
                                 }
                                 echo ">$user_name</option>";
                             }
-                            ?>
+                            */?>
                         </select>
                         <span class="help-inline"></span>
                     </div>
-                </div>
+                </div>-->
                 <div class="col-sm-auto px-3 form-group plist-group dynhide" id="noteInputContainer">
                     <label class="plist-label" style="color:green" for="note"><?php echo xlt('Comments about change request')?></label>
                     <div class="controls inline-inputs">

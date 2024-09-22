@@ -163,7 +163,7 @@ class AclMain
     public static function aclCheckCore($section, $value, $user = '', $return_value = ''): bool
     {
         if (! $user) {
-            $user = $_SESSION['authUser'];
+            $user = $_SESSION['authUser'] ?? '';
         }
 
         // Superuser always gets access to everything.

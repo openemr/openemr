@@ -28,6 +28,14 @@ class TwilioSMSClient extends AppDispatch
     private $sid;
     private $appKey;
     private $appSecret;
+    /**
+     * @var mixed|string
+     */
+    private mixed $accountSID;
+    /**
+     * @var mixed|string
+     */
+    private mixed $authToken;
 
     public function __construct()
     {
@@ -54,7 +62,7 @@ class TwilioSMSClient extends AppDispatch
      * @param $uiDateRangeFlag
      * @return false|string|null
      */
-    public function fetchSMSList($uiDateRangeFlag = true)
+    public function fetchSMSList($uiDateRangeFlag = true): false|string|null
     {
         return $this->_getPending($uiDateRangeFlag);
     }
@@ -62,7 +70,7 @@ class TwilioSMSClient extends AppDispatch
     /**
      * @return array|mixed
      */
-    public function getCredentials()
+    public function getCredentials(): mixed
     {
         $credentials = appDispatch::getSetup();
         $this->accountSID = $credentials['username'] ?? '';
@@ -70,23 +78,15 @@ class TwilioSMSClient extends AppDispatch
         $this->sid = $credentials['username'] ?? '';
         $this->appKey = $credentials['appKey'] ?? '';
         $this->appSecret = $credentials['appSecret'] ?? '';
-        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-                "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
     }
 
-    /**
-     * @param $tophone
-     * @param $subject
-     * @param $message
-     * @param $from
-     * @return mixed
-     */
-    public function sendSMS($tophone = '', $subject = '', $message = '', $from = ''): mixed
+    public function sendSMS($toPhone = '', $subject = '', $message = '', $from = ''): mixed
     {
-        $tophone = $tophone ?: $this->getRequest('phone');
+        $toPhone = $toPhone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');
         $message = $message ?: $this->getRequest('comments');
 
@@ -95,11 +95,11 @@ class TwilioSMSClient extends AppDispatch
         } else {
             $from = $this->formatPhone($from);
         }
-        $tophone = $this->formatPhone($tophone);
+        $toPhone = $this->formatPhone($toPhone);
         try {
             $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
             $message = $twilio->messages->create(
-                $tophone,
+                $toPhone,
                 array(
                     "body" => text($message),
                     "from" => attr($from)
