@@ -114,6 +114,13 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             });
 
             let searchBox = document.querySelector('.select2-search__field');
+
+            searchBox.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    $('#selectSearch').trigger('click');
+                }
+            });
             searchBox.addEventListener('input', function (event) {
                 let currentValue = event.target.value;
                 $('#search_term').val(currentValue);
@@ -158,6 +165,19 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 $('#search_term').val("");
                 $('#edit_form').submit();
             });
+
+            $('#selected_patients').on('change', function () {
+                let selectedValues = [];
+                $(this).find('option:selected').each(function () {
+                    selectedValues.push({
+                        pid: $(this).val(),
+                        ptname: $(this).text()
+                    });
+                });
+                $('#persist_checks').val(JSON.stringify(selectedValues));
+            });
+
+            $('#selected_patients').trigger('change');
         });
 
         $(function () {
@@ -609,6 +629,22 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             $ppt = $templateService->searchPatients($searchTerm);
                         }
                         $auth = '';
+                        if (!empty($_REQUEST['persist_checks'])) {
+                            $persist_checks = json_decode($_REQUEST['persist_checks'], true);
+                            if (is_array($persist_checks)) {
+                                foreach ($persist_checks as $pt) {
+                                    foreach ($ppt as $k => $pc) {
+                                        if ($pc['pid'] == $pt['pid']) {
+                                            unset($ppt[$k]);
+                                            break;
+                                        }
+                                    }
+                                    if (isset($pt['pid']) && isset($pt['ptname'])) {
+                                        $auth .= "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname']) . '</option>';
+                                    }
+                                }
+                            }
+                        }
                         foreach ($ppt as $pt) {
                             if (!empty($from_demo_pid)) {
                                 $patient = [$from_demo_pid];
