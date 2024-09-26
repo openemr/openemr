@@ -452,18 +452,17 @@ export class EditPolicyScreenController
             // we don't have an id so we can't remove the policy
         this.__removeInsurance = true;
         this.render();
-        this.__insurancePolicyService.removeInsurance(this.selectedInsurance)
-            .then(result => {
-                this.__removeInsurance = false;
-                this.selectedInsurance = null;
-                this.setupInitialInsurance();
-                this.render();
+        console.log(this.selectedInsurance);
+        fetch('../../../../interface/removeInsurance.php', {
+            method: 'POST',
+            body: JSON.stringify(this.selectedInsurance)
+        }) .then(response => response.text())
+            .then(response => {
+                console.log(response);
+                location.reload();
             })
             .catch(error => {
                 console.error(error);
-                this.__removeInsurance = false;
-                alert(window.top.xl("An error occurred while removing the insurance policy. Please try again or contact your system administrator."));
-                this.render();
             });
     }
 

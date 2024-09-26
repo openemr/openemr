@@ -388,7 +388,9 @@ export class InsurancePolicyService
             });
     }
     removeInsurance(insurancePolicy) {
-        return 'DELETE';
+        //working up to here
+        console.log("Removing insurance policy", insurancePolicy);
+        return 'success';
     }
 
     #removePolicyInMemory(policy) {
