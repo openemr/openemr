@@ -46,6 +46,25 @@ class DocumentTemplateService extends QuestionnaireService
         return $rtn_array;
     }
 
+    public function searchPatients($searchTerm): array
+    {
+        $sql = "SELECT pid, `pubpid`, DOB as dob, Concat_WS(', ', lname, fname) as name FROM patient_data WHERE `allow_patient_portal` = 'YES' AND (lname LIKE ? OR fname LIKE ?) LIMIT 5000";
+        $bind = ['%' . $searchTerm . '%', '%' . $searchTerm . '%'];
+
+        $results = array(
+            ['pid' => '0', 'ptname' => 'All Patients'],
+            ['pid' => '-1', 'ptname' => 'Repository'],
+        );
+        $query_result = sqlStatement($sql, $bind);
+        while ($row = sqlFetchArray($query_result)) {
+            if (is_array($row)) {
+                $results[] = ['pid' => $row['pid'], 'ptname' => $row['name']];
+            }
+        }
+
+        return $results;
+    }
+
     /**
      * Resolve all templates for portal.
      * Also called from getTemplateCategoriesByPids() transaction.
@@ -361,11 +380,11 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * @param false $patients_only
-     * @return array|\string[][]
+     * @return array|string[][]
      */
     public function fetchPortalAuthUsers($patients_only = false): array
     {
-        $response = sqlStatement("SELECT `pid`, `pubpid`, DOB as dob, Concat_Ws(', ', `lname`, `fname`) as ptname FROM `patient_data` WHERE `allow_patient_portal` = 'YES' ORDER BY `lname`");
+        $response = sqlStatement("SELECT `pid`, `pubpid`, DOB as dob, Concat_Ws(', ', `lname`, `fname`) as ptname FROM `patient_data` WHERE `allow_patient_portal` = 'YES' ORDER BY `lname` LIMIT 10000");
 
         $result_data = [];
         if (!$patients_only) {
@@ -555,7 +574,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         // prevent template save if unsafe. Check for escaped and unescaped content.
         if (stripos($content, text('<script')) !== false || stripos($content, '<script') !== false) {
-            throw new \RuntimeException(xlt("Template rejected. JavaScript not allowed"));
+            throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
         $name = null;
@@ -680,7 +699,7 @@ class DocumentTemplateService extends QuestionnaireService
     {
         // prevent template save if unsafe. Check for escaped and unescaped content.
         if (stripos($content, text('<script')) !== false || stripos($content, '<script') !== false) {
-            throw new \RuntimeException(xlt("Template rejected. JavaScript not allowed"));
+            throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
         return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', array($content, $id));

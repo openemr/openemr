@@ -122,7 +122,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         }
 
         function areYouSure() {
-            let yn = confirm('<?php echo xlt("Are you sure you want to download logs?"); ?>');
+            let yn = confirm(<?php echo xlj("Are you sure you want to download logs?"); ?>);
             if (yn) {
                 top.restoreSession();
                 let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php?key=" + encodeURIComponent('downloadStatusLog')
