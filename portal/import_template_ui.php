@@ -46,41 +46,46 @@ $group_list = $templateService->fetchDefaultGroups();
 $none_message = xlt("Nothing to show for current actions.");
 // init status array
 $audit_status_blank = array(
-'audit_id' => null,
-'pid' => null,
-'create_date' => null,
-'doc_type' => null,
-'id' => null,
-'facility' => null,
-'provider' => null,
-'encounter' => null,
-'patient_signed_status' => null,
-'patient_signed_time' => null,
-'authorize_signed_time' => null,
-'accept_signed_status' => null,
-'authorizing_signator' => null,
-'review_date' => null,
-'denial_reason' => null,
-'authorized_signature' => null,
-'patient_signature' => null,
-'full_document' => null,
-'file_name' => null,
-'file_path' => null,
-'template_data' => null,
-'date' => null,
-'patient_id' => null,
-'activity' => null,
-'require_audit' => null,
-'pending_action' => null,
-'action_taken' => null,
-'status' => null,
-'narrative' => null,
-'table_action' => null,
-'table_args' => null,
-'action_user' => null,
-'action_taken_time' => null,
-'checksum' => null,
+    'audit_id' => null,
+    'pid' => null,
+    'create_date' => null,
+    'doc_type' => null,
+    'id' => null,
+    'facility' => null,
+    'provider' => null,
+    'encounter' => null,
+    'patient_signed_status' => null,
+    'patient_signed_time' => null,
+    'authorize_signed_time' => null,
+    'accept_signed_status' => null,
+    'authorizing_signator' => null,
+    'review_date' => null,
+    'denial_reason' => null,
+    'authorized_signature' => null,
+    'patient_signature' => null,
+    'full_document' => null,
+    'file_name' => null,
+    'file_path' => null,
+    'template_data' => null,
+    'date' => null,
+    'patient_id' => null,
+    'activity' => null,
+    'require_audit' => null,
+    'pending_action' => null,
+    'action_taken' => null,
+    'status' => null,
+    'narrative' => null,
+    'table_action' => null,
+    'table_args' => null,
+    'action_user' => null,
+    'action_taken_time' => null,
+    'checksum' => null,
 );
+
+$searchTerm = '';
+if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
+    $searchTerm = $_GET['search_term'] ?? $_GET['search'];
+}
 ?>
 <!DOCTYPE html>
 <head>
@@ -97,6 +102,205 @@ $audit_status_blank = array(
         <?php
         $eventDispatcher->dispatch(new SendNotificationEvent($pid ?? 0, ['is_onetime' => 1]), SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST);
         ?>
+        $(document).ready(function () {
+            let selectDropdown = $('.select-dropdown');
+            selectDropdown.select2({
+                multiple: true,
+                placeholder: 'Type to search.',
+                theme: 'bootstrap4',
+                dropdownAutoWidth: true,
+                width: '100%',
+                closeOnSelect: false
+            });
+
+            let searchBox = document.querySelector('.select2-search__field');
+
+            searchBox.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    $('#selectSearch').trigger('click');
+                }
+            });
+            searchBox.addEventListener('input', function (event) {
+                let currentValue = event.target.value;
+                $('#search_term').val(currentValue);
+            });
+
+            // Set the search term in the search box after the page reloads
+            let searchTerm = <?php echo js_escape($searchTerm); ?>;
+            if (searchTerm) {
+                let searchBox = document.querySelector('.select2-search__field');
+                $(searchBox).val(searchTerm).trigger('input');
+            }
+
+            document.querySelector('.select2-search__field').focus();
+            // When the search box is opened update the hidden input
+            selectDropdown.on('select2:open', function () {
+                let searchBox = document.querySelector('.select2-search__field');
+                $(searchBox).val($('#search_term').val()).trigger('input');
+                $(searchBox).on('input', function () {
+                    let searchTerm = $(this).val();
+                    $('#search_term').val(searchTerm);
+                });
+            });
+            // Get selected templates before the form is submitted
+            $('#edit_form').on('submit', function (e) {
+                e.preventDefault();
+                let checked = getSendChecks();
+                if (checked.length > 0) {
+                    return false;
+                }
+                this.submit();
+            });
+
+            $("#selectSearch").on('click', function () {
+                $('#edit_form').submit();
+            });
+
+            document.getElementById('clearSelection').addEventListener('click', function () {
+                let selectedPatients = $('#selected_patients');
+                selectedPatients.val(null).trigger('change');
+                let searchBox = document.querySelector('.select2-search__field');
+                $(searchBox).val(null).trigger('input');
+                $('#search_term').val("");
+                $('#edit_form').submit();
+            });
+
+            $('#selected_patients').on('change', function () {
+                let selectedValues = [];
+                $(this).find('option:selected').each(function () {
+                    selectedValues.push({
+                        pid: $(this).val(),
+                        ptname: $(this).text()
+                    });
+                });
+                $('#persist_checks').val(JSON.stringify(selectedValues));
+            });
+
+            $('#selected_patients').trigger('change');
+        });
+
+        $(function () {
+            let ourSelect = $('.select-questionnaire');
+            /* Questionnaires */
+            ourSelect.select2({
+                multiple: false,
+                placeholder: xl('Type to search Questionnaire Repository.'),
+                theme: 'bootstrap4',
+                dropdownAutoWidth: true,
+                width: 'resolve',
+                closeOnSelect: true,
+                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            });
+            $(document).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
+            });
+            ourSelect.on("change", function (e) {
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('upload_name').value = data[0].text;
+                }
+                $('#repository-submit').removeClass('d-none');
+            });
+
+            $("#repository-submit").on("click", function (e) {
+                top.restoreSession();
+                let data = $('#select_item').select2('data');
+                if (data) {
+                    document.getElementById('upload_name').value = data[0].text;
+                } else {
+                    alert(xl("Missing Template name."))
+                    return false;
+                }
+                return true;
+            });
+
+            $('#fetch_files').on('click touchstart', function () {
+                $(this).val('');
+            });
+
+            $('#fetch_files').change(function (e) {
+                const file = document.getElementById("fetch_files").files.item(0);
+                const fileName = file.name;
+                let howManyFiles = document.getElementById("fetch_files").files.length;
+                $('#upload_submit').removeClass('d-none');
+                if (howManyFiles === 1 && document.getElementById("upload_scope").checked) {
+                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
+                        $('#upload_submit_questionnaire').removeClass('d-none');
+                        resolveImport();
+                    }
+                } else {
+                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
+                        document.getElementById("upload_submit_questionnaire").type = 'submit';
+                        document.getElementById("upload_submit_questionnaire").removeAttribute("onclick");
+                        document.getElementById("upload_submit_questionnaire").innerText = xl("Questionnaires Repository All")
+                        $('#upload_submit_questionnaire').removeClass('d-none');
+                    }
+                }
+                return false;
+            });
+
+            $('input:checkbox[name=send]').change(function () {
+                let checked = getSendChecks();
+                if (checked.length > 0) {
+                    $('#send-button').removeClass('d-none');
+                    $('#category_group').addClass('d-none');
+                    $('#send-profile-hide').addClass('d-none');
+                } else {
+                    $('#send-button').addClass('d-none');
+                    $('#category_group').removeClass('d-none');
+                }
+            });
+
+            $('input:checkbox[name=send_profile]').change(function () {
+                $('#send-profile-hide').removeClass('d-none');
+                $('#category_group').addClass('d-none');
+                $('input:checkbox[name=send]').addClass('d-none');
+            });
+
+            $('#upload-nav').on('hidden.bs.collapse', function () {
+                $('#upload-nav-value').val('collapse');
+            });
+            $('#upload-nav').on('show.bs.collapse', function () {
+                $('#upload-nav-value').val('show');
+                //$('#edit_form').submit();
+            });
+
+            $("#template_category").change(function () {
+                $('#edit_form').submit();
+            });
+
+            $('#template-collapse').on('show.bs.collapse', function () {
+                $('#edit_form #all_state').val('show');
+            });
+            $('#template-collapse').on('hidden.bs.collapse', function () {
+                $('#edit_form #all_state').val('collapse');
+            });
+
+            $('#assigned_collapse').on('show.bs.collapse', function () {
+                $('#repository-collapse').collapse('hide');
+                $('#template-collapse').collapse('hide');
+                $('#edit_form #assigned_state').val('show');
+            });
+            $('#assigned_collapse').on('hidden.bs.collapse', function () {
+                $('#edit_form #assigned_state').val('collapse');
+            });
+
+            $('#repository-collapse').on('show.bs.collapse', function () {
+                $('#edit_form #repository_send_state').val('show');
+            });
+            $('#repository-collapse').on('hidden.bs.collapse', function () {
+                $('#edit_form #repository_send_state').val('collapse');
+            });
+
+            let selText = '';
+            let selCat = $('#template_category').find(':selected').text();
+            let ids = $('#selected_patients').find(':selected').each(function () {
+                selText += $(this).text() + '; ';
+            });
+            $('#upload_scope_category').empty().append(' ' + xl('For Category') + ': ' + selCat);
+        });
+
         // a callback from dlgclose(fn) in render form
         function doImportSubmit() {
             // todo add message to user
@@ -328,157 +532,31 @@ $audit_status_blank = array(
             $("#upload_name").val(name);
             return true;
         }
-
-        $(function () {
-            let ourSelect = $('.select-questionnaire');
-            ourSelect.select2({
-                multiple: false,
-                placeholder: xl('Type to search Questionnaire Repository.'),
-                theme: 'bootstrap4',
-                dropdownAutoWidth: true,
-                width: 'resolve',
-                closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
-            });
-            $(document).on('select2:open', () => {
-                document.querySelector('.select2-search__field').focus();
-            });
-            ourSelect.on("change", function (e) {
-                let data = $('#select_item').select2('data');
-                if (data) {
-                    document.getElementById('upload_name').value = data[0].text;
-                }
-                $('#repository-submit').removeClass('d-none');
-            });
-
-            $("#repository-submit").on("click", function (e) {
-                top.restoreSession();
-                let data = $('#select_item').select2('data');
-                if (data) {
-                    document.getElementById('upload_name').value = data[0].text;
-                } else {
-                    alert(xl("Missing Template name."))
-                    return false;
-                }
-                return true;
-            });
-
-            $('.select-dropdown').removeClass('d-none');
-            $('.select-dropdown').select2({
-                multiple: true,
-                placeholder: xl('Type to search.'),
-                theme: 'bootstrap4',
-                dropdownAutoWidth: true,
-                width: 'resolve',
-                closeOnSelect: false,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
-            });
-
-            $('#fetch_files').on('click touchstart', function () {
-                $(this).val('');
-            });
-
-            $('#fetch_files').change(function (e) {
-                const file = document.getElementById("fetch_files").files.item(0);
-                const fileName = file.name;
-                let howManyFiles = document.getElementById("fetch_files").files.length;
-                $('#upload_submit').removeClass('d-none');
-                if (howManyFiles === 1 && document.getElementById("upload_scope").checked) {
-                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
-                        $('#upload_submit_questionnaire').removeClass('d-none');
-                        resolveImport();
-                    }
-                } else {
-                    if (fileName.toLowerCase().indexOf('.json') > 0 || file.type === 'application/json') {
-                        document.getElementById("upload_submit_questionnaire").type = 'submit';
-                        document.getElementById("upload_submit_questionnaire").removeAttribute("onclick");
-                        document.getElementById("upload_submit_questionnaire").innerText = xl("Questionnaires Repository All")
-                        $('#upload_submit_questionnaire').removeClass('d-none');
-                    }
-                }
-                return false;
-            });
-
-            $('input:checkbox[name=send]').change(function () {
-                let checked = getSendChecks();
-                if (checked.length > 0) {
-                    $('#send-button').removeClass('d-none');
-                    $('#category_group').addClass('d-none');
-                    $('#send-profile-hide').addClass('d-none');
-                } else {
-                    $('#send-button').addClass('d-none');
-                    $('#category_group').removeClass('d-none');
-                }
-            });
-
-            $('input:checkbox[name=send_profile]').change(function () {
-                $('#send-profile-hide').removeClass('d-none');
-                $('#category_group').addClass('d-none');
-                $('input:checkbox[name=send]').addClass('d-none');
-            });
-
-            $('#selected_patients').on('select2:close', function () {
-                let checked = getSendChecks();
-                if (checked.length > 0) {
-                    return false;
-                }
-                $('#edit_form').submit();
-            });
-
-            $('#upload-nav').on('hidden.bs.collapse', function () {
-                $('#upload-nav-value').val('collapse');
-            });
-            $('#upload-nav').on('show.bs.collapse', function () {
-                $('#upload-nav-value').val('show');
-                //$('#edit_form').submit();
-            });
-
-            $("#template_category").change(function () {
-                $('#edit_form').submit();
-            });
-
-            $('#template-collapse').on('show.bs.collapse', function () {
-                $('#edit_form #all_state').val('show');
-            });
-            $('#template-collapse').on('hidden.bs.collapse', function () {
-                $('#edit_form #all_state').val('collapse');
-            });
-
-            $('#assigned_collapse').on('show.bs.collapse', function () {
-                $('#repository-collapse').collapse('hide');
-                $('#template-collapse').collapse('hide');
-                $('#edit_form #assigned_state').val('show');
-            });
-            $('#assigned_collapse').on('hidden.bs.collapse', function () {
-                $('#edit_form #assigned_state').val('collapse');
-            });
-
-            $('#repository-collapse').on('show.bs.collapse', function () {
-                $('#edit_form #repository_send_state').val('show');
-            });
-            $('#repository-collapse').on('hidden.bs.collapse', function () {
-                $('#edit_form #repository_send_state').val('collapse');
-            });
-
-            let selText = '';
-            let selCat = $('#template_category').find(':selected').text();
-            let ids = $('#selected_patients').find(':selected').each(function () {
-                selText += $(this).text() + '; ';
-            });
-            $('#upload_scope_category').empty().append(' ' + xl('For Category') + ': ' + selCat);
-
-            $(document).on('select2:open', () => {
-                document.querySelector('.select2-search__field').focus();
-            });
-        });
-
     </script>
     <style>
+      .select2-container .select2-search--inline .select2-search__field {
+        min-width: 5vw !important;
+        color: var(--light);
+        background-color: var(--dark);
+      }
+
+      .select2-container {
+        max-width: 50% !important;
+      }
+
+      .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+        color: #dc3545;
+        font-size: 1rem;
+        line-height: revert !important;
+      }
+
       caption {
         caption-side: top !important;
       }
 
-      .note-editor.dragover .note-dropzone {display:none}
+      .note-editor.dragover .note-dropzone {
+        display: none
+      }
     </style>
 </head>
 <body class="body-top">
@@ -506,27 +584,6 @@ $audit_status_blank = array(
             <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
                     <a class='navbar-brand ml-1'><?php echo xlt('Scope'); ?></a>
-                    <div class="form-group">
-                        <label class='font-weight-bold mx-1' for='selected_patients'><?php echo xlt('Location'); ?></label>
-                        <?PHP
-                        $ppt = $templateService->fetchPortalAuthUsers();
-                        $auth = '';
-                        foreach ($ppt as $pt) {
-                            if (!empty($from_demo_pid)) {
-                                $patient = [$from_demo_pid];
-                            }
-                            if ((is_array($patient) && !in_array($pt['pid'], $patient)) || empty($patient)) {
-                                $auth .= '<option value=' . attr($pt['pid']) . '>' . text($pt['ptname']) . '</option>';
-                            } else {
-                                $auth .= "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname'] . ' ') . '</option>';
-                            }
-                        }
-                        ?>
-                        <select class="form-control select-dropdown d-none" id="selected_patients" name="selected_patients[]" multiple="multiple">
-                            <?php echo $auth ?>
-                        </select>
-                        <a class='btn btn-refresh bg-dark text-primary mx-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
-                    </div>
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
                     foreach ($category_list as $option_category) {
@@ -546,9 +603,9 @@ $audit_status_blank = array(
                             <?php echo $select_cat_options ?>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mx-2">
                         <div class='btn-group ml-1'>
-                            <button type='submit' class='btn btn-search btn-primary'><i class="btn-refresh"></i></button>
+                            <button type='submit' class='btn btn-save btn-primary'><?php echo xlt("Submit"); ?></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
                             </button>
@@ -557,11 +614,60 @@ $audit_status_blank = array(
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
                     </div>
+                    <div class="form-row form-inline w-100">
+                        <!--<label class='font-weight-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
+                        <?PHP
+                        $searchTerm = '';
+                        $ppt = array(
+                            ['pid' => '0', 'ptname' => 'All Patients'],
+                            ['pid' => '-1', 'ptname' => 'Repository'],
+                        );
+                        if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
+                            $searchTerm = $_GET['search_term'] ?? $_GET['search'];
+                        }
+                        if (!empty($searchTerm)) {
+                            $ppt = $templateService->searchPatients($searchTerm);
+                        }
+                        $auth = '';
+                        if (!empty($_REQUEST['persist_checks'])) {
+                            $persist_checks = json_decode($_REQUEST['persist_checks'], true);
+                            if (is_array($persist_checks)) {
+                                foreach ($persist_checks as $pt) {
+                                    foreach ($ppt as $k => $pc) {
+                                        if ($pc['pid'] == $pt['pid']) {
+                                            unset($ppt[$k]);
+                                            break;
+                                        }
+                                    }
+                                    if (isset($pt['pid']) && isset($pt['ptname'])) {
+                                        $auth .= "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname']) . '</option>';
+                                    }
+                                }
+                            }
+                        }
+                        foreach ($ppt as $pt) {
+                            if (!empty($from_demo_pid)) {
+                                $patient = [$from_demo_pid];
+                            }
+                            if ((is_array($patient) && !in_array($pt['pid'], $patient)) || empty($patient)) {
+                                $auth .= '<option value=' . attr($pt['pid']) . '>' . text($pt['ptname']) . '</option>';
+                            } else {
+                                $auth .= "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname'] . ' ') . '</option>';
+                            }
+                        }
+                        ?>
+                        <select class="form-control select-dropdown d-none" id="selected_patients" name="selected_patients[]" multiple="multiple" value="<?php echo attr($searchTerm); ?>">
+                            <?php echo $auth ?>
+                        </select>
+                        <button id="selectSearch" class='btn btn-search btn-primary' role="button"><?php echo xlt("Search"); ?></button>
+                        <button id="clearSelection" class='btn btn-secondary btn-cancel' type="button"><?php echo xlt("Clear"); ?></button>
+                    </div>
                     <input type='hidden' id='upload-nav-value' name='upload-nav-value' value='<?php echo attr($_REQUEST['upload-nav-value'] ?? 'collapse') ?>' />
                     <input type='hidden' id='persist_checks' name='persist_checks' value='' />
                     <input type='hidden' id='all_state' name='all_state' value='<?php echo attr($_REQUEST['all_state'] ?? 'collapse') ?>' />
                     <input type='hidden' id='assigned_state' name='assigned_state' value='<?php echo attr($_REQUEST['assigned_state'] ?? 'collapse') ?>' />
                     <input type='hidden' id='repository_send_state' name='repository_send_state' value='<?php echo attr($_REQUEST['repository_send_state'] ?? 'collapse') ?>' />
+                    <input type='hidden' id='search_term' name='search_term' value="<?php echo attr($searchTerm); ?>" />
                 </form>
             </nav>
             <!-- Upload -->
