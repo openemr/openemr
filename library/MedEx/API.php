@@ -2005,7 +2005,7 @@ class Display extends base
                     <i class="far fa-square fa-stack-2x"></i>
                     <i id="print_caret" class='fas fa-caret-<?php echo $caret = ($rcb_selectors === 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                 </span>
-                <ul class="nav nav-tabs" id="medex-recall-nav">
+                <ul class="nav nav-tabs <?php echo $last_col_width; ?>" id="medex-recall-nav">
                     <li class="whitish"><a onclick="show_this();" class="nav-link"><?php echo xlt('All'); ?></a></li>
                     <li class="whitish"><a onclick="show_this('whitish');" class="nav-link" ><?php echo xlt('Events Scheduled'); ?></a></li>
                     <li class="yellowish"><a onclick="show_this('yellowish');" class="nav-link"><?php echo xlt('In-process'); ?></a></li>
