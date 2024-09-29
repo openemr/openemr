@@ -33,6 +33,7 @@ class UsersTab
         // need to switch to the iframe
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
         $this->client->waitFor(UsersTab::ADD_USER_BUTTON);
+        $crawler = $this->client->refreshCrawler();
         $crawler->filterXPath(UsersTab::ADD_USER_BUTTON)->click();
 
         $this->client->switchTo()->defaultContent();
