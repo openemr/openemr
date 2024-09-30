@@ -419,7 +419,7 @@ class AuthorizationController
         echo $response->getBody();
     }
 
-    public function clientRegisteredDetails(): void
+    public function clientRegisteredDetails($pathInfo): void
     {
         $response = $this->createServerResponse();
 
@@ -431,16 +431,18 @@ class AuthorizationController
                     throw new OAuthServerException('No Access Code', 0, 'invalid_request', 403);
                 }
             }
-            $pos = strpos($_SERVER['PATH_INFO'], '/client/');
+            $pos = strpos($pathInfo, '/client/');
             if ($pos === false) {
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', 403);
             }
-            $uri_path = substr($_SERVER['PATH_INFO'], $pos + 8);
+            // TODO: Need to revoke the registration access token on any invalid operation here: Per https://datatracker.ietf.org/doc/html/rfc7592#section-2.1
+            // not sure how to handle the implications of revoking registration access token as we'd have to pretty much revoke the client...
+            $uri_path = substr($pathInfo, $pos + 8);
             $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", array($uri_path));
             if (!$client) {
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', 403);
             }
-            if ($client['registration_access_token'] !== $token) {
+            if ($client['registration_token'] !== $token) {
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid _request', 403);
             }
             $params['client_id'] = $client['client_id'];
