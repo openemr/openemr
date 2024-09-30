@@ -63,8 +63,9 @@ class ClientEntity implements ClientEntityInterface
     private int $dsiType;
 
     const DSI_TYPE_NONE = 0;
-    const DSI_TYPE_PREDICTIVE = 1;
-    const DSI_TYPE_EVIDENCE = 2;
+
+    const DSI_TYPE_EVIDENCE = 1;
+    const DSI_TYPE_PREDICTIVE = 2;
 
 
     public function __construct()

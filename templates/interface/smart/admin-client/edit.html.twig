@@ -21,6 +21,10 @@
                         <a href="{{ enableClientLink|attr }}" class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ "Enable Client"|xlt }}</a>
                     {% endif %}
                 </div>
+                <div class="nav-pills">
+                    <a href="#trustedUsers" class="btn btn-sm btn-link">{{ "Authenticated API Users"|xlt }}</a>
+                    <a href="#services" class="btn btn-sm btn-link">{{ "Decision Support Intervention Services"|xlt }}</a>
+                </div>
             </h2>
         </div>
         <div class="card-body">
@@ -231,7 +235,7 @@
             {% if client.hasDSI() %}
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="text-center mb-2"><a id="#services" class="text-decoration-none text-reset">{{ "Decision Support Intervention Services"|xlt }}</a></h3>
+                        <h3 class="text-center mb-2"><a id="services" class="text-decoration-none text-reset">{{ "Decision Support Intervention Services"|xlt }}</a></h3>
                         {% include 'interface/smart/admin-client/partials/_external-cdr-list.html.twig' with {services: services } %}
 {#                        {% include 'interface/smart/admin-client/_external-cdr-service-summary.html.twig' with {service: client, saveUrl: dsiSaveUrl} %}#}
                     </div>
