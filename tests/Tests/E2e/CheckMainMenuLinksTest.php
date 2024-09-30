@@ -50,6 +50,8 @@ class CheckMainMenuLinksTest extends PantherTestCase
         $client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
         // Perform the final assertion
         $this->assertSame($expectedTabTitle, $crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text());
+        // Close client
+        $client->quit();
     }
 
     public static function menuLinkProvider()
