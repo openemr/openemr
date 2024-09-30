@@ -10,7 +10,7 @@ class ActionUrlBuilder
     {
     }
 
-    public function buildUrl(string|array $action): string
+    public function buildUrl(string|array $action, array $options = []): string
     {
         if (\is_array($action)) {
             $action = implode("/", $action);
@@ -20,6 +20,10 @@ class ActionUrlBuilder
             foreach ($options['queryParams'] as $key => $param) {
                 $url .= "&" . urlencode($key) . "=" . urlencode($param);
             }
+        }
+
+        if (!empty($options['fragment'])) {
+            $url .= "#" . $options['fragment'];
         }
 
         return $url;

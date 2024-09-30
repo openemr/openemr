@@ -1,0 +1,7 @@
+<div class="form-check form-check-inline">
+    <input type="checkbox" id="{{ key|attr }}" name="{{ key|attr }}"
+           class="form-check-input" value="{{ setting.value|attr }}" readonly
+    {% if setting.checked %}checked='checked'{% endif %} />
+    <label for="{{ key|attr }}" class="form-check-label">
+        {{ setting.label|text }}
+</div>

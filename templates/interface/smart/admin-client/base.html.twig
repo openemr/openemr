@@ -12,7 +12,7 @@
             {% block headerNav %}
             <div class="page-title">
                 <h2>
-                    {{ title|text }}
+                    {{ nav.title|text }}
                     {% for index, nav in nav.navs %}
                         <a class="btn btn-secondary btn-sm {% if index > 0 %} mr-2 {% endif%} float-right" href="{{ nav.url|attr }}" onclick="top.restoreSession()">{{ nav.title|text }}</a>
                     {% endfor %}

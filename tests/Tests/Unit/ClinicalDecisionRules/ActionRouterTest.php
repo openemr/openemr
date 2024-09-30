@@ -23,7 +23,8 @@ class ActionRouterTest extends TestCase
                 ];
             }
 
-            public function _action_list() {}
+            public function _action_list()
+            {}
         };
         $actionRouter = new ActionRouter($mockController, 'list', '/path/to/controller');
 
@@ -49,8 +50,10 @@ class ActionRouterTest extends TestCase
                 ];
             }
 
-            public function _action_list() {}
-            public function _action_forward() {}
+            public function _action_list()
+            {}
+            public function _action_forward()
+            {}
         };
 
         $actionRouter = new ActionRouter($mockController, 'list', '/path/to/controller');
@@ -66,7 +69,8 @@ class ActionRouterTest extends TestCase
         $this->assertStringContainsString('', $response->getContent());
     }
 
-    public function testRedirectBehavior() {
+    public function testRedirectBehavior()
+    {
 
         $mockController = new class extends BaseController {
             public function __construct()
@@ -77,7 +81,8 @@ class ActionRouterTest extends TestCase
                 ];
             }
 
-            public function _action_list() {}
+            public function _action_list()
+            {}
         };
 
         $actionRouter = new ActionRouter($mockController, 'list', '/path/to/controller');

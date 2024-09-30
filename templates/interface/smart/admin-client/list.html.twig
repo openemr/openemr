@@ -1,0 +1,67 @@
+{% extends "interface/smart/admin-client/base.html.twig" %}
+{% block title %}{{ "Client Registrations"|xlt }}{% endblock %}
+{% block contents %}
+
+    <div class="table-responsive mt-2">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>
+                    {{ "Edit"|xlt }}
+                </th>
+                <th>{{ "Client Name / Client ID"|xlt }}</th>
+                <th>{{ "Enabled"|xlt }}</th>
+                <th>{{ "Client Type"|xlt }}</th>
+                <th>{{ "DSI Type"|xlt }}</th>
+                <th>{{ "Scopes Requested"|xlt }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if clients|length <= 0 %}
+                <tr>
+                    <td colspan="7">{{ "There are no clients registered in the system"|xlt }}</td>
+                </tr>
+            {% endif %}
+            {% for clientNavigationRecord in clients %}
+                <tr>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="{{ clientNavigationRecord.link|attr }}" onclick="top.restoreSession()">{{ "Edit"|xlt }}</a>
+                    </td>
+                    <td>
+                        {{ clientNavigationRecord.client.name|text }}
+                        <br />
+                        <em>{{ clientNavigationRecord.client.identifier|text }}</em>
+                    </td>
+                    <td>{{ clientNavigationRecord.client.isEnabled() ? "Enabled"|xlt : "Disabled"|xlt }}</td>
+                    <td>{{ clientNavigationRecord.client.isConfidential() ? "Confidential"|xlt : "Public"|xlt }}</td>
+                    <td>
+                        {% if clientNavigationRecord.client.hasDSI() %}
+                            {{ clientNavigationRecord.client.hasPredictiveDSI() ? "Predictive DSI"|xlt : "Evidence DSI"|xlt }}
+                        {% else %}
+                            {{ "No DSI Services"|xlt }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if clientNavigationRecord.scopeCount <= 0 %}
+                            {{ "No Scopes"|xlt }}
+                        {% else %}
+                            <ul>
+                                {% for scope in clientNavigationRecord.scopes %}
+                                    <li>
+                                        <em>{{ scope|text }}</em>
+                                    </li>
+                                {% endfor %}
+                                {% if clientNavigationRecord.hasMoreScopes %}
+                                    <li>
+                                        <em>{{ clientNavigationRecord.moreScopeCount }} {{ "additional scopes..."|xlt }}</em>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

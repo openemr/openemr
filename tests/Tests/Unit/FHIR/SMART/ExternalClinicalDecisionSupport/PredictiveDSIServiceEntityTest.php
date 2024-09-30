@@ -20,7 +20,8 @@ class PredictiveDSIServiceEntityTest extends TestCase
         $this->entity = new PredictiveDSIServiceEntity($this->clientEntity);
     }
 
-    public function testPopulateServiceWithFhirQuestionnaire() {
+    public function testPopulateServiceWithFhirQuestionnaire()
+    {
         $twig = (new TwigContainer())->getTwig();
         $questionnaire = $twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => '/']);
         $qr = file_get_contents(__DIR__ . "/../../../../data/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/dsi-service-qr-test.json");
@@ -31,8 +32,9 @@ class PredictiveDSIServiceEntityTest extends TestCase
         $field = $fields[0];
         $this->assertEquals("predictive.details.developer", $field['name']);
         $this->assertEquals('Name and contact information for the intervention developer', $field['label']);
-        $this->assertEquals("Dr. Quackers McFeathers, Pond Analytics Inc., email: drquackers@pondanalytics.com"
-            , $field['value']);
-
+        $this->assertEquals(
+            "Dr. Quackers McFeathers, Pond Analytics Inc., email: drquackers@pondanalytics.com",
+            $field['value']
+        );
     }
 }

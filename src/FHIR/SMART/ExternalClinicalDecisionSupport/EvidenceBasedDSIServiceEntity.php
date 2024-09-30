@@ -13,7 +13,8 @@ class EvidenceBasedDSIServiceEntity
         parent::__construct(self::TYPE, $clientEntity);
     }
 
-    public function populateServiceWithFhirQuestionnaire(string $questionnaire, string $response = null) {
+    public function populateServiceWithFhirQuestionnaire(string $questionnaire, string $response = null)
+    {
 
         return $this->populateFromQuestionnaire(self::TYPE, $questionnaire, $response);
     }
