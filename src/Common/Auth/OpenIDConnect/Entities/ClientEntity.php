@@ -21,6 +21,7 @@ class ClientEntity implements ClientEntityInterface
     use EntityTrait;
     use ClientTrait;
 
+    const DSI_TYPES = ["DSI_TYPE_NONE" => self::DSI_TYPE_NONE, "DSI_TYPE_EVIDENCE" => self::DSI_TYPE_EVIDENCE, "DSI_TYPE_PREDICTIVE" => self::DSI_TYPE_PREDICTIVE];
     protected $userId;
     protected $clientRole;
     protected $scopes;
