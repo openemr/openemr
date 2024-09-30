@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDbView;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;

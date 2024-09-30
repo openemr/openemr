@@ -19,6 +19,7 @@
 //
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrResults;
 
 require_once($GLOBALS['fileroot'] . "/library/clinical_rules.php");
