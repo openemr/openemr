@@ -5,6 +5,7 @@ namespace OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport;
 use http\Env;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ActionUrlBuilder;
@@ -165,6 +166,12 @@ class RouteController
     {
         // TODO: @adunsulag need to handle CSRF token in save action
         ['subAction' => $serviceId] = $this->parseRequest($request);
+
+        $csrfToken = $request->get('_token', '');
+        if (!CsrfUtils::verifyCsrfToken($csrfToken)) {
+            throw new CsrfInvalidException(xlt('Authentication Error'));
+        }
+
         $dsiService = new DecisionSupportInterventionService();
         $service = $dsiService->getService($serviceId);
         if ($service == null) {
