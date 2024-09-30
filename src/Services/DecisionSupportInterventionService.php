@@ -15,6 +15,11 @@ class DecisionSupportInterventionService extends BaseService
     const LIST_ID_PREDICTIVE_DSI = 'dsi_predictive_source_attributes';
     const LIST_ID_EVIDENCE_DSI = 'dsi_evidence_source_attributes';
 
+    const DSI_TYPES = [
+        ClientEntity::DSI_TYPE_NONE => 'none',
+        ClientEntity::DSI_TYPE_EVIDENCE => 'evidence',
+        ClientEntity::DSI_TYPE_PREDICTIVE => 'predictive'
+    ];
     // note these correspond with the enum values in ClientEntity
     const DSI_TYPES_CLIENT_STRING_NAMES = [
         "DSI_TYPE_PREDICTIVE" => 'predictive',
@@ -59,6 +64,8 @@ class DecisionSupportInterventionService extends BaseService
             if (!$isSummary) {
                 $attributes = $this->getEvidenceDSIAttributes($clientEntity->getIdentifier());
             }
+        } else {
+            throw new \InvalidArgumentException("Client does not have a DSI service");
         }
         foreach ($attributes as $attr) {
             $service->setField($attr['option_id'], xl_list_label($attr['title']), $attr['source_value'] ?? '');
@@ -228,6 +235,14 @@ class DecisionSupportInterventionService extends BaseService
             throw new \InvalidArgumentException("Invalid DSI type name");
         }
         return self::DSI_TYPES_BY_STRING_NAME[$dsiTypeName];
+    }
+
+    public function getDsiTypeStringName(int $dsiType)
+    {
+        if (!array_key_exists($dsiType, self::DSI_TYPES)) {
+            throw new \InvalidArgumentException("Invalid DSI type");
+        }
+        return self::DSI_TYPES[$dsiType];
     }
 
     public function updateService(DecisionSupportInterventionEntity $service, ?int $userId)
