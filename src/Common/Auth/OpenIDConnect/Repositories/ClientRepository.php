@@ -263,6 +263,7 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setContacts($client_record['contacts']);
         $client->setRegistrationDate($client_record['register_date']);
         $client->setSkipEHRLaunchAuthorizationFlow($client_record['skip_ehr_launch_authorization_flow'] == "1");
+        $client->setDSIType(intval($client_record['dsi_type'] ?? 0));
         return $client;
     }
 

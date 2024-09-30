@@ -29,7 +29,8 @@ class RouteControllerTest extends TestCase
         $this->controller = new RouteController($this->mockRepository, $this->mockLogger, $this->mockTwig, $this->actionUrlBuilder);
     }
 
-    public function testSupportsRequest() {
+    public function testSupportsRequest()
+    {
         $request = new Request(['action' => 'external-cdr/']);
         $this->assertTrue($this->controller->supportsRequest($request));
 
@@ -49,7 +50,8 @@ class RouteControllerTest extends TestCase
         $this->assertFalse($this->controller->supportsRequest($request));
     }
 
-    public function testParseRequest() {
+    public function testParseRequest()
+    {
         $request = new Request(['action' => 'external-cdr/']);
         $result = $this->controller->parseRequest($request);
         $this->assertEquals('external-cdr', $result['mainAction']);
@@ -69,14 +71,16 @@ class RouteControllerTest extends TestCase
         $this->assertEquals('edit', $result['subAction']);
     }
 
-    public function testDispatch() {
+    public function testDispatch()
+    {
         $request = new Request(['action' => 'external-cdr/']);
         $this->assertTrue($this->controller->supportsRequest($request));
         $response = $this->controller->dispatch($request);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testListAction() {
+    public function testListAction()
+    {
         // smoke test
         $request = new Request(['action' => 'external-cdr/list/']);
         $this->assertTrue($this->controller->supportsRequest($request), "Request should be supported");

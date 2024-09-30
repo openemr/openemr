@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
+
 /**
  * This is a very simple action routing class for a given controller. Given
  * a controller and action (typically from OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter), it goes through
@@ -17,6 +18,7 @@ namespace OpenEMR\ClinicalDecisionRules\Interface;
  *
  * @author aron
  */
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 

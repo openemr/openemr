@@ -11,9 +11,7 @@
 
 namespace OpenEMR\FHIR\SMART;
 
-use Lcobucci\JWT\Parser;
 use OpenEMR\Common\Acl\AccessDeniedException;
-use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
@@ -27,10 +25,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
+use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
+use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 
 class ClientAdminController
@@ -59,24 +60,26 @@ class ClientAdminController
     private RouteController $externalCDRController;
 
     private ActionUrlBuilder $actionUrlBuilder;
+
+    private Environment $twig;
+
     /**
      * ClientAdminController constructor.
      * @param ClientRepository $repo The repository object that let's us retrieve OAUTH2 EntityClient objects
      * @param $actionURL The URL that we will send requests back to
      */
-    public function __construct(ClientRepository $repo, LoggerInterface $logger
-    , Environment $twig
-    , $actionURL)
+    public function __construct(ClientRepository $repo, LoggerInterface $logger, Environment $twig, $actionURL)
     {
         $this->clientRepo = $repo;
         $this->logger = $logger;
         $this->actionURL = $actionURL;
         $this->actionUrlBuilder = new ActionUrlBuilder($actionURL, self::CSRF_TOKEN_NAME);
-        $this->externalCDRController = new RouteController($repo,$logger, $twig, $this->actionUrlBuilder);
-
+        $this->twig = $twig;
+        $this->externalCDRController = new RouteController($repo, $logger, $twig, $this->actionUrlBuilder);
     }
 
-    public function setExternalCDRController(RouteController $controller) {
+    public function setExternalCDRController(RouteController $controller)
+    {
         $this->externalCDRController = $controller;
     }
 
@@ -173,9 +176,40 @@ class ClientAdminController
      */
     public function listAction($request)
     {
-        $this->renderHeader();
-        $this->renderList($request);
-        $this->renderFooter();
+        /**
+* <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
+ */
+        $clients = $this->clientRepo->listClientEntities();
+        $clientListRecords = [];
+        foreach ($clients as $client) {
+            $scopeList = $client->getScopes();
+            $count = count($scopeList);
+            if ($count > self::SCOPE_PREVIEW_DISPLAY) {
+                $scopeList = array_splice($scopeList, 0, self::SCOPE_PREVIEW_DISPLAY);
+            }
+            $clientListRecords[] = [
+                'link' => $this->actionUrlBuilder->buildUrl(['edit', $client->getIdentifier()])
+                ,'client' => $client
+                ,'scopes' => $scopeList
+                ,'scopeCount' => $count
+                ,'hasMoreScopes' => $count > self::SCOPE_PREVIEW_DISPLAY
+                ,'moreScopeCount' => $count - self::SCOPE_PREVIEW_DISPLAY
+            ];
+        }
+        $params = [
+            'nav' => [
+                'title' => xl('Client Registrations'),
+                'navs' => [
+                    ['title' => xl('Token Tools'), 'url' => $this->actionUrlBuilder->buildUrl([self::TOKEN_TOOLS_ACTION])]
+                    ,['title' => xl('Register New App'), 'url' => $GLOBALS['webroot'] . '/interface/smart/register-app.php']
+                ]
+            ]
+            ,'clients' => $clientListRecords
+        ];
+
+        echo $this->twig->render("interface/smart/admin-client/list.html.twig", $params);
     }
 
     /**
@@ -197,7 +231,7 @@ class ClientAdminController
         $userService = new UserService();
         $patientService = new PatientService();
         foreach ($trustedUsers as $user) {
-            // TODO: do we need to optimize this query?
+            // TODO: we need to open an issue to handle pagination as a client could have thousands / tens of thousands of active tokens
             if (UuidRegistry::isValidStringUUID($user['user_id'])) {
                 $registryRecord = UuidRegistry::getRegistryRecordForUuid($user['user_id']);
                 if ($registryRecord['table_name'] == 'patient_data') {
@@ -217,10 +251,7 @@ class ClientAdminController
             $usersWithAccessTokens[] = $user;
         }
         $client->setTrustedUsers($usersWithAccessTokens);
-
-        $this->renderHeader();
         $this->renderEdit($client, $request);
-        $this->renderFooter();
     }
 
     private function getAccessTokensForClientUser($clientId, $user_id)
@@ -292,10 +323,7 @@ class ClientAdminController
     public function notFoundAction($request)
     {
         http_response_code(404);
-        $this->renderHeader();
-        ?><h1>404 <?php echo xlt("Page not found"); ?></h1><?php
-        $this->renderFooter();
-        // could return a 404 page here, but for now we will just skip it.
+        echo $this->twig->render("interface/smart/admin-client/404.html.twig");
     }
 
     /**
@@ -326,57 +354,6 @@ class ClientAdminController
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
             header("Location: " . $url);
         }
-    }
-
-    /**
-     * Renders a list of the system oauth2 clients to the screen.
-     * @param $request
-     */
-    private function renderList($request)
-    {
-        $clients = $this->clientRepo->listClientEntities();
-        ?>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>
-                        <?php echo xlt('Edit'); ?>
-                    </th>
-                    <th><?php echo xlt('Client Name / Client ID'); ?></th>
-                    <th><?php echo xlt('Enabled'); ?></th>
-                    <th><?php echo xlt('Client Type'); ?></th>
-                    <th><?php echo xlt('Scopes Requested'); ?></th>
-
-                </tr>
-                </thead>
-                <tbody>
-                <?php if (count($clients) <= 0) : ?>
-                    <tr>
-                        <td colspan="7"><?php echo xlt('There are no clients registered in the system'); ?></td>
-                    </tr>
-                <?php endif; ?>
-                <?php foreach ($clients as $client) : ?>
-                    <tr>
-                        <td>
-                            <a class="btn btn-primary btn-sm" href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()])); ?>" onclick="top.restoreSession()"><?php echo xlt("Edit"); ?></a>
-                        </td>
-                        <td>
-                            <?php echo text($client->getName()); ?>
-                            <br />
-                            <em><?php echo text($client->getIdentifier()); ?></em>
-                        </td>
-                        <td><?php echo $client->isEnabled() ? xlt("Enabled") : xlt("Disabled"); ?></td>
-                        <td><?php echo $client->isConfidential() ? xlt("Confidential") : xlt("Public"); ?></td>
-                        <td>
-                            <?php $this->renderScopeList($client, true); ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
     }
 
     /**
@@ -439,6 +416,18 @@ class ClientAdminController
                 , 'checked' => $skipAuthorizationFlow
                 , 'value' => 1
             ],
+            'evidenceBasedDSI' => [
+                'type' => 'checkbox'
+                ,'label' => xl('Evidence Based Decision Support Intervention Service')
+                , 'checked' => $client->hasEvidenceDSI()
+                , 'value' => 1
+            ],
+            'predictiveDSI' => [
+                'type' => 'checkbox'
+                ,'label' => xl('Predictive Decision Support Intervention Service')
+                , 'checked' => $client->hasPredictiveDSI()
+                , 'value' => 1
+            ],
             'role' => [
                 'type' => 'text'
                 ,'label' => xl("Role")
@@ -470,243 +459,54 @@ class ClientAdminController
             unset($formValues['skipEHRLaunchAuthorizationFlow']);
         }
 
-        ?>
-        <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; <?php echo xlt("Back to Client List"); ?></a>
+        $trustedUsersList = [];
+        foreach ($client->getTrustedUsers() as $user) {
+            $accessTokenList = [];
+            foreach ($user['accessTokens'] as $tokenObject) {
+                $accessTokenList[] = [
+                    'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_ACCESS_TOKEN, $tokenObject['id']])
+                    ,'tokenObj' => $tokenObject
+                ];
+            }
+            $refreshTokenList = [];
+            foreach ($user['refreshTokens'] as $tokenObject) {
+                $refreshTokenList[] = [
+                    'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_REFRESH_TOKEN, $tokenObject['id']])
+                    ,'tokenObj' => $tokenObject
+                ];
+            }
+            $user['refreshTokens'] = $refreshTokenList;
+            $trustedUsersList[] = [
+                'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_TRUSTED_USER, $user['user_id']])
+                ,'user' => $user
+            ];
+        }
+        $dsiService = new DecisionSupportInterventionService();
+        $service = $dsiService->getServiceForClient($client);
+        $servicesList =  [];
+        // we want to make sure we can add additional services at some point
+        $servicesList[] = [
+            'service' => $service
+            ,'link' => $this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION, 'edit', $client->getIdentifier()])
+        ];
+        $data = [
+            'listAction' => $listAction
+            ,'client' => $client
+            ,'allowSkipAuthSetting' => $allowSkipAuthSetting
+            ,'skipAuthorizationFlow' => $skipAuthorizationFlow
+            ,'disableSkipAuthorizationFlowLink' => $disableSkipAuthorizationFlowLink
+            ,'enableSkipAuthorizationFlowLink' => $enableSkipAuthorizationFlowLink
+            ,'disableClientLink' => $disableClientLink
+            ,'enableClientLink' => $enableClientLink
+            ,'requestMessage' => $requestMessage
+            ,'isEnabled' => $isEnabled
+            ,'formValues' => $formValues
+            ,'scopes' => $client->getScopes()
+            ,'trustedUsers' => $trustedUsersList
+            ,'services' => $servicesList
+        ];
 
-        <div class="card mt-3">
-            <div class="card-header">
-                <h2>
-                    <?php echo xlt('Edit'); ?> <em><?php echo text($client->getName()); ?></em>
-                    <div class="float-right">
-                        <?php if ($allowSkipAuthSetting) : ?>
-                            <?php if ($skipAuthorizationFlow) : ?>
-                            <a href="<?php echo attr($disableSkipAuthorizationFlowLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Enable EHR Launch Authorization Flow'); ?></a>
-                            <?php else : ?>
-                            <a href="<?php echo attr($enableSkipAuthorizationFlowLink); ?>" class="btn btn-sm btn-danger" onclick="top.restoreSession()"><?php echo xlt('Disable EHR Launch Authorization Flow'); ?></a>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                        <?php if ($isEnabled) : ?>
-                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-danger" onclick="top.restoreSession()"><?php echo xlt('Disable Client'); ?></a>
-                        <?php else : ?>
-                        <a href="<?php echo attr($enableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Enable Client'); ?></a>
-                        <?php endif; ?>
-                    </div>
-                </h2>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <?php if (!empty($requestMessage)) : ?>
-                        <div class="alert alert-info">
-                            <?php echo text($requestMessage); ?>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!$isEnabled) : ?>
-                            <div class="alert alert-danger">
-                                <?php echo xlt("This client is currently disabled"); ?>
-                            </div>
-                        <?php endif; ?>
-                        <form>
-                            <?php foreach ($formValues as $key => $setting) {
-                                switch ($setting['type']) {
-                                    case 'text':
-                                        $this->renderTextInput($key, $setting);
-                                        break;
-                                    case 'textarea':
-                                        $this->renderTextarea($key, $setting);
-                                        break;
-                                    case 'checkbox':
-                                        $this->renderCheckbox($key, $setting);
-                                        break;
-                                }
-                            } ?>
-                        </form>
-                    </div>
-                    <div class="col-6">
-                            <label><?php echo xlt("Scopes"); ?></label>
-                            <?php $this->renderScopeList($client); ?>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12 ">
-                        <h3 class="text-center"><?php echo xlt("Authenticated API Users"); ?></h3>
-                        <hr class="w-50" />
-                        <?php if (empty($client->getTrustedUsers())) : ?>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="alert alert-info text-center">
-                                        <?php echo xlt("No authorized users found for this client"); ?>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($client->getTrustedUsers())) : ?>
-                            <?php foreach ($client->getTrustedUsers() as $trustedUser) : ?>
-                                <div class="card m-3">
-                                    <div class="card-header">
-                                        <h4 class="text-center"><?php echo text($trustedUser['display_name']); ?>
-                                            <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier()
-                                                , self::REVOKE_TRUSTED_USER, $trustedUser['user_id']])); ?>"
-                                               class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php
-                                                echo xlt('Revoke User');
-                                                ?></a></h4>
-                                    </div>
-                                    <div class="card-body p-5">
-                                        <div class="row font-weight-bold bg-secondary rounded text-dark">
-                                            <div class="col-1">
-                                                <?php echo xlt("Type"); ?>
-                                            </div>
-                                            <div class="col-4">
-                                                <?php echo xlt("UUID"); ?>
-                                            </div>
-                                            <div class="col-3">
-                                                <?php echo xlt("Name/Username"); ?>
-                                            </div>
-                                            <div class="col-1">
-                                                <?php echo xlt("Date"); ?>
-                                            </div>
-                                            <div class="col-1">
-                                                <?php echo xlt("Persist Login"); ?>
-                                            </div>
-                                            <div class="col-2">
-                                                <?php echo xlt("Grant Type"); ?>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-1">
-                                                <?php echo text($trustedUser['user_type']); ?>
-                                            </div>
-                                            <div class="col-4">
-                                                <?php echo text($trustedUser['user_id']); ?>
-                                            </div>
-                                            <div class="col-3">
-                                                <?php echo text($trustedUser['display_name']); ?>
-                                            </div>
-                                            <div class="col-1">
-                                                <?php echo text($trustedUser['time']); ?>
-                                            </div>
-                                            <div class="col-1">
-                                                <?php echo text($trustedUser['persist_login']); ?>
-                                            </div>
-                                            <div class="col-2">
-                                                <?php echo text($trustedUser['grant_type']); ?>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col">
-                                                <h4><?php echo xlt("Access Tokens") ?></h4>
-                                                <hr class="w-100 mt-3 mb-3"/>
-                                                <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
-                                                    <div class="col-3">
-                                                        <?php echo xlt("Token"); ?>
-                                                    </div>
-                                                    <div class="col-2">
-                                                        <?php echo xlt("Expiry"); ?>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <?php echo xlt("Scopes"); ?>
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <?php echo xlt("Action"); ?>
-                                                    </div>
-                                                </div>
-                                                <?php if (empty($trustedUser['accessTokens'])) : ?>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <div class="alert alert-info text-center">
-                                                            <?php echo xlt("No active access tokens found"); ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <?php endif; ?>
-                                                <?php if (!empty($trustedUser['accessTokens'])) : ?>
-                                                    <?php foreach ($trustedUser['accessTokens'] as $token) : ?>
-                                                        <div class="row">
-                                                            <div class="col-3">
-                                                                <?php echo text($token['token']); ?>
-                                                            </div>
-                                                            <div class="col-2">
-                                                                <?php echo text($token['expiry']); ?>
-                                                            </div>
-                                                            <div class="col-4">
-                                                                <?php $this->renderScopeListArray($token['scope']); ?>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_ACCESS_TOKEN, $token['id']])); ?>"
-                                                                   class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
-                                                            </div>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col">
-                                                <h4><?php echo xlt("Refresh Tokens") ?></h4>
-                                                <hr class="w-100 mt-3 mb-3"/>
-                                                <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
-                                                    <div class="col-7">
-                                                        <?php echo xlt("Token"); ?>
-                                                    </div>
-                                                    <div class="col-2">
-                                                        <?php echo xlt("Expiry"); ?>
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <?php echo xlt("Action"); ?>
-                                                    </div>
-                                                </div>
-                                                <?php if (empty($trustedUser['refreshTokens'])) : ?>
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <div class="alert alert-info text-center">
-                                                                <?php echo xlt("No active refresh tokens found"); ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                <?php endif; ?>
-                                                <?php if (!empty($trustedUser['refreshTokens'])) : ?>
-                                                    <?php foreach ($trustedUser['refreshTokens'] as $token) : ?>
-                                                        <div class="row">
-                                                            <div class="col-7">
-                                                                <?php echo text($token['token']); ?>
-                                                            </div>
-                                                            <div class="col-2">
-                                                                <?php echo text($token['expiry']); ?>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <a href="<?php echo attr($this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_REFRESH_TOKEN, $token['id']])); ?>"
-                                                                   class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
-                                                            </div>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <!-- List client information below -->
-        </div>
-        <?php
-    }
-
-    private function renderCheckbox($key, $setting)
-    {
-        ?>
-        <div class="form-check form-check-inline">
-            <input type="checkbox" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                   class="form-check-input" value="<?php echo attr($setting['value'] ?? ''); ?>" readonly
-                <?php echo ($setting['checked'] ? "checked='checked'" : ""); ?> />
-            <label for="<?php echo attr($key); ?>" class="form-check-label">
-                <?php echo text($setting['label']); ?>
-            </label>
-        </div>
-        <?php
+        echo $this->twig->render("interface/smart/admin-client/edit.html.twig", $data);
     }
 
     private function renderTextarea($key, $setting)
@@ -717,17 +517,6 @@ class ClientAdminController
             <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
             <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
                       class="form-control" rows="10" <?php echo $disabled; ?>><?php echo attr($setting['value']); ?></textarea>
-        </div>
-        <?php
-    }
-
-    private function renderTextInput($key, $setting)
-    {
-        ?>
-        <div class="form-group">
-            <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
-            <input type="text" id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
-                   class="form-control" value="<?php echo attr($setting['value']); ?>" readonly disabled />
         </div>
         <?php
     }
@@ -744,7 +533,7 @@ class ClientAdminController
         // if the request is empty with us on a list page we want to populate it
         // anything else we do to the request should be put there
         if (empty($action)) {
-           $action = 'list/';
+            $action = 'list/';
         }
         return $action;
     }
@@ -755,7 +544,7 @@ class ClientAdminController
      * @param string $action
      * @return bool True if CSRF is required, false otherwise.
      */
-    private function shouldCheckCSRFTokenForRequest(string $action) : bool
+    private function shouldCheckCSRFTokenForRequest(string $action): bool
     {
         // we don't check CSRF for a basic get and list action
         // anything else requires the CSRF token

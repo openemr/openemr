@@ -3,7 +3,6 @@
 namespace OpenEMR\Tests\Unit\ClinicalDecisionRules;
 
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
-
 use PHPUnit\Framework\TestCase;
 
 class CommonTest extends TestCase

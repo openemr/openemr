@@ -224,3 +224,76 @@ ALTER TABLE `clinical_rules` ADD `patient_sexual_orientation_usage` VARCHAR(255)
 ALTER TABLE `clinical_rules` ADD `patient_sodh_usage` VARCHAR(255) NOT NULL DEFAULT ''
     COMMENT 'Description of how patient social determinants of health are used by this rule';
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id dsi_predictive_source_attributes
+-- Create new list Default Open Tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_predictive_source_attributes', 'Predictive Decision Support Interventions Source Attributes');
+-- Populate list with ONC default values
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_developer', 'Name and contact information for the intervention developer', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_funding', 'Funding source of the technical implementation for the intervention(s) development', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_output-value', 'Description of value that the intervention produces as an output', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_output-type', 'Whether the intervention output is a prediction, classification, recommendation, evaluation, analysis, or other type of output', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_intended-use', 'Intended use of the intervention', 5);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_patient-population', 'Intended patient population(s) for the intervention''s use', 6);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_intended-users', 'Intended user(s)', 7);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_decision-role', 'Intended decision-making role for which the intervention was designed to be used/for (e_g_, informs, augments, replaces clinical management)', 8);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_cautions_inappropriate-use', 'Description of tasks, situations, or populations where a user is cautioned against applying the intervention', 9);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_cautions_risks', 'Known risks, inappropriate settings, inappropriate uses, or known limitations', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_criteria', 'Exclusion and inclusion criteria that influenced the training data set', 11);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_variables', 'Use of variables in paragraph (b)(11)(iv)(A)(5)-(13) as input features', 12);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_demographics', 'Description of demographic representativeness according to variables in paragraph (b)(11)(iv)(A)(5)-(13) including, at a minimum, those used as input features in the intervention', 13);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_relevance', 'Description of relevance of training data to intended deployed setting', 14);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_fairness_approach', 'Description of the approach the intervention developer has taken to ensure that the intervention''s output is fair', 15);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_fairness_bias-mitigation', 'Description of approaches to manage, reduce, or eliminate bias', 16);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_data-source', 'Description of the data source, clinical setting, or environment where an intervention''s validity and fairness has been assessed, other than the source of training and testing data', 17);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_tester', 'Party that conducted the external testing', 18);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_demographics', 'Description of demographic representativeness of external data according to variables in paragraph (b)(11)(iv)(A)(5)-(13) including, at a minimum, those used as input features in the intervention', 19);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_process', 'Description of external validation process', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_internal-validity', 'Validity of intervention in test data derived from the same source as the initial training data', 21);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_internal-fairness', 'Fairness of intervention in test data derived from the same source as the initial training data', 22);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_external-validity', 'Validity of intervention in data external to or from a different source than the initial training data', 23);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_external-fairness', 'Fairness of intervention in data external to or from a different source than the initial training data', 24);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_outcome-evaluation', 'References to evaluation of use of the intervention on outcomes, including, bibliographic citations or hyperlinks to evaluations of how well the intervention reduced morbidity, mortality, length of stay, or other outcomes', 25);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_validity-monitoring', 'Description of process and frequency by which the intervention''s validity is monitored over time', 26);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_local-validity', 'Validity of intervention in local data', 27);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_fairness-monitoring', 'Description of the process and frequency by which the intervention''s fairness is monitored over time', 28);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_local-fairness', 'Fairness of intervention in local data', 29);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_updates_process', 'Description of process and frequency by which the intervention is updated', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_updates_correction', 'Description of frequency by which the intervention''s performance is corrected when risks related to validity and fairness are identified', 31);
+#EndIf
+
+#IfNotTable dsi_source_attributes
+CREATE TABLE `dsi_source_attributes` (
+     `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+     `client_id` VARCHAR(80) NOT NULL,
+     `list_id` VARCHAR(100) NOT NULL,
+     `option_id` VARCHAR(100) NOT NULL,
+     `clinical_rule_id` VARCHAR(31) DEFAULT NULL,
+     `source_value` VARCHAR(2048) NOT NULL,
+     `created_by` BIGINT(20) DEFAULT NULL,
+     `last_updated_by` BIGINT(20) DEFAULT NULL,
+     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     `last_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+     PRIMARY KEY (`id`),
+     UNIQUE (`list_id`, `option_id`, `client_id`),
+     FOREIGN KEY (`client_id`) REFERENCES `oauth_clients` (`client_id`)
+         ON DELETE RESTRICT
+         ON UPDATE CASCADE,
+     FOREIGN KEY (`list_id`, `option_id`) REFERENCES `list_options` (`list_id`, `option_id`)
+         ON DELETE CASCADE
+         ON UPDATE CASCADE,
+     FOREIGN KEY (`clinical_rule_id`) REFERENCES `clinical_rules` (`id`)
+         ON DELETE SET NULL
+         ON UPDATE CASCADE,
+     FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
+         ON DELETE RESTRICT
+         ON UPDATE CASCADE,
+     FOREIGN KEY (`last_updated_by`) REFERENCES `users` (`id`)
+         ON DELETE RESTRICT
+         ON UPDATE CASCADE
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn oauth_clients dsi_type
+ALTER TABLE `oauth_clients` ADD `dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=none, 1=evidence-based,2=predictive';
+#EndIf

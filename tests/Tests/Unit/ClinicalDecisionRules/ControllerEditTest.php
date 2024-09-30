@@ -22,7 +22,7 @@ class ControllerEditTest extends TestCase
         $this->codeManagerMock = $this->createMock(CodeManager::class);
 
         // Injecting mocks into the ControllerEdit class
-        $this->controller = new class($this->ruleManagerMock, $this->codeManagerMock) extends ControllerEdit {
+        $this->controller = new class ($this->ruleManagerMock, $this->codeManagerMock) extends ControllerEdit {
             public function __construct($ruleManager, $codeManager)
             {
                 $this->ruleManager = $ruleManager;
@@ -90,7 +90,7 @@ class ControllerEditTest extends TestCase
 
         $this->ruleManagerMock->expects($this->once())
             ->method('updateSummaryForRule')
-            ->with(self::callback(function($rule)  use ($values) : bool {
+            ->with(self::callback(function ($rule) use ($values): bool {
                 self::assertInstanceOf(Rule::class, $rule);
                 foreach ($values as $key => $value) {
                     $this->assertEquals($value, $rule->$key);

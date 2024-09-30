@@ -7,6 +7,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ActionUrlBuilder;
+use OpenEMR\Services\DecisionSupportInterventionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,12 +17,14 @@ class RouteController
 {
     const EXTERNAL_CDR_ACTION = "external-cdr";
 
+    const CDR_ACTION_INFO = "cdr-info";
+
     public function __construct(
-        private ClientRepository $repo
-        , private LoggerInterface $logger
-        , private Environment $twig
-        , private ActionUrlBuilder $actionUrlBuilder)
-    {
+        private ClientRepository $repo,
+        private LoggerInterface $logger,
+        private Environment $twig,
+        private ActionUrlBuilder $actionUrlBuilder
+    ) {
         $this->setTwigEnvironment($twig);
     }
 
@@ -65,37 +68,19 @@ class RouteController
         ,'mainActionChild' => $mainActionChild
         ,'subAction' => $subAction] = $this->parseRequest($request);
 
-        if (empty($mainActionChild) || $mainActionChild === 'list') {
-            return $this->listAction($request);
-        } else if ($mainActionChild == 'edit') {
+       if ($mainActionChild == 'edit') {
             return $this->editAction($request);
+        } else if ($mainActionChild == 'save') {
+            return $this->saveAction($request);
         } else {
             return $this->notFoundAction($request);
         }
-
     }
 
-    public function notFoundAction(Request $request) : Response
+    public function notFoundAction(Request $request): Response
     {
         $bodyContents = $this->twig->render("interface/smart/admin-client/404.html.twig");
         return new Response($bodyContents, 404);
-    }
-
-    public function listAction(Request $request)
-    {
-        $serverConfig = new ServerConfig();
-        // TODO: @adunsulag will need to expose the Questionnaire endpoint as part of this.
-        $questionnaire = $this->twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => $serverConfig->getFhirUrl()]);
-        $params = $this->getRootParams();
-        $services = [];
-        $service = $this->getSampleService($questionnaire);
-        $services[] = $service;
-        $params['services'] = $services;
-        $params['editUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'edit', $service->getClient()->getIdentifier()]);
-        $params['clientEdit'] = $this->actionUrlBuilder->buildUrl(['edit', $service->getClient()->getIdentifier()]);
-//        $client->setService(new EvidenceBasedDSIServiceEntity());
-        $bodyContents = $this->twig->render("interface/smart/admin-client/external-cdr-list.html.twig", $params);
-        return new Response($bodyContents);
     }
 
     public function editAction(Request $request)
@@ -105,14 +90,33 @@ class RouteController
         // TODO: @adunsulag will need to expose the Questionnaire endpoint as part of this.
         $questionnaire = $this->twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => $serverConfig->getFhirUrl()]);
         $params = $this->getRootParams();
-        $params['service'] = $this->getSampleService($questionnaire);
-        $params['service']->getClient()->setIdentifier($serviceId);
-
-        $qr = $this->twig->render("api/smart/dsi-service-qr-test.json.twig");
-        $params['service']->populateServiceWithFhirQuestionnaire($questionnaire, $qr);
-        $client = $params['service']->getClient();
+        $dsiService = new DecisionSupportInterventionService();
+        $service = $dsiService->getService($serviceId);
+        if ($service == null) {
+            return $this->notFoundAction($request);
+        }
+        $status = $request->get('status', '');
+        $saveMessage = "";
+        $alertType = "";
+        if ($status == 'success') {
+            $saveMessage = xl("Save successful");
+            $alertType = "success";
+        } else if (!empty($status)) { // everything else is treated as a failure
+            $alertType = "danger";
+            $saveMessage = xl("Save failed.") . " " . xl("Check the system error logs for more information.");
+        }
+        $params['nav']['navs'] = [];
+        $params['smartAppEdit'] = $this->actionUrlBuilder->buildUrl(['edit', $service->getClient()->getIdentifier()], ['fragment' => 'services']);
+        $params['clientListUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'list']);
+        $params['alertType'] = $alertType;
+        $params['saveMessage'] = $saveMessage;
+        $params['service'] = $service;
         $params['questionnaire'] = $questionnaire;
-        $params['clientEdit'] = $this->actionUrlBuilder->buildUrl(['edit', $client->getIdentifier()]);
+        $params['saveAction'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'save', $service->getClient()->getIdentifier()]);
+        $params['disableClientUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'disable', $service->getClient()->getIdentifier()]);
+        $params['enableClientUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'enable', $service->getClient()->getIdentifier()]);
+        $params['predictiveDSIListID'] = DecisionSupportInterventionService::LIST_ID_PREDICTIVE_DSI;
+        $params['evidenceDSIListID'] = DecisionSupportInterventionService::LIST_ID_EVIDENCE_DSI;
 //        $client->setService(new EvidenceBasedDSIServiceEntity());
         $bodyContents = $this->twig->render("interface/smart/admin-client/external-cdr-edit.html.twig", $params);
         return new Response($bodyContents);
@@ -122,7 +126,7 @@ class RouteController
     {
         return [
             'nav' => [
-                'title' => xl('External Clinical Decision Support'),
+                'title' => xl('Decision Support Intervention Service'),
                 'navs' => [
                     ['title' => xl('Smart Apps'), 'url' => $this->actionUrlBuilder->buildUrl('')]
                 ]
@@ -130,13 +134,34 @@ class RouteController
         ];
     }
 
-    private function getSampleService(string $questionnaire) :DecisionSupportInterventionEntity
+    private function saveAction(Request $request)
     {
-        $client = new ClientEntity();
-        $client->setIdentifier('blah-1');
-        $client->setName("New Test Client");
-        $service = new PredictiveDSIServiceEntity($client);
-        $service->populateServiceWithFhirQuestionnaire($questionnaire);
-        return $service;
+        ['subAction' => $serviceId] = $this->parseRequest($request);
+        $dsiService = new DecisionSupportInterventionService();
+        $service = $dsiService->getService($serviceId);
+        if ($service == null) {
+            return $this->notFoundAction($request);
+        }
+        $fields = $service->getFields();
+        foreach ($fields as $field) {
+            $value = $request->get($field['name'], '');
+            $service->setFieldValue($field['name'], $value);
+        }
+        try {
+            $fields = $service->getFields();
+            if ($service->getType() == PredictiveDSIServiceEntity::TYPE) {
+                $dsiService->updatePredictiveDSIAttributes($service->getId(), $_SESSION['authUserID'], $fields);
+            } else {
+                $dsiService->updateEvidenceDSIAttributes($service->getId(), $_SESSION['authUserID'], $fields);
+            }
+            $status = "success";
+        } catch (\Exception $e) {
+            $this->logger->error("Error saving service", ['exception' => $e]);
+            $status = "failed";
+        }
+
+        $saveResponseUrl = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'edit', $service->getId()], ['queryParams' => ['status' => $status]]);
+        $response = new Response("", 302, ['Location' => $saveResponseUrl]);
+        return $response;
     }
 }

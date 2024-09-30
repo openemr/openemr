@@ -13,6 +13,8 @@ abstract class DecisionSupportInterventionEntity
     protected array $fields;
     protected array $fieldsByIndex;
 
+    protected array $allowedTypes = ['text' => true];
+
     public function __construct(string $type, ?ClientEntity $client)
     {
         $this->setType($type);
@@ -21,8 +23,10 @@ abstract class DecisionSupportInterventionEntity
         $this->fieldsByIndex = [];
     }
 
-    public function setClient(ClientEntity $client) {
+    public function setClient(ClientEntity $client)
+    {
         $this->client = $client;
+        $this->id = $client->getIdentifier();
     }
 
     /**
@@ -50,14 +54,15 @@ abstract class DecisionSupportInterventionEntity
 
     public function getFields(): array
     {
-        return array_map(function($name) {
+        return array_map(function ($name) {
             return $this->fields[$name];
         }, $this->fieldsByIndex);
     }
 
-    public function setField(string $name, string $label, string $value): void
+    public function setField(string $name, string $label, string $value, string $type = "text", array $options = []): void
     {
-        $this->fields[$name] = ['name' => $name, 'label' => $label, 'value' => $value];
+        $type = isset($this->allowedTypes[$type]) ? $type : 'text';
+        $this->fields[$name] = ['name' => $name, 'label' => $label, 'value' => $value, 'type' => $type, 'options' => $options];
         $this->fieldsByIndex[] = $name;
     }
 
@@ -77,7 +82,8 @@ abstract class DecisionSupportInterventionEntity
         $this->type = $type;
     }
 
-    protected function populateServiceWithFhirQuestionnaireForType(string $serviceType, string $questionnaire, string $response = null) {
+    protected function populateServiceWithFhirQuestionnaireForType(string $serviceType, string $questionnaire, string $response = null)
+    {
 
         $questionnaire = json_decode($questionnaire, true);
         foreach ($questionnaire['item'] as $item) {
@@ -89,7 +95,8 @@ abstract class DecisionSupportInterventionEntity
             $this->populateFromQuestionnaireResponseForType($serviceType, $response);
         }
     }
-    public function createFieldsFromQuestionnaireItem($item) {
+    public function createFieldsFromQuestionnaireItem($item)
+    {
         if ($item['type'] == 'group') {
             foreach ($item['item'] as $field) {
                 $this->createFieldsFromQuestionnaireItem($field);
@@ -111,7 +118,8 @@ abstract class DecisionSupportInterventionEntity
         }
     }
 
-    private function setFieldFromQuestionnaireResponseItem($item) {
+    private function setFieldFromQuestionnaireResponseItem($item)
+    {
         if (!empty($item['item'])) {
             foreach ($item['item'] as $field) {
                 $this->setFieldFromQuestionnaireResponseItem($field);
