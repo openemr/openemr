@@ -13,9 +13,12 @@
                 {{ "Launch"|xlt }}
             </button> {{ client.getName()|attr }}
             {% if client.hasPredictiveDSI() or client.hasEvidenceDSI() %}
-                <span style="white-space: pre-line;" title="{{ "This application implements decision support interventions."|xlt ~"Press this icon to get more information."|xlt }}"><i
-                        class="fas fa-question-circle smart-launch-dsi-info"
-                        data-dsi-service-id="{{ client.getIdentifier()|attr }}"></i></span>
+                <a title="{{ "This application implements decision support interventions."|xlt ~"Press this icon to get more information."|xlt }}"
+                    class="smart-launch-dsi-info btn-link btn-sm text-danger"
+                    role="button"
+                    data-smart-name="{{ client.getName()|attr }}"
+                    data-dsi-service-id="{{ client.getIdentifier()|attr }}">
+                    <i class="fas fa-question-circle"></i> {{ "DSI Source Information" }}</a>
             {% endif %}
         </li>
         {% endfor %}

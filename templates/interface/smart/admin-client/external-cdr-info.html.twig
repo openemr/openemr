@@ -1,0 +1,45 @@
+{% extends "interface/smart/admin-client/base.html.twig" %}
+{% block title %}{{ "Clinical Decision Intervention Info"|xlt }}{% endblock %}
+{% block header %}
+    {{ setupHeader([]) }}
+{% endblock %}
+{% block headerNav %}
+<div class="page-title">
+    <h2>
+        {{ nav.title|text }}
+    </h2>
+    <h3>{{ nav.subtitle|text }}</h3>
+</div>
+{% endblock %}
+{% block contents %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <h4>{{ "Source Attribute Details"|xlt }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <p>{{ "These source attributes can be updated by your system administrator through the Admin -> System -> API Clients screen"|xlt }}</p>
+                        <p>{{ "Contact a system administrator if you need to update this information and do not have access to the API Clients management tool"|xlt }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    {% for field in service.fields %}
+                        {% if field.type == 'text' %}
+                            <div class="form-group">
+                                <label for="{{ field.name|attr }}">{{ field.label|text }}</label>
+                                <input type="text" readonly disabled="disabled" class="form-control" id="{{ field.name|attr }}" name="{{ field.name|attr }}" value="{{ field.value|attr }}">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {# we hide the footer on 404 page #}
+{% endblock %}
