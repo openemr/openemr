@@ -1,5 +1,6 @@
 {# Note saveAction is already escaped #}
 <form method="post" action="{{ saveAction|attr }}">
+{{ csrfToken() }}
 <div class="card">
     <div class="card-body">
         {% if saveMessage is not empty %}
