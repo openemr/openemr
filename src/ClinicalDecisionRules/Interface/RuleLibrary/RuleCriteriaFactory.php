@@ -67,8 +67,7 @@ abstract class RuleCriteriaFactory
         $method,
         $methodDetail,
         $value
-    )
-    {
+    ) {
 
         $criteriaType = $this->resolveCriteriaType($method, $methodDetail, $value);
         if ($criteriaType == null) {

@@ -19,7 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ControllerRouter
 {
-    protected function createActionRouter(BaseController $controller, string $action) {
+    protected function createActionRouter(BaseController $controller, string $action)
+    {
         return new ActionRouter($controller, $action);
     }
     /**

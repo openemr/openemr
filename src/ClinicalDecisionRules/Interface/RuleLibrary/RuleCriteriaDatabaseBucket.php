@@ -33,8 +33,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         $completed,
         $frequencyComparator,
         $frequency
-    )
-    {
+    ) {
         $this->category = $category;
         $this->categoryLbl = $this->getLabel($this->category, 'rule_action_category');
         $this->item = $item;

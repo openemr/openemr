@@ -13,6 +13,7 @@
  */
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalDetail;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalRange;
@@ -507,7 +508,8 @@ class RuleManager
         sqlStatement("DELETE FROM rule_filter WHERE SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?", [$guid]);
     }
 
-    public function updateSummaryForRule(Rule $rule) {
+    public function updateSummaryForRule(Rule $rule)
+    {
 
         $exists = !empty($rule->id);
         if (!$exists) {
@@ -541,7 +543,8 @@ class RuleManager
         return $ruleId;
     }
 
-    public function getNextRuleId() {
+    public function getNextRuleId()
+    {
         $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
         $ruleId = "rule_" . $result['id'];
         return $ruleId;

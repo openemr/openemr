@@ -76,7 +76,7 @@ class Common
         return $GLOBALS['srcdir'];
     }
 
-    public static function template_dir() : string
+    public static function template_dir(): string
     {
         return $GLOBALS['template_dir'] . 'super' . DIRECTORY_SEPARATOR . 'rules' . DIRECTORY_SEPARATOR;
     }

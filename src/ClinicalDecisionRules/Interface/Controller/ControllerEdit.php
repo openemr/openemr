@@ -68,17 +68,17 @@ class ControllerEdit extends BaseController
             $rule = $this->getRuleManager()->newRule();
         }
             $ruleTypes = Common::post('fld_ruleTypes') ?? [];
-            if (!is_array($ruleTypes)) {
-                $ruleTypes = [$ruleTypes];
-            }
+        if (!is_array($ruleTypes)) {
+            $ruleTypes = [$ruleTypes];
+        }
             $rule->ruleTypes = array_map('intval', $ruleTypes);
 
             // TODO: could write a validator here
-            foreach ($values as $val) {
-                if (property_exists($rule, $val)) {
-                    $rule->$val = Common::post('fld_' . $val, '');
-                }
+        foreach ($values as $val) {
+            if (property_exists($rule, $val)) {
+                $rule->$val = Common::post('fld_' . $val, '');
             }
+        }
             // its a new rule submit
             $ruleId = $this->getRuleManager()->updateSummaryForRule($rule);
             // redirect to the intervals page

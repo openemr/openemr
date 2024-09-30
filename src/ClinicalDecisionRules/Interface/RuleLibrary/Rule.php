@@ -305,7 +305,7 @@ class Rule
         return $labels;
     }
 
-    public function getSummaryDataToPersist() : array
+    public function getSummaryDataToPersist(): array
     {
         return [
             'id' => $this->id,

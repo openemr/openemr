@@ -67,19 +67,22 @@ class ControllerAlerts extends BaseController
             if (!empty($actives[$i]) && ($actives[$i] == "on")) {
                 $actives_final[] = "1";
             } else {
-                $actives_final[] = "0";;
+                $actives_final[] = "0";
+                ;
             }
 
             if (!empty($passives[$i]) && ($passives[$i] == "on")) {
                 $passives_final[] = "1";
             } else {
-                $passives_final[] = "0";;
+                $passives_final[] = "0";
+                ;
             }
 
             if (!empty($reminders[$i]) && ($reminders[$i] == "on")) {
                 $reminders_final[] = "1";
             } else {
-                $reminders_final[] = "0";;
+                $reminders_final[] = "0";
+                ;
             }
         }
 

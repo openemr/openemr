@@ -19,6 +19,7 @@
 //
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 class CdrResults

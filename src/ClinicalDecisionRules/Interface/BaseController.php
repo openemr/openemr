@@ -13,6 +13,7 @@
  */
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
+
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CodeManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleManager;
 
@@ -33,7 +34,8 @@ abstract class BaseController
     }
 
 
-    public function getControllerName() {
+    public function getControllerName()
+    {
         $class = get_class($this);
         $parts = explode('\\', $class);
         $name = str_replace('Controller', '', end($parts));

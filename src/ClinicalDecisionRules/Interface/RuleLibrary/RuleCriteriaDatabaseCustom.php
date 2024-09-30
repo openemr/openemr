@@ -38,8 +38,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         $value,
         $frequencyComparator,
         $frequency
-    )
-    {
+    ) {
         $this->table = $table;
         $this->column = $column;
         $this->valueComparator = $valueComparator;

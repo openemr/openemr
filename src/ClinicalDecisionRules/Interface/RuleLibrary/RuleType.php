@@ -8,6 +8,7 @@
 // of the License, or (at your option) any later version.
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
+
 /**
  * Enumerates rule types
  * todo turn this into a real enum
