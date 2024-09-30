@@ -76,10 +76,10 @@ class DecisionSupportInterventionService extends BaseService
     public function getEmptyService(int $type) : DecisionSupportInterventionEntity {
         if ($type === ClientEntity::DSI_TYPE_PREDICTIVE) {
             $service = new PredictiveDSIServiceEntity();
-            $attributes = $this->getPredictiveDSIAttributes(null);
+            $attributes = $this->getPredictiveDSIAttributes();
         } else if ($type === ClientEntity::DSI_TYPE_EVIDENCE) {
             $service = new EvidenceBasedDSIServiceEntity();
-//            $attributes = $this->getEvidenceDSIAttributes(null);
+            $attributes = $this->getEvidenceDSIAttributes();
         }
         foreach ($attributes as $attr) {
             $service->setField($attr['option_id'], xl_list_label($attr['title']), $attr['source_value'] ?? '');
@@ -165,11 +165,11 @@ class DecisionSupportInterventionService extends BaseService
         }
         return true;
     }
-    public function getPredictiveDSIAttributes($dsiServiceId)
+    public function getPredictiveDSIAttributes(?string $dsiServiceId = null)
     {
         return $this->getAttributes(self::LIST_ID_PREDICTIVE_DSI, $dsiServiceId);
     }
-    public function getEvidenceDSIAttributes($dsiServiceId)
+    public function getEvidenceDSIAttributes(?string $dsiServiceId = null)
     {
         return $this->getAttributes(self::LIST_ID_EVIDENCE_DSI, $dsiServiceId);
     }
@@ -181,7 +181,7 @@ class DecisionSupportInterventionService extends BaseService
      * @param $dsiServiceId
      * @return array
      */
-    private function getAttributes($listId, string|null $dsiServiceId)
+    private function getAttributes($listId, ?string $dsiServiceId)
     {
         if (empty($dsiServiceId)) {
             $query =  "SELECT "

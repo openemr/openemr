@@ -262,6 +262,25 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_updates_correction', 'Description of frequency by which the intervention''s performance is corrected when risks related to validity and fairness are identified', 31);
 #EndIf
 
+#IfNotRow2D list_options list_id lists option_id dsi_evidence_source_attributes
+-- Create new list Default Open Tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_evidence_source_attributes', 'Evidence Based Decision Support Interventions Source Attributes');
+-- Populate list with ONC default values
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_citation', 'Bibliographic citation of the intervention (clinical research or guideline)', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_developer', 'Developer of the intervention (translation from clinical research or guideline)', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_funding', 'Funding source of the technical implementation for the intervention(s) development', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_dates', 'Release and, if applicable, revision dates of the intervention or reference source', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_race', 'Use of race as expressed in the standards in § 170.213', 5);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_ethnicity', 'Use of ethnicity as expressed in the standards in § 170.213', 6);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_language', 'Use of language as expressed in the standards in § 170.213', 7);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sexual_orientation', 'Use of sexual orientation as expressed in the standards in § 170.213', 8);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_gender_identity', 'Use of gender identity as expressed in the standards in § 170.213', 9);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sex', 'Use of sex as expressed in the standards in § 170.213', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_dob', 'Use of date of birth as expressed in the standards in § 170.213', 11);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sdoh', 'Use of social determinants of health data as expressed in the standards in § 170.213', 12);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_health_status', 'Use of health status assessments data as expressed in the standards in § 170.213', 13);
+#EndIf
+
 #IfNotTable dsi_source_attributes
 CREATE TABLE `dsi_source_attributes` (
      `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
