@@ -15,9 +15,28 @@ class DecisionSupportInterventionService extends BaseService
     const LIST_ID_PREDICTIVE_DSI = 'dsi_predictive_source_attributes';
     const LIST_ID_EVIDENCE_DSI = 'dsi_evidence_source_attributes';
 
+    // note these correspond with the enum values in ClientEntity
+    const DSI_TYPES_CLIENT_STRING_NAMES = [
+        "DSI_TYPE_PREDICTIVE" => 'predictive',
+        "DSI_TYPE_EVIDENCE" => 'evidence',
+        "DSI_TYPE_NONE" => 'none'
+    ];
+
+    const DSI_TYPES_BY_STRING_NAME = [
+        'predictive' => ClientEntity::DSI_TYPE_PREDICTIVE,
+        'evidence' => ClientEntity::DSI_TYPE_EVIDENCE,
+        'none' => ClientEntity::DSI_TYPE_NONE
+    ];
+
+    private bool $inNestedTransaction = false;
+
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
+    }
+
+    public function setInNestedTransaction(bool $inNestedTransaction) {
+        $this->inNestedTransaction = $inNestedTransaction;
     }
 
     /**
@@ -40,6 +59,20 @@ class DecisionSupportInterventionService extends BaseService
             if (!$isSummary) {
                 $attributes = $this->getEvidenceDSIAttributes($clientEntity->getIdentifier());
             }
+        }
+        foreach ($attributes as $attr) {
+            $service->setField($attr['option_id'], xl_list_label($attr['title']), $attr['source_value'] ?? '');
+        }
+        return $service;
+    }
+
+    public function getEmptyService(int $type) : DecisionSupportInterventionEntity {
+        if ($type === ClientEntity::DSI_TYPE_PREDICTIVE) {
+            $service = new PredictiveDSIServiceEntity();
+            $attributes = $this->getPredictiveDSIAttributes(null);
+        } else if ($type === ClientEntity::DSI_TYPE_EVIDENCE) {
+            $service = new EvidenceBasedDSIServiceEntity();
+//            $attributes = $this->getEvidenceDSIAttributes(null);
         }
         foreach ($attributes as $attr) {
             $service->setField($attr['option_id'], xl_list_label($attr['title']), $attr['source_value'] ?? '');
@@ -82,8 +115,11 @@ class DecisionSupportInterventionService extends BaseService
     {
         $inTransaction = false;
         try {
-            QueryUtils::startTransaction();
-            $inTransaction = true;
+            if (!$this->inNestedTransaction) {
+                QueryUtils::startTransaction();
+            } else {
+                $inTransaction = true;
+            }
             $currentAttributes = $this->getAttributes($listId, $dsiServiceId);
             $currentAttributesMap = [];
             foreach ($currentAttributes as $attribute) {
@@ -111,9 +147,11 @@ class DecisionSupportInterventionService extends BaseService
             foreach ($currentAttributesMap as $currentAttribute) {
                 $this->deleteAttribute($currentAttribute['id']);
             }
-            QueryUtils::commitTransaction();
+            if (!$this->inNestedTransaction) {
+                QueryUtils::commitTransaction();
+            }
         } catch (\Exception $e) {
-            if ($inTransaction) {
+            if ($inTransaction && !$this->inNestedTransaction) {
                 QueryUtils::rollbackTransaction();
             }
             throw $e;
@@ -128,15 +166,33 @@ class DecisionSupportInterventionService extends BaseService
     {
         return $this->getAttributes(self::LIST_ID_EVIDENCE_DSI, $dsiServiceId);
     }
-    private function getAttributes($listId, $dsiServiceId)
+
+    /**
+     * Returns the list of attributes for a given service.  If the service is null
+     * then it will return the default attributes for the list.
+     * @param $listId
+     * @param $dsiServiceId
+     * @return array
+     */
+    private function getAttributes($listId, string|null $dsiServiceId)
     {
-        $query = "SELECT "
-            . "lo.list_id, lo.option_id, lo.title, lo.seq "
-            . ", dsi.id,dsi.client_id,dsi.clinical_rule_id,dsi.source_value,dsi.created_by,dsi.last_updated_by"
-            . ", dsi.created_at,dsi.last_updated_at FROM list_options lo LEFT JOIN " . self::TABLE_NAME
-        . " dsi ON lo.list_id = dsi.list_id AND dsi.option_id = lo.option_id AND dsi.client_id = ? "
-        . " WHERE lo.list_id = ? ORDER BY lo.seq ASC";
-        $params = [$dsiServiceId, $listId];
+        if (empty($dsiServiceId)) {
+            $query =  "SELECT "
+                . "lo.list_id, lo.option_id, lo.title, lo.seq "
+                . ", dsi.id,dsi.client_id,dsi.clinical_rule_id,dsi.source_value,dsi.created_by,dsi.last_updated_by"
+                . ", dsi.created_at,dsi.last_updated_at FROM list_options lo "
+                . " CROSS JOIN (select NULL as id, NULL as client_id, NULL as clinical_rule_id, NULL as source_value, NULL as created_by, NULL as last_updated_by, NULL as created_at, NULL as last_updated_at) dsi "
+                . " WHERE lo.list_id = ? ORDER BY lo.seq ASC";
+            $params = [$listId];
+        } else {
+            $query = "SELECT "
+                . "lo.list_id, lo.option_id, lo.title, lo.seq "
+                . ", dsi.id,dsi.client_id,dsi.clinical_rule_id,dsi.source_value,dsi.created_by,dsi.last_updated_by"
+                . ", dsi.created_at,dsi.last_updated_at FROM list_options lo LEFT JOIN " . self::TABLE_NAME
+                . " dsi ON lo.list_id = dsi.list_id AND dsi.option_id = lo.option_id AND dsi.client_id = ? "
+                . " WHERE lo.list_id = ? ORDER BY lo.seq ASC";
+            $params = [$dsiServiceId, $listId];
+        }
         $attributes = QueryUtils::fetchRecords($query, $params);
         return $attributes;
     }
@@ -164,5 +220,23 @@ class DecisionSupportInterventionService extends BaseService
             return $this->getServiceForClient($clientEntity, $isSummary);
         }
         return null;
+    }
+
+    public function getDsiTypeForStringName(string $dsiTypeName)
+    {
+        if (!array_key_exists($dsiTypeName, self::DSI_TYPES_BY_STRING_NAME)) {
+            throw new \InvalidArgumentException("Invalid DSI type name");
+        }
+        return self::DSI_TYPES_BY_STRING_NAME[$dsiTypeName];
+    }
+
+    public function updateService(DecisionSupportInterventionEntity $service, ?int $userId)
+    {
+        $fields = $service->getFields();
+        if ($service->getType() == PredictiveDSIServiceEntity::TYPE) {
+            $this->updatePredictiveDSIAttributes($service->getId(), $userId, $fields);
+        } else {
+            $this->updateEvidenceDSIAttributes($service->getId(), $userId, $fields);
+        }
     }
 }

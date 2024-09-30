@@ -15,10 +15,12 @@ abstract class DecisionSupportInterventionEntity
 
     protected array $allowedTypes = ['text' => true];
 
-    public function __construct(string $type, ?ClientEntity $client)
+    public function __construct(string $type, ?ClientEntity $client=null)
     {
         $this->setType($type);
-        $this->setClient($client);
+        if ($client != null) {
+            $this->setClient($client);
+        }
         $this->fields = [];
         $this->fieldsByIndex = [];
     }
@@ -131,7 +133,7 @@ abstract class DecisionSupportInterventionEntity
         }
     }
 
-    private function hasField($linkId)
+    public function hasField($linkId)
     {
         return array_key_exists($linkId, $this->fields);
     }
