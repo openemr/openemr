@@ -27,6 +27,7 @@ abstract class DecisionSupportInterventionEntity
     {
         $this->client = $client;
         $this->id = $client->getIdentifier();
+        $this->name = $client->getName();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport;
 use http\Env;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ActionUrlBuilder;
 use OpenEMR\Services\DecisionSupportInterventionService;
@@ -71,7 +72,9 @@ class RouteController
        if ($mainActionChild == 'edit') {
             return $this->editAction($request);
         } else if ($mainActionChild == 'save') {
-            return $this->saveAction($request);
+           return $this->saveAction($request);
+        } else if ($mainActionChild == 'cdr-info') {
+           return $this->cdrInfoAction($request);
         } else {
             return $this->notFoundAction($request);
         }
@@ -81,6 +84,30 @@ class RouteController
     {
         $bodyContents = $this->twig->render("interface/smart/admin-client/404.html.twig");
         return new Response($bodyContents, 404);
+    }
+
+    public function cdrInfoAction(Request $request): Response
+    {
+        $serviceId = $request->get('serviceId', '');
+        $csrfToken = $request->get('csrf_token', '');
+
+        if (CsrfUtils::verifyCsrfToken($csrfToken) === false) {
+            return $this->notFoundAction($request);
+        }
+        if (empty(trim($serviceId))) {
+            return $this->notFoundAction($request);
+        }
+        $dsiService = new DecisionSupportInterventionService();
+        $service = $dsiService->getService($serviceId);
+        if ($service == null) {
+            return $this->notFoundAction($request);
+        }
+
+        $params = $this->getRootParams();
+        $params['nav']['subtitle'] = $service->getName();
+        $params['service'] = $service;
+        $bodyContents = $this->twig->render("interface/smart/admin-client/external-cdr-info.html.twig", $params);
+        return new Response($bodyContents);
     }
 
     public function editAction(Request $request)
@@ -136,6 +163,7 @@ class RouteController
 
     private function saveAction(Request $request)
     {
+        // TODO: @adunsulag need to handle CSRF token in save action
         ['subAction' => $serviceId] = $this->parseRequest($request);
         $dsiService = new DecisionSupportInterventionService();
         $service = $dsiService->getService($serviceId);
