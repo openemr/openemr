@@ -490,7 +490,7 @@ class AuthorizationController
             $params['redirect_uris'] = explode('|', $client['redirect_uri']);
 
             // need to grab dsi information
-            $this->addDSIInformation($params, $client['client_id']);
+            $this->addDSIInformation($params, $client);
             $response->withHeader("Cache-Control", "no-store");
             $response->withHeader("Pragma", "no-cache");
             $response->withHeader('Content-Type', 'application/json');
@@ -1689,9 +1689,29 @@ class AuthorizationController
         $dsiService->updateService($service, $userId);
     }
 
-    private function addDSIInformation(array $params, string $client_id)
+    private function addDSIInformation(array &$params, array $client)
     {
-
+        $dsiService = $this->getDecisionSupportInterventionService();
+        $dsiType = $client['dsi_type'] ?? ClientEntity::DSI_TYPE_NONE;
+        $params['dsi_type'] = $dsiService->getDsiTypeStringName($dsiType);
+        if ($dsiType !== ClientEntity::DSI_TYPE_NONE) {
+            $clientEntity = new ClientEntity();
+            $clientEntity->setIdentifier($client['client_id']);
+            $clientEntity->setName($client['client_name']);
+            $clientEntity->setDSIType($dsiType);
+            $service = $dsiService->getServiceForClient($clientEntity, false);
+            if (empty($service)) {
+                $this->logger->errorLogCaller("DSI service attributes not found for client when they should exist", ['client_id' => $client['client_id']]);
+                $params['dsi_source_attributes'] = [];
+                return;
+            }
+            $fields = $service->getFields();
+            $dsiSourceAttributes = [];
+            foreach ($fields as $field) {
+                $dsiSourceAttributes[] = ['name' => $field['name'], 'value' => $field['value']];
+            }
+            $params['dsi_source_attributes'] = $dsiSourceAttributes;
+        }
     }
 
 }
