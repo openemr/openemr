@@ -221,7 +221,7 @@ class DateSearchField extends BasicSearchField
         // we can think of.  We just are leveraging an existing PHP object that represents a pair of start/end dates
         $datePeriod = new \DatePeriod($startRange, new \DateInterval('P1Y'), $endRange);
 
-        return new SearchFieldComparableValue($datePeriod, $comparator);
+        return new SearchFieldComparableValue($datePeriod, c);
     }
 
     private function createDateTimeFromArray(array $datetime)

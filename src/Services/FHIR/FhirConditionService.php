@@ -14,6 +14,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -58,7 +59,12 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         return  [
             'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('condition_uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField() : ?ISearchField {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     /**
@@ -74,7 +80,11 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['date'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $conditionResource->setMeta($meta);
 
         $id = new FHIRId();

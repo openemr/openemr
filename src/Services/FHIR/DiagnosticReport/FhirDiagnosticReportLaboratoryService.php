@@ -29,6 +29,7 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -71,7 +72,12 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('report_uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField() : ?ISearchField {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     public function supportsCategory($category)
@@ -91,10 +97,14 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $report = new FHIRDiagnosticReport();
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        $report->setMeta($meta);
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId('1');
+        if (!empty($dataRecord['date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $report->setMeta($fhirMeta);
 
 
         $dataRecordReport = array_pop($dataRecord['reports']);

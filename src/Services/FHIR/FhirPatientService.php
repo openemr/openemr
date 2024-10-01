@@ -90,6 +90,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     const FIELD_NAME_GENDER = 'sex';
 
+    private ?array $searchParameters = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -143,9 +145,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone_home', 'phone_biz', 'phone_cell']),
             'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email','email_direct', 'phone_home', 'phone_biz', 'phone_cell']),
-            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
             'generalPractitioner' => new FhirSearchParameterDefinition('generalPractitioner', SearchFieldType::REFERENCE, ['provider_uuid'])
         ];
+    }
+
+    public function getLastModifiedSearchField() : ?ISearchField {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     /**

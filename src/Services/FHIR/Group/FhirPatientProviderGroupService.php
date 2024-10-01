@@ -20,6 +20,7 @@ use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\GroupService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -45,7 +46,12 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         return  [
             'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField() : ?ISearchField {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
@@ -58,7 +64,11 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $fhirGroup->setMeta($fhirMeta);
 
         $fhirGroup->setId($dataRecord['uuid']);

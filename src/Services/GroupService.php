@@ -57,10 +57,12 @@ class GroupService extends BaseService
                     ,patient_provider_groups.patient_fname
                     ,patient_provider_groups.patient_mname
                     ,patient_provider_groups.patient_lname
+                    ,patient_provider_groups.date
                 FROM (
                     SELECT
                         uuid_mapping.target_uuid AS pruuid
                         ,uuid_mapping.uuid
+                        ,uuid_mapping.created AS `date`
                         ,users.id AS provider_id
                         ,users.fname AS provider_fname
                         ,users.lname AS provider_lname
