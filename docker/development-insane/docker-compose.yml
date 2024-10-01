@@ -12,12 +12,12 @@
 #        http://localhost:8082 (with Alpine 3.15 (Apache and PHP 8.0))
 #        http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
 #        http://localhost:8084 (with Alpine 3.18 (Apache and PHP 8.2))
-#        http://localhost:8085 (with Alpine 3.19 (Apache and PHP 8.3))
+#        http://localhost:8085 (with Alpine 3.20 (Apache and PHP 8.3))
 #        http://localhost:8086 (with Alpine Edge (Apache and now PHP 8.3))
 #        http://localhost:8092 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
 #        http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 #        http://localhost:8094 (with Alpine 3.18 (Apache and PHP 8.2) with redis)
-#        http://localhost:8095 (with Alpine 3.19 (Apache and PHP 8.3) with redis)
+#        http://localhost:8095 (with Alpine 3.20 (Apache and PHP 8.3) with redis)
 #        http://localhost:8096 (with Alpine Edge (Apache and now PHP 8.3) with redis)
 #        http://localhost:8102 (with Nginx and PHP-FPM 8.0)
 #        http://localhost:8103 (with Nginx and PHP-FPM 8.1)
@@ -32,12 +32,12 @@
 #        https://localhost:9082 with SSL and Alpine 3.15 (with Apache and PHP 8.0)
 #        https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 #        https://localhost:9084 with SSL and Alpine 3.18 (with Apache and PHP 8.2)
-#        https://localhost:9085 with SSL and Alpine 3.19 (with Apache and PHP 8.3)
+#        https://localhost:9085 with SSL and Alpine 3.20 (with Apache and PHP 8.3)
 #        https://localhost:9086 with SSL and Alpine Edge (with Apache and now PHP 8.3)
 #        https://localhost:9092 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
 #        https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 #        https://localhost:9094 with SSL and Alpine 3.18 (with Apache and PHP 8.2 with redis)
-#        https://localhost:9095 with SSL and Alpine 3.19 (with Apache and PHP 8.3 with redis)
+#        https://localhost:9095 with SSL and Alpine 3.20 (with Apache and PHP 8.3 with redis)
 #        https://localhost:9096 with SSL and Alpine Edge (with Apache and now PHP 8.3 with redis)
 #        https://localhost:9102 with SSL (with Nginx and PHP-FPM 8.0)
 #        https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
@@ -213,7 +213,7 @@ services:
       EMPTY: "yes"
   openemr-8-3-redis:
     restart: always
-    image: openemr/openemr:flex-3.19
+    image: openemr/openemr:flex-3.20
     ports:
     - 8095:80
     - 9095:443
