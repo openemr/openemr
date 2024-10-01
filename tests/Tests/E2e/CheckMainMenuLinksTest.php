@@ -26,30 +26,37 @@ class CheckMainMenuLinksTest extends PantherTestCase
      */
     public function testCheckMenuLink(string $menuLink, string $expectedTabTitle): void
     {
-        // login
-        $openEmrPage = $this->e2eBaseUrl;
-        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
-        $client->manage()->window()->maximize();
-        $crawler = $client->request('GET', '/interface/login/login.php?site=default');
-        $form = $crawler->filter('#login_form')->form();
-        $form['authUser'] = 'admin';
-        $form['clearPass'] = 'pass';
-        $crawler = $client->submit($form);
-        // check if the menu cog is showing. if so, then click it.
-        if ($crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->isDisplayed()) {
-            $crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->click();
+        try {
+            // login
+            $openEmrPage = $this->e2eBaseUrl;
+            $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+            $client->manage()->window()->maximize();
+            $crawler = $client->request('GET', '/interface/login/login.php?site=default');
+            $form = $crawler->filter('#login_form')->form();
+            $form['authUser'] = 'admin';
+            $form['clearPass'] = 'pass';
+            $crawler = $client->submit($form);
+            // check if the menu cog is showing. if so, then click it.
+            if ($crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->isDisplayed()) {
+                $crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->click();
+            }
+            // got to and click the menu link
+            $menuLinkSequenceArray = explode('||', $menuLink);
+            foreach ($menuLinkSequenceArray as $menuLinkItem) {
+                $client->waitFor('//div[@id="mainMenu"]//div[text()="' . $menuLinkItem . '"]');
+                $crawler = $client->refreshCrawler();
+                $crawler->filterXPath('//div[@id="mainMenu"]//div[text()="' . $menuLinkItem . '"]')->click();
+            }
+            // wait for the tab title to be shown
+            $client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
+            // Perform the final assertion
+            $this->assertSame($expectedTabTitle, $crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text());
+        } catch (Throwable $e) {
+            // Close client
+            $client->quit();
+            // re-throw the exception
+            throw $e;
         }
-        // got to and click the menu link
-        $menuLinkSequenceArray = explode('||', $menuLink);
-        foreach ($menuLinkSequenceArray as $menuLinkItem) {
-            $client->waitFor('//div[@id="mainMenu"]//div[text()="' . $menuLinkItem . '"]');
-            $crawler = $client->refreshCrawler();
-            $crawler->filterXPath('//div[@id="mainMenu"]//div[text()="' . $menuLinkItem . '"]')->click();
-        }
-        // wait for the tab title to be shown
-        $client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
-        // Perform the final assertion
-        $this->assertSame($expectedTabTitle, $crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text());
         // Close client
         $client->quit();
     }
