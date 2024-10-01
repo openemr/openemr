@@ -90,7 +90,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
             'Merge Patients menu link' => ['Admin||Patients||Merge Patients', 'Merge Patients'],
             'Manage Duplicates menu link' => ['Admin||Patients||Manage Duplicates', 'Duplicate Patient Management'],
             'Practice Settings menu link' => ['Admin||Practice||Practice Settings', 'Practice Settings'],
-            'Rules menu link' => ['Admin||Practice||Rules', 'Plans Configuration God'],
+            'Rules menu link' => ['Admin||Practice||Rules', 'Plans Configuration Go'],
             'Alerts menu link' => ['Admin||Practice||Alerts', 'Clinical Decision Rules Alert Manager'],
             'Codes menu link' => ['Admin||Coding||Codes', 'Codes'],
             'Native Data Loads menu link' => ['Admin||Coding||Native Data Loads', 'Install Code Set'],
