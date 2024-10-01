@@ -19,7 +19,8 @@ RUN apt-get update
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
 RUN apt-get install -y mariadb-client \
-                       imagemagick
+                       imagemagick \
+                       nodejs
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
