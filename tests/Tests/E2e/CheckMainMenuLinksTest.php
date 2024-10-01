@@ -26,11 +26,11 @@ class CheckMainMenuLinksTest extends PantherTestCase
      */
     public function testCheckMenuLink(string $menuLink, string $expectedTabTitle): void
     {
+        $openEmrPage = $this->e2eBaseUrl;
+        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $client->manage()->window()->maximize();
         try {
             // login
-            $openEmrPage = $this->e2eBaseUrl;
-            $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
-            $client->manage()->window()->maximize();
             $crawler = $client->request('GET', '/interface/login/login.php?site=default');
             $form = $crawler->filter('#login_form')->form();
             $form['authUser'] = 'admin';
@@ -51,7 +51,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
             $client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
             // Perform the final assertion
             $this->assertSame($expectedTabTitle, $crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text());
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             // Close client
             $client->quit();
             // re-throw the exception
@@ -90,7 +90,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
             'Merge Patients menu link' => ['Admin||Patients||Merge Patients', 'Merge Patients'],
             'Manage Duplicates menu link' => ['Admin||Patients||Manage Duplicates', 'Duplicate Patient Management'],
             'Practice Settings menu link' => ['Admin||Practice||Practice Settings', 'Practice Settings'],
-            'Rules menu link' => ['Admin||Practice||Rules', 'Plans Configuration Go'],
+            'Rules menu link' => ['Admin||Practice||Rules', 'Plans Configuration God'],
             'Alerts menu link' => ['Admin||Practice||Alerts', 'Clinical Decision Rules Alert Manager'],
             'Codes menu link' => ['Admin||Coding||Codes', 'Codes'],
             'Native Data Loads menu link' => ['Admin||Coding||Native Data Loads', 'Install Code Set'],
