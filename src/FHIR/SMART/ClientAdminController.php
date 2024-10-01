@@ -481,14 +481,17 @@ class ClientAdminController
                 ,'user' => $user
             ];
         }
-        $dsiService = new DecisionSupportInterventionService();
-        $service = $dsiService->getServiceForClient($client);
+
         $servicesList =  [];
-        // we want to make sure we can add additional services at some point
-        $servicesList[] = [
-            'service' => $service
-            ,'link' => $this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION, 'edit', $client->getIdentifier()])
-        ];
+        if ($client->hasDSI()) {
+            $dsiService = new DecisionSupportInterventionService();
+            $service = $dsiService->getServiceForClient($client);
+            // we want to make sure we can add additional services at some point
+            $servicesList[] = [
+                'service' => $service
+                ,'link' => $this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION, 'edit', $client->getIdentifier()])
+            ];
+        }
         $data = [
             'listAction' => $listAction
             ,'client' => $client
