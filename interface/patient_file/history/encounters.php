@@ -33,6 +33,9 @@ use OpenEMR\Core\Header;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
+if (isset($_GET['pid']) && $_GET['pid'] != $_SESSION['pid']) {
+    setpid($_GET['pid']);
+}
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
 // case we only display encounters that are linked to the specified issue.
