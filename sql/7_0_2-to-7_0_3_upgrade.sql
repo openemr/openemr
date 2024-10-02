@@ -135,3 +135,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2024-10-01', 'Zip File 3 2025 ICD-10-PCS Codes File.zip', 'a47ceb9a09fcc475fec19cee6526a335');
 #EndIf
+
+#IfMissingColumn users last_updated
+ALTER TABLE `users` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn facility last_updated
+ALTER TABLE `facility` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
