@@ -11,6 +11,10 @@
 #
 FROM php:8.2-fpm-buster
 
+# set environment setting to let OpenEMR CI know that unable to test nodejs related stuff since this
+#  environment can not support a high enough nodejs version.
+ENV UNABLE_SUPPORT_OPENEMR_NODEJS = True
+
 # Update
 RUN apt-get update
 

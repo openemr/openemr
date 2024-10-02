@@ -20,7 +20,11 @@ RUN apt-get update
 #  and instead rely on php scripts, if possible.
 RUN apt-get install -y mariadb-client \
                        imagemagick \
-                       nodejs
+                       curl
+
+# Install correct version nodejs
+RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash -
+RUN apt-get install nodejs -y
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
