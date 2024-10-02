@@ -52,6 +52,7 @@ if (php_sapi_name() === 'cli') {
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once("$srcdir/appointments.inc.php");
+require_once __DIR__ . "/../vendor/autoload.php";
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
@@ -184,6 +185,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             );
                             if (stripos($error, 'error') !== false) {
                                 $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong> \n";
+                                error_log($strMsg); // text
                                 echo(nl2br($strMsg));
                                 continue;
                             } else {
