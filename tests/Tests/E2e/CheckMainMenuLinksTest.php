@@ -26,6 +26,11 @@ class CheckMainMenuLinksTest extends PantherTestCase
      */
     public function testCheckMenuLink(string $menuLink, string $expectedTabTitle): void
     {
+        if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
+            // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
+            //  a high enough version of nodejs)
+            $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
+        }
         $openEmrPage = $this->e2eBaseUrl;
         $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
         $client->manage()->window()->maximize();
