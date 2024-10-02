@@ -90,7 +90,8 @@ class FhirClinicalNotesService extends FhirServiceBase
         ];
     }
 
-    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 

@@ -68,5 +68,5 @@ interface IFhirExportableResourceService
      * will return null and the export should return ALL the resources for the resource service.
      * @return ISearchField|null The search field that represents the last modified date for the resource
      */
-    function getLastModifiedSearchField() : ?FhirSearchParameterDefinition;
+    function getLastModifiedSearchField(): ?FhirSearchParameterDefinition;
 }

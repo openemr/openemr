@@ -94,7 +94,8 @@ trait FhirBulkExportDomainResourceTrait
         }
     }
 
-    private function getFormattedISO8601DateFromDateTime(\DateTime $dateTime) : string {
+    private function getFormattedISO8601DateFromDateTime(\DateTime $dateTime): string
+    {
         // ISO8601 doesn't support fractional dates so we need to change from microseconds to milliseconds
         // TODO: @adunsulag this is a hack to get around the fact that PHP does microseconds and ISO8601 uses milliseconds
         //      , look at refactoring all of this so we don't have to do multiple date conversions up and down the stack.
@@ -102,7 +103,8 @@ trait FhirBulkExportDomainResourceTrait
         return $dateStr;
     }
 
-    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
         return null;
     }
 }

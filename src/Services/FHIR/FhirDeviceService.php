@@ -58,7 +58,8 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
         ];
     }
 
-    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
