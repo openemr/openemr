@@ -29,12 +29,13 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
 if (isset($_GET['pid']) && $_GET['pid'] != $_SESSION['pid']) {
-    setpid($_GET['pid']);
+    PatientSessionUtil::setPid($_GET['pid']);
 }
 // "issue" parameter exists if we are being invoked by clicking an issue title
 // in the left_nav menu.  Currently that is just for athletic teams.  In this
