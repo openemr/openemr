@@ -23,7 +23,7 @@ RUN apt-get install -y mariadb-client \
                        curl
 
 # Install correct version nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x  | sudo bash -
+RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash -
 RUN apt install nodejs
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
