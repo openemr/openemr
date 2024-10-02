@@ -154,14 +154,17 @@ define_external_table($code_external_tables, 9, 'sct_descriptions', 'ConceptId',
 array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(procedure)'");
 
 // SNOMED RF2 definitions
-define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "");
-if (isSnomedSpanish()) {
-    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "");
-    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "");
-} else {
-    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(disorder)'"), "");
-    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedure)'"), "");
-}
+//When SNOMED is not installed, and allergies are added, mysql error shows after adding the allergy and that patients details cant be seen anymore, unless we hide the allergies from admin> config > appearence. commenting out lines 158-165 solves this issue.
+//this can be used as a temporary fix for users who dont have access to paid SNOMED but still want to use allergies feature.
+// Dr Robert James
+// define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "");
+// if (isSnomedSpanish()) {
+//     define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "");
+//     define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "");
+// } else {
+//     define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(disorder)'"), "");
+//     define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedure)'"), "");
+// }
 
 //**** End SNOMED Definitions
 
