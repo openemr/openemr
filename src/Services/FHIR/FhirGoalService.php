@@ -64,7 +64,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
         ];
     }
 
-    public function getLastModifiedSearchField() : ?ISearchField {
+    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
         // TODO: @adunsulag introduce a last_modified date field to the care plan table as we don't track this anywhere
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['creation_date']);
     }

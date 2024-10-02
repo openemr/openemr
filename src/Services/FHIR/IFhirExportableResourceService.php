@@ -18,6 +18,7 @@ use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 
 interface IFhirExportableResourceService
@@ -67,5 +68,5 @@ interface IFhirExportableResourceService
      * will return null and the export should return ALL the resources for the resource service.
      * @return ISearchField|null The search field that represents the last modified date for the resource
      */
-    function getLastModifiedSearchField() : ?ISearchField;
+    function getLastModifiedSearchField() : ?FhirSearchParameterDefinition;
 }

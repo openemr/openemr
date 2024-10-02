@@ -50,8 +50,8 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         ];
     }
 
-    public function getLastModifiedSearchField() : ?ISearchField {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['patient_last_updated']);
     }
 
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
@@ -64,8 +64,8 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        if (!empty($dataRecord['last_modified_date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_modified_date']));
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }

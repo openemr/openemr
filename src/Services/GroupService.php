@@ -57,17 +57,19 @@ class GroupService extends BaseService
                     ,patient_provider_groups.patient_fname
                     ,patient_provider_groups.patient_mname
                     ,patient_provider_groups.patient_lname
-                    ,patient_provider_groups.date
+                    ,patient_provider_groups.creation_date
+                    ,patient_provider_groups.patient_last_updated
                 FROM (
                     SELECT
                         uuid_mapping.target_uuid AS pruuid
                         ,uuid_mapping.uuid
-                        ,uuid_mapping.created AS `date`
+                        ,uuid_mapping.created AS `creation_date`
                         ,users.id AS provider_id
                         ,users.fname AS provider_fname
                         ,users.lname AS provider_lname
                         ,users.mname AS provider_mname
                         ,patients.uuid AS puuid
+                        ,patients.date AS patient_last_updated
                         ,patients.title AS patient_title
                         ,patients.fname AS patient_fname
                         ,patients.mname AS patient_mname
@@ -83,6 +85,7 @@ class GroupService extends BaseService
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
+        $sql .= " ORDER BY patient_provider_groups.patient_last_updated DESC ";
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
@@ -114,6 +117,7 @@ class GroupService extends BaseService
                 $record = [
                     'uuid' => $recordUuid
                     ,'name' => $groupName
+                    ,'last_modified_date' => $dbRecord['patient_last_updated'] ?? $dbRecord['creation_date']
                     ,'patients' => []
                 ];
                 $orderedList[] = $recordUuid;

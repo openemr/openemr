@@ -64,7 +64,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
         ];
     }
 
-    public function getLastModifiedSearchField() : ?ISearchField {
+    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 

@@ -63,8 +63,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         ];
     }
 
-    public function getLastModifiedSearchField() : ?ISearchField {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated_date']);
     }
 
     /**

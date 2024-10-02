@@ -509,4 +509,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             }
         }
     }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return null;
+    }
 }

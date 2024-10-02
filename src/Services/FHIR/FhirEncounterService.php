@@ -100,7 +100,7 @@ class FhirEncounterService extends FhirServiceBase implements
         ];
     }
 
-    public function getLastModifiedSearchField() : ?ISearchField {
+    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update']);
     }
 

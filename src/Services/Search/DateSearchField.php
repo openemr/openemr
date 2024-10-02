@@ -41,7 +41,7 @@ class DateSearchField extends BasicSearchField
     private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(\.\d{1,4})?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
 
     // php's DATE_ATOM does not handle milliseconds so we have to add them in manually
-    private const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
+    public const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
 
     private const COMPARATOR_INDEX_FULL = 0;
 
@@ -221,7 +221,7 @@ class DateSearchField extends BasicSearchField
         // we can think of.  We just are leveraging an existing PHP object that represents a pair of start/end dates
         $datePeriod = new \DatePeriod($startRange, new \DateInterval('P1Y'), $endRange);
 
-        return new SearchFieldComparableValue($datePeriod, c);
+        return new SearchFieldComparableValue($datePeriod, $comparator);
     }
 
     private function createDateTimeFromArray(array $datetime)

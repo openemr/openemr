@@ -23,6 +23,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
 use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -72,10 +73,13 @@ trait FhirBulkExportDomainResourceTrait
             }
         }
         $searchField = $this->getLastModifiedSearchField();
-        if ($searchField) {
-            $sinceSearchField = $this->getSearchFieldFactory()->buildSearchField($searchField->getName()
-                , [SearchComparator::GREATER_THAN_OR_EQUAL_TO . $job->getResourceIncludeTime()->format('Y-m-d\TH:i:s.uP')]);
-            $searchParams[$searchField->getName()] = $sinceSearchField;
+        if ($searchField !== null) {
+//            $sinceSearchField = $this->getSearchFieldFactory()->buildSearchField(
+//                $searchField->getName() . ":" . SearchComparator::GREATER_THAN_OR_EQUAL_TO
+//                , [$this->getFormattedISO8601DateFromDateTime($job->getResourceIncludeTime())]);
+//            $searchParams[$searchField->getName()] = $sinceSearchField;
+            $searchParams[$searchField->getName()] = SearchComparator::GREATER_THAN_OR_EQUAL_TO
+                . $this->getFormattedISO8601DateFromDateTime($job->getResourceIncludeTime());
         }
         // if we can grab our list of patient ids from the export job...
 
@@ -90,7 +94,15 @@ trait FhirBulkExportDomainResourceTrait
         }
     }
 
-    public function getLastModifiedSearchField() : ?ISearchField {
+    private function getFormattedISO8601DateFromDateTime(\DateTime $dateTime) : string {
+        // ISO8601 doesn't support fractional dates so we need to change from microseconds to milliseconds
+        // TODO: @adunsulag this is a hack to get around the fact that PHP does microseconds and ISO8601 uses milliseconds
+        //      , look at refactoring all of this so we don't have to do multiple date conversions up and down the stack.
+        $dateStr = substr($dateTime->format('Y-m-d\TH:i:s.u'), 0, -3) . $dateTime->format('P');
+        return $dateStr;
+    }
+
+    public function getLastModifiedSearchField() : ?FhirSearchParameterDefinition {
         return null;
     }
 }
