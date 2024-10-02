@@ -347,7 +347,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) +
                 '&pid=' + encodeURIComponent(pid);
-            paturl = 'patient_file/summary/demographics_full.php?pid=' + encodeURIComponent(pid);
+            paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
+            parent.clearPatient();
             parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
             parent.left_nav.setEncounter(datestr, enc, 'enc');
             parent.left_nav.loadFrame('enc2', 'enc', encurl);
@@ -359,9 +360,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             paturl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
             parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
-            parent.left_nav.loadFrame('ens1', 'enc',
-                'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
+            parent.left_nav.loadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
             parent.left_nav.loadFrame('dem1', 'pat', paturl);
+            parent.activateTabByName('pat', true);
         }
 
         function popMBO(pid, enc, mboid) {
