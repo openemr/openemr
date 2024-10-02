@@ -1273,7 +1273,7 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
-      - name: E2e testing (skipping at this time)
+      - name: E2e testing (skipping at this time for PHP 8.4-dev)
         run: |
            echo "SKIPPING THIS TEST FOR NOW UNTIL IT STARTS WORKING IN FUTURE FOR PHP 8.4-dev"
 #          source ci/ciLibrary.source
