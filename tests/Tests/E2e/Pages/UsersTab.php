@@ -55,6 +55,7 @@ class UsersTab
 
     public function assertUserPresent($username): void
     {
+        $crawler = $this->client->refreshCrawler();
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
         try {
             $this->client->waitFor("//table//a[text()='$username']");
