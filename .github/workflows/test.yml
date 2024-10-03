@@ -1223,7 +1223,7 @@ jobs:
 
 
   build_nginx_84:
-    name: PHP 8.4 - Nginx - MariaDB 11.4
+    name: PHP 8.4 - Nginx - MariaDB 11.4 (skipping E2e testing at this time)
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_84
