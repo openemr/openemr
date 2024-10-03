@@ -76,6 +76,7 @@ class LogImportBuild
         $wenoLog = new WenoLogService();
         $l = 0;
         $rxCnt = 0;
+        $updateCnt = 0;
         if (file_exists($this->rxsynclog)) {
             $records = fopen($this->rxsynclog, "r");
 
@@ -118,7 +119,7 @@ class LogImportBuild
                     $insertdata['attached_user_id'] = $uid;
                     $insertdata['sync_type'] = trim($line[3] ?? '');
                     $insertdata['status'] = trim($line[6] ?? '');
-                    $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : ($insertdata['sync_type'] . " " . $insertdata['status']);
+                    $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : ($insertdata['sync_type'] . " " . $insertdata['status'] . " " . xl("Use RxLog"));
                     $insertdata['drug'] = $drug;
                     $insertdata['quantity'] = $line[18] ?? '';
                     $insertdata['refills'] = $refills;
@@ -133,10 +134,13 @@ class LogImportBuild
                     $loginsert = new LogDataInsert();
                     if ($is_saved > 0) {
                         $loginsert->updatePrescriptions($insertdata);
+                        if (trim($line[7] ?? '') == 'True') {
+                            ++$updateCnt;
+                        }
                     } else {
                         $loginsert->insertPrescriptions($insertdata);
+                        ++$rxCnt;
                     }
-                    ++$rxCnt;
                     ++$l;
                 }
             }
@@ -146,10 +150,10 @@ class LogImportBuild
             return false;
         }
 
-        if ($rxCnt == 0) {
+        if ($rxCnt == 0 && $updateCnt == 0) {
             $status = xl("No new prescriptions to sync.");
         } else {
-            $status = xl("Synced") . " " . text($rxCnt) . " " . xl("prescriptions.");
+            $status = xl("Synced") . " " . text($rxCnt) . " new " . text($updateCnt) . " " . xl("updated")  . " " . xl("prescriptions.");
         }
         $wenoLog->insertWenoLog("Sync Report", $status);
         return true;

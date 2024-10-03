@@ -60,7 +60,7 @@ class LogDataInsert
     {
         $sql = "UPDATE prescriptions SET ";
         $sql .= "active = ?, ";
-        $sql .= "date_modified = ?, ";
+        $sql .= "date_added = ?, ";
         $sql .= "datetime = NOW(), ";
         $sql .= "patient_id = ?, ";
         $sql .= "provider_id = ?, ";
@@ -71,7 +71,7 @@ class LogDataInsert
         $sql .= "note = ?, ";
         $sql .= "rxnorm_drugcode = ?, ";
         $sql .= "external_id = ? ";
-        $sql .= "WHERE indication = ?"; // assuming prescription_id is the identifier
+        $sql .= "WHERE indication = ?";
 
         try {
             sqlQuery($sql, [
