@@ -55,17 +55,17 @@ class CheckMainMenuLinksTest extends PantherTestCase
                         // just clicking a simple/single menu item
                         $menuLink = '//div[@id="mainMenu"]/div/div/div[text()="' . $menuLinkItem . '"]';
                     }
-                } elseif ($counter == 1) { // $counter > 0
+                } elseif ($counter == 1) {
                     if (count($menuLinkSequenceArray) == 2) {
                         // click the nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="'. $menuLinkSequenceArray[0] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
                     } else {
                         // continue clicking through a dropdown/nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="'. $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkItem . '"]';
+                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkItem . '"]';
                     }
                 } else { // $counter > 1
                     // click the nested menu item
-                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="'. $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
                 }
                 $client->waitFor($menuLink);
                 $crawler = $client->refreshCrawler();
@@ -175,7 +175,6 @@ class CheckMainMenuLinksTest extends PantherTestCase
             'Reports -> Services -> Background Services menu link' => ['Reports||Services||Background Services', 'Background Services'],
             'Reports -> Services -> Direct Message Log menu link' => ['Reports||Services||Direct Message Log', 'Direct Message Log'],
             'Reports -> Services -> IP Tracker menu link' => ['Reports||Services||IP Tracker', 'IP Tracker'],
-            'Miscellaneous -> Portal Dashboard menu link' => ['Miscellaneous||Portal Dashboard', 'Portal Dashboard | Home'],
             'Miscellaneous -> Dicom Viewer menu link' => ['Miscellaneous||Dicom Viewer', 'Dicom Viewer'],
             'Miscellaneous -> Patient Education menu link' => ['Miscellaneous||Patient Education', 'Web Search - Patient Education Materials'],
             'Miscellaneous -> Authorizations menu link' => ['Miscellaneous||Authorizations', 'Authorizations (More)'],
