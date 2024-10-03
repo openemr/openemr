@@ -90,4 +90,48 @@ class AppointmentRestController
         }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
+
+    /**
+     * Processes an HTTP PATCH request used to update an existing Appointment.
+     *
+     * @param string $uuid The identifier of the Appointment.
+     * @param array $data The new data for the Appointment.
+     *
+     * @return void
+     */
+    public function patch(string $uuid, array $data): void
+    {
+        try {
+            $result =  $this->appointmentService->edit($uuid, $data);
+        } catch (\Exception $exception) {
+            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'uuid' => $uuid, 'data' => $data]);
+            RestControllerHelper::responseHandler(['message' => 'Failed to update appointment'], null, 500);
+
+            return;
+        }
+
+        RestControllerHelper::responseHandler($result, null, 200);
+    }
+
+    /**
+     * Processes an HTTP PUT request used to update an existing Appointment.
+     *
+     * @param string $uuid The identifier of the Appointment.
+     * @param array $data The new data for the Appointment.
+     *
+     * @return void
+     */
+    public function put(string $uuid, array $data): void
+    {
+        try {
+            $result =  $this->appointmentService->update($uuid, $data);
+        } catch (\Exception $exception) {
+            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'uuid' => $uuid, 'data' => $data]);
+            RestControllerHelper::responseHandler(['message' => 'Failed to update appointment'], null, 500);
+
+            return;
+        }
+
+        RestControllerHelper::responseHandler($result, null, 200);
+    }
 }

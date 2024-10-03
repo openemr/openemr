@@ -32,6 +32,7 @@ class AppointmentService extends BaseService
     const PATIENT_TABLE = "patient_data";
     const PRACTITIONER_TABLE = "users";
     const FACILITY_TABLE = "facility";
+    const APPOINTMENT_TABLE = self::TABLE_NAME;
 
     const CATEGORY_CONSTANT_NO_SHOW = 'no_show';
 
@@ -96,7 +97,7 @@ class AppointmentService extends BaseService
         $validator->required('pc_hometext')->string();
         $validator->required('pc_apptstatus')->string();
         $validator->required('pc_eventDate')->datetime('Y-m-d');
-        $validator->required('pc_startTime')->length(5); // HH:MM is 5 chars
+        $validator->required('pc_startTime')->lengthBetween(5, 8); // HH:MM is 5 chars, HH:MM:SS is 8 as returned by OpenEMR.
         $validator->required('pc_facility')->numeric();
         $validator->required('pc_billing_location')->numeric();
         $validator->optional('pc_aid')->numeric()
@@ -193,7 +194,7 @@ class AppointmentService extends BaseService
         return $processingResult;
     }
 
-    public function getAppointmentsForPatient($pid)
+    public function getAppointmentsForPatient(?string $pid)
     {
         $sqlBindArray = array();
 
@@ -655,5 +656,97 @@ class AppointmentService extends BaseService
     {
         $sql = "SELECT * FROM openemr_postcalendar_categories WHERE pc_catid = ?";
         return QueryUtils::fetchRecords($sql, [$cat_id]);
+    }
+
+    public function edit(string $id, array $data): ProcessingResult
+    {
+        if (empty($data)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages('Invalid Data');
+
+            return $result;
+        }
+
+        $data['pc_eid'] = $id;
+        $appointment = $this->getAppointment($id)[0] ?? null; // We really need to fix the getAppointment function...
+
+        if ($appointment === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages('Invalid Appointment');
+
+            return $result;
+        }
+
+        foreach ($appointment as $key => $value) {
+            if (!array_key_exists($key, $data)) {
+                $data[$key] = $value;
+            }
+        }
+
+        $validation = $this->validate($data);
+
+        if (!$validation->isValid()) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages($validation->getMessages());
+
+            return $result;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE " . self::APPOINTMENT_TABLE . " SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `pc_eid` = ?";
+
+        array_push($query['bind'], $id);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+
+        if (!$sqlResult) {
+            $result = new ProcessingResult();
+            $result->addErrorMessage('error processing SQL Update');
+
+            return $result;
+        }
+
+        return $this->search(['pc_eid' => $id]);
+    }
+
+    public function update(string $id, array $data): ProcessingResult
+    {
+        if (empty($data)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages('Invalid Data');
+
+            return $result;
+        }
+
+        $data['pc_eid'] = $id;
+
+        $validation = $this->validate($data);
+
+        if (!$validation->isValid()) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages($validation->getMessages());
+
+            return $result;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE " . self::APPOINTMENT_TABLE . " SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `pc_eid` = ?";
+
+        array_push($query['bind'], $id);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+
+        if (!$sqlResult) {
+            $result = new ProcessingResult();
+            $result->addErrorMessage('error processing SQL Update');
+
+            return $result;
+        }
+
+        return $this->search(['pc_eid' => $id]);
     }
 }
