@@ -83,7 +83,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
         if (!empty($dataRecord['last_updated'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
