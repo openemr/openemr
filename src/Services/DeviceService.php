@@ -38,7 +38,7 @@ class DeviceService extends BaseService
             (
                 SELECT
                     `udi`,
-                    `uuid`, `date`, `title`,`udi_data`, `begdate`, `diagnosis`, `user`, `pid`
+                    `uuid`, `date`, `title`,`udi_data`, `begdate`, `diagnosis`, `user`, `pid`,modifydate
                 FROM lists WHERE `type` = 'medical_device'
             ) l
             JOIN (
@@ -46,7 +46,7 @@ class DeviceService extends BaseService
                 from patient_data
             ) patients ON l.pid = patients.pid
             LEFT JOIN (
-                select 
+                select
                    id AS provider_id
                    ,npi AS provider_npi
                    ,uuid AS provider_uuid

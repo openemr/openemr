@@ -60,7 +60,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['modifydate']);
     }
 
     /**
@@ -76,8 +76,8 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        if (!empty($dataRecord['modifydate'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
