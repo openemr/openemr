@@ -167,3 +167,7 @@ ALTER TABLE `openemr_postcalendar_categories` ADD `pc_last_updated` DATETIME NOT
 #IfMissingColumn list_options last_updated
 ALTER TABLE `list_options` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
+
+#IfMissingColumn form_clinical_notes last_updated
+ALTER TABLE `form_clinical_notes` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf

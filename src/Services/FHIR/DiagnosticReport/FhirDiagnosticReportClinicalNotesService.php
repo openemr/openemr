@@ -72,7 +72,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
     public function supportsCategory($category)
@@ -94,8 +94,8 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase
         $report = new FHIRDiagnosticReport();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        if (!empty($dataRecord['last_updated'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
