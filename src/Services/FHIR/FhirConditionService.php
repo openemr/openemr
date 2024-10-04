@@ -65,7 +65,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated_date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated_time']);
     }
 
     /**
@@ -81,8 +81,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        if (!empty($dataRecord['last_updated_time'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated_time']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
