@@ -98,18 +98,15 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $report = new FHIRDiagnosticReport();
+        $dataRecordReport = array_pop($dataRecord['reports']);
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        if (!empty($dataRecordReport['date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecordReport['date']));
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
         $report->setMeta($fhirMeta);
-
-
-        $dataRecordReport = array_pop($dataRecord['reports']);
-
 
         $id = new FHIRId();
         $id->setValue($dataRecordReport['uuid']);
