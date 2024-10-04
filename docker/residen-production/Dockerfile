@@ -11,10 +11,17 @@ RUN apk add --no-cache \
     perl mysql-client mariadb-connector-c tar curl imagemagick nodejs npm \
     certbot openssl openssl-dev dcron \
     rsync shadow ncurses \
-    && sed -i 's/^Listen 80$/Listen 0.0.0.0:80/' /etc/apache2/httpd.conf
+    # Fix Apache Listen configuration for Docker
+    && sed -i 's/^Listen 80$/Listen 0.0.0.0:80/' /etc/apache2/httpd.conf \
+    # Set the ServerName directive to avoid Apache warnings
+    && echo "ServerName localhost" >> /etc/apache2/httpd.conf \
+    # Disable excessive logging in Apache
+    && sed -i 's/LogLevel warn/LogLevel error/' /etc/apache2/httpd.conf \
+    && sed -i 's/^ *CustomLog/#CustomLog/' /etc/apache2/httpd.conf \
+    && sed -i 's/^ *ErrorLog/#ErrorLog/' /etc/apache2/httpd.conf
+
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
 RUN usermod -u 1000 apache
-
 #BELOW LINE NEEDED TO SUPPORT PHP8 ON ALPINE 3.13+; SHOULD BE ABLE TO REMOVE THIS IN FUTURE ALPINE VERSIONS
 RUN cp /usr/bin/php83 /usr/bin/php
 # Install composer for openemr package building
@@ -92,7 +99,7 @@ COPY admin.php .
 RUN chown apache:apache setup.php
 RUN chown apache:apache admin.php
 
-#go
-CMD [ "./openemr.sh" ]
+# Start OpenEMR and Apache in the foreground
+CMD [ "./openemr.sh", "apachectl", "-D", "FOREGROUND" ]
 
 EXPOSE 80 443
