@@ -105,13 +105,7 @@ build_test_e2e() {
     if [ "$failTest" == false ]; then
       exit
     fi
-    # hail mary run
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
-    if [ "$failTest" == false ]; then
-      exit
-    fi
-    # failed 3 tests, so send the official fail
+    # failed 2 tests, so send the official fail
     exit 1
 }
 

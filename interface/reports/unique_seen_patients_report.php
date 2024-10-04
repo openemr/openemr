@@ -64,7 +64,7 @@ if (!empty($_POST['form_labels'])) {
    }
 }
 </style>
-<title><?php echo xlt('Front Office Receipts'); ?></title>
+<title><?php echo xlt('Unique Seen Patients'); ?></title>
 
     <?php Header::setupHeader('datetime-picker'); ?>
 

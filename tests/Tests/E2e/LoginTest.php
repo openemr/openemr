@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\E2e\TestOpenemrPage;
+namespace OpenEMR\Tests\E2e;
 
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class ExampleE2eTest extends PantherTestCase
+class LoginTest extends PantherTestCase
 {
     /**
      * The base url used for e2e (end to end) browser testing.
@@ -38,7 +38,6 @@ class ExampleE2eTest extends PantherTestCase
         $this->assertSame('OpenEMR Login', $title);
     }
     /** @test */
-    /** TEMP REMOVING THIS TEST UNTIL FIX WHY IT IS ERRATICALLY NOT PASSING IN TRAVIS
     public function url_without_token_should_redirect_to_login_page(): void
     {
         $client = static::createPantherClient(['external_base_uri' => $this->e2eBaseUrl]);
@@ -48,7 +47,6 @@ class ExampleE2eTest extends PantherTestCase
         $title = $client->getTitle();
         $this->assertSame('OpenEMR Login', $title);
     }
-     */
     /** @test */
     public function visitor_with_valid_credential_can_be_authenticated(): void
     {

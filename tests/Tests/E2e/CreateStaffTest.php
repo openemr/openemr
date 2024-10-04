@@ -15,27 +15,23 @@ class CreateStaffTest extends PantherTestCase
     protected function setUp(): void
     {
         $this->e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
+
+        // clean up in case still left over from prior testing
+        $this->cleanDatabase();
     }
 
     protected function tearDown(): void
     {
-        // remove the created user
-        $delete = "DELETE FROM users WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
-
-        $delete = "DELETE FROM users_secure WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
+        $this->cleanDatabase();
     }
 
     /** @test */
     public function check_add_user(): void
     {
 
-        echo "SKIPPING THE CHECK ADD USER TEST FOR NOW SINCE BREAKING FOR UNCLEAR REASONS ON PHP 8.3. WILL CONTINUE TO REIMPLENT THIS IN FUTURE\n\n";
-        $this->markTestSkipped('must be revisited.');
-
         $openEmrPage = $this->e2eBaseUrl;
         $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $client->manage()->window()->maximize();
         $lp = new LoginPage($client, $this);
         $mp = $lp->login('admin', 'pass');
 
@@ -45,5 +41,15 @@ class CreateStaffTest extends PantherTestCase
         $ut = $mp->selectUsersTab();
         $ut->addUser('foobar');
         $ut->assertUserPresent('foobar');
+    }
+
+    private function cleanDatabase(): void
+    {
+        // remove the created user
+        $delete = "DELETE FROM users WHERE username = ?";
+        sqlStatement($delete, array('foobar'));
+
+        $delete = "DELETE FROM users_secure WHERE username = ?";
+        sqlStatement($delete, array('foobar'));
     }
 }

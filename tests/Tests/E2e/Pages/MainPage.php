@@ -33,7 +33,7 @@ class MainPage
         }
 
         $this->client->waitFor(MainPage::ADMINISTRATION_MENU);
-        $this->crawler->filterXPath(MainPage::ADMINISTRATION_MENU)->click();
+         $this->crawler->filterXPath(MainPage::ADMINISTRATION_MENU)->click();
 
         $this->client->waitFor(MainPage::USERS_SUBMENU);
         $this->crawler->filterXPath(MainPage::USERS_SUBMENU)->click();

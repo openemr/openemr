@@ -16,6 +16,7 @@ class LoginPage
     public function __construct($client, $test)
     {
         $this->client = $client;
+        $this->client->manage()->window()->maximize();
         $this->test = $test;
     }
 

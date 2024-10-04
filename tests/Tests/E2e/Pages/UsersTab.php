@@ -31,13 +31,17 @@ class UsersTab
     public function addUser($username): void
     {
         // need to switch to the iframe
+        $this->client->waitFor(UsersTab::ADMIN_IFRAME);
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
         $this->client->waitFor(UsersTab::ADD_USER_BUTTON);
+        $crawler = $this->client->refreshCrawler();
         $crawler->filterXPath(UsersTab::ADD_USER_BUTTON)->click();
 
         $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(UsersTab::NEW_USER_IFRAME);
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::NEW_USER_IFRAME));
         $this->client->waitFor(UsersTab::NEW_USER_BUTTON);
+        $crawler = $this->client->refreshCrawler();
         $newUser = $crawler->filterXPath(UsersTab::NEW_USER_BUTTON)->form();
 
         $newUser['rumple'] = $username;
@@ -47,6 +51,7 @@ class UsersTab
         $newUser['adminPass'] = 'pass';
 
         $this->client->waitFor(UsersTab::CREATE_USER_BUTTON);
+        $crawler = $this->client->refreshCrawler();
         $crawler->filterXPath(UsersTab::CREATE_USER_BUTTON)->click();
 
         $this->client->switchTo()->defaultContent();
@@ -54,6 +59,7 @@ class UsersTab
 
     public function assertUserPresent($username): void
     {
+        $this->client->waitFor(UsersTab::ADMIN_IFRAME);
         $crawler = $this->switchToIFrame(WebDriverBy::xpath(UsersTab::ADMIN_IFRAME));
         try {
             $this->client->waitFor("//table//a[text()='$username']");
