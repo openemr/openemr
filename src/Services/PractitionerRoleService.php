@@ -54,13 +54,18 @@ class PractitionerRoleService extends BaseService
                 providers.user_name,
                 providers.provider_id,
                 providers.provider_uuid,
+                providers.provider_last_updated,
 
                 facilities.facility_uuid,
                 facilities.facility_name,
                 role_codes.role_code,
                 role_codes.role_title,
+                role_codes.role_last_updated,
+
                 specialty_codes.specialty_code,
                 specialty_codes.specialty_title,
+                specialty_codes.specialty_last_updated,
+
                 physician_types.physician_type_codes,
                 physician_types.physician_type,
                 physician_types.physician_type_title
@@ -68,13 +73,13 @@ class PractitionerRoleService extends BaseService
                     select
                         facility_user_ids.uuid AS facility_role_uuid,
                         facility_user_ids.id AS facility_role_id,
-                        -- field_value AS provider_id,
                         facility_user_ids.facility_id,
                         uid AS user_id,
                         -- we are treating the user_id as the provider id
                         -- TODO: @adunsulag figure out whether we should actually be using the user entered provider_id
                         uid AS provider_id,
                         users.uuid AS provider_uuid,
+                        users.last_updated AS provider_last_updated,
                         users.physician_type,
                         CONCAT(COALESCE(users.fname,''),
                            IF(users.mname IS NULL OR users.mname = '','',' '),COALESCE(users.mname,''),
@@ -94,7 +99,9 @@ class PractitionerRoleService extends BaseService
                         field_id,
                         role.title AS role_title,
                         facility_id,
-                        uid AS user_id
+                        uid AS user_id,
+                        facility_user_ids.last_updated AS role_last_updated,
+                        facility_user_ids.date_created AS role_date_created
                     FROM
                         facility_user_ids
                     JOIN
@@ -119,7 +126,9 @@ class PractitionerRoleService extends BaseService
                         specialty.title AS specialty_title,
                         field_id,
                         facility_id,
-                        uid AS user_id
+                        uid AS user_id,
+                        facilities_specialty.last_updated AS specialty_last_updated,
+                        facilities_specialty.date_created AS specialty_date_created
                      FROM
                         facility_user_ids facilities_specialty
                     JOIN

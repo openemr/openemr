@@ -73,8 +73,8 @@ class CareTeamService extends BaseService
                         ,patient_history.uuid
                         ,patient_history.care_team_provider
                         ,patient_history.care_team_facility
-                        ,patient_history.date
                         ,'inactive' AS care_team_status
+                        ,patient_history.date
                     FROM
                         patient_history
                     JOIN patient_data ON patient_history.pid = patient_data.pid
