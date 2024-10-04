@@ -15,16 +15,14 @@ class CreateStaffTest extends PantherTestCase
     protected function setUp(): void
     {
         $this->e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
+
+        // clean up in case still left over from prior testing
+        $this->cleanDatabase();
     }
 
     protected function tearDown(): void
     {
-        // remove the created user
-        $delete = "DELETE FROM users WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
-
-        $delete = "DELETE FROM users_secure WHERE username = ?";
-        sqlStatement($delete, array('foobar'));
+        $this->cleanDatabase();
     }
 
     /** @test */
@@ -43,5 +41,15 @@ class CreateStaffTest extends PantherTestCase
         $ut = $mp->selectUsersTab();
         $ut->addUser('foobar');
         $ut->assertUserPresent('foobar');
+    }
+
+    private function cleanDatabase(): void
+    {
+        // remove the created user
+        $delete = "DELETE FROM users WHERE username = ?";
+        sqlStatement($delete, array('foobar'));
+
+        $delete = "DELETE FROM users_secure WHERE username = ?";
+        sqlStatement($delete, array('foobar'));
     }
 }
