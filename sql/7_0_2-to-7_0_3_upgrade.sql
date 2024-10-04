@@ -143,3 +143,27 @@ ALTER TABLE `users` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTA
 #IfMissingColumn facility last_updated
 ALTER TABLE `facility` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
+
+#IfMissingColumn insurance_companies date_created
+ALTER TABLE `insurance_companies` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn insurance_companies last_updated
+ALTER TABLE `insurance_companies` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn facility_user_ids date_created
+ALTER TABLE `facility_user_ids` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn facility_user_ids last_updated
+ALTER TABLE `facility_user_ids` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn openemr_postcalendar_categories pc_last_updated
+ALTER TABLE `openemr_postcalendar_categories` ADD `pc_last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn list_options last_updated
+ALTER TABLE `list_options` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf

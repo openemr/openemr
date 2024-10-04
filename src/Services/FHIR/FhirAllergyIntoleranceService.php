@@ -83,7 +83,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['modifydate']);
     }
 
     /**
@@ -120,7 +120,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
         if (!empty($dataRecord['date'])) {
-            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['modifydate']));
         } else {
             $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }

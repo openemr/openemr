@@ -59,6 +59,16 @@ class FHIRSearchFieldFactory
     }
 
     /**
+     * @param $fhirSearchField
+     * @param FhirSearchParameterDefinition $definition
+     * @return void
+     */
+    public function setSearchFieldDefinition(string $fhirSearchField, FhirSearchParameterDefinition $definition)
+    {
+        $this->resourceSearchParameters[$fhirSearchField] = $definition;
+    }
+
+    /**
      * Checks whethere the factory has a search definition for the passed in search field name
      * @param $fhirSearchField
      * @return bool
