@@ -14,6 +14,9 @@ class CheckUserMenuLinksTest extends PantherTestCase
      */
     private $e2eBaseUrl;
 
+    private $client;
+    private $crawler;
+
     protected function setUp(): void
     {
         $this->e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
