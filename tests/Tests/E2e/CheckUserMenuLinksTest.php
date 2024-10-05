@@ -103,5 +103,4 @@ class CheckUserMenuLinksTest extends PantherTestCase
         $title = $this->client->getTitle();
         $this->assertSame('OpenEMR', $title, 'Login FAILED');
     }
-
 }
