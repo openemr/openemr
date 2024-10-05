@@ -169,7 +169,7 @@ class PrescriptionService extends BaseService
                         ,lists_medication.usage_category_title AS category_title
                         ,lists.diagnosis AS rxnorm_drugcode
                         ,`date` AS date_added
-                        ,FROM_UNIXTIME(`modifydate`) AS date_modified
+                        ,`modifydate` AS date_modified
                         ,NULL as unit
                         ,NULL as 'interval'
                         ,NULL as `route`
