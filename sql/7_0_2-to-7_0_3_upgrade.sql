@@ -137,7 +137,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #EndIf
 
 #IfMissingColumn users date_created
-ALTER TABLE `users` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `users` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
 #EndIf
 
 #IfMissingColumn users last_updated
@@ -145,7 +145,7 @@ ALTER TABLE `users` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTA
 #EndIf
 
 #IfMissingColumn facility date_created
-ALTER TABLE `facility` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE `facility` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
 #EndIf
 
 #IfMissingColumn facility last_updated

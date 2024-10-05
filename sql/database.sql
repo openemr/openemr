@@ -1845,6 +1845,7 @@ CREATE TABLE `form_clinical_notes` (
     `clinical_notes_type` varchar(100) DEFAULT NULL,
     `clinical_notes_category` varchar(100) DEFAULT NULL,
     `note_related_to` text,
+    `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
@@ -7299,6 +7300,7 @@ CREATE TABLE `openemr_postcalendar_categories` (
   `pc_active` tinyint(1) NOT NULL default 1,
   `pc_seq` int(11) NOT NULL default '0',
   `aco_spec` VARCHAR(63) NOT NULL default 'encounters|notes',
+  `pc_last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`pc_catid`),
   UNIQUE KEY (`pc_constant_id`),
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
