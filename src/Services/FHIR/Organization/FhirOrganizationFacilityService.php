@@ -101,8 +101,14 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
     /**
@@ -160,10 +166,14 @@ class FhirOrganizationFacilityService extends FhirServiceBase
     {
         $organizationResource = new FHIROrganization();
 
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        $organizationResource->setMeta($fhirMeta);
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $organizationResource->setMeta($meta);
         // facilities have no active / inactive state
         $organizationResource->setActive(true);
 

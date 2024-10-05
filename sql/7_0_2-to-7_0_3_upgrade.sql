@@ -175,3 +175,11 @@ ALTER TABLE `form_clinical_notes` ADD `last_updated` DATETIME NOT NULL DEFAULT C
 #IfMissingColumn form_vitals last_updated
 ALTER TABLE `form_vitals` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
+
+#IfMissingColumn procedure_providers date_created
+ALTER TABLE `procedure_providers` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn procedure_providers last_updated
+ALTER TABLE `procedure_providers` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
