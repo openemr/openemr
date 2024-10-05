@@ -115,6 +115,8 @@ class VitalsService extends BaseService
                     ,vitals.ped_bmi
                     ,vitals.ped_head_circ
                     ,vitals.inhaled_oxygen_concentration
+                    ,vitals.last_updated
+                    ,forms.date_created
                     ,details.details_id
                     ,details.interpretation_list_id
                     ,details.interpretation_option_id
@@ -132,6 +134,7 @@ class VitalsService extends BaseService
                         ,bpd,bps,weight,height,temperature,temp_method,pulse,respiration,BMI,BMI_status,waist_circ
                          ,head_circ,oxygen_saturation,oxygen_flow_rate,inhaled_oxygen_concentration
                          , ped_weight_height,ped_bmi,ped_head_circ
+                         , last_updated
                     FROM
                         form_vitals
                  ) vitals
@@ -143,6 +146,7 @@ class VitalsService extends BaseService
                         ,`user`
                         ,deleted
                         ,formdir
+                        ,`date` AS date_created
                     FROM
                         forms
                 ) forms ON vitals.id = forms.form_id
@@ -151,9 +155,11 @@ class VitalsService extends BaseService
                         encounter AS eid
                         ,uuid AS euuid
                         ,`date` AS encounter_date
+                    	,pid AS encounter_pid
                     FROM
                         form_encounter
-                ) encounters ON encounters.eid = forms.encounter
+                -- use both columns in order to leverage the index
+                ) encounters ON encounters.encounter_pid = forms.form_pid AND encounters.eid = forms.encounter
                 LEFT JOIN
                 (
                     SELECT
