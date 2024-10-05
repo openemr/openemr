@@ -152,7 +152,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
-        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
     /**
@@ -168,8 +168,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        if (!empty($dataRecord['date'])) {
-            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
         } else {
             $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         }
@@ -179,7 +179,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
-        $patientResource->setDeceasedBoolean($dataRecord[ 'deceasedDate' ] != null);
+        $patientResource->setDeceasedBoolean($dataRecord[ 'deceased_date' ] != null);
 
         $this->parseOpenEMRPatientSummaryText($patientResource, $dataRecord);
         $this->parseOpenEMRPatientName($patientResource, $dataRecord);
