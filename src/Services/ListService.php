@@ -78,7 +78,8 @@ class ListService
      * @param $isAndCondition
      * @return ProcessingResult
      */
-    public function searchLists($search, $isAndCondition = true) {
+    public function searchLists($search, $isAndCondition = true)
+    {
         // TODO: @adunsulag this is copy-pasta from BaseService... need to investigate if we can just have ListService extend BaseService
         $processingResult = new ProcessingResult();
         try {

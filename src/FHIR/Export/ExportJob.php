@@ -212,11 +212,13 @@ class ExportJob
         return $this->resourceIncludeTime;
     }
 
-    public function getResourceIncludeSearchParamValue() {
+    public function getResourceIncludeSearchParamValue()
+    {
         return SearchComparator::GREATER_THAN_OR_EQUAL_TO . $this->getResourceIncludeISO8601Date();
     }
 
-    public function getResourceIncludeISO8601Date() : string {
+    public function getResourceIncludeISO8601Date(): string
+    {
         return DateFormatterUtils::getFormattedISO8601DateFromDateTime($this->resourceIncludeTime);
     }
 
