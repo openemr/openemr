@@ -183,3 +183,11 @@ ALTER TABLE `procedure_providers` ADD `date_created` DATETIME NOT NULL DEFAULT C
 #IfMissingColumn procedure_providers last_updated
 ALTER TABLE `procedure_providers` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
+
+#IfMissingColumn drugs date_created
+ALTER TABLE `drugs` ADD `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
+#EndIf
+
+#IfMissingColumn drugs last_updated
+ALTER TABLE `drugs` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf

@@ -94,29 +94,49 @@ class DrugService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql = "SELECT drugs.drug_id,
-                uuid,
-                name,
-                ndc_number,
-                form,
-                size,
-                unit,
-                route,
-                related_code,
-                active,
-                drug_code,
+        $sql = "SELECT
+                drug_table.drug_id,
+                drug_table.uuid,
+                drug_table.name,
+                drug_table.ndc_number,
+                drug_table.form,
+                drug_table.size,
+                drug_table.unit,
+                drug_table.route,
+                drug_table.related_code,
+                drug_table.active,
+                drug_table.drug_code,
                 IF(drug_prescriptions.rxnorm_drugcode!=''
                         ,drug_prescriptions.rxnorm_drugcode
-                        ,IF(drug_code IS NULL, '', concat('RXCUI:',drug_code))
+                        ,IF(drug_table.drug_code IS NULL, '', drug_table.drug_code)
                 ) AS 'rxnorm_drugcode',
                 drug_inventory.manufacturer,
                 drug_inventory.lot_number,
-                drug_inventory.expiration
-                FROM drugs
+                drug_inventory.expiration,
+                drug_table.drug_last_updated,
+                drug_table.drug_date_created
+                FROM (
+                    select
+                        drug_id,
+                        uuid,
+                        name,
+                        ndc_number,
+                        form,
+                        size,
+                        unit,
+                        route,
+                        related_code,
+                        active,
+                        drug_code,
+                        last_updated AS drug_last_updated,
+                        date_created AS drug_date_created
+                    FROM
+                        drugs
+                ) drug_table
                 LEFT JOIN drug_inventory
-                    ON drugs.drug_id = drug_inventory.drug_id
+                    ON drug_table.drug_id = drug_inventory.drug_id
                 LEFT JOIN (
-                    select 
+                    select
                         uuid AS prescription_uuid
                         ,rxnorm_drugcode
                         ,drug_id
@@ -124,7 +144,7 @@ class DrugService extends BaseService
                     FROM
                     prescriptions
                 ) drug_prescriptions
-                    ON drug_prescriptions.drug_id = drugs.drug_id
+                    ON drug_prescriptions.drug_id = drug_table.drug_id
                 LEFT JOIN (
                     select uuid AS puuid
                     ,pid
@@ -161,7 +181,14 @@ class DrugService extends BaseService
         $record = parent::createResultRecordFromDatabaseResult($row);
 
         if ($record['rxnorm_drugcode'] != "") {
-            $codes = $this->addCoding($row['rxnorm_drugcode']);
+            // removed the RXCUI concatenation out of the db query and into the code here
+            // some parts of OpenEMR adds the RXCUI designation in the drug_code such as the inventory/dispensary module
+            // and this causes the FHIR medication resource to not get the actual RXCUI code.
+            if ($row['drug_code'] == $record['rxnorm_drugcode'] && strpos($row['drug_code'], ':') === false) {
+                $codes = $this->addCoding("RXCUI:" . $row['drug_code']);
+            } else {
+                $codes = $this->addCoding($row['rxnorm_drugcode']);
+            }
             $updatedCodes = [];
             foreach ($codes as $code => $codeValues) {
                 if (empty($codeValues['description'])) {
@@ -173,6 +200,7 @@ class DrugService extends BaseService
             $record['drug_code'] = $updatedCodes;
         }
 
+        // TODO: @adunsulag this looks odd... why modify the original row...? look at removing this.
         if ($row['rxnorm_drugcode'] != "") {
             $row['drug_code'] = $this->addCoding($row['drug_code']);
         }
