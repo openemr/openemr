@@ -1485,6 +1485,8 @@ CREATE TABLE `drugs` (
   `drug_code` varchar(25) NULL,
   `consumable` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = will not show on the fee sheet',
   `dispensable` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0 = pharmacy elsewhere, 1 = dispensed here',
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`drug_id`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -1737,6 +1739,8 @@ CREATE TABLE `facility` (
   `info` TEXT,
   `weno_id` VARCHAR(10) DEFAULT NULL,
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -1745,7 +1749,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0);
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW());
 
 -- --------------------------------------------------------
 
@@ -1761,6 +1765,8 @@ CREATE TABLE  `facility_user_ids` (
   `uuid` binary(16) DEFAULT NULL,
   `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
   `field_value` TEXT,
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`,`facility_id`,`field_id`),
   KEY `uuid` (`uuid`)
@@ -2293,6 +2299,7 @@ CREATE TABLE `form_vitals` (
   `ped_bmi` DECIMAL(6,2) default '0.00',
   `ped_head_circ` DECIMAL(6,2) default '0.00',
   `inhaled_oxygen_concentration` DECIMAL(6,2) DEFAULT '0.00',
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -3137,6 +3144,8 @@ CREATE TABLE `insurance_companies` (
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
   `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs',
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
@@ -3715,6 +3724,7 @@ CREATE TABLE `list_options` (
   `subtype` varchar(31) NOT NULL DEFAULT '',
   `edit_options` tinyint(1) NOT NULL DEFAULT '1',
   `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`list_id`,`option_id`)
 ) ENGINE=InnoDB;
 
@@ -7521,6 +7531,7 @@ CREATE TABLE `patient_data` (
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   `preferred_name` TINYTEXT,
   `nationality_country` TINYTEXT,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -8895,6 +8906,8 @@ CREATE TABLE `users` (
   `supervisor_id` int(11) NOT NULL DEFAULT '0',
   `billing_facility` TEXT,
   `billing_facility_id` INT(11) NOT NULL DEFAULT '0',
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `abook_type` (`abook_type`)
@@ -9343,6 +9356,8 @@ CREATE TABLE `procedure_providers` (
   `lab_director` bigint(20)   NOT NULL DEFAULT '0',
   `active`       tinyint(1)   NOT NULL DEFAULT '1',
   `type`         varchar(31)  DEFAULT NULL,
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ppid`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
