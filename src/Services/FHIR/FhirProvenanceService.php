@@ -230,7 +230,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             if (!empty($fhirSearchParameters['_id'])) {
                 $fhirSearchResult = $this->getProvenanceRecordsForId($fhirSearchParameters['_id'], $puuidBind);
             } else {
-                $fhirSearchResult = $this->getAllProvenanceRecordsFromServices($puuidBind);
+                $fhirSearchResult = $this->getAllProvenanceRecordsFromServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
@@ -242,12 +242,14 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
         return $fhirSearchResult;
     }
 
-    private function getAllProvenanceRecordsFromServices($puuidBind = null)
+    private function getAllProvenanceRecordsFromServices(array $fhirSearchParameters, $puuidBind = null)
     {
         $processingResult = new ProcessingResult();
         if (empty($this->serviceLocator)) {
             (new SystemLogger())->errorLogCaller("class was not properly configured with the service locator");
         }
+
+        $searchParams = $this->filterSupportedSearchParams($fhirSearchParameters);
 
         // we only return provenances for
         $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
@@ -258,13 +260,13 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 continue;
             }
             try {
-                $this->addAllProvenanceRecordsForService($processingResult, $service, [], $puuidBind);
+                $this->addAllProvenanceRecordsForService($processingResult, $service, $searchParams, $puuidBind);
             } catch (SearchFieldException $ex) {
                 $systemLogger = new SystemLogger();
-                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
-                    'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
+                $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $ex->getMessage(),
+                    'field' => $ex->getField(), 'trace' => $ex->getTraceAsString()]);
                 // put our exception information here
-                $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+                $processingResult->setValidationMessages([$ex->getField() => $ex->getMessage()]);
                 return $processingResult;
             } catch (Exception $ex) {
                 $systemLogger = new SystemLogger();
@@ -329,57 +331,6 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
             }
         } catch (Exception $exception) {
             $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $id);
-        }
-        return $processingResult;
-    }
-
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return OpenEMR records
-     */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
-    {
-        $patientToken = $openEMRSearchParameters['patient'] ?? new TokenSearchField('patient', []);
-        $patientBinding = !empty($patientToken->getValues()) ? $patientToken->getValues()[0]->getCode() : null;
-        /**
-         * @var TokenSearchField
-         */
-        $id = $openEMRSearchParameters['_id'] ?? new TokenSearchField('_id', []);
-        $processingResult = new ProcessingResult();
-        foreach ($id->getValues() as $value) {
-            // should be in format of ResourceType/uuid
-            $code = $value->getCode() ?? "";
-            try {
-                $idParts = explode(":", $code);
-                $resourceName = array_shift($idParts);
-
-                $innerId = implode(":", $idParts);
-                $className = RestControllerHelper::FHIR_SERVICES_NAMESPACE . $resourceName . "Service";
-                if (class_exists($className)) {
-                    $newServiceClass = new $className();
-                    if ($newServiceClass instanceof IResourceReadableService) {
-                        $searchParams = [
-                            '_id' => $innerId
-                            ,'_revinclude' => 'Provenance:target'
-                        ];
-                        $results = $newServiceClass->getAll($searchParams, $patientBinding);
-                        if ($results->hasData()) {
-                            foreach ($results->getData() as $datum) {
-                                if ($datum instanceof  FHIRProvenance) {
-                                    $processingResult->addData($datum);
-                                }
-                            }
-                        } else {
-                            $processingResult->addProcessingResult($results);
-                        }
-                    }
-                }
-            } catch (\Exception $exception) {
-                // TODO: @adunsulag log the exception
-                $processingResult->addInternalError("Server error occurred in returning provenance for _id " . $code);
-            }
         }
         return $processingResult;
     }
@@ -490,7 +441,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                         $searchParams[$searchField->getName()] = implode(",", $patientUuids);
                     }
                 }
-
+                $searchParams['_lastUpdated'] = $job->getResourceIncludeSearchParamValue();
                 $serviceResult = $service->getAll($searchParams);
                 // now loop through and grab all of our provenance resources
                 if ($serviceResult->hasData()) {
@@ -512,6 +463,16 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
     public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
     {
+        // nothing to really do here as we handle it internally in the export operation
         return null;
+    }
+
+    private function filterSupportedSearchParams(array $fhirSearchParameters)
+    {
+        $supportedParams = [];
+        if (isset($fhirSearchParameters['_lastUpdated'])) {
+            $supportedParams['_lastUpdated'] = $fhirSearchParameters['_lastUpdated'];
+        }
+        return $supportedParams;
     }
 }
