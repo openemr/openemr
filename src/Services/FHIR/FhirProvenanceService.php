@@ -442,20 +442,25 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                     }
                 }
                 $searchParams['_lastUpdated'] = $job->getResourceIncludeSearchParamValue();
-                $serviceResult = $service->getAll($searchParams);
-                // now loop through and grab all of our provenance resources
-                if ($serviceResult->hasData()) {
-                    foreach ($serviceResult->getData() as $record) {
-                        if (!($record instanceof FHIRDomainResource)) {
-                            throw new ExportException(self::class . " returned records that are not a valid fhir resource type for this class", 0, $lastResourceIdExported);
+                try {
+                    $serviceResult = $service->getAll($searchParams);
+                    // now loop through and grab all of our provenance resources
+                    if ($serviceResult->hasData()) {
+                        foreach ($serviceResult->getData() as $record) {
+                            if (!($record instanceof FHIRDomainResource)) {
+                                throw new ExportException(self::class . " returned records that are not a valid fhir resource type for this class", 0, $lastResourceIdExported);
+                            }
+                            // we only want to write out provenance records
+                            if (!($record instanceof FHIRProvenance)) {
+                                continue;
+                            }
+                            $writer->append($record);
+                            $lastResourceIdExported = $record->getId();
                         }
-                        // we only want to write out provenance records
-                        if (!($record instanceof FHIRProvenance)) {
-                            continue;
-                        }
-                        $writer->append($record);
-                        $lastResourceIdExported = $record->getId();
                     }
+                } catch (SearchFieldException $exception) {
+                    $message = $exception->getMessage() . " Search Field " . $exception->getField();
+                    throw new ExportException($message, 0, $lastResourceIdExported);
                 }
             }
         }

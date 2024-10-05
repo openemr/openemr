@@ -46,7 +46,7 @@ class GroupService extends BaseService
     {
         // we inner join on status in case we ever decide to add a status property (and layers above this one can rely
         // on the property without changing code).
-        $sql = "SELECT
+        $sqlSelectFull = "SELECT
                     patient_provider_groups.uuid
                     ,patient_provider_groups.provider_id
                     ,patient_provider_groups.provider_fname
@@ -58,8 +58,9 @@ class GroupService extends BaseService
                     ,patient_provider_groups.patient_mname
                     ,patient_provider_groups.patient_lname
                     ,patient_provider_groups.creation_date
-                    ,patient_provider_groups.patient_last_updated
-                FROM (
+                    ,patient_provider_groups.patient_last_updated ";
+        $sqlIds = "SELECT DISTINCT patient_provider_groups.uuid ";
+        $sqlFrom = "FROM (
                     SELECT
                         uuid_mapping.target_uuid AS pruuid
                         ,uuid_mapping.uuid
@@ -69,7 +70,7 @@ class GroupService extends BaseService
                         ,users.lname AS provider_lname
                         ,users.mname AS provider_mname
                         ,patients.uuid AS puuid
-                        ,patients.date AS patient_last_updated
+                        ,patients.last_updated AS patient_last_updated
                         ,patients.title AS patient_title
                         ,patients.fname AS patient_fname
                         ,patients.mname AS patient_mname
@@ -84,12 +85,18 @@ class GroupService extends BaseService
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $sql .= $whereClause->getFragment();
-        $sql .= " ORDER BY patient_provider_groups.patient_last_updated DESC ";
+        $sqlIds .= $sqlFrom . $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-
-        $processingResult = $this->hydratePatientProviderSearchResultsFromQueryResource($statementResults);
+        $uuids =  QueryUtils::fetchTableColumn($sqlIds, 'uuid', $sqlBindArray);
+        if (!empty($uuids)) {
+            // TODO: if we have a LARGE number of provider groups we will reach our max parameter count here...
+            // need to do optimization here for large # of providers.
+            $sqlSelectFull .= $sqlFrom . " WHERE patient_provider_groups.uuid IN (" . str_repeat("?, ", count($uuids) - 1) . "? )";
+            $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectFull, $uuids);
+            $processingResult = $this->hydratePatientProviderSearchResultsFromQueryResource($statementResults);
+        } else {
+            $processingResult = new ProcessingResult();
+        }
         return $processingResult;
     }
 

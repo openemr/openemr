@@ -126,6 +126,11 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         $fhirSearchResult = new ProcessingResult();
         try {
+            // we don't really deal with provenance for ValueSet pieces so we will ignore this property
+            if (isset($fhirSearchParameters['_revinclude'])) {
+                unset($fhirSearchParameters['_revinclude']);
+            }
+
             $this->addAppointmentCategoriesValueSetForSearch($fhirSearchResult, $fhirSearchParameters);
 
             $this->addListOptionsValueSetsForSearch($fhirSearchResult, $fhirSearchParameters, $puuidBind);
