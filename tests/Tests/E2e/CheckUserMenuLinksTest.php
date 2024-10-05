@@ -19,51 +19,63 @@ class CheckUserMenuLinksTest extends PantherTestCase
         $this->e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
     }
 
-    /**
-     * @dataProvider menuLinkProvider
-     */
-    public function testCheckUserLink(string $menutreeicon, string $menuLinkItem, string $expectedTabTitle): void
+    public function testLogin(): void
     {
         $openEmrPage = $this->e2eBaseUrl;
-        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
-        $client->manage()->window()->maximize();
+        $this->client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $this->client->manage()->window()->maximize();
         try {
-            // login
-            $crawler = $client->request('GET', '/interface/login/login.php?site=default');
-            $form = $crawler->filter('#login_form')->form();
-            $form['authUser'] = 'admin';
-            $form['clearPass'] = 'pass';
-            $crawler = $client->submit($form);
-
-            // got to and click the user menu link
-            $menuLink = '//i[@id="user_icon"]';
-            $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menutreeicon . '")]';
-            $client->waitFor($menuLink);
-            $crawler = $client->refreshCrawler();
-            $crawler->filterXPath($menuLink)->click();
-            $client->waitFor($menuLink2);
-            $crawler = $client->refreshCrawler();
-            $crawler->filterXPath($menuLink2)->click();
-
-            // wait for the tab title to be shown
-            if ($menuLinkItem == 'Logout') {
-                // special case for Logout
-                $client->waitFor('//input[@id="authUser"]');
-                $title = $client->getTitle();
-                $this->assertSame('OpenEMR Login', $title);
-            } else {
-                $client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
-                // Perform the final assertion
-                $this->assertSame($expectedTabTitle, $crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text());
-            }
+            $this->login('admin', 'pass');
         } catch (\Throwable $e) {
             // Close client
-            $client->quit();
+            $this->client->quit();
             // re-throw the exception
             throw $e;
         }
         // Close client
-        $client->quit();
+        $this->client->quit();
+    }
+
+    /**
+     * @dataProvider menuLinkProvider
+     * @depends testLogin
+     */
+    public function testCheckUserMenuLink(string $menutreeicon, string $menuLinkItem, string $expectedTabTitle): void
+    {
+        $openEmrPage = $this->e2eBaseUrl;
+        $this->client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $this->client->manage()->window()->maximize();
+        try {
+            $this->login('admin', 'pass');
+            // got to and click the user menu link
+            $menuLink = '//i[@id="user_icon"]';
+            $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menutreeicon . '")]';
+            $this->client->waitFor($menuLink);
+            $this->crawler = $this->client->refreshCrawler();
+            $this->crawler->filterXPath($menuLink)->click();
+            $this->client->waitFor($menuLink2);
+            $this->crawler = $this->client->refreshCrawler();
+            $this->crawler->filterXPath($menuLink2)->click();
+
+            // wait for the tab title to be shown
+            if ($menuLinkItem == 'Logout') {
+                // special case for Logout
+                $this->client->waitFor('//input[@id="authUser"]');
+                $title = $this->client->getTitle();
+                $this->assertSame('OpenEMR Login', $title, 'Logout FAILED');
+            } else {
+                $this->client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
+                // Perform the final assertion
+                $this->assertSame($expectedTabTitle, $this->crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text(), 'Page load FAILED');
+            }
+        } catch (\Throwable $e) {
+            // Close client
+            $this->client->quit();
+            // re-throw the exception
+            throw $e;
+        }
+        // Close client
+        $this->client->quit();
     }
 
     public static function menuLinkProvider()
@@ -76,4 +88,17 @@ class CheckUserMenuLinksTest extends PantherTestCase
             'Logout user menu link' => ['fa-sign-out-alt', 'Logout', 'OpenEMR Login']
         ];
     }
+
+    private function login(string $name, string $password): void
+    {
+        // login
+        $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
+        $form = $this->crawler->filter('#login_form')->form();
+        $form['authUser'] = $name;
+        $form['clearPass'] = $password;
+        $this->crawler = $this->client->submit($form);
+        $title = $this->client->getTitle();
+        $this->assertSame('OpenEMR', $title, 'Login FAILED');
+    }
+
 }

@@ -14,13 +14,34 @@ class CheckMainMenuLinksTest extends PantherTestCase
      */
     private $e2eBaseUrl;
 
+    private $client;
+    private $crawler;
+
     protected function setUp(): void
     {
         $this->e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
     }
 
+    public function testLogin(): void
+    {
+        $openEmrPage = $this->e2eBaseUrl;
+        $this->client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $this->client->manage()->window()->maximize();
+        try {
+            $this->login('admin', 'pass');
+        } catch (\Throwable $e) {
+            // Close client
+            $this->client->quit();
+            // re-throw the exception
+            throw $e;
+        }
+        // Close client
+        $this->client->quit();
+    }
+
     /**
      * @dataProvider menuLinkProvider
+     * @depends testLogin
      */
     public function testCheckMenuLink(string $menuLink, string $expectedTabTitle): void
     {
@@ -30,18 +51,13 @@ class CheckMainMenuLinksTest extends PantherTestCase
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
         $openEmrPage = $this->e2eBaseUrl;
-        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
-        $client->manage()->window()->maximize();
+        $this->client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $this->client->manage()->window()->maximize();
         try {
-            // login
-            $crawler = $client->request('GET', '/interface/login/login.php?site=default');
-            $form = $crawler->filter('#login_form')->form();
-            $form['authUser'] = 'admin';
-            $form['clearPass'] = 'pass';
-            $crawler = $client->submit($form);
+            $this->login('admin', 'pass');
             // check if the menu cog is showing. if so, then click it.
-            if ($crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->isDisplayed()) {
-                $crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->click();
+            if ($this->crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->isDisplayed()) {
+                $this->crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->click();
             }
             // got to and click the menu link
             $menuLinkSequenceArray = explode('||', $menuLink);
@@ -67,23 +83,23 @@ class CheckMainMenuLinksTest extends PantherTestCase
                     // click the nested menu item
                     $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
                 }
-                $client->waitFor($menuLink);
-                $crawler = $client->refreshCrawler();
-                $crawler->filterXPath($menuLink)->click();
+                $this->client->waitFor($menuLink);
+                $this->crawler = $this->client->refreshCrawler();
+                $this->crawler->filterXPath($menuLink)->click();
                 $counter++;
             }
             // wait for the tab title to be shown
-            $client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
+            $this->client->waitForElementToContain("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]", $expectedTabTitle);
             // Perform the final assertion
-            $this->assertSame($expectedTabTitle, $crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text());
+            $this->assertSame($expectedTabTitle, $this->crawler->filterXPath("//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]")->text(), 'Page load FAILED');
         } catch (\Throwable $e) {
             // Close client
-            $client->quit();
+            $this->client->quit();
             // re-throw the exception
             throw $e;
         }
         // Close client
-        $client->quit();
+        $this->client->quit();
     }
 
     public static function menuLinkProvider()
@@ -183,5 +199,17 @@ class CheckMainMenuLinksTest extends PantherTestCase
             'Miscellaneous -> Batch Communication Tool menu link' => ['Miscellaneous||Batch Communication Tool', 'BatchCom'],
             'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']
         ];
+    }
+
+    private function login(string $name, string $password): void
+    {
+        // login
+        $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
+        $form = $this->crawler->filter('#login_form')->form();
+        $form['authUser'] = $name;
+        $form['clearPass'] = $password;
+        $this->crawler = $this->client->submit($form);
+        $title = $this->client->getTitle();
+        $this->assertSame('OpenEMR', $title, 'Login FAILED');
     }
 }
