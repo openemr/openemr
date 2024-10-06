@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CheckUserMenuLinksTest class
  *
@@ -20,7 +21,8 @@ use Symfony\Component\Panther\Client;
 
 class CheckUserMenuLinksTest extends PantherTestCase
 {
-    use BaseTrait, LoginTrait;
+    use BaseTrait;
+    use LoginTrait;
 
     protected $client;
     protected $crawler;

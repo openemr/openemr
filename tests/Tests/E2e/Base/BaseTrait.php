@@ -1,4 +1,5 @@
 <?php
+
 /**
  * BaseTrait trait
  *
@@ -43,4 +44,3 @@ trait BaseTrait
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
     }
 }
-

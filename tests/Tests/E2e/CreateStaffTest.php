@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CreateStaffTest class
  *
@@ -24,7 +25,8 @@ use Symfony\Component\Panther\Client;
 
 class CreateStaffTest extends PantherTestCase
 {
-    use BaseTrait, LoginTrait;
+    use BaseTrait;
+    use LoginTrait;
 
     protected $client;
     protected $crawler;

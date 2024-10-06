@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LoginTest class
  *
@@ -24,7 +25,8 @@ use Symfony\Component\Panther\Client;
 
 class LoginTest extends PantherTestCase
 {
-    use BaseTrait, LoginTrait;
+    use BaseTrait;
+    use LoginTrait;
 
     protected $client;
     protected $crawler;
@@ -66,7 +68,7 @@ class LoginTest extends PantherTestCase
         try {
             $this->crawler = $this->client->request('GET', '/interface/main/tabs/main.php?site=default');
             $title = $this->client->getTitle();
-            $this->assertSame('OpenEMR Login', $title,  'FAILED to redirect to login page');
+            $this->assertSame('OpenEMR Login', $title, 'FAILED to redirect to login page');
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
