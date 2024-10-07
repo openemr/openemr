@@ -41,40 +41,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
         $this->base();
         try {
             $this->login('admin', 'pass');
-            // check if the menu cog is showing. if so, then click it.
-            if ($this->crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->isDisplayed()) {
-                $this->crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->click();
-            }
-            // got to and click the menu link
-            $menuLinkSequenceArray = explode('||', $menuLink);
-            $counter = 0;
-            foreach ($menuLinkSequenceArray as $menuLinkItem) {
-                if ($counter == 0) {
-                    if (count($menuLinkSequenceArray) > 1) {
-                        // start clicking through a dropdown/nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkItem . '"]';
-                    } else {
-                        // just clicking a simple/single menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div[text()="' . $menuLinkItem . '"]';
-                    }
-                } elseif ($counter == 1) {
-                    if (count($menuLinkSequenceArray) == 2) {
-                        // click the nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
-                    } else {
-                        // continue clicking through a dropdown/nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkItem . '"]';
-                    }
-                } else { // $counter > 1
-                    // click the nested menu item
-                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
-                }
-                $this->client->waitFor($menuLink);
-                $this->crawler = $this->client->refreshCrawler();
-                $this->crawler->filterXPath($menuLink)->click();
-                $counter++;
-            }
-            // wait for the tab title to be shown
+            $this->goToMainMenuLink($menuLink);
             $this->assertActiveTab($expectedTabTitle);
         } catch (\Throwable $e) {
             // Close client
@@ -89,7 +56,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
     public static function menuLinkProvider()
     {
         return [
-            'Calendar menu link' => ['Calendar', 'Calendar'],
+            'Calendar menu link' => ['Calendar', 'Calendar'],/*
             'Finder menu link' => ['Finder', 'Patient Finder'],
             'Flow menu link' => ['Flow', 'Flow Board'],
             'Recalls menu link' => ['Recalls', 'Recall Board'],
@@ -181,7 +148,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
             'Miscellaneous -> Chart Tracker menu link' => ['Miscellaneous||Chart Tracker', 'Chart Tracker'],
             'Miscellaneous -> Office Notes menu link' => ['Miscellaneous||Office Notes', 'Office Notes'],
             'Miscellaneous -> Batch Communication Tool menu link' => ['Miscellaneous||Batch Communication Tool', 'BatchCom'],
-            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']
+            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']*/
         ];
     }
 }

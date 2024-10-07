@@ -43,4 +43,53 @@ trait BaseTrait
         }
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
     }
+
+    protected function goToMainMenuLink(string $menuLink): void
+    {
+        // check if the menu cog is showing. if so, then click it.
+        if ($this->crawler->filterXPath(XpathsConstants::COLLAPSED_MENU_BUTTON)->isDisplayed()) {
+            $this->crawler->filterXPath(XpathsConstants::COLLAPSED_MENU_BUTTON)->click();
+        }
+        // got to and click the menu link
+        $menuLinkSequenceArray = explode('||', $menuLink);
+        $counter = 0;
+        foreach ($menuLinkSequenceArray as $menuLinkItem) {
+            if ($counter == 0) {
+                if (count($menuLinkSequenceArray) > 1) {
+                    // start clicking through a dropdown/nested menu item
+                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkItem . '"]';
+                } else {
+                    // just clicking a simple/single menu item
+                    $menuLink = '//div[@id="mainMenu"]/div/div/div[text()="' . $menuLinkItem . '"]';
+                }
+            } elseif ($counter == 1) {
+                if (count($menuLinkSequenceArray) == 2) {
+                    // click the nested menu item
+                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+                } else {
+                    // continue clicking through a dropdown/nested menu item
+                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkItem . '"]';
+                }
+            } else { // $counter > 1
+                // click the nested menu item
+                $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+            }
+            $this->client->waitFor($menuLink);
+            $this->crawler = $this->client->refreshCrawler();
+            $this->crawler->filterXPath($menuLink)->click();
+            $counter++;
+        }
+    }
+
+    protected function goToUserMenuLink(string $menuTreeIcon): void
+    {
+        $menuLink = XpathsConstants::USER_MENU_ICON;
+        $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
+        $this->client->waitFor($menuLink);
+        $this->crawler = $this->client->refreshCrawler();
+        $this->crawler->filterXPath($menuLink)->click();
+        $this->client->waitFor($menuLink2);
+        $this->crawler = $this->client->refreshCrawler();
+        $this->crawler->filterXPath($menuLink2)->click();
+    }
 }
