@@ -59,8 +59,8 @@ WORKDIR /var/www/localhost/htdocs/openemr
 VOLUME [ "/etc/letsencrypt/", "/etc/ssl" ]
 #configure apache & php properly
 ENV APACHE_LOG_DIR=/var/log/apache2
-COPY docker/residen-production/utilities/php.ini /etc/php83/php.ini
-COPY docker/residen-production/utilities/openemr.conf /etc/apache2/conf.d/
+COPY docker/residen-production/php.ini /etc/php83/php.ini
+COPY docker/residen-production/utilitiesopenemr.conf /etc/apache2/conf.d/
 #add runner and auto_configure and prevent auto_configure from being run w/o being enabled
 COPY docker/residen-production/openemr.sh docker/residen-production/ssl.sh docker/residen-production/xdebug.sh docker/residen-production/auto_configure.php /var/www/localhost/htdocs/openemr/
 COPY docker/residen-production/utilities/unlock_admin.php docker/residen-production/utilities/unlock_admin.sh /root/
