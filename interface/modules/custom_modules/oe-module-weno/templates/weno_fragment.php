@@ -18,7 +18,7 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-if (!AclMain::aclCheckCore('patients', 'rx', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo xlt("Not Authorized to use this widget.");
     return;
 }

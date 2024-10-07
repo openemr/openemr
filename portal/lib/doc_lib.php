@@ -53,9 +53,11 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 
+// portal doesn't need to be enabled to chart from documents
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
-    echo xlt('Patient Portal is turned off');
-    exit;
+    $msg = xlt('Patient Portal is turned off');
+    error_log($msg);
+    echo $msg;
 }
 // confirm csrf (from both portal and core)
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib')) {
