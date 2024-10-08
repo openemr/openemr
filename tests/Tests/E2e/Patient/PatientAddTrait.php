@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Patient;
 
-use Facebook\WebDriver\WebDriverBy;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
@@ -43,11 +42,10 @@ trait PatientAddTrait
         $this->client->quit();
     }
 
-    protected function PatientAddIfNotExist(string $firstname, $lastname, $dob, $sex): void
+    protected function PatientAddIfNotExist(string $firstname, string $lastname, string $dob, string $sex): void
     {
         // if patient already exists, then skip this
-        $patientDatabase = sqlQuery("SELECT `fname`, `lname`, `dob`, `sex` FROM `patients` WHERE `fname` = ?, `lname` = ?, `dob` = ?, `sex` = ?", [$firstname, $lastname, $dob, $sex]);
-        if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
+        if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
             $this->markTestSkipped('New user test skipped because this patient already exists.');
         }
 
@@ -60,39 +58,42 @@ trait PatientAddTrait
 
         // add the patient
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstants::PATIENT_IFRAME));
-
-
-
-        // add the user
-        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstants::ADMIN_IFRAME));
-        $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
+        $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
+        $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)->click();
+        $newUser = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
+        $newUser['form_fname'] = $firstname;
+        $newUser['form_lname'] = $lastname;
+        $newUser['form_DOB'] = $dob;
+        $newUser['form_sex'] = $sex;
+        $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
+        $this->crawler = $this->client->refreshCrawler();
+        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
         $this->client->switchTo()->defaultContent();
-        $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT));
-        $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT);
+        $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
+        $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
+        $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
-        $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
-        $newUser['rumple'] = $username;
-        $newUser['stiltskin'] = 'Test12te$t';
-        $newUser['fname'] = 'Foo';
-        $newUser['lname'] = 'Bar';
-        $newUser['adminPass'] = 'pass';
-        $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
         $this->client->switchTo()->defaultContent();
 
-        // assert the new user has been added
-        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstants::ADMIN_IFRAME));
-        // below line will throw a timeout exception and fail if the new user is not listed
-        $this->client->waitFor("//table//a[text()='$username']");
-        $this->client->switchTo()->defaultContent();
-        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-        $this->assertSame(($usernameDatabase['username'] ?? ''), $username, 'New user is not in database, so FAILED');
+        sleep(10);
+
+        // ensure the patient summary screen is shown
+        $this->assertActiveTab('Dashboard');
+
+        // ensure the patient was added
+        $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
+    }
+
+    protected function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
+    {
+        $patientDatabase = sqlQuery("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
+        if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

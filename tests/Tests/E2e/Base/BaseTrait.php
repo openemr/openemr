@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\WebDriverBy;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 
 trait BaseTrait
@@ -25,8 +26,9 @@ trait BaseTrait
         $this->client->manage()->window()->maximize();
     }
 
-    protected function switchToIFrame($selector): void
+    protected function switchToIFrame(string $xpath): void
     {
+        $selector = WebDriverBy::xpath($xpath);
         $iframe = $this->client->findElement($selector);
         $this->client->switchTo()->frame($iframe);
         $this->crawler = $this->client->refreshCrawler();

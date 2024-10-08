@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
-use Facebook\WebDriver\WebDriverBy;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
@@ -62,13 +61,13 @@ trait UserAddTrait
 
         // add the user
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstants::ADMIN_IFRAME));
+        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
         $this->client->waitFor(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::ADD_USER_BUTTON_USERADD_TRAIT)->click();
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT));
+        $this->switchToIFrame(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
@@ -81,10 +80,9 @@ trait UserAddTrait
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
         $this->client->switchTo()->defaultContent();
-
         // assert the new user has been added
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(WebDriverBy::xpath(XpathsConstants::ADMIN_IFRAME));
+        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
         // below line will throw a timeout exception and fail if the new user is not listed
         $this->client->waitFor("//table//a[text()='$username']");
         $this->client->switchTo()->defaultContent();
