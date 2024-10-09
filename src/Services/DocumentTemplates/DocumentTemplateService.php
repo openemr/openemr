@@ -885,8 +885,8 @@ class DocumentTemplateService extends QuestionnaireService
         foreach ($all_templates as $category => $templates) {
             if (is_array($templates)) {
                 $is_category = $category_list[$category]['title'] ?? $category;
-                if ($is_category === 'default') {
-                    $is_category = '';
+                if ($is_category === 'default' || !$is_category) {
+                    $is_category = 'General';
                 }
                 $cat_name = text($is_category);
 
@@ -911,14 +911,15 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                     if (!$flag) {
                         $flag = true;
-                        $menu .= "<div class='h6 text-center'>$cat_name</div>\n";
+                        $menu .= "<div class='h6 bg-dark text-light text-center m-0 font-weight-bolder'>$cat_name</div>\n";
                     }
                     $id = $template['id'];
                     $btnname = $template['template_name'];
                     if ($portal) {
                         if (!empty($in_edit)) {
                             $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
-                                ' data-history_id="' . attr($in_edit['id']) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
+                                ' data-history_id=' . attr($in_edit['id']) . ' href="#" 
+                                onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ', ' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ')">' . text($btnname) . "</a>\n";
                         } else {
                             $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
                         }
