@@ -45,6 +45,10 @@ var page = {
         page.isInitializing = true;
         localStorage.setItem('showActive', 'false');
 
+        if (page.isDashboard) {
+            page.fetchParams.recid = recid;
+        }
+
         if (!$.isReady && console) {
             console.warn('page was initialized before dom is ready.  views may not render properly.');
         }
