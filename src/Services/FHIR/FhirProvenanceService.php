@@ -367,7 +367,9 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 "Resource missing required Meta->lastUpdated field",
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
-        } else {
+        // patients were the only ones who actually were tracking a valid last updated date instead of the most
+        // current timestamp for V1 so we need to check for that, everything else is V2 as last updated wasn't really tracked.
+        } else if ($resource->get_fhirElementName() === 'Patient') {
             // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
             $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, $resource->getMeta()->getLastUpdated());
 
