@@ -13,17 +13,22 @@ var view = {
 
 	/**
 	 * Given an object with properties totalPages and currentPage, return
-	 * HTML page navigator
+	 * HTML page
 	 */
-	getPaginationHtml: function(page)
+	getPaginationHtml: function(page, top=false)
 	{
-		var html = '';
+		let html = '';
 		if (page.totalPages > 1) {
-			html += '<div class="pagination"><ul>';
+			if (top) {
+				html += `<span aria-label="Page navigation">
+                    <span class="pagination float-left m-0 mb-1">`;
+			} else {
+				html += `<span aria-label="Page navigation">
+                    <span class="pagination float-right">`;
+			}
 
-			var first = 1;
-			var last = (1 * page.totalPages);
-
+			let first = 1;
+			let last = page.totalPages;
 			if (last > 10) {
 				first = (1 * page.currentPage) - 5;
 				first = first > 1 ? first : 1;
@@ -32,22 +37,38 @@ var view = {
 			}
 
 			if (first > 1) {
-				html += '<li><a class="pageButton" id="page-' + (first - 1) + '" href="#">&laquo;</a></li>';
+				html += '<li><a class="pageButton btn btn-sm btn-outline-secondary" id="page-' + (first - 1) + '" href="#">&laquo;</a></li>';
 			}
-
-			for (var i = first; i <= last; i++) {
+			for (let i = first; i <= last; i++) {
 				html += '<li' + (page.currentPage == i ? ' class="active"' : '') + '>'
-					+ '<a class="pageButton" id="page-' + i + '" href="#">'
+					+ '<a class="pageButton btn btn-sm btn-outline-secondary" id="page-' + i + '" href="#">'
 					+ i + '</a></li>';
 			}
 
 			if (last < (1 * page.totalPages) ) {
-				html += '<li><a class="pageButton" id="page-' + (last+1) + '" href="#">&raquo;</a></li>';
+				html += '<li><a class="pageButton btn btn-sm btn-outline-secondary" id="page-' + (last+1) + '" href="#">&raquo;</a></li>';
 			}
-			html += '</ul></div>';
+
+			html += `</span></span>`;
 		}
 
 		return html;
+	},
+
+	sortTableWithActiveFilterHtml: (isActiveOnly) => {
+		const generateActiveCheckbox = () => {
+			const showActive = localStorage.getItem('showActive') === 'true';
+			return `<span class="show-active-filter">
+                <label>
+                    <input type="checkbox" id="active-checkbox" class="active-only-checkbox" ${isActiveOnly ? 'checked' : ''}>
+                    ${showActive ? '(' + jsText("Show Active Status") + ')' : '(' + jsText("Show All") + ')'}
+                </label>
+            </span>`;
+		};
+
+		return `<span class="table-active-filter float-right">
+            ${generateActiveCheckbox()}
+    </span>`;
 	},
 
 	/**
