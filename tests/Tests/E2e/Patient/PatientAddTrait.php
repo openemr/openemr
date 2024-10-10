@@ -3,11 +3,11 @@
 /**
  * PatientAddTrait
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ trait PatientAddTrait
     {
         $this->base();
         try {
-            $this->patientAddIfNotExist('firstname', 'lastname', '1994-03-01', 'Male');
+            $this->patientAddIfNotExist('Addtestf', 'Addtestl', '1968-06-01', 'Male');
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
@@ -74,13 +74,25 @@ trait PatientAddTrait
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
+        //$this->client->takeScreenshot('/pics/1.png');
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-        $this->client->switchTo()->defaultContent();
-
-        sleep(10);
+        $this->client->wait(10)->until(function ($driver) {
+            try {
+                $alert = $driver->switchTo()->alert();
+                $alert->accept();
+                return true; // Alert is present and has been cleared
+            } catch (\Exception $e) {
+                return false; // Alert is not present
+            }
+        });
 
         // ensure the patient summary screen is shown
-        $this->assertActiveTab('Dashboard');
+        $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
+        $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
+        //$this->client->takeScreenshot('/pics/2.png');
+        // below line will timeout if did not go to the patient summary screen for the new patient
+        $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
 
         // ensure the patient was added
         $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
