@@ -1677,7 +1677,7 @@ class Claim
 
     public function referrerMiddleName()
     {
-        return $this->x12Clean(trim($this->referrer['mname']));
+        return $this->x12Clean(trim($this->referrer['mname'] ?? ''));
     }
 
     public function referrerNPI()
