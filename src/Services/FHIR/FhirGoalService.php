@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -59,7 +60,14 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             'patient' => $this->getPatientContextSearchField(),
             // note even though we label this as a uuid, it is a SURROGATE UID because of the nature of how goals are stored
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, ['uuid']),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        // TODO: @adunsulag introduce a last_modified date field to the care plan table as we don't track this anywhere
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['creation_date']);
     }
 
     /**
@@ -67,7 +75,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      *
      * @param array $dataRecord The source OpenEMR data record
      * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return FHIRCareTeam
+     * @return FHIRGoal
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
@@ -75,7 +83,11 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['creation_date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['creation_date']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $goal->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();

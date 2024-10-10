@@ -475,7 +475,7 @@ class AppointmentService extends BaseService
      */
     public function getCalendarCategories()
     {
-        $sql = "SELECT pc_catid, pc_constant_id, pc_catname, pc_cattype,aco_spec FROM openemr_postcalendar_categories "
+        $sql = "SELECT pc_catid, pc_constant_id, pc_catname, pc_cattype,aco_spec, pc_last_updated FROM openemr_postcalendar_categories "
         . " WHERE pc_active = 1 ORDER BY pc_seq";
         return QueryUtils::fetchRecords($sql);
     }
@@ -655,5 +655,20 @@ class AppointmentService extends BaseService
     {
         $sql = "SELECT * FROM openemr_postcalendar_categories WHERE pc_catid = ?";
         return QueryUtils::fetchRecords($sql, [$cat_id]);
+    }
+
+    public function searchCalendarCategories(array $oeSearchParameters)
+    {
+        $sql = "SELECT * FROM openemr_postcalendar_categories ";
+        $whereClause = FhirSearchWhereClauseBuilder::build($oeSearchParameters, true);
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $records = QueryUtils::fetchRecords($sql, $sqlBindArray);
+        $processingResult = new ProcessingResult();
+        if (!empty($records)) {
+            $processingResult->setData($records);
+        }
+        // TODO: look at handling offset and limit here
+        return $processingResult;
     }
 }

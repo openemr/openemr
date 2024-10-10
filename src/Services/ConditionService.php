@@ -48,6 +48,7 @@ class ConditionService extends BaseService
         patient.puuid,
         patient.patient_uuid,
         condition_ids.condition_uuid,
+        condition_ids.last_updated_time,
         verification.title as verification_title
         ,provider.provider_id
         ,provider.provider_npi
@@ -55,7 +56,7 @@ class ConditionService extends BaseService
         ,provider.provider_username
     FROM lists
         INNER JOIN (
-            SELECT lists.uuid AS condition_uuid FROM lists
+            SELECT lists.uuid AS condition_uuid, lists.modifydate as last_updated_time FROM lists
         ) condition_ids ON lists.uuid = condition_ids.condition_uuid
         LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'condition-verification'
         RIGHT JOIN (
@@ -68,7 +69,7 @@ class ConditionService extends BaseService
         LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id
         LEFT JOIN form_encounter as encounter ON encounter.encounter =issue.encounter
         LEFT JOIN (
-                select 
+                select
                    id AS provider_id
                    ,uuid AS provider_uuid
                    ,npi AS provider_npi
