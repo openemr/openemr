@@ -36,6 +36,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\ServiceField;
@@ -85,16 +86,26 @@ class FhirClinicalNotesService extends FhirServiceBase
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATE, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $docReference = new FHIRDocumentReference();
-        $meta = new FHIRMeta();
-        $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        $docReference->setMeta($meta);
+        $fhirMeta = new FHIRMeta();
+        $fhirMeta->setVersionId('1');
+        if (!empty($dataRecord['date'])) {
+            $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $docReference->setMeta($fhirMeta);
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);

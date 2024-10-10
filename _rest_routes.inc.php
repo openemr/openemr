@@ -7622,6 +7622,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -7814,6 +7823,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -7939,6 +7957,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the CarePlan resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -8113,6 +8140,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -8192,6 +8228,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          in="path",
      *          description="The uuid for the CareTeam resource.",
      *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
      *          @OA\Schema(
      *              type="string"
      *          )
@@ -8299,6 +8344,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Condition resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -8484,6 +8538,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -8636,6 +8699,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Device resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -8796,6 +8868,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the DiagnosticReport resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -9005,6 +9086,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the DocumentReference resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -9338,6 +9428,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -9537,6 +9636,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -9691,6 +9799,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Group resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -9861,6 +9978,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="patient",
      *          in="query",
      *          description="The uuid for the patient.",
@@ -10014,6 +10149,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Standard Response",
@@ -10133,6 +10277,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      path="/fhir/Medication",
      *      description="Returns a list of Medication resources.",
      *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Medication resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Standard Response",
@@ -10264,6 +10426,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the MedicationRequest resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -10452,6 +10623,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Observation resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -10678,6 +10858,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Organization resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -11491,6 +11680,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="identifier",
      *          in="query",
      *          description="The identifier of the Patient resource.",
@@ -11860,6 +12058,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      description="Returns a list of Person resources.",
      *      tags={"fhir"},
      *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Person resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="name",
      *          in="query",
      *          description="The name of the Person resource.",
@@ -12132,6 +12348,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Practitioner resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -12569,6 +12794,24 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      description="Returns a list of PractitionerRole resources.",
      *      tags={"fhir"},
      *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the PractitionerRole resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
      *          name="specialty",
      *          in="query",
      *          description="The specialty of the PractitionerRole resource.",
@@ -12721,6 +12964,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the Procedure resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -13046,6 +13298,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          name="_id",
      *          in="query",
      *          description="The uuid for the ValueSet resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
      *          required=false,
      *          @OA\Schema(
      *              type="string"

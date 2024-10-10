@@ -85,13 +85,13 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
      */
 
 
-
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/StructureDefinition/shareablevalueset';
     const APPOINTMENT_TYPE = 'appointment-type';
 
     public function __construct()
     {
         parent::__construct();
+        // TODO: @adunsulag we need to look at adding a mapping service here in order to get our value sets out.
         $this->appointmentService = new AppointmentService();
         $this->listOptionService = new ListService();
     }
@@ -103,7 +103,18 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         return [
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_STRING)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['sublist_updated_date', 'last_updated']);
+    }
+
+    private function getLastModifiedSearchFieldForAppointmentCategories()
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['pc_last_updated']);
     }
 
     /**
@@ -115,74 +126,14 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         $fhirSearchResult = new ProcessingResult();
         try {
-            if (
-                !isset($fhirSearchParameters[ '_id' ])
-                // could be array (AND) or comma-delimited string value (OR)
-                // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
-                || ( is_array($fhirSearchParameters[ '_id' ])
-                   && count($fhirSearchParameters[ '_id' ]) == 1
-                   && $fhirSearchParameters[ '_id' ][ 0 ] == self::APPOINTMENT_TYPE )
-                // and string which could be comma-delimiter OR of exploded values
-                || ( !is_array($fhirSearchParameters[ '_id' ])
-                   && in_array(self::APPOINTMENT_TYPE, explode(",", $fhirSearchParameters[ '_id' ])) )
-            ) {
-                $calendarCategories = $this->appointmentService->getCalendarCategories();
-                $valueSet = new FHIRValueSet();
-                $valueSet->setId(self::APPOINTMENT_TYPE);
-                $compose = new FHIRValueSetCompose();
-                $include = new FHIRValueSetInclude();
-                foreach ($calendarCategories as $category) {
-                    if ($category["pc_cattype"] != 0) {
-                        continue; // only cat_type==0
-                    }
-                    $concept = new FHIRValueSetConcept();
-                    $code = new FHIRCode();
-                    $code->setValue($category[ "pc_constant_id"]);
-                    $concept->setCode($code);
-                    $concept->setDisplay($category[ "pc_catname" ]);
-                    $include->addConcept($concept);
-                }
-                $compose->addInclude($include);
-                $valueSet->setCompose($compose);
-                $fhirSearchResult->addData($valueSet);
+            // we don't really deal with provenance for ValueSet pieces so we will ignore this property
+            if (isset($fhirSearchParameters['_revinclude'])) {
+                unset($fhirSearchParameters['_revinclude']);
             }
 
-              // Now the same for list_options selected in $listNames
-              $list_ids = $this->listOptionService->getListIds();
-            foreach ($list_ids as $listName) {
-                if (
-                    isset($fhirSearchParameters[ '_id' ])
-                    // could be array (AND) or comma-delimited string value (OR)
-                    // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
-                    && ( ( is_array($fhirSearchParameters[ '_id' ])
-                         && count($fhirSearchParameters[ '_id' ]) == 1
-                         && $fhirSearchParameters[ '_id' ][ 0 ] != $listName )
-                         // and string which could be comma-delimiter OR of exploded values
-                         || ( !is_array($fhirSearchParameters[ '_id' ])
-                              && !in_array($listName, explode(",", $fhirSearchParameters[ '_id' ])) ) )
-                ) {
-                    continue;
-                }
-                $options = $this->listOptionService->getOptionsByListName($listName); // does not return title
-                if (count($options) == 0) {
-                    continue;
-                }
-                $valueSet = new FHIRValueSet();
-                $valueSet->setId($listName);
-                $compose = new FHIRValueSetCompose();
-                $include = new FHIRValueSetInclude();
-                foreach ($options as $option) {
-                          $concept = new FHIRValueSetConcept();
-                          $code = new FHIRCode();
-                          $code->setValue($option[ "option_id"]);
-                          $concept->setCode($code);
-                          $concept->setDisplay($option[ "title" ]);
-                          $include->addConcept($concept);
-                }
-                    $compose->addInclude($include);
-                    $valueSet->setCompose($compose);
-                    $fhirSearchResult->addData($valueSet);
-            }
+            $this->addAppointmentCategoriesValueSetForSearch($fhirSearchResult, $fhirSearchParameters);
+
+            $this->addListOptionsValueSetsForSearch($fhirSearchResult, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
             (new SystemLogger())->errorLogCaller("search exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
@@ -203,5 +154,83 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     function getProfileURIs(): array
     {
         return [self::USCGI_PROFILE_URI];
+    }
+
+    private function addAppointmentCategoriesValueSetForSearch(ProcessingResult $fhirSearchResult, array $fhirSearchParameters, string $puuidBind = null)
+    {
+        $this->getSearchFieldFactory()->setSearchFieldDefinition('_lastUpdated', $this->getLastModifiedSearchFieldForAppointmentCategories());
+        $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
+        if (
+            !isset($oeSearchParameters['_id'])
+            // could be array (AND) or comma-delimited string value (OR)
+            // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
+            || $oeSearchParameters['_id']->hasCodeValue(self::APPOINTMENT_TYPE)
+        ) {
+            if (!isset($oeSearchParameters['_id'])) {
+                // if we have any match on categories we want to return everything... hate the double db call
+                // but rather than mess with a complex query we will just do it this way
+                $processingResult = $this->appointmentService->searchCalendarCategories($oeSearchParameters);
+                // nothing to do here as we have no categories matching so we return
+                if (!$processingResult->hasData()) {
+                    return $fhirSearchResult;
+                }
+            }
+            $calendarCategories = $this->appointmentService->getCalendarCategories();
+            $valueSet = new FHIRValueSet();
+            $valueSet->setId(self::APPOINTMENT_TYPE);
+            $compose = new FHIRValueSetCompose();
+            $include = new FHIRValueSetInclude();
+            foreach ($calendarCategories as $category) {
+                if ($category["pc_cattype"] != 0) {
+                    continue; // only cat_type==0
+                }
+                $concept = new FHIRValueSetConcept();
+                $code = new FHIRCode();
+                $code->setValue($category["pc_constant_id"]);
+                $concept->setCode($code);
+                $concept->setDisplay($category["pc_catname"]);
+                $include->addConcept($concept);
+            }
+            $compose->addInclude($include);
+            $valueSet->setCompose($compose);
+            $fhirSearchResult->addData($valueSet);
+        }
+        return $fhirSearchResult;
+    }
+
+    private function addListOptionsValueSetsForSearch(ProcessingResult $fhirSearchResult, array $fhirSearchParameters, ?string $puuidBind = null)
+    {
+        $this->getSearchFieldFactory()->setSearchFieldDefinition('_lastUpdated', $this->getLastModifiedSearchField());
+        $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
+
+        // Now the same for list_options selected in $listNames
+        $listsResult = $this->listOptionService->searchLists($oeSearchParameters);
+        if (!$listsResult->hasData()) {
+            $fhirSearchResult->addProcessingResult($listsResult);
+            return $fhirSearchResult;
+        }
+        foreach ($listsResult->getData() as $listRecord) {
+            $listName = $listRecord["option_id"];
+            $options = $this->listOptionService->getOptionsByListName($listName); // does not return title
+            if (count($options) == 0) {
+                continue;
+            }
+            $valueSet = new FHIRValueSet();
+            $valueSet->setId($listName);
+            $compose = new FHIRValueSetCompose();
+            $include = new FHIRValueSetInclude();
+            foreach ($options as $option) {
+                $concept = new FHIRValueSetConcept();
+                $code = new FHIRCode();
+                $code->setValue($option["option_id"]);
+                $concept->setCode($code);
+                $concept->setDisplay($option["title"]);
+                $include->addConcept($concept);
+            }
+            $compose->addInclude($include);
+            $valueSet->setCompose($compose);
+            $fhirSearchResult->addData($valueSet);
+        }
+        return $fhirSearchResult;
     }
 }

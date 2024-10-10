@@ -90,6 +90,9 @@ class AuthorizationController
     public const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
     public const OFFLINE_ACCESS_SCOPE = 'offline_access';
 
+    // https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens Spec states 5 min max
+    public const GRANT_TYPE_ACCESS_CODE_TTL = "PT300S"; // 5 minutes
+
     public $authBaseUrl;
     public $authBaseFullUrl;
     public $siteId;
@@ -642,8 +645,7 @@ class AuthorizationController
             $client_credentials->setHttpClient(new Client()); // set our guzzle client here
             $authServer->enableGrantType(
                 $client_credentials,
-                // https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens Spec states 5 min max
-                new \DateInterval('PT300S')
+                new \DateInterval(self::GRANT_TYPE_ACCESS_CODE_TTL)
             );
         }
 
