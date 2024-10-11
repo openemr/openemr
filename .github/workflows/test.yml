@@ -1276,9 +1276,9 @@ jobs:
       - name: E2e testing (skipping at this time for PHP 8.4-dev)
         run: |
            echo "SKIPPING THIS TEST FOR NOW UNTIL IT STARTS WORKING IN FUTURE FOR PHP 8.4-dev"
-#          source ci/ciLibrary.source
-#          build_test_e2e
-#        if: ${{ success() || failure() }}
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |

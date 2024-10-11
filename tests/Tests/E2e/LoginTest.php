@@ -3,15 +3,15 @@
 /**
  * LoginTest class
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @auther  zerai
- * @author  Dixon Whitmire
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @auther    zerai
+ * @author    Dixon Whitmire
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 zerai
  * @copyright Copyright (c) 2020 Dixon Whitmire
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
