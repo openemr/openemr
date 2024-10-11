@@ -31,7 +31,7 @@ trait PatientAddTrait
     {
         $this->base();
         try {
-            $this->patientAddIfNotExist('Addtestf', 'Addtestl', '1968-06-01', 'Male');
+            $this->patientAddIfNotExist('Ftest', 'Ltest', '1968-06-01', 'Male');
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
@@ -90,22 +90,10 @@ trait PatientAddTrait
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
-        //$this->client->takeScreenshot('/pics/2.png');
         // below line will timeout if did not go to the patient summary screen for the new patient
         $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
 
         // ensure the patient was added
         $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
-    }
-
-    protected function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
-    {
-        $patientDatabase = sqlQuery("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
-        if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
-            return true;
-        } else {
-            return false;
-        }
-
     }
 }

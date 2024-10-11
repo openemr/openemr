@@ -94,4 +94,15 @@ trait BaseTrait
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath($menuLink2)->click();
     }
+
+    protected function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
+    {
+        $patientDatabase = sqlQuery("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
+        if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 }
