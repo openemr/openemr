@@ -103,6 +103,5 @@ trait BaseTrait
         } else {
             return false;
         }
-
     }
 }
