@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\E2e\Patient;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientAddTrait;
+use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientOpenTrait;
 
@@ -33,7 +34,7 @@ trait PatientOpenTrait
     {
         $this->base();
         try {
-            $this->patientOpenIfExist('Ftest', 'Ltest', '1968-06-01', 'Male');
+            $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();

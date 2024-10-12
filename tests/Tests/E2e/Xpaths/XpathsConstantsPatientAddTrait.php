@@ -27,5 +27,5 @@ class XpathsConstantsPatientAddTrait
 
     public const NEW_PATIENT_IFRAME_PATIENTADD_TRAIT = "//*[@id='modalframe']";
 
-    public const CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT = "//button[@type='button' and @value='true']";
+    public const CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT = "//*[text()='Confirm Create New Patient']";
 }

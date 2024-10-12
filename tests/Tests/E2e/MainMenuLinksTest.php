@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CheckMainMenuLinksTest class
+ * MainMenuLinksTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,7 +19,7 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class CheckMainMenuLinksTest extends PantherTestCase
+class MainMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
@@ -31,7 +31,7 @@ class CheckMainMenuLinksTest extends PantherTestCase
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      */
-    public function testCheckMenuLink(string $menuLink, string $expectedTabTitle): void
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have

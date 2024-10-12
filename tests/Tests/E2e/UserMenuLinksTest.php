@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CheckUserMenuLinksTest class
+ * UserMenuLinksTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,7 +19,7 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class CheckUserMenuLinksTest extends PantherTestCase
+class UserMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
@@ -31,7 +31,7 @@ class CheckUserMenuLinksTest extends PantherTestCase
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      */
-    public function testCheckUserMenuLink(string $menuTreeIcon, string $menuLinkItem, string $expectedTabTitle): void
+    public function testUserMenuLink(string $menuTreeIcon, string $menuLinkItem, string $expectedTabTitle): void
     {
         $this->base();
         try {

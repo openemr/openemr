@@ -34,10 +34,10 @@ trait BaseTrait
         $this->crawler = $this->client->refreshCrawler();
     }
 
-    protected function assertActiveTab($text): void
+    protected function assertActiveTab(string $text, string $loading = "Loading" ): void
     {
         $startTime = (int) (microtime(true) * 1000);
-        while (strpos($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "Loading") === 0) {
+        while (strpos($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading) === 0) {
             if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
                 $this->fail("Timeout waiting for tab [$text]");
             }
@@ -46,12 +46,25 @@ trait BaseTrait
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
     }
 
+    protected function assertActivePopup(string $text): void
+    {
+        $xpath = '//h5[@class="modal-title"]';
+        $this->client->waitFor($xpath);
+        $this->crawler = $this->client->refreshCrawler();
+        $startTime = (int) (microtime(true) * 1000);
+        while (empty($this->crawler->filterXPath($xpath)->text())) {
+            if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
+                $this->fail("Timeout waiting for popup [$text]");
+            }
+            usleep(100);
+        }
+        $this->assertSame($text, $this->crawler->filterXPath($xpath)->text(), "[$text] popup load FAILED");
+    }
+
     protected function goToMainMenuLink(string $menuLink): void
     {
-        // check if the menu cog is showing. if so, then click it.
-        if ($this->crawler->filterXPath(XpathsConstants::COLLAPSED_MENU_BUTTON)->isDisplayed()) {
-            $this->crawler->filterXPath(XpathsConstants::COLLAPSED_MENU_BUTTON)->click();
-        }
+        // ensure on main page (ie. not in an iframe)
+        $this->client->switchTo()->defaultContent();
         // got to and click the menu link
         $menuLinkSequenceArray = explode('||', $menuLink);
         $counter = 0;
@@ -76,6 +89,7 @@ trait BaseTrait
                 // click the nested menu item
                 $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
             }
+
             $this->client->waitFor($menuLink);
             $this->crawler = $this->client->refreshCrawler();
             $this->crawler->filterXPath($menuLink)->click();

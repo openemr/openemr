@@ -16,8 +16,6 @@ namespace OpenEMR\Tests\E2e\Xpaths;
 
 class XpathsConstants
 {
-    public const COLLAPSED_MENU_BUTTON = '//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]';
-
     public const USER_MENU_ICON = '//i[@id="user_icon"]';
 
     public const ACTIVE_TAB = "//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]";

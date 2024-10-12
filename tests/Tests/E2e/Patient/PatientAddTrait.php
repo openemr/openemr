@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\E2e\Patient;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientAddTrait;
 
@@ -31,7 +32,7 @@ trait PatientAddTrait
     {
         $this->base();
         try {
-            $this->patientAddIfNotExist('Ftest', 'Ltest', '1968-06-01', 'Male');
+            $this->patientAddIfNotExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
@@ -42,7 +43,7 @@ trait PatientAddTrait
         $this->client->quit();
     }
 
-    protected function PatientAddIfNotExist(string $firstname, string $lastname, string $dob, string $sex): void
+    protected function patientAddIfNotExist(string $firstname, string $lastname, string $dob, string $sex): void
     {
         // if patient already exists, then skip this
         if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
@@ -73,6 +74,7 @@ trait PatientAddTrait
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
+        //$this->client->executeScript('dlgclose("srcConfirmSave", false);');
         $this->crawler = $this->client->refreshCrawler();
         //$this->client->takeScreenshot('/pics/1.png');
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
