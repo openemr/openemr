@@ -58,11 +58,11 @@ class GgUserMenuLinksTest extends PantherTestCase
     public static function menuLinkProvider()
     {
         return [
-            'Settings user menu link' => ['fa-cog', 'Settings', 'User Settings'],/*
+            'Settings user menu link' => ['fa-cog', 'Settings', 'User Settings'],
             'Change Password user menu link' => ['fa-lock', 'Change Password', 'Change Password'],
             'MFA Management user menu link' => ['fa-key', 'MFA Management', 'Manage Multi Factor Authentication'],
             'About OpenEMR user menu link' => ['fa-info', 'About OpenEMR', 'About OpenEMR'],
-            'Logout user menu link' => ['fa-sign-out-alt', 'Logout', 'OpenEMR Login']*/
+            'Logout user menu link' => ['fa-sign-out-alt', 'Logout', 'OpenEMR Login']
         ];
     }
 }

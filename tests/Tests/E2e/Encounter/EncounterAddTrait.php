@@ -75,6 +75,7 @@ trait EncounterAddTrait
         $this->crawler->filterXPath(XpathsConstantsEncounterAddTrait::SAVE_ENCOUNTER_BUTTON_ENCOUNTERADD_TRAIT)->click();
 
         // ensure the encounter screen is shown
+        $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::ENCOUNTER_IFRAME);
         $this->switchToIFrame(XpathsConstants::ENCOUNTER_IFRAME);
         $this->client->waitFor(XpathsConstants::ENCOUNTER_FORMS_IFRAME);

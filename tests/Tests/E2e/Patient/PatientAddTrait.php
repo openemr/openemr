@@ -74,7 +74,6 @@ trait PatientAddTrait
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        //$this->client->executeScript('dlgclose("srcConfirmSave", false);');
         $this->crawler = $this->client->refreshCrawler();
         //$this->client->takeScreenshot('/pics/1.png');
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
