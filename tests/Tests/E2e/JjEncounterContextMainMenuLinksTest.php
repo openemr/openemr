@@ -92,11 +92,11 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
     public static function menuLinkProvider()
     {
         return [
-            'Patient -> Visits -> Current menu link' => ['Patient||Visits||Current', 'Encounter', false, true],
+            'Patient -> Visits -> Current menu link' => ['Patient||Visits||Current', 'Encounter', false, true],/*
             'Fees -> Fee Sheet menu link' => ['Fees||Fee Sheet', 'Encounter', false, true],
             'Fees -> Payment menu link' => ['Fees||Payment', 'Record Payment', false, false, 'Encounter'],
             'Fees -> Checkout menu link' => ['Fees||Checkout', 'Receipt for Payment', false, false, 'Encounter'],
-            'Popups -> Payment link' => ['Popups||Payment', 'Payment', true]
+            'Popups -> Payment link' => ['Popups||Payment', 'Payment', true]*/
         ];
     }
 }

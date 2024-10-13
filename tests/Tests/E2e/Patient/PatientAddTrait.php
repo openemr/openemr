@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Patient;
 
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -75,9 +77,11 @@ trait PatientAddTrait
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        //$this->client->takeScreenshot('/pics/1.png');
-        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+        // was having issues with this click, so needed to use the lower level webdriver directly
+        $button = $this->client->getWebDriver()->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
+        );
+        $button->click();
         $this->client->wait(10)->until(function ($driver) {
             try {
                 $alert = $driver->switchTo()->alert();

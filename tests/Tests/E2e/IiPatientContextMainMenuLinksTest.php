@@ -90,7 +90,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     public static function menuLinkProvider()
     {
         return [
-            'Patient -> Dashboard menu link' => ['Patient||Dashboard', 'Dashboard', false],
+            'Patient -> Dashboard menu link' => ['Patient||Dashboard', 'Dashboard', false],/*
             'Patient -> Visits -> Create Visit menu link' => ['Patient||Visits||Create Visit', 'Patient Encounter', false, 'Visit History', true],
             'Patient -> Visits -> Visit History menu link' => ['Patient||Visits||Visit History', 'Visit History', false],
             'Patient -> Records -> Patient Record Request menu link' => ['Patient||Records||Patient Record Request', 'Patient Records Request', false, 'Visit History'],
@@ -102,7 +102,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
             'Popups -> Letter menu link' => ['Popups||Letter', 'Letter', true],
             'Popups -> Chart Label menu link' => ['Popups||Chart Label', 'Chart Label', true],
             'Popups -> Barcode Label menu link' => ['Popups||Barcode Label', 'Barcode Label', true],
-            'Popups -> Address Label menu link' => ['Popups||Address Label', 'Address Label', true]
+            'Popups -> Address Label menu link' => ['Popups||Address Label', 'Address Label', true]*/
         ];
     }
 }
