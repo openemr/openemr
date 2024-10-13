@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Encounter\EncounterOpenTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use Symfony\Component\Panther\PantherTestCase;
@@ -52,25 +53,40 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
             $looseTabTitle = false;
         }
 
-        $this->base();
-        try {
-            $this->login('admin', 'pass');
-            $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
-            $this->encounterOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
-            $this->goToMainMenuLink($menuLink);
-            if ($popup) {
-                $this->assertActivePopup($expectedTabPopupTitle);
-            } else {
-                $this->assertActiveTab($expectedTabPopupTitle, $loading, $looseTabTitle);
+        $counter = 0;
+        $threwSomething = true;
+        // below will basically allow 3 timeouts
+        while ($threwSomething) {
+            $threwSomething = false;
+            $counter++;
+            if ($counter > 1) {
+                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
             }
-        } catch (\Throwable $e) {
+            $this->base();
+            try {
+                $this->login(LoginTestData::username, LoginTestData::password);
+                $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
+                $this->encounterOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
+                $this->goToMainMenuLink($menuLink);
+                if ($popup) {
+                    $this->assertActivePopup($expectedTabPopupTitle);
+                } else {
+                    $this->assertActiveTab($expectedTabPopupTitle, $loading, $looseTabTitle);
+                }
+            } catch (\Throwable $e) {
+                // Close client
+                $this->client->quit();
+                if ($counter > 2) {
+                    // re-throw since have failed 3 tries
+                    throw $e;
+                } else {
+                    // try again since not yet 3 tries
+                    $threwSomething = true;
+                }
+            }
             // Close client
             $this->client->quit();
-            // re-throw the exception
-            throw $e;
         }
-        // Close client
-        $this->client->quit();
     }
 
     public static function menuLinkProvider()

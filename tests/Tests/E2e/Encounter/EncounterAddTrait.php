@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\E2e\Encounter;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Encounter\EncounterTestData;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
@@ -55,7 +56,7 @@ trait EncounterAddTrait
         }
 
         // login and open patient
-        $this->login('admin', 'pass');
+        $this->login(LoginTestData::username, LoginTestData::password);
         $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
 
         // add new encounter

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\Patient;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
@@ -51,7 +52,7 @@ trait PatientAddTrait
         }
 
         // login
-        $this->login('admin', 'pass');
+        $this->login(LoginTestData::username, LoginTestData::password);
 
         // go to add patient tab
         $this->goToMainMenuLink('Patient||New/Search');

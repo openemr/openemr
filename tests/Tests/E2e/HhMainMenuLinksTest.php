@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
@@ -38,19 +39,34 @@ class HhMainMenuLinksTest extends PantherTestCase
             //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
-        $this->base();
-        try {
-            $this->login('admin', 'pass');
-            $this->goToMainMenuLink($menuLink);
-            $this->assertActiveTab($expectedTabTitle);
-        } catch (\Throwable $e) {
+        $counter = 0;
+        $threwSomething = true;
+        // below will basically allow 3 timeouts
+        while ($threwSomething) {
+            $threwSomething = false;
+            $counter++;
+            if ($counter > 1) {
+                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
+            }
+            $this->base();
+            try {
+                $this->login(LoginTestData::username, LoginTestData::password);
+                $this->goToMainMenuLink($menuLink);
+                $this->assertActiveTab($expectedTabTitle);
+            } catch (\Throwable $e) {
+                // Close client
+                $this->client->quit();
+                if ($counter > 2) {
+                    // re-throw since have failed 3 tries
+                    throw $e;
+                } else {
+                    // try again since not yet 3 tries
+                    $threwSomething = true;
+                }
+            }
             // Close client
             $this->client->quit();
-            // re-throw the exception
-            throw $e;
         }
-        // Close client
-        $this->client->quit();
     }
 
     public static function menuLinkProvider()

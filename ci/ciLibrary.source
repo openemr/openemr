@@ -92,21 +92,11 @@ build_test_unit() {
 }
 
 build_test_e2e() {
-    # Since e2e testing is a bit inconsistent, gonna do up to three runs (and only one needs to pass to pass the e2e testing)
-    # first run
     failTest=false
     docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
-    if [ "$failTest" == false ]; then
-      exit
+    if $failTest; then
+      exit 1
     fi
-    # try run again
-    failTest=false
-    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
-    if [ "$failTest" == false ]; then
-      exit
-    fi
-    # failed 2 tests, so send the official fail
-    exit 1
 }
 
 build_test_api() {

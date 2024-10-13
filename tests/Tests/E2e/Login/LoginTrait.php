@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\Login;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 
 trait LoginTrait
 {
@@ -24,7 +25,7 @@ trait LoginTrait
     {
         $this->base();
         try {
-            $this->login('admin', 'pass');
+            $this->login(LoginTestData::username, LoginTestData::password);
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();

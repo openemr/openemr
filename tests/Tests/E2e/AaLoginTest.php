@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
@@ -50,7 +51,7 @@ class AaLoginTest extends PantherTestCase
     {
         $this->base();
         try {
-            $this->login('admin', 'pass1', false);
+            $this->login(LoginTestData::username, LoginTestData::password . "1", false);
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();

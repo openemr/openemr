@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\Patient;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientAddTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
@@ -53,7 +54,7 @@ trait PatientOpenTrait
         }
 
         // login
-        $this->login('admin', 'pass');
+        $this->login(LoginTestData::username, LoginTestData::password);
 
         // search for last name via anySearchBox
         $this->client->waitFor(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_FORM_PATIENTOPEN_TRAIT);

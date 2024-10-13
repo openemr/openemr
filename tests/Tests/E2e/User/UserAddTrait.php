@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\User;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use OpenEMR\Tests\E2e\User\UserTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
 
@@ -33,7 +35,7 @@ trait UserAddTrait
     {
         $this->base();
         try {
-            $this->userAddIfNotExist('foobar');
+            $this->userAddIfNotExist(UserTestData::USERNAME);
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
@@ -53,7 +55,7 @@ trait UserAddTrait
         }
 
         // login
-        $this->login('admin', 'pass');
+        $this->login(LoginTestData::username, LoginTestData::password);
 
         // go to admin -> users tab
         $this->goToMainMenuLink('Admin||Users');
