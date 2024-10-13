@@ -45,7 +45,7 @@ trait PatientOpenTrait
         $this->client->quit();
     }
 
-    protected function PatientOpenIfExist(string $firstname, string $lastname, string $dob, string $sex): void
+    private function patientOpenIfExist(string $firstname, string $lastname, string $dob, string $sex): void
     {
         // if patient does not already exists, then fail
         if (!$this->isPatientExist($firstname, $lastname, $dob, $sex)) {

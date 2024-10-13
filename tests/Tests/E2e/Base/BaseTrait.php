@@ -19,14 +19,14 @@ use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 
 trait BaseTrait
 {
-    protected function base(): void
+    private function base(): void
     {
         $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
         $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
         $this->client->manage()->window()->maximize();
     }
 
-    protected function switchToIFrame(string $xpath): void
+    private function switchToIFrame(string $xpath): void
     {
         $selector = WebDriverBy::xpath($xpath);
         $iframe = $this->client->findElement($selector);
@@ -34,7 +34,7 @@ trait BaseTrait
         $this->crawler = $this->client->refreshCrawler();
     }
 
-    protected function assertActiveTab(string $text, string $loading = "Loading" ): void
+    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
     {
         $startTime = (int) (microtime(true) * 1000);
         while (strpos($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading) === 0) {
@@ -43,25 +43,28 @@ trait BaseTrait
             }
             usleep(100);
         }
-        $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
+        if ($looseTabTitle) {
+            $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text));
+        } else {
+            $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
+        }
     }
 
-    protected function assertActivePopup(string $text): void
+    private function assertActivePopup(string $text): void
     {
-        $xpath = '//h5[@class="modal-title"]';
-        $this->client->waitFor($xpath);
+        $this->client->waitFor(XpathsConstants::MODAL_TITLE);
         $this->crawler = $this->client->refreshCrawler();
         $startTime = (int) (microtime(true) * 1000);
-        while (empty($this->crawler->filterXPath($xpath)->text())) {
+        while (empty($this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text())) {
             if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
                 $this->fail("Timeout waiting for popup [$text]");
             }
             usleep(100);
         }
-        $this->assertSame($text, $this->crawler->filterXPath($xpath)->text(), "[$text] popup load FAILED");
+        $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text(), "[$text] popup load FAILED");
     }
 
-    protected function goToMainMenuLink(string $menuLink): void
+    private function goToMainMenuLink(string $menuLink): void
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
@@ -97,7 +100,7 @@ trait BaseTrait
         }
     }
 
-    protected function goToUserMenuLink(string $menuTreeIcon): void
+    private function goToUserMenuLink(string $menuTreeIcon): void
     {
         $menuLink = XpathsConstants::USER_MENU_ICON;
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
@@ -109,9 +112,23 @@ trait BaseTrait
         $this->crawler->filterXPath($menuLink2)->click();
     }
 
-    protected function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
+    private function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
     {
         $patientDatabase = sqlQuery("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
+        if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function isEncounterExist(string $firstname, string $lastname, string $dob, string $sex): bool
+    {
+        $patientDatabase = sqlQuery("SELECT `patient_data`.`fname`
+                                     FROM `patient_data`
+                                     INNER JOIN `form_encounter`
+                                     ON `patient_data`.`pid` = `form_encounter`.`pid`
+                                     WHERE `patient_data``fname` = ? AND `patient_data``lname` = ? AND `patient_data``DOB` = ? AND `patient_data``sex` = ?", [$firstname, $lastname, $dob, $sex]);
         if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
             return true;
         } else {

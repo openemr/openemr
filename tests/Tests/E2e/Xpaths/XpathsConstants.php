@@ -18,6 +18,8 @@ class XpathsConstants
 {
     public const USER_MENU_ICON = '//i[@id="user_icon"]';
 
+    public const MODAL_TITLE = '//h5[@class="modal-title"]';
+
     public const ACTIVE_TAB = "//div[@id='tabs_div']/div/div[not(contains(concat(' ',normalize-space(@class),' '),' tabsNoHover '))]";
 
     public const ADMIN_IFRAME = "//*[@id='framesDisplay']//iframe[@name='adm']";
@@ -25,4 +27,6 @@ class XpathsConstants
     public const PATIENT_IFRAME = "//*[@id='framesDisplay']//iframe[@name='pat']";
 
     public const PATIENT_FINDER_IFRAME = "//*[@id='framesDisplay']//iframe[@name='fin']";
+
+    public const ENCOUNTER_IFRAME = "//*[@id='framesDisplay']//iframe[@name='enc']";
 }

@@ -24,8 +24,8 @@ class MainMenuLinksTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    protected $client;
-    protected $crawler;
+    private $client;
+    private $crawler;
 
     /**
      * @dataProvider menuLinkProvider

@@ -43,11 +43,11 @@ trait PatientAddTrait
         $this->client->quit();
     }
 
-    protected function patientAddIfNotExist(string $firstname, string $lastname, string $dob, string $sex): void
+    private function patientAddIfNotExist(string $firstname, string $lastname, string $dob, string $sex): void
     {
         // if patient already exists, then skip this
         if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
-            $this->markTestSkipped('New user test skipped because this patient already exists.');
+            $this->markTestSkipped('New patient test skipped because this patient already exists.');
         }
 
         // login

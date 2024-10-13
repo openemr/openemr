@@ -28,8 +28,8 @@ class LoginTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    protected $client;
-    protected $crawler;
+    private $client;
+    private $crawler;
 
     public function testGoToOpenemrLoginPage(): void
     {
@@ -79,7 +79,7 @@ class LoginTest extends PantherTestCase
         $this->client->quit();
     }
 
-    protected function loginPage(): void
+    private function loginPage(): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
         $title = $this->client->getTitle();

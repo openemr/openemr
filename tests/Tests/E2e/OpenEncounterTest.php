@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CreatePatientTest class
+ * OpenEncounterTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -15,16 +15,16 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Encounter\EncounterOpenTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
-use OpenEMR\Tests\E2e\Patient\PatientAddTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class CreatePatientTest extends PantherTestCase
+class OpenEncounterTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
-    use PatientAddTrait;
+    use EncounterOpenTrait;
 
     private $client;
     private $crawler;

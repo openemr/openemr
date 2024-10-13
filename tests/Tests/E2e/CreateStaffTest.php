@@ -28,8 +28,8 @@ class CreateStaffTest extends PantherTestCase
     use LoginTrait;
     use UserAddTrait;
 
-    protected $client;
-    protected $crawler;
+    private $client;
+    private $crawler;
 
     protected function setUp(): void
     {
@@ -42,7 +42,7 @@ class CreateStaffTest extends PantherTestCase
         $this->cleanDatabase();
     }
 
-    protected function cleanDatabase(): void
+    private function cleanDatabase(): void
     {
         // remove the created user
         $delete = "DELETE FROM users WHERE username = ?";

@@ -26,6 +26,6 @@ class OpenPatientTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    protected $client;
-    protected $crawler;
+    private $client;
+    private $crawler;
 }

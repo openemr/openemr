@@ -755,7 +755,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                     <div class="btn-group" role="group">
                         <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit';
                               $cancel_clicked = ($viewmode) ? 'cancelClickedOld()' : 'cancelClickedNew()';?>
-                        <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save'); ?></button>
+                        <button type="button" id="saveEncounter" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save'); ?></button>
                         <button type="button" class="btn btn-cancel <?php echo $link_submit;?>" onClick="return <?php echo $cancel_clicked;?>"><?php echo xlt('Cancel'); ?></button>
                     </div>
                 </div>

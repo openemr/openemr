@@ -44,7 +44,7 @@ trait UserAddTrait
         $this->client->quit();
     }
 
-    protected function userAddIfNotExist(string $username): void
+    private function userAddIfNotExist(string $username): void
     {
         // if user already exists, then skip this
         $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);

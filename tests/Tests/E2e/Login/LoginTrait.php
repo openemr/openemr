@@ -35,7 +35,7 @@ trait LoginTrait
         $this->client->quit();
     }
 
-    protected function login(string $name, string $password, bool $goalPass = true): void
+    private function login(string $name, string $password, bool $goalPass = true): void
     {
         // login
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
