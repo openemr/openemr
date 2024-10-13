@@ -1,7 +1,7 @@
 <?php
 
 /**
- * UserMenuLinksTest class
+ * GgUserMenuLinksTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,7 +19,7 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class UserMenuLinksTest extends PantherTestCase
+class GgUserMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;

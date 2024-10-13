@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PatientContextMainMenuLinksTest class
+ * IiPatientContextMainMenuLinksTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -21,7 +21,7 @@ use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class PatientContextMainMenuLinksTest extends PantherTestCase
+class IiPatientContextMainMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
@@ -33,8 +33,9 @@ class PatientContextMainMenuLinksTest extends PantherTestCase
     /**
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
+     * @depends testPatientOpen
      */
-    public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading): void
+    public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading, ?bool $clearAlert = false): void
     {
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
@@ -46,6 +47,10 @@ class PatientContextMainMenuLinksTest extends PantherTestCase
             $loading = "Loading";
         }
 
+        if (is_null($clearAlert)) {
+            $clearAlert = false;
+        }
+
         $this->base();
         try {
             $this->login('admin', 'pass');
@@ -54,7 +59,7 @@ class PatientContextMainMenuLinksTest extends PantherTestCase
             if ($popup) {
                 $this->assertActivePopup($expectedTabPopupTitle);
             } else {
-                $this->assertActiveTab($expectedTabPopupTitle, $loading);
+                $this->assertActiveTab($expectedTabPopupTitle, $loading, false, $clearAlert);
             }
         } catch (\Throwable $e) {
             // Close client
@@ -70,7 +75,7 @@ class PatientContextMainMenuLinksTest extends PantherTestCase
     {
         return [
             'Patient -> Dashboard menu link' => ['Patient||Dashboard', 'Dashboard', false],
-            'Patient -> Visits -> Create Visit menu link' => ['Patient||Visits||Create Visit', 'Patient Encounter', false, 'Visit History'],
+            'Patient -> Visits -> Create Visit menu link' => ['Patient||Visits||Create Visit', 'Patient Encounter', false, 'Visit History', true],
             'Patient -> Visits -> Visit History menu link' => ['Patient||Visits||Visit History', 'Visit History', false],
             'Patient -> Records -> Patient Record Request menu link' => ['Patient||Records||Patient Record Request', 'Patient Records Request', false, 'Visit History'],
             'Popups -> Issues menu link' => ['Popups||Issues', 'Issues', true],

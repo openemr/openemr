@@ -30,6 +30,7 @@ trait EncounterAddTrait
 
     /**
      * @depends testLoginAuthorized
+     * @depends testPatientOpen
      */
     public function testEncounterAdd(): void
     {
@@ -74,11 +75,10 @@ trait EncounterAddTrait
         $this->crawler->filterXPath(XpathsConstantsEncounterAddTrait::SAVE_ENCOUNTER_BUTTON_ENCOUNTERADD_TRAIT)->click();
 
         // ensure the encounter screen is shown
-        $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::ENCOUNTER_IFRAME);
         $this->switchToIFrame(XpathsConstants::ENCOUNTER_IFRAME);
         // below line will timeout if did not go to the encounter screen for the new encounter
-        $this->client->waitFor('//*[contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
+        $this->client->waitFor('//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
 
         // ensure the encounter was added
         $this->assertTrue($this->isEncounterExist($firstname, $lastname, $dob, $sex), 'New encounter is not in database, so FAILED');

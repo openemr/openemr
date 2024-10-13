@@ -34,8 +34,20 @@ trait BaseTrait
         $this->crawler = $this->client->refreshCrawler();
     }
 
-    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
+    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false, bool $clearAlert = false): void
     {
+        if ($clearAlert) {
+            // ok the alert (example case of this is when open the Create Visit link since there is already an encounter on same day)
+            $this->client->wait(10)->until(function ($driver) {
+                try {
+                    $alert = $driver->switchTo()->alert();
+                    $alert->accept();
+                    return true; // Alert is present and has been cleared
+                } catch (\Exception $e) {
+                    return false; // Alert is not present
+                }
+            });
+        }
         $startTime = (int) (microtime(true) * 1000);
         while (strpos($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading) === 0) {
             if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
@@ -128,7 +140,7 @@ trait BaseTrait
                                      FROM `patient_data`
                                      INNER JOIN `form_encounter`
                                      ON `patient_data`.`pid` = `form_encounter`.`pid`
-                                     WHERE `patient_data``fname` = ? AND `patient_data``lname` = ? AND `patient_data``DOB` = ? AND `patient_data``sex` = ?", [$firstname, $lastname, $dob, $sex]);
+                                     WHERE `patient_data`.`fname` = ? AND `patient_data`.`lname` = ? AND `patient_data`.`DOB` = ? AND `patient_data`.`sex` = ?", [$firstname, $lastname, $dob, $sex]);
         if (!empty($patientDatabase['fname']) && ($patientDatabase['fname'] == $firstname)) {
             return true;
         } else {

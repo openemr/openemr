@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CreateStaffTest class
+ * BbCreateStaffTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -22,7 +22,7 @@ use OpenEMR\Tests\E2e\User\UserAddTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class CreateStaffTest extends PantherTestCase
+class BbCreateStaffTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;

@@ -31,6 +31,7 @@ trait EncounterOpenTrait
 
     /**
      * @depends testLoginAuthorized
+     * @depends testPatientOpen
      */
     public function testEncounterOpen(): void
     {
@@ -59,6 +60,7 @@ trait EncounterOpenTrait
         $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
 
         // open encounter
+        $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsEncounterOpenTrait::SELECT_ENCOUNTER_BUTTON_ENCOUNTEROPEN_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsEncounterOpenTrait::SELECT_ENCOUNTER_BUTTON_ENCOUNTEROPEN_TRAIT)->click();
@@ -67,10 +69,10 @@ trait EncounterOpenTrait
         $this->crawler->filterXPath(XpathsConstantsEncounterOpenTrait::SELECT_A_ENCOUNTER_ENCOUNTEROPEN_TRAIT)->click();
 
         // ensure the encounter screen is shown
-        $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::ENCOUNTER_IFRAME);
         $this->switchToIFrame(XpathsConstants::ENCOUNTER_IFRAME);
         // below line will timeout if did not go to the encounter screen for the new encounter
-        $this->client->waitFor('//*[contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
+        //$this->client->waitFor('//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
+        $this->client->waitFor('//*[@id="navbarEncounterTitle"]');
     }
 }

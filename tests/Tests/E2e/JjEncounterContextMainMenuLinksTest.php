@@ -1,7 +1,7 @@
 <?php
 
 /**
- * EncounterContextMainMenuLinksTest class
+ * JjEncounterContextMainMenuLinksTest class
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -21,7 +21,7 @@ use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class EncounterContextMainMenuLinksTest extends PantherTestCase
+class JjEncounterContextMainMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
@@ -33,6 +33,8 @@ class EncounterContextMainMenuLinksTest extends PantherTestCase
     /**
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
+     * @depends testPatientOpen
+     * @depends testEncounterOpen
      */
     public function testEncounterContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?bool $looseTabTitle = false): void
     {
