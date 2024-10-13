@@ -77,6 +77,8 @@ trait EncounterAddTrait
         // ensure the encounter screen is shown
         $this->client->waitFor(XpathsConstants::ENCOUNTER_IFRAME);
         $this->switchToIFrame(XpathsConstants::ENCOUNTER_IFRAME);
+        $this->client->waitFor(XpathsConstants::ENCOUNTER_FORMS_IFRAME);
+        $this->switchToIFrame(XpathsConstants::ENCOUNTER_FORMS_IFRAME);
         // below line will timeout if did not go to the encounter screen for the new encounter
         $this->client->waitFor('//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
 

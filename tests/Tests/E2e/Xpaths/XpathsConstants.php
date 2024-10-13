@@ -29,4 +29,6 @@ class XpathsConstants
     public const PATIENT_FINDER_IFRAME = "//*[@id='framesDisplay']//iframe[@name='fin']";
 
     public const ENCOUNTER_IFRAME = "//*[@id='framesDisplay']//iframe[@name='enc']";
+
+    public const ENCOUNTER_FORMS_IFRAME = "//iframe[@src='forms.php']";
 }

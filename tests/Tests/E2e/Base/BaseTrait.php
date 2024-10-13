@@ -49,7 +49,7 @@ trait BaseTrait
             });
         }
         $startTime = (int) (microtime(true) * 1000);
-        while (strpos($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading) === 0) {
+        while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading)) {
             if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
                 $this->fail("Timeout waiting for tab [$text]");
             }

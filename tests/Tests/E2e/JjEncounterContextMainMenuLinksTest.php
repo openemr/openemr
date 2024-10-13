@@ -36,12 +36,16 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
      * @depends testPatientOpen
      * @depends testEncounterOpen
      */
-    public function testEncounterContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?bool $looseTabTitle = false): void
+    public function testEncounterContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?bool $looseTabTitle = false, ?string $loading = 'Loading'): void
     {
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
             //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
+        }
+
+        if (is_null($loading)) {
+            $loading = 'Loading';
         }
 
         if (is_null($looseTabTitle)) {
@@ -57,7 +61,7 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
             if ($popup) {
                 $this->assertActivePopup($expectedTabPopupTitle);
             } else {
-                $this->assertActiveTab($expectedTabPopupTitle, "Loading", $looseTabTitle);
+                $this->assertActiveTab($expectedTabPopupTitle, $loading, $looseTabTitle);
             }
         } catch (\Throwable $e) {
             // Close client
@@ -73,9 +77,9 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
     {
         return [
             'Patient -> Visits -> Current menu link' => ['Patient||Visits||Current', 'Encounter', false, true],
-            'Fees -> Fee Sheet menu link' => ['Fees||Fees Sheet', 'Encounter', false, true],
-            'Fees -> Payment menu link' => ['Fees||Payment', 'Record Payment', false],
-            'Fees -> Checkout menu link' => ['Fees||Checkout', 'Receipt for Payment', false],
+            'Fees -> Fee Sheet menu link' => ['Fees||Fee Sheet', 'Encounter', false, true],
+            'Fees -> Payment menu link' => ['Fees||Payment', 'Record Payment', false, false, 'Encounter'],
+            'Fees -> Checkout menu link' => ['Fees||Checkout', 'Receipt for Payment', false, false, 'Encounter'],
             'Popups -> Payment link' => ['Popups||Payment', 'Payment', true]
         ];
     }
