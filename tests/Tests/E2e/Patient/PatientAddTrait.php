@@ -71,14 +71,14 @@ trait PatientAddTrait
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-        $this->client->switchTo()->defaultContent();
-        $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
-        $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
-        $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
         if (version_compare(phpversion(), '8.3.0', '>=')) {
             // Code to run on PHP 8.3 or greater
+            $this->crawler = $this->client->refreshCrawler();
+            $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+            $this->client->switchTo()->defaultContent();
+            $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
+            $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
+            $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
             //   Note had to use the lower level webdriver directly to ensure button is elementToBeClickable for the click on this button to consistently work
             $this->client->getWebDriver()->wait()->until(
                 WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
@@ -92,16 +92,7 @@ trait PatientAddTrait
             );
         } else {
             // Fallback for older versions prior to PHP 8.3
-            //   For some reason, the click is not working like it should in PHP versions less than 8.3, so doing click 'manually' below
-            $this->client->getWebDriver()->wait()->until(
-                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
-            );
-            $this->client->executeScript('dlgclose();');
-            $this->client->switchTo()->defaultContent();
-            $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
-            $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
-            $this->crawler = $this->client->refreshCrawler();
-            $newPatient = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
+            //   For some reason, the click is not working like it should in PHP versions less than 8.3, so going to bypass the confirmation screen
             $this->crawler = $this->client->submit($newPatient);
         }
         $this->client->switchTo()->defaultContent();
