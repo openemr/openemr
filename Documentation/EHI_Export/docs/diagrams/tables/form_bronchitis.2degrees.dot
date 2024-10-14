@@ -27,28 +27,6 @@ digraph "twoDegreesRelationshipsDiagram" {
   "external_encounters":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "external_procedures":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "external_procedures":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_aftercare_plan":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_aftercare_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_aftercare_plan":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_ankleinjury":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_ankleinjury":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_ankleinjury":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_bronchitis":"groupname":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_bronchitis":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_bronchitis":"user":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS":"elipses":w -> "form_CAMOS_category":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS":"elipses":w -> "form_CAMOS_item":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS":"elipses":w -> "form_CAMOS_item":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_category":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_category":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_category":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_item":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_item":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_item":"elipses":w -> "form_CAMOS_subcategory":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_item":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_subcategory":"elipses":w -> "form_CAMOS_category":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_CAMOS_subcategory":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_care_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_clinical_instructions":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_clinical_notes":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -81,39 +59,15 @@ digraph "twoDegreesRelationshipsDiagram" {
   "form_groups_encounter":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_groups_encounter":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_misc_billing_options":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_note":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_note":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_observation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_painmap":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_painmap":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_painmap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_painmap":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_phq9":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_phq9":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_phq9":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_phq9":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_prior_auth":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_prior_auth":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "questionnaire_response":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_reviewofs":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_ros":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_sdoh":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_sdoh":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_sdoh":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_sdoh":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_soap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_taskman":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_track_anything":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_track_anything":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_transfer_summary":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_transfer_summary":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_treatment_plan":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_treatment_plan":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
-  "form_treatment_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_treatment_plan":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_vitals":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_vitals":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_vitals":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -152,10 +106,51 @@ digraph "twoDegreesRelationshipsDiagram" {
   "amendments_history":"elipses":w -> "amendments":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "amendments_history":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "document_templates":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_aftercare_plan":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_aftercare_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_aftercare_plan":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_ankleinjury":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_ankleinjury":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_ankleinjury":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_bronchitis":"groupname":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_bronchitis":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_bronchitis":"user":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_category":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_category":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_category":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_item":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_item":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_item":"elipses":w -> "users":"username":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_subcategory":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_note":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_note":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_painmap":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_painmap":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_painmap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_painmap":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_phq9":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_phq9":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_phq9":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_phq9":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_prior_auth":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_prior_auth":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_sdoh":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_sdoh":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_sdoh":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_sdoh":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_track_anything":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_track_anything":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_transfer_summary":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_transfer_summary":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_treatment_plan":"elipses":w -> "groups":"name":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_treatment_plan":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_treatment_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_treatment_plan":"elipses":w -> "users":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "issue_encounter":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "issue_encounter":"elipses":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "issue_encounter":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -360,171 +355,6 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="../../tables/facility.html"
     target="_top"
     tooltip="facility"
-  ];
-  "form_aftercare_plan" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="135" HEIGHT="16"><B>form_aftercare_plan</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_aftercare_plan.html"
-    target="_top"
-    tooltip="form_aftercare_plan"
-  ];
-  "form_ankleinjury" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="113" HEIGHT="16"><B>form_ankleinjury</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_ankleinjury.html"
-    target="_top"
-    tooltip="form_ankleinjury"
-  ];
-  "form_bronchitis" [
-   label=<
-    <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="4"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="105" HEIGHT="16"><B>form_bronchitis</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">id</TD></TR></TABLE></TD><TD PORT="id.type" ALIGN="LEFT">bigint[19]</TD></TR>
-      <TR><TD PORT="date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">date</TD></TR></TABLE></TD><TD PORT="date.type" ALIGN="LEFT">datetime[19]</TD></TR>
-      <TR><TD PORT="pid" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">pid</TD></TR></TABLE></TD><TD PORT="pid.type" ALIGN="LEFT">bigint[19]</TD></TR>
-      <TR><TD PORT="user" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">user</TD></TR></TABLE></TD><TD PORT="user.type" ALIGN="LEFT">varchar[50]</TD></TR>
-      <TR><TD PORT="groupname" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">groupname</TD></TR></TABLE></TD><TD PORT="groupname.type" ALIGN="LEFT">varchar[50]</TD></TR>
-      <TR><TD PORT="authorized" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">authorized</TD></TR></TABLE></TD><TD PORT="authorized.type" ALIGN="LEFT">tinyint[3]</TD></TR>
-      <TR><TD PORT="activity" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">activity</TD></TR></TABLE></TD><TD PORT="activity.type" ALIGN="LEFT">tinyint[3]</TD></TR>
-      <TR><TD PORT="bronchitis_date_of_illness" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_date_of_illness</TD></TR></TABLE></TD><TD PORT="bronchitis_date_of_illness.type" ALIGN="LEFT">datetime[19]</TD></TR>
-      <TR><TD PORT="bronchitis_hpi" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_hpi</TD></TR></TABLE></TD><TD PORT="bronchitis_hpi.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_fever" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_fever</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_fever.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_cough" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_cough</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_cough.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_dizziness" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_dizziness</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_dizziness.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_chest_pain" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_chest_pain</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_chest_pain.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_dyspnea" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_dyspnea</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_dyspnea.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_sweating" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_sweating</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_sweating.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_wheezing" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_wheezing</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_wheezing.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_malaise" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_malaise</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_malaise.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_sputum" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_sputum</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_sputum.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_appearance" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_appearance</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_appearance.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_ops_all_reviewed" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_all_reviewed</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_all_reviewed.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_review_of_pmh" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_pmh</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_pmh.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_review_of_medications" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_medications</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_medications.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_review_of_allergies" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_allergies</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_allergies.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_review_of_sh" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_sh</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_sh.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_review_of_fh" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_fh</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_fh.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_normal_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_normal_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_normal_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_normal_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_normal_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_normal_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_nares_normal_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_normal_right</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_normal_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_nares_normal_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_normal_left</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_normal_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_thickened_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_thickened_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_thickened_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_thickened_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_thickened_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_thickened_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_af_level_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_af_level_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_af_level_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_af_level_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_af_level_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_af_level_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_nares_swelling_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_swelling_right</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_swelling_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_nares_swelling_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_swelling_left</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_swelling_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_retracted_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_retracted_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_retracted_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_retracted_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_retracted_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_retracted_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_nares_discharge_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_discharge_right</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_discharge_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_nares_discharge_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_discharge_left</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_discharge_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_bulging_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_bulging_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_bulging_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_bulging_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_bulging_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_bulging_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_perforated_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_perforated_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_perforated_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_perforated_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_perforated_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_perforated_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_tms_nares_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_nares_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_nares_not_examined.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_no_sinus_tenderness" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_no_sinus_tenderness</TD></TR></TABLE></TD><TD PORT="bronchitis_no_sinus_tenderness.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_normal" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_normal</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_normal.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_sinus_tenderness_frontal_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_frontal_right</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_frontal_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_sinus_tenderness_frontal_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_frontal_left</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_frontal_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_erythema" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_erythema</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_erythema.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_exudate" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_exudate</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_exudate.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_abcess" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_abcess</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_abcess.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_ulcers" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_ulcers</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_ulcers.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_sinus_tenderness_maxillary_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_maxillary_right</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_maxillary_right.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_sinus_tenderness_maxillary_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_maxillary_left</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_maxillary_left.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_appearance" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_appearance</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_appearance.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_sinus_tenderness_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_not_examined.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_oropharynx_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_not_examined.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_pmi" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_pmi</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_pmi.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_s3" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_s3</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_s3.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_s4" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_s4</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_s4.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_click" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_click</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_click.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_rub" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_rub</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_rub.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_murmur" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_murmur</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_murmur.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_grade" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_grade</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_grade.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_location" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_location</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_location.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_normal" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_normal</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_normal.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_heart_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_not_examined.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_bs_normal" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_bs_normal</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_bs_normal.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_bs_reduced" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_bs_reduced</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_bs_reduced.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_bs_increased" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_bs_increased</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_bs_increased.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_crackles_lll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_crackles_lll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_crackles_lll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_crackles_rll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_crackles_rll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_crackles_rll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_crackles_bll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_crackles_bll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_crackles_bll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_rubs_lll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_rubs_lll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_rubs_lll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_rubs_rll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_rubs_rll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_rubs_rll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_rubs_bll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_rubs_bll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_rubs_bll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_wheezes_lll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_lll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_lll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_wheezes_rll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_rll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_rll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_wheezes_bll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_bll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_bll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_wheezes_dll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_dll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_dll.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_normal_exam" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_normal_exam</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_normal_exam.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_lungs_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_not_examined.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_diagnostic_tests" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_diagnostic_tests</TD></TR></TABLE></TD><TD PORT="bronchitis_diagnostic_tests.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="diagnosis1_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis1_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis1_bronchitis_form.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="diagnosis2_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis2_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis2_bronchitis_form.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="diagnosis3_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis3_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis3_bronchitis_form.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="diagnosis4_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis4_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis4_bronchitis_form.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD PORT="bronchitis_additional_diagnosis" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_additional_diagnosis</TD></TR></TABLE></TD><TD PORT="bronchitis_additional_diagnosis.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD PORT="bronchitis_treatment" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_treatment</TD></TR></TABLE></TD><TD PORT="bronchitis_treatment.type" ALIGN="LEFT">longtext[2147483647]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 &gt;</TD></TR>
-    </TABLE>>
-    URL="../../tables/form_bronchitis.html"
-    target="_top"
-    tooltip="form_bronchitis"
-  ];
-  "form_CAMOS" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="86" HEIGHT="16"><B>form_CAMOS</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_CAMOS.html"
-    target="_top"
-    tooltip="form_CAMOS"
-  ];
-  "form_CAMOS_category" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16"><B>form_CAMOS_category</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
-    </TABLE>>
-    URL="../../tables/form_CAMOS_category.html"
-    target="_top"
-    tooltip="form_CAMOS_category"
-  ];
-  "form_CAMOS_item" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="123" HEIGHT="16"><B>form_CAMOS_item</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
-    </TABLE>>
-    URL="../../tables/form_CAMOS_item.html"
-    target="_top"
-    tooltip="form_CAMOS_item"
-  ];
-  "form_CAMOS_subcategory" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="176" HEIGHT="16"><B>form_CAMOS_subcategory</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
-    </TABLE>>
-    URL="../../tables/form_CAMOS_subcategory.html"
-    target="_top"
-    tooltip="form_CAMOS_subcategory"
   ];
   "form_care_plan" [
    label=<
@@ -801,17 +631,6 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_misc_billing_options"
   ];
-  "form_note" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="68" HEIGHT="16"><B>form_note</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_note.html"
-    target="_top"
-    tooltip="form_note"
-  ];
   "form_observation" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -822,39 +641,6 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="../../tables/form_observation.html"
     target="_top"
     tooltip="form_observation"
-  ];
-  "form_painmap" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="96" HEIGHT="16"><B>form_painmap</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_painmap.html"
-    target="_top"
-    tooltip="form_painmap"
-  ];
-  "form_phq9" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="71" HEIGHT="16"><B>form_phq9</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_phq9.html"
-    target="_top"
-    tooltip="form_phq9"
-  ];
-  "form_prior_auth" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="107" HEIGHT="16"><B>form_prior_auth</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_prior_auth.html"
-    target="_top"
-    tooltip="form_prior_auth"
   ];
   "form_questionnaire_assessments" [
    label=<
@@ -889,17 +675,6 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_ros"
   ];
-  "form_sdoh" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="70" HEIGHT="16"><B>form_sdoh</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_sdoh.html"
-    target="_top"
-    tooltip="form_sdoh"
-  ];
   "form_soap" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -921,39 +696,6 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="../../tables/form_taskman.html"
     target="_top"
     tooltip="form_taskman"
-  ];
-  "form_track_anything" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16"><B>form_track_anything</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
-    </TABLE>>
-    URL="../../tables/form_track_anything.html"
-    target="_top"
-    tooltip="form_track_anything"
-  ];
-  "form_transfer_summary" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="161" HEIGHT="16"><B>form_transfer_summary</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_transfer_summary.html"
-    target="_top"
-    tooltip="form_transfer_summary"
-  ];
-  "form_treatment_plan" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="141" HEIGHT="16"><B>form_treatment_plan</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="../../tables/form_treatment_plan.html"
-    target="_top"
-    tooltip="form_treatment_plan"
   ];
   "form_vitals" [
    label=<
@@ -1120,6 +862,171 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="document_templates"
   ];
+  "form_aftercare_plan" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="135" HEIGHT="16"><B>form_aftercare_plan</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_aftercare_plan.html"
+    target="_top"
+    tooltip="form_aftercare_plan"
+  ];
+  "form_ankleinjury" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="113" HEIGHT="16"><B>form_ankleinjury</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_ankleinjury.html"
+    target="_top"
+    tooltip="form_ankleinjury"
+  ];
+  "form_bronchitis" [
+   label=<
+    <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="4"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="105" HEIGHT="16"><B>form_bronchitis</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="activity" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">activity</TD></TR></TABLE></TD><TD PORT="activity.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="authorized" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">authorized</TD></TR></TABLE></TD><TD PORT="authorized.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_additional_diagnosis" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_additional_diagnosis</TD></TR></TABLE></TD><TD PORT="bronchitis_additional_diagnosis.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_date_of_illness" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_date_of_illness</TD></TR></TABLE></TD><TD PORT="bronchitis_date_of_illness.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_diagnostic_tests" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_diagnostic_tests</TD></TR></TABLE></TD><TD PORT="bronchitis_diagnostic_tests.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_click" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_click</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_click.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_grade" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_grade</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_grade.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_location" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_location</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_location.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_murmur" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_murmur</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_murmur.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_normal" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_normal</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_normal.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_not_examined.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_pmi" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_pmi</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_pmi.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_rub" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_rub</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_rub.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_s3" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_s3</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_s3.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_heart_s4" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_heart_s4</TD></TR></TABLE></TD><TD PORT="bronchitis_heart_s4.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_hpi" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_hpi</TD></TR></TABLE></TD><TD PORT="bronchitis_hpi.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_bs_increased" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_bs_increased</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_bs_increased.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_bs_normal" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_bs_normal</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_bs_normal.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_bs_reduced" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_bs_reduced</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_bs_reduced.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_crackles_bll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_crackles_bll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_crackles_bll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_crackles_lll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_crackles_lll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_crackles_lll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_crackles_rll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_crackles_rll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_crackles_rll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_normal_exam" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_normal_exam</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_normal_exam.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_not_examined.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_rubs_bll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_rubs_bll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_rubs_bll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_rubs_lll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_rubs_lll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_rubs_lll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_rubs_rll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_rubs_rll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_rubs_rll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_wheezes_bll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_bll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_bll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_wheezes_dll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_dll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_dll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_wheezes_lll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_lll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_lll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_lungs_wheezes_rll" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_lungs_wheezes_rll</TD></TR></TABLE></TD><TD PORT="bronchitis_lungs_wheezes_rll.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_nares_discharge_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_discharge_left</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_discharge_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_nares_discharge_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_discharge_right</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_discharge_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_nares_normal_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_normal_left</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_normal_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_nares_normal_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_normal_right</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_normal_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_nares_swelling_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_swelling_left</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_swelling_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_nares_swelling_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_nares_swelling_right</TD></TR></TABLE></TD><TD PORT="bronchitis_nares_swelling_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_no_sinus_tenderness" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_no_sinus_tenderness</TD></TR></TABLE></TD><TD PORT="bronchitis_no_sinus_tenderness.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_all_reviewed" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_all_reviewed</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_all_reviewed.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_appearance" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_appearance</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_appearance.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_chest_pain" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_chest_pain</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_chest_pain.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_cough" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_cough</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_cough.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_dizziness" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_dizziness</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_dizziness.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_dyspnea" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_dyspnea</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_dyspnea.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_fever" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_fever</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_fever.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_malaise" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_malaise</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_malaise.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_sputum" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_sputum</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_sputum.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_sweating" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_sweating</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_sweating.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_ops_wheezing" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_ops_wheezing</TD></TR></TABLE></TD><TD PORT="bronchitis_ops_wheezing.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_abcess" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_abcess</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_abcess.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_appearance" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_appearance</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_appearance.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_erythema" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_erythema</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_erythema.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_exudate" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_exudate</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_exudate.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_normal" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_normal</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_normal.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_not_examined.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_oropharynx_ulcers" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_oropharynx_ulcers</TD></TR></TABLE></TD><TD PORT="bronchitis_oropharynx_ulcers.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_review_of_allergies" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_allergies</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_allergies.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_review_of_fh" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_fh</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_fh.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_review_of_medications" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_medications</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_medications.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_review_of_pmh" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_pmh</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_pmh.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_review_of_sh" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_review_of_sh</TD></TR></TABLE></TD><TD PORT="bronchitis_review_of_sh.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_sinus_tenderness_frontal_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_frontal_left</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_frontal_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_sinus_tenderness_frontal_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_frontal_right</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_frontal_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_sinus_tenderness_maxillary_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_maxillary_left</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_maxillary_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_sinus_tenderness_maxillary_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_maxillary_right</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_maxillary_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_sinus_tenderness_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_sinus_tenderness_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_sinus_tenderness_not_examined.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_af_level_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_af_level_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_af_level_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_af_level_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_af_level_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_af_level_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_bulging_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_bulging_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_bulging_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_bulging_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_bulging_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_bulging_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_nares_not_examined" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_nares_not_examined</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_nares_not_examined.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_normal_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_normal_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_normal_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_normal_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_normal_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_normal_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_perforated_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_perforated_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_perforated_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_perforated_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_perforated_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_perforated_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_retracted_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_retracted_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_retracted_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_retracted_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_retracted_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_retracted_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_thickened_left" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_thickened_left</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_thickened_left.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_tms_thickened_right" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_tms_thickened_right</TD></TR></TABLE></TD><TD PORT="bronchitis_tms_thickened_right.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="bronchitis_treatment" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">bronchitis_treatment</TD></TR></TABLE></TD><TD PORT="bronchitis_treatment.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">date</TD></TR></TABLE></TD><TD PORT="date.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="diagnosis1_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis1_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis1_bronchitis_form.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="diagnosis2_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis2_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis2_bronchitis_form.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="diagnosis3_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis3_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis3_bronchitis_form.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="diagnosis4_bronchitis_form" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">diagnosis4_bronchitis_form</TD></TR></TABLE></TD><TD PORT="diagnosis4_bronchitis_form.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="groupname" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">groupname</TD></TR></TABLE></TD><TD PORT="groupname.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">id</TD></TR></TABLE></TD><TD PORT="id.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="pid" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">pid</TD></TR></TABLE></TD><TD PORT="pid.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD PORT="user" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="298" HEIGHT="16">user</TD></TR></TABLE></TD><TD PORT="user.type" ALIGN="LEFT">unknown[0]</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/form_bronchitis.html"
+    target="_top"
+    tooltip="form_bronchitis"
+  ];
+  "form_CAMOS" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="86" HEIGHT="16"><B>form_CAMOS</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_CAMOS.html"
+    target="_top"
+    tooltip="form_CAMOS"
+  ];
+  "form_CAMOS_category" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16"><B>form_CAMOS_category</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_CAMOS_category.html"
+    target="_top"
+    tooltip="form_CAMOS_category"
+  ];
+  "form_CAMOS_item" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="123" HEIGHT="16"><B>form_CAMOS_item</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_CAMOS_item.html"
+    target="_top"
+    tooltip="form_CAMOS_item"
+  ];
+  "form_CAMOS_subcategory" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="176" HEIGHT="16"><B>form_CAMOS_subcategory</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_CAMOS_subcategory.html"
+    target="_top"
+    tooltip="form_CAMOS_subcategory"
+  ];
   "form_gad7" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -1130,6 +1037,94 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="../../tables/form_gad7.html"
     target="_top"
     tooltip="form_gad7"
+  ];
+  "form_note" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="68" HEIGHT="16"><B>form_note</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_note.html"
+    target="_top"
+    tooltip="form_note"
+  ];
+  "form_painmap" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="96" HEIGHT="16"><B>form_painmap</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_painmap.html"
+    target="_top"
+    tooltip="form_painmap"
+  ];
+  "form_phq9" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="71" HEIGHT="16"><B>form_phq9</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_phq9.html"
+    target="_top"
+    tooltip="form_phq9"
+  ];
+  "form_prior_auth" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="107" HEIGHT="16"><B>form_prior_auth</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_prior_auth.html"
+    target="_top"
+    tooltip="form_prior_auth"
+  ];
+  "form_sdoh" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="70" HEIGHT="16"><B>form_sdoh</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_sdoh.html"
+    target="_top"
+    tooltip="form_sdoh"
+  ];
+  "form_track_anything" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16"><B>form_track_anything</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/form_track_anything.html"
+    target="_top"
+    tooltip="form_track_anything"
+  ];
+  "form_transfer_summary" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="161" HEIGHT="16"><B>form_transfer_summary</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_transfer_summary.html"
+    target="_top"
+    tooltip="form_transfer_summary"
+  ];
+  "form_treatment_plan" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="141" HEIGHT="16"><B>form_treatment_plan</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_treatment_plan.html"
+    target="_top"
+    tooltip="form_treatment_plan"
   ];
   "issue_encounter" [
    label=<
