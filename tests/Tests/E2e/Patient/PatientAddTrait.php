@@ -86,10 +86,10 @@ trait PatientAddTrait
         );
         $button->click();
         $this->client->switchTo()->defaultContent();
-        $this->client->getWebDriver()->wait()->until(
+        $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT))
         );
-        $alert = $this->client->getWebDriver()->wait()->until(
+        $alert = $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::alertIsPresent()
         );
         $alert->accept();
