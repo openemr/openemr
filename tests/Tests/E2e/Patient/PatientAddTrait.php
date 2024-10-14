@@ -65,11 +65,11 @@ trait PatientAddTrait
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
-        $newUser = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
-        $newUser['form_fname'] = $firstname;
-        $newUser['form_lname'] = $lastname;
-        $newUser['form_DOB'] = $dob;
-        $newUser['form_sex'] = $sex;
+        $newPatient = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
+        $newPatient['form_fname'] = $firstname;
+        $newPatient['form_lname'] = $lastname;
+        $newPatient['form_DOB'] = $dob;
+        $newPatient['form_sex'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
@@ -77,20 +77,35 @@ trait PatientAddTrait
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        // was having issues with this click, so needed to use the lower level webdriver directly to:
-        //  click
-        //  wait for the patient add iframe to go away
-        //  wait for the patient summary alert to show up (and then ok it)
-        $button = $this->client->getWebDriver()->wait()->until(
-            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
-        );
-        //$button->click();
-        $this->crawler = $this->client->refreshCrawler();
-        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+        if (version_compare(phpversion(), '8.3.0', '>=')) {
+            // Code to run on PHP 8.3 or greater
+            //   Note had to use the lower level webdriver directly to ensure button is elementToBeClickable for the click on this button to consistently work
+            $this->client->getWebDriver()->wait()->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
+            );
+            $this->crawler = $this->client->refreshCrawler();
+            $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+            $this->client->switchTo()->defaultContent();
+            // Note had to use the lower level webdriver directly to ensure iframe has gone away
+            $this->client->getWebDriver()->wait(10)->until(
+                WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT))
+            );
+        } else {
+            // Fallback for older versions prior to PHP 8.3
+            //   For some reason, the click is not working like it should in PHP versions less than 8.3, so doing click 'manually' below
+            $this->client->getWebDriver()->wait()->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
+            );
+            $this->client->executeScript('dlgclose();');
+            $this->client->switchTo()->defaultContent();
+            $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
+            $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
+            $this->crawler = $this->client->refreshCrawler();
+            $newPatient = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
+            $this->crawler = $this->client->submit($newPatient);
+        }
         $this->client->switchTo()->defaultContent();
-        $this->client->getWebDriver()->wait(10)->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT))
-        );
+        // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
         $alert = $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::alertIsPresent()
         );
