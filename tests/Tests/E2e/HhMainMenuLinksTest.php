@@ -72,7 +72,7 @@ class HhMainMenuLinksTest extends PantherTestCase
     public static function menuLinkProvider()
     {
         return [
-            'Calendar menu link' => ['Calendar', 'Calendar'],/*
+            'Calendar menu link' => ['Calendar', 'Calendar'],
             'Finder menu link' => ['Finder', 'Patient Finder'],
             'Flow menu link' => ['Flow', 'Flow Board'],
             'Recalls menu link' => ['Recalls', 'Recall Board'],
@@ -164,7 +164,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Miscellaneous -> Chart Tracker menu link' => ['Miscellaneous||Chart Tracker', 'Chart Tracker'],
             'Miscellaneous -> Office Notes menu link' => ['Miscellaneous||Office Notes', 'Office Notes'],
             'Miscellaneous -> Batch Communication Tool menu link' => ['Miscellaneous||Batch Communication Tool', 'BatchCom'],
-            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']*/
+            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']
         ];
     }
 }
