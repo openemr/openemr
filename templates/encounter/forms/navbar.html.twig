@@ -4,7 +4,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <span class="navbar-brand">
+    <span id="navbarEncounterTitle" class="navbar-brand">
         {{ encounterDate|text }} {{ (groupEncounter == true) ? "Group Encounter"|xlt : "Encounter"|xlt}} {{ "for"|xlt }} {{ patientName|text }}
     </span>
 

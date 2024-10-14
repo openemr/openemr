@@ -1,13 +1,13 @@
 <?php
 
 /**
- * CheckMainMenuLinksTest class
+ * HhMainMenuLinksTest class
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
@@ -15,75 +15,58 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class CheckMainMenuLinksTest extends PantherTestCase
+class HhMainMenuLinksTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
 
-    protected $client;
-    protected $crawler;
+    private $client;
+    private $crawler;
 
     /**
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      */
-    public function testCheckMenuLink(string $menuLink, string $expectedTabTitle): void
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
             //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
-        $this->base();
-        try {
-            $this->login('admin', 'pass');
-            // check if the menu cog is showing. if so, then click it.
-            if ($this->crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->isDisplayed()) {
-                $this->crawler->filterXPath('//div[@id="mainBox"]/nav/button[@data-target="#mainMenu"]')->click();
+        $counter = 0;
+        $threwSomething = true;
+        // below will basically allow 3 timeouts
+        while ($threwSomething) {
+            $threwSomething = false;
+            $counter++;
+            if ($counter > 1) {
+                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
             }
-            // got to and click the menu link
-            $menuLinkSequenceArray = explode('||', $menuLink);
-            $counter = 0;
-            foreach ($menuLinkSequenceArray as $menuLinkItem) {
-                if ($counter == 0) {
-                    if (count($menuLinkSequenceArray) > 1) {
-                        // start clicking through a dropdown/nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkItem . '"]';
-                    } else {
-                        // just clicking a simple/single menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div[text()="' . $menuLinkItem . '"]';
-                    }
-                } elseif ($counter == 1) {
-                    if (count($menuLinkSequenceArray) == 2) {
-                        // click the nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
-                    } else {
-                        // continue clicking through a dropdown/nested menu item
-                        $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkItem . '"]';
-                    }
-                } else { // $counter > 1
-                    // click the nested menu item
-                    $menuLink = '//div[@id="mainMenu"]/div/div/div/div[text()="' . $menuLinkSequenceArray[0] . '"]/../ul/li/div/div[text()="' . $menuLinkSequenceArray[1] . '"]/../ul/li/div[text()="' . $menuLinkItem . '"]';
+            $this->base();
+            try {
+                $this->login(LoginTestData::username, LoginTestData::password);
+                $this->goToMainMenuLink($menuLink);
+                $this->assertActiveTab($expectedTabTitle);
+            } catch (\Throwable $e) {
+                // Close client
+                $this->client->quit();
+                if ($counter > 2) {
+                    // re-throw since have failed 3 tries
+                    throw $e;
+                } else {
+                    // try again since not yet 3 tries
+                    $threwSomething = true;
                 }
-                $this->client->waitFor($menuLink);
-                $this->crawler = $this->client->refreshCrawler();
-                $this->crawler->filterXPath($menuLink)->click();
-                $counter++;
             }
-            // wait for the tab title to be shown
-            $this->assertActiveTab($expectedTabTitle);
-        } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
-            // re-throw the exception
-            throw $e;
         }
-        // Close client
-        $this->client->quit();
     }
 
     public static function menuLinkProvider()

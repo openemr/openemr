@@ -1,17 +1,17 @@
 <?php
 
 /**
- * LoginTest class
+ * AaLoginTest class
  *
- * @package OpenEMR
- * @link    https://www.open-emr.org
- * @auther  zerai
- * @author  Dixon Whitmire
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @auther    zerai
+ * @author    Dixon Whitmire
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 zerai
  * @copyright Copyright (c) 2020 Dixon Whitmire
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 declare(strict_types=1);
@@ -19,17 +19,18 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
+use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
-class LoginTest extends PantherTestCase
+class AaLoginTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
 
-    protected $client;
-    protected $crawler;
+    private $client;
+    private $crawler;
 
     public function testGoToOpenemrLoginPage(): void
     {
@@ -50,7 +51,7 @@ class LoginTest extends PantherTestCase
     {
         $this->base();
         try {
-            $this->login('admin', 'pass1', false);
+            $this->login(LoginTestData::username, LoginTestData::password . "1", false);
         } catch (\Throwable $e) {
             // Close client
             $this->client->quit();
@@ -79,7 +80,7 @@ class LoginTest extends PantherTestCase
         $this->client->quit();
     }
 
-    protected function loginPage(): void
+    private function loginPage(): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
         $title = $this->client->getTitle();
