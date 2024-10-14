@@ -20,7 +20,7 @@ class PatientTestData
 
     public const LNAME = "Ltest20";
 
-    public const DOB = "1968-06-01";
+    public const DOB = "1958-05-02";
 
     public const SEX = "Male";
 }

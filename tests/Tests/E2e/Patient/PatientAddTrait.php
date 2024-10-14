@@ -77,20 +77,22 @@ trait PatientAddTrait
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        // was having issues with this click, so needed to use the lower level webdriver directly
+        // was having issues with this click, so needed to use the lower level webdriver directly to:
+        //  click
+        //  wait for the patient add iframe to go away
+        //  wait for the patient summary alert to show up (and then ok it)
         $button = $this->client->getWebDriver()->wait()->until(
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
         );
         $button->click();
-        $this->client->wait(10)->until(function ($driver) {
-            try {
-                $alert = $driver->switchTo()->alert();
-                $alert->accept();
-                return true; // Alert is present and has been cleared
-            } catch (\Exception $e) {
-                return false; // Alert is not present
-            }
-        });
+        $this->client->switchTo()->defaultContent();
+        $this->client->getWebDriver()->wait()->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT))
+        );
+        $alert = $this->client->getWebDriver()->wait()->until(
+            WebDriverExpectedCondition::alertIsPresent()
+        );
+        $alert->accept();
 
         // ensure the patient summary screen is shown
         $this->client->switchTo()->defaultContent();
