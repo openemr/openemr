@@ -49,11 +49,24 @@ trait BaseTrait
             });
         }
         $startTime = (int) (microtime(true) * 1000);
-        while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading)) {
-            if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
-                $this->fail("Timeout waiting for tab [$text]");
+        if (str_contains($loading, "||")) {
+            // have 2 $loading to check
+            $loading = explode("||", $loading);
+            while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
+                   str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])) {
+                if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
+                    $this->fail("Timeout waiting for tab [$text]");
+                }
+                usleep(100);
             }
-            usleep(100);
+        } else {
+            // only have 1 $loading to check
+            while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading)) {
+                if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
+                    $this->fail("Timeout waiting for tab [$text]");
+                }
+                usleep(100);
+            }
         }
         if ($looseTabTitle) {
             $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");

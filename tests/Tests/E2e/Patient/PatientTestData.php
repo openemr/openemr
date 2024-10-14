@@ -18,7 +18,7 @@ class PatientTestData
 {
     public const FNAME = "Ftest";
 
-    public const LNAME = "Ltest20";
+    public const LNAME = "Ltest";
 
     public const DOB = "1958-05-02";
 

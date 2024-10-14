@@ -60,7 +60,7 @@ trait EncounterOpenTrait
             $this->login(LoginTestData::username, LoginTestData::password);
         }
         if ($openPatient) {
-            $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
+            $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false);
         }
 
         // open encounter

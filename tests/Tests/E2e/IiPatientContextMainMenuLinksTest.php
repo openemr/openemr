@@ -93,7 +93,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
             'Patient -> Dashboard menu link' => ['Patient||Dashboard', 'Dashboard', false],
             'Patient -> Visits -> Create Visit menu link' => ['Patient||Visits||Create Visit', 'Patient Encounter', false, 'Visit History', true],
             'Patient -> Visits -> Visit History menu link' => ['Patient||Visits||Visit History', 'Visit History', false],
-            'Patient -> Records -> Patient Record Request menu link' => ['Patient||Records||Patient Record Request', 'Patient Records Request', false, 'Visit History'],
+            'Patient -> Records -> Patient Record Request menu link' => ['Patient||Records||Patient Record Request', 'Patient Records Request', false, 'Visit History||Loading'],
             'Popups -> Issues menu link' => ['Popups||Issues', 'Issues', true],
             'Popups -> Export menu link' => ['Popups||Export', 'Export', true],
             'Popups -> Import menu link' => ['Popups||Import', 'Import', true],
