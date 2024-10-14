@@ -49,16 +49,19 @@ trait EncounterOpenTrait
         $this->client->quit();
     }
 
-    private function encounterOpenIfExist(string $firstname, string $lastname, string $dob, string $sex): void
+    private function encounterOpenIfExist(string $firstname, string $lastname, string $dob, string $sex, bool $login = true, bool $openPatient = true): void
     {
         // if patient does not already exists, then fail
         if (!$this->isEncounterExist($firstname, $lastname, $dob, $sex)) {
             $this->fail('Encounter does not exist so FAIL');
         }
 
-        // login and open patient
-        $this->login(LoginTestData::username, LoginTestData::password);
-        $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
+        if ($login) {
+            $this->login(LoginTestData::username, LoginTestData::password);
+        }
+        if ($openPatient) {
+            $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
+        }
 
         // open encounter
         $this->client->switchTo()->defaultContent();

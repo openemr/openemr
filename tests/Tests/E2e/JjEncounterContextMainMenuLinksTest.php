@@ -65,8 +65,8 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
             $this->base();
             try {
                 $this->login(LoginTestData::username, LoginTestData::password);
-                $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
-                $this->encounterOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
+                $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false);
+                $this->encounterOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false, false);
                 $this->goToMainMenuLink($menuLink);
                 if ($popup) {
                     $this->assertActivePopup($expectedTabPopupTitle);

@@ -46,15 +46,17 @@ trait PatientOpenTrait
         $this->client->quit();
     }
 
-    private function patientOpenIfExist(string $firstname, string $lastname, string $dob, string $sex): void
+    private function patientOpenIfExist(string $firstname, string $lastname, string $dob, string $sex, bool $login = true): void
     {
         // if patient does not already exists, then fail
         if (!$this->isPatientExist($firstname, $lastname, $dob, $sex)) {
             $this->fail('Patient does not exist so FAIL');
         }
 
-        // login
-        $this->login(LoginTestData::username, LoginTestData::password);
+        if ($login) {
+            // login
+            $this->login(LoginTestData::username, LoginTestData::password);
+        }
 
         // search for last name via anySearchBox
         $this->client->waitFor(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_FORM_PATIENTOPEN_TRAIT);

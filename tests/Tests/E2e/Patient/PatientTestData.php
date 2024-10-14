@@ -16,9 +16,9 @@ namespace OpenEMR\Tests\E2e\Patient;
 
 class PatientTestData
 {
-    public const FNAME = "Ftest";
+    public const FNAME = "301Ftest";
 
-    public const LNAME = "Ltest20";
+    public const LNAME = "301Ltest20";
 
     public const DOB = "1958-05-02";
 
