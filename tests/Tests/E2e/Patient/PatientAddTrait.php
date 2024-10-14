@@ -84,7 +84,9 @@ trait PatientAddTrait
         $button = $this->client->getWebDriver()->wait()->until(
             WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
         );
-        $button->click();
+        //$button->click();
+        $this->crawler = $this->client->refreshCrawler();
+        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
         $this->client->switchTo()->defaultContent();
         $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT))
