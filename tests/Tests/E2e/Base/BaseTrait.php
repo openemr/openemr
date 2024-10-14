@@ -52,8 +52,10 @@ trait BaseTrait
         if (str_contains($loading, "||")) {
             // have 2 $loading to check
             $loading = explode("||", $loading);
-            while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
-                   str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])) {
+            while (
+                str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
+                   str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
+            ) {
                 if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
                     $this->fail("Timeout waiting for tab [$text]");
                 }
