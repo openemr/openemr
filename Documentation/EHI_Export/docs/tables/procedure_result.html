@@ -141,23 +141,6 @@
                                     <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>UUID of the record</p></td>
-                                </tr>
-                                <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="procedure_report_id">procedure_report_id</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
@@ -185,7 +168,7 @@
                                     <td>1</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>S</td>
+                                    <td>&#39;S&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -202,7 +185,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -219,7 +202,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -236,7 +219,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -253,7 +236,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -270,7 +253,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -287,7 +270,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -304,7 +287,7 @@
                                     <td>255</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -321,7 +304,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -334,11 +317,11 @@
                                 </tr>
                                 <tr>
                                     <td><span id="comments">comments</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>MEDIUMTEXT</td>
+                                    <td>16777215</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -377,7 +360,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -389,12 +372,29 @@
                                     <td><p>Result status (preliminary, cannot be done, final, corrected, incomplete, etc.)</p></td>
                                 </tr>
                                 <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>UUID of the record</p></td>
+                                </tr>
+                                <tr>
                                     <td><span id="date_end">date_end</span></td>
                                     <td>DATETIME</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
