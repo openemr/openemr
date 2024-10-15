@@ -83,7 +83,7 @@
 <polygon fill="none" stroke="#000000" points="10,-345.2 10,-367.2 195,-367.2 195,-345.2 10,-345.2"/>
 <text text-anchor="start" x="30" y="-352.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_activity</text>
 <polygon fill="none" stroke="#000000" points="195,-345.2 195,-367.2 270,-367.2 270,-345.2 195,-345.2"/>
-<text text-anchor="start" x="198" y="-352.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
+<text text-anchor="start" x="198" y="-352.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
 <polygon fill="none" stroke="#000000" points="10,-323.2 10,-345.2 195,-345.2 195,-323.2 10,-323.2"/>
 <text text-anchor="start" x="30" y="-330.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_repeats</text>
 <polygon fill="none" stroke="#000000" points="195,-323.2 195,-345.2 270,-345.2 270,-323.2 195,-323.2"/>
@@ -105,37 +105,37 @@
 <polygon fill="none" stroke="#000000" points="195,-235.2 195,-257.2 270,-257.2 270,-235.2 195,-235.2"/>
 <text text-anchor="start" x="198" y="-242.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[63]</text>
 <polygon fill="none" stroke="#000000" points="10,-213.2 10,-235.2 195,-235.2 195,-213.2 10,-213.2"/>
-<text text-anchor="start" x="30" y="-220.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_save_close</text>
+<text text-anchor="start" x="30" y="-220.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_services</text>
 <polygon fill="none" stroke="#000000" points="195,-213.2 195,-235.2 270,-235.2 270,-213.2 195,-213.2"/>
-<text text-anchor="start" x="198" y="-220.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
+<text text-anchor="start" x="198" y="-220.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[4095]</text>
 <polygon fill="none" stroke="#000000" points="10,-191.2 10,-213.2 195,-213.2 195,-191.2 10,-191.2"/>
-<text text-anchor="start" x="30" y="-198.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_init_open</text>
+<text text-anchor="start" x="30" y="-198.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_products</text>
 <polygon fill="none" stroke="#000000" points="195,-191.2 195,-213.2 270,-213.2 270,-191.2 195,-191.2"/>
-<text text-anchor="start" x="198" y="-198.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
+<text text-anchor="start" x="198" y="-198.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[4095]</text>
 <polygon fill="none" stroke="#000000" points="10,-169.2 10,-191.2 195,-191.2 195,-169.2 10,-169.2"/>
-<text text-anchor="start" x="30" y="-176.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_referrals</text>
+<text text-anchor="start" x="30" y="-176.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_diags</text>
 <polygon fill="none" stroke="#000000" points="195,-169.2 195,-191.2 270,-191.2 270,-169.2 195,-169.2"/>
-<text text-anchor="start" x="198" y="-176.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
+<text text-anchor="start" x="198" y="-176.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[4095]</text>
 <polygon fill="none" stroke="#000000" points="10,-147.2 10,-169.2 195,-169.2 195,-147.2 10,-147.2"/>
-<text text-anchor="start" x="30" y="-154.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_unchecked</text>
+<text text-anchor="start" x="30" y="-154.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_save_close</text>
 <polygon fill="none" stroke="#000000" points="195,-147.2 195,-169.2 270,-169.2 270,-147.2 195,-147.2"/>
-<text text-anchor="start" x="198" y="-154.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
+<text text-anchor="start" x="198" y="-154.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
 <polygon fill="none" stroke="#000000" points="10,-125.2 10,-147.2 195,-147.2 195,-125.2 10,-125.2"/>
-<text text-anchor="start" x="30" y="-132.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_services</text>
+<text text-anchor="start" x="30" y="-132.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_init_open</text>
 <polygon fill="none" stroke="#000000" points="195,-125.2 195,-147.2 270,-147.2 270,-125.2 195,-125.2"/>
-<text text-anchor="start" x="198" y="-132.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[4095]</text>
+<text text-anchor="start" x="198" y="-132.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
 <polygon fill="none" stroke="#000000" points="10,-103.2 10,-125.2 195,-125.2 195,-103.2 10,-103.2"/>
-<text text-anchor="start" x="30" y="-110.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_products</text>
+<text text-anchor="start" x="30" y="-110.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_last_update</text>
 <polygon fill="none" stroke="#000000" points="195,-103.2 195,-125.2 270,-125.2 270,-103.2 195,-103.2"/>
-<text text-anchor="start" x="198" y="-110.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[4095]</text>
+<text text-anchor="start" x="197.9666" y="-110.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">timestamp[19]</text>
 <polygon fill="none" stroke="#000000" points="10,-81.2 10,-103.2 195,-103.2 195,-81.2 10,-81.2"/>
-<text text-anchor="start" x="30" y="-88.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_diags</text>
+<text text-anchor="start" x="30" y="-88.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_referrals</text>
 <polygon fill="none" stroke="#000000" points="195,-81.2 195,-103.2 270,-103.2 270,-81.2 195,-81.2"/>
-<text text-anchor="start" x="198" y="-88.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[4095]</text>
+<text text-anchor="start" x="198" y="-88.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
 <polygon fill="none" stroke="#000000" points="10,-59.2 10,-81.2 195,-81.2 195,-59.2 10,-59.2"/>
-<text text-anchor="start" x="30" y="-66.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_last_update</text>
+<text text-anchor="start" x="30" y="-66.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">grp_unchecked</text>
 <polygon fill="none" stroke="#000000" points="195,-59.2 195,-81.2 270,-81.2 270,-59.2 195,-59.2"/>
-<text text-anchor="start" x="197.9666" y="-66.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">timestamp[19]</text>
+<text text-anchor="start" x="198" y="-66.9" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
 <polygon fill="#ffffff" stroke="transparent" points="10,-40.2 10,-59.2 107,-59.2 107,-40.2 10,-40.2"/>
 <polygon fill="none" stroke="#000000" points="10,-40.2 10,-59.2 107,-59.2 107,-40.2 10,-40.2"/>
 <text text-anchor="start" x="13" y="-46.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 0</text>
