@@ -186,6 +186,7 @@ function endPatient($ptrow)
     global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
     global $grand_total_agedbal, $is_due_ins, $form_age_cols;
     global $initial_colspan, $final_colspan, $form_cb_idays, $form_cb_err;
+    global $encounters;
 
     if (!$ptrow['pid']) {
         return;
@@ -214,7 +215,9 @@ function endPatient($ptrow)
         echo sprintf("%-9s\n", " ");
 
         if (empty($_POST['form_without'])) {
-            sqlStatement("UPDATE form_encounter SET in_collection = 1 WHERE encounter = ?", array($ptrow['encounter']));
+            foreach ($encounters as $key => $item) {
+                sqlStatement("UPDATE form_encounter SET in_collection = 1 WHERE encounter = ?", [$item]);
+            }
         }
 
         $export_patient_count += 1;
@@ -1125,6 +1128,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     foreach ($rows as $key => $row) {
         list($insname, $unused , $ptname, $trash) = explode('|', $key);
         list($pid, $encounter) = explode(".", $row['invnumber']);
+        if (!empty($_POST['form_cb'])) {
+            if ($_POST['form_cb'][$row['invnumber']] ?? '' == 'on') {
+                $encounters[] = $encounter;
+            }
+        }
+
         if ($form_payer_id) {
             if ($ins_co_name <> $row['ins1']) {
                 continue;
