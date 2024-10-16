@@ -114,20 +114,20 @@
 <text text-anchor="start" x="260.5" y="-192.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">id</text>
 <polygon fill="#ffffff" stroke="transparent" points="240.5,-163.7 240.5,-185.7 493.5,-185.7 493.5,-163.7 240.5,-163.7"/>
 <polygon fill="none" stroke="#000000" points="240.5,-163.7 240.5,-185.7 493.5,-185.7 493.5,-163.7 240.5,-163.7"/>
-<text text-anchor="start" x="260.5" y="-170.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">uuid</text>
-<polygon fill="#ffffff" stroke="transparent" points="240.5,-141.7 240.5,-163.7 493.5,-163.7 493.5,-141.7 240.5,-141.7"/>
+<text text-anchor="start" x="260.5" y="-170.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">type</text>
 <polygon fill="none" stroke="#000000" points="240.5,-141.7 240.5,-163.7 493.5,-163.7 493.5,-141.7 240.5,-141.7"/>
-<text text-anchor="start" x="260.5" y="-148.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">type</text>
+<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="245.5" y="-158.7"/>
+<text text-anchor="start" x="260.5" y="-148.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">provider</text>
+<polygon fill="#ffffff" stroke="transparent" points="240.5,-119.7 240.5,-141.7 493.5,-141.7 493.5,-119.7 240.5,-119.7"/>
 <polygon fill="none" stroke="#000000" points="240.5,-119.7 240.5,-141.7 493.5,-141.7 493.5,-119.7 240.5,-119.7"/>
-<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="245.5" y="-136.7"/>
-<text text-anchor="start" x="260.5" y="-126.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">provider</text>
+<text text-anchor="start" x="260.5" y="-126.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">date</text>
 <polygon fill="#ffffff" stroke="transparent" points="240.5,-97.7 240.5,-119.7 493.5,-119.7 493.5,-97.7 240.5,-97.7"/>
 <polygon fill="none" stroke="#000000" points="240.5,-97.7 240.5,-119.7 493.5,-119.7 493.5,-97.7 240.5,-97.7"/>
-<text text-anchor="start" x="260.5" y="-104.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">date</text>
+<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="245.5" y="-114.7"/>
+<text text-anchor="start" x="260.5" y="-104.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pid</text>
 <polygon fill="#ffffff" stroke="transparent" points="240.5,-75.7 240.5,-97.7 493.5,-97.7 493.5,-75.7 240.5,-75.7"/>
 <polygon fill="none" stroke="#000000" points="240.5,-75.7 240.5,-97.7 493.5,-97.7 493.5,-75.7 240.5,-75.7"/>
-<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="245.5" y="-92.7"/>
-<text text-anchor="start" x="260.5" y="-82.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pid</text>
+<text text-anchor="start" x="260.5" y="-82.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">uuid</text>
 <polygon fill="none" stroke="#000000" points="240.5,-56.7 240.5,-75.7 493.5,-75.7 493.5,-56.7 240.5,-56.7"/>
 <text text-anchor="start" x="243.5" y="-62.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
 <polygon fill="#ffffff" stroke="transparent" points="240.5,-37.7 240.5,-56.7 360.5,-56.7 360.5,-37.7 240.5,-37.7"/>
@@ -153,61 +153,61 @@
 <g id="node4" class="node">
 <title>patient_data</title>
 <g id="a_node4"><a xlink:href="../../tables/patient_data.html" xlink:title="patient_data" target="_top">
-<polygon fill="#ffffff" stroke="transparent" points="37.5,-40.2 37.5,-101.2 161.5,-101.2 161.5,-40.2 37.5,-40.2"/>
-<polygon fill="#f5f5f5" stroke="transparent" points="37.5,-77.7 37.5,-100.7 161.5,-100.7 161.5,-77.7 37.5,-77.7"/>
-<polygon fill="none" stroke="#000000" points="37.5,-77.7 37.5,-100.7 161.5,-100.7 161.5,-77.7 37.5,-77.7"/>
-<text text-anchor="start" x="42.5" y="-86.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">patient_data</text>
-<text text-anchor="start" x="127.0219" y="-85.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
-<polygon fill="none" stroke="#000000" points="37.5,-58.7 37.5,-77.7 161.5,-77.7 161.5,-58.7 37.5,-58.7"/>
-<text text-anchor="start" x="40.5" y="-64.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
-<polygon fill="#ffffff" stroke="transparent" points="37.5,-39.7 37.5,-58.7 90.5,-58.7 90.5,-39.7 37.5,-39.7"/>
-<polygon fill="none" stroke="#000000" points="37.5,-39.7 37.5,-58.7 90.5,-58.7 90.5,-39.7 37.5,-39.7"/>
-<text text-anchor="start" x="40.5" y="-45.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 5</text>
-<polygon fill="#ffffff" stroke="transparent" points="90.5,-39.7 90.5,-58.7 118.5,-58.7 118.5,-39.7 90.5,-39.7"/>
-<polygon fill="none" stroke="#000000" points="90.5,-39.7 90.5,-58.7 118.5,-58.7 118.5,-39.7 90.5,-39.7"/>
-<text text-anchor="start" x="109.3862" y="-45.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
-<polygon fill="#ffffff" stroke="transparent" points="118.5,-39.7 118.5,-58.7 161.5,-58.7 161.5,-39.7 118.5,-39.7"/>
-<polygon fill="none" stroke="#000000" points="118.5,-39.7 118.5,-58.7 161.5,-58.7 161.5,-39.7 118.5,-39.7"/>
-<text text-anchor="start" x="136.7904" y="-45.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">85 &gt;</text>
+<polygon fill="#ffffff" stroke="transparent" points="37.5,-62.2 37.5,-123.2 161.5,-123.2 161.5,-62.2 37.5,-62.2"/>
+<polygon fill="#f5f5f5" stroke="transparent" points="37.5,-99.7 37.5,-122.7 161.5,-122.7 161.5,-99.7 37.5,-99.7"/>
+<polygon fill="none" stroke="#000000" points="37.5,-99.7 37.5,-122.7 161.5,-122.7 161.5,-99.7 37.5,-99.7"/>
+<text text-anchor="start" x="42.5" y="-108.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">patient_data</text>
+<text text-anchor="start" x="127.0219" y="-107.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
+<polygon fill="none" stroke="#000000" points="37.5,-80.7 37.5,-99.7 161.5,-99.7 161.5,-80.7 37.5,-80.7"/>
+<text text-anchor="start" x="40.5" y="-86.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
+<polygon fill="#ffffff" stroke="transparent" points="37.5,-61.7 37.5,-80.7 90.5,-80.7 90.5,-61.7 37.5,-61.7"/>
+<polygon fill="none" stroke="#000000" points="37.5,-61.7 37.5,-80.7 90.5,-80.7 90.5,-61.7 37.5,-61.7"/>
+<text text-anchor="start" x="40.5" y="-67.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 5</text>
+<polygon fill="#ffffff" stroke="transparent" points="90.5,-61.7 90.5,-80.7 118.5,-80.7 118.5,-61.7 90.5,-61.7"/>
+<polygon fill="none" stroke="#000000" points="90.5,-61.7 90.5,-80.7 118.5,-80.7 118.5,-61.7 90.5,-61.7"/>
+<text text-anchor="start" x="109.3862" y="-67.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
+<polygon fill="#ffffff" stroke="transparent" points="118.5,-61.7 118.5,-80.7 161.5,-80.7 161.5,-61.7 118.5,-61.7"/>
+<polygon fill="none" stroke="#000000" points="118.5,-61.7 118.5,-80.7 161.5,-80.7 161.5,-61.7 118.5,-61.7"/>
+<text text-anchor="start" x="136.7904" y="-67.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">85 &gt;</text>
 </a>
 </g>
 </g>
 <!-- insurance_data&#45;&gt;patient_data -->
 <g id="edge3" class="edge">
 <title>insurance_data:w&#45;&gt;patient_data:e</title>
-<path fill="none" stroke="#000000" d="M225.8307,-85.5115C201.6424,-81.3519 192.1108,-67.7 161.5,-67.7"/>
-<polygon fill="#000000" stroke="#000000" points="232.5261,-86.0539 240.2093,-90.2882 236.5131,-86.3769 240.5,-86.7 240.5,-86.7 240.5,-86.7 236.5131,-86.3769 240.7907,-83.1118 232.5261,-86.0539 232.5261,-86.0539"/>
-<ellipse fill="none" stroke="#000000" cx="229.3366" cy="-85.7954" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M225.8307,-107.5115C201.6424,-103.3519 192.1108,-89.7 161.5,-89.7"/>
+<polygon fill="#000000" stroke="#000000" points="232.5261,-108.0539 240.2093,-112.2882 236.5131,-108.3769 240.5,-108.7 240.5,-108.7 240.5,-108.7 236.5131,-108.3769 240.7907,-105.1118 232.5261,-108.0539 232.5261,-108.0539"/>
+<ellipse fill="none" stroke="#000000" cx="229.3366" cy="-107.7954" rx="3.2" ry="3.2"/>
 </g>
 <!-- insurance_companies -->
 <g id="node5" class="node">
 <title>insurance_companies</title>
 <g id="a_node5"><a xlink:href="../../tables/insurance_companies.html" xlink:title="insurance_companies" target="_top">
-<polygon fill="#ffffff" stroke="transparent" points="8,-122.2 8,-183.2 191,-183.2 191,-122.2 8,-122.2"/>
-<polygon fill="#f5f5f5" stroke="transparent" points="8.5,-159.7 8.5,-182.7 191.5,-182.7 191.5,-159.7 8.5,-159.7"/>
-<polygon fill="none" stroke="#000000" points="8.5,-159.7 8.5,-182.7 191.5,-182.7 191.5,-159.7 8.5,-159.7"/>
-<text text-anchor="start" x="13.5" y="-168.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">insurance_companies</text>
-<text text-anchor="start" x="157.0219" y="-167.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
-<polygon fill="none" stroke="#000000" points="8.5,-140.7 8.5,-159.7 191.5,-159.7 191.5,-140.7 8.5,-140.7"/>
-<text text-anchor="start" x="11.5" y="-146.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
-<polygon fill="#ffffff" stroke="transparent" points="8.5,-121.7 8.5,-140.7 93.5,-140.7 93.5,-121.7 8.5,-121.7"/>
-<polygon fill="none" stroke="#000000" points="8.5,-121.7 8.5,-140.7 93.5,-140.7 93.5,-121.7 8.5,-121.7"/>
-<text text-anchor="start" x="11.5" y="-127.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 1</text>
-<polygon fill="#ffffff" stroke="transparent" points="93.5,-121.7 93.5,-140.7 137.5,-140.7 137.5,-121.7 93.5,-121.7"/>
-<polygon fill="none" stroke="#000000" points="93.5,-121.7 93.5,-140.7 137.5,-140.7 137.5,-121.7 93.5,-121.7"/>
-<text text-anchor="start" x="128.3862" y="-127.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
-<polygon fill="#ffffff" stroke="transparent" points="137.5,-121.7 137.5,-140.7 191.5,-140.7 191.5,-121.7 137.5,-121.7"/>
-<polygon fill="none" stroke="#000000" points="137.5,-121.7 137.5,-140.7 191.5,-140.7 191.5,-121.7 137.5,-121.7"/>
-<text text-anchor="start" x="172.9053" y="-127.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">5 &gt;</text>
+<polygon fill="#ffffff" stroke="transparent" points="8,-144.2 8,-205.2 191,-205.2 191,-144.2 8,-144.2"/>
+<polygon fill="#f5f5f5" stroke="transparent" points="8.5,-181.7 8.5,-204.7 191.5,-204.7 191.5,-181.7 8.5,-181.7"/>
+<polygon fill="none" stroke="#000000" points="8.5,-181.7 8.5,-204.7 191.5,-204.7 191.5,-181.7 8.5,-181.7"/>
+<text text-anchor="start" x="13.5" y="-190.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">insurance_companies</text>
+<text text-anchor="start" x="157.0219" y="-189.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
+<polygon fill="none" stroke="#000000" points="8.5,-162.7 8.5,-181.7 191.5,-181.7 191.5,-162.7 8.5,-162.7"/>
+<text text-anchor="start" x="11.5" y="-168.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
+<polygon fill="#ffffff" stroke="transparent" points="8.5,-143.7 8.5,-162.7 93.5,-162.7 93.5,-143.7 8.5,-143.7"/>
+<polygon fill="none" stroke="#000000" points="8.5,-143.7 8.5,-162.7 93.5,-162.7 93.5,-143.7 8.5,-143.7"/>
+<text text-anchor="start" x="11.5" y="-149.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 1</text>
+<polygon fill="#ffffff" stroke="transparent" points="93.5,-143.7 93.5,-162.7 137.5,-162.7 137.5,-143.7 93.5,-143.7"/>
+<polygon fill="none" stroke="#000000" points="93.5,-143.7 93.5,-162.7 137.5,-162.7 137.5,-143.7 93.5,-143.7"/>
+<text text-anchor="start" x="128.3862" y="-149.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
+<polygon fill="#ffffff" stroke="transparent" points="137.5,-143.7 137.5,-162.7 191.5,-162.7 191.5,-143.7 137.5,-143.7"/>
+<polygon fill="none" stroke="#000000" points="137.5,-143.7 137.5,-162.7 191.5,-162.7 191.5,-143.7 137.5,-143.7"/>
+<text text-anchor="start" x="172.9053" y="-149.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">5 &gt;</text>
 </a>
 </g>
 </g>
 <!-- insurance_data&#45;&gt;insurance_companies -->
 <g id="edge4" class="edge">
 <title>insurance_data:w&#45;&gt;insurance_companies:e</title>
-<path fill="none" stroke="#000000" d="M226.2744,-133.6688C214.6829,-139.0125 209.0182,-149.7 191.5,-149.7"/>
-<polygon fill="#000000" stroke="#000000" points="232.6687,-132.3344 241.2355,-134.2241 236.5844,-131.5172 240.5,-130.7 240.5,-130.7 240.5,-130.7 236.5844,-131.5172 239.7645,-127.1759 232.6687,-132.3344 232.6687,-132.3344"/>
-<ellipse fill="none" stroke="#000000" cx="229.5362" cy="-132.9881" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M226.2744,-155.6688C214.6829,-161.0125 209.0182,-171.7 191.5,-171.7"/>
+<polygon fill="#000000" stroke="#000000" points="232.6687,-154.3344 241.2355,-156.2241 236.5844,-153.5172 240.5,-152.7 240.5,-152.7 240.5,-152.7 236.5844,-153.5172 239.7645,-149.1759 232.6687,-154.3344 232.6687,-154.3344"/>
+<ellipse fill="none" stroke="#000000" cx="229.5362" cy="-154.9881" rx="3.2" ry="3.2"/>
 </g>
 </g>
 </svg>

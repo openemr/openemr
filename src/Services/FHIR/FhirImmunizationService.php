@@ -62,7 +62,13 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         return  [
             'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['update_date']);
     }
 
     /**
@@ -78,7 +84,11 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['update_date'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['update_date']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $immunizationResource->setMeta($meta);
 
         $id = new FHIRId();

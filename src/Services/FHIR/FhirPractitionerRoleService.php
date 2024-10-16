@@ -46,8 +46,19 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
         return  [
             'specialty' => new FhirSearchParameterDefinition('specialty', SearchFieldType::TOKEN, ['specialty_code']),
             'practitioner' => new FhirSearchParameterDefinition('practitioner', SearchFieldType::STRING, ['user_name']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('providers.facility_role_uuid', ServiceField::TYPE_UUID)])
+            '_id' => new FhirSearchParameterDefinition(
+                '_id',
+                SearchFieldType::TOKEN,
+                [new ServiceField('providers.facility_role_uuid', ServiceField::TYPE_UUID)]
+            ),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        // we just go off of role as specialty gets updated at the same time
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['role_last_updated']);
     }
 
     /**
@@ -63,7 +74,11 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['role_last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['role_last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $practitionerRoleResource->setMeta($meta);
 
         $id = new FHIRId();

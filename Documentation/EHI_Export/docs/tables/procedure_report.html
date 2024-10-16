@@ -151,7 +151,7 @@
                                     <td>16</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -168,7 +168,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -207,7 +207,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -219,29 +219,12 @@
                                     <td><p>Date and time when the report was collected.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="date_collected_tz">date_collected_tz</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>5</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td></td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Timezone offset from UTC for the date collected.</p></td>
-                                </tr>
-                                <tr>
                                     <td><span id="date_report">date_report</span></td>
                                     <td>DATETIME</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -251,23 +234,6 @@
                                         </table>
                                     </td>
                                     <td><p>Date and time when the report was generated.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="date_report_tz">date_report_tz</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>5</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td></td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Timezone offset from UTC for the date reported.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="source">source</span></td>
@@ -297,7 +263,7 @@
                                     <td>63</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -314,7 +280,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td></td>
+                                    <td>&#39;&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -336,7 +302,7 @@
                                     <td>31</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>received</td>
+                                    <td>&#39;received&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -349,11 +315,11 @@
                                 </tr>
                                 <tr>
                                     <td><span id="report_notes">report_notes</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>MEDIUMTEXT</td>
+                                    <td>16777215</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -363,6 +329,40 @@
                                         </table>
                                     </td>
                                     <td><p>Notes from the lab related to the report.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="date_collected_tz">date_collected_tz</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>5</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>&#39;&#39;</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Timezone offset from UTC for the date collected.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="date_report_tz">date_report_tz</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>5</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>&#39;&#39;</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Timezone offset from UTC for the date reported.</p></td>
                                 </tr>
                                 </tbody>
                             </table>

@@ -9,8 +9,7 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-var actpage = {
-
+const actpage = {
     onsiteActivityViews: new model.OnsiteActivityViewCollection(),
     collectionView: null,
     onsiteActivityView: null,
@@ -26,7 +25,9 @@ var actpage = {
         if (actpage.isInitialized || actpage.isInitializing) return;
         actpage.isInitializing = true;
 
-        if (!$.isReady && console) console.warn('page was initialized before dom is ready.  views may not render properly.');
+        if (!$.isReady && console) {
+            console.warn('page was initialized before dom is ready.  views may not render properly.');
+        }
 
         // make the return button clickable
         $("#returnHome").click(function (e) {
@@ -35,11 +36,10 @@ var actpage = {
         });
 
         function showPaymentModal(cpid, recid) {
-            var title = 'Patient Online Payment';
-            var params = {
+            let title = 'Patient Online Payment';
+            let params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
-                    {text: 'Cancel', close: true, style: 'secondary btn-sm'},
                     {text: 'Done', style: 'danger btn-sm', close: true}],
                 onClosed: 'reload',
                 type: 'GET',
@@ -49,8 +49,8 @@ var actpage = {
         }
 
         function showProfileModal(cpid) {
-            var title = 'Profile Edits' + ' ';
-            var params = {
+            let title = 'Profile Edits' + ' ';
+            let params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
                     {text: 'Cancel', close: true, style: 'default btn-sm'},
@@ -66,11 +66,10 @@ var actpage = {
         }
 
         function showDocumentModal(cpid, recid) {
-            var title = 'Audit Document';
-            var params = {
+            let title = 'Audit Document';
+            let params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
-                    {text: 'Cancel', close: true, style: 'default btn-sm'},
                     {text: 'Done', style: 'danger btn-sm', close: true}],
                 sizeHeight: 'full',
                 onClosed: 'reload',
@@ -95,17 +94,61 @@ var actpage = {
 
         // make the rows clickable ('rendered' is a custom event, not a standard backbone event)
         this.collectionView.on('rendered', function () {
+            document.querySelectorAll('.delete-button').forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const updateId = this.getAttribute('data-update-id');
+                    const deleteId = this.getAttribute('data-delete-id');
+                    const url = '../lib/doc_lib.php';
+
+                    if (confirm(jsText('Are you sure you want to delete this audit?\nThis action cannot be undone.'))) {
+                        // Create a FormData object to hold POST data
+                        let formData = new FormData();
+                        formData.append('dispose', 'audit_delete');
+                        formData.append('update_id', updateId);
+                        formData.append('delete_id', deleteId);
+                        formData.append('csrf_token_form', csrfToken);
+
+                        fetch(url, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('tr').remove();
+                            } else {
+                                alert('Error deleting document: ' + jsText(data.message));
+                            }
+                        })
+                        .catch(error => {
+                            alert('An error occurred: ' + jsText(error.message));
+                        });
+
+                        return false; // Stop the event propagation
+                    }
+                    return false;
+                });
+            });
+
             // attach click handler to the table rows for selection
             $('table.collection tbody tr').click(function (e) {
                 e.preventDefault();
-                var m = actpage.onsiteActivityViews.get(this.id);
-                var cpid = m.get('patientId');
-                var activity = m.get('activity');
+                // ignore event on the last cell (the delete button)
+                if ($(e.target).closest('td').is($(this).find('td').last())) {
+                    return;
+                }
+
+                let m = actpage.onsiteActivityViews.get(this.id);
+                let cpid = m.get('patientId');
+                let activity = m.get('activity');
                 let eventData = {
                     activity: activity
                     , cpid: cpid
                     , modelAttributes: m.attributes
                 };
+
+                // this is a custom event that will bubble up to the window
                 let node = document.createElement("tr");
                 // note this is a synchronous operation! event consumers should not do anything that takes a long time
                 // or they should fire off async work and return immediately
@@ -116,29 +159,26 @@ var actpage = {
                     return;
                 }
 
-                if (activity == 'document') {
+                if (activity === 'document') {
                     let recid = m.get('tableArgs');
                     showDocumentModal(cpid, recid);
-                } else if (activity == 'profile') {
+                } else if (activity === 'profile') {
                     showProfileModal(cpid);
-                } else if (activity == 'payment') {
+                } else if (activity === 'payment') {
                     let recid = m.get('id');
                     showPaymentModal(cpid, recid);
                 }
             });
-
             // make the headers clickable for sorting
             $('table.collection thead tr th').click(function (e) {
                 e.preventDefault();
-                var prop = this.id.replace('header_', '');
-
+                let prop = this.id.replace('header_', '');
                 // toggle the ascending/descending before we change the sort prop
                 actpage.fetchParams.orderDesc = (prop == actpage.fetchParams.orderBy && !actpage.fetchParams.orderDesc) ? '1' : '';
                 actpage.fetchParams.orderBy = prop;
                 actpage.fetchParams.page = 1;
                 actpage.fetchOnsiteActivityViews(actpage.fetchParams);
             });
-
             // attach click handlers to the pagination controls
             $('.pageButton').click(function (e) {
                 e.preventDefault();
@@ -158,7 +198,6 @@ var actpage = {
         });
 
         this.modelView.templateEl = $("#onsiteActivityViewModelTemplate");
-
         if (model.longPollDuration > 0) {
             setInterval(function () {
 
@@ -285,6 +324,5 @@ var actpage = {
             $('#deleteOnsiteActivityViewButtonContainer').hide();
         }
     },
-
 };
 

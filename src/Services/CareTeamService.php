@@ -50,6 +50,7 @@ class CareTeamService extends BaseService
                     careteam_mapping.care_team_provider as providers,
                     careteam_mapping.care_team_facility as facilities,
                     careteam_mapping.care_team_status,
+                    careteam_mapping.date,
                     care_team_status_title
                 FROM (
                     SELECT
@@ -58,6 +59,7 @@ class CareTeamService extends BaseService
                         ,patient_data.care_team_provider
                         ,patient_data.care_team_facility
                         ,patient_data.care_team_status
+                        ,patient_data.date
                     FROM
                         uuid_mapping
                     -- we join on this to make sure we've got data integrity since we don't actually use foreign keys right now
@@ -72,6 +74,7 @@ class CareTeamService extends BaseService
                         ,patient_history.care_team_provider
                         ,patient_history.care_team_facility
                         ,'inactive' AS care_team_status
+                        ,patient_history.date
                     FROM
                         patient_history
                     JOIN patient_data ON patient_history.pid = patient_data.pid

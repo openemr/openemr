@@ -64,8 +64,16 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ["lname"]),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ["fname", "mname"]),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"]),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        // TODO: @adunsulag I don't like specifying full table name here in the search field, but I don't see a way around it
+        // right now... if we ever need to implement better escaping this is an issue.
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['users.last_updated']);
     }
 
 
@@ -82,7 +90,11 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $practitionerResource->setMeta($meta);
 
         $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);

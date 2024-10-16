@@ -41,9 +41,9 @@ class RCFaxClient extends AppDispatch
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
         $this->cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
-        $this->portalUrl = $this->credentials['production'] ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
-        $this->serverUrl = $this->credentials['production'] ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
-        $this->redirectUrl = $this->credentials['redirect_url'];
+        $this->portalUrl = $this->credentials['production'] ?? null ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
+        $this->serverUrl = $this->credentials['production'] ?? null ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
+        $this->redirectUrl = $this->credentials['redirect_url'] ?? null;
         $this->initializeSDK();
         parent::__construct();
     }

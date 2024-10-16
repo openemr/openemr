@@ -109,7 +109,13 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             'intent' => new FhirSearchParameterDefinition('intent', SearchFieldType::TOKEN, ['intent']),
             'status' => new FhirSearchParameterDefinition('status', SearchFieldType::TOKEN, ['status']),
             '_id' => new FhirSearchParameterDefinition('uuid', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date_modified']);
     }
 
     /**
@@ -125,7 +131,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['date_modified'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date_modified']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $medRequestResource->setMeta($meta);
 
         $id = new FHIRId();

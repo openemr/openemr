@@ -156,29 +156,12 @@
                                     <td><p>Auto-incremented identifier for the appointment category</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_constant_id">pc_constant_id</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Identifier for the appointment category which is referenced in the codebase for appointment specific functionality</p></td>
-                                </tr>
-                                <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_catname">pc_catname</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -195,7 +178,7 @@
                                     <td>50</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -208,11 +191,11 @@
                                 </tr>
                                 <tr>
                                     <td><span id="pc_catdesc">pc_catdesc</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>MEDIUMTEXT</td>
+                                    <td>16777215</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -246,7 +229,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -259,11 +242,11 @@
                                 </tr>
                                 <tr>
                                     <td><span id="pc_recurrspec">pc_recurrspec</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
+                                    <td>MEDIUMTEXT</td>
+                                    <td>16777215</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -310,8 +293,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="pc_end_date_flag">pc_end_date_flag</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>0</td>
@@ -331,7 +314,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -361,8 +344,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="pc_end_all_day">pc_end_all_day</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>0</td>
@@ -412,8 +395,8 @@
                                 </tr>
                                 <tr>
                                     <td><span id="pc_active">pc_active</span></td>
-                                    <td>BIT</td>
-                                    <td>1</td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>1</td>
@@ -450,7 +433,7 @@
                                     <td>63</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>encounters|notes</td>
+                                    <td>&#39;encounters|notes&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -460,6 +443,40 @@
                                         </table>
                                     </td>
                                     <td><p>Access control for the category.  Empty on export</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_constant_id">pc_constant_id</span></td>
+                                    <td>VARCHAR</td>
+                                    <td>255</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Identifier for the appointment category which is referenced in the codebase for appointment specific functionality</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="pc_last_updated">pc_last_updated</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>current_timestamp()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
                                 </tr>
                                 </tbody>
                             </table>

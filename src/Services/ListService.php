@@ -15,6 +15,12 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -63,6 +69,50 @@ class ListService
             . " ORDER BY list_id, seq";
         $records = QueryUtils::fetchRecords($sql, $lists, false);
         return $records;
+    }
+
+    /**
+     * Allows searching on the top level lists in the lists_options table.  Will return the top level lists that match
+     * the search criteria as well as the last updated date of the sublist.
+     * @param $search
+     * @param $isAndCondition
+     * @return ProcessingResult
+     */
+    public function searchLists($search, $isAndCondition = true)
+    {
+        // TODO: @adunsulag this is copy-pasta from BaseService... need to investigate if we can just have ListService extend BaseService
+        $processingResult = new ProcessingResult();
+        try {
+            $sql = "SELECT
+                        lo.*,
+                        sub_list.sublist_updated_date
+                    FROM
+                        list_options lo
+                    JOIN(
+                        SELECT lo2.list_id AS sublist_list_id,
+                            MAX(last_updated) AS sublist_updated_date
+                        FROM
+                            list_options lo2
+                        WHERE
+                            lo2.list_id != 'lists'
+                        GROUP BY
+                            list_id
+                    ) sub_list
+                    ON
+                        lo.option_id = sub_list.sublist_list_id ";
+            $whereFragment = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+            $sql .= $whereFragment->getFragment() . " AND lo.list_id = 'lists' ORDER BY lo.seq, lo.list_id, lo.option_id ";
+            $records = QueryUtils::fetchRecords($sql, $whereFragment->getBoundValues());
+            if (!empty($records)) {
+                foreach ($records as $row) {
+                    $processingResult->addData($row);
+                }
+            }
+        } catch (SearchFieldException $exception) {
+            $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
+        }
+
+        return $processingResult;
     }
 
     public function getListIds()

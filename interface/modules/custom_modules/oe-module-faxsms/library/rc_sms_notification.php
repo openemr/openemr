@@ -52,6 +52,7 @@ if (php_sapi_name() === 'cli') {
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once("$srcdir/appointments.inc.php");
+require_once __DIR__ . "/../vendor/autoload.php";
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
@@ -116,21 +117,20 @@ $check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, d
 $db_sms_msg['sms_gateway_type'] = "SMS";
 $db_sms_msg['message'] = $MESSAGE;
 ?>
-<!DOCTYPE html>
-<html lang="eng">
-<head>
-    <title><?php echo xlt("Notifications") ?></title>
-    <?php Header::setupHeader(); ?>
-</head>
-<style>
-  html {
-    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 14px;
-  }
-</style>
-<body>
+    <!DOCTYPE html>
+    <html lang="eng">
+    <head>
+        <title><?php echo xlt("Notifications") ?></title>
+        <?php Header::setupHeader(); ?>
+    </head>
+    <style>
+        html {
+            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+            font-size: 14px;
+        }
+    </style>
     <body>
-        <div>
+        <div class="container-fluid">
             <div>
                 <div class="text-center mt-2"><h2><?php echo xlt("Working and may take a few minutes to finish.") ?></h2></div>
             </div>
@@ -184,6 +184,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             );
                             if (stripos($error, 'error') !== false) {
                                 $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong> \n";
+                                error_log($strMsg); // text
                                 echo(nl2br($strMsg));
                                 continue;
                             } else {
@@ -251,7 +252,7 @@ $db_sms_msg['message'] = $MESSAGE;
             ?>
         </div>
     </body>
-</html>
+    </html>
 
 <?php
 function isValidPhone($phone): array|bool|string|null

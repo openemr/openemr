@@ -110,71 +110,71 @@
 <g id="node3" class="node">
 <title>therapy_groups</title>
 <g id="a_node3"><a xlink:href="../../tables/therapy_groups.html" xlink:title="therapy_groups" target="_top">
-<polygon fill="#ffffff" stroke="transparent" points="8,-427.7 8,-693.7 263,-693.7 263,-427.7 8,-427.7"/>
-<polygon fill="#f5f5f5" stroke="transparent" points="10.5,-668.7 10.5,-691.7 261.5,-691.7 261.5,-668.7 10.5,-668.7"/>
-<polygon fill="none" stroke="#000000" points="10.5,-668.7 10.5,-691.7 261.5,-691.7 261.5,-668.7 10.5,-668.7"/>
-<text text-anchor="start" x="15.5" y="-677.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">therapy_groups</text>
-<text text-anchor="start" x="226.5437" y="-676.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-646.7 10.5,-668.7 194.5,-668.7 194.5,-646.7 10.5,-646.7"/>
-<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="15.5" y="-663.7"/>
-<text text-anchor="start" x="30.5" y="-653.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_id</text>
-<polygon fill="none" stroke="#000000" points="194.5,-646.7 194.5,-668.7 261.5,-668.7 261.5,-646.7 194.5,-646.7"/>
-<text text-anchor="start" x="197.5" y="-654.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">int[10]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-624.7 10.5,-646.7 194.5,-646.7 194.5,-624.7 10.5,-624.7"/>
-<text text-anchor="start" x="30.5" y="-631.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_name</text>
-<polygon fill="none" stroke="#000000" points="194.5,-624.7 194.5,-646.7 261.5,-646.7 261.5,-624.7 194.5,-624.7"/>
-<text text-anchor="start" x="197.4365" y="-632.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-602.7 10.5,-624.7 194.5,-624.7 194.5,-602.7 10.5,-602.7"/>
-<text text-anchor="start" x="30.5" y="-609.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_start_date</text>
-<polygon fill="none" stroke="#000000" points="194.5,-602.7 194.5,-624.7 261.5,-624.7 261.5,-602.7 194.5,-602.7"/>
-<text text-anchor="start" x="197.5" y="-610.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">date[10]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-580.7 10.5,-602.7 194.5,-602.7 194.5,-580.7 10.5,-580.7"/>
-<text text-anchor="start" x="30.5" y="-587.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_end_date</text>
-<polygon fill="none" stroke="#000000" points="194.5,-580.7 194.5,-602.7 261.5,-602.7 261.5,-580.7 194.5,-580.7"/>
-<text text-anchor="start" x="197.5" y="-588.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">date[10]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-558.7 10.5,-580.7 194.5,-580.7 194.5,-558.7 10.5,-558.7"/>
-<text text-anchor="start" x="30.5" y="-565.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_type</text>
-<polygon fill="none" stroke="#000000" points="194.5,-558.7 194.5,-580.7 261.5,-580.7 261.5,-558.7 194.5,-558.7"/>
-<text text-anchor="start" x="197.5" y="-566.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">tinyint[3]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-536.7 10.5,-558.7 194.5,-558.7 194.5,-536.7 10.5,-536.7"/>
-<text text-anchor="start" x="30.5" y="-543.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_participation</text>
-<polygon fill="none" stroke="#000000" points="194.5,-536.7 194.5,-558.7 261.5,-558.7 261.5,-536.7 194.5,-536.7"/>
-<text text-anchor="start" x="197.5" y="-544.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">tinyint[3]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-514.7 10.5,-536.7 194.5,-536.7 194.5,-514.7 10.5,-514.7"/>
-<text text-anchor="start" x="30.5" y="-521.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_status</text>
-<polygon fill="none" stroke="#000000" points="194.5,-514.7 194.5,-536.7 261.5,-536.7 261.5,-514.7 194.5,-514.7"/>
-<text text-anchor="start" x="197.5" y="-522.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">int[10]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-492.7 10.5,-514.7 194.5,-514.7 194.5,-492.7 10.5,-492.7"/>
-<text text-anchor="start" x="30.5" y="-499.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_notes</text>
-<polygon fill="none" stroke="#000000" points="194.5,-492.7 194.5,-514.7 261.5,-514.7 261.5,-492.7 194.5,-492.7"/>
-<text text-anchor="start" x="197.5" y="-500.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">text[65535]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-470.7 10.5,-492.7 194.5,-492.7 194.5,-470.7 10.5,-470.7"/>
-<text text-anchor="start" x="30.5" y="-477.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_guest_counselors</text>
-<polygon fill="none" stroke="#000000" points="194.5,-470.7 194.5,-492.7 261.5,-492.7 261.5,-470.7 194.5,-470.7"/>
-<text text-anchor="start" x="197.4365" y="-478.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
-<polygon fill="none" stroke="#000000" points="10.5,-448.7 10.5,-470.7 194.5,-470.7 194.5,-448.7 10.5,-448.7"/>
-<text text-anchor="start" x="30.5" y="-455.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">name</text>
-<polygon fill="none" stroke="#000000" points="194.5,-448.7 194.5,-470.7 261.5,-470.7 261.5,-448.7 194.5,-448.7"/>
-<text text-anchor="start" x="197.5" y="-456.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">unknown[0]</text>
-<polygon fill="#ffffff" stroke="transparent" points="10.5,-429.7 10.5,-448.7 106.5,-448.7 106.5,-429.7 10.5,-429.7"/>
-<polygon fill="none" stroke="#000000" points="10.5,-429.7 10.5,-448.7 106.5,-448.7 106.5,-429.7 10.5,-429.7"/>
-<text text-anchor="start" x="13.5" y="-435.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 0</text>
-<polygon fill="#ffffff" stroke="transparent" points="106.5,-429.7 106.5,-448.7 194.5,-448.7 194.5,-429.7 106.5,-429.7"/>
-<polygon fill="none" stroke="#000000" points="106.5,-429.7 106.5,-448.7 194.5,-448.7 194.5,-429.7 106.5,-429.7"/>
-<text text-anchor="start" x="185.3862" y="-435.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
-<polygon fill="#ffffff" stroke="transparent" points="194.5,-429.7 194.5,-448.7 261.5,-448.7 261.5,-429.7 194.5,-429.7"/>
-<polygon fill="none" stroke="#000000" points="194.5,-429.7 194.5,-448.7 261.5,-448.7 261.5,-429.7 194.5,-429.7"/>
-<text text-anchor="start" x="242.9053" y="-435.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">6 &gt;</text>
-<polygon fill="none" stroke="#000000" stroke-width="2" points="9,-428.7 9,-692.7 262,-692.7 262,-428.7 9,-428.7"/>
+<polygon fill="#ffffff" stroke="transparent" points="8,-306.7 8,-572.7 263,-572.7 263,-306.7 8,-306.7"/>
+<polygon fill="#f5f5f5" stroke="transparent" points="10.5,-547.7 10.5,-570.7 261.5,-570.7 261.5,-547.7 10.5,-547.7"/>
+<polygon fill="none" stroke="#000000" points="10.5,-547.7 10.5,-570.7 261.5,-570.7 261.5,-547.7 10.5,-547.7"/>
+<text text-anchor="start" x="15.5" y="-556.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">therapy_groups</text>
+<text text-anchor="start" x="226.5437" y="-555.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-525.7 10.5,-547.7 194.5,-547.7 194.5,-525.7 10.5,-525.7"/>
+<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="15.5" y="-542.7"/>
+<text text-anchor="start" x="30.5" y="-532.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_id</text>
+<polygon fill="none" stroke="#000000" points="194.5,-525.7 194.5,-547.7 261.5,-547.7 261.5,-525.7 194.5,-525.7"/>
+<text text-anchor="start" x="197.5" y="-533.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">int[10]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-503.7 10.5,-525.7 194.5,-525.7 194.5,-503.7 10.5,-503.7"/>
+<text text-anchor="start" x="30.5" y="-510.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_name</text>
+<polygon fill="none" stroke="#000000" points="194.5,-503.7 194.5,-525.7 261.5,-525.7 261.5,-503.7 194.5,-503.7"/>
+<text text-anchor="start" x="197.4365" y="-511.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-481.7 10.5,-503.7 194.5,-503.7 194.5,-481.7 10.5,-481.7"/>
+<text text-anchor="start" x="30.5" y="-488.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_start_date</text>
+<polygon fill="none" stroke="#000000" points="194.5,-481.7 194.5,-503.7 261.5,-503.7 261.5,-481.7 194.5,-481.7"/>
+<text text-anchor="start" x="197.5" y="-489.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">date[10]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-459.7 10.5,-481.7 194.5,-481.7 194.5,-459.7 10.5,-459.7"/>
+<text text-anchor="start" x="30.5" y="-466.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_end_date</text>
+<polygon fill="none" stroke="#000000" points="194.5,-459.7 194.5,-481.7 261.5,-481.7 261.5,-459.7 194.5,-459.7"/>
+<text text-anchor="start" x="197.5" y="-467.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">date[10]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-437.7 10.5,-459.7 194.5,-459.7 194.5,-437.7 10.5,-437.7"/>
+<text text-anchor="start" x="30.5" y="-444.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_type</text>
+<polygon fill="none" stroke="#000000" points="194.5,-437.7 194.5,-459.7 261.5,-459.7 261.5,-437.7 194.5,-437.7"/>
+<text text-anchor="start" x="197.5" y="-445.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">tinyint[3]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-415.7 10.5,-437.7 194.5,-437.7 194.5,-415.7 10.5,-415.7"/>
+<text text-anchor="start" x="30.5" y="-422.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_participation</text>
+<polygon fill="none" stroke="#000000" points="194.5,-415.7 194.5,-437.7 261.5,-437.7 261.5,-415.7 194.5,-415.7"/>
+<text text-anchor="start" x="197.5" y="-423.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">tinyint[3]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-393.7 10.5,-415.7 194.5,-415.7 194.5,-393.7 10.5,-393.7"/>
+<text text-anchor="start" x="30.5" y="-400.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_status</text>
+<polygon fill="none" stroke="#000000" points="194.5,-393.7 194.5,-415.7 261.5,-415.7 261.5,-393.7 194.5,-393.7"/>
+<text text-anchor="start" x="197.5" y="-401.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">int[10]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-371.7 10.5,-393.7 194.5,-393.7 194.5,-371.7 10.5,-371.7"/>
+<text text-anchor="start" x="30.5" y="-378.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_notes</text>
+<polygon fill="none" stroke="#000000" points="194.5,-371.7 194.5,-393.7 261.5,-393.7 261.5,-371.7 194.5,-371.7"/>
+<text text-anchor="start" x="197.5" y="-379.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">text[65535]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-349.7 10.5,-371.7 194.5,-371.7 194.5,-349.7 10.5,-349.7"/>
+<text text-anchor="start" x="30.5" y="-356.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">group_guest_counselors</text>
+<polygon fill="none" stroke="#000000" points="194.5,-349.7 194.5,-371.7 261.5,-371.7 261.5,-349.7 194.5,-349.7"/>
+<text text-anchor="start" x="197.4365" y="-357.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
+<polygon fill="none" stroke="#000000" points="10.5,-327.7 10.5,-349.7 194.5,-349.7 194.5,-327.7 10.5,-327.7"/>
+<text text-anchor="start" x="30.5" y="-334.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">name</text>
+<polygon fill="none" stroke="#000000" points="194.5,-327.7 194.5,-349.7 261.5,-349.7 261.5,-327.7 194.5,-327.7"/>
+<text text-anchor="start" x="197.5" y="-335.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">unknown[0]</text>
+<polygon fill="#ffffff" stroke="transparent" points="10.5,-308.7 10.5,-327.7 106.5,-327.7 106.5,-308.7 10.5,-308.7"/>
+<polygon fill="none" stroke="#000000" points="10.5,-308.7 10.5,-327.7 106.5,-327.7 106.5,-308.7 10.5,-308.7"/>
+<text text-anchor="start" x="13.5" y="-314.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 0</text>
+<polygon fill="#ffffff" stroke="transparent" points="106.5,-308.7 106.5,-327.7 194.5,-327.7 194.5,-308.7 106.5,-308.7"/>
+<polygon fill="none" stroke="#000000" points="106.5,-308.7 106.5,-327.7 194.5,-327.7 194.5,-308.7 106.5,-308.7"/>
+<text text-anchor="start" x="185.3862" y="-314.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
+<polygon fill="#ffffff" stroke="transparent" points="194.5,-308.7 194.5,-327.7 261.5,-327.7 261.5,-308.7 194.5,-308.7"/>
+<polygon fill="none" stroke="#000000" points="194.5,-308.7 194.5,-327.7 261.5,-327.7 261.5,-308.7 194.5,-308.7"/>
+<text text-anchor="start" x="242.9053" y="-314.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">6 &gt;</text>
+<polygon fill="none" stroke="#000000" stroke-width="2" points="9,-307.7 9,-571.7 262,-571.7 262,-307.7 9,-307.7"/>
 </a>
 </g>
 </g>
 <!-- form_group_attendance&#45;&gt;therapy_groups -->
 <g id="edge2" class="edge">
 <title>form_group_attendance:w&#45;&gt;therapy_groups:e</title>
-<path fill="none" stroke="#000000" d="M837.9191,-832.6423C704.8588,-831.6214 396.5308,-816.4791 304,-741.7 271.4584,-715.4014 303.3398,-657.7 261.5,-657.7"/>
-<polygon fill="#000000" stroke="#000000" points="844.5001,-832.6683 852.4857,-836.3 848.5,-832.6841 852.5,-832.7 852.5,-832.7 852.5,-832.7 848.5,-832.6841 852.5143,-829.1 844.5001,-832.6683 844.5001,-832.6683"/>
-<ellipse fill="none" stroke="#000000" cx="841.3001" cy="-832.6556" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M837.9817,-832.7151C736.0369,-832.9195 704.5161,-834.8898 597,-818.7 464.293,-798.7169 396.8067,-842.6401 304,-745.7 238.4491,-677.2295 356.29,-536.7 261.5,-536.7"/>
+<polygon fill="#000000" stroke="#000000" points="844.5,-832.7084 852.5038,-836.3 848.5,-832.7042 852.5,-832.7 852.5,-832.7 852.5,-832.7 848.5,-832.7042 852.4962,-829.1 844.5,-832.7084 844.5,-832.7084"/>
+<ellipse fill="none" stroke="#000000" cx="841.3" cy="-832.7117" rx="3.2" ry="3.2"/>
 </g>
 <!-- forms -->
 <g id="node4" class="node">
@@ -238,7 +238,7 @@
 <!-- form_groups_encounter&#45;&gt;therapy_groups -->
 <g id="edge5" class="edge">
 <title>form_groups_encounter:w&#45;&gt;therapy_groups:e</title>
-<path fill="none" stroke="#000000" d="M590.6445,-709.6525C582.3846,-712.1057 576.6574,-716.1787 564,-717.7 449.2701,-731.4893 406.6436,-770.779 304,-717.7 274.9727,-702.6894 294.1788,-657.7 261.5,-657.7"/>
+<path fill="none" stroke="#000000" d="M590.6445,-709.6525C582.3846,-712.1057 576.6574,-716.1787 564,-717.7 449.2701,-731.4893 394.5689,-789.466 304,-717.7 239.2353,-666.3811 344.1323,-536.7 261.5,-536.7"/>
 <polygon fill="#000000" stroke="#000000" points="597.073,-708.7782 605.4852,-711.2672 601.0365,-708.2391 605,-707.7 605,-707.7 605,-707.7 601.0365,-708.2391 604.5148,-704.1328 597.073,-708.7782 597.073,-708.7782"/>
 <ellipse fill="none" stroke="#000000" cx="593.9022" cy="-709.2095" rx="3.2" ry="3.2"/>
 </g>
@@ -273,42 +273,42 @@
 <polygon fill="none" stroke="#000000" points="312,-595.7 312,-617.7 556,-617.7 556,-595.7 312,-595.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-612.7"/>
 <text text-anchor="start" x="341" y="-602.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_pid</text>
+<polygon fill="#ffffff" stroke="transparent" points="312,-573.7 312,-595.7 556,-595.7 556,-573.7 312,-573.7"/>
 <polygon fill="none" stroke="#000000" points="312,-573.7 312,-595.7 556,-595.7 556,-573.7 312,-573.7"/>
-<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-590.7"/>
-<text text-anchor="start" x="341" y="-580.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_gid</text>
-<polygon fill="#ffffff" stroke="transparent" points="312,-551.7 312,-573.7 556,-573.7 556,-551.7 312,-551.7"/>
+<text text-anchor="start" x="341" y="-580.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_topic</text>
 <polygon fill="none" stroke="#000000" points="312,-551.7 312,-573.7 556,-573.7 556,-551.7 312,-551.7"/>
-<text text-anchor="start" x="341" y="-558.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_topic</text>
+<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-568.7"/>
+<text text-anchor="start" x="341" y="-558.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_informant</text>
+<polygon fill="#ffffff" stroke="transparent" points="312,-529.7 312,-551.7 556,-551.7 556,-529.7 312,-529.7"/>
 <polygon fill="none" stroke="#000000" points="312,-529.7 312,-551.7 556,-551.7 556,-529.7 312,-529.7"/>
-<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-546.7"/>
-<text text-anchor="start" x="341" y="-536.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_informant</text>
+<text text-anchor="start" x="341" y="-536.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_eventDate</text>
 <polygon fill="#ffffff" stroke="transparent" points="312,-507.7 312,-529.7 556,-529.7 556,-507.7 312,-507.7"/>
 <polygon fill="none" stroke="#000000" points="312,-507.7 312,-529.7 556,-529.7 556,-507.7 312,-507.7"/>
-<text text-anchor="start" x="341" y="-514.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_eventDate</text>
+<text text-anchor="start" x="341" y="-514.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_endDate</text>
 <polygon fill="#ffffff" stroke="transparent" points="312,-485.7 312,-507.7 556,-507.7 556,-485.7 312,-485.7"/>
 <polygon fill="none" stroke="#000000" points="312,-485.7 312,-507.7 556,-507.7 556,-485.7 312,-485.7"/>
-<text text-anchor="start" x="341" y="-492.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_endDate</text>
+<text text-anchor="start" x="341" y="-492.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_eventstatus</text>
 <polygon fill="#ffffff" stroke="transparent" points="312,-463.7 312,-485.7 556,-485.7 556,-463.7 312,-463.7"/>
 <polygon fill="none" stroke="#000000" points="312,-463.7 312,-485.7 556,-485.7 556,-463.7 312,-463.7"/>
-<text text-anchor="start" x="341" y="-470.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_eventstatus</text>
-<polygon fill="#ffffff" stroke="transparent" points="312,-441.7 312,-463.7 556,-463.7 556,-441.7 312,-441.7"/>
+<text text-anchor="start" x="341" y="-470.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_sharing</text>
 <polygon fill="none" stroke="#000000" points="312,-441.7 312,-463.7 556,-463.7 556,-441.7 312,-441.7"/>
-<text text-anchor="start" x="341" y="-448.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_sharing</text>
+<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-458.7"/>
+<text text-anchor="start" x="341" y="-448.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_apptstatus</text>
 <polygon fill="none" stroke="#000000" points="312,-419.7 312,-441.7 556,-441.7 556,-419.7 312,-419.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-436.7"/>
-<text text-anchor="start" x="341" y="-426.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_apptstatus</text>
+<text text-anchor="start" x="341" y="-426.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_prefcatid</text>
 <polygon fill="none" stroke="#000000" points="312,-397.7 312,-419.7 556,-419.7 556,-397.7 312,-397.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-414.7"/>
-<text text-anchor="start" x="341" y="-404.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_prefcatid</text>
+<text text-anchor="start" x="341" y="-404.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_facility</text>
 <polygon fill="none" stroke="#000000" points="312,-375.7 312,-397.7 556,-397.7 556,-375.7 312,-375.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-392.7"/>
-<text text-anchor="start" x="341" y="-382.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_facility</text>
+<text text-anchor="start" x="341" y="-382.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_billing_location</text>
 <polygon fill="none" stroke="#000000" points="312,-353.7 312,-375.7 556,-375.7 556,-353.7 312,-353.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-370.7"/>
-<text text-anchor="start" x="341" y="-360.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_billing_location</text>
+<text text-anchor="start" x="341" y="-360.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_room</text>
 <polygon fill="none" stroke="#000000" points="312,-331.7 312,-353.7 556,-353.7 556,-331.7 312,-331.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="317" y="-348.7"/>
-<text text-anchor="start" x="341" y="-338.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_room</text>
+<text text-anchor="start" x="341" y="-338.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pc_gid</text>
 <polygon fill="#ffffff" stroke="transparent" points="312,-309.7 312,-331.7 556,-331.7 556,-309.7 312,-309.7"/>
 <polygon fill="none" stroke="#000000" points="312,-309.7 312,-331.7 556,-331.7 556,-309.7 312,-309.7"/>
 <text text-anchor="start" x="341" y="-316.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">uuid</text>
@@ -336,16 +336,16 @@
 <!-- forms&#45;&gt;therapy_groups -->
 <g id="edge7" class="edge">
 <title>forms:w&#45;&gt;therapy_groups:e</title>
-<path fill="none" stroke="#000000" d="M350.3542,-923.0214C312.8402,-913.3133 322.6473,-863.2089 304,-817.7 276.1028,-749.6168 335.077,-657.7 261.5,-657.7"/>
-<polygon fill="#000000" stroke="#000000" points="357.052,-923.789 364.59,-928.2766 361.026,-924.2445 365,-924.7 365,-924.7 365,-924.7 361.026,-924.2445 365.41,-921.1234 357.052,-923.789 357.052,-923.789"/>
-<ellipse fill="none" stroke="#000000" cx="353.8728" cy="-923.4246" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M350.2763,-923.0508C312.3286,-913.5068 320.1285,-864.1613 304,-817.7 283.289,-758.0379 324.6546,-536.7 261.5,-536.7"/>
+<polygon fill="#000000" stroke="#000000" points="357.0497,-923.8095 364.5993,-928.2776 361.0249,-924.2547 365,-924.7 365,-924.7 365,-924.7 361.0249,-924.2547 365.4007,-921.1224 357.0497,-923.8095 357.0497,-923.8095"/>
+<ellipse fill="none" stroke="#000000" cx="353.8696" cy="-923.4532" rx="3.2" ry="3.2"/>
 </g>
 <!-- openemr_postcalendar_events&#45;&gt;therapy_groups -->
 <g id="edge8" class="edge">
 <title>openemr_postcalendar_events:w&#45;&gt;therapy_groups:e</title>
-<path fill="none" stroke="#000000" d="M298.2141,-589.2665C279.6279,-605.248 294.941,-657.7 261.5,-657.7"/>
-<polygon fill="#000000" stroke="#000000" points="304.4058,-587.2156 313.132,-588.1174 308.2029,-585.9578 312,-584.7 312,-584.7 312,-584.7 308.2029,-585.9578 310.868,-581.2826 304.4058,-587.2156 304.4058,-587.2156"/>
-<ellipse fill="none" stroke="#000000" cx="301.3681" cy="-588.2218" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M297.7292,-344.8787C238.019,-366.1922 345.0271,-536.7 261.5,-536.7"/>
+<polygon fill="#000000" stroke="#000000" points="304.0916,-343.9074 312.5433,-346.2588 308.0458,-343.3037 312,-342.7 312,-342.7 312,-342.7 308.0458,-343.3037 311.4567,-339.1412 304.0916,-343.9074 304.0916,-343.9074"/>
+<ellipse fill="none" stroke="#000000" cx="300.9283" cy="-344.3904" rx="3.2" ry="3.2"/>
 </g>
 <!-- therapy_groups_counselors -->
 <g id="node6" class="node">
@@ -377,9 +377,9 @@
 <!-- therapy_groups_counselors&#45;&gt;therapy_groups -->
 <g id="edge9" class="edge">
 <title>therapy_groups_counselors:w&#45;&gt;therapy_groups:e</title>
-<path fill="none" stroke="#000000" d="M307.8137,-220.5125C237.3966,-263.6155 355.0083,-657.7 261.5,-657.7"/>
-<polygon fill="#000000" stroke="#000000" points="314.2741,-218.7763 322.9343,-220.1766 318.1371,-217.7382 322,-216.7 322,-216.7 322,-216.7 318.1371,-217.7382 321.0657,-213.2234 314.2741,-218.7763 314.2741,-218.7763"/>
-<ellipse fill="none" stroke="#000000" cx="311.1838" cy="-219.6068" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M308.3462,-221.7264C261.2711,-262.4373 328.4996,-536.7 261.5,-536.7"/>
+<polygon fill="#000000" stroke="#000000" points="314.4926,-219.4638 323.2437,-220.0784 318.2463,-218.0819 322,-216.7 322,-216.7 322,-216.7 318.2463,-218.0819 320.7563,-213.3216 314.4926,-219.4638 314.4926,-219.4638"/>
+<ellipse fill="none" stroke="#000000" cx="311.4896" cy="-220.5693" rx="3.2" ry="3.2"/>
 </g>
 <!-- therapy_groups_participants -->
 <g id="node7" class="node">
@@ -413,9 +413,9 @@
 <!-- therapy_groups_participants&#45;&gt;therapy_groups -->
 <g id="edge10" class="edge">
 <title>therapy_groups_participants:w&#45;&gt;therapy_groups:e</title>
-<path fill="none" stroke="#000000" d="M306.3484,-117.3235C265.794,-187.1681 318.2709,-657.7 261.5,-657.7"/>
-<polygon fill="#000000" stroke="#000000" points="311.5696,-113.4592 320.1417,-111.5937 314.7848,-111.0796 318,-108.7 318,-108.7 318,-108.7 314.7848,-111.0796 315.8583,-105.8063 311.5696,-113.4592 311.5696,-113.4592"/>
-<ellipse fill="none" stroke="#000000" cx="308.9974" cy="-115.3629" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M303.8405,-112.6637C236.6568,-155.8113 352.0024,-536.7 261.5,-536.7"/>
+<polygon fill="#000000" stroke="#000000" points="310.2962,-110.8566 318.9705,-112.1667 314.1481,-109.7783 318,-108.7 318,-108.7 318,-108.7 314.1481,-109.7783 317.0295,-105.2333 310.2962,-110.8566 310.2962,-110.8566"/>
+<ellipse fill="none" stroke="#000000" cx="307.2146" cy="-111.7193" rx="3.2" ry="3.2"/>
 </g>
 </g>
 </svg>

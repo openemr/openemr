@@ -122,21 +122,21 @@
 <polygon fill="#ffffff" stroke="transparent" points="8.5,-383.2 8.5,-405.2 175.5,-405.2 175.5,-383.2 8.5,-383.2"/>
 <polygon fill="none" stroke="#000000" points="8.5,-383.2 8.5,-405.2 175.5,-405.2 175.5,-383.2 8.5,-383.2"/>
 <text text-anchor="start" x="28.5" y="-390.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">id</text>
-<polygon fill="#ffffff" stroke="transparent" points="8.5,-361.2 8.5,-383.2 175.5,-383.2 175.5,-361.2 8.5,-361.2"/>
 <polygon fill="none" stroke="#000000" points="8.5,-361.2 8.5,-383.2 175.5,-383.2 175.5,-361.2 8.5,-361.2"/>
-<text text-anchor="start" x="28.5" y="-368.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">uuid</text>
+<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-378.2"/>
+<text text-anchor="start" x="28.5" y="-368.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pharmacy_id</text>
 <polygon fill="none" stroke="#000000" points="8.5,-339.2 8.5,-361.2 175.5,-361.2 175.5,-339.2 8.5,-339.2"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-356.2"/>
-<text text-anchor="start" x="28.5" y="-346.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pharmacy_id</text>
+<text text-anchor="start" x="28.5" y="-346.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">providerID</text>
 <polygon fill="none" stroke="#000000" points="8.5,-317.2 8.5,-339.2 175.5,-339.2 175.5,-317.2 8.5,-317.2"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-334.2"/>
-<text text-anchor="start" x="28.5" y="-324.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">providerID</text>
+<text text-anchor="start" x="28.5" y="-324.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">ref_providerID</text>
 <polygon fill="none" stroke="#000000" points="8.5,-295.2 8.5,-317.2 175.5,-317.2 175.5,-295.2 8.5,-295.2"/>
-<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-312.2"/>
-<text text-anchor="start" x="28.5" y="-302.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">ref_providerID</text>
+<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-312.2"/>
+<text text-anchor="start" x="28.5" y="-302.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pid</text>
+<polygon fill="#ffffff" stroke="transparent" points="8.5,-273.2 8.5,-295.2 175.5,-295.2 175.5,-273.2 8.5,-273.2"/>
 <polygon fill="none" stroke="#000000" points="8.5,-273.2 8.5,-295.2 175.5,-295.2 175.5,-273.2 8.5,-273.2"/>
-<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-290.2"/>
-<text text-anchor="start" x="28.5" y="-280.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">pid</text>
+<text text-anchor="start" x="28.5" y="-280.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">uuid</text>
 <polygon fill="none" stroke="#000000" points="8.5,-251.2 8.5,-273.2 175.5,-273.2 175.5,-251.2 8.5,-251.2"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="13.5" y="-268.2"/>
 <text text-anchor="start" x="28.5" y="-258.3" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">created_by</text>
@@ -160,9 +160,9 @@
 <!-- rule_patient_data&#45;&gt;patient_data -->
 <g id="edge3" class="edge">
 <title>rule_patient_data:w&#45;&gt;patient_data:e</title>
-<path fill="none" stroke="#000000" d="M211.8154,-161.5702C178.1284,-181.6077 229.9387,-284.2 175.5,-284.2"/>
-<polygon fill="#000000" stroke="#000000" points="218.2167,-160.0493 226.8322,-161.7025 222.1083,-159.1247 226,-158.2 226,-158.2 226,-158.2 222.1083,-159.1247 225.1678,-154.6975 218.2167,-160.0493 218.2167,-160.0493"/>
-<ellipse fill="none" stroke="#000000" cx="215.1033" cy="-160.7891" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M211.6451,-161.1564C170.2497,-182.0155 239.1645,-306.2 175.5,-306.2"/>
+<polygon fill="#000000" stroke="#000000" points="218.1644,-159.8138 226.7262,-161.726 222.0822,-159.0069 226,-158.2 226,-158.2 226,-158.2 222.0822,-159.0069 225.2738,-154.674 218.1644,-159.8138 218.1644,-159.8138"/>
+<ellipse fill="none" stroke="#000000" cx="215.0302" cy="-160.4593" rx="3.2" ry="3.2"/>
 </g>
 </g>
 </svg>

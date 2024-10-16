@@ -82,8 +82,10 @@ $templateService = new DocumentTemplateService();
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
-    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var doc_edit=" . js_escape($doc_edit) . ";var webroot_url = webRoot;</script>";
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) .
+        ";var help_id=" . js_escape($help_id) . ";</script>";
+    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var isDashboard=" . js_escape($is_dashboard) .
+        ";var webRoot=" . js_escape($webroot) . ";var doc_edit=" . js_escape($doc_edit) . ";var webroot_url = webRoot;</script>";
     echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
@@ -148,7 +150,6 @@ $templateService = new DocumentTemplateService();
       }
     </style>
 </head>
-
 <body class="p-0 m-0 mt-1">
     <script>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
@@ -157,7 +158,7 @@ $templateService = new DocumentTemplateService();
         wait(function () {
             page.init();
             pageAudit.init();
-            if (isPortal) {
+            if ((isPortal || !newFilename) && !isDashboard) {
                 $(".template-body").addClass("bg-light");
                 $(".template-body").addClass("text-dark");
                 $('#Help').on('click', function (e) {
@@ -179,11 +180,11 @@ $templateService = new DocumentTemplateService();
                     }
                 }
                 if (isPortal) {
-                    /* Render may start as a new document onetime request however for the sake
-                    *  of allowing patient to stay in portal after doc edit or patient uses
-                    *  same onetime that started as a new doc to come back and
-                    *  continue an edit of a saved/submitted doc.
-                    *  auditRender is a history doc.
+                    /* Render may start a new document onetime request however, for the sake
+                    *  of allowing the patient to stay in portal when finished of edit or the patient uses
+                    *  same onetime access code that started as a new doc and saved as draft to come back and
+                    *  continue the form edit and then submit for review. i.e. persisting the docid.
+                    *  auditRender is the history doc id for a previous edit or submission.
                     *
                     *  CONFUSED! Welcome.
                     * */
@@ -208,15 +209,17 @@ $templateService = new DocumentTemplateService();
                 }
                 if (newFilename) {
                     console.log('Call template from module');
-                    if (doc_edit == '0' && recid > 0) {
-                        page.newDocument(cpid, cuser, newFilename, recid);
-                        newFilename = '';
-                    } else if (doc_edit == '1' && recid > 0) {
-                        // For now will ignore editing documents from module.
-                        // I don't feel like it's stable.
-                        //page.editHistoryDocument(recid);
-                        page.newDocument(cpid, cuser, newFilename, recid);
-                        newFilename = '';
+                    if ((doc_edit === '0' || doc_edit === '1') && recid > 0) {
+                        // is it in menu?
+                        if ($("#" + recid).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + recid).data('history_id');
+                            console.log('Module history template id = ' + newFilename);
+                            page.editHistoryDocument(historyId);
+                        } else {
+                            console.log('Module new template init id = ' + newFilename);
+                            page.newDocument(cpid, "-patient-", newFilename, recid);
+                        }
                     }
                 }
             }, 1000);
@@ -493,7 +496,10 @@ $templateService = new DocumentTemplateService();
     </script>
     <div class="container-xl px-1">
         <div class="text-center"> <span class="h3 mt-1 mr-1"><?php echo xlt("Documents and Forms") ?></span>
-                        <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a></div>
+        <?php if (!empty($is_portal)) { ?>
+            <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
+        <?php } ?>
+        </div>
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -504,7 +510,7 @@ $templateService = new DocumentTemplateService();
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="#" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
@@ -530,19 +536,15 @@ $templateService = new DocumentTemplateService();
                             <?php echo xlt('Activities') ?>
                         </a>
                     </li>
-                    <?php if (empty($is_module)) { ?>
+                    <?php if (empty($is_dashboard)) { ?>
                         <li class="nav-item mb-1">
                             <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
-                    <?php } else { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                        </li>
                     <?php } ?>
                 </ul>
-                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
+                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
                 <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
-                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
                 <?php } ?>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
@@ -550,6 +552,9 @@ $templateService = new DocumentTemplateService();
                     $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
                     ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
+                <?php }
+                if (!empty($is_module)) { ?>
+                    <a class="text-danger btn btn-outline-secondary mb-1" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                 <?php } ?>
             </div>
         </nav>
@@ -629,26 +634,26 @@ $templateService = new DocumentTemplateService();
                 </div>
             </div><!-- close flex right-->
         </div><!-- close flex row -->
-
         <!-- Now history table container template -->
         <script type="text/template" id="onsiteDocumentCollectionTemplate">
             <div class="table-responsive pt-3">
-                <h4 class="text-sm-center"><?php echo xlt('Document and Forms Activity') ?><small><cite> (Current and Past Status.)</cite></small></h4>
+                <h4 class="text-sm-center"><?php echo xlt('Document and Forms Activity') ?></h4><small><%= view.getPaginationHtml(page, true) %></small><cite><%= view.sortTableWithActiveFilterHtml(false) %></cite>
+
                 <table class="collection table table-sm table-hover">
                     <thead class='thead-dark'>
-                    <tr class='cursor-pointer'>
+                    <tr class='cursor-pointer' role="button">
                         <th scope="col" id="header_Id"><?php echo xlt('Id'); ?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_DocType"><?php echo xlt('Document'); ?><% if (page.orderBy == 'DocType') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_CreateDate"><?php echo xlt('Create Date'); ?><% if (page.orderBy == 'CreateDate') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_ReviewDate"><?php echo xlt('Reviewed Date'); ?><% if (page.orderBy == 'ReviewDate') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
-                        <th scope="col" id="header_DenialReason"><?php echo xlt('Review Status'); ?><% if (page.orderBy == 'DenialReason') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
+                        <th scope="col" id="header_DenialReason"><?php echo xlt('Status'); ?><% if (page.orderBy == 'DenialReason') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_PatientSignedStatus"><?php echo xlt('Signed'); ?><% if (page.orderBy == 'PatientSignedStatus') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_PatientSignedTime"><?php echo xlt('Signed Date'); ?><% if (page.orderBy == 'PatientSignedTime') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                     </tr>
                     </thead>
                     <tbody>
                     <% items.each(function(item) { %>
-                    <tr id="<%= _.escape(item.get('id')) %>">
+                    <tr id="<%= _.escape(item.get('id')) %>" role="button">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
                             <button type="button" class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
@@ -663,7 +668,6 @@ $templateService = new DocumentTemplateService();
                     </tbody>
                 </table>
                 <%= view.getPaginationHtml(page) %>
-            </div>
             </div>
         </script>
         <div class="container-lg px-3 pt-3 historyHide d-none" id="historyTable">

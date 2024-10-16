@@ -18,6 +18,8 @@ use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 
 interface IFhirExportableResourceService
 {
@@ -59,4 +61,12 @@ interface IFhirExportableResourceService
      * @return bool true if this resource service should be called for a patient export operation, false otherwise
      */
     function supportsPatientExport();
+
+    /**
+     * Returns the search field that represents the last modified date for the resource used in the export _since
+     * parameter for the export operation.  If the resource does not support the _since parameter then this method
+     * will return null and the export should return ALL the resources for the resource service.
+     * @return ISearchField|null The search field that represents the last modified date for the resource
+     */
+    function getLastModifiedSearchField(): ?FhirSearchParameterDefinition;
 }

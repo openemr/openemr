@@ -254,13 +254,17 @@ class UserService
                         phonecell,
                         users.notes,
                         state_license_number,
-                        abook.title as abook_title";
+                        abook.title as abook_title,
+                        last_updated ";
         if ($this->_includeUsername) {
             $sql .= ", username";
         }
+        // grab our address book type, make sure to use the index w/ list_id and option_id
         $sql .= "
                 FROM  users
-                LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
+                LEFT JOIN (
+                    SELECT list_id,option_id, title FROM list_options
+                ) abook ON abook.list_id = 'abook_type' AND abook.option_id = users.abook_type";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();

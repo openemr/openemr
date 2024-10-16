@@ -51,11 +51,14 @@ require_once(__DIR__ . "/appsql.class.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 
+// portal doesn't need to be enabled to chart from documents
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
-    echo xlt('Patient Portal is turned off');
-    exit;
+    $msg = xlt('Patient Portal is turned off');
+    error_log($msg);
+    echo $msg;
 }
 // confirm csrf (from both portal and core)
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'doc-lib')) {
@@ -67,6 +70,40 @@ $htmlin = $_POST['content'] ?? null;
 $dispose = $_POST['handler'] ?? null;
 $cpid = $_POST['cpid'] ?: $GLOBALS['pid'];
 $category = $_POST['catid'] ?? 0;
+
+
+if ($dispose == $_POST['audit_delete'] ?? null) {
+    if (!empty($_POST['delete_id']) && !empty($_POST['update_id'])) {
+        $deleteId = intval($_POST['delete_id']);
+        $updateId = intval($_POST['update_id']);
+        // Start a transaction
+        QueryUtils::startTransaction();
+        try {
+            // Update table_action to 'delete' and narrative to user deleted msg
+            $msg = xl("User deleted document");
+            $updateActivity = sqlQuery("UPDATE onsite_portal_activity SET action_taken_time = NOW(), table_action = 'delete', status = 'deleted', narrative = ? WHERE id = ?", [$msg, $updateId]);
+            $deleteDocument = sqlQuery("DELETE FROM onsite_documents WHERE id = ?", [$deleteId]);
+
+            if (!$updateActivity && !$deleteDocument) {
+                // Commit the transaction if both successful
+                QueryUtils::commitTransaction();
+                echo js_escape(['success' => true]);
+            } else {
+                // Rollback transaction on failure
+                QueryUtils::rollbackTransaction();
+                ;
+                echo js_escape(['success' => false, 'message' => 'Failed to update or delete record.']);
+            }
+        } catch (Exception $e) {
+            // Rollback on error
+            QueryUtils::rollbackTransaction();
+            echo js_escape(['success' => false, 'message' => $e->getMessage()]);
+        }
+    } else {
+        echo js_escape(['success' => false, 'message' => 'Failed Action']);
+    }
+    exit;
+}
 
 try {
     if (!$category) {

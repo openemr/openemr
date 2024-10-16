@@ -24,11 +24,8 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
 }
 
 $authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
-
 $templateService = new DocumentTemplateService();
-
 $patient = json_decode($_POST['upload_pid'] ?? '');
-
 $template_content = null;
 
 if (($_POST['mode'] ?? null) === 'save_profiles') {

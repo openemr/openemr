@@ -73,8 +73,9 @@ class LocationService extends BaseService
                     null as fax,
                     null as website,
                     email,
+                    `date` AS last_updated,
                     "' . self::TYPE_PATIENT . '" AS `type`
-                from 
+                from
                     patient_data
                 UNION SELECT
                     uuid as table_uuid,
@@ -88,8 +89,9 @@ class LocationService extends BaseService
                     fax,
                     website,
                     email,
+                    last_updated,
                    "' . self::TYPE_FACILITY . '" AS `type`
-                from 
+                from
                      facility
                 UNION SELECT
                     uuid as table_uuid,
@@ -103,8 +105,9 @@ class LocationService extends BaseService
                     fax,
                     url as website,
                     email,
+                    last_updated,
                     "' . self::TYPE_USER . '" AS `type`
-                from 
+                from
                      users
             ) as location
             LEFT JOIN uuid_mapping ON uuid_mapping.target_uuid=location.table_uuid AND uuid_mapping.resource="Location"';

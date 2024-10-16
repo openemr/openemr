@@ -32,12 +32,12 @@ if ($_POST) {
 
 $wenoLog = new WenoLogService();
 
-$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
+$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > ''");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1 and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {

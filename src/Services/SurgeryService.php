@@ -58,7 +58,8 @@ class SurgeryService extends BaseService
                     encounter.euuid,
                     recorders.recorder_npi,
                     recorders.recorder_uuid,
-                    recorders.recorder_username
+                    recorders.recorder_username,
+                    surgeries.date_modified
                 FROM (
                     SELECT
                         id
@@ -71,6 +72,7 @@ class SurgeryService extends BaseService
                         ,`pid`
                         ,`comments`
                         ,`user` as surgery_recorder
+                        ,`modifydate` AS date_modified
                     FROM lists
                     WHERE
                         `type` = 'surgery'

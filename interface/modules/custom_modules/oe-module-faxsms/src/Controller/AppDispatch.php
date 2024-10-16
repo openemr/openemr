@@ -98,7 +98,7 @@ abstract class AppDispatch
     public function getSession($param = null, $default = null): mixed
     {
         if ($param) {
-            return $_SESSION[$param] ?: $default;
+            return $_SESSION[$param] ?? $default;
         }
 
         return $this->_session;
@@ -112,7 +112,7 @@ abstract class AppDispatch
     public function getQuery($param = null, $default = null): mixed
     {
         if ($param) {
-            return $this->_query[$param] ?: $default;
+            return $this->_query[$param] ?? $default;
         }
 
         return $this->_query;
@@ -313,7 +313,7 @@ abstract class AppDispatch
     public function getPost($param = null, $default = null): mixed
     {
         if ($param) {
-            return $this->_post[$param] ?: $default;
+            return $this->_post[$param] ?? $default;
         }
 
         return $this->_post;
@@ -408,7 +408,7 @@ abstract class AppDispatch
     public function getRequest($param = null, $default = null): mixed
     {
         if ($param) {
-            return $this->_request[$param] ?: $default;
+            return $this->_request[$param] ?? $default;
         }
 
         return $this->_request;

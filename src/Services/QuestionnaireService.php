@@ -198,7 +198,7 @@ class QuestionnaireService extends BaseService
      */
     public function fetchEncounterQuestionnaireForm($name): array
     {
-        $sql = "Select `form_foreign_id` From `registry` Where `name` = ?";
+        $sql = "Select `form_foreign_id` From `registry` Where `state` = 1 And `name` = ?";
         $q_id = sqlQuery($sql, array($name))['form_foreign_id'];
 
         return $this->fetchQuestionnaireById($q_id) ?: [];

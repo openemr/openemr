@@ -118,6 +118,11 @@ class OnsiteDocumentController extends AppBasePortalController
                 $criteria->Id_Equals = $recid;
             }
 
+            $exc = RequestUtil::Get('showActive');
+            if ($exc != 'true') {
+                $criteria->DenialReason_IsNotLike = 'Locked';
+            }
+
             $filter = RequestUtil::Get('filter');
             if ($filter) {
                 $criteria->AddFilter(
@@ -143,8 +148,11 @@ class OnsiteDocumentController extends AppBasePortalController
 
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
+            $output->orderBy = $output->orderBy ? $output->orderBy : 'DenialReason';
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
             if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+                $output->orderBy = 'ReviewDate';
                 $criteria->SetOrder($output->orderBy, $output->orderDesc);
             }
 

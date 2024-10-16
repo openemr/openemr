@@ -22,6 +22,10 @@ use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
+use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchComparator;
 use OpenEMR\Services\Search\TokenSearchField;
 
 trait FhirBulkExportDomainResourceTrait
@@ -68,6 +72,10 @@ trait FhirBulkExportDomainResourceTrait
                 $searchParams[$searchField->getName()] = implode(",", $patientUuids);
             }
         }
+        $searchField = $this->getLastModifiedSearchField();
+        if ($searchField !== null) {
+            $searchParams[$searchField->getName()] = $job->getResourceIncludeSearchParamValue();
+        }
         // if we can grab our list of patient ids from the export job...
 
         $processingResult = $this->getAll($searchParams);
@@ -79,5 +87,10 @@ trait FhirBulkExportDomainResourceTrait
             $writer->append($record);
             $lastResourceIdExported = $record->getId();
         }
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return null;
     }
 }

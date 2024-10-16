@@ -6,6 +6,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -13,6 +14,7 @@ use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -53,8 +55,14 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         return  [
             'patient' => $this->getPatientContextSearchField(),
             'payor' => new FhirSearchParameterDefinition('payor', SearchFieldType::TOKEN, ['provider']),
-            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)])
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     /**
@@ -67,7 +75,13 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $coverageResource = new FHIRCoverage();
-        $meta = array('versionId' => '1', 'lastUpdated' => UtilsService::getDateFormattedAsUTC());
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        if (!empty($dataRecord['date'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $coverageResource->setMeta($meta);
 
         $id = new FHIRId();

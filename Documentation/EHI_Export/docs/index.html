@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>EHI Export Format For openemr.openemr</h4>
-                                <!-- <p>Generated on Mon Nov 06 14:16 GMT-05:00 2023</p> -->
+                                <!-- <p>Generated on Mon Oct 14 13:38 GMT-04:00 2024</p> -->
                             </div>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                                     <h3 class="box-title">Documentation Explanation</h3>
                                 </div>
                                 <div class="box-body">
-                                    <p>This is the documentation for ONC §170.315(b)(10) Electronic Health Information export feature in OpenEMR</p>
+                                    <p>This is the documentation for the ONC (2015) §170.315(b)(10) Electronic Health Information export feature in OpenEMR</p>
                                     <p>The Electronic Health Information Export files are all contained inside a zip folder where each zip contains a batch of 1 or more patients.  A single patient export will contain only 1 patient in the batch.</p>
                                     <p>Zips are between aproximately 1MB-4GB in size which is configurable at the time of export.  Each zip file is structured as follows</p>
                                     <p><b>ehi-export-&lt;UNIQUEID&gt;.zip</b></p>
@@ -142,7 +142,7 @@
                                 <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">COLUMNS</span>
-                                    <span class="info-box-number">2747</span>
+                                    <span class="info-box-number">2524</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -166,7 +166,7 @@
                                 <span class="info-box-icon bg-red-active"><i class="fa fa-question" aria-hidden="true"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Anomalies</span>
-                                    <span class="info-box-number">16</span>
+                                    <span class="info-box-number">17</span>
                                 </div> -->
                                 <!-- /.info-box-content -->
                             <!-- </div> -->
@@ -193,7 +193,7 @@
                         </div> -->
                         <!-- /.box-header -->
                         <!-- <div class="box-body">
-                            <p>Database Type: MySQL - 5.5.5-10.11.5-MariaDB-1:10.11.5+maria~ubu2204</p>
+                            <p>Database Type: MariaDB - 11.4.3-MariaDB-ubu2404</p>
                         </div> -->
                         <!-- /.box-body -->
                     <!-- </div> -->
@@ -272,8 +272,8 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_track_anything.html">form_track_anything</a></td>
                                         <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">6</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">4</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure</p></td>
                                     </tr>
@@ -313,7 +313,7 @@
                                         <td class="detail"><a href="tables/insurance_companies.html">insurance_companies</a></td>
                                         <td class="detail" align="right">5</td>
                                         <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">13</td>
+                                        <td class="detail" align="right">15</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Insurance company</p></td>
                                     </tr>
@@ -337,7 +337,7 @@
                                         <td class="detail"><a href="tables/facility.html">facility</a></td>
                                         <td class="detail" align="right">9</td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">37</td>
+                                        <td class="detail" align="right">39</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>The facility table holds all of the facilities that provide healthcare in the EMR. It contains the primary billing location and other service locations/organizations that are not insurance companies tracked inside the EMR</p></td>
                                     </tr>
@@ -353,7 +353,7 @@
                                         <td class="detail"><a href="tables/form_phq9.html">form_phq9</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">27</td>
+                                        <td class="detail" align="right">4</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Encounter form that holds patient results for the PHQ9 assessment</p></td>
                                     </tr>
@@ -390,14 +390,6 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Holds individual procedure / labs ordered from the procedure_type table for a given procedure order.  It contains also the individual diagnosis code that is related to the ordered procedure</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/prescriptions.html">prescriptions</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">7</td>
-                                        <td class="detail" align="right">48</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>Internal and External prescription information</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/rule_patient_data.html">rule_patient_data</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">3</td>
@@ -406,10 +398,18 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Patient Reminders that the Clinical Decision Support system is configured to run for this specific patient.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/prescriptions.html">prescriptions</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">7</td>
+                                        <td class="detail" align="right">48</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Internal and External prescription information</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_note.html">form_note</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">11</td>
+                                        <td class="detail" align="right">2</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Work/School note written by a provider for a patient to provide documentation of their medical condition to their work or school</p></td>
                                     </tr>
@@ -417,7 +417,7 @@
                                         <td class="detail"><a href="tables/users.html">users</a></td>
                                         <td class="detail" align="right">62</td>
                                         <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">62</td>
+                                        <td class="detail" align="right">64</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Contains actors in the system that are not patients.  This includes providers, employees, and external organizations/contacts records as well as system processes.  This does not include API actors</p></td>
                                     </tr>
@@ -425,7 +425,7 @@
                                         <td class="detail"><a href="tables/form_sdoh.html">form_sdoh</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">135</td>
+                                        <td class="detail" align="right">4</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Encounter form that holds results for the Social Determinants of Health Screening Tool</p></td>
                                     </tr>
@@ -463,9 +463,9 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_CAMOS_category.html">form_CAMOS_category</a></td>
-                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">8</td>
+                                        <td class="detail" align="right">3</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Note categories used in the CAMOS note generator</p></td>
                                     </tr>
@@ -495,9 +495,9 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_CAMOS_item.html">form_CAMOS_item</a></td>
-                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">10</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>CAMOS patient chart templates for a single item inside a CAMOS subcategory</p></td>
                                     </tr>
@@ -513,7 +513,7 @@
                                         <td class="detail"><a href="tables/form_transfer_summary.html">form_transfer_summary</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">15</td>
+                                        <td class="detail" align="right">2</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Records transfer summary of care and is an alternative to recording referrals in the transactions table</p></td>
                                     </tr>
@@ -553,7 +553,7 @@
                                         <td class="detail"><a href="tables/drugs.html">drugs</a></td>
                                         <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">22</td>
+                                        <td class="detail" align="right">24</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Contains information about drugs that are dispensed/prescribed to patients.  Also holds product inventory information if providers are internally managing their own drugs/medical supplies</p></td>
                                     </tr>
@@ -577,7 +577,7 @@
                                         <td class="detail"><a href="tables/form_prior_auth.html">form_prior_auth</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">8</td>
+                                        <td class="detail" align="right">2</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Patient Prior Authorization records</p></td>
                                     </tr>
@@ -665,7 +665,7 @@
                                         <td class="detail"><a href="tables/patient_data.html">patient_data</a></td>
                                         <td class="detail" align="right">86</td>
                                         <td class="detail" align="right">5</td>
-                                        <td class="detail" align="right">126</td>
+                                        <td class="detail" align="right">127</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Main patient record that contains patient demographic information</p></td>
                                     </tr>
@@ -727,9 +727,9 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_track_anything_type.html">form_track_anything_type</a></td>
-                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">6</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">5</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Represents the category grouping / track of the data element being tracked via the track_anything form</p></td>
                                     </tr>
@@ -742,20 +742,20 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Used for recording observations related to patients during medical encounters</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_physical_exam_diagnoses.html">form_physical_exam_diagnoses</a></td>
-                                        <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">3</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>Physical Exam Diagnosis for a physical exam that was conducted</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_eye_refraction.html">form_eye_refraction</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">65</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>This table is used for recording eye refraction details, including sphere, cylinder, axis, prism, and base measurements.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_physical_exam_diagnoses.html">form_physical_exam_diagnoses</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">0</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Physical Exam Diagnosis for a physical exam that was conducted</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_questionnaire_assessments.html">form_questionnaire_assessments</a></td>
@@ -793,17 +793,9 @@
                                         <td class="detail"><a href="tables/procedure_providers.html">procedure_providers</a></td>
                                         <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">21</td>
+                                        <td class="detail" align="right">23</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>This table holds both internal and external laboratories as well as other organizations that provide lab testing, results, and other procedures that can be ordered by a provider</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/onsite_documents.html">onsite_documents</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">21</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>Digital documents that have been assigned to a patient from a document_template that the patient has saved or submitted for review by clinical staff</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_dictation.html">form_dictation</a></td>
@@ -812,6 +804,14 @@
                                         <td class="detail" align="right">9</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Patient chart note that holds notes created from a provider&rsquo;s speech dictation software</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/onsite_documents.html">onsite_documents</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">21</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Digital documents that have been assigned to a patient from a document_template that the patient has saved or submitted for review by clinical staff</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_clinical_instructions.html">form_clinical_instructions</a></td>
@@ -902,20 +902,20 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Used for tracking the editing status of a form and whether it is currently being edited by a user</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_ankleinjury.html">form_ankleinjury</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">26</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>Represents a provider&rsquo;s evaluation of an ankle injury including x-ray information, diagnosis, and recommended treatments</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_encounter.html">form_encounter</a></td>
                                         <td class="detail" align="right">14</td>
                                         <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">33</td>
+                                        <td class="detail" align="right">35</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Represents the information related to a patient&rsquo;s visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_ankleinjury.html">form_ankleinjury</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">24</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Represents a provider&rsquo;s evaluation of an ankle injury including x-ray information, diagnosis, and recommended treatments</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_group_attendance.html">form_group_attendance</a></td>
@@ -950,20 +950,20 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Tracks Patient Recalls.  Recalls are when a patient should be reached out to or contacted for a healthcare followup.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_treatment_plan.html">form_treatment_plan</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">18</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>Patient treatment plan form</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/patient_reminders.html">patient_reminders</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">5</td>
                                         <td class="detail" align="right">14</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Patient Reminders generated from the clinical decision support engine that are sent via a communication medium to the patient</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_treatment_plan.html">form_treatment_plan</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">4</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient treatment plan form</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_eye_ros.html">form_eye_ros</a></td>
@@ -974,20 +974,20 @@
                                         <td class="comment detail" style="display: table-cell;"><p>This table stores review of systems (ROS) information related to various aspects of the eye and its associated systems.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_track_anything_results.html">form_track_anything_results</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">7</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/issue_types.html">issue_types</a></td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">10</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Contains the list of issue types that medical health issue can be.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_track_anything_results.html">form_track_anything_results</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/therapy_groups_counselors.html">therapy_groups_counselors</a></td>
@@ -1001,7 +1001,7 @@
                                         <td class="detail"><a href="tables/list_options.html">list_options</a></td>
                                         <td class="detail" align="right">46</td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">15</td>
+                                        <td class="detail" align="right">16</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Contains lists of unique value sets that a record&rsquo;s property can be.  Individual values/options in the list may be linked to a specific codesystem</p></td>
                                     </tr>
@@ -1038,14 +1038,6 @@
                                         <td class="comment detail" style="display: table-cell;"><p>This table is used for storing data related to posterior segment eye examinations, which typically involve the back of the eye, including the retina, optic disc, macula, and blood vessels.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/transactions.html">transactions</a></td>
-                                        <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">7</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>Represents patient referrals, and transactional records for billing, legal, and requests from the patient or their physician</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/documents.html">documents</a></td>
                                         <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">4</td>
@@ -1054,10 +1046,18 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Stores all of the digital documents that are connected to a patient.</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/transactions.html">transactions</a></td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Represents patient referrals, and transactional records for billing, legal, and requests from the patient or their physician</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_physical_exam.html">form_physical_exam</a></td>
                                         <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">6</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Physical Examination clinical note</p></td>
                                     </tr>
@@ -1073,7 +1073,7 @@
                                         <td class="detail"><a href="tables/form_clinical_notes.html">form_clinical_notes</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">17</td>
+                                        <td class="detail" align="right">18</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Patient clinical notes with support for USCDI V1 standardized note types</p></td>
                                     </tr>
@@ -1126,20 +1126,20 @@
                                         <td class="comment detail" style="display: table-cell;"><p>Connects the patient participants to a therapy group</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_CAMOS_subcategory.html">form_CAMOS_subcategory</a></td>
-                                        <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">2</td>
-                                        <td class="detail" align="right">9</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"><p>CAMOS patient chart sub categories inside a single category</p></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/therapy_groups.html">therapy_groups</a></td>
                                         <td class="detail" align="right">6</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">10</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Contains all of the therapy groups that exist in the system</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_CAMOS_subcategory.html">form_CAMOS_subcategory</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>CAMOS patient chart sub categories inside a single category</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/voids.html">voids</a></td>
@@ -1153,7 +1153,7 @@
                                         <td class="detail"><a href="tables/openemr_postcalendar_categories.html">openemr_postcalendar_categories</a></td>
                                         <td class="detail" align="right">3</td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">19</td>
+                                        <td class="detail" align="right">20</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Contains the types / categories a patient scheduled appointment can be</p></td>
                                     </tr>
@@ -1168,8 +1168,8 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_CAMOS.html">form_CAMOS</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">11</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">5</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Computer Aided Medical Ordering System notes that are part of a patient&rsquo;s chart</p></td>
                                     </tr>
@@ -1201,7 +1201,7 @@
                                         <td class="detail"><a href="tables/form_painmap.html">form_painmap</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">4</td>
-                                        <td class="detail" align="right">8</td>
+                                        <td class="detail" align="right">5</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Patient pain map form. Pain map image for mapping this form is stored in the EHI zip export at images/painmap.png</p></td>
                                     </tr>
@@ -1217,7 +1217,7 @@
                                         <td class="detail"><a href="tables/form_clinic_note.html">form_clinic_note</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">7</td>
+                                        <td class="detail" align="right">1</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Holds patient history, provider examination conducted, patient treatment plan, and follow up status</p></td>
                                     </tr>
@@ -1233,7 +1233,7 @@
                                         <td class="detail"><a href="tables/form_vitals.html">form_vitals</a></td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">3</td>
-                                        <td class="detail" align="right">28</td>
+                                        <td class="detail" align="right">29</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"><p>Records of patient vital sign assessment</p></td>
                                     </tr>

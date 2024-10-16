@@ -226,7 +226,10 @@ if (!empty($_POST['bn_upload'])) {
             that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
             "<?php echo xlt('Replace entire code set'); ?>" checkbox above.
             </p>
-
+            <div class="alert alert-info"><p>
+                    <i class="fa fa-circle-info"></i> <?php echo xlt("If you're Code Sets are not loading, verify your php.ini post_max_size value and your upload_max_filesize has been set large enough to handle the file size you are uploading."); ?>
+            </p>
+            </div>
             <!-- TBD: Another paragraph of instructions here for each code type. -->
         </form>
     </div>

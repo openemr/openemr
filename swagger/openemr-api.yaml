@@ -3855,6 +3855,13 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -3940,6 +3947,13 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -4010,6 +4024,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the CarePlan resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -4104,6 +4125,13 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -4152,6 +4180,13 @@ paths:
           required: true
           schema:
             type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: 'Standard Response'
@@ -4187,6 +4222,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Condition resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -4269,6 +4311,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Coverage resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -4360,6 +4409,13 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -4441,6 +4497,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the DiagnosticReport resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -4548,6 +4611,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the DocumentReference resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -4728,6 +4798,13 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -4819,6 +4896,13 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -4896,6 +4980,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Group resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -4990,6 +5081,20 @@ paths:
           schema:
             type: string
         -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: patient
           in: query
           description: 'The uuid for the patient.'
@@ -5072,6 +5177,13 @@ paths:
           required: false
           schema:
             type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: 'Standard Response'
@@ -5137,6 +5249,21 @@ paths:
       tags:
         - fhir
       description: 'Returns a list of Medication resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the Medication resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: 'Standard Response'
@@ -5207,6 +5334,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the MedicationRequest resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -5306,6 +5440,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Observation resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -5410,6 +5551,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Organization resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -5674,6 +5822,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Patient resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -5998,6 +6153,20 @@ paths:
       description: 'Returns a list of Person resources.'
       parameters:
         -
+          name: _id
+          in: query
+          description: 'The uuid for the Person resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: name
           in: query
           description: 'The name of the Person resource.'
@@ -6146,6 +6315,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Practitioner resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -6402,6 +6578,20 @@ paths:
       description: 'Returns a list of PractitionerRole resources.'
       parameters:
         -
+          name: _id
+          in: query
+          description: 'The uuid for the PractitionerRole resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
+          required: false
+          schema:
+            type: string
+        -
           name: specialty
           in: query
           description: 'The specialty of the PractitionerRole resource.'
@@ -6485,6 +6675,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Procedure resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -6643,6 +6840,13 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the ValueSet resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _lastUpdated
+          in: query
+          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -7540,7 +7744,6 @@ components:
         - subscriber_postal_code
         - subscriber_city
         - subscriber_state
-        - subscriber_country
         - subscriber_sex
         - accept_assignment
       properties:

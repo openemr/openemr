@@ -74,6 +74,8 @@ class ClinicalNotesService extends BaseService
                 ,notes.clinical_notes_type
                 ,notes.note_related_to
                 ,notes.clinical_notes_category
+                ,notes.last_updated
+                ,forms.date_created
                 ,lo_category.category_code
                 ,lo_category.category_title
                 ,patients.pid
@@ -100,6 +102,7 @@ class ClinicalNotesService extends BaseService
                         ,note_related_to
                         ,clinical_notes_category
                         ,form_id
+                        ,last_updated
                         ,user
                  FROM
                     form_clinical_notes
@@ -109,6 +112,7 @@ class ClinicalNotesService extends BaseService
                     id AS form_id,
                     encounter
                     ,pid AS form_pid
+                    ,`date` AS date_created
                 FROM
                     forms
             ) forms ON forms.form_id = notes.form_id

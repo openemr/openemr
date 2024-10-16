@@ -95,7 +95,13 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['report_date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('result_uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['report_date']);
     }
 
 
@@ -159,7 +165,11 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['report_date'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['report_date']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $observation->setMeta($meta);
 
         $id = new FHIRId();

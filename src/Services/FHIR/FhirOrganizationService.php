@@ -81,8 +81,14 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code', "zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     public function getOne($fhirResourceId, $puuidBind = null): ProcessingResult

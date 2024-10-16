@@ -16,7 +16,7 @@
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
     $this->assign('nav', 'patientdata');
     /*
-     *  row keys are js underscore camelcase and follow the underscores varables used in this template
+     *  row keys are js underscore camelcase and follow the underscores variables used in this template
      *  $row['city'] or $row['postalCode'] e.t.c.. The keys do not match table columns ie postalCode here is postal_code in table.
      *  */
     $row = array();

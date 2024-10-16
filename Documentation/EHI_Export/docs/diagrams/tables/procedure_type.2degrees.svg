@@ -869,7 +869,7 @@
 <polygon fill="none" stroke="#000000" points="271,-1217.7 271,-1239.7 440,-1239.7 440,-1217.7 271,-1217.7"/>
 <text text-anchor="start" x="291" y="-1224.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">activity</text>
 <polygon fill="none" stroke="#000000" points="440,-1217.7 440,-1239.7 507,-1239.7 507,-1217.7 440,-1217.7"/>
-<text text-anchor="start" x="443" y="-1225.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
+<text text-anchor="start" x="443" y="-1225.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
 <polygon fill="none" stroke="#000000" points="271,-1195.7 271,-1217.7 440,-1217.7 440,-1195.7 271,-1195.7"/>
 <text text-anchor="start" x="291" y="-1202.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">notes</text>
 <polygon fill="none" stroke="#000000" points="440,-1195.7 440,-1217.7 507,-1217.7 507,-1195.7 440,-1195.7"/>
