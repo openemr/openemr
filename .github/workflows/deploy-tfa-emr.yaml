@@ -2,6 +2,7 @@ name: Build and Deploy TFA OpenEMR Docker to AWS EC2
 run-name: Build & Deploy - nr. ${{ github.run_number }}
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - v7_0_2_1
