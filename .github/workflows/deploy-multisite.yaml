@@ -2,6 +2,7 @@ name: Build and Deploy Multi Site OpenEMR Docker to AWS EC2
 run-name: Multi Site Build & Deploy - nr. ${{ github.run_number }}
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - mircea/multisite-setup
