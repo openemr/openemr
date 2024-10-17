@@ -109,6 +109,10 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
   .dialog-alert {
     font-size: 14px;
   }
+
+  div.row div section div.section-header-dynamic {
+    margin-left: 0.5rem;
+  }
 </style>
 <script>
     function setPrescribeLocation() {
