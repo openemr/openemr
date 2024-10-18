@@ -1,6 +1,7 @@
 name: JS Unit Test
 
 on:
+  workflow_dispatch:
   push:
     branches: [ rel-702 ]
   pull_request:
