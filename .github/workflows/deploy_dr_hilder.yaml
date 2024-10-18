@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - hilder
+      - mircea/prod-deploy
 
 permissions:
   id-token: write
