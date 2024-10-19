@@ -9,6 +9,8 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
 use OpenEMR\ClinicalDecisionRules\Interface\ActionRouter;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Acl\AclMain;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -33,6 +35,10 @@ class ControllerRouter
         $paramParts = explode('!', $actionParam);
         $controller = $paramParts[0] ?? '';
         $action = $paramParts[1] ?? '';
+        // TODO: @adunsulag what ACL if any do we need to review the CDR rule?
+        if ($controller !== 'review' && !AclMain::aclCheckCore('admin', 'super')) {
+            throw new AccessDeniedException("admin", "super", "Invalid ACL access to CDR routes");
+        }
         $classFQCN = __NAMESPACE__ . "\\Controller\\Controller" . ucfirst($controller);
         $controllerInstance = new $classFQCN();
 
