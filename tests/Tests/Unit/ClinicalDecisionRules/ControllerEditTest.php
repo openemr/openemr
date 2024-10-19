@@ -75,6 +75,7 @@ class ControllerEditTest extends TestCase
             ,'patient_sex_usage' => 'Test Sex is used'
             ,'patient_sexual_orientation_usage' => 'Test Sexual Orientation is used'
             ,'patient_sodh_usage' => 'Test SODH is used'
+            ,'ruleTypes' => [RuleType::PassiveAlert, RuleType::ActiveAlert]
         ];
         foreach ($values as $key => $value) {
             $_POST['fld_' . $key] = $value;

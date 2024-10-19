@@ -71,7 +71,8 @@ class ControllerEdit extends BaseController
         if (!is_array($ruleTypes)) {
             $ruleTypes = [$ruleTypes];
         }
-            $rule->ruleTypes = array_map('intval', $ruleTypes);
+        // ruleTypes is an array of string values
+        $rule->ruleTypes = $ruleTypes;
 
             // TODO: could write a validator here
         foreach ($values as $val) {
@@ -79,14 +80,10 @@ class ControllerEdit extends BaseController
                 $rule->$val = Common::post('fld_' . $val, '');
             }
         }
-            // its a new rule submit
-            $ruleId = $this->getRuleManager()->updateSummaryForRule($rule);
-            // redirect to the intervals page
-            $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
-//        }
-//        else {
-//            $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
-//        }
+        // its a new rule submit
+        $ruleId = $this->getRuleManager()->updateSummaryForRule($rule);
+        // redirect to the intervals page
+        $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
     }
 
     function _action_intervals()

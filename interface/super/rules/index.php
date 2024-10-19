@@ -11,6 +11,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Twig\TwigContainer;
 use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
@@ -18,13 +19,12 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use OpenEMR\Common\Logging\SystemLogger;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 
 try {
     $request = Request::createFromGlobals();
     $controllerRouter = new ControllerRouter();
     $response = $controllerRouter->route($request);
-} catch (AccessDeniedException|InvalidCsrfTokenException $e) {
+} catch (AccessDeniedException|CsrfInvalidException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
     $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);

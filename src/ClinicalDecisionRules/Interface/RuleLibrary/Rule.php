@@ -142,6 +142,12 @@ class Rule
      */
     var $groups;
 
+    /**
+     * User provided feedback on an applied rule instance
+     * @return void
+     */
+    public ?string $feedback;
+
     function __construct($id = '', $title = '', $ruleTypes = array())
     {
         $this->id = $id;
@@ -163,6 +169,23 @@ class Rule
         $this->patient_sex_usage = '';
         $this->patient_sexual_orientation_usage = '';
         $this->patient_sodh_usage = '';
+        $this->feedback = '';
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFeedback(): ?string
+    {
+        return $this->feedback;
+    }
+
+    /**
+     * @param string|null $feedback
+     */
+    public function setFeedback(?string $feedback): void
+    {
+        $this->feedback = $feedback;
     }
 
     function getTitle()
