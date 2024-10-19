@@ -139,6 +139,11 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
     </table>
   </td>
  </tr>
+    <tr>
+        <td colspan="2">
+            <p class="text-left"><i class='ml-2 fa fa-comment' title=" <?php echo xla("Select feedback icon to show feedback") ?>"></i> <?php echo xlt("Rule has user provided feedback, select icon to show feedback"); ?></p>
+        </td>
+    </tr>
 </table>
 
 </div>  <!-- end of search parameters -->
@@ -215,10 +220,16 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                   generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
                   ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $target) .
                   " (" . generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $alert['due_status']) . ")" .
-                  "<span><br />";
+                  "</span>";
             } else { // $row['category'] == 'allergy_alert'
-                 echo $alert . "<br />";
+                 echo $alert;
             }
+            //  need to add comment icon here if we have one
+            if (!empty($alert['feedback'])) {
+                $id = $row['id'] . "-" . $alert['rule_id'];
+                echo "<i class='ml-2 fa fa-comment cdr-rule-feedback' title=". xla("Select feedback icon to show feedback") . " data-feedback='". attr($alert['feedback']) . "'></i>";
+            }
+            echo "<br />";
         }
         ?>
        </td>
@@ -258,6 +269,36 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 <?php } // end of if search button clicked ?>
 
 </form>
+<div id="cdr-modal-feedback-template" class="d-none">
+    <h1><?php echo xlt("Rule Feedback"); ?></h1>
+    <p class="content"></p>
+</div>
+<script>
+    (function(window) {
+        window.document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.cdr-rule-feedback').forEach(function (element) {
+                element.addEventListener('click', function () {
+                    let dialog = document.querySelector('#cdr-modal-feedback-template');
+                    let contents = dialog.cloneNode(true);
+                    contents.classList.remove("d-none");
+                    contents.querySelector('.content').innerText = this.dataset.feedback || <?php echo xlj('No feedback available'); ?>;
+                    dlgopen('', '', 800, 200, '', '', {
+                        buttons: [{
+                            text: <?php echo xlj('Close'); ?>,
+                            close: true,
+                            style: 'secondary btn-sm'
+                        }],
+                        allowResize: false,
+                        allowDrag: true,
+                        dialogId: 'cdr-rule-feedback',
+                        html: contents.innerHTML,
+                        type: 'alert'
+                    });
+                });
+            });
+        });
+    })(window);
+</script>
 
 </body>
 

@@ -14,6 +14,7 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerReview;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $rule = $viewBean->rule ?>
@@ -27,6 +28,19 @@ $rule = $viewBean->rule ?>
         </p>
     </div>
     <div class="card-body">
+        <?php if ($viewBean->message == ControllerReview::ERROR_MESSAGE_SUCCESS) : ?>
+            <div class="alert alert-success">
+                <?php echo xlt('Feedback submitted successfully.'); ?>
+            </div>
+        <?php elseif ($viewBean->message == ControllerReview::ERROR_MESSAGE_FAILED) : ?>
+            <div class="alert alert-danger">
+                <?php echo xlt('Feedback submission failed.'); ?>
+            </div>
+        <?php elseif ($viewBean->message == ControllerReview::ERROR_MESSAGE_INVALID) : ?>
+        <div class="alert alert-danger">
+            <?php echo xlt('Feedback submission was invalid as feedback message was too long.'); ?>
+        </div>
+        <?php endif; ?>
         <p><b><?php echo xlt('Bibliographic Citation'); ?>:</b>&nbsp;<?php echo text($rule->bibliographic_citation); ?></p>
         <p><b><?php echo xlt('Developer'); ?>:</b>&nbsp;<?php echo text($rule->developer); ?></p>
         <p><b><?php echo xlt('Funding Source'); ?>:</b>&nbsp;<?php echo text($rule->funding_source); ?></p>
@@ -57,14 +71,11 @@ $rule = $viewBean->rule ?>
     </div>
     <div class="card-body">
         <form method="POST" action="index.php?action=review!submit_feedback">
-            <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>"/>
+            <input type="hidden" name="rule_id" value="<?php echo attr($rule->id); ?>"/>
             <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <?php
-            // TODO: @adunsulag do we want to show previous feedback submitted?  Will show up in report.
-            ?>
             <div class="row">
                 <div class="col">
-                    <textarea class="form-control" name="feedback" rows="5" cols="50"></textarea>
+                    <textarea class="form-control" name="feedback" rows="5" cols="50" maxlength="2048"></textarea>
                 </div>
             </div>
             <div class="row mt-2">
