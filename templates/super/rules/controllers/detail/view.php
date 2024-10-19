@@ -45,7 +45,7 @@ $rule = $viewBean->rule ?>
         <p><?php echo xlt('Developer'); ?><b>:</b>&nbsp;<?php echo text($rule->developer); ?></p>
         <p><?php echo xlt('Funding Source'); ?><b>:</b>&nbsp;<?php echo text($rule->funding_source); ?></p>
         <p><?php echo xlt('Release'); ?><b>:</b>&nbsp;<?php echo text($rule->release); ?></p>
-        <p><?php echo xlt('Web Reference'); ?><b>:</b>&nbsp;<?php echo text($rule->web_ref); ?></p>
+        <p><?php echo xlt('Web Reference'); ?><b>:</b>&nbsp;<?php echo text($rule->web_reference); ?></p>
         <p><?php echo xlt('Referential CDS (codetype:code)'); ?><b>:</b>&nbsp;<?php echo text($rule->linked_referential_cds); ?></p>
         <?php
         /** Note the following code is in the Public Domain and was generated using ChatGPT */
