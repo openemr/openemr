@@ -12,18 +12,37 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
-
-if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
-    exit;
-}
 use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use OpenEMR\Common\Logging\SystemLogger;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 
-$request = Request::createFromGlobals();
-
-$controllerRouter = new ControllerRouter();
-$response = $controllerRouter->route($request);
+try {
+    $request = Request::createFromGlobals();
+    $controllerRouter = new ControllerRouter();
+    $response = $controllerRouter->route($request);
+} catch (AccessDeniedException|InvalidCsrfTokenException $e) {
+    // Log the exception
+    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);
+    // Send the error response
+    $response = new Response($contents, 403);
+} catch (NotFoundHttpException $e) {
+    // Log the exception
+    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/404.html.twig');
+    // Send the error response
+    $response = new Response($contents, 404);
+} catch (Exception $e) {
+    // Log the exception
+    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    $contents =  (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('error/general_http_error.html.twig');
+    // Send the error response
+    $response = new Response($contents, 500);
+}
 
 // Send the normal response
 $response->send();
