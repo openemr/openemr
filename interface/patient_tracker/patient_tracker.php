@@ -139,6 +139,7 @@ if ($GLOBALS['medex_enable'] == '1') {
 
 if (!($_REQUEST['flb_table'] ?? null)) {
     ?>
+<!DOCTYPE html>
 <html>
 <head>
     <meta name="author" content="OpenEMR: MedExBank" />
@@ -164,7 +165,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
         $MedEx->display->navigation($logged_in);
     }
     ?>
-    <div class="container mt-3">
+    <div class="container-fluid mt-3">
         <div id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
             <div class="jumbotron p-4">
@@ -386,7 +387,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         </td>
                         <?php if ($GLOBALS['ptkr_visit_reason'] == '1') { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                                <?php echo xlt('Reason'); ?>
+                                <?php echo xlt('Appt Comment'); ?>
                             </td>
                         <?php } ?>
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
