@@ -92,45 +92,22 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $ruleData = sqlQuery("SELECT `bibliographic_citation`, `developer`, `funding_source`, `release_version`, `web_reference`, `linked_referential_cds` " .
                            "FROM `clinical_rules` " .
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']));
-            $bibliographic_citation = $ruleData['bibliographic_citation'];
-            $developer = $ruleData['developer'];
-            $funding_source = $ruleData['funding_source'];
-            $release = $ruleData['release_version'];
-            $web_reference = $ruleData['web_reference'];
             $linked_referential_cds = $ruleData['linked_referential_cds'];
             if (!empty($rule_title)) {
                   $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
             }
 
-            if (!empty($bibliographic_citation)) {
-                $tooltip .= xla('Rule Bibliographic Citation') . ": " . attr($bibliographic_citation) . "&#013;";
-            }
+            $tooltip .= xla("Select icon to view more information or provide feedback about this rule.");
 
-            if (!empty($developer)) {
-                  $tooltip .= xla('Rule Developer') . ": " . attr($developer) . "&#013;";
-            }
-
-            if (!empty($funding_source)) {
-                  $tooltip .= xla('Rule Funding Source') . ": " . attr($funding_source) . "&#013;";
-            }
-
-            if (!empty($release)) {
-                  $tooltip .= xla('Rule Release') . ": " . attr($release);
-            }
-
-            if ((!empty($tooltip)) || (!empty($web_reference))) {
-                if (!empty($web_reference)) {
-                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></a>";
-                } else {
-                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></span>";
-                }
-            }
+            $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'><i data-rule-id='"
+                . attr($action['rule_id']) . "' class='fas fa-question-circle'></i></span>";
 
             if (!empty($linked_referential_cds)) {
                 $codeParse = explode(":", $linked_referential_cds);
                 $codetype = $codeParse[0] ?? null;
                 $code = $codeParse[1] ?? null;
                 if (!empty($codetype) && !empty($code)) {
+                    // note this function is in the demographics.php file.
                     $tooltip .= "<a href='' title='" . xla('Link to Referential CDS') . "' onclick='referentialCdsClick(" . attr_js($codetype) . ", " . attr_js($code) . ")'><i class='fas fa-external-link-square-alt'></i></a>";
                 }
             }
@@ -2177,6 +2154,9 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 // merge the custom rule with the default rule
                 $mergedRule = array();
                 foreach ($customRule as $key => $value) {
+                    // note this explicitly relies on type conversion, null, "", 0 becoming equal to null...
+                    // if anything changes in language spec this might break.
+                    // TODO: consider using strict comparison
                     if ($value == null && preg_match("/_flag$/", $key)) {
                         // use default setting
                         $mergedRule[$key] = $rule[$key];

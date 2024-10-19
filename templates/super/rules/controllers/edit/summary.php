@@ -107,46 +107,46 @@ $rule = $viewBean->rule ?>
     ?>
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_race_usage"><?php echo xlt('Use of Patient\'s Race'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_race_usage" class="form-control field" id="fld_patient_race_usage" value="<?php echo attr($rule->patient_race_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_race_usage" class="form-control field" id="fld_patient_race_usage" value="<?php echo attr($rule->patient_race_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_ethnicity_usage"><?php echo xlt('Use of Patient\'s Ethnicity'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_ethnicity_usage" class="form-control field" id="fld_patient_ethnicity_usage" value="<?php echo attr($rule->patient_ethnicity_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_ethnicity_usage" class="form-control field" id="fld_patient_ethnicity_usage" value="<?php echo attr($rule->patient_ethnicity_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_language_usage"><?php echo xlt('Use of Patient\'s Language'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_language_usage" class="form-control field" id="fld_patient_language_usage" value="<?php echo attr($rule->patient_language_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_language_usage" class="form-control field" id="fld_patient_language_usage" value="<?php echo attr($rule->patient_language_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_sexual_orientation_usage"><?php echo xlt('Use of Patient\'s Sexual Orientation'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_sexual_orientation_usage" class="form-control field" id="fld_patient_sexual_orientation_usage" value="<?php echo attr($rule->patient_sexual_orientation_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_sexual_orientation_usage" class="form-control field" id="fld_patient_sexual_orientation_usage" value="<?php echo attr($rule->patient_sexual_orientation_usage); ?>" maxlength="255"></span>
     </div>
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_gender_identity_usage"><?php echo xlt('Use of Patient\'s Gender Identity'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_gender_identity_usage" class="form-control field" id="fld_patient_gender_identity_usage" value="<?php echo attr($rule->patient_gender_identity_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_gender_identity_usage" class="form-control field" id="fld_patient_gender_identity_usage" value="<?php echo attr($rule->patient_gender_identity_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_sex_usage"><?php echo xlt('Use of Patient\'s Sex'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_sex_usage" class="form-control field" id="fld_patient_sex_usage" value="<?php echo attr($rule->patient_sex_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_sex_usage" class="form-control field" id="fld_patient_sex_usage" value="<?php echo attr($rule->patient_sex_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_dob_usage"><?php echo xlt('Use of Patient\'s Date of Birth'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_dob_usage" class="form-control field" id="fld_patient_dob_usage" value="<?php echo attr($rule->patient_dob_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_dob_usage" class="form-control field" id="fld_patient_dob_usage" value="<?php echo attr($rule->patient_dob_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_sodh_usage"><?php echo xlt('Use of Patient\'s Social Determinants of Health'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_sodh_usage" class="form-control field" id="fld_patient_sodh_usage" value="<?php echo attr($rule->patient_sodh_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_sodh_usage" class="form-control field" id="fld_patient_sodh_usage" value="<?php echo attr($rule->patient_sodh_usage); ?>" maxlength="255"></span>
     </div>
 
     <div class="form-row">
         <span class="left_col colhead" data-fld="fld_patient_health_status_usage"><?php echo xlt('Use of Patient\'s Health Status Assessments'); ?></span>
-        <span class="end_col"><input type="text" name="fld_patient_health_status_usage" class="form-control field" id="fld_patient_health_status_usage" value="<?php echo attr($rule->patient_health_status_usage); ?>" maxlength="50"></span>
+        <span class="end_col"><input type="text" name="fld_patient_health_status_usage" class="form-control field" id="fld_patient_health_status_usage" value="<?php echo attr($rule->patient_health_status_usage); ?>" maxlength="255"></span>
     </div>
     <?php
     /** End ChatGPT Public Domain Code */
