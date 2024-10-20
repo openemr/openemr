@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+
 ?>
 <p class="form-row">
     <span class="left_col colhead req" data-fld="fld_value"><?php echo text($criteria->getTitle()); ?></span>

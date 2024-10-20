@@ -339,15 +339,13 @@ class AuthorizationController
                 $clientSaved = true;
             } catch (\Exception $exception) {
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
-            }
-            finally {
+            } finally {
                 if ($clientSaved) {
                     $this->commitTransaction();
                 } else {
                     try {
                         $this->rollbackTransaction();
-                    }
-                    catch (\Exception $exception) {
+                    } catch (\Exception $exception) {
                         $this->logger->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
                     }
                 }
@@ -1639,13 +1637,15 @@ class AuthorizationController
         exit;
     }
 
-    private function startTransaction() {
+    private function startTransaction()
+    {
         QueryUtils::startTransaction();
         // we want to be able to commit this transaction separately from the main transaction
         // so we'll set this to true and then reset it after we commit
         $this->getDecisionSupportInterventionService()->setInNestedTransaction(true);
     }
-    private function getDecisionSupportInterventionService() {
+    private function getDecisionSupportInterventionService()
+    {
         if (empty($this->dsiService)) {
             $dsiService = new DecisionSupportInterventionService();
             $this->dsiService = $dsiService;
@@ -1653,7 +1653,8 @@ class AuthorizationController
         return $this->dsiService;
     }
 
-    private function commitTransaction() {
+    private function commitTransaction()
+    {
         QueryUtils::commitTransaction();
         $this->getDecisionSupportInterventionService()->setInNestedTransaction(false);
     }
@@ -1664,8 +1665,7 @@ class AuthorizationController
         $this->getDecisionSupportInterventionService()->setInNestedTransaction(false);
     }
 
-    private function createDecisionSupportInterventionServiceForType(string $clientId, string $clientName
-        , int $dsiType, array $dsiSourceAttributes)
+    private function createDecisionSupportInterventionServiceForType(string $clientId, string $clientName, int $dsiType, array $dsiSourceAttributes)
     {
         $clientEntity = new ClientEntity();
         $clientEntity->setIdentifier($clientId);
@@ -1713,5 +1713,4 @@ class AuthorizationController
             $params['dsi_source_attributes'] = $dsiSourceAttributes;
         }
     }
-
 }

@@ -40,7 +40,8 @@ class DecisionSupportInterventionService extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function setInNestedTransaction(bool $inNestedTransaction) {
+    public function setInNestedTransaction(bool $inNestedTransaction)
+    {
         $this->inNestedTransaction = $inNestedTransaction;
     }
 
@@ -73,7 +74,8 @@ class DecisionSupportInterventionService extends BaseService
         return $service;
     }
 
-    public function getEmptyService(int $type) : DecisionSupportInterventionEntity {
+    public function getEmptyService(int $type): DecisionSupportInterventionEntity
+    {
         if ($type === ClientEntity::DSI_TYPE_PREDICTIVE) {
             $service = new PredictiveDSIServiceEntity();
             $attributes = $this->getPredictiveDSIAttributes();

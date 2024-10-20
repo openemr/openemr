@@ -5,6 +5,8 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
@@ -21,10 +23,14 @@ class ControllerReview extends BaseController
         parent::__construct();
     }
 
-    function _action_view()
+    public function _action_view()
     {
         $ruleId = Common::get('rule_id');
         $pid = $_SESSION['pid']; // don't trust the pid in the URL
+
+        if (!!AclMain::aclCheckCore('patients', 'med')) {
+            throw new AccessDeniedException("patients", "med", "Invalid ACL access to CDR review");
+        }
 
         if ($pid == null) {
             throw new NotFoundHttpException("Patient ID not found");
@@ -47,7 +53,7 @@ class ControllerReview extends BaseController
         $this->set_view("view.php");
     }
 
-    function _action_submit_feedback()
+    public function _action_submit_feedback()
     {
         $ruleId = Common::post('rule_id');
         $pid = $_SESSION['pid']; // don't trust the pid in the URL
@@ -95,8 +101,7 @@ class ControllerReview extends BaseController
             $this->insertFeedbackForClinicalRuleLog($clinicalRuleLog, $rule, $pid, $_SESSION['authUserID']);
             return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode($pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken())
                 . '&message=' . self::ERROR_MESSAGE_SUCCESS);
-        }
-        else {
+        } else {
             // TODO: if there is no feedback... we never should have gotten here... log an error and throw an exception
             (new SystemLogger())->errorLogCaller("No rule found in clinical rule log. This should never have been reached", ['ruleId' => $ruleId]);
             return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode($pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken())
@@ -109,7 +114,7 @@ class ControllerReview extends BaseController
         // note this assumes the rule_id is NEVER a substring of the JSON structure of value itself other than the actual rule id
         $otherMatchingRow = null;
         foreach ($data as $row) {
-            foreach($row['valueArray'] as $key => $ruleItem) {
+            foreach ($row['valueArray'] as $key => $ruleItem) {
                 if ($ruleItem['rule_id'] === $rule->id) {
                     if ($row['category'] == 'clinical_reminder_widget') {
                         return $row;
@@ -126,7 +131,7 @@ class ControllerReview extends BaseController
     private function insertFeedbackForClinicalRuleLog(array $clinicalRuleLog, Rule $rule, $patientId, $userId)
     {
         $updatedValueArray = [];
-        foreach($clinicalRuleLog['valueArray'] as $key => $ruleItem) {
+        foreach ($clinicalRuleLog['valueArray'] as $key => $ruleItem) {
             if ($ruleItem['rule_id'] === $rule->id) {
                 $ruleItem['feedback'] = !empty($rule->getFeedback()) ? $rule->getFeedback() : null;
             }
@@ -141,5 +146,4 @@ class ControllerReview extends BaseController
             "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
             "VALUES (NOW(),?,?,?,?,?)", array($patientId,$userId,$clinicalRuleLog['category'], $updatedValue,$newValue));
     }
-
 }
