@@ -570,73 +570,73 @@
 <g id="node13" class="node">
 <title>rule_action_item</title>
 <g id="a_node13"><a xlink:href="../../tables/rule_action_item.html" xlink:title="rule_action_item" target="_top">
-<polygon fill="#ffffff" stroke="transparent" points="225.5,-241.7 225.5,-397.7 444.5,-397.7 444.5,-241.7 225.5,-241.7"/>
-<polygon fill="#f5f5f5" stroke="transparent" points="228,-372.7 228,-395.7 443,-395.7 443,-372.7 228,-372.7"/>
-<polygon fill="none" stroke="#000000" points="228,-372.7 228,-395.7 443,-395.7 443,-372.7 228,-372.7"/>
-<text text-anchor="start" x="233" y="-381.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">rule_action_item</text>
-<text text-anchor="start" x="408.0437" y="-380.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
-<polygon fill="none" stroke="#000000" points="228,-350.7 228,-372.7 376,-372.7 376,-350.7 228,-350.7"/>
-<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="233" y="-367.7"/>
-<text text-anchor="start" x="248" y="-357.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">category</text>
-<polygon fill="none" stroke="#000000" points="376,-350.7 376,-372.7 443,-372.7 443,-350.7 376,-350.7"/>
-<text text-anchor="start" x="379" y="-358.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[31]</text>
-<polygon fill="none" stroke="#000000" points="228,-328.7 228,-350.7 376,-350.7 376,-328.7 228,-328.7"/>
-<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="233" y="-345.7"/>
-<text text-anchor="start" x="248" y="-335.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">item</text>
-<polygon fill="none" stroke="#000000" points="376,-328.7 376,-350.7 443,-350.7 443,-328.7 376,-328.7"/>
-<text text-anchor="start" x="379" y="-336.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[31]</text>
-<polygon fill="none" stroke="#000000" points="228,-306.7 228,-328.7 376,-328.7 376,-306.7 228,-306.7"/>
-<text text-anchor="start" x="248" y="-313.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">clin_rem_link</text>
-<polygon fill="none" stroke="#000000" points="376,-306.7 376,-328.7 443,-328.7 443,-306.7 376,-306.7"/>
-<text text-anchor="start" x="378.9365" y="-314.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
-<polygon fill="none" stroke="#000000" points="228,-284.7 228,-306.7 376,-306.7 376,-284.7 228,-284.7"/>
-<text text-anchor="start" x="248" y="-291.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">reminder_message</text>
-<polygon fill="none" stroke="#000000" points="376,-284.7 376,-306.7 443,-306.7 443,-284.7 376,-284.7"/>
-<text text-anchor="start" x="379" y="-292.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">text[65535]</text>
-<polygon fill="none" stroke="#000000" points="228,-262.7 228,-284.7 376,-284.7 376,-262.7 228,-262.7"/>
-<text text-anchor="start" x="248" y="-269.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">custom_flag</text>
-<polygon fill="none" stroke="#000000" points="376,-262.7 376,-284.7 443,-284.7 443,-262.7 376,-262.7"/>
-<text text-anchor="start" x="379" y="-270.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">bit[1]</text>
-<polygon fill="#ffffff" stroke="transparent" points="228,-243.7 228,-262.7 306,-262.7 306,-243.7 228,-243.7"/>
-<polygon fill="none" stroke="#000000" points="228,-243.7 228,-262.7 306,-262.7 306,-243.7 228,-243.7"/>
-<text text-anchor="start" x="231" y="-249.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 2</text>
-<polygon fill="#ffffff" stroke="transparent" points="306,-243.7 306,-262.7 376,-262.7 376,-243.7 306,-243.7"/>
-<polygon fill="none" stroke="#000000" points="306,-243.7 306,-262.7 376,-262.7 376,-243.7 306,-243.7"/>
-<text text-anchor="start" x="366.8862" y="-249.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
-<polygon fill="#ffffff" stroke="transparent" points="376,-243.7 376,-262.7 443,-262.7 443,-243.7 376,-243.7"/>
-<polygon fill="none" stroke="#000000" points="376,-243.7 376,-262.7 443,-262.7 443,-243.7 376,-243.7"/>
-<text text-anchor="start" x="424.4053" y="-249.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">4 &gt;</text>
-<polygon fill="none" stroke="#000000" stroke-width="2" points="226.5,-242.7 226.5,-396.7 443.5,-396.7 443.5,-242.7 226.5,-242.7"/>
+<polygon fill="#ffffff" stroke="transparent" points="200.5,-241.7 200.5,-397.7 469.5,-397.7 469.5,-241.7 200.5,-241.7"/>
+<polygon fill="#f5f5f5" stroke="transparent" points="203,-372.7 203,-395.7 468,-395.7 468,-372.7 203,-372.7"/>
+<polygon fill="none" stroke="#000000" points="203,-372.7 203,-395.7 468,-395.7 468,-372.7 203,-372.7"/>
+<text text-anchor="start" x="208" y="-381.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">rule_action_item</text>
+<text text-anchor="start" x="433.0437" y="-380.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">[table]</text>
+<polygon fill="none" stroke="#000000" points="203,-350.7 203,-372.7 351,-372.7 351,-350.7 203,-350.7"/>
+<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="208" y="-367.7"/>
+<text text-anchor="start" x="223" y="-357.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">category</text>
+<polygon fill="none" stroke="#000000" points="351,-350.7 351,-372.7 468,-372.7 468,-350.7 351,-350.7"/>
+<text text-anchor="start" x="354" y="-358.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[31]</text>
+<polygon fill="none" stroke="#000000" points="203,-328.7 203,-350.7 351,-350.7 351,-328.7 203,-328.7"/>
+<image xlink:href="../../images/primaryKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="208" y="-345.7"/>
+<text text-anchor="start" x="223" y="-335.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">item</text>
+<polygon fill="none" stroke="#000000" points="351,-328.7 351,-350.7 468,-350.7 468,-328.7 351,-328.7"/>
+<text text-anchor="start" x="354" y="-336.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[31]</text>
+<polygon fill="none" stroke="#000000" points="203,-306.7 203,-328.7 351,-328.7 351,-306.7 203,-306.7"/>
+<text text-anchor="start" x="223" y="-313.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">clin_rem_link</text>
+<polygon fill="none" stroke="#000000" points="351,-306.7 351,-328.7 468,-328.7 468,-306.7 351,-306.7"/>
+<text text-anchor="start" x="354" y="-314.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">varchar[255]</text>
+<polygon fill="none" stroke="#000000" points="203,-284.7 203,-306.7 351,-306.7 351,-284.7 203,-284.7"/>
+<text text-anchor="start" x="223" y="-291.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">reminder_message</text>
+<polygon fill="none" stroke="#000000" points="351,-284.7 351,-306.7 468,-306.7 468,-284.7 351,-284.7"/>
+<text text-anchor="start" x="353.5645" y="-292.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">mediumtext[16777215]</text>
+<polygon fill="none" stroke="#000000" points="203,-262.7 203,-284.7 351,-284.7 351,-262.7 203,-262.7"/>
+<text text-anchor="start" x="223" y="-269.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">custom_flag</text>
+<polygon fill="none" stroke="#000000" points="351,-262.7 351,-284.7 468,-284.7 468,-262.7 351,-262.7"/>
+<text text-anchor="start" x="354" y="-270.4" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">boolean[3]</text>
+<polygon fill="#ffffff" stroke="transparent" points="203,-243.7 203,-262.7 281,-262.7 281,-243.7 203,-243.7"/>
+<polygon fill="none" stroke="#000000" points="203,-243.7 203,-262.7 281,-262.7 281,-243.7 203,-243.7"/>
+<text text-anchor="start" x="206" y="-249.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 2</text>
+<polygon fill="#ffffff" stroke="transparent" points="281,-243.7 281,-262.7 351,-262.7 351,-243.7 281,-243.7"/>
+<polygon fill="none" stroke="#000000" points="281,-243.7 281,-262.7 351,-262.7 351,-243.7 281,-243.7"/>
+<text text-anchor="start" x="341.8862" y="-249.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
+<polygon fill="#ffffff" stroke="transparent" points="351,-243.7 351,-262.7 468,-262.7 468,-243.7 351,-243.7"/>
+<polygon fill="none" stroke="#000000" points="351,-243.7 351,-262.7 468,-262.7 468,-243.7 351,-243.7"/>
+<text text-anchor="start" x="449.4053" y="-249.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">4 &gt;</text>
+<polygon fill="none" stroke="#000000" stroke-width="2" points="201.5,-242.7 201.5,-396.7 468.5,-396.7 468.5,-242.7 201.5,-242.7"/>
 </a>
 </g>
 </g>
 <!-- patient_reminders&#45;&gt;rule_action_item -->
 <g id="edge38" class="edge">
 <title>patient_reminders:w&#45;&gt;rule_action_item:e</title>
-<path fill="none" stroke="#000000" d="M529.3436,-293.3039C487.8498,-324.103 488.5576,-361.7 443,-361.7"/>
-<polygon fill="#000000" stroke="#000000" points="534.8676,-289.6528 543.5266,-288.245 538.2046,-287.4473 541.5416,-285.2417 541.5416,-285.2417 541.5416,-285.2417 538.2046,-287.4473 539.5565,-282.2384 534.8676,-289.6528 534.8676,-289.6528"/>
-<ellipse fill="none" stroke="#000000" cx="532.198" cy="-291.4173" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M528.5764,-294.5804C498.2869,-324.3958 505.5011,-361.7 468,-361.7"/>
+<polygon fill="#000000" stroke="#000000" points="533.6815,-290.3352 542.1344,-287.9881 536.7571,-287.7776 539.8326,-285.2201 539.8326,-285.2201 539.8326,-285.2201 536.7571,-287.7776 537.5308,-282.4521 533.6815,-290.3352 533.6815,-290.3352"/>
+<ellipse fill="none" stroke="#000000" cx="531.2211" cy="-292.3812" rx="3.2" ry="3.2"/>
 </g>
 <!-- patient_reminders&#45;&gt;rule_action_item -->
 <g id="edge40" class="edge">
 <title>patient_reminders:w&#45;&gt;rule_action_item:e</title>
-<path fill="none" stroke="#000000" d="M530.4207,-291.4969C530.2804,-291.5646 530.1401,-291.6323 530,-291.7 490.239,-310.9167 487.1613,-339.7 443,-339.7"/>
-<polygon fill="#000000" stroke="#000000" points="536.5589,-288.6208 545.3306,-288.4862 540.181,-286.9235 543.8031,-285.2263 543.8031,-285.2263 543.8031,-285.2263 540.181,-286.9235 542.2756,-281.9665 536.5589,-288.6208 536.5589,-288.6208"/>
-<ellipse fill="none" stroke="#000000" cx="533.6612" cy="-289.9785" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M529.4035,-293.3615C500.084,-315.5408 499.037,-339.7 468,-339.7"/>
+<polygon fill="#000000" stroke="#000000" points="534.9128,-289.7306 543.5736,-288.3341 538.2527,-287.5294 541.5925,-285.3282 541.5925,-285.3282 541.5925,-285.3282 538.2527,-287.5294 539.6115,-282.3223 534.9128,-289.7306 534.9128,-289.7306"/>
+<ellipse fill="none" stroke="#000000" cx="532.2409" cy="-291.4916" rx="3.2" ry="3.2"/>
 </g>
 <!-- rule_action_item&#45;&gt;list_options -->
 <g id="edge58" class="edge">
 <title>rule_action_item:w&#45;&gt;list_options:e</title>
-<path fill="none" stroke="#000000" d="M213.4935,-362.6377C101.2602,-377.4631 76.8064,-564.1771 71.4812,-642.9785"/>
-<polygon fill="#000000" stroke="#000000" points="220.0167,-362.2161 228.2322,-365.2925 224.0083,-361.958 228,-361.7 228,-361.7 228,-361.7 224.0083,-361.958 227.7678,-358.1075 220.0167,-362.2161 220.0167,-362.2161"/>
-<ellipse fill="none" stroke="#000000" cx="216.8233" cy="-362.4225" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M188.7129,-365.3695C134.9774,-392.8507 92.8478,-567.4638 76.9089,-642.9785"/>
+<polygon fill="#000000" stroke="#000000" points="195.2515,-363.6902 203.8956,-365.1868 199.1257,-362.6951 203,-361.7 203,-361.7 203,-361.7 199.1257,-362.6951 202.1044,-358.2132 195.2515,-363.6902 195.2515,-363.6902"/>
+<ellipse fill="none" stroke="#000000" cx="192.1521" cy="-364.4862" rx="3.2" ry="3.2"/>
 </g>
 <!-- rule_action_item&#45;&gt;list_options -->
 <g id="edge59" class="edge">
 <title>rule_action_item:w&#45;&gt;list_options:e</title>
-<path fill="none" stroke="#000000" d="M213.6802,-342.9725C152.8508,-370.4178 98.5068,-563.197 78.3288,-643.1165"/>
-<polygon fill="#000000" stroke="#000000" points="220.2011,-341.4823 228.802,-343.2095 224.1005,-340.5912 228,-339.7 228,-339.7 228,-339.7 224.1005,-340.5912 227.198,-336.1905 220.2011,-341.4823 220.2011,-341.4823"/>
-<ellipse fill="none" stroke="#000000" cx="217.0815" cy="-342.1953" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M188.8978,-343.148C131.5599,-371.229 90.6692,-563.3652 75.9784,-643.1165"/>
+<polygon fill="#000000" stroke="#000000" points="195.2289,-341.6001 203.855,-343.197 199.1145,-340.65 203,-339.7 203,-339.7 203,-339.7 199.1145,-340.65 202.145,-336.203 195.2289,-341.6001 195.2289,-341.6001"/>
+<ellipse fill="none" stroke="#000000" cx="192.1205" cy="-342.3601" rx="3.2" ry="3.2"/>
 </g>
 <!-- patient_tracker_element -->
 <g id="node14" class="node">
@@ -906,16 +906,16 @@
 <!-- rule_patient_data&#45;&gt;rule_action_item -->
 <g id="edge60" class="edge">
 <title>rule_patient_data:w&#45;&gt;rule_action_item:e</title>
-<path fill="none" stroke="#000000" d="M535.5253,-372.334C499.2671,-370.4253 485.5774,-361.7 443,-361.7"/>
-<polygon fill="#000000" stroke="#000000" points="542.0026,-372.4977 549.909,-376.2988 546.0013,-372.5989 550,-372.7 550,-372.7 550,-372.7 546.0013,-372.5989 550.091,-369.1012 542.0026,-372.4977 542.0026,-372.4977"/>
-<ellipse fill="none" stroke="#000000" cx="538.8036" cy="-372.4168" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M535.3118,-372.0448C510.0942,-369.6767 499.3127,-361.7 468,-361.7"/>
+<polygon fill="#000000" stroke="#000000" points="542.0079,-372.3435 549.8396,-376.2964 546.004,-372.5217 550,-372.7 550,-372.7 550,-372.7 546.004,-372.5217 550.1604,-369.1036 542.0079,-372.3435 542.0079,-372.3435"/>
+<ellipse fill="none" stroke="#000000" cx="538.8111" cy="-372.2009" rx="3.2" ry="3.2"/>
 </g>
 <!-- rule_patient_data&#45;&gt;rule_action_item -->
 <g id="edge61" class="edge">
 <title>rule_patient_data:w&#45;&gt;rule_action_item:e</title>
-<path fill="none" stroke="#000000" d="M535.5253,-350.334C499.2671,-348.4253 485.5774,-339.7 443,-339.7"/>
-<polygon fill="#000000" stroke="#000000" points="542.0026,-350.4977 549.909,-354.2988 546.0013,-350.5989 550,-350.7 550,-350.7 550,-350.7 546.0013,-350.5989 550.091,-347.1012 542.0026,-350.4977 542.0026,-350.4977"/>
-<ellipse fill="none" stroke="#000000" cx="538.8036" cy="-350.4168" rx="3.2" ry="3.2"/>
+<path fill="none" stroke="#000000" d="M535.3118,-350.0448C510.0942,-347.6767 499.3127,-339.7 468,-339.7"/>
+<polygon fill="#000000" stroke="#000000" points="542.0079,-350.3435 549.8396,-354.2964 546.004,-350.5217 550,-350.7 550,-350.7 550,-350.7 546.004,-350.5217 550.1604,-347.1036 542.0079,-350.3435 542.0079,-350.3435"/>
+<ellipse fill="none" stroke="#000000" cx="538.8111" cy="-350.2009" rx="3.2" ry="3.2"/>
 </g>
 <!-- therapy_groups_participant_attendance -->
 <g id="node20" class="node">

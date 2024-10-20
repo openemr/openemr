@@ -50,6 +50,10 @@ unset($_POST['select_item']);
 if ($isPortal && $mode == 'update' && !empty($formid)) {
     CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
 }
+if (($_REQUEST['formOrigin'] ?? null) == 2) {
+    $encounter = 0;
+}
+
 if ($mode !== 'new' && $mode !== 'new_repository_form') {
     $service = new QuestionnaireService();
     $responseService = new QuestionnaireResponseService();

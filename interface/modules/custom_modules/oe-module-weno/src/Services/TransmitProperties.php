@@ -286,6 +286,9 @@ insurance;
         if (empty($relation)) {
             return 'REQED:{demographics}' . xlt("Patient is under 19 years old. A Responsible Party is required. From the Patient Chart select Demographics Primary Insurance or Guardian to add a person.");
         }
+        if (empty($relation['ResponsiblePartyPostalCode']) || empty($relation['ResponsiblePartyAddressLine1']) || empty($relation['ResponsiblePartyCity'])) {
+            return 'REQED:{demographics}' . xlt("Responsible Party Zip, Street and or City Missing, From the Patient Chart select Demographics Primary Insurance or Guardian to add or edit a person.");
+        }
 
         return $relation;
     }

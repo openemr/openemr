@@ -400,6 +400,17 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             }
             return pass;
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const passInput = document.getElementById('pass');
+            const toggle = document.getElementById('password-icon');
+            toggle.addEventListener('click', function () {
+                const isPassword = passInput.getAttribute('type') === 'password';
+                passInput.setAttribute('type', isPassword ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
     </script>
 
     <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
@@ -414,30 +425,33 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         ?>
     <?php } ?>
     <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-      }
-      .login-wrapper {
-        width: 100%;
-        max-width: 800px;
-        margin: 30px 0px auto;
-        padding: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-        border-radius: 10px;
-      }
-      .login-logo {
-        max-width: 60%;
-        height: auto;
-        text-align: center;
-      }
-      .login-title {
-        margin-bottom: 20px;
-        text-align: center;
-      }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 800px;
+            margin: 30px 0px auto;
+            padding: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .login-logo {
+            max-width: 60%;
+            height: auto;
+            text-align: center;
+        }
+
+        .login-title {
+            margin-bottom: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="login">
@@ -551,24 +565,24 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         <?php } else {
             ?> <!-- Main logon -->
         <div class="container-xl p-1">
-        <!-- Optionally show two logos, and in either order -->
+            <!-- Optionally show two logos, and in either order -->
             <?php if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'second') { ?>
                 <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
-                  <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
+                    <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                 <?php } ?>
                 <?php if ($GLOBALS['extra_portal_logo_login'] ?? null) { ?>
-                  <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
+                    <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                 <?php } ?>
-           <?php } else {
+            <?php } else {
                 if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'first') { ?>
                     <?php if ($GLOBALS['extra_portal_logo_login']) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                     <?php } ?>
                     <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
-                       <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
+                        <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                     <?php } ?>
-               <?php  } ?>
-           <?php } ?>
+                <?php } ?>
+            <?php } ?>
             <legend class="text-center bg-light text-dark pt-2 py-1"><h2><?php echo $GLOBALS['openemr_name'] . ' ' . xlt('Portal Login'); ?></h2></legend>
             <form class="mx-1" action="get_patient_info.php" method="POST" onsubmit="return process()">
                 <?php if (isset($redirectUrl)) { ?>
@@ -576,58 +590,65 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <?php } ?>
                 <div class="form-group">
                     <label for="uname"><?php echo xlt('Username') ?></label>
-                        <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
+                    <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
+                </div>
+                    <div id="standard-auth-password" class="form-group">
+                        <label for="pass"><?php echo xlt('Password') ?></label>
+                        <div class="input-group">
+                            <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                <div class="form-group">
-                    <label for="pass"><?php echo xlt('Password') ?></label>
-                        <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
-                    </div>
-                    <?php if ($GLOBALS['enforce_signin_email']) { ?>
+                <?php if ($GLOBALS['enforce_signin_email']) { ?>
                     <div class="form-group">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                            <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
-                        </div>
-                    <?php } ?>
-                    <?php if ($GLOBALS['language_menu_login']) { ?>
-                        <?php if (count($result3) != 1) { ?>
-                        <div class="form-group">
-                            <label for="selLanguage"><?php echo xlt('Language'); ?></label>
-                        <select class="form-control" id="selLanguage" name="languageChoice">
-                            <?php
-                            echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                            foreach ($result3 as $iter) {
-                                if ($GLOBALS['language_menu_showall']) {
+                        <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
+                    </div>
+                <?php } ?>
+                <?php if ($GLOBALS['language_menu_login']) { ?>
+                    <?php if (count($result3) != 1) { ?>
+                <div class="form-group">
+                    <label for="selLanguage"><?php echo xlt('Language'); ?></label>
+                    <select class="form-control" id="selLanguage" name="languageChoice">
+                        <?php
+                        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                            text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
+                        foreach ($result3 as $iter) {
+                            if ($GLOBALS['language_menu_showall']) {
+                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                    continue; // skip the dummy language
+                                }
+                                echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                    text($iter['trans_lang_description']) . "</option>\n";
+                            } else {
+                                if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                     if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                         text($iter['trans_lang_description']) . "</option>\n";
-                                } else {
-                                    if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                            continue; // skip the dummy language
-                                        }
-                                        echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                            text($iter['trans_lang_description']) . "</option>\n";
-                                    }
                                 }
                             }
-                            ?>
-                        </select>
-                        <?php }
-                    } ?>
-                    </div>
-                    <div class="col col-md col-sm">
-                        <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
-                        <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
-                            <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
-                        <?php } ?>
-                        <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                            <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                        }
+                        ?>
+                    </select>
+                    <?php }
+                } ?>
+                </div>
+                <div class="col col-md col-sm">
+                    <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
+                    <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
+                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
+                    <?php } ?>
+                    <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
+                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
-                        <?php } ?>
-                    </div>
+                    <?php } ?>
+                </div>
                 </fieldset>
                 <?php if (!(empty($hiddenLanguageField))) {
                     echo $hiddenLanguageField;

@@ -39,6 +39,7 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
@@ -95,8 +96,13 @@ class FhirEncounterService extends FhirServiceBase implements
             ),
             'patient' => $this->getPatientContextSearchField(),
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
-            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update'])
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update']);
     }
 
     /**

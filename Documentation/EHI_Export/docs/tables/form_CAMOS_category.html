@@ -124,49 +124,32 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="groupname">groupname</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
-                                    <td title='Automatically updated by the database'>√</td>
+                                    <td title=''></td>
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="form_CAMOS_subcategory.category_id references form_CAMOS_category.id"><a href='form_CAMOS_subcategory.html'>form_CAMOS_subcategory</a><span class='relatedKey'>.category_id</span></td>
+                                                <td title="form_CAMOS_category.groupname references groups.name"><a href='groups.html'>groups</a><span class='relatedKey'>.name</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="date">date</span></td>
-                                    <td>DATETIME</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
+                                    <td><p>The groupname that created this record.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pid">pid</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -186,9 +169,9 @@
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user">user</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -206,123 +189,9 @@
                                     </td>
                                     <td><p>User responsible for creating this category.</p></td>
                                 </tr>
-                                <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="groupname">groupname</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="form_CAMOS_category.groupname references groups.name"><a href='groups.html'>groups</a><span class='relatedKey'>.name</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td><p>The groupname that created this record.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="authorized">authorized</span></td>
-                                    <td>TINYINT</td>
-                                    <td>3</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="activity">activity</span></td>
-                                    <td>TINYINT</td>
-                                    <td>3</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="category">category</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="form_CAMOS.category references form_CAMOS_category.category"><a href='form_CAMOS.html'>form_CAMOS</a><span class='relatedKey'>.category</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <i class="fa fa-sitemap"></i>
-                            <h3 id="Indexes" class="box-title">Indexes</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <table
-                                    id="indexes_table"
-                                    class="table table-bordered table-striped dataTable"
-                                    role="grid"
-                                    data-paging="false"
-                                    data-page-length="10"
-                                    data-length-change="false">
-                                <thead>
-                                <tr>
-                                    <th>Constraint Name</th>
-                                    <th>Type</th>
-                                    <th>Sort</th>
-                                    <th>Column(s)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> PRIMARY</td>
-                                    <td>Primary key</td>
-                                    <td><span title='Ascending'>Asc</span></td>
-                                    <td>id</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">

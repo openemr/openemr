@@ -151,7 +151,9 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.state,";
         $sql .= "        a.zip,";
         $sql .= "        a.plus_four,";
-        $sql .= "        a.country";
+        $sql .= "        a.country,";
+        $sql .= "        i.date_created,";
+        $sql .= "        i.last_updated";
         $sql .= " FROM insurance_companies i ";
         $sql .= " LEFT JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
         // the foreign_id here is a globally unique sequence so there is no conflict.

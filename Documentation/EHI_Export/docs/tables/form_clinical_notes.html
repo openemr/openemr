@@ -141,12 +141,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="form_id">form_id</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
+                                    <td>BINARY</td>
+                                    <td>16</td>
+                                    <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -158,10 +158,10 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="form_id">form_id</span></td>
+                                    <td>BIGINT</td>
+                                    <td>19</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -180,7 +180,7 @@
                                     <td>10</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -197,7 +197,7 @@
                                     <td>19</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -219,7 +219,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -236,7 +236,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -253,7 +253,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -270,7 +270,7 @@
                                     <td>3</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -287,7 +287,7 @@
                                     <td>3</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -304,7 +304,7 @@
                                     <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -321,7 +321,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -338,7 +338,7 @@
                                     <td>65535</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -355,7 +355,7 @@
                                     <td>30</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -372,7 +372,7 @@
                                     <td>100</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -389,12 +389,29 @@
                                     <td><p>Comes from the list_options.list_id=&lsquo;Clinical_Note_Type&rsquo; and represents the standardized note type for this note</p></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="note_related_to">note_related_to</span></td>
+                                    <td>TEXT</td>
+                                    <td>65535</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>NULL</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Reference to lists id for note relationships(json)</p></td>
+                                </tr>
+                                <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="clinical_notes_category">clinical_notes_category</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>NULL</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -411,12 +428,12 @@
                                     <td><p>Comes from the list_options.list_id=&lsquo;Clinical_Note_Category&rsquo; and represents the main category for this kind of clinical note</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="note_related_to">note_related_to</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="last_updated">last_updated</span></td>
+                                    <td>DATETIME</td>
+                                    <td>19</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td title=''></td>
+                                    <td>current_timestamp()</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>

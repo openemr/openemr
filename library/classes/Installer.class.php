@@ -1346,14 +1346,23 @@ $config = 1; /////////////
             $this->user_database_connection();
         }
 
-        $results = mysqli_query($this->dbh, $sql);
-        if ($results) {
-            return $results;
-        } else {
+        try {
+            $results = mysqli_query($this->dbh, $sql);
+            if ($results) {
+                return $results;
+            } else {
+                if ($showError) {
+                    $error_mes = mysqli_error($this->dbh);
+                    $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
+                    error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
+                }
+                return false;
+            }
+        // this exception only occurs if MYSQLI_REPORT_STRICT is enabled (see https://www.php.net/manual/en/mysqli.query.php)
+        } catch (\mysqli_sql_exception $exception) {
             if ($showError) {
-                $error_mes = mysqli_error($this->dbh);
-                $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
-                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
+                $this->error_message = "unable to execute SQL: '$sql' due to: " . $exception->getMessage();
+                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($exception->getMessage(), ENT_QUOTES));
             }
             return false;
         }

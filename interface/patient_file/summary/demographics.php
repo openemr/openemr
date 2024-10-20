@@ -1161,14 +1161,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $viewArgs['content'] = ob_get_contents();
                     ob_end_clean();
 
-                    echo "<div class=\"col\">";
+                    echo "<div class='col m-0 p-0 mx-1'>";
                     echo $t->render('patient/card/rx.html.twig', $viewArgs); // render core prescription card
                     echo "</div>";
                 endif;
                 ?>
             </div>
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-8 px-2">
                     <?php
                     if ($deceased > 0) :
                         echo $twig->getTwig()->render('patient/partials/deceased.html.twig', [
@@ -1412,7 +1412,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endwhile; // end while
                     ?>
                 </div> <!-- end left column div -->
-                <div class="col-md-4">
+                <div class="col-md-4 px-2">
                     <!-- start right column div -->
                     <?php
                     $_extAccess = [

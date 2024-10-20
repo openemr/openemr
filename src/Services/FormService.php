@@ -48,6 +48,7 @@ class FormService
 
         $res = sqlStatement($sql, $arraySqlBind);
 
+        $all = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
         }

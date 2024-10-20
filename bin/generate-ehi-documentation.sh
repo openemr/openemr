@@ -11,6 +11,10 @@ SCHEMA_LOCATION=$EHI_ROOT_FILE/schemas/
 TEMPLATE_LOCATION=$EHI_ROOT_FILE/layout/
 DOC_OUTPUT=../Documentation/EHI_Export/docs/
 JAR_FILES=$EHI_ROOT_FILE/jars
+TYPE=mariadb
+MYSQL_CONNECTOR=$JAR_FILES/mysql-connector-j-8.1.0.jar
+MARIADB_CONNECTOR=$JAR_FILES/mariadb-java-client-3.4.1.jar
+JAVA_CONNECTOR=$MARIADB_CONNECTOR
 
 EYE_FORMS="form_eye_acuity|form_eye_antseg|form_eye_base|form_eye_biometrics|form_eye_external|form_eye_hpi|form_eye_locking|form_eye_mag_dispense|form_eye_mag_impplan|form_eye_mag_orders|form_eye_mag_wearing|form_eye_neuro|form_eye_postseg|form_eye_refraction|form_eye_ros|form_eye_vitals|form_taskman"
 CAMOS_FORMS="form_CAMOS|form_CAMOS_category|form_CAMOS_item|form_CAMOS_subcategory"
@@ -25,7 +29,6 @@ THERAPY_PATIENT_TABLES="therapy_groups_participant_attendance|therapy_groups_par
 PORTAL_TABLES="onsite_messages|onsite_mail|patient_access_onsite|onsite_documents|onsite_signatures|onsite_portal_activity"
 PROCEDURE_TABLES="procedure_order|procedure_providers|procedure_answers|procedure_questions|procedure_type|procedure_report|procedure_order_code|procedure_result"
 TABLES_INCLUDE="($BASE_PATIENT_TABLES|$BILLING_TABLES|$FORM_ENCOUNTERS|$CALENDAR_TABLES|$STATIC_TABLES|$PATIENT_REMINDER_TABLES|$ASSESSMENT_TABLES|$THERAPY_PATIENT_TABLES|$PROCEDURE_TABLES|$PORTAL_TABLES)"
-#FILTER_CLAUSE=-I "dac_.*"
 FILTER_CLAUSE="-i $TABLES_INCLUDE"
 
 #vizjs uses javascript visual
@@ -40,5 +43,4 @@ FILTER_CLAUSE="-i $TABLES_INCLUDE"
 # -noDbObjectPaging
 # schema file is named openemr.meta.xml
 
-#java -jar schemaspy.jar -t mysql -host 10.0.12 -port 8320 -db openemr -u openemr -p openemr -o schemaspy -s openemr -dp ./mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar -vizjs -pfp -norows -noimplied -dbObjectPageLength 50 -I "(openemr.dac_[a-zA-Z_])*" -meta ../schemas
-java -jar $JAR_FILES/schemaspy.jar -t mysql -host $DB_HOST -port $DB_PORT -db $DB_NAME -u $DB_USER -p $DB_PASSWORD -o $DOC_OUTPUT -s $DB_SCHEMA -dp $JAR_FILES/mysql-connector-j-8.1.0.jar -vizjs -norows -noimplied -nopages $FILTER_CLAUSE -meta $SCHEMA_LOCATION -template $TEMPLATE_LOCATION
+java -jar $JAR_FILES/schemaspy.jar -t $TYPE -host $DB_HOST -port $DB_PORT -db $DB_NAME -u $DB_USER -p $DB_PASSWORD -o $DOC_OUTPUT -s $DB_SCHEMA -dp $JAVA_CONNECTOR -vizjs -norows -noimplied -nopages $FILTER_CLAUSE -meta $SCHEMA_LOCATION -template $TEMPLATE_LOCATION

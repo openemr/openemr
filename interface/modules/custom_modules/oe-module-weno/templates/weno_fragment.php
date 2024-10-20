@@ -18,7 +18,7 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-if (!AclMain::aclCheckCore('patients', 'rx', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo xlt("Not Authorized to use this widget.");
     return;
 }
@@ -93,7 +93,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     }
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1 and id = ?", array($_SESSION['authUserID'] ?? 0));
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", array($_SESSION['authUserID'] ?? 0));
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -108,6 +108,10 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
 <style>
   .dialog-alert {
     font-size: 14px;
+  }
+
+  div.row div section div.section-header-dynamic {
+    margin-left: 0.5rem;
   }
 </style>
 <script>

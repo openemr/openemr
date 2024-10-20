@@ -124,11 +124,11 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
+                                    <td><span id="activity">activity</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
-                                    <td title='Automatically updated by the database'>√</td>
+                                    <td title=''></td>
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
@@ -138,13 +138,64 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Unique identifier for each aftercare plan entry. Primary key.</p></td>
+                                    <td><p>1 if plan is active, 0 if deleted</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="admit_date">admit_date</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Date when the patient was admitted to the aftercare plan.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="authorized">authorized</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Indicates authorization status for the aftercare plan.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="client_name">client_name</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Human readable name of the patient for whom the aftercare plan is created.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date">date</span></td>
-                                    <td>DATETIME</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -158,10 +209,10 @@
                                     <td><p>Date and time when the aftercare plan was created.</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pid">pid</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="discharged">discharged</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -170,20 +221,15 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="form_aftercare_plan.pid references patient_data.pid"><a href='patient_data.html'>patient_data</a><span class='relatedKey'>.pid</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>The internal patient identifier</p></td>
+                                    <td><p>Date when the patient was discharged from the aftercare plan.</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user">user</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="goal_a_acute_intoxication">goal_a_acute_intoxication</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -192,20 +238,15 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="form_aftercare_plan.user references users.username"><a href='users.html'>users</a><span class='relatedKey'>.username</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>User responsible for creating the aftercare plan.</p></td>
+                                    <td><p>1st Goal for Acute Intoxication/Withdrawal.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="provider">provider</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="goal_a_acute_intoxication_I">goal_a_acute_intoxication_I</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -216,13 +257,98 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Provider assigned to the patient for aftercare planning.UNUSED</p></td>
+                                    <td><p>2nd Goal for Acute Intoxication/Withdrawal.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="goal_a_acute_intoxication_II">goal_a_acute_intoxication_II</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>3rd Goal for Acute Intoxication/Withdrawal.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="goal_b_emotional_behavioral_conditions">goal_b_emotional_behavioral_conditions</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>1st Goal for Emotional/Behavioral Conditions and Complications.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="goal_b_emotional_behavioral_conditions_I">goal_b_emotional_behavioral_conditions_I</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>2nd Goal for Emotional/Behavioral Conditions and Complications.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="goal_c_relapse_potential">goal_c_relapse_potential</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>1st Goal related to Relapse Potential.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="goal_c_relapse_potential_I">goal_c_relapse_potential_I</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>2nd Goal related to Relapse Potential.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="groupname">groupname</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -241,10 +367,10 @@
                                     <td><p>The groupname that created this record.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="authorized">authorized</span></td>
-                                    <td>TINYINT</td>
-                                    <td>3</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="id">id</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -255,13 +381,13 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Indicates authorization status for the aftercare plan.</p></td>
+                                    <td><p>Unique identifier for each aftercare plan entry. Primary key.</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="activity">activity</span></td>
-                                    <td>TINYINT</td>
-                                    <td>3</td>
-                                    <td title='nullable'>√</td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pid">pid</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -270,15 +396,20 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="form_aftercare_plan.pid references patient_data.pid"><a href='patient_data.html'>patient_data</a><span class='relatedKey'>.pid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>1 if plan is active, 0 if deleted</p></td>
+                                    <td><p>The internal patient identifier</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="client_name">client_name</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="provider">provider</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -289,13 +420,13 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Human readable name of the patient for whom the aftercare plan is created.</p></td>
+                                    <td><p>Provider assigned to the patient for aftercare planning.UNUSED</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="admit_date">admit_date</span></td>
-                                    <td>DATE</td>
-                                    <td>10</td>
-                                    <td title='nullable'>√</td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user">user</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -304,185 +435,18 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="form_aftercare_plan.user references users.username"><a href='users.html'>users</a><span class='relatedKey'>.username</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>Date when the patient was admitted to the aftercare plan.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="discharged">discharged</span></td>
-                                    <td>DATE</td>
-                                    <td>10</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>Date when the patient was discharged from the aftercare plan.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_a_acute_intoxication">goal_a_acute_intoxication</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>1st Goal for Acute Intoxication/Withdrawal.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_a_acute_intoxication_I">goal_a_acute_intoxication_I</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>2nd Goal for Acute Intoxication/Withdrawal.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_a_acute_intoxication_II">goal_a_acute_intoxication_II</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>3rd Goal for Acute Intoxication/Withdrawal.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_b_emotional_behavioral_conditions">goal_b_emotional_behavioral_conditions</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>1st Goal for Emotional/Behavioral Conditions and Complications.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_b_emotional_behavioral_conditions_I">goal_b_emotional_behavioral_conditions_I</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>2nd Goal for Emotional/Behavioral Conditions and Complications.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_c_relapse_potential">goal_c_relapse_potential</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>1st Goal related to Relapse Potential.</p></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="goal_c_relapse_potential_I">goal_c_relapse_potential_I</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td><p>2nd Goal related to Relapse Potential.</p></td>
+                                    <td><p>User responsible for creating the aftercare plan.</p></td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <i class="fa fa-sitemap"></i>
-                            <h3 id="Indexes" class="box-title">Indexes</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <table
-                                    id="indexes_table"
-                                    class="table table-bordered table-striped dataTable"
-                                    role="grid"
-                                    data-paging="false"
-                                    data-page-length="10"
-                                    data-length-change="false">
-                                <thead>
-                                <tr>
-                                    <th>Constraint Name</th>
-                                    <th>Type</th>
-                                    <th>Sort</th>
-                                    <th>Column(s)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> PRIMARY</td>
-                                    <td>Primary key</td>
-                                    <td><span title='Ascending'>Asc</span></td>
-                                    <td>id</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">

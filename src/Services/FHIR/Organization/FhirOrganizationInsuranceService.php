@@ -59,8 +59,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
             'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
             'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ["zip"]),
             'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name'])
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['name']),
+            '_lastUpdated' => $this->getLastModifiedSearchField()
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
@@ -91,10 +97,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
     {
         $organizationResource = new FHIROrganization();
 
-        $fhirMeta = new FHIRMeta();
-        $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
-        $organizationResource->setMeta($fhirMeta);
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        if (!empty($dataRecord['last_updated'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['last_updated']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
+        $organizationResource->setMeta($meta);
         $organizationResource->setActive($dataRecord['inactive'] == '0');
 
         $narrativeText = trim($dataRecord['name'] ?? "");

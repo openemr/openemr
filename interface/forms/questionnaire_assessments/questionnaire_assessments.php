@@ -38,6 +38,11 @@ $responseService = new QuestionnaireResponseService();
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;
 $repository_item = $_POST['select_item'] ?? null;
 
+$isModule = ($_REQUEST['formOrigin'] ?? null) == 2;
+$isDashboard = ($_REQUEST['formOrigin'] ?? null) == 1;
+if ($isModule) {
+    $questionnaire_form = $_GET['formname'] ?? null;
+}
 if ($isPortal) {
     $questionnaire_form = $_GET['formname'] ?? null;
 }
@@ -74,10 +79,11 @@ try {
     $q_json = '';
     $lform = '';
     $form_name = '';
+    // By name is for new form from repository.
     if (empty($formid) && !empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
         // since we are here then user is authorized for a pre-approved questionnaire form.
         $is_authorized = true;
-        if ($isPortal) {
+        if ($isPortal || $isModule) {
             if (is_numeric($questionnaire_form)) {
                 $q = $service->fetchQuestionnaireById((int)$questionnaire_form);
             } else {
@@ -90,6 +96,9 @@ try {
         $lform = $q['lform'] ?: '';
         $mode = 'new_form';
         $form_name = $q['name'] ?: '';
+        if (empty($q_json) && empty($lform)) {
+            throw (new Exception(xl("Unable to find questionnaire form" . ' ' . $questionnaire_form)));
+        }
     }
 // This is for newly selected questionnaire from repository dropdown.
     if (!empty($repository_item) && $questionnaire_form == 'New Questionnaire') {
@@ -99,7 +108,6 @@ try {
         $form_name = $q['name'] ?: '';
         $mode = 'new_repository_form';
     }
-
     if (!$isPortal) {
         $do_warning = checkUserSetting('disable_form_disclaimer', '1') === true ? 0 : 1;
     }
@@ -107,7 +115,8 @@ try {
         $q_list = $service->getQuestionnaireList(true);
     }
 } catch (Exception $e) {
-    die(xlt("Can not continue with reason.") . '<br />' . text($e->getMessage()));
+    $msg = "<p style='color: red; font-size: 1.25rem;'>" . xlt("Can not continue") . ": " . text($e->getMessage()) . "</p>";
+    die($msg);
 }
 /* where to put the LOINC statement , and the statement itself */
 $top_note = true; // default to top if not set in configuration
@@ -153,9 +162,12 @@ if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
     $theme = 'dark';
 }
 
-$container = 'container-fluid';
-if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
+if ($isModule || $isDashboard || $isPortal) {
+    $container = 'container-fluid';
+} elseif (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
     $container = 'container';
+} else {
+    $container = 'container-fluid';
 }
 
 ?>
@@ -166,6 +178,11 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
     <title id="main_title"><?php echo xlt('Questionnaire'); ?></title>
     <?php Header::setupHeader(); ?>
     <!-- TODO remove next release -->
+    <style>
+        .lhc-form-title {
+            padding: .25rem !important;
+        }
+    </style>
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
         let portalOther = <?php echo js_escape($patientPortalOther); ?>;
@@ -423,7 +440,7 @@ if (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
 </head>
 <body class="bg-light" data-theme="<?php echo attr($theme); ?>">
     <div class="<?php echo attr($container); ?>">
-        <?php if (!$isPortal) { ?>
+        <?php if (!$isPortal && !$isModule && !$isDashboard) { ?>
             <div class="title bg-light text-dark">
                 <h4><?php if ($mode != 'new_form' && $mode != 'update') {
                         echo xlt("Create Encounter Questionnaires");

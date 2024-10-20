@@ -20,6 +20,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
@@ -50,9 +51,17 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
             'patient' => $this->getPatientContextSearchField(),
             'code' => new FhirSearchParameterDefinition('code', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
+            // shouldn't be a problem if date and _lastUpdated are provided as it will just be ignored with duplicate WHERE clause conditions
+            // TODO: @adunsulag test this assumption to make sure it is correct
             'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => $this->getLastModifiedSearchField(),
         ];
+    }
+
+    public function getLastModifiedSearchField(): ?FhirSearchParameterDefinition
+    {
+        return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']);
     }
 
     /**
