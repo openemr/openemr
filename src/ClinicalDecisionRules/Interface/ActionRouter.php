@@ -50,7 +50,11 @@ class ActionRouter
         }
 
         $result = $this->perform($this->action);
-
+        // if the action is a file attachment download or anything else
+        // we want to just return it.
+        if ($result instanceof Response) {
+            return $result;
+        }
         $forward = $result->_forward ?? null;
         if ($forward) {
             $result = $this->perform($forward);
@@ -74,12 +78,16 @@ class ActionRouter
         $actionMethod = '_action_' . $action;
 
         if (method_exists($this->controller, $actionMethod)) {
-            $this->controller->$actionMethod();
+            $result = $this->controller->$actionMethod();
         } else {
-            $this->controller->_action_default();
+            $result = $this->controller->_action_default();
         }
 
-        return $this->controller->viewBean;
+        if ($result instanceof Response) {
+            return $result;
+        } else {
+            return $this->controller->viewBean;
+        }
     }
 
     protected function renderView($viewBean): string

@@ -24,7 +24,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <body class='body_top'>
-    <div class="container-xl">
+    <div class="<?php echo isset($viewBean->_view_body_fluid) ? "container-fluid" : "container-xl" ?>">
         <?php
         if (file_exists($viewBean->_view_body)) {
             require_once($viewBean->_view_body);

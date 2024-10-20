@@ -10,7 +10,6 @@
 
 require_once("../../globals.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Twig\TwigContainer;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +23,7 @@ try {
     $request = Request::createFromGlobals();
     $controllerRouter = new ControllerRouter();
     $response = $controllerRouter->route($request);
-} catch (AccessDeniedException|CsrfInvalidException $e) {
+} catch (AccessDeniedException | CsrfInvalidException $e) {
     // Log the exception
     (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
     $contents = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Rules")]);

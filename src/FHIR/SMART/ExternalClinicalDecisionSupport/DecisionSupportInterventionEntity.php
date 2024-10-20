@@ -15,7 +15,7 @@ abstract class DecisionSupportInterventionEntity
 
     protected array $allowedTypes = ['text' => true];
 
-    public function __construct(string $type, ?ClientEntity $client=null)
+    public function __construct(string $type, ?ClientEntity $client = null)
     {
         $this->setType($type);
         if ($client != null) {

@@ -70,12 +70,12 @@ class RouteController
         ,'mainActionChild' => $mainActionChild
         ,'subAction' => $subAction] = $this->parseRequest($request);
 
-       if ($mainActionChild == 'edit') {
+        if ($mainActionChild == 'edit') {
             return $this->editAction($request);
         } else if ($mainActionChild == 'save') {
-           return $this->saveAction($request);
+            return $this->saveAction($request);
         } else if ($mainActionChild == 'cdr-info') {
-           return $this->cdrInfoAction($request);
+            return $this->cdrInfoAction($request);
         } else {
             return $this->notFoundAction($request);
         }
