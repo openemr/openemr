@@ -29,24 +29,24 @@ $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name "
 
 //collect immunizations
 $res3 = getImmunizationList($pid, $_GET['sortby'], false);
-$data_array = convertToDataArray($res3);
+$dataArray = convertToDataArray($res3);
 
 $title = xl('Shot Record as of:') . ' ' . date('m/d/Y h:i:s a');
 
 if ($_GET['output'] == "html") {
-    printHTML($res, $res2, $data_array);
+    printHtml($res, $res2, $dataArray);
 } else {
-    printPDF($res, $res2, $data_array);
+    printPdf($res, $res2, $dataArray);
 }
 
 
-function convertToDataArray($data_array)
+function convertToDataArray($dataArray)
 {
     $current = 0;
-    while ($row = sqlFetchArray($data_array)) {
+    while ($row = sqlFetchArray($dataArray)) {
         //admin date
-        $temp_date = new DateTime($row['administered_date']);
-        $data[$current][xl('Date') . "\n" . xl('Admin')] = $temp_date->format('Y-m-d H:i'); //->format('%Y-%m-%d %H:%i');
+        $tempDate = new DateTime($row['administered_date']);
+        $data[$current][xl('Date') . "\n" . xl('Admin')] = $tempDate->format('Y-m-d H:i'); //->format('%Y-%m-%d %H:%i');
 
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
@@ -72,10 +72,10 @@ function convertToDataArray($data_array)
 
         //expiration date fixed by checking for empty value, smw 040214
         if (isset($row['expiration_date'])) {
-            $temp_date = new DateTime($row['expiration_date']);
-            $data[$current][xl('Expiration') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
+            $tempDate = new DateTime($row['expiration_date']);
+            $data[$current][xl('Expiration') . "\n" . xl('Date')] = $tempDate->format('Y-m-d');
         } else {
-            $data[$current][xl('Expiration') . "\n" . xl('Date')] = '';//$temp_date->format('Y-m-d');
+            $data[$current][xl('Expiration') . "\n" . xl('Date')] = '';//$tempDate->format('Y-m-d');
         }
 
         //Manufacturer
@@ -88,8 +88,8 @@ function convertToDataArray($data_array)
         $data[$current][xl('Admin') . "\n" . xl('By')] = $row['administered_by'];
 
         //education date
-        $temp_date = new DateTime($row['education_date']);
-        $data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
+        $tempDate = new DateTime($row['education_date']);
+        $data[$current][xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date')] = $tempDate->format('Y-m-d');
 
         //Route
         $data[$current][xl('Route')] = generate_display_field(array('data_type' => '1','list_id' => 'drug_route'), $row['route']);
@@ -105,7 +105,7 @@ function convertToDataArray($data_array)
     return $data;
 }
 
-function printPDF($res, $res2, $data)
+function printPdf($res, $res2, $data)
 {
 
     $pdf = new Cezpdf("LETTER");
@@ -125,7 +125,7 @@ function printPDF($res, $res2, $data)
     $pdf->ezStream();
 }
 
-function printHTML($res, $res2, $data)
+function printHtml($res, $res2, $data)
 {
 //print html css
 
