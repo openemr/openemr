@@ -341,6 +341,7 @@ function onvalue($name)
                                             'SFTP' => xl('SFTP'),
                                             'FS' => xl('Local Filesystem'),
                                             'WS' => xl('Web Service'),
+                                            'DORN' => xl('Dorn'),
                                             ) as $key => $value
                                         ) {
                                             echo "    <option value='" . attr($key) . "'";
