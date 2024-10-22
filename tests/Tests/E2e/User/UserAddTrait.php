@@ -81,14 +81,40 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        // assert the new user is in the database (check 3 times with 5 second delay prior each check to
+        // ensure allow enough time)
+        $userExistDatabase = false;
+        $counter = 0;
+        while (!$userExistDatabase && $counter < 3) {
+            if ($counter > 0) {
+                echo "TRY " . ($counter+1) . " of 3 to see if new user is in database";
+            }
+            sleep(5);
+            if ($this->userExistDatabase($username)) {
+                $userExistDatabase = true;
+            }
+            $counter++;
+        }
+        $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
+        // assert the new user can be seen in the gui
         $this->client->switchTo()->defaultContent();
-        // assert the new user has been added
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
         // below line will throw a timeout exception and fail if the new user is not listed
         $this->client->waitFor("//table//a[text()='$username']");
         $this->client->switchTo()->defaultContent();
+    }
+
+    private function userExistDatabase(string $username): bool
+    {
+        if (empty($username)) {
+            return false;
+        }
         $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-        $this->assertSame(($usernameDatabase['username'] ?? ''), $username, 'New user is not in database, so FAILED');
+        if (($usernameDatabase['username'] ?? '') != $username) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
