@@ -28,6 +28,7 @@ require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_
 
 use edih_271_codes;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -430,8 +431,11 @@ class EDI270
         LEFT JOIN insurance_companies as c ON (c.id = i.provider)
         WHERE p.pid = ?";
         $res = sqlStatement($query, array($pid));
-
-        $details = self::requestRealTimeEligible($res, '', "~", ':', true);
+        $resArray = array();
+        while ($row = sqlFetchArray($res)) {
+            $resArray[] = $row;
+        }
+        $details = self::requestRealTimeEligible($resArray, '', "~", ':', true);
         if ($details === false) {
             $details = "Error: Nothing returned from X12 Partner.";
         }
@@ -666,9 +670,6 @@ class EDI270
             }
             $col++;
         }
-        if ($col === 2) {
-            $showString .= "</div>";
-        }
         if ($title === 1) {
             $showString .= "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
         }
@@ -789,10 +790,12 @@ class EDI270
             $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
             $payloadId = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
         }
-
         $boundary = RandomGenUtils::createUniqueToken(12);
-        $rt_passwrd = $X12info['x12_isa04'];
-        $rt_user = $X12info['x12_isa02'];
+
+        $cryptoGen = new CryptoGen();
+        $decrypted_password = $cryptoGen->decryptStandard($X12info['x12_sftp_pass']);
+        $rt_passwrd = $decrypted_password;
+        $rt_user = $X12info['x12_sftp_login'];
         $sender_id = $X12info['x12_sender_id'];
         $receiver_id = $X12info['x12_receiver_id'];
         $now_date = date("Y-m-d\TH:i:s\Z");
@@ -856,9 +859,9 @@ MIMEBODY;
         $formBody = $response->body();
         $contentType = $response->header('Content-Type')[0];
         $hContentLength = (int)$response->header('Content-Length')[0];
-        $cksum = ($hContentLength - strlen($formBody)) === 0 ? true : false; // validate content size
+        $cksum = ($hContentLength - strlen($formBody)) === 0; // validate content size
         $formData = self::mimeParse($formBody, $contentType);
-
+        // validate the response
         $errors = '';
         if (!$cksum) {
             $errors .= "Error:" . xlt("Request Content Fails Integrity Test");
@@ -874,28 +877,41 @@ MIMEBODY;
             return $errors;
         }
 
-        $x12_271 = $formData['Payload'];
-
-        return $x12_271;
+        return $formData['Payload'];
     }
 
-    public static function mimeParse(string $formBody = null, $contentType)
+    public static function mimeParse(string $formBody, $contentType)
     {
-        $mimeBody = preg_replace('~\r\n?~', "\r", $formBody);
-        list($contentType, $bound, $cs) = explode(";", trim($contentType)); // $contentType & $cs are throwaways
-        $bound = explode("=", trim($bound, ' '))[1];
-        $mimeFields = preg_split("/-+$bound/", $mimeBody);
-        array_pop($mimeFields);
-        $hold = $isMatches = [];
-        foreach ($mimeFields as $id => $field) {
+        // Normalize
+        $mimeBody = preg_replace('~\r\n?~', "\r\n", $formBody);
+        // Extract boundary from content type
+        list($contentType, $boundaryDirective) = explode(";", trim($contentType));
+        $boundary = trim(explode("=", trim($boundaryDirective))[1], '"');
+        $boundary = preg_quote($boundary, '/');
+        // Split the body using boundary
+        $pattern = "/--" . $boundary . "(--)?\r?\n/";
+        $mimeFields = preg_split($pattern, $mimeBody);
+        // Remove any empty elements, like the final one after the closing boundary
+        $mimeFields = array_filter($mimeFields);
+        $mimeData = [];
+        foreach ($mimeFields as $field) {
             if (empty($field)) {
                 continue;
             }
-            preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $field, $isMatches);
-            if (preg_match('/^(.*)\[\]$/i', $isMatches[1], $hold)) {
-                $mimeData[$hold[1]][] = $isMatches[2];
-            } else {
-                $mimeData[$isMatches[1]] = $isMatches[2];
+            // extract name and content from the field
+            if (preg_match('/Content-Disposition:.*?name="([^"]+)"[\r\n]+(?:[^\r\n]+\r\n)?([\s\S]+)\r\n$/', $field, $matches)) {
+                $name = $matches[1];
+                $content = trim($matches[2]);
+                // Check if the field is an array (i.e., name ends with "[]")
+                if (substr($name, -2) === '[]') {
+                    $name = substr($name, 0, -2);
+                    if (!isset($mimeData[$name])) {
+                        $mimeData[$name] = [];
+                    }
+                    $mimeData[$name][] = $content;
+                } else {
+                    $mimeData[$name] = $content;
+                }
             }
         }
         return $mimeData;
@@ -927,7 +943,7 @@ MIMEBODY;
             $responses = $content;
         }
 
-// Loop through each 271. '\n' delims records in batch.
+        // Loop through each 271. '\n' delims records in batch.
         foreach ($responses as $new) {
             if (empty($new)) {
                 continue;
@@ -1017,7 +1033,7 @@ MIMEBODY;
                         $trace++;
                         if ($in['pid']) {
                             $in['benefits'] = $benefits ? $benefits : [];
-                            array_push($subscribers, $in);
+                            $subscribers[] = $in;
                             $loop['context'] = $elements[0];
                             $benefits = [];
                         }
