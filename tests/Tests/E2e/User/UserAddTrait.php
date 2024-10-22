@@ -87,7 +87,7 @@ trait UserAddTrait
         $counter = 0;
         while (!$userExistDatabase && $counter < 3) {
             if ($counter > 0) {
-                echo "TRY " . ($counter+1) . " of 3 to see if new user is in database";
+                echo "TRY " . ($counter + 1) . " of 3 to see if new user is in database";
             }
             sleep(5);
             if ($this->userExistDatabase($username)) {
