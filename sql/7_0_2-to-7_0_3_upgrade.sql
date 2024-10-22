@@ -316,3 +316,7 @@ CREATE TABLE `dsi_source_attributes` (
 #IfMissingColumn oauth_clients dsi_type
 ALTER TABLE `oauth_clients` ADD `dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=none, 1=evidence-based,2=predictive';
 #EndIf
+
+#IfMissingColumn clinical_rules_log facility_id
+ALTER TABLE `clinical_rules_log` ADD `facility_id` INT(11) DEFAULT '0' COMMENT 'facility where the rule was executed, 0 if unknown';
+#EndIf

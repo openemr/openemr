@@ -177,6 +177,10 @@ $records = $viewBean->records ?>
                 </th>
 
                 <th align='center'>
+                    <?php echo xlt('Facility ID'); ?>
+                </th>
+
+                <th align='center'>
                     <?php echo xlt('Category'); ?>
                 </th>
 
@@ -195,6 +199,7 @@ $records = $viewBean->records ?>
                         <td><?php echo text(oeFormatDateTime($row['date'], "global", true)); ?></td>
                         <td><?php echo text($row['pid']); ?></td>
                         <td><?php echo text($row['uid']); ?></td>
+                        <td><?php echo text($row['facility_id']); ?></td>
                         <td><?php echo text($row['category_title']); ?></td>
                         <td>
                             <?php

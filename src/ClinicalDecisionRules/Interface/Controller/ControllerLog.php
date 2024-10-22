@@ -20,7 +20,7 @@ class ControllerLog extends BaseController
         parent::__construct();
     }
 
-    const HEADERS = ["date", "patient_pid", "user_id", "category", "value", "new_value"];
+    const HEADERS = ["date", "patient_pid", "user_id", "facility_id", "category", "value", "new_value"];
 
     public function _action_view()
     {
@@ -62,6 +62,7 @@ class ControllerLog extends BaseController
                     $record['date'],
                     $record['pid'],
                     $record['uid'],
+                    $record['facility_id'],
                     $record['category'],
                     $record['value'],
                     $record['new_value']

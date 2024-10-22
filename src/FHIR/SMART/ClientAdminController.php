@@ -765,7 +765,7 @@ class ClientAdminController
         exit;
     }
 
-    private function revokeAccessToken($clientId, array $request)
+    private function revokeAccessToken($clientId, Request $request)
     {
         $action = $request->query->get('action', '');
         $parts = explode("/", $action);
@@ -949,7 +949,7 @@ class ClientAdminController
         <?php
         $this->renderFooter();
     }
-    private function enableAuthorizationFlowSkipAction(string $clientId, array $request)
+    private function enableAuthorizationFlowSkipAction(string $clientId, Request $request)
     {
          $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
@@ -960,7 +960,7 @@ class ClientAdminController
         $this->handleAuthorizationFlowSkipAction($client, true, $message);
         exit;
     }
-    private function disableAuthorizationFlowSkipAction(string $clientId, array $request)
+    private function disableAuthorizationFlowSkipAction(string $clientId, Request $request)
     {
          $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {

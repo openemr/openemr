@@ -77,25 +77,10 @@ class SmartLaunchController
         ?>
         <section>
             <?php
-            // Billing expand collapse widget
-            $widgetTitle = xl("SMART Enabled Apps");
-            $widgetLabel = "smart";
-            $widgetButtonLabel = xl("Edit");
-            $widgetButtonLink = ""; // "return newEvt();";
-            $widgetButtonClass = "";
-            $linkMethod = "javascript";
-            $bodyClass = "notab";
-            $widgetAuth = false;
-            $fixedWidth = false;
-            $forceExpandAlways = false;
             $launchCode = $this->getLaunchCodeContext($puuid);
-            // TODO: adunsulag is there an redirect_uri that we can specify for the launch path?? The spec feels vague
-            // here...  all the SMART apps we've seen appear to follow a 'launch.html' nomenclature but that doesn't
-            // appear to be required in the spec.
 
-            $issuer = (new ServerConfig())->getFhirUrl();
-            // issuer and audience are the same in a EHR SMART Launch
-
+        // issuer and audience are the same in a EHR SMART Launch
+        $issuer = (new ServerConfig())->getFhirUrl();
             $viewArgs = [
                         'title' => xl('SMART Enabled Apps'),
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
@@ -106,7 +91,8 @@ class SmartLaunchController
                         'auth' => false,
                         'issuer' => $issuer,
                         'launchCode' => $launchCode,
-                        'smartClients' => $smartClients
+                        'smartClients' => $smartClients,
+                        'intent' => SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG
             ];
 
             $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();

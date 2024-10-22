@@ -28,7 +28,7 @@ class ControllerReview extends BaseController
         $ruleId = Common::get('rule_id');
         $pid = $_SESSION['pid']; // don't trust the pid in the URL
 
-        if (!!AclMain::aclCheckCore('patients', 'med')) {
+        if (!AclMain::aclCheckCore('patients', 'med')) {
             throw new AccessDeniedException("patients", "med", "Invalid ACL access to CDR review");
         }
 

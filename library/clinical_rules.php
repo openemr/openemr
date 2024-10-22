@@ -39,7 +39,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
     }
 
     $sqlArray = array();
-    $sql = "SELECT `date`, `pid`, `uid`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
+    $sql = "SELECT `date`, `pid`, `uid`, `facility_id`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
     $sqlArray[] = $end_date;
     if (!empty($begin_date)) {
         $sql .= " AND `date` >= ?";
@@ -422,9 +422,43 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
             $new_targets_json = json_encode($new_targets);
         }
 
+        // we attempt to find the location the CDR rule was rendered at by first looking at the user's facility
+        // and then the facility of the encounter that triggered the rule, whichever was last updated most recently
+        // will give us our best guess at the location the rule was rendered at.  This operates on the assumption that
+        // the encounter will be the most recent update showing the patient's last facility rendered services at
+        // however, if there is no encounter we need to grab it from the user in the CDR's facility
+        $facilityLocationSQL = "(SELECT
+        facility_ids.facility_id
+    FROM
+        (
+        SELECT
+            `facility_id`,
+            last_updated
+        FROM
+            `users`
+        WHERE
+            `id` = ?
+        UNION
+    SELECT
+        `facility_id`,
+        `last_update` AS last_updated
+    FROM
+        `form_encounter`
+    WHERE
+        `pid` = ? AND(
+            provider_id = ? OR supervisor_id = ?
+        )
+    ) facility_ids
+ORDER BY
+    facility_ids.last_updated
+LIMIT 1)";
+        $binds = [$patient_id,$userid,$category,$current_targets_json,$new_targets_json,
+            $userid, // users table facility bind
+            $patient_id, $userid, $userid // form_encounter table facility bind
+        ];
         sqlStatement("INSERT INTO `clinical_rules_log` " .
-              "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
-              "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json));
+              "(`date`,`pid`,`uid`,`category`,`value`,`new_value`, `facility_id`) " .
+              "VALUES (NOW(),?,?,?,?,?, " . $facilityLocationSQL . ")", $binds);
     }
 
   // Return new actions (if there are any)
