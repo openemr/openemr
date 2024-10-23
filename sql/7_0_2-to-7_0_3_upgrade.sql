@@ -205,28 +205,27 @@ ALTER TABLE `patient_data` ADD `last_updated` DATETIME NOT NULL DEFAULT CURRENT_
 #EndIf
 
 #IfMissingColumn clinical_rules patient_sodh_usage
-ALTER TABLE `clinical_rules` ADD `patient_dob_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_dob_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient DOB is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_ethnicity_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_ethnicity_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient ethnicity is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_health_status_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_health_status_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient health status assessments are used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_gender_identity_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_gender_identity_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient gender identity information is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_language_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_language_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient language information is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_race_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_race_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient race information is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_sex_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_sex_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient birth sex information is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_sexual_orientation_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_sexual_orientation_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient sexual orientation is used by this rule';
-ALTER TABLE `clinical_rules` ADD `patient_sodh_usage` VARCHAR(255) NOT NULL DEFAULT ''
+ALTER TABLE `clinical_rules` ADD `patient_sodh_usage` TEXT NOT NULL DEFAULT ''
     COMMENT 'Description of how patient social determinants of health are used by this rule';
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id dsi_predictive_source_attributes
--- Create new list Default Open Tabs
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_predictive_source_attributes', 'Predictive Decision Support Interventions Source Attributes');
 -- Populate list with ONC default values
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_developer', 'Name and contact information for the intervention developer', 1);
@@ -263,7 +262,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id dsi_evidence_source_attributes
--- Create new list Default Open Tabs
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_evidence_source_attributes', 'Evidence Based Decision Support Interventions Source Attributes');
 -- Populate list with ONC default values
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_citation', 'Bibliographic citation of the intervention (clinical research or guideline)', 1);
@@ -288,29 +286,14 @@ CREATE TABLE `dsi_source_attributes` (
      `list_id` VARCHAR(100) NOT NULL,
      `option_id` VARCHAR(100) NOT NULL,
      `clinical_rule_id` VARCHAR(31) DEFAULT NULL,
-     `source_value` VARCHAR(2048) NOT NULL,
+     `source_value` TEXT NOT NULL,
      `created_by` BIGINT(20) DEFAULT NULL,
      `last_updated_by` BIGINT(20) DEFAULT NULL,
      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
      `last_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
      PRIMARY KEY (`id`),
-     UNIQUE (`list_id`, `option_id`, `client_id`),
-     FOREIGN KEY (`client_id`) REFERENCES `oauth_clients` (`client_id`)
-         ON DELETE RESTRICT
-         ON UPDATE CASCADE,
-     FOREIGN KEY (`list_id`, `option_id`) REFERENCES `list_options` (`list_id`, `option_id`)
-         ON DELETE CASCADE
-         ON UPDATE CASCADE,
-     FOREIGN KEY (`clinical_rule_id`) REFERENCES `clinical_rules` (`id`)
-         ON DELETE SET NULL
-         ON UPDATE CASCADE,
-     FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
-         ON DELETE RESTRICT
-         ON UPDATE CASCADE,
-     FOREIGN KEY (`last_updated_by`) REFERENCES `users` (`id`)
-         ON DELETE RESTRICT
-         ON UPDATE CASCADE
-) ENGINE=InnoDB;
+     UNIQUE (`list_id`, `option_id`, `client_id`)
+) ENGINE=InnoDB COMMENT = 'Holds information about decission support intervention system source attributes';
 #EndIf
 
 #IfMissingColumn oauth_clients dsi_type
