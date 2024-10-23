@@ -23,7 +23,9 @@
                 </div>
                 <div class="nav-pills">
                     <a href="#trustedUsers" class="btn btn-sm btn-link">{{ "Authenticated API Users"|xlt }}</a>
+                    {% if services|length > 0 %}
                     <a href="#services" class="btn btn-sm btn-link">{{ "Decision Support Intervention Services"|xlt }}</a>
+                    {% endif %}
                 </div>
             </h2>
         </div>
