@@ -261,7 +261,7 @@ class AuthorizationController
                 // @see https://tools.ietf.org/html/rfc7591#section-2
                 'scope' => null,
                 // additional meta attributes can be added here
-                'dsi_type' => ClientEntity::DSI_TYPE_NONE,
+                'dsi_type' => DecisionSupportInterventionService::DSI_TYPES[ClientEntity::DSI_TYPE_NONE],
                 'dsi_source_attributes' => []
             );
             $clientRepository = new ClientRepository();
@@ -326,8 +326,9 @@ class AuthorizationController
             try {
                 $this->startTransaction();
                 $dsiService = $this->getDecisionSupportInterventionService();
-                $dsiTypeName = $params['dsi_type'];
-                $params['dsi_type'] = $dsiService->getDsiTypeForStringName($params['dsi_type']);
+                // default is none
+                $dsiTypeName = $params['dsi_type'] ?? DecisionSupportInterventionService::DSI_TYPES[ClientEntity::DSI_TYPE_NONE];
+                $params['dsi_type'] = $dsiService->getDsiTypeForStringName($dsiTypeName);
                 $dsiSourceAttributes = $data['dsi_source_attributes'] ?? [];
                 $clientRepository->insertNewClient($client_id, $params, $this->siteId);
                 if ($params['dsi_type'] !== ClientEntity::DSI_TYPE_NONE) {

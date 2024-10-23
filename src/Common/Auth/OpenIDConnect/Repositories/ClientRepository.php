@@ -57,7 +57,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
-        $skip_ehr_launch_authorization_flow = $info['skip_ehr_launch_authorization_flow'] == true ? 1 : 0;
+        $skip_ehr_launch_authorization_flow = ($info['skip_ehr_launch_authorization_flow'] ?? false) == true ? 1 : 0;
 
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
