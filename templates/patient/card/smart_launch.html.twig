@@ -1,0 +1,33 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+    <ul>
+        {% if smartClients is empty %}
+        <li><p>{{ "No registered SMART apps in the system"|xlt }}</p></li>
+        {% endif %}
+        {% for client in smartClients %}
+        <li class="summary_item">
+            <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="{{ client.getName()|attr }}"
+                    data-intent="{{ intent|attr }}"
+                    data-client-id="{{ client.getIdentifier()|attr }}">
+                {{ "Launch"|xlt }}
+            </button> {{ client.getName()|attr }}
+            {% if client.hasPredictiveDSI() or client.hasEvidenceDSI() %}
+                <a title="{{ "This application implements decision support interventions."|xlt ~"Press this icon to get more information."|xlt }}"
+                    class="smart-launch-dsi-info btn-link btn-sm text-danger"
+                    role="button"
+                    data-smart-name="{{ client.getName()|attr }}"
+                    data-dsi-service-id="{{ client.getIdentifier()|attr }}">
+                    <i class="fas fa-question-circle"></i> {{ "DSI Source Information"|xlt }}</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    <script>
+        (function(oeSMART) {
+            if (oeSMART && oeSMART.initLaunch) {
+                oeSMART.initLaunch({{ webroot|js_escape }}, {{ csrfTokenRaw()|js_escape }});
+            }
+        })(window.oeSMART || {});
+    </script>
+{% endblock %}

@@ -13,7 +13,7 @@ require_once("../../library/classes/rulesets/ReportTypes.php");
 require_once("../../library/classes/rulesets/library/RsReportFactoryAbstract.php");
 require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 
-use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 

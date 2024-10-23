@@ -1,0 +1,6 @@
+<div class="form-group">
+    <label for="{{ key|attr }}">{{ setting.label|text }}</label>
+    <textarea id="{{ key|attr }}" name="{{ key|attr }}"
+              class="form-control" rows="10" {{ disabled ? "disabled readonly" : "" }}
+    >{{ setting.value|text }}</textarea>
+</div>

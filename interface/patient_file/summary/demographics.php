@@ -630,6 +630,31 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         url: $(this).attr('href')
                     });
                 });
+                $(".fa-question-circle").on("click", function (e) {
+                    let pid = <?php echo js_escape($pid); ?>;
+                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+                    let ruleId = $(this).data("ruleId");
+                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?action=review!view&pid="
+                        + encodeURIComponent(pid) + "&rule_id=" + encodeURIComponent(ruleId) + "&csrf_token_form=" + encodeURIComponent(csrfToken);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // as we're loading another iframe, make sure to sync session
+                    window.top.restoreSession();
+                    dlgopen('', '', 800, 200, '', '', {
+                        buttons: [{
+                            text: <?php echo xlj('Close'); ?>,
+                            close: true,
+                            style: 'secondary btn-sm'
+                        }],
+                        // don't think we need to refresh
+                        // onClosed: 'refreshme',
+                        allowResize: true,
+                        allowDrag: true,
+                        dialogId: 'rulereview',
+                        type: 'iframe',
+                        url: launchUrl
+                    });
+                })
             });
             <?php } // end crw
             ?>

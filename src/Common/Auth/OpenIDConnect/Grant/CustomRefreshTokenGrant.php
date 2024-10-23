@@ -50,7 +50,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         $this->logger->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
             "oldRefreshToken['scopes']" => $oldRefreshToken['scopes'],
             "requestParameter['scopes']" => $this->getRequestParameter('scope', $request, null),
-            "_REQUEST['scope']" => $_REQUEST['scope']
+            "_REQUEST['scope']" => $_REQUEST['scope'] ?? ""
             ]);
 
         // we are going to grab our old access token and grab any context information that we may have

@@ -1,0 +1,69 @@
+{% extends "interface/smart/admin-client/base.html.twig" %}
+{% block title %}{{ "External CDR List"|xlt }}{% endblock %}
+{% block header %}
+    {{ setupHeader([]) }}
+{% endblock %}
+{% block contents %}
+    <h1><a href="{{ smartAppEdit|attr }}" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">{{ "Back to API Client"|xlt }}</a></h1>
+    <div class="card mt-3">
+        <div class="card-header">
+            <h2>{{ "Edit"|xlt }} <em>{{ service.client.name|text }}</em></h2>
+            {# TODO: @adunsulag if there is time we can put this here... #}
+            {#        <div class="float-right">#}
+            {#            {% if service.isEnabled %}#}
+            {#                <a href="{{ disableClientUrl|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable Service"|xlt }}</a>#}
+            {#            {% else %}#}
+            {#                <a href="{{ enableClientUrl|attr }}" class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ "Enable Service"|xlt }}</a>#}
+            {#            {% endif %}#}
+            {#        </div>#}
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    {% if not service.client.isEnabled() %}
+                    <div class="alert alert-danger">
+                        {{ "This service is currently disabled."|xlt }} {{ "Enable the client connected to this service in order to enable the service."|xlt }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>{{ 'Service Name / Service ID'|xlt }}</th>
+                        <th>{{ 'Enabled'|xlt }}</th>
+                        <th>{{ 'Service Type'|xlt }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            {{ service.client.name|text }}
+                            <br />
+                            <em>{{ service.client.identifier|text }}</em>
+                        </td>
+                        <td>{{ service.client.isEnabled() ? "Enabled"|xlt : "Disabled"|xlt }}</td>
+                        <td>{{ service.type == 'evidence-based' ? "Evidence Based DSI"|xlt : "Predictive DSI"|xlt }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <h3>{{ "Source Attribute Details"|xlt }}</h3>
+            {% include 'interface/smart/admin-client/partials/_external-cdr-service-summary.html.twig' with {service: service, saveUrl: saveUrl, saveMessage: saveMessage} %}
+        </div>
+        <div class="card-footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <button id="saveBtn" class="btn btn-primary">{{ "Save"|xlt }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {# we hide the footer on 404 page #}
+{% endblock %}

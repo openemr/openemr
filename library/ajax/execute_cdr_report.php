@@ -13,7 +13,7 @@
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../clinical_rules.php");
 
-use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
