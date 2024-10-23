@@ -1223,7 +1223,7 @@ jobs:
 
 
   build_nginx_84:
-    name: PHP 8.4 - Nginx - MariaDB 11.4 (skipping E2e testing at this time)
+    name: PHP 8.4 - Nginx - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_84
@@ -1273,12 +1273,11 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
-      - name: E2e testing (skipping at this time for PHP 8.4-dev)
+      - name: E2e testing
         run: |
-           echo "SKIPPING THIS TEST FOR NOW UNTIL IT STARTS WORKING IN FUTURE FOR PHP 8.4-dev"
-#          source ci/ciLibrary.source
-#          build_test_e2e
-#        if: ${{ success() || failure() }}
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
