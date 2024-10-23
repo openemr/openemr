@@ -49,8 +49,7 @@ trait UserAddTrait
     private function userAddIfNotExist(string $username): void
     {
         // if user already exists, then skip this
-        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-        if (!empty($usernameDatabase['username']) && ($usernameDatabase['username'] == $username)) {
+        if ($this->isUserExist($username)) {
             $this->markTestSkipped('New user test skipped because this user already exists.');
         }
 
@@ -74,10 +73,10 @@ trait UserAddTrait
         $this->crawler = $this->client->refreshCrawler();
         $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
         $newUser['rumple'] = $username;
-        $newUser['stiltskin'] = 'Test12te$t';
-        $newUser['fname'] = 'Foo';
-        $newUser['lname'] = 'Bar';
-        $newUser['adminPass'] = 'pass';
+        $newUser['stiltskin'] = UserTestData::PASSWORD;
+        $newUser['fname'] = UserTestData::FIRSTNAME;
+        $newUser['lname'] = UserTestData::LASTNAME;
+        $newUser['adminPass'] = LoginTestData::password;
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
@@ -90,7 +89,7 @@ trait UserAddTrait
                 echo "TRY " . ($counter + 1) . " of 3 to see if new user is in database";
             }
             sleep(5);
-            if ($this->userExistDatabase($username)) {
+            if ($this->isUserExist($username)) {
                 $userExistDatabase = true;
             }
             $counter++;
@@ -102,19 +101,5 @@ trait UserAddTrait
         $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
         // below line will throw a timeout exception and fail if the new user is not listed
         $this->client->waitFor("//table//a[text()='$username']");
-        $this->client->switchTo()->defaultContent();
-    }
-
-    private function userExistDatabase(string $username): bool
-    {
-        if (empty($username)) {
-            return false;
-        }
-        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-        if (($usernameDatabase['username'] ?? '') != $username) {
-            return false;
-        } else {
-            return true;
-        }
     }
 }
