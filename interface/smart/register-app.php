@@ -506,13 +506,13 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                         </div>
                         <hr />
                         <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" id="dsiTypeNone" name="dsiType" value="<?php echo $dsiTypesStringNames["DSI_TYPE_NONE"]; ?>" checked="checked"/>
+                            <input type="radio" class="form-check-input" id="dsiTypeNone" name="dsiType" value="<?php echo attr($dsiTypesStringNames["DSI_TYPE_NONE"]); ?>" checked="checked"/>
                             <label for="dsiTypeNone" class="form-check-label pr-2"><?php echo xlt('No DSI used'); ?></label>
 
-                            <input type="radio" class="form-check-input" id="dsiTypePrediction" name="dsiType" value="<?php echo $dsiTypesStringNames["DSI_TYPE_PREDICTIVE"]; ?>"/>
+                            <input type="radio" class="form-check-input" id="dsiTypePrediction" name="dsiType" value="<?php echo attr($dsiTypesStringNames["DSI_TYPE_PREDICTIVE"]); ?>"/>
                             <label for="dsiTypePrediction" class="form-check-label pr-2"><?php echo xlt('Predictive DSI Used'); ?></label>
 
-                            <input type="radio" class="form-check-input" id="dsiTypeEvidenceBased" name="dsiType" value="<?php echo $dsiTypesStringNames["DSI_TYPE_EVIDENCE"]; ?>"/>
+                            <input type="radio" class="form-check-input" id="dsiTypeEvidenceBased" name="dsiType" value="<?php echo attr($dsiTypesStringNames["DSI_TYPE_EVIDENCE"]); ?>"/>
                             <label for="dsiTypeEvidenceBased" class="form-check-label pr-2"><?php echo xlt('Evidence Based DSI Used'); ?></label>
                         </div>
                     </div>
