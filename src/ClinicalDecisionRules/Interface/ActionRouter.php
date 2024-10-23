@@ -1,23 +1,19 @@
 <?php
 
-// Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-namespace OpenEMR\ClinicalDecisionRules\Interface;
-
 /**
  * This is a very simple action routing class for a given controller. Given
  * a controller and action (typically from OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter), it goes through
  * these steps to find out which function in that controller should be invoked:
- *
- * todo - document these steps
- *
- * @author aron
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
+ * @author    Copyright (C) 2024 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+namespace OpenEMR\ClinicalDecisionRules\Interface;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
