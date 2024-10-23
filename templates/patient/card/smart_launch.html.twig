@@ -18,7 +18,7 @@
                     role="button"
                     data-smart-name="{{ client.getName()|attr }}"
                     data-dsi-service-id="{{ client.getIdentifier()|attr }}">
-                    <i class="fas fa-question-circle"></i> {{ "DSI Source Information" }}</a>
+                    <i class="fas fa-question-circle"></i> {{ "DSI Source Information"|xlt }}</a>
             {% endif %}
         </li>
         {% endfor %}
