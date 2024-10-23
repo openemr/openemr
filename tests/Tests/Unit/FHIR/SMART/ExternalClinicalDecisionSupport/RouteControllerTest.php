@@ -91,7 +91,8 @@ class RouteControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    private function setupDSIServiceForClientEntity(string $id, string $name) {
+    private function setupDSIServiceForClientEntity(string $id, string $name)
+    {
         $client = new ClientEntity();
         $client->setIdentifier($id);
         $client->setName($name);
@@ -113,8 +114,10 @@ class RouteControllerTest extends TestCase
 
         // $saveResponseUrl = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'edit', $service->getId()], ['queryParams' => ['status' => $status]]);
         $this->actionUrlBuilder->expects($this->once())->method("buildUrl")
-            ->with($this->identicalTo([RouteController::EXTERNAL_CDR_ACTION, 'edit', $id]),
-                $this->identicalTo(['queryParams' => ['status' => 'success']]));
+            ->with(
+                $this->identicalTo([RouteController::EXTERNAL_CDR_ACTION, 'edit', $id]),
+                $this->identicalTo(['queryParams' => ['status' => 'success']])
+            );
 
         // smoke test
         $this->assertTrue($this->controller->supportsRequest($request), "Request should be supported");

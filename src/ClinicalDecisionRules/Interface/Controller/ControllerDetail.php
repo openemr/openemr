@@ -26,7 +26,6 @@ class ControllerDetail extends BaseController
         if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");
         } else {
-
             $default_message = xl("The source attribute value is unknown or the DSI developer did not provide any information for this field");
             $rule->updateEmptySourceAttributesWithDefaultMessage($default_message);
             $this->viewBean->rule = $rule;
