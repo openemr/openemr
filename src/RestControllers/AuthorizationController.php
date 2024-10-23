@@ -261,8 +261,8 @@ class AuthorizationController
                 // @see https://tools.ietf.org/html/rfc7591#section-2
                 'scope' => null,
                 // additional meta attributes can be added here
-                'dsi_type' => DecisionSupportInterventionService::DSI_TYPES[ClientEntity::DSI_TYPE_NONE],
-                'dsi_source_attributes' => []
+                'dsi_type' => array_values(DecisionSupportInterventionService::DSI_TYPES),
+                'dsi_source_attributes' => [] // do we care to report errors on source attributes for the values we support? they won't save if we don't have it in the system
             );
             $clientRepository = new ClientRepository();
             $client_id = $clientRepository->generateClientId();
