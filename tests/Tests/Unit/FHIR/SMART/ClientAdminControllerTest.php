@@ -8,6 +8,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\ClientAdminController;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 
@@ -35,6 +36,9 @@ class ClientAdminControllerTest extends TestCase
     {
         // smoke test
         $request = new Request(['action' => 'list/']);
+        $this->mockTwig->expects($this->once())
+            ->method('render')
+            ->willReturn('Client Registrations');
         $this->controller->dispatch($request);
         // regex of "Client Name / Client ID"
         $this->expectOutputRegex('/Client Registrations/');
@@ -43,8 +47,13 @@ class ClientAdminControllerTest extends TestCase
     public function testDispatchWithExternalCDR()
     {
         // smoke test, individual routes will be handled elsewhere
-        $request = new Request(['action' => RouteController::EXTERNAL_CDR_ACTION . '/']);
+        $request = new Request(['action' => RouteController::EXTERNAL_CDR_ACTION . '/edit/1']);
+        $router = $this->createMock(RouteController::class);
+        $router->expects($this->once())->method('dispatch')->willReturn(new Response('', 200));
+        $router->expects($this->once())->method("supportsRequest")->willReturn(true);
+        $this->controller->setExternalCDRController($router);
         $response = $this->controller->dispatch($request);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(200, $response->getStatusCode());
     }
 }

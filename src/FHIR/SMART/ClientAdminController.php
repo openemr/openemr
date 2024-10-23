@@ -75,7 +75,7 @@ class ClientAdminController
         $this->actionURL = $actionURL;
         $this->actionUrlBuilder = new ActionUrlBuilder($actionURL, self::CSRF_TOKEN_NAME);
         $this->twig = $twig;
-        $this->externalCDRController = new RouteController($repo, $logger, $twig, $this->actionUrlBuilder);
+        $this->externalCDRController = new RouteController($repo, $logger, $twig, $this->actionUrlBuilder, new DecisionSupportInterventionService());
     }
 
     public function setExternalCDRController(RouteController $controller)
@@ -208,7 +208,6 @@ class ClientAdminController
             ]
             ,'clients' => $clientListRecords
         ];
-
         echo $this->twig->render("interface/smart/admin-client/list.html.twig", $params);
     }
 

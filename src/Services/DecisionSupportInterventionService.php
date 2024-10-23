@@ -35,9 +35,26 @@ class DecisionSupportInterventionService extends BaseService
 
     private bool $inNestedTransaction = false;
 
-    public function __construct()
+    protected ?ClientRepository $clientRepository = null;
+
+    public function __construct(?ClientRepository $clientRepository = null)
     {
         parent::__construct(self::TABLE_NAME);
+        $this->clientRepository = $clientRepository;
+    }
+
+    public function setClientRepository(ClientRepository $clientRepository)
+    {
+        $this->clientRepository = $clientRepository;
+    }
+
+    public function getClientRepository(): ClientRepository
+    {
+        // lazy load the client repository
+        if ($this->clientRepository === null) {
+            $this->clientRepository = new ClientRepository();
+        }
+        return $this->clientRepository;
     }
 
     public function setInNestedTransaction(bool $inNestedTransaction)
@@ -211,7 +228,7 @@ class DecisionSupportInterventionService extends BaseService
      */
     public function getServices(bool $isSummary = false)
     {
-        $repository = new ClientRepository();
+        $repository = $this->getClientRepository();
         $clientEntities = $repository->listClientEntities();
         $clientEntities = array_filter($clientEntities, function ($clientEntity) {
             return $clientEntity->hasPredictiveDSI() || $clientEntity->hasEvidenceDSI();
@@ -223,7 +240,7 @@ class DecisionSupportInterventionService extends BaseService
 
     public function getService($serviceId, bool $isSummary = false)
     {
-        $repository = new ClientRepository();
+        $repository = $this->getClientRepository();
         $clientEntity = $repository->getClientEntity($serviceId);
         if ($clientEntity != null && ($clientEntity->hasPredictiveDSI() || $clientEntity->hasEvidenceDSI())) {
             return $this->getServiceForClient($clientEntity, $isSummary);

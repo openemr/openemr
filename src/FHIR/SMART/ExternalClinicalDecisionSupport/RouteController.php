@@ -2,12 +2,9 @@
 
 namespace OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport;
 
-use http\Env;
-use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\ActionUrlBuilder;
 use OpenEMR\Services\DecisionSupportInterventionService;
 use Psr\Log\LoggerInterface;
@@ -25,9 +22,15 @@ class RouteController
         private ClientRepository $repo,
         private LoggerInterface $logger,
         private Environment $twig,
-        private ActionUrlBuilder $actionUrlBuilder
+        private ActionUrlBuilder $actionUrlBuilder,
+        private DecisionSupportInterventionService $dsiService
     ) {
         $this->setTwigEnvironment($twig);
+    }
+
+    public function getDecisionsSupportInterventionService()
+    {
+        return $this->dsiService;
     }
 
     public function setTwigEnvironment(Environment $twig)
@@ -98,7 +101,7 @@ class RouteController
         if (empty(trim($serviceId))) {
             return $this->notFoundAction($request);
         }
-        $dsiService = new DecisionSupportInterventionService();
+        $dsiService = $this->getDecisionsSupportInterventionService();
         $service = $dsiService->getService($serviceId);
         if ($service == null) {
             return $this->notFoundAction($request);
@@ -114,11 +117,8 @@ class RouteController
     public function editAction(Request $request)
     {
         ['subAction' => $serviceId] = $this->parseRequest($request);
-        $serverConfig = new ServerConfig();
-        // TODO: @adunsulag will need to expose the Questionnaire endpoint as part of this.
-        $questionnaire = $this->twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => $serverConfig->getFhirUrl()]);
         $params = $this->getRootParams();
-        $dsiService = new DecisionSupportInterventionService();
+        $dsiService = $this->getDecisionsSupportInterventionService();
         $service = $dsiService->getService($serviceId);
         if ($service == null) {
             return $this->notFoundAction($request);
@@ -139,13 +139,11 @@ class RouteController
         $params['alertType'] = $alertType;
         $params['saveMessage'] = $saveMessage;
         $params['service'] = $service;
-        $params['questionnaire'] = $questionnaire;
         $params['saveAction'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'save', $service->getClient()->getIdentifier()]);
         $params['disableClientUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'disable', $service->getClient()->getIdentifier()]);
         $params['enableClientUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'enable', $service->getClient()->getIdentifier()]);
         $params['predictiveDSIListID'] = DecisionSupportInterventionService::LIST_ID_PREDICTIVE_DSI;
         $params['evidenceDSIListID'] = DecisionSupportInterventionService::LIST_ID_EVIDENCE_DSI;
-//        $client->setService(new EvidenceBasedDSIServiceEntity());
         $bodyContents = $this->twig->render("interface/smart/admin-client/external-cdr-edit.html.twig", $params);
         return new Response($bodyContents);
     }
@@ -166,17 +164,18 @@ class RouteController
     {
         // TODO: @adunsulag need to handle CSRF token in save action
         ['subAction' => $serviceId] = $this->parseRequest($request);
-
         $csrfToken = $request->get('_token', '');
         if (!CsrfUtils::verifyCsrfToken($csrfToken)) {
             throw new CsrfInvalidException(xlt('Authentication Error'));
         }
 
-        $dsiService = new DecisionSupportInterventionService();
+        $dsiService = $this->getDecisionsSupportInterventionService();
         $service = $dsiService->getService($serviceId);
+
         if ($service == null) {
             return $this->notFoundAction($request);
         }
+
         $fields = $service->getFields();
         foreach ($fields as $field) {
             $value = $request->get($field['name'], '');
