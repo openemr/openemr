@@ -48,6 +48,9 @@ class ControllerReview extends BaseController
                 throw new NotFoundHttpException("Rule not found");
             }
         }
+        $default_message = xl("Unknown");
+        $rule->updateEmptySourceAttributesWithDefaultMessage($default_message);
+
         $this->viewBean->rule = $rule;
         $this->viewBean->message = Common::get('message');
         $this->set_view("view.php");

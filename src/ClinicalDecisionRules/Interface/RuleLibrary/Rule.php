@@ -172,6 +172,34 @@ class Rule
         $this->feedback = '';
     }
 
+    public function updateEmptySourceAttributesWithDefaultMessage(string $message)
+    {
+        // certification requirement, show a message on each field if the field is empty that the provider did not provide any information
+        $fields = [
+            'bibliographic_citation',
+            'developer',
+            'funding_source',
+            'release',
+            'web_reference',
+            'linked_referential_cds',
+            'patient_race_usage',
+            'patient_ethnicity_usage',
+            'patient_language_usage',
+            'patient_sexual_orientation_usage',
+            'patient_gender_identity_usage',
+            'patient_sex_usage',
+            'patient_dob_usage',
+            'patient_sodh_usage',
+            'patient_health_status_usage'
+        ];
+// Check each field and set default if empty
+        foreach ($fields as $field) {
+            if (empty($this->$field)) {
+                $this->$field = $message;
+            }
+        }
+    }
+
     /**
      * @return string|null
      */

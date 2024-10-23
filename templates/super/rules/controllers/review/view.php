@@ -45,7 +45,12 @@ $rule = $viewBean->rule ?>
         <p><b><?php echo xlt('Developer'); ?>:</b>&nbsp;<?php echo text($rule->developer); ?></p>
         <p><b><?php echo xlt('Funding Source'); ?>:</b>&nbsp;<?php echo text($rule->funding_source); ?></p>
         <p><b><?php echo xlt('Release'); ?>:</b> <?php echo text($rule->release); ?></p>
-        <p><b><?php echo xlt('Web Reference'); ?>:</b>&nbsp;<a href='<?php echo attr($rule->web_reference) ?>' class="btn btn-link" rel='noopener' target='_blank'><?php echo text($rule->web_reference); ?></a>
+        <p><b><?php echo xlt('Web Reference'); ?>:</b>&nbsp;
+            <?php if ($rule->web_reference == xl("Unknown")) : ?>
+                <?php echo xlt("Unknown"); ?>
+            <?php else : ?>
+                <a href='<?php echo attr($rule->web_reference) ?>' class="btn btn-link" rel='noopener' target='_blank'><?php echo text($rule->web_reference); ?></a>
+            <?php endif; ?>
         </p>
         <p><b><?php echo xlt('Referential CDS (codetype:code)'); ?>:</b>&nbsp;<?php echo text($rule->linked_referential_cds); ?></p>
         <?php

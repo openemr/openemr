@@ -107,6 +107,13 @@ class RouteController
             return $this->notFoundAction($request);
         }
 
+        // certification requirement, show a message on each field if the field is empty that the provider did not provide any information
+        foreach ($service->getFields() as $field) {
+            if (empty($field['value'])) {
+                $service->setFieldValue($field['name'], xl("This DSI provider did not provide any information for this field"));
+            }
+        }
+
         $params = $this->getRootParams();
         $params['nav']['subtitle'] = $service->getName();
         $params['service'] = $service;
