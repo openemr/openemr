@@ -80,7 +80,7 @@ class SmartLaunchController
             $launchCode = $this->getLaunchCodeContext($puuid);
 
         // issuer and audience are the same in a EHR SMART Launch
-        $issuer = (new ServerConfig())->getFhirUrl();
+            $issuer = (new ServerConfig())->getFhirUrl();
             $viewArgs = [
                         'title' => xl('SMART Enabled Apps'),
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
