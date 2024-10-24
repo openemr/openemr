@@ -80,6 +80,18 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        // assert the new user is in the database
+        $this->assertUserInDatabase($username);
+        // assert the new user can be seen in the gui
+        $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
+        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
+        // below line will throw a timeout exception and fail if the new user is not listed
+        $this->client->waitFor("//table//a[text()='$username']");
+    }
+
+    private function assertUserInDatabase (string $username): void
+    {
         // assert the new user is in the database (check 3 times with 5 second delay prior each check to
         // ensure allow enough time)
         $userExistDatabase = false;
@@ -95,11 +107,5 @@ trait UserAddTrait
             $counter++;
         }
         $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
-        // assert the new user can be seen in the gui
-        $this->client->switchTo()->defaultContent();
-        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        // below line will throw a timeout exception and fail if the new user is not listed
-        $this->client->waitFor("//table//a[text()='$username']");
     }
 }

@@ -85,16 +85,13 @@ trait PatientAddTrait
             );
             $this->crawler = $this->client->refreshCrawler();
             $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-            $this->client->switchTo()->defaultContent();
-            // Note had to use the lower level webdriver directly to ensure iframe has gone away
-            $this->client->getWebDriver()->wait(10)->until(
-                WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT))
-            );
         } else {
             // Fallback for older versions prior to PHP 8.3
             //   For some reason, the click is not working like it should in PHP versions less than 8.3, so going to bypass the confirmation screen
             $this->crawler = $this->client->submit($newPatient);
         }
+        // assert the new patient is in the database
+        $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
         $this->client->switchTo()->defaultContent();
         // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
         $alert = $this->client->getWebDriver()->wait(10)->until(
@@ -108,8 +105,24 @@ trait PatientAddTrait
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
         // below line will timeout if did not go to the patient summary screen for the new patient
         $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
+    }
 
-        // ensure the patient was added
-        $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
+    private function assertPatientInDatabase (string $firstname, string $lastname, string $dob, string $sex): void
+    {
+        // assert the new patient is in the database (check 3 times with 5 second delay prior each check to
+        // ensure allow enough time)
+        $patientExistDatabase = false;
+        $counter = 0;
+        while (!$patientExistDatabase && $counter < 3) {
+            if ($counter > 0) {
+                echo "TRY " . ($counter + 1) . " of 3 to see if new patient is in database";
+            }
+            sleep(5);
+            if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
+                $patientExistDatabase = true;
+            }
+            $counter++;
+        }
+        $this->assertTrue($patientExistDatabase, 'New patient is not in database, so FAILED');
     }
 }
