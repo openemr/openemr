@@ -90,7 +90,7 @@ trait UserAddTrait
         $this->client->waitFor("//table//a[text()='$username']");
     }
 
-    private function assertUserInDatabase (string $username): void
+    private function assertUserInDatabase(string $username): void
     {
         // assert the new user is in the database (check 3 times with 5 second delay prior each check to
         // ensure allow enough time)

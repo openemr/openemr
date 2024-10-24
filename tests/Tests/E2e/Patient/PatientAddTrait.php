@@ -92,7 +92,6 @@ trait PatientAddTrait
         }
         // assert the new patient is in the database
         $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
-        $this->client->switchTo()->defaultContent();
         // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
         $alert = $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::alertIsPresent()
@@ -107,7 +106,7 @@ trait PatientAddTrait
         $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
     }
 
-    private function assertPatientInDatabase (string $firstname, string $lastname, string $dob, string $sex): void
+    private function assertPatientInDatabase(string $firstname, string $lastname, string $dob, string $sex): void
     {
         // assert the new patient is in the database (check 3 times with 5 second delay prior each check to
         // ensure allow enough time)
