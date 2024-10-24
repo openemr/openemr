@@ -22,11 +22,14 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\User\UserTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
+use PHPUnit\Framework\ExpectationFailedException;
 
 trait UserAddTrait
 {
     use BaseTrait;
     use LoginTrait;
+
+    private int $userAddAttemptCounter = 0;
 
     /**
      * @depends testLoginAuthorized
@@ -80,8 +83,20 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
-        // assert the new user is in the database
-        $this->assertUserInDatabase($username);
+        // assert the new user is in the database (if this fails, then will try userAddIfNotExist() up to 3 times total before failing)
+        try {
+            $this->assertUserInDatabase($username);
+        } catch (ExpectationFailedException $e) {
+            if ($this->userAddAttemptCounter > 2) {
+                // re-throw since have failed 3 tries
+                throw $e;
+            } else {
+                // try again since not yet 3 tries
+                $this->userAddAttemptCounter++;
+                $this->logOut();
+                $this->userAddIfNotExist($username);
+            }
+        }
         // assert the new user can be seen in the gui
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);

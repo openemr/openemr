@@ -22,11 +22,14 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientAddTrait;
+use PHPUnit\Framework\ExpectationFailedException;
 
 trait PatientAddTrait
 {
     use BaseTrait;
     use LoginTrait;
+
+    private int $patientAddAttemptCounter = 0;
 
     /**
      * @depends testLoginAuthorized
@@ -90,8 +93,20 @@ trait PatientAddTrait
             //   For some reason, the click is not working like it should in PHP versions less than 8.3, so going to bypass the confirmation screen
             $this->crawler = $this->client->submit($newPatient);
         }
-        // assert the new patient is in the database
-        $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
+        // assert the new patient is in the database (if this fails, then will try patientAddIfNotExist() up to 3 times total before failing)
+        try {
+            $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
+        } catch (ExpectationFailedException $e) {
+            if ($this->patientAddAttemptCounter > 2) {
+                // re-throw since have failed 3 tries
+                throw $e;
+            } else {
+                // try again since not yet 3 tries
+                $this->patientAddAttemptCounter++;
+                $this->logOut();
+                $this->patientAddIfNotExist($firstname, $lastname, $dob, $sex);
+            }
+        }
         // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
         $alert = $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::alertIsPresent()

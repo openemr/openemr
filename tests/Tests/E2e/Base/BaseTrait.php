@@ -172,4 +172,13 @@ trait BaseTrait
             return false;
         }
     }
+
+    private function logOut(): void
+    {
+        $this->client->switchTo()->defaultContent();
+        $this->goToUserMenuLink('fa-sign-out-alt');
+        $this->client->waitFor('//input[@id="authUser"]');
+        $title = $this->client->getTitle();
+        $this->assertSame('OpenEMR Login', $title, 'Logout FAILED');
+    }
 }
