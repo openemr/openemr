@@ -128,8 +128,8 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
     return $count;
 }
 
-$drug_id = $_REQUEST['drug'] + 0;
-$lot_id  = $_REQUEST['lot'] + 0;
+$drug_id = (int)$_REQUEST['drug'];
+$lot_id  = (int)$_REQUEST['lot'];
 $info_msg = "";
 
 $form_trans_type = intval(isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0');
