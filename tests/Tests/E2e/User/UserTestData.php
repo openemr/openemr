@@ -16,5 +16,11 @@ namespace OpenEMR\Tests\E2e\User;
 
 class UserTestData
 {
-    public const USERNAME = "foobar";
+    public const USERNAME = 'foobar';
+
+    public const PASSWORD = 'Test12te$t';
+
+    public const FIRSTNAME = 'Foo';
+
+    public const LASTNAME = 'Bar';
 }

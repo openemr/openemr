@@ -139,6 +139,16 @@ trait BaseTrait
         $this->crawler->filterXPath($menuLink2)->click();
     }
 
+    private function isUserExist(string $username): bool
+    {
+        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+        if (($usernameDatabase['username'] ?? '') == $username) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
     {
         $patientDatabase = sqlQuery("SELECT `fname` FROM `patient_data` WHERE `fname` = ? AND `lname` = ? AND `DOB` = ? AND `sex` = ?", [$firstname, $lastname, $dob, $sex]);
@@ -161,5 +171,14 @@ trait BaseTrait
         } else {
             return false;
         }
+    }
+
+    private function logOut(): void
+    {
+        $this->client->switchTo()->defaultContent();
+        $this->goToUserMenuLink('fa-sign-out-alt');
+        $this->client->waitFor('//input[@id="authUser"]');
+        $title = $this->client->getTitle();
+        $this->assertSame('OpenEMR Login', $title, 'Logout FAILED');
     }
 }
