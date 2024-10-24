@@ -177,14 +177,22 @@ function generate_select_list(
         preg_match_all('/select2/m', ($class ?? ''), $matches, PREG_SET_ORDER, 0);
         if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
             // We have a placeholder attribute as well as a select2 class indicating there
-            // should be provide a truley empty option.
+            // should be provided a truly empty option.
             $_options[] = [];
         } else {
-            $_options[] = [
-                'label' => $selectEmptyName,
-                'value' => '',
-                'isSelected' => true,
-            ];
+            if ($multiple && !empty($currvalue)) {
+                $_options[] = [
+                    'label' => $selectEmptyName,
+                    'value' => '',
+                    'isSelected' => false,
+                ];
+            } else {
+                $_options[] = [
+                    'label' => $selectEmptyName,
+                    'value' => '',
+                    'isSelected' => true,
+                ];
+            }
         }
     }
 

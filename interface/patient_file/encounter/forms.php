@@ -60,9 +60,10 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 ?>
 <!DOCTYPE html>
 <html>
-
 <head>
 
+<title class="title"></title>
+<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $GLOBALS['charset']; ?>">
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>
@@ -293,11 +294,11 @@ if (!isset($_GET['attachid'])) {
 ?>
 
     <?php if ($reviewMode) { ?>
-        $("body table:first").hide();
-        $(".encounter-summary-column").hide();
-        $(".btn").hide();
-        $(".encounter-summary-column:first").show();
-        $(".title:first").text(<?php echo xlj("Review"); ?> + " " + $(".title:first").text() + " ( " + <?php echo js_escape($encounter); ?> + " )");
+    $("body table:first").hide();
+    $(".encounter-summary-column").hide();
+    $(".btn").hide();
+    $(".encounter-summary-column:first").show();
+    $(".title:first").text(<?php echo xlj("Review Encounter"); ?> + " (" + <?php echo js_escape($encounter); ?> + ")");
     <?php } ?>
 });
 
@@ -309,7 +310,6 @@ if (!isset($_GET['attachid'])) {
   });
   return false;
  }
-
 
 // create new follow-up Encounter.
 function createFollowUpEncounter() {
