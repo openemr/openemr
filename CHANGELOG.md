@@ -1,5 +1,126 @@
 # CHANGELOG.md
 
+## [7.0.2.2](https://github.com/openemr/openemr/milestone/14?closed=1) - 2024-10-25
+
+### Added
+  -  Change Patient Portal Layout to use tile format for mobile friendly design ([#7609](https://github.com/openemr/openemr/issues/7609))
+  -  Change Patient Portal Request New Appointment Openings Label to See Availability ([#7654](https://github.com/openemr/openemr/issues/7654))
+  -  Convert portal_patient_report.php file to  use twig template for module writers to extend ([#7707](https://github.com/openemr/openemr/issues/7707))
+  -  Improve Portal Credential Settings page for patients ([#7650](https://github.com/openemr/openemr/issues/7650))
+  -  Improve asset config to support html script tags of type module for javascript module support ([#7698](https://github.com/openemr/openemr/issues/7698))
+  -  Improve patient and clinician message user interface ([#7648](https://github.com/openemr/openemr/issues/7648))
+  -  Patient Portal Download Medical Record Documents make file path easier to distinguish and download help message. ([#7660](https://github.com/openemr/openemr/issues/7660))
+  -  Patient Portal allow new appointments to choose dates in localized format ([#7608](https://github.com/openemr/openemr/issues/7608))
+  -  Patient portal demographics make save action mobile friendly ([#7656](https://github.com/openemr/openemr/issues/7656))
+  -  Patient portal show single page app page title when page navigation changes ([#7646](https://github.com/openemr/openemr/issues/7646))
+  -  Portal appointments request should not allow No Show appointment type to be selected ([#7640](https://github.com/openemr/openemr/issues/7640))
+  -  Prescription Email Feature ([#7480](https://github.com/openemr/openemr/issues/7480))
+  -  Send Prescription Email using Webclient/Native mail program ([#7494](https://github.com/openemr/openemr/issues/7494))
+  -  Twigify patient portal appointments card list and show clearer message when no appointments are found. ([#7652](https://github.com/openemr/openemr/issues/7652))
+  -  Twigify the patient portal Digital Signature page for module writers ([#7658](https://github.com/openemr/openemr/issues/7658))
+  -  Update EHI documentation to include FHIR _lastUpdated columns  ([#7764](https://github.com/openemr/openemr/issues/7764))
+  -  Update Pull Request Template to provide documentation for AI Generated Code ([#7705](https://github.com/openemr/openemr/issues/7705))
+  -  Warn user when attempting prescription fax if signature is not configured ([#7525](https://github.com/openemr/openemr/issues/7525))
+  -  allow embedding of lform javascript/style questionnaire files using the setupHeader syntax ([#7699](https://github.com/openemr/openemr/issues/7699))
+  -  allow patients with 1 character first name ([#7714](https://github.com/openemr/openemr/issues/7714))
+  -  change clinical messages casing in messages.php ([#7644](https://github.com/openemr/openemr/issues/7644))
+  -  upgrade 2025 icd10 ([#7712](https://github.com/openemr/openemr/issues/7712))
+
+
+### Fixed
+  - Add back faxsms Module RingCentral Support ([#7541](https://github.com/openemr/openemr/issues/7541))
+  - Add title to all appointment sql queries ([#7311](https://github.com/openemr/openemr/pull/7311))
+  - Adding module manager ([#7500](https://github.com/openemr/openemr/pull/7500))
+  - Billing Manager and Some Module fixes ([#7747](https://github.com/openemr/openemr/pull/7747))
+  - Billing Manager showing unassigned ([#7553](https://github.com/openemr/openemr/issues/7553))
+  - Bug fixes for nation notes, lbf ([#6740](https://github.com/openemr/openemr/pull/6740))
+  - Bug openemr fix 7746 export since delta fix ([#7754](https://github.com/openemr/openemr/pull/7754))
+  - CCDA Service compile is broken node version > v18.x ([#7528](https://github.com/openemr/openemr/issues/7528))
+  - CKEditor4 now throwing security popup ([#7540](https://github.com/openemr/openemr/issues/7540))
+  - Change telehealth support contact ([#7560](https://github.com/openemr/openemr/issues/7560))
+  - Dorn Changes ([#7221](https://github.com/openemr/openemr/pull/7221))
+  - Eligibility Fixes ([#7774](https://github.com/openemr/openemr/pull/7774))
+  - Encounter Review shows unknown in tab title. ([#7776](https://github.com/openemr/openemr/issues/7776))
+  - Fax No Content error ([#7505](https://github.com/openemr/openemr/issues/7505))
+  - Fax/SMS Weno modules needs updates and bug fixes. ([#7696](https://github.com/openemr/openemr/issues/7696))
+  - Fixes #7503 user admin create empty google sign in ([#7504](https://github.com/openemr/openemr/pull/7504))
+  - LBF deletes newly added service when diagnoses already saved ([#7579](https://github.com/openemr/openemr/issues/7579))
+  - List Edit has a save limit of 40 ([#7694](https://github.com/openemr/openemr/issues/7694))
+  - Module command line batch notifications broken. ([#7752](https://github.com/openemr/openemr/issues/7752))
+  - More Changes and Fixes Modules ([#7755](https://github.com/openemr/openemr/pull/7755))
+  - Need module bootstrap status events ([#7462](https://github.com/openemr/openemr/issues/7462))
+  - New Fixes ([#7770](https://github.com/openemr/openemr/pull/7770))
+  - ONC certification requires removal of 2015 wording ([#7690](https://github.com/openemr/openemr/issues/7690))
+  - Patient menu navigation not working when Prior Auth module enabled ([#7677](https://github.com/openemr/openemr/issues/7677))
+  - Payor never being returned in FHIR Coverage endpoint ([#7684](https://github.com/openemr/openemr/issues/7684))
+  - Portal create new appointment is broken ([#7688](https://github.com/openemr/openemr/issues/7688))
+  - Portal document display  ([#7632](https://github.com/openemr/openemr/issues/7632))
+  - Portal patient documents download broken ([#7692](https://github.com/openemr/openemr/issues/7692))
+  - Portal updates and bug fixes ([#7599](https://github.com/openemr/openemr/issues/7599))
+  - Prevent Appointment comment as visit reason ([#7680](https://github.com/openemr/openemr/issues/7680))
+  - Prior Authorizations Report Error. #7461 ([#7558](https://github.com/openemr/openemr/issues/7558))
+  - Questionnaire - configure where LOINC terms note is displayed ([#7550](https://github.com/openemr/openemr/issues/7550))
+  - Repair OA Eligibility  ([#7773](https://github.com/openemr/openemr/issues/7773))
+  - Replace CkEditor  Nation Notes and Portal ([#7544](https://github.com/openemr/openemr/issues/7544))
+  - Replace ckeditor in portal ([#7594](https://github.com/openemr/openemr/issues/7594))
+  - Template access from Demographics several issues ([#7758](https://github.com/openemr/openemr/issues/7758))
+  - Update FHIR LForms to latest version v36.3.3 and restyle form rendering. ([#7666](https://github.com/openemr/openemr/issues/7666))
+  - Wrong insurance information displayed when attempting to update ([#7763](https://github.com/openemr/openemr/issues/7763))
+  -  'None' does not hide 'search by any demographics' field ([#7493](https://github.com/openemr/openemr/issues/7493))
+  -  Bulk export _since parameter is throwing error ([#7746](https://github.com/openemr/openemr/issues/7746))
+  -  Calendar entries when comments are turned on show html for escaped characters ([#7635](https://github.com/openemr/openemr/issues/7635))
+  -  Create users breaks when more than one user has an empty email address for Google Email For Login ([#7503](https://github.com/openemr/openemr/issues/7503))
+  -  Custom Reports-Superbill not showing Billing Information ([#7581](https://github.com/openemr/openemr/issues/7581))
+  -  Document Uploader when editing document properties shows a stray html tag on success message ([#7511](https://github.com/openemr/openemr/issues/7511))
+  -  EncounterService uses referring provider id for therapy_group name on insert ([#7569](https://github.com/openemr/openemr/issues/7569))
+  -  Insurance coverage save fails for payer relationship self when subscriber name has different casing ([#7477](https://github.com/openemr/openemr/issues/7477))
+  -  Lab Core Procedure Manual eReq breaks due to PHP8 date issue if date_collected is not filled in ([#7526](https://github.com/openemr/openemr/issues/7526))
+  -  Patient Portal Secure Messaging checkbox click should select item instead of open for reading ([#7662](https://github.com/openemr/openemr/issues/7662))
+  -  Patient Portal appointment shows "error" screen for patient's first appointment ([#7633](https://github.com/openemr/openemr/issues/7633))
+  -  Prescription Fax fails when signature file is populated on PHP8 ([#7524](https://github.com/openemr/openemr/issues/7524))
+  -  Questionnaire throws error in clinical documents page if validation fails due to translation failure ([#7621](https://github.com/openemr/openemr/issues/7621))
+  -  Show Visit Category option on Encounters, Hide on New and Edit Form ([#7686](https://github.com/openemr/openemr/issues/7686))
+  -  Skip payment scripts in portal if Portal Allow Online Payments feature disabled. ([#7620](https://github.com/openemr/openemr/issues/7620))
+  -  Upgrade to v702 fails for v301 ([#7630](https://github.com/openemr/openemr/issues/7630))
+  -  User Admin screen 	Google Email for Login does not save when creating new user ([#7393](https://github.com/openemr/openemr/issues/7393))
+  -  create custom temp directory for htmlpurify ([#7520](https://github.com/openemr/openemr/issues/7520))
+  -  default x12 partner not selected in billing manager ([#7501](https://github.com/openemr/openemr/issues/7501))
+  -  editing insurance company from practice settings 404 not found ([#7483](https://github.com/openemr/openemr/issues/7483))
+  -  export to collections fails to send all encounters for a person ([#7768](https://github.com/openemr/openemr/issues/7768))
+  -  fix variable typo in messages.php ([#7467](https://github.com/openemr/openemr/issues/7467))
+  -  getEffectiveInsurances not inspecting date_end  ([#7489](https://github.com/openemr/openemr/issues/7489))
+  -  jquery-datetimepicker-2-5-4-translated.js creates invalid date format when DateFormatRead is not in window scope ([#7497](https://github.com/openemr/openemr/issues/7497))
+  -  migrate table engine array binds ([#7565](https://github.com/openemr/openemr/issues/7565))
+  -  patient portal secure messaging timing issue. Messages sometimes are unclickable in inbox when page loads. ([#7663](https://github.com/openemr/openemr/issues/7663))
+  -  portal htmlpurify serializer path not writable ([#7475](https://github.com/openemr/openemr/issues/7475))
+  -  typo in 837I script ([#7468](https://github.com/openemr/openemr/issues/7468))
+  -  webroot typo documents-go portal home ([#7473](https://github.com/openemr/openemr/issues/7473))
+  -  x12837 billing 5 or 9 digit zip check ([#7759](https://github.com/openemr/openemr/issues/7759))
+  - configure two logos on the portal login page - as one can on user login page ([#7710](https://github.com/openemr/openemr/issues/7710))
+  - issue type not shown in encounter add issue form ([#7563](https://github.com/openemr/openemr/issues/7563))
+  - search by any demographic configured as fixed doesn't use patient finder ([#7596](https://github.com/openemr/openemr/issues/7596))
+
+
+### Changed
+  -  Input sanitation on google signin email ([#7356](https://github.com/openemr/openemr/pull/7356))
+  -  bug ([#7535](https://github.com/openemr/openemr/pull/7535))
+  -  send each checked encounter to collections in form export ([#7769](https://github.com/openemr/openemr/pull/7769))
+  -  x12837 billing 5 or 9 digit zip check ([#7760](https://github.com/openemr/openemr/pull/7760))
+  -  x12837 billing 5 or 9 digit zip check (#7760) for rel-702 ([#7765](https://github.com/openemr/openemr/pull/7765))
+
+
+### OpenEMR Developer Changes
+
+### Added
+  -  Convert Dicom Viewer to Twig for Module writers to extend / overwrite ([#7509](https://github.com/openemr/openemr/issues/7509))
+  -  Prescriptions Dialog move to twig to allow module writers to extend / modify the view ([#7496](https://github.com/openemr/openemr/issues/7496))
+  -  pull patient portal health snapshot into modular twig/filter event for customization ([#7708](https://github.com/openemr/openemr/issues/7708))
+
+
+### Changed
+  -  Move patient previous name methods in patient service into its own Service ([#7568](https://github.com/openemr/openemr/issues/7568))
+
+
 ## [7.0.2.1](https://github.com/openemr/openemr/milestone/13?closed=1) - 2024-05-28
 
 ### Added
