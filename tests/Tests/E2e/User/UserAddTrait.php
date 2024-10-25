@@ -29,7 +29,7 @@ trait UserAddTrait
     use BaseTrait;
     use LoginTrait;
 
-    private int $userAddAttemptCounter = 0;
+    private int $userAddAttemptCounter = 1;
 
     /**
      * @depends testLoginAuthorized
@@ -83,20 +83,8 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
-        // assert the new user is in the database (if this fails, then will try userAddIfNotExist() up to 3 times total before failing)
-        try {
-            $this->assertUserInDatabase($username);
-        } catch (ExpectationFailedException $e) {
-            if ($this->userAddAttemptCounter > 2) {
-                // re-throw since have failed 3 tries
-                throw $e;
-            } else {
-                // try again since not yet 3 tries
-                $this->userAddAttemptCounter++;
-                $this->logOut();
-                $this->userAddIfNotExist($username);
-            }
-        }
+        // assert the new user is in the database
+        $this->assertUserInDatabase($username);
         // assert the new user can be seen in the gui
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
@@ -106,6 +94,26 @@ trait UserAddTrait
     }
 
     private function assertUserInDatabase(string $username): void
+    {
+        // assert the new user is in the database (if this fails, then will try userAddIfNotExist() up to
+        // 3 times total before failing)
+        try {
+            $this->innerAssertUserInDatabase($username);
+        } catch (ExpectationFailedException $e) {
+            if ($this->userAddAttemptCounter > 2) {
+                // re-throw since have failed 3 tries
+                throw $e;
+            } else {
+                // try again since not yet 3 tries
+                $this->userAddAttemptCounter++;
+                echo "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database";
+                $this->logOut();
+                $this->userAddIfNotExist($username);
+            }
+        }
+    }
+
+    private function innerAssertUserInDatabase(string $username): void
     {
         // assert the new user is in the database (check 3 times with 5 second delay prior each check to
         // ensure allow enough time)

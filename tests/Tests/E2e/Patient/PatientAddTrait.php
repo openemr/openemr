@@ -29,7 +29,7 @@ trait PatientAddTrait
     use BaseTrait;
     use LoginTrait;
 
-    private int $patientAddAttemptCounter = 0;
+    private int $patientAddAttemptCounter = 1;
 
     /**
      * @depends testLoginAuthorized
@@ -93,26 +93,13 @@ trait PatientAddTrait
             //   For some reason, the click is not working like it should in PHP versions less than 8.3, so going to bypass the confirmation screen
             $this->crawler = $this->client->submit($newPatient);
         }
-        // assert the new patient is in the database (if this fails, then will try patientAddIfNotExist() up to 3 times total before failing)
-        try {
-            $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
-        } catch (ExpectationFailedException $e) {
-            if ($this->patientAddAttemptCounter > 2) {
-                // re-throw since have failed 3 tries
-                throw $e;
-            } else {
-                // try again since not yet 3 tries
-                $this->patientAddAttemptCounter++;
-                $this->logOut();
-                $this->patientAddIfNotExist($firstname, $lastname, $dob, $sex);
-            }
-        }
+        // assert the new patient is in the database
+        $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
         // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
         $alert = $this->client->getWebDriver()->wait(10)->until(
             WebDriverExpectedCondition::alertIsPresent()
         );
         $alert->accept();
-
         // ensure the patient summary screen is shown
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
@@ -122,6 +109,26 @@ trait PatientAddTrait
     }
 
     private function assertPatientInDatabase(string $firstname, string $lastname, string $dob, string $sex): void
+    {
+        // assert the new patient is in the database (if this fails, then will try patientAddIfNotExist() up to
+        // 3 times total before failing)
+        try {
+            $this->innerAssertPatientInDatabase($firstname, $lastname, $dob, $sex);
+        } catch (ExpectationFailedException $e) {
+            if ($this->patientAddAttemptCounter > 2) {
+                // re-throw since have failed 3 tries
+                throw $e;
+            } else {
+                // try again since not yet 3 tries
+                $this->patientAddAttemptCounter++;
+                echo "TRY " . ($this->patientAddAttemptCounter) . " of 3 to add new patient to database";
+                $this->logOut();
+                $this->patientAddIfNotExist($firstname, $lastname, $dob, $sex);
+            }
+        }
+    }
+
+    private function innerAssertPatientInDatabase(string $firstname, string $lastname, string $dob, string $sex): void
     {
         // assert the new patient is in the database (check 3 times with 5 second delay prior each check to
         // ensure allow enough time)
