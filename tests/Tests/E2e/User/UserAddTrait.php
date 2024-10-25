@@ -22,11 +22,14 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\User\UserTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsUserAddTrait;
+use PHPUnit\Framework\ExpectationFailedException;
 
 trait UserAddTrait
 {
     use BaseTrait;
     use LoginTrait;
+
+    private int $userAddAttemptCounter = 1;
 
     /**
      * @depends testLoginAuthorized
@@ -49,8 +52,7 @@ trait UserAddTrait
     private function userAddIfNotExist(string $username): void
     {
         // if user already exists, then skip this
-        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-        if (!empty($usernameDatabase['username']) && ($usernameDatabase['username'] == $username)) {
+        if ($this->isUserExist($username)) {
             $this->markTestSkipped('New user test skipped because this user already exists.');
         }
 
@@ -74,13 +76,45 @@ trait UserAddTrait
         $this->crawler = $this->client->refreshCrawler();
         $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
         $newUser['rumple'] = $username;
-        $newUser['stiltskin'] = 'Test12te$t';
-        $newUser['fname'] = 'Foo';
-        $newUser['lname'] = 'Bar';
-        $newUser['adminPass'] = 'pass';
+        $newUser['stiltskin'] = UserTestData::PASSWORD;
+        $newUser['fname'] = UserTestData::FIRSTNAME;
+        $newUser['lname'] = UserTestData::LASTNAME;
+        $newUser['adminPass'] = LoginTestData::password;
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+        // assert the new user is in the database
+        $this->assertUserInDatabase($username);
+        // assert the new user can be seen in the gui
+        $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
+        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
+        // below line will throw a timeout exception and fail if the new user is not listed
+        $this->client->waitFor("//table//a[text()='$username']");
+    }
+
+    private function assertUserInDatabase(string $username): void
+    {
+        // assert the new user is in the database (if this fails, then will try userAddIfNotExist() up to
+        // 3 times total before failing)
+        try {
+            $this->innerAssertUserInDatabase($username);
+        } catch (ExpectationFailedException $e) {
+            if ($this->userAddAttemptCounter > 2) {
+                // re-throw since have failed 3 tries
+                throw $e;
+            } else {
+                // try again since not yet 3 tries
+                $this->userAddAttemptCounter++;
+                echo "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database";
+                $this->logOut();
+                $this->userAddIfNotExist($username);
+            }
+        }
+    }
+
+    private function innerAssertUserInDatabase(string $username): void
+    {
         // assert the new user is in the database (check 3 times with 5 second delay prior each check to
         // ensure allow enough time)
         $userExistDatabase = false;
@@ -90,31 +124,11 @@ trait UserAddTrait
                 echo "TRY " . ($counter + 1) . " of 3 to see if new user is in database";
             }
             sleep(5);
-            if ($this->userExistDatabase($username)) {
+            if ($this->isUserExist($username)) {
                 $userExistDatabase = true;
             }
             $counter++;
         }
         $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
-        // assert the new user can be seen in the gui
-        $this->client->switchTo()->defaultContent();
-        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        // below line will throw a timeout exception and fail if the new user is not listed
-        $this->client->waitFor("//table//a[text()='$username']");
-        $this->client->switchTo()->defaultContent();
-    }
-
-    private function userExistDatabase(string $username): bool
-    {
-        if (empty($username)) {
-            return false;
-        }
-        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
-        if (($usernameDatabase['username'] ?? '') != $username) {
-            return false;
-        } else {
-            return true;
-        }
     }
 }
