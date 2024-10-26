@@ -87,6 +87,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         // Collect the Rule Title, Bibliographical citation, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
         //  Show the link for Linked referential CDS (this is set via codetype:code)
         $tooltip = '';
+        $tooltipText = '';
         if (!empty($action['rule_id'])) {
             $rule_title = getListItemTitle("clinical_rules", $action['rule_id']);
             $ruleData = sqlQuery("SELECT `bibliographic_citation`, `developer`, `funding_source`, `release_version`, `web_reference`, `linked_referential_cds` " .
@@ -94,13 +95,12 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']));
             $linked_referential_cds = $ruleData['linked_referential_cds'];
             if (!empty($rule_title)) {
-                  $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+                $tooltipText = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
             }
 
-            $tooltip .= xla("Select icon to view more information or provide feedback about this rule.");
+            $tooltipText .= xla("Select icon to view more information or provide feedback about this rule.");
 
-            $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'><i data-rule-id='"
-                . attr($action['rule_id']) . "' class='fas fa-question-circle'></i></span>";
+            $tooltip = "<span style='white-space: pre-line;' title='" . $tooltipText . "'><i class='fas fa-question-circle' role='button'></i></span>";
 
             if (!empty($linked_referential_cds)) {
                 $codeParse = explode(":", $linked_referential_cds);
@@ -145,14 +145,19 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         // Display due status
         if ($action['due_status']) {
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
+            // note tooltipText has already been escaped
             if ($action['due_status'] == "past_due") {
-                echo "<span class='text-danger'>";
+                echo "<span title='" . $tooltipText . "' class='text-danger cdr-rule-btn-info-launch' role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             } elseif ($action['due_status'] == "due") {
-                echo "<span class='text-warning'>";
+                echo "<span title='" . $tooltipText . "' class='text-warning cdr-rule-btn-info-launch' role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             } elseif ($action['due_status'] == "not_due") {
-                echo "<span class='text-success'>";
+                echo "<span title='" . $tooltipText . "' class='text-success cdr-rule-btn-info-launch'  role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             } else {
-                echo "<span>";
+                echo "<span title='" . $tooltipText . "' class='cdr-rule-btn-info-launch' role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             }
 
             echo generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $action['due_status']);

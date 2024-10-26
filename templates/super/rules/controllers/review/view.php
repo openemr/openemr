@@ -25,6 +25,11 @@ $rule = $viewBean->rule ?>
     <div class="card-header">
         <p><b><?php echo xlt($rule->title); ?></b>
             (<?php echo Common::implode_funcs(", ", $rule->getRuleTypeLabels(), array('xlt')); ?>)
+            <?php if ($viewBean->canEdit) : ?>
+                <input type="button" class="btn btn-sm btn-primary btn-edit-cdr-source"
+                       data-rule-id="<?php echo attr($rule->id); ?>"
+                       value="<?php echo xlt("Edit Rule Source Attributes"); ?>"/>
+            <?php endif; ?>
         </p>
     </div>
     <div class="card-body">
@@ -72,7 +77,7 @@ $rule = $viewBean->rule ?>
 </div>
 <div class="card mt-2">
     <div class="card-header">
-        <p><b><?php echo xlt('Feedback'); ?></b></p>
+        <p><b><?php echo xlt('Rule Feedback'); ?></b></p>
     </div>
     <div class="card-body">
         <form method="POST" action="index.php?action=review!submit_feedback">
@@ -98,3 +103,21 @@ $rule = $viewBean->rule ?>
         </form>
     </div>
 </div>
+<script>
+    (function() {
+        window.document.addEventListener("DOMContentLoaded", function() {
+            var editBtns = document.querySelectorAll('.btn-edit-cdr-source');
+            editBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var ruleId = btn.dataset['ruleId'];
+                    if (window.parent) {
+                        window.parent.postMessage({type: 'cdr-edit-source', ruleId: ruleId}, window.location.origin);
+                    } else {
+                        console.error("Failed to send message to parent window");
+                        alert(window.top.xl("A system error occurred"));
+                    }
+                });
+            });
+        });
+    })(window);
+</script>

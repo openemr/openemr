@@ -52,6 +52,7 @@ class ControllerReview extends BaseController
         $rule->updateEmptySourceAttributesWithDefaultMessage($default_message);
 
         $this->viewBean->rule = $rule;
+        $this->viewBean->canEdit = AclMain::aclCheckCore("admin", "super");
         $this->viewBean->message = Common::get('message');
         $this->set_view("view.php");
     }

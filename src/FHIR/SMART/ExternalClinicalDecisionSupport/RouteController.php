@@ -2,6 +2,7 @@
 
 namespace OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -115,6 +116,7 @@ class RouteController
         }
 
         $params = $this->getRootParams();
+        $params['showEditLink'] = AclMain::aclCheckCore("admin", "super");
         $params['nav']['subtitle'] = $service->getName();
         $params['service'] = $service;
         $bodyContents = $this->twig->render("interface/smart/admin-client/external-cdr-info.html.twig", $params);
@@ -141,6 +143,7 @@ class RouteController
             $saveMessage = xl("Save failed.") . " " . xl("Check the system error logs for more information.");
         }
         $params['nav']['navs'] = [];
+        // only admin users can edit the attributes.
         $params['smartAppEdit'] = $this->actionUrlBuilder->buildUrl(['edit', $service->getClient()->getIdentifier()], ['fragment' => 'services']);
         $params['clientListUrl'] = $this->actionUrlBuilder->buildUrl([self::EXTERNAL_CDR_ACTION, 'list']);
         $params['alertType'] = $alertType;

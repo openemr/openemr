@@ -630,7 +630,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         url: $(this).attr('href')
                     });
                 });
-                $(".fa-question-circle").on("click", function (e) {
+                $(".cdr-rule-btn-info-launch").on("click", function (e) {
                     let pid = <?php echo js_escape($pid); ?>;
                     let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
                     let ruleId = $(this).data("ruleId");
@@ -640,6 +640,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
                     window.top.restoreSession();
+
+                    let windowMessageHandler = function () {
+                        console.log("received message ", event);
+                        if (event.origin !== window.location.origin) {
+                            return;
+                        }
+                        let data = event.data;
+                        if (data && data.type === 'cdr-edit-source') {
+                            dlgclose();
+                            window.top.removeEventListener('message', windowMessageHandler);
+                            // loadFrame already handles webroot and /interface/ prefix.
+                            let editUrl = '/super/rules/index.php?action=edit!summary&id=' +encodeURIComponent(data.ruleId)
+                                + "&csrf_token=" + encodeURIComponent(csrfToken);
+                            window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
+                        }
+                    };
+                    window.top.addEventListener('message', windowMessageHandler);
+
                     dlgopen('', '', 800, 200, '', '', {
                         buttons: [{
                             text: <?php echo xlj('Close'); ?>,
@@ -652,7 +670,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         allowDrag: true,
                         dialogId: 'rulereview',
                         type: 'iframe',
-                        url: launchUrl
+                        url: launchUrl,
+                        onClose: function() {
+                            window.top.removeEventListener('message', windowMessageHandler);
+                        }
                     });
                 })
             });
