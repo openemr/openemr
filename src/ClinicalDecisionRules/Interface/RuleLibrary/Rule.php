@@ -195,7 +195,7 @@ class Rule
 // Check each field and set default if empty
         foreach ($fields as $field) {
             if (empty($this->$field)) {
-                $this->$field = $message;
+                $this->$field = $message ?? ''; // if its null we need to set it to empty string
             }
         }
     }
@@ -392,25 +392,14 @@ class Rule
         $this->setRelease($ruleResult['release_version']);
         $this->setWeb_reference($ruleResult['web_reference']);
         $this->setLinkedReferentialCds($ruleResult['linked_referential_cds']);
-        /**
-         * 'patient_dob_usage' => $this->patient_dob_usage,
-        'patient_ethnicity_usage' => $this->patient_ethnicity_usage,
-        'patient_health_status_usage' => $this->patient_health_status_usage,
-        'patient_gender_identity_usage' => $this->patient_gender_identity_usage,
-        'patient_language_usage' => $this->patient_language_usage,
-        'patient_race_usage' => $this->patient_race_usage,
-        'patient_sex_usage' => $this->patient_sex_usage,
-        'patient_sexual_orientation_usage' => $this->patient_sexual_orientation_usage,
-        'patient_sodh_usage' => $this->patient_sodh_usage
-         */
-        $this->patient_dob_usage = $ruleResult['patient_dob_usage'];
-        $this->patient_ethnicity_usage = $ruleResult['patient_ethnicity_usage'];
-        $this->patient_health_status_usage = $ruleResult['patient_health_status_usage'];
-        $this->patient_gender_identity_usage = $ruleResult['patient_gender_identity_usage'];
-        $this->patient_language_usage = $ruleResult['patient_language_usage'];
-        $this->patient_race_usage = $ruleResult['patient_race_usage'];
-        $this->patient_sex_usage = $ruleResult['patient_sex_usage'];
-        $this->patient_sexual_orientation_usage = $ruleResult['patient_sexual_orientation_usage'];
-        $this->patient_sodh_usage = $ruleResult['patient_sodh_usage'];
+        $this->patient_dob_usage = $ruleResult['patient_dob_usage'] ?? '';
+        $this->patient_ethnicity_usage = $ruleResult['patient_ethnicity_usage'] ?? '';
+        $this->patient_health_status_usage = $ruleResult['patient_health_status_usage'] ?? '';
+        $this->patient_gender_identity_usage = $ruleResult['patient_gender_identity_usage'] ?? '';
+        $this->patient_language_usage = $ruleResult['patient_language_usage'] ?? '';
+        $this->patient_race_usage = $ruleResult['patient_race_usage'] ?? '';
+        $this->patient_sex_usage = $ruleResult['patient_sex_usage'] ?? '';
+        $this->patient_sexual_orientation_usage = $ruleResult['patient_sexual_orientation_usage'] ?? '';
+        $this->patient_sodh_usage = $ruleResult['patient_sodh_usage'] ?? '';
     }
 }

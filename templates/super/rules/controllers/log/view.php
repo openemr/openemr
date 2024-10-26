@@ -207,12 +207,12 @@ $records = $viewBean->records ?>
                             foreach ($row['formatted_all_alerts'] as $alert) {
                                 if (!empty($alert['rule_action_category'])) {
                                     echo "<span title='" . attr($alert['title']) . "'>" .
-                                        $alert['rule_action_category'] . ": " . $alert['rule_action'] .
-                                        " (" . $alert['due_status'] . ")" .
+                                        text($alert['rule_action_category']) . ": " . text($alert['rule_action']) .
+                                        " (" . text($alert['due_status']) . ")" .
                                         "</span>";
                                     // should never be empty... but just in case
                                 } else if (!empty($alert['text'])) {
-                                    echo $alert['text'];
+                                    echo text($alert['text']);
                                 }
                                 //  need to add comment icon here if we have one
                                 if (!empty($alert['feedback'])) {
@@ -229,12 +229,12 @@ $records = $viewBean->records ?>
                                 foreach ($row['formatted_new_alerts'] as $alert) {
                                     if (!empty($alert['rule_action_category'])) {
                                         echo "<span title='" . attr($alert['title']) . "'>" .
-                                            $alert['rule_action_category'] . ": " . $alert['rule_action'] .
-                                            " (" . $alert['due_status'] . ")" .
+                                            text($alert['rule_action_category']) . ": " . text($alert['rule_action']) .
+                                            " (" . text($alert['due_status']) . ")" .
                                             "</span>";
                                         // should never be empty... but just in case
                                     } else if (!empty($alert['text'])) {
-                                        echo $alert['text'];
+                                        echo text($alert['text']);
                                     }
                                     //  need to add comment icon here if we have one
                                     if (!empty($alert['feedback'])) {

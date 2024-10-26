@@ -56,15 +56,15 @@ $rule = $viewBean->rule ?>
         <?php
         /** Note the following code is in the Public Domain and was generated using ChatGPT */
         ?>
-        <p><b><?php echo xlt('Use of Patient\'s Race'); ?>:</b>&nbsp;<?php echo text($rule->patient_race_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Ethnicity'); ?>:</b>&nbsp;<?php echo text($rule->patient_ethnicity_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Language'); ?>:</b>&nbsp;<?php echo text($rule->patient_language_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Sexual Orientation'); ?>:</b>&nbsp;<?php echo text($rule->patient_sexual_orientation_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Gender Identity'); ?>:</b>&nbsp;<?php echo text($rule->patient_gender_identity_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Sex'); ?>:</b>&nbsp;<?php echo text($rule->patient_sex_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Date of Birth'); ?>:</b>&nbsp;<?php echo text($rule->patient_dob_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Social Determinants of Health'); ?>:</b>&nbsp;<?php echo text($rule->patient_sodh_usage); ?></p>
-        <p><b><?php echo xlt('Use of Patient\'s Health Status Assessments'); ?>:</b>&nbsp;<?php echo text($rule->patient_health_status_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Race'); ?>:</b>&nbsp;<?php echo text($rule->patient_race_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Ethnicity'); ?>:</b>&nbsp;<?php echo text($rule->patient_ethnicity_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Language'); ?>:</b>&nbsp;<?php echo text($rule->patient_language_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Sexual Orientation'); ?>:</b>&nbsp;<?php echo text($rule->patient_sexual_orientation_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Gender Identity'); ?>:</b>&nbsp;<?php echo text($rule->patient_gender_identity_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Sex'); ?>:</b>&nbsp;<?php echo text($rule->patient_sex_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Date of Birth'); ?>:</b>&nbsp;<?php echo text($rule->patient_dob_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Social Determinants of Health'); ?>:</b>&nbsp;<?php echo text($rule->patient_sodh_usage); ?></p>
+        <p><b><?php echo xlt('Rule usage of Patient\'s Health Status Assessments'); ?>:</b>&nbsp;<?php echo text($rule->patient_health_status_usage); ?></p>
         <?php
         /** End ChatGPT Public Domain Code */
         ?>
