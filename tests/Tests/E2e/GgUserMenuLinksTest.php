@@ -42,7 +42,7 @@ class GgUserMenuLinksTest extends PantherTestCase
             $threwSomething = false;
             $counter++;
             if ($counter > 1) {
-                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
+                echo "\n" . "RE-attempt (" . $menuTreeIcon . ") number " . $counter . " of 3" . "\n";
             }
             $this->base();
             try {

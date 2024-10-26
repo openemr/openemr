@@ -111,7 +111,7 @@ trait UserAddTrait
             } else {
                 // try again since not yet 3 tries
                 $this->userAddAttemptCounter++;
-                echo "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database";
+                echo "\n" . "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database" . "\n";
                 $this->logOut();
                 $this->userAddIfNotExist($username);
             }
@@ -126,7 +126,7 @@ trait UserAddTrait
         $counter = 0;
         while (!$userExistDatabase && $counter < 3) {
             if ($counter > 0) {
-                echo "TRY " . ($counter + 1) . " of 3 to see if new user is in database";
+                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new user is in database" . "\n";
             }
             sleep(5);
             if ($this->isUserExist($username)) {

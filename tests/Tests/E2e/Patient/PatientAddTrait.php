@@ -126,7 +126,7 @@ trait PatientAddTrait
             } else {
                 // try again since not yet 3 tries
                 $this->patientAddAttemptCounter++;
-                echo "TRY " . ($this->patientAddAttemptCounter) . " of 3 to add new patient to database";
+                echo "\n" . "TRY " . ($this->patientAddAttemptCounter) . " of 3 to add new patient to database" . "\n";
                 $this->logOut();
                 $this->patientAddIfNotExist($firstname, $lastname, $dob, $sex);
             }
@@ -141,7 +141,7 @@ trait PatientAddTrait
         $counter = 0;
         while (!$patientExistDatabase && $counter < 3) {
             if ($counter > 0) {
-                echo "TRY " . ($counter + 1) . " of 3 to see if new patient is in database";
+                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new patient is in database" . "\n";
             }
             sleep(5);
             if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
