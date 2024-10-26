@@ -30,6 +30,7 @@ trait PatientAddTrait
     use LoginTrait;
 
     private int $patientAddAttemptCounter = 1;
+    private bool $passPatientAddIfNotExist = false;
 
     /**
      * @depends testLoginAuthorized
@@ -95,17 +96,21 @@ trait PatientAddTrait
         }
         // assert the new patient is in the database
         $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
-        // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
-        $alert = $this->client->getWebDriver()->wait(10)->until(
-            WebDriverExpectedCondition::alertIsPresent()
-        );
-        $alert->accept();
-        // ensure the patient summary screen is shown
-        $this->client->switchTo()->defaultContent();
-        $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
-        $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
-        // below line will timeout if did not go to the patient summary screen for the new patient
-        $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
+        // since this function is run recursively in above line, ensure only do the below block once
+        if (!$this->passPatientAddIfNotExist) {
+            // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
+            $alert = $this->client->getWebDriver()->wait(10)->until(
+                WebDriverExpectedCondition::alertIsPresent()
+            );
+            $alert->accept();
+            // ensure the patient summary screen is shown
+            $this->client->switchTo()->defaultContent();
+            $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
+            $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
+            // below line will timeout if did not go to the patient summary screen for the new patient
+            $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
+            $this->passPatientAddIfNotExist = true;
+        }
     }
 
     private function assertPatientInDatabase(string $firstname, string $lastname, string $dob, string $sex): void
