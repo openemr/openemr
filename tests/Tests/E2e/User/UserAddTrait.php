@@ -30,6 +30,7 @@ trait UserAddTrait
     use LoginTrait;
 
     private int $userAddAttemptCounter = 1;
+    private bool $passUserAddIfNotExist = false;
 
     /**
      * @depends testLoginAuthorized
@@ -85,12 +86,16 @@ trait UserAddTrait
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
         // assert the new user is in the database
         $this->assertUserInDatabase($username);
-        // assert the new user can be seen in the gui
-        $this->client->switchTo()->defaultContent();
-        $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
-        $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
-        // below line will throw a timeout exception and fail if the new user is not listed
-        $this->client->waitFor("//table//a[text()='$username']");
+        // since this function is run recursively in above line, ensure only do the below block once
+        if (!$this->passUserAddIfNotExist) {
+            // assert the new user can be seen in the gui
+            $this->client->switchTo()->defaultContent();
+            $this->client->waitFor(XpathsConstants::ADMIN_IFRAME);
+            $this->switchToIFrame(XpathsConstants::ADMIN_IFRAME);
+            // below line will throw a timeout exception and fail if the new user is not listed
+            $this->client->waitFor("//table//a[text()='$username']");
+            $this->passUserAddIfNotExist = true;
+        }
     }
 
     private function assertUserInDatabase(string $username): void
@@ -106,7 +111,7 @@ trait UserAddTrait
             } else {
                 // try again since not yet 3 tries
                 $this->userAddAttemptCounter++;
-                echo "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database";
+                echo "\n" . "TRY " . ($this->userAddAttemptCounter) . " of 3 to add new user to database" . "\n";
                 $this->logOut();
                 $this->userAddIfNotExist($username);
             }
@@ -121,7 +126,7 @@ trait UserAddTrait
         $counter = 0;
         while (!$userExistDatabase && $counter < 3) {
             if ($counter > 0) {
-                echo "TRY " . ($counter + 1) . " of 3 to see if new user is in database";
+                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new user is in database" . "\n";
             }
             sleep(5);
             if ($this->isUserExist($username)) {

@@ -60,7 +60,7 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
             $threwSomething = false;
             $counter++;
             if ($counter > 1) {
-                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
+                echo "\n" . "RE-attempt (" . $menuLink . ") number " . $counter . " of 3" . "\n";
             }
             $this->base();
             try {
