@@ -17,6 +17,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Services\AppointmentService;
@@ -76,57 +77,27 @@ class SmartLaunchController
         ?>
         <section>
             <?php
-            // Billing expand collapse widget
-            $widgetTitle = xl("SMART Enabled Apps");
-            $widgetLabel = "smart";
-            $widgetButtonLabel = xl("Edit");
-            $widgetButtonLink = ""; // "return newEvt();";
-            $widgetButtonClass = "";
-            $linkMethod = "javascript";
-            $bodyClass = "notab";
-            $widgetAuth = false;
-            $fixedWidth = false;
-            $forceExpandAlways = false;
             $launchCode = $this->getLaunchCodeContext($puuid);
-            // TODO: adunsulag is there an redirect_uri that we can specify for the launch path?? The spec feels vague
-            // here...  all the SMART apps we've seen appear to follow a 'launch.html' nomenclature but that doesn't
-            // appear to be required in the spec.
 
+        // issuer and audience are the same in a EHR SMART Launch
             $issuer = (new ServerConfig())->getFhirUrl();
-            // issuer and audience are the same in a EHR SMART Launch
+            $viewArgs = [
+                        'title' => xl('SMART Enabled Apps'),
+                        'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
+                        'id' => 'smart',
+                        'forceAlwaysOpen' => false,
+                        'initiallyCollapsed' => (getUserSetting('smart') == 0) ? true : false,
+                        'linkMethod' => "javascript",
+                        'auth' => false,
+                        'issuer' => $issuer,
+                        'launchCode' => $launchCode,
+                        'smartClients' => $smartClients,
+                        'intent' => SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG
+            ];
 
-
-            expand_collapse_widget(
-                $widgetTitle,
-                $widgetLabel,
-                $widgetButtonLabel,
-                $widgetButtonLink,
-                $widgetButtonClass,
-                $linkMethod,
-                $bodyClass,
-                $widgetAuth,
-                $fixedWidth,
-                $forceExpandAlways
-            );
-            ?>
-            <div>
-                <ul>
-                        <?php if (empty($smartClients)) : ?>
-                            <li><p><?php echo xlt("No registered SMART apps in the system"); ?></p></li>
-                        <?php endif; ?>
-                        <?php foreach ($smartClients as $client) : ?>
-                            <li class="summary_item">
-                                <?php $this->renderLaunchButton($client, $issuer, $launchCode); ?>
-                                <?php echo text($client->getName()); ?>
-                            </li>
-                        <?php endforeach; ?>
-                </ul>
-            </div>
-        </section>
-        <?php
-        // it's too bad we don't have a centralized page renderer we could tie this into and render javascript at the
-        // end of our footer pages on everything...
-        $this->renderLaunchScript();
+            $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+            echo $twig->render("patient/card/smart_launch.html.twig", $viewArgs);
+            $this->renderLaunchScript();
     }
 
     public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, $launchText = "Launch")
@@ -201,14 +172,7 @@ class SmartLaunchController
     public function renderLaunchScript()
     {
         ?>
-        <script>
-            (function(oeSMART) {
-                if (oeSMART && oeSMART.initLaunch) {
-                    oeSMART.initLaunch(<?php echo js_escape($GLOBALS['webroot']); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
-                }
-            })(window.oeSMART || {});
 
-        </script>
         <?php
     }
     /**
