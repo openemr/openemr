@@ -648,6 +648,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         let data = event.data;
                         if (data && data.type === 'cdr-edit-source') {
+                            window.name = event.source.name;
                             dlgclose();
                             window.top.removeEventListener('message', windowMessageHandler);
                             // loadFrame already handles webroot and /interface/ prefix.
@@ -658,7 +659,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     };
                     window.top.addEventListener('message', windowMessageHandler);
 
-                    dlgopen('', '', 800, 200, '', '', {
+                    dlgopen('', 'cdrEditSource', 800, 200, '', '', {
                         buttons: [{
                             text: <?php echo xlj('Close'); ?>,
                             close: true,
