@@ -560,6 +560,7 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                     }
                     let data = event.data;
                     if (data && data.type === 'smart-dsi-edit-source') {
+                        window.name = event.source.name;
                         dlgclose();
                         window.top.removeEventListener('message', windowMessageHandler);
                         // loadFrame already handles webroot and /interface/ prefix.
@@ -575,7 +576,7 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
-                dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: false, onClose: function() {
+                dlgopen(url, 'smartDsiEditSource', 'modal-full', height, '', title, {allowExternal: false, onClose: function() {
                     window.top.removeEventListener('message', windowMessageHandler);
                 }});
             });
