@@ -78,7 +78,7 @@
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
         "twilio/sdk": "8.3.4",
-        "ringcentral/ringcentral-php": "3.0.3"
+        "wikimedia/composer-merge-plugin": "2.1.0"
     },
     "config": {
         "platform": {
@@ -87,7 +87,23 @@
         },
         "allow-plugins": {
             "openemr/oe-module-installer-plugin": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "wikimedia/composer-merge-plugin": true
+        }
+    },
+    "extra": {
+        "merge-plugin": {
+            "require": [
+                "interface/modules/custom_modules/oe-module-faxsms/composer.json"
+            ],
+            "recurse": true,
+            "replace": false,
+            "ignore-duplicates": false,
+            "merge-dev": true,
+            "merge-extra": false,
+            "merge-extra-deep": false,
+            "merge-replace": true,
+            "merge-scripts": false
         }
     },
     "require-dev": {
