@@ -42,8 +42,6 @@ $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
  */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
-//require __DIR__ . '/vendor/autoload.php';
-
 /**
  * @var EventDispatcherInterface $eventDispatcher
  * @var array                    $module
