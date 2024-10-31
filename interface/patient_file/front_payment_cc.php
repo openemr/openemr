@@ -84,12 +84,12 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['description'] = $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'];
     $transaction['metadata'] = [
         'Patient' => $pd['lname'] . ' ' . $pd['fname'] . ' ' . $pd['mname'],
-        'Patient Id' => $pid,
+        'Patient Id' => $pd['pubpid'],
         'Doctor Name' => $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'],
         'Doctor Tax Id' => $userData['federaltaxid'],
         'Facility Name' => $facilityData['name'],
         'Facility Tax Id' => $facilityData['federal_ein'],
-        'MRN' => $pd['pubpid'],
+        //'MRN' => $pd['pubpid'],
         'Invoice Items (date encounter)' => $_POST['encs'],
         'Invoice Total' => $transaction['amount']
     ];
