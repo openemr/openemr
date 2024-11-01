@@ -64,14 +64,32 @@ if ($_POST['mode'] == 'Stripe') {
         "LEFT OUTER JOIN insurance_data AS i ON " .
         "i.pid = p.pid AND i.type = 'primary' " .
         "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
+
+    $facilityData = sqlQuery("SELECT " .
+        "f.name, f.federal_ein " .
+        "FROM facility AS f " .
+        "LEFT OUTER JOIN form_encounter AS fe ON f.id = fe.facility_id " .
+        "WHERE fe.encounter = ? LIMIT 1", array($encounter));
+
+    $userData = sqlQuery("SELECT " .
+        "u.federaltaxid, u.fname, u.lname, u.mname " .
+        "FROM users AS u " .
+        "WHERE u.id = ? LIMIT 1", array($_SESSION['authUserID'])
+    );
+
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
     $transaction['token'] = $_POST['stripeToken'];
-    $transaction['description'] = $pd['lname'] . ' ' . $pd['fname'] . ' ' . $pd['mname'];
+    $transaction['description'] = $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'];
     $transaction['metadata'] = [
         'Patient' => $pd['lname'] . ' ' . $pd['fname'] . ' ' . $pd['mname'],
-        'MRN' => $pd['pubpid'],
+        'Patient Id' => $pd['pubpid'],
+        'Doctor Name' => $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'],
+        'Doctor Tax Id' => $userData['federaltaxid'],
+        'Facility Name' => $facilityData['name'],
+        'Facility Tax Id' => $facilityData['federal_ein'],
+        //'MRN' => $pd['pubpid'],
         'Invoice Items (date encounter)' => $_POST['encs'],
         'Invoice Total' => $transaction['amount']
     ];

@@ -1746,12 +1746,14 @@ function make_insurance() {
                 // Handle form submission.
                 let form = document.getElementById('stripeSubmit');
                 form.addEventListener('click', function (event) {
+                    $('#stripeSubmit').attr('disabled', true);
                     event.preventDefault();
                     stripe.createToken(card).then(function (result) {
                         if (result.error) {
                             // Inform the user if there was an error.
                             let errorElement = document.getElementById('card-errors');
                             errorElement.textContent = result.error.message;
+                            $('#stripeSubmit').attr('disabled', false);
                         } else {
                             // Send the token to server.
                             stripeTokenHandler(result.token);
@@ -1810,8 +1812,10 @@ function make_insurance() {
                         document.getElementById("check_number").value = data.transId;
                         alert(chargeMsg + "\n" + 'Auth: ' + data.authCode + ' TransId: ' + data.transId);
                         $("[name='form_save']").click();
+                        $('#stripeSubmit').attr('disabled', false);
                     }).catch(function (error) {
                         alert(error.message);
+                        $('#stripeSubmit').attr('disabled', false);
                     });
                 }
                 // terminal
