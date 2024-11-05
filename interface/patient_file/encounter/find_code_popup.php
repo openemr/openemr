@@ -235,7 +235,7 @@ $focus = "document.theform.search_term.select();";
             <?php } ?>
         </form>
         <form>
-            <div clas="row align-items-start">
+            <div class="row align-items-start">
                 <?php
                 if ($codetype == 'ICD10' && !empty($pid)) { ?>
                     <div class="col">
@@ -256,7 +256,7 @@ $focus = "document.theform.search_term.select();";
                 <?php } //end of which to display ?>
                 <?php
                 function getPreviousCodes($pid, $codeType) {
-                    $previous_cpt = "select distinct code, code_text from billing where pid = ? and code_type = ? ORDER BY id ASC";
+                    $previous_cpt = "SELECT DISTINCT `code`, `code_text` FROM `billing` WHERE pid = ? AND code_type = ? ORDER BY id ASC";
                     $list_previous = sqlStatement($previous_cpt, [$pid, $codeType]);
                     while ($row = sqlFetchArray($list_previous)) {
                         $codeText = explode("\r", $row['code_text']);
