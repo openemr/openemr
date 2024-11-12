@@ -7,10 +7,12 @@
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
 
+$site_id = '';
+
 if (!empty($_GET['site'])) {
     $site_id = $_GET['site'];
-} elseif (is_dir("sites/" . $_SERVER['HTTP_HOST'] ?? '')) {
-    $site_id = $_SERVER['HTTP_HOST'] ?? '';
+} elseif (is_dir("sites/" . ($_SERVER['HTTP_HOST'] ?? 'default'))) {
+    $site_id = ($_SERVER['HTTP_HOST'] ?? 'default');
 } else {
     $site_id = 'default';
 }
