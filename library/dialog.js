@@ -46,7 +46,7 @@
                 type: 'Alert',
                 sizeHeight: 'auto',
                 resolvePromiseOn: 'close',
-                html: '<p class="text-center">' + data + '</p>'
+                html: '<p class="text-center bg-light text-dark">' + data + '</p>'
             });
         }
 
@@ -62,7 +62,7 @@
                 type: 'Confirm',
                 resolvePromiseOn: 'confirm',
                 sizeHeight: 'auto',
-                html: '<p class="text-center">' + data + '</p>'
+                html: '<p class="text-center bg-light text-dark">' + data + '</p>'
             });
         }
 

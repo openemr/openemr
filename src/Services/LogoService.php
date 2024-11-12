@@ -83,7 +83,7 @@ class LogoService
             $logo = "";
         }
 
-        // This is critical, the finder must be completely reinstantiated to ensure the proper directories are searched next time.
+        // This is critical, the finder must be completely re-instantiated to ensure the proper directories are searched next time.
         $this->resetFinder();
 
         return $this->convertToWebPath($logo);
@@ -113,13 +113,17 @@ class LogoService
      * By default, will search in the directory array for any file named "logo" (extension agnostic). If found, only
      * the last file found will be returned. By default, will append a query string for time modified to cache bust.
      *
-     * @param array $directory Array of directories to search
-     * @param string $filename File to look for
+     * @param array   $directory Array of directories to search
+     * @param string  $filename  File to look for
      * @param boolean $timestamp Will return with a query string of the last modified time
      * @return string|null String of real path or null if no file found
      */
     private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
     {
+        if (empty($directory)) {
+            return "";
+        }
+
         $this->finder->files()->in($directory)->name($filename);
 
         if ($this->finder->hasResults()) {
