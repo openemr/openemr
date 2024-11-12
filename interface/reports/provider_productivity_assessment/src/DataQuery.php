@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Reports\Productivity;
 
-
 class DataQuery
 {
     public mixed $fromDate;

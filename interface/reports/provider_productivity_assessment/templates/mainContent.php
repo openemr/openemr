@@ -44,50 +44,50 @@ global $reportData;
                 </thead>
                 <tbody>
                 <?php
-                if (isset($reportData['message'])) {
-                    echo '<tr><td colspan="11">' . $reportData['message'] . '</td></tr>';
-                } else {
-                $surplus = 0;
-                foreach ($reportData as $row):
-                    $pid = (int) $row['pid'] ?? '';
+                    if (isset($reportData['message'])) {
+                        echo '<tr><td colspan="11">' . $reportData['message'] . '</td></tr>';
+                    } else {
+                    $surplus = 0;
+                    foreach ($reportData as $row):
+                        $pid = (int) $row['pid'] ?? '';
 
-                    if ($pname != $row['patient_name']) {
-                        $surplus = 0;
-                    }
-                    if (!empty($row['pid'])) {
-                        $cash = showTheMoney($pid, $row['encounter'], $surplus);
-                    }
-                    if ($row['fee'] == '0.00') {
-                        continue;
-                    }
-                    if ($pname == $row['patient_name'] && $text == $row['code_text']) {
-                        continue;
-                    }
+                        if ($pname != $row['patient_name']) {
+                            $surplus = 0;
+                        }
+                        if (!empty($row['pid'])) {
+                            $cash = showTheMoney($pid, $row['encounter'], $surplus);
+                        }
+                        if ($row['fee'] == '0.00') {
+                            continue;
+                        }
+                        if ($pname == $row['patient_name'] && $text == $row['code_text']) {
+                            continue;
+                        }
 
-                    ?>
-                    <tr>
-                        <td width="120px"><?php echo $row['provider'] ?></td>
-                        <td><?php echo substr($row['date'], 0, -9) ?></td>
-                        <td><?php echo $row['patient_name'] ?></td>
-                        <td><?php echo $row['code']?></td>
-                        <td width="520"><?php echo $row['code_text'] ?></td>
-                        <td><?php echo $row['insurance_company_name'] ?></td>
-                        <td><?php echo $row['fee'] ?></td>
-                        <td><?php echo $row['units'] ?></td>
-                        <td><?php echo $cash['payments']; ?></td>
-                        <td><?php echo $cash['adjustments'] ?></td>
-                        <td><?php
-                            //the surplus has to change when the patient changes. It is the remainder of the fee after the payments and adjustments
-                                if (!empty($row['fee'])) {
-                                    $preBalance = ($cash['payments'] + $cash['adjustments']);
+                        ?>
+                        <tr>
+                            <td width="120px"><?php echo $row['provider'] ?></td>
+                            <td><?php echo substr($row['date'], 0, -9) ?></td>
+                            <td><?php echo $row['patient_name'] ?></td>
+                            <td><?php echo $row['code']?></td>
+                            <td width="520"><?php echo $row['code_text'] ?></td>
+                            <td><?php echo $row['insurance_company_name'] ?></td>
+                            <td><?php echo $row['fee'] ?></td>
+                            <td><?php echo $row['units'] ?></td>
+                            <td><?php echo $cash['payments']; ?></td>
+                            <td><?php echo $cash['adjustments'] ?></td>
+                            <td><?php
+                                //the surplus has to change when the patient changes. It is the remainder of the fee after the payments and adjustments
+                                    if (!empty($row['fee'])) {
+                                        $preBalance = ($cash['payments'] + $cash['adjustments']);
 
-                                    echo oeFormatMoney($row['fee'] - $preBalance);
-                                }
+                                        echo oeFormatMoney($row['fee'] - $preBalance);
+                                    }
 
-                            $pname = $row['patient_name'];
-                                $text = $row['code_text'];
-                                $surplus++;
-                            ?></td>
+                                $pname = $row['patient_name'];
+                                    $text = $row['code_text'];
+                                    $surplus++;
+                                ?></td>
                     </tr>
                 <?php endforeach; }?>
                 </tbody>

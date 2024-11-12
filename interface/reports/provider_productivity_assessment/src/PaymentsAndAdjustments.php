@@ -31,7 +31,7 @@ class PaymentsAndAdjustments
         //We need a flag to come back to say start the loop at the next two rows
         // use the patient name to set the flag. If the name is the same on the next loop. Get the next two rows skip the first two
         //This is working but there are still some outstanding issues with the logic
-       if ($this->name == 0) {
+        if ($this->name == 0) {
             foreach ($transactions as $transaction) {
                 if ($transaction['payments'] == '0.00' && $transaction['adjustments'] == '0.00') {
                     continue;
@@ -47,10 +47,9 @@ class PaymentsAndAdjustments
                 }
                 $pa++;
             }
-       }
+        }
         if ($this->name == 1) {
             foreach ($transactions as $transaction) {
-
                 if ($pa < self::MAX_ROWS_TO_PROCESS) {
                     $pa++;
                     continue;

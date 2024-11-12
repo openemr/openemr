@@ -36,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reportData = $data->getReportData();
     render_template('mainContent', $reportData);
 } else {
-   $reportData = [
+    $reportData = [
        'message' => 'Please select a date range to view the report.'
-   ];
+    ];
     render_template('mainContent', $reportData);
 }
 
