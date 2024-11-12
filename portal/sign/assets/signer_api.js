@@ -57,14 +57,17 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
             </div>
         </div>
     `);
-    const AlertMsg = setTimeout(() => {
-        $('#alertMessage').alert('close');
-    }, timer);
 
     $('#alertMessage').on('closed.bs.alert', function () {
         clearTimeout(AlertMsg);
         $('#signerAlertBox').remove();
     });
+
+    const AlertMsg = setTimeout(function () {
+        $('#alertMessage').fadeOut(950, function () {
+            $('#alertMessage').alert('close');
+        });
+    }, timer);
 }
 
 function getSignature(othis, isInit = false, returnSignature = false) {
