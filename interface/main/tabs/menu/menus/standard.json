@@ -1721,6 +1721,18 @@
               "acct",
               "rep_a"
             ]
+          },
+          {
+            "label": "Provider Productivity",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/provider_productivity_assessment/public",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+                "acct",
+                "rep_a"
+            ]
           }
         ],
         "requirement": 0
