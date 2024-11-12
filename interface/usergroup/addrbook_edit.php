@@ -232,7 +232,7 @@ if (!empty($_POST['form_save'])) {
 } elseif (!empty($_POST['form_delete'])) {
     if ($userid) {
        // Be careful not to delete internal users.
-        sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
+        sqlStatement("DELETE FROM users WHERE id = ? AND (username = '' OR username IS NULL)", array($userid));
     }
 }
 
