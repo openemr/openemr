@@ -78,16 +78,16 @@ global $reportData;
                             <td><?php echo $cash['adjustments'] ?></td>
                             <td><?php
                                 //the surplus has to change when the patient changes. It is the remainder of the fee after the payments and adjustments
-                                if (!empty($row['fee'])) {
-                                    $preBalance = ($cash['payments'] + $cash['adjustments']);
-                                    echo oeFormatMoney($row['fee'] - $preBalance);
-                                }
-                                   $pname = $row['patient_name'];
-                                   $text = $row['code_text'];
-                                   $surplus++;
+                            if (!empty($row['fee'])) {
+                                $preBalance = ($cash['payments'] + $cash['adjustments']);
+                                echo oeFormatMoney($row['fee'] - $preBalance);
+                            }
+                                $pname = $row['patient_name'];
+                                $text = $row['code_text'];
+                                $surplus++;
                             ?></td>
                     </tr>
-                <?php
+                    <?php
                     endforeach;
                 }
                 ?>
