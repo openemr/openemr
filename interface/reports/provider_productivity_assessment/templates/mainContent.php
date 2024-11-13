@@ -87,7 +87,7 @@ global $reportData;
                                 $surplus++;
                             ?></td>
                     </tr>
-                    <?php
+                        <?php
                         endforeach;
                 }
                 ?>
