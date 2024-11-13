@@ -44,11 +44,11 @@ global $reportData;
                 </thead>
                 <tbody>
                 <?php
-                    if (isset($reportData['message'])) {
-                        echo '<tr><td colspan="11">' . $reportData['message'] . '</td></tr>';
-                    } else {
+                if (isset($reportData['message'])) {
+                    echo '<tr><td colspan="11">' . $reportData['message'] . '</td></tr>';
+                } else {
                     $surplus = 0;
-                    foreach ($reportData as $row):
+                    foreach ($reportData as $row) :
                         $pid = (int) $row['pid'] ?? '';
 
                         if ($pname != $row['patient_name']) {
@@ -78,18 +78,19 @@ global $reportData;
                             <td><?php echo $cash['adjustments'] ?></td>
                             <td><?php
                                 //the surplus has to change when the patient changes. It is the remainder of the fee after the payments and adjustments
-                                    if (!empty($row['fee'])) {
-                                        $preBalance = ($cash['payments'] + $cash['adjustments']);
-
-                                        echo oeFormatMoney($row['fee'] - $preBalance);
-                                    }
-
-                                $pname = $row['patient_name'];
-                                    $text = $row['code_text'];
-                                    $surplus++;
-                                ?></td>
+                                if (!empty($row['fee'])) {
+                                    $preBalance = ($cash['payments'] + $cash['adjustments']);
+                                    echo oeFormatMoney($row['fee'] - $preBalance);
+                                }
+                                   $pname = $row['patient_name'];
+                                   $text = $row['code_text'];
+                                   $surplus++;
+                            ?></td>
                     </tr>
-                <?php endforeach; }?>
+                <?php
+                    endforeach;
+                }
+                ?>
                 </tbody>
             </table>
         </div>
