@@ -28,11 +28,9 @@ $oNoteService = new ONoteService();
 
 //the number of records to display per screen
 $N = 10;
+$offset = $_REQUEST['offset'] ?? 0;
+$active = $_REQUEST['active'] ?? 1; // Active Only by default
 
-$offset = (isset($_REQUEST['offset'])) ? $_REQUEST['offset'] : 0;
-$active = (isset($_REQUEST['active'])) ? $_REQUEST['active'] : -1;
-
-//this code handles changing the state of activity tags when the user updates them through the interface
 if (isset($_POST['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -40,147 +38,158 @@ if (isset($_POST['mode'])) {
 
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
-            if ($val == "true" || $val == "false") {
+            if (strpos($var, 'act') === 0) {
                 $id = str_replace("act", "", $var);
                 if ($val == "true") {
                     $oNoteService->enableNoteById($id);
-                } elseif ($val == "false") {
+                } else {
                     $oNoteService->disableNoteById($id);
                 }
             }
         }
     } elseif ($_POST['mode'] == "new") {
         $oNoteService->add($_POST["note"]);
+    } elseif ($_POST['mode'] == "edit") {
+        $oNoteService->updateNoteById($_POST['note_id'], $_POST['note']);
+    } elseif ($_POST['mode'] == "delete") {
+        $oNoteService->deleteNoteById($_POST['note_id']);
     }
 }
 ?>
+
+<!DOCTYPE html>
 <html>
 <head>
-
-<?php Header::setupHeader(); ?>
+    <title><?php echo xlt('Office Notes'); ?></title>
+    <?php Header::setupHeader(); ?>
+    <script>
+        // submit the form when the checkbox changes state
+        function toggleActivity(noteId, isActive) {
+            const form = document.getElementById(`toggleForm${noteId}`);
+            const checkbox = document.getElementById(`activityCheckbox${noteId}`);
+            checkbox.value = isActive ? "true" : "false";
+            form.submit();
+        }
+    </script>
 </head>
 <body class="body_top">
-
-    <div id="officenotes_edit">
-
-        <form method="post" name="new_note" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
+    <div id="officenotes_edit" class="container my-4">
+        <!-- Add New Note Form -->
+        <form method="post" action="office_comments_full.php" class="mb-4">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-            <?php
-            /* BACK should go to the main Office Notes screen */
-            if ($userauthorized) {
-                $backurl = "office_comments.php";
-            } else {
-                $backurl = "../main_info.php";
-            }
-            ?>
-
-            <a href="office_comments.php" onclick='top.restoreSession()'>
-
-            <span class="title"><?php echo xlt('Office Notes'); ?></span>
-            <span class="back"><?php echo text($tback); ?></span></a>
-
-            <br />
             <input type="hidden" name="mode" value="new">
-            <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
-            <input type="hidden" name="active" value="<?php echo attr($active); ?>">
-
-            <textarea name="note" class="form-control" rows="3" placeholder="<?php echo xla("Enter new office note here"); ?>" required="required"></textarea>
-            <input class="btn btn-primary mt-3" type="submit" value="<?php echo xla('Add New Note'); ?>" />
+            <div class="form-group">
+                <textarea name="note" class="form-control" rows="3" placeholder="<?php echo xla("Enter new office note here"); ?>" required="required"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary"><?php echo xlt("Add New Note"); ?></button>
+            <a href="office_comments.php" type="button" class="btn btn-cancel btn-secondary">
+                <?php echo xlt("Front Page"); ?>
+            </a>
         </form>
-        <br/>
-        <hr>
+    </div>
+    <!-- Active/Inactive View Toggle Buttons -->
+    <div class="btn-group mb-4" role="group" aria-label="Filter Notes">
+        <a href="office_comments_full.php?offset=0&active=-1" class="btn btn-primary <?php echo ($active == -1) ? 'active' : ''; ?>"><?php echo xlt("All"); ?></a>
+        <a href="office_comments_full.php?offset=0&active=1" class="btn btn-primary <?php echo ($active == 1) ? 'active' : ''; ?>"><?php echo xlt("Only Active"); ?></a>
+        <a href="office_comments_full.php?offset=0&active=0" class="btn btn-primary <?php echo ($active == 0) ? 'active' : ''; ?>"><?php echo xlt("Only Inactive"); ?></a>
+    </div>
 
-        <form method="post" name="update_activity" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <div class="container-fliud table-responsive">
+        <!-- Existing Notes List -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th><?php echo xlt("Active"); ?></th>
+                <th class="text-left"><?php echo xlt("Date"); ?></th>
+                <th class="text-left"><?php echo xlt("Office Note"); ?></th>
+                <th class="text-center"><?php echo xlt("Actions"); ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($oNoteService->getNotes($active, $offset, $N) as $note) : ?>
+                <tr>
+                    <td>
+                        <!-- Active Toggle Checkbox -->
+                        <form id="toggleForm<?php echo attr($note['id']); ?>" method="post" action="office_comments_full.php">
+                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                            <input type="hidden" name="mode" value="update">
+                            <input type="hidden" name="act<?php echo attr($note['id']); ?>" id="activityCheckbox<?php echo attr($note['id']); ?>" value="<?php echo ($note['activity'] == 1) ? 'true' : 'false'; ?>">
+                            <input type="checkbox" <?php echo ($note['activity'] == 1) ? 'checked' : ''; ?> onchange="toggleActivity(<?php echo attr($note['id']); ?>, this.checked);">
+                        </form>
+                    </td>
+                    <td class="text-left">
+                        <?php
+                        $date = (new DateTime($note['date']))->format('Y-m-d H:i:s');
+                        echo oeFormatDateTime($date) . " (" . text($note['user']) . ")";
+                        ?>
+                    </td>
+                    <td class="text-left"><?php echo nl2br(text($note['body'])); ?></td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#editNoteModal<?php echo attr($note['id']); ?>">
+                            <i class="fa fa-pencil"></i><?php echo xlt("Edit"); ?>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteNoteModal<?php echo attr($note['id']); ?>">
+                            <i class="fa fa-trash"></i><?php echo xlt("Delete"); ?>
+                        </button>
+                    </td>
+                </tr>
+                <!-- Edit Note Modal -->
+                <div class="modal fade" id="editNoteModal<?php echo attr($note['id']); ?>" tabindex="-1" role="dialog" aria-labelledby="editNoteModalLabel<?php echo attr($note['id']); ?>" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <form method="post" action="office_comments_full.php">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo text('Edit Note'); ?></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="mode" value="edit">
+                                    <input type="hidden" name="note_id" value="<?php echo attr($note['id']); ?>">
+                                    <div class="form-group">
+                                        <textarea name="note" class="form-control" rows="3" required="required"><?php echo text($note['body']); ?></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary"><?php echo xlt("Save changes"); ?></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Delete Note Confirmation Modal -->
+                <div class="modal fade" id="deleteNoteModal<?php echo attr($note['id']); ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNoteModalLabel<?php echo attr($note['id']); ?>" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form method="post" action="office_comments_full.php">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo xlt("Delete Note"); ?></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="mode" value=<?php echo attr("delete"); ?>>
+                                    <input type="hidden" name="note_id" value="<?php echo attr($note['id']); ?>">
+                                    <p><?php echo xlt("Are you sure you want to delete this note?"); ?></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-danger"><?php echo xlt("Delete"); ?></button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Cancel"); ?></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
-            <?php //change the view on the current mode, whether all, active, or inactive
-            if ($active === "1") {
-                $active_class = null;
-                $inactive_class = "_small";
-                $all_class = "_small";
-            } elseif ($active === "0") {
-                $active_class = "_small";
-                $inactive_class = null;
-                $all_class = "_small";
-            } else {
-                $active_class = "_small";
-                $inactive_class = "_small";
-                $all_class = null;
-            }
-            ?>
-
-            <a href="office_comments_full.php?offset=0&active=-1" class="btn btn-primary<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
-            <a href="office_comments_full.php?offset=0&active=1" class="btn btn-primary<?php echo attr($active_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Active'); ?></a>
-            <a href="office_comments_full.php?offset=0&active=0" class="btn btn-primary<?php echo attr($inactive_class);?>" onclick='top.restoreSession()'><?php echo xlt('Only Inactive'); ?></a>
-
-            <input type="hidden" name="mode" value="update">
-            <input type="hidden" name="offset" value="<?php echo attr($offset);?>">
-            <input type="hidden" name="active" value="<?php echo attr($active);?>">
-            <br/>
-
-            <table class="existingnotes table table-striped">
-                <?php
-                //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-
-                $notes = $oNoteService->getNotes($active, $offset, $N);
-
-                $result_count = 0;
-                //retrieve all notes
-                if (!empty($notes)) {
-                    print "<thead><tr><th>" . xlt("Active") . "</th><th>" . xlt("Date") . " (" . xlt("Sender") . ")</th><th>" . xlt("Office Note") . "</th></tr></thead><tbody>";
-                    foreach ($notes as $note) {
-                        $result_count++;
-
-                        $date = (new DateTime($note['date']))->format('Y-m-d');
-
-                        $todaysDate = new DateTime();
-                        if ($todaysDate->format('Y-m-d') == $date) {
-                            $date_string = xl("Today") . ", " . oeFormatShortDate($date);
-                        } else {
-                            $date_string = oeFormatShortDate($date);
-                        }
-
-                        if ($note['activity'] == 1) {
-                            $checked = "checked";
-                        } else {
-                            $checked = "";
-                        }
-
-                        print "<tr><td><input type=hidden value='' name='act" . attr($note['id']) . "' id='act" . attr($note['id']) . "'>";
-                        print "<input name='box" . attr($note['id']) . "' id='box" . attr($note['id']) . "' onClick='javascript:document.update_activity.act" . attr($note['id']) . ".value=this.checked' type=checkbox $checked></td>";
-                        print "<td><label for='box" . attr($note['id']) . "' class='bold'>" . text($date_string) . "</label>";
-                        print " <label for='box" . attr($note['id']) . "' class='bold'>(" . text($note['user']) . ")</label></td>";
-                        print "<td><label for='box" . attr($note['id']) . "' class='text'>" . nl2br(text($note['body'])) . "&nbsp;</label></td></tr>";
-                    }
-                    print "</tbody>\n";
-                } else {
-                //no results
-                    print "<tr><td></td><td></td><td></td></tr>\n";
-                }
-
-                ?>
-            </table>
-
-            <input class="btn btn-primary" type="submit" value="<?php echo xla('Save Activity'); ?>" />
-        </form>
-        <hr>
-
-        <table width="400" cellpadding="0" cellspacing="0" class="table">
-            <tr><td>
-            <?php
-            if ($offset > ($N - 1)) {
-                echo "<a class='btn btn-secondary' href=office_comments_full.php?active=" . attr_url($active) . "&offset=" . attr_url($offset - $N) . " onclick='top.restoreSession()'>" . xlt('Previous') . "</a>";
-            }
-            ?>
-            </td><td align='right'>
-            <?php
-            if ($result_count == $N) {
-                echo "<a class='btn btn-secondary' href=office_comments_full.php?active=" . attr_url($active) . "&offset=" . attr_url($offset + $N) . " onclick='top.restoreSession()'>" . xlt('Next') . "</a>";
-            }
-            ?>
-            </td></tr>
+            <?php endforeach; ?>
+            </tbody>
         </table>
     </div>
+
 </body>
 </html>
