@@ -88,7 +88,7 @@ global $reportData;
                             ?></td>
                     </tr>
                     <?php
-                    endforeach;
+                        endforeach;
                 }
                 ?>
                 </tbody>
