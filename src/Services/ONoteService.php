@@ -54,12 +54,22 @@ class ONoteService
         sqlStatement("UPDATE `onotes` SET `activity` = 0 WHERE `id` = ?", [$id]);
     }
 
+    public function updateNoteById($id, $body)
+    {
+        sqlStatement("UPDATE `onotes` SET `body` = ? WHERE `id` = ?", [$body, $id]);
+    }
+
+    public function deleteNoteById($id)
+    {
+        sqlStatement("DELETE FROM `onotes` WHERE `id` = ?", [$id]);
+    }
+
     /**
      * Get office notes with filters.
      *
      * @param $activity -1/0/1 to indicate filtered notes.
-     * @param $offset The start index for pagination.
-     * @param $limit The limit for pagination.
+     * @param $offset   The start index for pagination.
+     * @param $limit    The limit for pagination.
      * @return array of office notes.
      */
     public function getNotes($activity, $offset, $limit)
