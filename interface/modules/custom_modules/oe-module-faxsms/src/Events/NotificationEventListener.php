@@ -106,12 +106,15 @@ class NotificationEventListener implements EventSubscriberInterface
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
             $clientApp = AppDispatch::getApiService('sms');
-            $clientApp->sendSMS(
+            $status_api = $clientApp->sendSMS(
                 $recipientPhone,
                 "",
                 $text_message,
                 $recipientPhone
             );
+            if ($status_api !== true) {
+                $status .= text($status_api);
+            }
             $status .= xlt("Message sent.");
         }
 
@@ -148,12 +151,15 @@ class NotificationEventListener implements EventSubscriberInterface
 
         if ($patient['hipaa_allowsms'] == 'YES') {
             $clientApp = AppDispatch::getApiService('sms');
-            $clientApp->sendSMS(
+            $status_api = $clientApp->sendSMS(
                 $recipientPhone,
                 "",
                 $message,
                 null // will get the "from" phone # from credentials
             );
+            if ($status_api !== true) {
+                $status .= text($status_api);
+            }
             $status .= xlt("Message sent.");
         }
 

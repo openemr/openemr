@@ -198,15 +198,20 @@ class RCFaxClient extends AppDispatch
      * @param string $from
      * @return string|bool
      */
-    public function sendSMS(string $toPhone = '', string $subject = '', string $message = '', string $from = ''): string|bool
+    public function sendSMS($toPhone = '', $subject = '', $message = '', $from = ''): string|bool
     {
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
             return text(js_escape($authErrorMsg));
             // goes to alert
         }
+        $toPhone = $toPhone ?: $this->getRequest('phone');
+        $from = $from ?: $this->getRequest('from');
+        $message = $message ?: $this->getRequest('comments');
 
-        $smsNumber = $this->credentials['smsNumber'];
+        $smsNumber = $this->formatPhone($this->credentials['smsNumber']);
+        $from = $this->formatPhone($from);
+        $toPhone = $this->formatPhone($toPhone);
         if ($smsNumber) {
             try {
                 $this->platform->post('/account/~/extension/~/sms', [
@@ -214,7 +219,7 @@ class RCFaxClient extends AppDispatch
                     'to' => [['phoneNumber' => $toPhone]],
                     'text' => $message,
                 ]);
-                sleep(1);
+                sleep(1.25);
                 // RC may only allow 1/second.
                 return true;
             } catch (ApiException $e) {
@@ -408,6 +413,7 @@ class RCFaxClient extends AppDispatch
             $content = file_get_contents($content);
         }
         try {
+            $phone = $this->formatPhone($phone);
             $mime = FileUtils::fileGetMimeType($fileName, $content);
             $type = $mime['type'];
             $fileName = $mime['filePath'];
