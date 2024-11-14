@@ -32,7 +32,7 @@ $oNoteService = new ONoteService();
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo xlt('Office Notes List'); ?></title>
+    <title><?php echo xlt('Office Notes'); ?></title>
     <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
