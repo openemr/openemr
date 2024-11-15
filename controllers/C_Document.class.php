@@ -1103,9 +1103,10 @@ class C_Document extends Controller
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
         $this->assign("tree_html", $treeMenu->toHTML());
 
+        $is_new_referer = !empty($_GET['referer_flag']) ? 1 : false;
         $is_new = isset($_GET['patient_name']) ? 1 : false;
-        $place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : xl("Patient search or select.");
-        $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
+        $place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : false;
+        $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : $patient_id;
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
             if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
@@ -1114,6 +1115,16 @@ class C_Document extends Controller
             }
             $cur_pid = '0';
             $is_new = 1;
+        }
+        if ((int)$cur_pid == 0) {
+            $place_hld = xl('Patient search or select.');
+        }
+        if (!$place_hld) {
+            if ((int)$cur_pid > 0) {
+                $query = "select fname, lname from patient_data WHERE pid = ?";
+                $name = sqlQuery($query, [$cur_pid]);
+                $place_hld = $name['fname'] . ' ' . $name['lname'];
+            }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
             echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
