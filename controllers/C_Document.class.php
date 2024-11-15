@@ -1103,7 +1103,7 @@ class C_Document extends Controller
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
         $this->assign("tree_html", $treeMenu->toHTML());
 
-        $is_new_referer = !empty($_GET['referer_flag']) ? 1 : false;
+        $is_new_referer = !empty($_GET['referer_flag']) ? 1 : 0;
         $is_new = isset($_GET['patient_name']) ? 1 : false;
         $place_hld = isset($_GET['patient_name']) ? filter_input(INPUT_GET, 'patient_name') : false;
         $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : $patient_id;
@@ -1135,6 +1135,7 @@ class C_Document extends Controller
         $this->assign('cur_pid', $cur_pid);
         $this->assign('used_msg', $used_msg);
         $this->assign('demo_pid', ($_SESSION['pid'] ?? null));
+        $this->assign('is_new_referer', $is_new_referer);
 
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }

@@ -12,8 +12,10 @@
 <html>
 <head>
 
+<title>{xlt t='Documents'}</title>
 {headerTemplate assets='datetime-picker|select2'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
+
 <style>
 .select2-selection {
 height: 35px!important;
@@ -51,11 +53,6 @@ border-radius: 4px 0 0 4px!important;
 		location.assign(callUrl);
 	}
 </script>
-    {if $cur_pid == $demo_pid && !$is_new}
-    <title class="new-doc-title">{xlt t='Documents'}</title>
-    {else}
-    <title class="new-doc-title">{xlt t='New Documents'}</title>
-    {/if}
 </head>
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
@@ -164,7 +161,7 @@ $(function () {
         e.preventDefault();
         if (e.params.data.value == '00' && !e.params.data.label.match({xlj t="Reset"})){
             alert(inUseMsg);
-            return false;
+            location.reload();
         }
         $(this).val(e.params.data.label);
         location.href  = "{$GLOBALS.webroot}/controller.php?document&list&patient_id=" + encodeURIComponent(e.params.data.value) + "&patient_name=" + encodeURIComponent(e.params.data.label);
