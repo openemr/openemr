@@ -53,7 +53,7 @@ border-radius: 4px 0 0 4px!important;
 		location.assign(callUrl);
 	}
 </script>
-<title>{xlt t='Documents'}</title>
+<title id="new-doc-title">{xlt t='Documents'}</title>
 </head>
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
@@ -130,6 +130,7 @@ if(curpid == demoPid && !newVersion && !isNewRefererFlag){
     isNewRefererFlag = 1;
     $("#pid").text(curpid + ' ' + curpat);
     $(".new-doc-hide").hide();
+    $("#new-doc-title").text(newTitle);
     $("#new-title").text(newTitle);
 }
 $(function () {

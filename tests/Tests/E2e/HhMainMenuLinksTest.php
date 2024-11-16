@@ -164,7 +164,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Miscellaneous -> Chart Tracker menu link' => ['Miscellaneous||Chart Tracker', 'Chart Tracker'],
             'Miscellaneous -> Office Notes menu link' => ['Miscellaneous||Office Notes', 'Office Notes'],
             'Miscellaneous -> Batch Communication Tool menu link' => ['Miscellaneous||Batch Communication Tool', 'BatchCom'],
-            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']
+            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'New Documents']
         ];
     }
 }
