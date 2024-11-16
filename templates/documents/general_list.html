@@ -11,9 +11,10 @@
 *}
 <html>
 <head>
+<title id="new-doc-title">{xlt t='Documents'}</title>
 
-<title>{xlt t='Documents'}</title>
 {headerTemplate assets='datetime-picker|select2'}
+
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
 
 <style>
@@ -113,12 +114,14 @@ border-radius: 4px 0 0 4px!important;
 		</div>
 	</div>
 </div><!--end of container div-->
+
 <script>
 const curpid = {$cur_pid|js_escape};
 const curpat = {$place_hld|js_escape};
 const newVersion = {$is_new|js_escape};
 const demoPid = {$demo_pid|js_escape};
 const inUseMsg = {$used_msg|js_escape};
+const newTitle= {$new_title|js_escape};
 let isNewRefererFlag = {$is_new_referer|js_escape};
 
 if(curpid == demoPid && !newVersion && !isNewRefererFlag){
@@ -127,6 +130,7 @@ if(curpid == demoPid && !newVersion && !isNewRefererFlag){
     isNewRefererFlag = 1;
     $("#pid").text(curpid + ' ' + curpat);
     $(".new-doc-hide").hide();
+    $("#new-doc-title").html(newTitle);
 }
 $(function () {
     $("#selectPatient").select2({

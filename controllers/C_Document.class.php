@@ -1117,7 +1117,7 @@ class C_Document extends Controller
             $is_new = 1;
         }
         if ((int)$cur_pid == 0) {
-            $place_hld = xl('Patient search or select.');
+            $place_hld = xl('New Document Uploads.');
         }
         if (!$place_hld) {
             if ((int)$cur_pid > 0) {
@@ -1136,6 +1136,7 @@ class C_Document extends Controller
         $this->assign('used_msg', $used_msg);
         $this->assign('demo_pid', ($_SESSION['pid'] ?? null));
         $this->assign('is_new_referer', $is_new_referer);
+        $this->assign('new_title', xlt("New Documents"));
 
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
