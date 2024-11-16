@@ -65,7 +65,7 @@ border-radius: 4px 0 0 4px!important;
     <div class="row">
         <div class="col-sm-2">
             <div class="title">
-                <h2>{xlt t='Documents'}
+                <h2 id="new-title">{xlt t='Documents'}
                     <a class="new-doc-hide" href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}">
                         <i id='advanced-tooltip' class='fa fa-solid fa-backward fa-sm' aria-hidden='true'></i>
                     </a>
@@ -130,7 +130,7 @@ if(curpid == demoPid && !newVersion && !isNewRefererFlag){
     isNewRefererFlag = 1;
     $("#pid").text(curpid + ' ' + curpat);
     $(".new-doc-hide").hide();
-    //$("#new-doc-title").html(newTitle);
+    $("#new-title").text(newTitle);
 }
 $(function () {
     $("#selectPatient").select2({
