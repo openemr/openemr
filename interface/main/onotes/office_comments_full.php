@@ -76,18 +76,18 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
     $paginationHtml = '<ul class="pagination justify-content-center">';
     if ($currentPage > 0) {
         $prevOffset = ($currentPage - 1) * $N;
-        $paginationHtml .= "<li class='page-item'><a class='page-link' href='office_comments_full.php?offset=" . attr_js($prevOffset) . "&active=" . attr_js($active) . "'>&laquo; " . xlt('Previous') . "</a></li>";
+        $paginationHtml .= "<li class='page-item'><a class='page-link' href='office_comments_full.php?offset=" . attr($prevOffset) . "&active=" . attr($active) . "'>&laquo; " . xlt('Previous') . "</a></li>";
     } else {
         $paginationHtml .= "<li class='page-item disabled'><span class='page-link'>&laquo; " . xlt('Previous') . "</span></li>";
     }
     for ($i = 0; $i < $totalPages; $i++) {
         $offset = $i * $N;
         $activeClass = ($offset == ($_REQUEST['offset'] ?? 0)) ? 'active' : '';
-        $paginationHtml .= "<li class='page-item " . attr($activeClass) . "'><a class='page-link' href='office_comments_full.php?offset=" . attr_js($offset) . "&active=" . attr_js($active) . "'>" . attr($i + 1) . "</a></li>";
+        $paginationHtml .= "<li class='page-item " . attr($activeClass) . "'><a class='page-link' href='office_comments_full.php?offset=" . attr($offset) . "&active=" . attr($active) . "'>" . attr($i + 1) . "</a></li>";
     }
     if ($currentPage < $totalPages - 1) {
         $nextOffset = ($currentPage + 1) * $N;
-        $paginationHtml .= "<li class='page-item'><a class='page-link' href='office_comments_full.php?offset=" . attr_js($nextOffset) . "&active=" . attr_js($active) . "'>" . xlt('Next') . " &raquo;</a></li>";
+        $paginationHtml .= "<li class='page-item'><a class='page-link' href='office_comments_full.php?offset=" . attr($nextOffset) . "&active=" . attr($active) . "'>" . xlt('Next') . " &raquo;</a></li>";
     } else {
         $paginationHtml .= "<li class='page-item disabled'><span class='page-link'>" . xlt('Next') . " &raquo;</span></li>";
     }
