@@ -23,12 +23,10 @@ if (!AclMain::aclCheckCore('encounters', 'notes')) {
     exit;
 }
 
-//display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-$N = 10;
-
+//display all the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
+$N = 8;
 $oNoteService = new ONoteService();
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,7 +43,6 @@ $oNoteService = new ONoteService();
                 </a>
             </div>
         </div>
-
         <table class="table table-hover table-striped">
             <?php
             $notes = $oNoteService->getNotes(1, 0, ($N + 1));
@@ -75,7 +72,7 @@ $oNoteService = new ONoteService();
                     $card .= '    <div class="card-heading bg-dark text-light">';
                     $card .= '        <h6 class="card-title m-0 mt-1 pb-1">' . text($date_string) . ' <strong>(' . text($note['user']) . ')</strong></h6>';
                     $card .= '    </div>';
-                    $card .= '    <div class="card-body p-1">';
+                    $card .= '    <div class="card-body p-2">';
                     $card .= nl2br(text($note['body']));
                     $card .= '    </div>';
                     $card .= '</div>';
@@ -86,7 +83,6 @@ $oNoteService = new ONoteService();
                 }
             }
             ?>
-
         </table>
     </div>
 </body>

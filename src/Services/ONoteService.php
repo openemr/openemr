@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -84,5 +86,11 @@ class ONoteService
             $notes[] = $row;
         }
         return $notes;
+    }
+
+    public function countNotes($active)
+    {
+        $sql = "SELECT COUNT(*) FROM onotes WHERE activity = ? OR ? = -1";
+        return sqlQuery($sql, [$active, $active])['COUNT(*)'];
     }
 }
