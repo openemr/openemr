@@ -5,6 +5,8 @@
 // scripts to notify events
 ////////////////////////////////////////////////////////////////////
 
+use MyMailer;
+
 // larry :: somne global to be defined here
 global $smsgateway_info;
 global $patient_info;
@@ -22,7 +24,8 @@ global $EMAIL_NOTIFICATION_HOUR;
 function cron_SendMail($to, $subject, $vBody, $from)
 {
     // check if smtp globals set
-    if ($GLOBALS['smtp_host_name'] == '') {
+    if ($GLOBALS['SMTP_HOST'] == '') {
+        // If there is not a SMTP configuration try using the system mailer
         // larry :: debug
         //echo "\nDEBUG :: use mail method\n";
 
@@ -69,11 +72,6 @@ function cron_SendMail($to, $subject, $vBody, $from)
         // larry :: debug
         //echo "\nDEBUG :: use smtp method\n";
 
-        if (!class_exists("smtp_class")) {
-            include("../../library/classes/smtp/smtp.php");
-            include("../../library/classes/smtp/sasl.php");
-        }
-
         $strFrom = $from;
         $sender_line = __LINE__;
         $strTo = $to;
@@ -86,61 +84,23 @@ function cron_SendMail($to, $subject, $vBody, $from)
             return( false );
         }
 
-        //if( !$smtp )
-        $smtp = new smtp_class();
+        $mail = new MyMailer();
+        //$mail->SMTPDebug = 3; // Enable to see debugging details
+        $mail->SetFrom($strFrom, $strFrom);
+        $mail->AddAddress($strTo, $strTo);
+        $mail->AddReplyTo($strFrom, $strFrom);
+        $mail->Body = $vBody;
+        $mail->Subject = $subject;
 
-        $smtp->host_name = $GLOBALS['smtp_host_name'];
-        $smtp->host_port = $GLOBALS['smtp_host_port'];
-        $smtp->ssl = $GLOBALS['smtp_use_ssl'];
-        $smtp->localhost = $GLOBALS['smtp_localhost'];
-        $smtp->direct_delivery = 0;
-        $smtp->timeout = 10;
-        $smtp->data_timeout = 0;
-
-        $smtp->debug = 1;
-        $smtp->html_debug = 0;
-        $smtp->pop3_auth_host = "";
-
-        $smtp->user = $GLOBALS['smtp_auth_user'];
-        $smtp->password = $GLOBALS['smtp_auth_pass'];
-
-        $smtp->realm = "";
-        // Workstation name for NTLM authentication
-        $smtp->workstation = "";
-        // Specify a SASL authentication method like LOGIN, PLAIN, CRAM-MD5, NTLM, etc..
-        // Leave it empty to make the class negotiate if necessary
-        $smtp->authentication_mechanism = "";
-
-        // If you need to use the direct delivery mode and this is running under
-        // Windows or any other platform
-        if ($smtp->direct_delivery) {
-            if (!function_exists("GetMXRR")) {
-                $_NAMESERVERS = array();
-                include("getmxrr.php");
-            }
-        }
-
-        if (
-            $smtp->SendMessage(
-                $strFrom,
-                array( $strTo ),
-                array(
-                "From: $strFrom",
-                "To: $strTo",
-                "Subject: $subject",
-                "Date Time :" . date("d M, Y  h:i:s")
-                ),
-                $vBody
-            )
-        ) {
+        if ($mail->Send()) {
             //echo "Message sent to " . text($to) . " OK.\n";
             $mstatus = true;
         } else {
-             //echo "Cound not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
-             $mstatus = false;
+            //echo "Cound not send the message to " . text($to) . ".\nError: " . text($mail->ErrorInfo) . "\n";
+            $mstatus = false;
         }
 
-        unset($smtp);
+        unset($mail);
     }
 
     return $mstatus;
