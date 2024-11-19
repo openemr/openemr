@@ -13,7 +13,9 @@
 <head>
 
 {headerTemplate assets='datetime-picker|select2'}
+
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
+
 <style>
 .select2-selection {
 height: 35px!important;
@@ -30,6 +32,9 @@ border-radius: 4px 0 0 4px!important;
     max-height: 35%;
     overflow: auto;
 }
+.select2-container {
+	min-width: 20vw !important;
+}
 </style>
 <script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
 <script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
@@ -43,11 +48,12 @@ border-radius: 4px 0 0 4px!important;
             '&cuser=' + encodeURIComponent(cuser) +
             '&recid=' + encodeURIComponent(id) +
             '&edit=' + encodeURIComponent(edit) +
-            '&new=' + encodeURIComponent(templateName)
+            '&new=' + encodeURIComponent(templateName) +
+            '&referer_flag=' + encodeURIComponent(isNewRefererFlag)
 		location.assign(callUrl);
 	}
 </script>
-<title>{xlt t='Documents'}</title>
+<title id="new-doc-title">{xlt t='Documents'}</title>
 </head>
 <!-- ViSolve - Call expandAll function on loading of the page if global value 'expand_document' is set -->
 {if $GLOBALS.expand_document_tree}
@@ -56,25 +62,34 @@ border-radius: 4px 0 0 4px!important;
   <body>
 {/if}
 <div class="container-fluid mt-3">
-	<div class="row">
-		<div class="col-sm-12">
-			<div class="title">
-				<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-solid fa-backward fa-sm' aria-hidden='true'></i></a></h2>
-			</div>
-		</div>
-	</div>
-	<div class="row">
+    <div class="row">
+        <div class="col-sm-2">
+            <div class="title">
+                <h2 id="new-title">{xlt t='Documents'}
+                    <a class="new-doc-hide" href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}">
+                        <i id='advanced-tooltip' class='fa fa-solid fa-backward fa-sm' aria-hidden='true'></i>
+                    </a>
+                </h2>
+            </div>
+        </div>
+        <div class="form-inline float-right col-sm-10" id="patientSearch">
+            <label for="selectPatient" class="mr-2"><h5>{xlt t='Search and Select Patient'}</h5></label>
+            <div class="input-group">
+                <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}">
+                    <option></option>
+                </select>
+                <div class="input-group-append">
+                    <button id="pid" type="button" class="btn btn-primary pBtn">&times;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
 		<div class="col-sm-3">
 			<div id="documents_list">
 				<fieldset>
                     <legend>{xlt t='Documents List'}</legend>
                     <div class="pl-3">
-                        <div class="form-inline float-right" id="patientSearch">
-                            <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}">
-                                <option></option>
-                            </select>
-                            <button id='pid' type="button" class='float-right btn btn-primary pBtn'>&times;</button>
-                        </div>
                         <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                         {$tree_html}
                     </div>
@@ -99,17 +114,24 @@ border-radius: 4px 0 0 4px!important;
 		</div>
 	</div>
 </div><!--end of container div-->
-<script>
-var curpid = {$cur_pid|js_escape};
-var newVersion= {$is_new|js_escape};
-var demoPid = {$demo_pid|js_escape};
-var inUseMsg = {$used_msg|js_escape};
 
-if(curpid == demoPid && !newVersion){
+<script>
+const curpid = {$cur_pid|js_escape};
+const curpat = {$place_hld|js_escape};
+const newVersion = {$is_new|js_escape};
+const demoPid = {$demo_pid|js_escape};
+const inUseMsg = {$used_msg|js_escape};
+const newTitle= {$new_title|js_escape};
+let isNewRefererFlag = {$is_new_referer|js_escape};
+
+if(curpid == demoPid && !newVersion && !isNewRefererFlag){
     $("#patientSearch").hide();
-}
-else{
-    $("#pid").text(curpid);
+} else{
+    isNewRefererFlag = 1;
+    $("#pid").text(curpid + ' ' + curpat);
+    $(".new-doc-hide").hide();
+    $("#new-doc-title").text(newTitle);
+    $("#new-title").text(newTitle);
 }
 $(function () {
     $("#selectPatient").select2({
@@ -118,10 +140,9 @@ $(function () {
             dataType: 'json',
             data: function(params) {
                 return {
-
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
                   term: params.term
-                };
+                }
             },
             processResults: function(data) {
                 return  {
@@ -143,18 +164,16 @@ $(function () {
 
     $('#selectPatient').on('select2:select', function (e) {
         e.preventDefault();
-        if (e.params.data.value == '00' && ! e.params.data.label.match({xlj t="Reset"})){
+        if (e.params.data.value == '00' && !e.params.data.label.match({xlj t="Reset"})){
             alert(inUseMsg);
-            return false;
+            location.reload();
         }
         $(this).val(e.params.data.label);
         location.href  = "{$GLOBALS.webroot}/controller.php?document&list&patient_id=" + encodeURIComponent(e.params.data.value) + "&patient_name=" + encodeURIComponent(e.params.data.label);
-        $("#pid").text(e.params.data.value);
     });
 
     $(".pBtn").click(function(event) {
-    var $input = $("#selectPatient");
-    $input.val('');
+        location.href  = "{$GLOBALS.webroot}/controller.php?document&list&patient_id=00"; // reset
     });
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
