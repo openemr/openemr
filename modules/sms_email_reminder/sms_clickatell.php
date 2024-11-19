@@ -145,7 +145,8 @@ class sms
     function _auth()
     {
         $comm = sprintf("%s/auth?api_id=%s&user=%s&password=%s", $this->base_s, $this->api_id, $this->user, $this->password);
-        $this->session = $this->_parse_auth($this->_execgw($comm));
+        // The new API doesn't have a session concept
+        //$this->session = $this->_parse_auth($this->_execgw($comm));
     }
 
     /**
@@ -155,6 +156,7 @@ class sms
     */
     function getbalance()
     {
+        return 1; // The new API doesn't have any balance functions
         $comm = sprintf("%s/getbalance?session_id=%s", $this->base, $this->session);
         return $this->_parse_getbalance($this->_execgw($comm));
     }
@@ -213,18 +215,17 @@ class sms
         /* Reformat $to number */
         $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
         $to = str_replace($cleanup_chr, "", $to);
+        if (!str_starts_with($to, "1")) {
+            $to = "1" . $to;
+        }
 
         /* Send SMS now */
         $comm = sprintf(
-            "%s/sendmsg?session_id=%s&to=%s&from=%s&text=%s&callback=%s&unicode=%s%s",
-            $this->base,
-            $this->session,
+            "https://platform.clickatell.com/messages/http/send?apiKey=%s&to=%s&from=%s&content=%s",
+            $this->api_id,
             rawurlencode($to),
             rawurlencode($from),
-            $this->encode_message($text),
-            $this->callback,
-            $this->unicode,
-            $concat
+            $this->encode_message($text)
         );
         return $this->_parse_send($this->_execgw($comm));
     }
@@ -391,8 +392,8 @@ class sms
     */
     function _parse_send($result)
     {
-        $code = substr($result, 0, 2);
-        if ($code != "ID") {
+        $response = json_decode($result);
+        if ($response->responseCode >= 400) {
             die("Error sending SMS! (" . text($result) . ")");
         } else {
             $code = "OK";

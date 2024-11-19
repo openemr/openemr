@@ -59,7 +59,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
         $sql_value = " (?, ?, ?, ?, ?, ?, ?) ";
         $values = array($_POST['notification_id'], $_POST['sms_gateway_type'],
                         $_POST['provider_name'], $_POST['message'],
-                        '', '', 'SMS');
+                        $_POST['sender'], '', 'SMS');
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
         $id = sqlInsert($query, $values);
@@ -79,6 +79,7 @@ if ($result) {
     $notification_id = $result['notification_id'];
     $sms_gateway_type = $result['sms_gateway_type'];
     $provider_name = $result['provider_name'];
+    $sender = $result['email_sender'];
     $message = $result['message'];
 } else {
     $sql_msg = xl('Missing SMS config record');
@@ -118,7 +119,7 @@ $sms_gateway = array ('CLICKATELL','TMB4');
             <input type="hidden" name="type" value="SMS">
             <input type="hidden" name="notification_id" value="<?php echo attr($notification_id); ?>">
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
                     <label for="sms_gateway_type"><?php echo xlt('SMS Gateway') ?>:</label>
                     <select name="sms_gateway_type" class="form-control">
                         <option value=""><?php echo xlt('Select SMS Gateway'); ?></option>
@@ -134,7 +135,11 @@ $sms_gateway = array ('CLICKATELL','TMB4');
                         <?php }?>
                     </select>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-4 form-group">
+                    <label for="sender"><?php echo xlt('Sending Number'); ?>:</label>
+                    <input class="form-control" type="text" name="sender" size="20" value="<?php echo attr($sender); ?>" placeholder="<?php xla('sender number'); ?>">
+                </div>
+                <div class="col-md-4 form-group">
                     <label for="provider_name"><?php echo xlt('Name of Provider'); ?>:</label>
                     <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
                 </div>
