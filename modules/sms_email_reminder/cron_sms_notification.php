@@ -102,14 +102,14 @@ for ($p = 0; $p < count($db_patient); $p++) {
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
         //set message
-        $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
+        $content = cron_setmessage($prow, $db_email_msg);
 
         // send sms to patinet - if not in test mode
         if ($bTestRun == 0) {
             cron_SendSMS(
                 $prow['phone_cell'],
                 $db_email_msg['email_subject'],
-                $db_email_msg['message'],
+                $content,
                 $db_email_msg['email_sender']
             );
         }
@@ -118,13 +118,13 @@ for ($p = 0; $p < count($db_patient); $p++) {
         echo "\nDEBUG :: sms was sent to= " . text($prow['phone_cell']) .
                     " \nsender= " . text($db_email_msg['email_sender']) .
                     " \nsbj= " . text($db_email_msg['email_subject']) .
-                    " \nmsg= " . text($db_email_msg['message']) . "\n";
+                    " \nmsg= " . text($content) . "\n";
 
         //update entry >> pc_sendalertsms='Yes'
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
 
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO " . $prow['phone_cell'];
-        $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
+        $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $content;
     }
 
     // write logs for every reminder sent

@@ -71,13 +71,13 @@ for ($p = 0; $p < count($db_patient); $p++) {
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
         //set message
-        $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
+        $content = cron_setmessage($prow, $db_email_msg);
 
         // send mail to patinet
         cron_SendMail(
             $prow['email'],
             $db_email_msg['email_subject'],
-            $db_email_msg['message'],
+            $content,
             $db_email_msg['email_sender']
         );
 
@@ -85,7 +85,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
 
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO " . $prow['email'];
-        $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
+        $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $content;
     }
 
     WriteLog($strMsg);
