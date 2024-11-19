@@ -15,8 +15,10 @@
 exit;
 
 // larry :: hack add for command line version
-$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
-$_SERVER['SERVER_NAME'] = 'localhost';
+if (!array_key_exists('REQUEST_URI', $_SERVER)) {
+    $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
+    $_SERVER['SERVER_NAME'] = 'localhost';
+}
 $backpic = "";
 
 // email notification
