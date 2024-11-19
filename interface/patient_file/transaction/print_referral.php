@@ -195,6 +195,8 @@ while ($frow = sqlFetchArray($fres)) {
 foreach ($patdata as $key => $value) {
     if ($key == "sex") {
         $s = str_replace("{pt_$key}", generate_display_field(array('data_type' => '1','list_id' => 'sex'), $value), $s);
+    } elseif ($key == "DOB") {
+        $s = str_replace("{pt_$key}", text(oeFormatShortDate($value)), $s);
     } else {
         $s = str_replace("{pt_$key}", text($value), $s);
     }
