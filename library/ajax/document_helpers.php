@@ -38,10 +38,6 @@ function get_patients_list($req)
             LIMIT " . escape_limit($req['sql_limit']),
         array($term)
     );
-    $resultpd[] = array(
-        'label' => $clear,
-        'value' => '00'
-    );
     while ($row = sqlFetchArray($response)) {
         if ($GLOBALS['pid'] == $row['value']) {
             $row['value'] = "00";
@@ -50,6 +46,10 @@ function get_patients_list($req)
 
         $resultpd[] = $row;
     }
+    $resultpd[] = array(
+        'label' => $clear,
+        'value' => '00'
+    );
 
     echo json_encode($resultpd);
 }

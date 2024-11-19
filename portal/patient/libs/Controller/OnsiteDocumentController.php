@@ -67,6 +67,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $catid = $_GET['catid'] ?? '';
         $new_filename = $_GET['new'] ?? '';
         $doc_edit = $_GET['edit'] ?? 0;
+        $referer_flag = $_GET['referer_flag'] ?? 0; // return to New Documents or Documents
 
         $auto_render = $_GET['auto_render_id'] ?? 0;
         $auto_render_name = $_GET['auto_render_name'] ?? 0;
@@ -92,6 +93,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $this->Assign('new_filename', $new_filename);
         $this->Assign('auto_render', $auto_render);
         $this->Assign('audit_render', $audit_render);
+        $this->Assign('referer_flag', $referer_flag);
         $this->Assign('auto_render_name', $auto_render_name);
         $this->Render();
     }
