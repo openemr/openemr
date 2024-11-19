@@ -86,7 +86,7 @@ if ($result) {
 
 // array of legal values for sms_gateway_type.  This is a string field in
 // the db, not an enum, so new values can be added here with no db change.
-$sms_gateway = array ('CLICKATELL','TMB4');
+$sms_gateway = array ('CLICKATELL','TMB4','AWSPINPOINT');
 
 //START OUT OUR PAGE....
 ?>

@@ -78,7 +78,8 @@
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
         "twilio/sdk": "8.3.4",
-        "ringcentral/ringcentral-php": "3.0.3"
+        "ringcentral/ringcentral-php": "3.0.3",
+        "aws/aws-sdk-php": "3.328.1"
     },
     "config": {
         "platform": {
