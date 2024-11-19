@@ -26,7 +26,7 @@
  * <code>
  * <?php
  * require_once ("sms_api.php");
- * $mysms = new sms();
+ * $mysms = new sms("username", "password", "api_key");
  * echo $mysms->session;
  * echo $mysms->getbalance();
  * // $mysms->token_pay("1234567890123456"); //spend voucher with SMS credits
@@ -120,8 +120,12 @@ class sms
     * @return object New SMS object.
     * @access public
     */
-    function __construct()
+    function __construct($strUser, $strPass, $strApiId)
     {
+        $this->user = $strUser;
+        $this->password = $strPass;
+        $this->api_id = $strApiId;
+
         if ($this->use_ssl) {
             $this->base   = "http://api.clickatell.com/http";
             $this->base_s = "https://api.clickatell.com/http";
