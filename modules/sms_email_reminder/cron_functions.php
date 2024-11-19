@@ -5,8 +5,6 @@
 // scripts to notify events
 ////////////////////////////////////////////////////////////////////
 
-use MyMailer;
-
 // larry :: somne global to be defined here
 global $smsgateway_info;
 global $patient_info;
