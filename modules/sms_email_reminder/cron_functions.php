@@ -133,10 +133,10 @@ function cron_SendMail($to, $subject, $vBody, $from)
                 $vBody
             )
         ) {
-            echo "Message sent to " . text($to) . " OK.\n";
+            //echo "Message sent to " . text($to) . " OK.\n";
             $mstatus = true;
         } else {
-             echo "Cound not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
+             //echo "Cound not send the message to " . text($to) . ".\nError: " . text($smtp->error) . "\n";
              $mstatus = false;
         }
 

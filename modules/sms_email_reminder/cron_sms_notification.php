@@ -115,7 +115,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         }
 
         // larry :: debug
-        echo "\nDEBUG :: sms was sent to= " . text($prow['phone_cell']) .
+        //echo "\nDEBUG :: sms was sent to= " . text($prow['phone_cell']) .
                     " \nsender= " . text($db_email_msg['email_sender']) .
                     " \nsbj= " . text($db_email_msg['email_subject']) .
                     " \nmsg= " . text($content) . "\n";
