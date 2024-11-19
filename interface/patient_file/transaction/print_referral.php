@@ -28,6 +28,7 @@ $TEMPLATE_LABELS = array(
   'label_webpage_title'         => xlt('Referral Form'),
   'label_form1_title'           => xlt('Referral Form'),
   'label_name'                  => xlt('Name'),
+  'label_dob'                   => xlt('DOB'),
   'label_age'                   => xlt('Age'),
   'label_gender'                => xlt('Gender'),
   'label_address'               => xlt('Address'),
