@@ -654,6 +654,15 @@ CREATE TABLE `clinical_rules` (
   `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference',
   `linked_referential_cds` VARCHAR(50) NOT NULL DEFAULT '',
   `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control',
+  `patient_dob_usage` TEXT COMMENT 'Description of how patient DOB is used by this rule',
+  `patient_ethnicity_usage` TEXT COMMENT 'Description of how patient ethnicity is used by this rule',
+  `patient_health_status_usage` TEXT COMMENT 'Description of how patient health status assessments are used by this rule',
+  `patient_gender_identity_usage` TEXT COMMENT 'Description of how patient gender identity information is used by this rule',
+  `patient_language_usage` TEXT COMMENT 'Description of how patient language information is used by this rule',
+  `patient_race_usage` TEXT COMMENT 'Description of how patient race information is used by this rule',
+  `patient_sex_usage` TEXT COMMENT 'Description of how patient birth sex information is used by this rule',
+  `patient_sexual_orientation_usage` TEXT COMMENT 'Description of how patient sexual orientation is used by this rule',
+  `patient_sodh_usage` TEXT COMMENT 'Description of how patient social determinants of health are used by this rule',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=InnoDB;
 
@@ -1089,6 +1098,7 @@ CREATE TABLE `clinical_rules_log` (
   `category` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'An example category is clinical_reminder_widget',
   `value` TEXT,
   `new_value` TEXT,
+  `facility_id` INT(11) DEFAULT '0' COMMENT 'facility where the rule was executed, 0 if unknown',
   PRIMARY KEY (`id`),
   KEY `pid` (`pid`),
   KEY `uid` (`uid`),
@@ -13127,6 +13137,7 @@ CREATE TABLE `oauth_clients` (
 `tos_uri` text,
 `is_enabled` tinyint(1) NOT NULL DEFAULT '0',
 `skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0',
+`dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=none, 1=evidence-based,2=predictive',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 
@@ -13639,3 +13650,68 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'YE', 'Yemeni', '2480', '0', '0', '', 'Yemen', 'YEM:887');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZM', 'Zambian', '2490', '0', '0', '', 'Zambia', 'ZMB:894');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
+
+CREATE TABLE `dsi_source_attributes` (
+ `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+ `client_id` VARCHAR(80) NOT NULL,
+ `list_id` VARCHAR(100) NOT NULL,
+ `option_id` VARCHAR(100) NOT NULL,
+ `clinical_rule_id` VARCHAR(31) DEFAULT NULL,
+ `source_value` TEXT,
+ `created_by` BIGINT(20) DEFAULT NULL,
+ `last_updated_by` BIGINT(20) DEFAULT NULL,
+ `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ `last_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`),
+ UNIQUE (`list_id`, `option_id`, `client_id`)
+) ENGINE=InnoDB COMMENT = 'Holds information about decission support intervention system source attributes';
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_predictive_source_attributes', 'Predictive Decision Support Interventions Source Attributes');
+-- Populate list with ONC default values
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_developer', 'Name and contact information for the intervention developer', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_funding', 'Funding source of the technical implementation for the intervention(s) development', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_output_value', 'Description of value that the intervention produces as an output', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_details_output_type', 'Whether the intervention output is a prediction, classification, recommendation, evaluation, analysis, or other type of output', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_intended_use', 'Intended use of the intervention', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_patient_population', 'Intended patient population(s) for the intervention''s use', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_intended_users', 'Intended user(s)', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_purpose_decision_role', 'Intended decision-making role for which the intervention was designed to be used/for (e_g_, informs, augments, replaces clinical management)', 80);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_cautions_inappropriate_use', 'Description of tasks, situations, or populations where a user is cautioned against applying the intervention', 90);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_cautions_risks', 'Known risks, inappropriate settings, inappropriate uses, or known limitations of the intervention', 100);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_criteria', 'Exclusion and inclusion criteria that influenced the training data set', 110);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_variables', 'Use of variables in paragraph US § 170.315 (b)(11)(iv)(A)(5)-(13) as input features (use of race, ethnicity, language, sexual orientation, gender identity, sex, date of birth, social determinants of health, and health status assessment)', 120);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_demographics', 'Description of demographic representativeness according to variables in paragraph US § 170.315 (b)(11)(iv)(A)(5)-(13) including, at a minimum, those used as input features in the intervention', 130);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_development_relevance', 'Description of relevance of training data to intended deployed setting', 140);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_fairness_approach', 'Description of the approach the intervention developer has taken to ensure that the intervention''s output is fair', 150);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_fairness_bias_mitigation', 'Description of approaches to manage, reduce, or eliminate bias', 160);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_data_source', 'Description of the data source, clinical setting, or environment where an intervention''s validity and fairness has been assessed, other than the source of training and testing data', 170);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_tester', 'Party that conducted the external testing', 180);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_demographics', 'Description of demographic representativeness of external data according to variables in paragraph US § 170.315 (b)(11)(iv)(A)(5)-(13) including, at a minimum, those used as input features in the intervention', 190);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_validation_process', 'Description of external validation process', 200);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_internal_validity', 'Validity of intervention in test data derived from the same source as the initial training data', 210);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_internal_fairness', 'Fairness of intervention in test data derived from the same source as the initial training data', 220);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_external_validity', 'Validity of intervention in data external to or from a different source than the initial training data', 230);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_external_fairness', 'Fairness of intervention in data external to or from a different source than the initial training data', 240);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_performance_outcome_evaluation', 'References to evaluation of use of the intervention on outcomes, including, bibliographic citations or hyperlinks to evaluations of how well the intervention reduced morbidity, mortality, length of stay, or other outcomes', 250);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_validity_monitoring', 'Description of process and frequency by which the intervention''s validity is monitored over time', 260);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_local_validity', 'Validity of intervention in local data', 270);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_fairness_monitoring', 'Description of the process and frequency by which the intervention''s fairness is monitored over time', 280);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_maintenance_local_fairness', 'Fairness of intervention in local data', 290);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_updates_process', 'Description of process and frequency by which the intervention is updated', 300);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_predictive_source_attributes', 'predictive_updates_correction', 'Description of frequency by which the intervention''s performance is corrected when risks related to validity and fairness are identified', 310);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_evidence_source_attributes', 'Evidence Based Decision Support Interventions Source Attributes');
+-- Populate list with ONC default values
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_citation', 'Bibliographic citation of the intervention (clinical research or guideline)', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_developer', 'Developer of the intervention (translation from clinical research or guideline)', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_funding', 'Funding source of the technical implementation for the intervention(s) development', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_dates', 'Release and, if applicable, revision dates of the intervention or reference source', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_race', 'Intervention use of race as expressed in the standards in US § 170.213', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_ethnicity', 'Intervention use of ethnicity as expressed in the standards in US § 170.213', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_language', 'Intervention use of language as expressed in the standards in US § 170.213', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sexual_orientation', 'Intervention use of sexual orientation as expressed in the standards in US § 170.213', 80);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_gender_identity', 'Intervention use of gender identity as expressed in the standards in US § 170.213', 90);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sex', 'Intervention use of sex as expressed in the standards in US § 170.213', 100);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_dob', 'Intervention use of date of birth as expressed in the standards in US § 170.213', 110);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sdoh', 'Intervention use of social determinants of health data as expressed in the standards in US § 170.213', 120);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_health_status', 'Intervention use of health status assessments data as expressed in the standards in US § 170.213', 130);

@@ -1,0 +1,316 @@
+{#
+   @license: Public domain - Note this questionnaire was generated using Claude.AI and is in the public domain.
+   @see URL is here: https://claude.site/artifacts/0abfe635-0546-45df-8703-8b3e847951ad
+#}
+{
+    "resourceType": "Questionnaire",
+    "id": "cds-source-attributes-questionnaire",
+    "url": "{{fhirURL}}/Questionnaire/cds-source-attributes",
+    "version": "1.0.0",
+    "name": "CDSSourceAttributesQuestionnaire",
+    "title": "CDS Source Attributes Questionnaire",
+    "status": "active",
+    "subjectType": ["Device"],
+    "date": "2024-09-04",
+    "publisher": "OpenEMR",
+    "description": "Questionnaire to capture source attributes for Clinical Decision Support (CDS) services, including evidence-based and predictive Decision Support Interventions (DSIs).",
+    "item": [
+        {
+            "linkId": "evidence-based",
+            "text": "Evidence-based DSI source attributes",
+            "type": "group",
+            "item": [
+                {
+                    "linkId": "evidence-based.citation",
+                    "text": "Bibliographic citation of the intervention (clinical research or guideline)",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.developer",
+                    "text": "Developer of the intervention (translation from clinical research or guideline)",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.funding",
+                    "text": "Funding source of the technical implementation for the intervention(s) development",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.dates",
+                    "text": "Release and, if applicable, revision dates of the intervention or reference source",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.race",
+                    "text": "Use of race as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.ethnicity",
+                    "text": "Use of ethnicity as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.language",
+                    "text": "Use of language as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.sexual-orientation",
+                    "text": "Use of sexual orientation as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.gender-identity",
+                    "text": "Use of gender identity as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.sex",
+                    "text": "Use of sex as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.dob",
+                    "text": "Use of date of birth as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.sdoh",
+                    "text": "Use of social determinants of health data as expressed in the standards in § 170.213",
+                    "type": "text"
+                },
+                {
+                    "linkId": "evidence-based.health-status",
+                    "text": "Use of health status assessments data as expressed in the standards in § 170.213",
+                    "type": "text"
+                }
+            ]
+        },
+        {
+            "linkId": "predictive",
+            "text": "Predictive DSI source attributes",
+            "type": "group",
+            "item": [
+                {
+                    "linkId": "predictive.details",
+                    "text": "Details and output of the intervention",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.details.developer",
+                            "text": "Name and contact information for the intervention developer",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.details.funding",
+                            "text": "Funding source of the technical implementation for the intervention(s) development",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.details.output-value",
+                            "text": "Description of value that the intervention produces as an output",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.details.output-type",
+                            "text": "Whether the intervention output is a prediction, classification, recommendation, evaluation, analysis, or other type of output",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.purpose",
+                    "text": "Purpose of the intervention",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.purpose.intended-use",
+                            "text": "Intended use of the intervention",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.purpose.patient-population",
+                            "text": "Intended patient population(s) for the intervention's use",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.purpose.intended-users",
+                            "text": "Intended user(s)",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.purpose.decision-role",
+                            "text": "Intended decision-making role for which the intervention was designed to be used/for (e.g., informs, augments, replaces clinical management)",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.cautions",
+                    "text": "Cautioned out-of-scope use of the intervention",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.cautions.inappropriate-use",
+                            "text": "Description of tasks, situations, or populations where a user is cautioned against applying the intervention",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.cautions.risks",
+                            "text": "Known risks, inappropriate settings, inappropriate uses, or known limitations",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.development",
+                    "text": "Intervention development details and input features",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.development.criteria",
+                            "text": "Exclusion and inclusion criteria that influenced the training data set",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.development.variables",
+                            "text": "Use of variables in paragraph (b)(11)(iv)(A)(5)-(13) as input features",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.development.demographics",
+                            "text": "Description of demographic representativeness according to variables in paragraph (b)(11)(iv)(A)(5)-(13) including, at a minimum, those used as input features in the intervention",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.development.relevance",
+                            "text": "Description of relevance of training data to intended deployed setting",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.fairness",
+                    "text": "Process used to ensure fairness in development of the intervention",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.fairness.approach",
+                            "text": "Description of the approach the intervention developer has taken to ensure that the intervention's output is fair",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.fairness.bias-mitigation",
+                            "text": "Description of approaches to manage, reduce, or eliminate bias",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.validation",
+                    "text": "External validation process",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.validation.data-source",
+                            "text": "Description of the data source, clinical setting, or environment where an intervention's validity and fairness has been assessed, other than the source of training and testing data",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.validation.tester",
+                            "text": "Party that conducted the external testing",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.validation.demographics",
+                            "text": "Description of demographic representativeness of external data according to variables in paragraph (b)(11)(iv)(A)(5)-(13) including, at a minimum, those used as input features in the intervention",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.validation.process",
+                            "text": "Description of external validation process",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.performance",
+                    "text": "Quantitative measures of performance",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.performance.internal-validity",
+                            "text": "Validity of intervention in test data derived from the same source as the initial training data",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.performance.internal-fairness",
+                            "text": "Fairness of intervention in test data derived from the same source as the initial training data",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.performance.external-validity",
+                            "text": "Validity of intervention in data external to or from a different source than the initial training data",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.performance.external-fairness",
+                            "text": "Fairness of intervention in data external to or from a different source than the initial training data",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.performance.outcome-evaluation",
+                            "text": "References to evaluation of use of the intervention on outcomes, including, bibliographic citations or hyperlinks to evaluations of how well the intervention reduced morbidity, mortality, length of stay, or other outcomes",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.maintenance",
+                    "text": "Ongoing maintenance of intervention implementation and use",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.maintenance.validity-monitoring",
+                            "text": "Description of process and frequency by which the intervention's validity is monitored over time",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.maintenance.local-validity",
+                            "text": "Validity of intervention in local data",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.maintenance.fairness-monitoring",
+                            "text": "Description of the process and frequency by which the intervention's fairness is monitored over time",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.maintenance.local-fairness",
+                            "text": "Fairness of intervention in local data",
+                            "type": "text"
+                        }
+                    ]
+                },
+                {
+                    "linkId": "predictive.updates",
+                    "text": "Update and continued validation or fairness assessment schedule",
+                    "type": "group",
+                    "item": [
+                        {
+                            "linkId": "predictive.updates.process",
+                            "text": "Description of process and frequency by which the intervention is updated",
+                            "type": "text"
+                        },
+                        {
+                            "linkId": "predictive.updates.correction",
+                            "text": "Description of frequency by which the intervention's performance is corrected when risks related to validity and fairness are identified",
+                            "type": "text"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

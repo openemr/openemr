@@ -21,6 +21,7 @@ class ClientEntity implements ClientEntityInterface
     use EntityTrait;
     use ClientTrait;
 
+    const DSI_TYPES = ["DSI_TYPE_NONE" => self::DSI_TYPE_NONE, "DSI_TYPE_EVIDENCE" => self::DSI_TYPE_EVIDENCE, "DSI_TYPE_PREDICTIVE" => self::DSI_TYPE_PREDICTIVE];
     protected $userId;
     protected $clientRole;
     protected $scopes;
@@ -59,12 +60,30 @@ class ClientEntity implements ClientEntityInterface
      */
     private $skipEHRLaunchAuthorizationFlow;
 
+
+    private int $dsiType;
+
+    const DSI_TYPE_NONE = 0;
+
+    const DSI_TYPE_EVIDENCE = 1;
+    const DSI_TYPE_PREDICTIVE = 2;
+
+
     public function __construct()
     {
         $this->scopes = [];
         $this->skipEHRLaunchAuthorizationFlow = false;
+        $this->isEnabled = false;
+        $this->dsiType = self::DSI_TYPE_NONE;
     }
 
+    public function setDSIType($type)
+    {
+        if (!in_array($type, [self::DSI_TYPE_NONE, self::DSI_TYPE_PREDICTIVE, self::DSI_TYPE_EVIDENCE])) {
+            throw new \InvalidArgumentException("Invalid DSI type");
+        }
+        $this->dsiType = $type;
+    }
     public function setName($name): void
     {
         $this->name = $name;
@@ -262,5 +281,20 @@ class ClientEntity implements ClientEntityInterface
     public function setSkipEHRLaunchAuthorizationFlow(bool $shouldSkip)
     {
         $this->skipEHRLaunchAuthorizationFlow = $shouldSkip;
+    }
+
+    public function hasDSI()
+    {
+        return $this->dsiType != self::DSI_TYPE_NONE;
+    }
+
+    public function hasPredictiveDSI()
+    {
+        return self::DSI_TYPE_PREDICTIVE == $this->dsiType;
+    }
+
+    public function hasEvidenceDSI()
+    {
+        return self::DSI_TYPE_EVIDENCE == $this->dsiType;
     }
 }
