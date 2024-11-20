@@ -21,6 +21,7 @@ class FormLayoutAddField extends Command
             ->addUsage('--layout_id=1 --data={data}')
             ->setDefinition(
                 new InputDefinition([
+                    new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                     new InputOption('layout_id', null, InputOption::VALUE_REQUIRED, 'Form layout id'),
                     new InputOption('newseq', null, InputOption::VALUE_REQUIRED, 'New sequence number'),
                     new InputOption('newid', null, InputOption::VALUE_REQUIRED, 'New field id'),
