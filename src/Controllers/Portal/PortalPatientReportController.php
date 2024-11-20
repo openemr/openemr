@@ -67,6 +67,10 @@ class PortalPatientReportController
                 'procedures' => []
             ];
         }
+        // nothing to do here
+        if (empty($proceduresById)) {
+            return [];
+        }
         $sql = "SELECT procedure_order_id, procedure_code, procedure_name FROM procedure_order_code " .
             "WHERE procedure_order_id IN (" . implode(",", array_keys($proceduresById)) . ") ORDER BY procedure_order_id, procedure_order_seq";
         $res = sqlStatement($sql);
