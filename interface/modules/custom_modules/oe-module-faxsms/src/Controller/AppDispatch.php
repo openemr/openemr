@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 
 /**
@@ -49,6 +50,7 @@ abstract class AppDispatch
         if (empty(self::$_apiModule)) {
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
+        $this->crypto = new CryptoGen();
         $this->dispatchActions();
         $this->render();
     }
@@ -226,6 +228,8 @@ abstract class AppDispatch
                     break;
                 case 2:
                     return new TwilioSMSClient();
+                case 5:
+                    return new ClickatellSMSClient();
             }
         } elseif ($type == 'fax') {
             switch ($s) {
@@ -426,6 +430,8 @@ abstract class AppDispatch
                 return '_twilio';
             case '3':
                 return '_etherfax';
+            case '5':
+                return '_clickatell';
         }
         return null;
     }
@@ -618,5 +624,13 @@ abstract class AppDispatch
     public function verifyAcl($sect = 'patients', $v = 'docs', $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
+    }
+
+    /**
+     * @return null
+     */
+    protected function index()
+    {
+        return null;
     }
 }

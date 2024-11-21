@@ -23,15 +23,17 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $c = $clientApp->getCredentials();
-$title = $service == "2" ? xlt('Twilio SMS') : xlt('SMS');
+$title = xlt('SMS');
+$title = $service == "2" ? xlt('Twilio SMS') : $title;
 $title = $service == "3" ? xlt('etherFAX') : $title;
+$title = $service == "5" ? xlt('Clickatell') : $title;
 $module_config = $_REQUEST['module_config'] ?? 0;
 $mode = $_REQUEST['mode'] ?? null;
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>><?php echo xlt("Setup") ?></title>
+    <title><?php echo xlt("Setup") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
     echo "<script>let currentService=" . js_escape($service) . "</script>";
@@ -95,7 +97,31 @@ $mode = $_REQUEST['mode'] ?? null;
             <div class="messages"></div>
             <div class="row">
                 <div class="col">
-                    <?php if ($service == '3') {
+                    <?php if ($service == '5') {
+                        ?> <!-- Clickatell -->
+                        <div class="form-group">
+                            <label for="form_extension"><?php echo xlt("Account Sending Number") ?> *</label>
+                            <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('') ?>" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_key"><?php echo xlt("Account API Key") ?> *</label>
+                            <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xla('') ?>" required />
+                        </div>
+                        <div class=" form-group">
+                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
+                            <input id="form_nhours" type="text" name="smshours" class="form-control"
+                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
+                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
+                            <span style="font-size:12px;font-style: italic">&nbsp;
+                                <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
+                            </span>
+                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                        </div>
+                    <?php } elseif ($service == '3') {
                         ?> <!-- etherFAX -->
                         <div class="checkbox">
                             <label>
