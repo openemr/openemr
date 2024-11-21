@@ -458,6 +458,12 @@ $templateService = new DocumentTemplateService();
                 let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
+
+            $('.fcuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
         }
 
         function formReplaceTextInputs() {
