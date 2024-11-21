@@ -53,6 +53,7 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
      */
     public function execute(CommandContext $context)
     {
+        echo "Executing command 'CreateClientCredentialsAssertion'\n";
         $opts = getopt('c:i:a:hk');
 
         $keyLocation = $context->getRootPath() . "tests" . DIRECTORY_SEPARATOR . "Tests" . DIRECTORY_SEPARATOR

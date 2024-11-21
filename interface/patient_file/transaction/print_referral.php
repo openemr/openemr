@@ -28,6 +28,7 @@ $TEMPLATE_LABELS = array(
   'label_webpage_title'         => xlt('Referral Form'),
   'label_form1_title'           => xlt('Referral Form'),
   'label_name'                  => xlt('Name'),
+  'label_dob'                   => xlt('DOB'),
   'label_age'                   => xlt('Age'),
   'label_gender'                => xlt('Gender'),
   'label_address'               => xlt('Address'),
@@ -194,6 +195,8 @@ while ($frow = sqlFetchArray($fres)) {
 foreach ($patdata as $key => $value) {
     if ($key == "sex") {
         $s = str_replace("{pt_$key}", generate_display_field(array('data_type' => '1','list_id' => 'sex'), $value), $s);
+    } elseif ($key == "DOB") {
+        $s = str_replace("{pt_$key}", text(oeFormatShortDate($value)), $s);
     } else {
         $s = str_replace("{pt_$key}", text($value), $s);
     }

@@ -9,6 +9,7 @@
 *  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
+{% if procedureOrders|length > 0 %}
 <hr />
 <table class="table">
     <tr>
@@ -40,3 +41,4 @@
         </tr>
     {% endfor %}
 </table>
+{% endif %}
