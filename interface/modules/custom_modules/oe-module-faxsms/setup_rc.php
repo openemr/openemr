@@ -26,6 +26,7 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $c = $clientApp->getCredentials();
+$module_config = $_REQUEST['module_config'] ?? 1;
 echo "<script>var pid=" . js_escape($pid) . "</script>";
 ?>
 <!DOCTYPE html>
@@ -66,6 +67,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                                         $('#setup-form').find('.messages').remove();
                                         <?php if (!$module_config) { ?>
                                         dlgclose();
+                                        location.reload();
                                         <?php } else { ?>
                                         location.reload();
                                         <?php } ?>
