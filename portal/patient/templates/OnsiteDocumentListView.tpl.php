@@ -33,8 +33,10 @@ $include_auth = true;
 $auto_render = $this->auto_render ?? 0;
 $audit_render = $this->audit_render ?? 0;
 $auto_render_name = $this->auto_render_name ?? '';
+$referer_flag = $this->referer_flag ?? 0;
+
 // for location assign
-$referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
+$referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
 $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
 
 if (empty($is_module)) {
@@ -452,6 +454,12 @@ $templateService = new DocumentTemplateService();
             });
 
             $('.tfuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+
+            $('.fcuGroup').each(function () {
                 let name = $(this).prop('id');
                 let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
                 $(this).replaceWith(rv);
