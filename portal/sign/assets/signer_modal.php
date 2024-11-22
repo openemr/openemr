@@ -45,7 +45,7 @@ $twigVars = [
     'is_portal' => $is_portal
     ,'cuser' => $cuser
     ,'cpid' => $cpid
-    ,'aud' => $is_portal ? $aud = 'patient_signature' : $aud
+    ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
 $twigContainer = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 try {

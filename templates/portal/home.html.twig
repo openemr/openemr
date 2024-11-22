@@ -807,7 +807,10 @@
                 <!-- Signature -->
                 <div class="card d-flex mr-1 mb-1">
                     <div class="card-body row">
-                        <h4 class="card-title d-flex align-items-center btn-link"><a role="button" href="#openSignModal" data-toggle="modal" data-parent="#cardgroup"><i class="fas fa-file-signature mr-1"></i>{{ 'Default Digital Signature' | xlt }}</a></h4>
+                        <h4 class="card-title d-flex align-items-center btn-link">
+                            <a role="button" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature" data-parent="#cardgroup">
+                                <i class="fas fa-file-signature mr-1"></i>{{ 'Default Digital Signature' | xlt }}</a>
+                        </h4>
                     </div>
                 </div>
                 <!-- Password -->

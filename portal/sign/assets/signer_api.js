@@ -231,9 +231,12 @@ function archiveSignature(signImage = '', edata = '') {
             'Connection': 'close'
         }
     }).then(response => response.json()).then(function (response) {
-            $("#openSignModal").modal("hide");
+        const backdrop = document.querySelector('.modal-backdrop');
+        $("#openSignModal").modal('hide');
+        if (backdrop) {
+            backdrop.remove();
         }
-    ).catch(error => signerAlertMsg(error));
+    }).catch(error => signerAlertMsg(error));
 
     return true;
 }
