@@ -536,6 +536,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
     <style>
       .select2-container .select2-search--inline .select2-search__field {
         min-width: 5vw !important;
+        padding: 2px 2px;
         color: var(--light);
         background-color: var(--dark);
       }
@@ -614,7 +615,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             <button type='button' class='btn btn-primary' onclick='return popGroupsDialog()'><?php echo xlt('Assign') ?></button>
                         </div>
                     </div>
-                    <div class="form-row form-inline w-100">
+                    <div class="form-row form-inline mx-1 w-100">
                         <!--<label class='font-weight-bold mx-1' for='selected_patients'><?php /*echo xlt('Location'); */ ?></label>-->
                         <?PHP
                         $searchTerm = '';
