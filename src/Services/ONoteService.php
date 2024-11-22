@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -54,12 +56,22 @@ class ONoteService
         sqlStatement("UPDATE `onotes` SET `activity` = 0 WHERE `id` = ?", [$id]);
     }
 
+    public function updateNoteById($id, $body)
+    {
+        sqlStatement("UPDATE `onotes` SET `body` = ? WHERE `id` = ?", [$body, $id]);
+    }
+
+    public function deleteNoteById($id)
+    {
+        sqlStatement("DELETE FROM `onotes` WHERE `id` = ?", [$id]);
+    }
+
     /**
      * Get office notes with filters.
      *
      * @param $activity -1/0/1 to indicate filtered notes.
-     * @param $offset The start index for pagination.
-     * @param $limit The limit for pagination.
+     * @param $offset   The start index for pagination.
+     * @param $limit    The limit for pagination.
      * @return array of office notes.
      */
     public function getNotes($activity, $offset, $limit)
@@ -74,5 +86,11 @@ class ONoteService
             $notes[] = $row;
         }
         return $notes;
+    }
+
+    public function countNotes($active)
+    {
+        $sql = "SELECT COUNT(*) FROM onotes WHERE activity = ? OR ? = -1";
+        return sqlQuery($sql, [$active, $active])['COUNT(*)'];
     }
 }

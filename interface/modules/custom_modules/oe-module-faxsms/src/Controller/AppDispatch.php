@@ -359,12 +359,12 @@ abstract class AppDispatch
             $username = $this->getRequest('username');
             $ext = $this->getRequest('extension');
             $account = $this->getRequest('account');
-            $phone = $this->getRequest('phone');
+            $phone = $this->formatPhoneForSave($this->getRequest('phone'));
             $password = $this->getRequest('password');
             $appkey = $this->getRequest('key');
             $appsecret = $this->getRequest('secret');
             $production = $this->getRequest('production');
-            $smsNumber = $this->getRequest('smsnumber');
+            $smsNumber = $this->formatPhoneForSave($this->getRequest('smsnumber'));
             $smsMessage = $this->getRequest('smsmessage');
             $smsHours = $this->getRequest('smshours');
             $jwt = $this->getRequest('jwt');
@@ -624,6 +624,18 @@ abstract class AppDispatch
     public function verifyAcl($sect = 'patients', $v = 'docs', $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
+    }
+
+    public function formatPhoneForSave($number): string
+    {
+        // this is u.s only. need E-164
+        $n = preg_replace('/[^0-9]/', '', $number);
+        if (stripos($n, '1') === 0) {
+            $n = '+' . $n;
+        } else {
+            $n = '+1' . $n;
+        }
+        return $n;
     }
 
     /**

@@ -198,7 +198,7 @@ function getFaxContent() {
     let btnClose = <?php echo xlj("Cancel"); ?>;
     let title = <?php echo xlj("Send To Contact"); ?>;
     let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isContent=0&type=fax&file=' + encodeURIComponent(content);
-    dlgopen(url, '', 'modal-sm', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'secondary'}]});
+    dlgopen(url, '', 'modal-sm', 775, '', title, {buttons: [{text: btnClose, close: true, style: 'secondary'}]});
     return false;
     }
     }).always(function () {
@@ -253,7 +253,7 @@ function sendSMS(pid, phone) {
     let url = top.webroot_url +
     '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&pid=' + encodeURIComponent(pid) +
     '&recipient=' + encodeURIComponent(phone);
-    dlgopen(url, '', 'modal-md', 700, '', title, {
+    dlgopen(url, '', 'modal-md', 775, '', title, {
     buttons: [{text: btnClose, close: true, style: 'secondary'}]
     });
 }

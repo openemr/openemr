@@ -106,12 +106,15 @@ class NotificationEventListener implements EventSubscriberInterface
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
             $clientApp = AppDispatch::getApiService('sms');
-            $clientApp->sendSMS(
+            $status_api = $clientApp->sendSMS(
                 $recipientPhone,
                 "",
                 $text_message,
                 $recipientPhone
             );
+            if ($status_api !== true) {
+                $status .= text($status_api);
+            }
             $status .= xlt("Message sent.");
         }
 
@@ -148,12 +151,15 @@ class NotificationEventListener implements EventSubscriberInterface
 
         if ($patient['hipaa_allowsms'] == 'YES') {
             $clientApp = AppDispatch::getApiService('sms');
-            $clientApp->sendSMS(
+            $status_api = $clientApp->sendSMS(
                 $recipientPhone,
                 "",
                 $message,
                 null // will get the "from" phone # from credentials
             );
+            if ($status_api !== true) {
+                $status .= text($status_api);
+            }
             $status .= xlt("Message sent.");
         }
 
@@ -245,7 +251,7 @@ class NotificationEventListener implements EventSubscriberInterface
         let btnClose = <?php echo xlj("Cancel"); ?>;
         let title = <?php echo xlj("Send Message"); ?>;
         let url = top.webroot_url + '<?php echo $url_part ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
-        dlgopen(url, '', 'modal-sm', 700, '', title, {
+        dlgopen(url, '', 'modal-sm', 775, '', title, {
         buttons: [{text: btnClose, close: true, style: 'secondary'}]
         });
         }

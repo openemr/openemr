@@ -37,7 +37,7 @@ class ControllerReview extends BaseController
         }
 
         if (!CsrfUtils::verifyCsrfToken(Common::get("csrf_token_form"))) {
-            throw new InvalidCsrfTokenException("Invalid CSRF token");
+            throw new CsrfInvalidException("Invalid CSRF token");
         }
         // first try to grab the more specific rule in case this is a custom rule, then grab the generic one
         $rule = $this->getRuleManager()->getRule($ruleId, $pid);

@@ -81,7 +81,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&isQueue=' +
                 encodeURIComponent(from) + '&file=' + encodeURIComponent(filePath);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 700, '', title, { // dialog restores session
+            dlgopen(url, '', 'modal-sm', 800, '', title, { // dialog restores session
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ],
@@ -521,7 +521,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&recipient=' +
                 encodeURIComponent(phone);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 600, '', title, {
+            dlgopen(url, '', 'modal-sm', 700, '', title, {
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ]

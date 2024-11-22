@@ -305,6 +305,38 @@ class DocumentTemplateRender
                     '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
+            } elseif (preg_match('/^\{(RadioGroup):([\w\s]+)\}/', substr($s, $this->keyLocation), $matches)) {
+                // matches {RadioGroup:caption1_caption2_caption3}
+                $this->keyLength = 3 + strlen($matches[1]) + strlen($matches[2]);
+                $matchesArr = explode('_', $matches[2]);
+                $this->grp_cnt++;
+                $radioCount = -1;
+                $sigfld = '<div class="fcuGroup mx-1" id="group_radio' . $this->grp_cnt . '">';
+                foreach ($matchesArr as $buttonCaption) {
+                    $radioCount++;
+                    $checked = ($formData['group_radio' . $this->grp_cnt] ?? '') == attr($buttonCaption) ? "checked" : '';
+                    $sigfld .= '<div class="form-check mb-2">' . '<label class="form-check-label" for="group_radio' . $this->grp_cnt . '_' . $radioCount . '">' .
+                        '<input class="groupRadio form-check-input" type="radio" ' . $checked . ' name="group_radio' . $this->grp_cnt . '" value="' . attr($buttonCaption) . '" id="group_radio' . $this->grp_cnt . '_' . $radioCount . '" />' .
+                        xlt($buttonCaption) . '</label>' . '</div>';
+                }
+                $sigfld .= '</div>';
+                $s = $this->keyReplace($s, $sigfld);
+            } elseif (preg_match('/^\{(RadioGroupInline):([\w\s]+)\}/', substr($s, $this->keyLocation), $matches)) {
+                // matches {RadioGroupInline:caption1_caption2_caption3}
+                $this->keyLength = 3 + strlen($matches[1]) + strlen($matches[2]);
+                $matchesArr = explode('_', $matches[2]);
+                $this->grp_cnt++;
+                $radioCount = -1;
+                $sigfld = '<span class="fcuGroup d-inline-flex align-items-center mx-1" id="inline_radio' . $this->grp_cnt . '">';
+                foreach ($matchesArr as $buttonCaption) {
+                    $radioCount++;
+                    $checked = ($formData['inline_radio' . $this->grp_cnt] ?? '') == attr($buttonCaption) ? "checked" : '';
+                    $sigfld .= '<label class="mr-2 d-inline-flex align-items-center">' .
+                        '<input class="inline_radio mr-1" type="radio" ' . $checked . ' name="inline_radio' . $this->grp_cnt . '" value="' . attr($buttonCaption) . '" />' . xlt($buttonCaption) .
+                        '</label>';
+                }
+                $sigfld .= '</span>';
+                $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{PatientName}')) {
                 $tmp = $this->ptrow['fname'];
                 if ($this->ptrow['mname']) {
