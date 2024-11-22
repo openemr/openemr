@@ -540,6 +540,46 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                     dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
                 });
         }
+
+        let dsiHelpNodes = document.querySelectorAll(".smart-launch-dsi-info");
+        for (let dsiHelp of dsiHelpNodes) {
+            dsiHelp.addEventListener('click', function (evt) {
+                let node = evt.target;
+                let dsi = node.dataset.dsiServiceId || "";
+                if (typeof dsi != "string" || dsi == "") {
+                    console.error("mising data-dsi-service-id parameter for .smart-launch-dsi-info");
+                    return;
+                }
+
+
+                // need to add a window message listener for editing the source attributes
+                let windowMessageHandler = function () {
+                    console.log("received message ", event);
+                    if (event.origin !== window.location.origin) {
+                        return;
+                    }
+                    let data = event.data;
+                    if (data && data.type === 'smart-dsi-edit-source') {
+                        dlgclose();
+                        window.top.removeEventListener('message', windowMessageHandler);
+                        // loadFrame already handles webroot and /interface/ prefix.
+                        let editUrl = '/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/edit/" + data.dsiId)
+                            + "&csrf_token=" + encodeURIComponent(csrfToken);
+                        window.parent.left_nav.loadFrame('adm', 'adm0', editUrl);
+                    }
+                };
+                window.top.addEventListener('message', windowMessageHandler);
+
+                let url = webroot + '/interface/smart/admin-client.php?action=external-cdr/cdr-info&serviceId=' + encodeURIComponent(dsi)
+                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
+                // we allow external dialog's  here because that is what a SMART app is
+                let height = window.top.innerHeight; // do our full height here
+                dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: false, onClose: function() {
+                    window.top.removeEventListener('message', windowMessageHandler);
+                }});
+            });
+        }
     };
     window.oeSMART = oeSMART;
 })(window, window.top.oeSMART || {});

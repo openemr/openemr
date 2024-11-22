@@ -56,6 +56,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
@@ -65,10 +66,12 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\PredictiveDSIServiceEntity;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Services\DecisionSupportInterventionService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use OpenIDConnectServer\ClaimExtractor;
@@ -131,6 +134,11 @@ class AuthorizationController
      * @var Environment
      */
     private $twig;
+
+    /**
+     * @var DecisionSupportInterventionService
+     */
+    private ?DecisionSupportInterventionService $dsiService;
 
     public function __construct($providerForm = true)
     {
@@ -251,7 +259,10 @@ class AuthorizationController
                 // info on scope can be seen at
                 // OAUTH2 Dynamic Client Registration RFC 7591 Section 2 Page 9
                 // @see https://tools.ietf.org/html/rfc7591#section-2
-                'scope' => null
+                'scope' => null,
+                // additional meta attributes can be added here
+                'dsi_type' => array_values(DecisionSupportInterventionService::DSI_TYPES),
+                'dsi_source_attributes' => [] // do we care to report errors on source attributes for the values we support? they won't save if we don't have it in the system
             );
             $clientRepository = new ClientRepository();
             $client_id = $clientRepository->generateClientId();
@@ -311,10 +322,34 @@ class AuthorizationController
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
             // save to oauth client table
+            $clientSaved = false;
             try {
+                $this->startTransaction();
+                $dsiService = $this->getDecisionSupportInterventionService();
+                // default is none
+                $dsiTypeName = $params['dsi_type'] ?? DecisionSupportInterventionService::DSI_TYPES[ClientEntity::DSI_TYPE_NONE];
+                $params['dsi_type'] = $dsiService->getDsiTypeForStringName($dsiTypeName);
+                $dsiSourceAttributes = $data['dsi_source_attributes'] ?? [];
                 $clientRepository->insertNewClient($client_id, $params, $this->siteId);
+                if ($params['dsi_type'] !== ClientEntity::DSI_TYPE_NONE) {
+                    $this->createDecisionSupportInterventionServiceForType($client_id, $params['client_name'], $params['dsi_type'], $dsiSourceAttributes);
+                }
+                // set it back to the string name for the response
+                $params['dsi_type'] = $dsiTypeName;
+
+                $clientSaved = true;
             } catch (\Exception $exception) {
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
+            } finally {
+                if ($clientSaved) {
+                    $this->commitTransaction();
+                } else {
+                    try {
+                        $this->rollbackTransaction();
+                    } catch (\Exception $exception) {
+                        $this->logger->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
+                    }
+                }
             }
             $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;
             unset($params['registration_client_uri_path']);
@@ -453,6 +488,8 @@ class AuthorizationController
             $params['client_name'] = $client['client_name'];
             $params['redirect_uris'] = explode('|', $client['redirect_uri']);
 
+            // need to grab dsi information
+            $this->addDSIInformation($params, $client);
             $response->withHeader("Cache-Control", "no-store");
             $response->withHeader("Pragma", "no-cache");
             $response->withHeader('Content-Type', 'application/json');
@@ -1599,5 +1636,82 @@ class AuthorizationController
         SessionUtil::oauthSessionCookieDestroy();
         $this->emitResponse($result);
         exit;
+    }
+
+    private function startTransaction()
+    {
+        QueryUtils::startTransaction();
+        // we want to be able to commit this transaction separately from the main transaction
+        // so we'll set this to true and then reset it after we commit
+        $this->getDecisionSupportInterventionService()->setInNestedTransaction(true);
+    }
+    private function getDecisionSupportInterventionService()
+    {
+        if (empty($this->dsiService)) {
+            $dsiService = new DecisionSupportInterventionService();
+            $this->dsiService = $dsiService;
+        }
+        return $this->dsiService;
+    }
+
+    private function commitTransaction()
+    {
+        QueryUtils::commitTransaction();
+        $this->getDecisionSupportInterventionService()->setInNestedTransaction(false);
+    }
+
+    private function rollbackTransaction()
+    {
+        QueryUtils::rollbackTransaction();
+        $this->getDecisionSupportInterventionService()->setInNestedTransaction(false);
+    }
+
+    private function createDecisionSupportInterventionServiceForType(string $clientId, string $clientName, int $dsiType, array $dsiSourceAttributes)
+    {
+        $clientEntity = new ClientEntity();
+        $clientEntity->setIdentifier($clientId);
+        $clientEntity->setName($clientName);
+
+        $dsiService = $this->getDecisionSupportInterventionService();
+        $service = $dsiService->getEmptyService($dsiType);
+        $service->setClient($clientEntity);
+        // would be nice to do key => value but it limits the structure of the attributes
+        // so we'll go with an array of objects here
+        foreach ($dsiSourceAttributes as $attribute) {
+            $fieldName = $attribute['name'] ?? "";
+            $value = $attribute['value'] ?? "";
+            if ($service->hasField($fieldName)) {
+                $service->setFieldValue($fieldName, $value);
+            }
+        }
+        // if user is logged in we want to track who the creator was
+        // if not logged in, user id will be null as we don't have anything to track.
+        $userId = $_SESSION['authUserID'] ?? null;
+        $dsiService->updateService($service, $userId);
+    }
+
+    private function addDSIInformation(array &$params, array $client)
+    {
+        $dsiService = $this->getDecisionSupportInterventionService();
+        $dsiType = $client['dsi_type'] ?? ClientEntity::DSI_TYPE_NONE;
+        $params['dsi_type'] = $dsiService->getDsiTypeStringName($dsiType);
+        if ($dsiType !== ClientEntity::DSI_TYPE_NONE) {
+            $clientEntity = new ClientEntity();
+            $clientEntity->setIdentifier($client['client_id']);
+            $clientEntity->setName($client['client_name']);
+            $clientEntity->setDSIType($dsiType);
+            $service = $dsiService->getServiceForClient($clientEntity, false);
+            if (empty($service)) {
+                $this->logger->errorLogCaller("DSI service attributes not found for client when they should exist", ['client_id' => $client['client_id']]);
+                $params['dsi_source_attributes'] = [];
+                return;
+            }
+            $fields = $service->getFields();
+            $dsiSourceAttributes = [];
+            foreach ($fields as $field) {
+                $dsiSourceAttributes[] = ['name' => $field['name'], 'value' => $field['value']];
+            }
+            $params['dsi_source_attributes'] = $dsiSourceAttributes;
+        }
     }
 }

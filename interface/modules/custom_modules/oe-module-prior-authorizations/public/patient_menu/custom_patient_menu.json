@@ -33,7 +33,7 @@
         "menu_id": "report",
         "target": "main",
         "on_click":"top.restoreSession()",
-        "url": "/interface/report/patient_report.php",
+        "url": "/interface/patient_file/report/patient_report.php",
         "pid":"false",
         "children": [],
         "requirement": 0,

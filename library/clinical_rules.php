@@ -20,7 +20,7 @@ require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FacilityService;
 
@@ -39,7 +39,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
     }
 
     $sqlArray = array();
-    $sql = "SELECT `date`, `pid`, `uid`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
+    $sql = "SELECT `date`, `pid`, `uid`, `facility_id`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
     $sqlArray[] = $end_date;
     if (!empty($begin_date)) {
         $sql .= " AND `date` >= ?";
@@ -87,50 +87,27 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         // Collect the Rule Title, Bibliographical citation, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
         //  Show the link for Linked referential CDS (this is set via codetype:code)
         $tooltip = '';
+        $tooltipText = '';
         if (!empty($action['rule_id'])) {
             $rule_title = getListItemTitle("clinical_rules", $action['rule_id']);
             $ruleData = sqlQuery("SELECT `bibliographic_citation`, `developer`, `funding_source`, `release_version`, `web_reference`, `linked_referential_cds` " .
                            "FROM `clinical_rules` " .
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']));
-            $bibliographic_citation = $ruleData['bibliographic_citation'];
-            $developer = $ruleData['developer'];
-            $funding_source = $ruleData['funding_source'];
-            $release = $ruleData['release_version'];
-            $web_reference = $ruleData['web_reference'];
             $linked_referential_cds = $ruleData['linked_referential_cds'];
             if (!empty($rule_title)) {
-                  $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+                $tooltipText = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
             }
 
-            if (!empty($bibliographic_citation)) {
-                $tooltip .= xla('Rule Bibliographic Citation') . ": " . attr($bibliographic_citation) . "&#013;";
-            }
+            $tooltipText .= xla("Select icon to view more information or provide feedback about this rule.");
 
-            if (!empty($developer)) {
-                  $tooltip .= xla('Rule Developer') . ": " . attr($developer) . "&#013;";
-            }
-
-            if (!empty($funding_source)) {
-                  $tooltip .= xla('Rule Funding Source') . ": " . attr($funding_source) . "&#013;";
-            }
-
-            if (!empty($release)) {
-                  $tooltip .= xla('Rule Release') . ": " . attr($release);
-            }
-
-            if ((!empty($tooltip)) || (!empty($web_reference))) {
-                if (!empty($web_reference)) {
-                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></a>";
-                } else {
-                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'><i class='fas fa-question-circle'></i></span>";
-                }
-            }
+            $tooltip = "<span style='white-space: pre-line;' title='" . $tooltipText . "'><i class='fas fa-question-circle' role='button'></i></span>";
 
             if (!empty($linked_referential_cds)) {
                 $codeParse = explode(":", $linked_referential_cds);
                 $codetype = $codeParse[0] ?? null;
                 $code = $codeParse[1] ?? null;
                 if (!empty($codetype) && !empty($code)) {
+                    // note this function is in the demographics.php file.
                     $tooltip .= "<a href='' title='" . xla('Link to Referential CDS') . "' onclick='referentialCdsClick(" . attr_js($codetype) . ", " . attr_js($code) . ")'><i class='fas fa-external-link-square-alt'></i></a>";
                 }
             }
@@ -168,14 +145,19 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         // Display due status
         if ($action['due_status']) {
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
+            // note tooltipText has already been escaped
             if ($action['due_status'] == "past_due") {
-                echo "<span class='text-danger'>";
+                echo "<span title='" . $tooltipText . "' class='text-danger cdr-rule-btn-info-launch' role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             } elseif ($action['due_status'] == "due") {
-                echo "<span class='text-warning'>";
+                echo "<span title='" . $tooltipText . "' class='text-warning cdr-rule-btn-info-launch' role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             } elseif ($action['due_status'] == "not_due") {
-                echo "<span class='text-success'>";
+                echo "<span title='" . $tooltipText . "' class='text-success cdr-rule-btn-info-launch'  role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             } else {
-                echo "<span>";
+                echo "<span title='" . $tooltipText . "' class='cdr-rule-btn-info-launch' role='button' data-rule-id='"
+                    . attr($action['rule_id']) . "' >";
             }
 
             echo generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $action['due_status']);
@@ -445,9 +427,43 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
             $new_targets_json = json_encode($new_targets);
         }
 
+        // we attempt to find the location the CDR rule was rendered at by first looking at the user's facility
+        // and then the facility of the encounter that triggered the rule, whichever was last updated most recently
+        // will give us our best guess at the location the rule was rendered at.  This operates on the assumption that
+        // the encounter will be the most recent update showing the patient's last facility rendered services at
+        // however, if there is no encounter we need to grab it from the user in the CDR's facility
+        $facilityLocationSQL = "(SELECT
+        facility_ids.facility_id
+    FROM
+        (
+        SELECT
+            `facility_id`,
+            last_updated
+        FROM
+            `users`
+        WHERE
+            `id` = ?
+        UNION
+    SELECT
+        `facility_id`,
+        `last_update` AS last_updated
+    FROM
+        `form_encounter`
+    WHERE
+        `pid` = ? AND(
+            provider_id = ? OR supervisor_id = ?
+        )
+    ) facility_ids
+ORDER BY
+    facility_ids.last_updated
+LIMIT 1)";
+        $binds = [$patient_id,$userid,$category,$current_targets_json,$new_targets_json,
+            $userid, // users table facility bind
+            $patient_id, $userid, $userid // form_encounter table facility bind
+        ];
         sqlStatement("INSERT INTO `clinical_rules_log` " .
-              "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
-              "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json));
+              "(`date`,`pid`,`uid`,`category`,`value`,`new_value`, `facility_id`) " .
+              "VALUES (NOW(),?,?,?,?,?, " . $facilityLocationSQL . ")", $binds);
     }
 
   // Return new actions (if there are any)
@@ -2177,6 +2193,9 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 // merge the custom rule with the default rule
                 $mergedRule = array();
                 foreach ($customRule as $key => $value) {
+                    // note this explicitly relies on type conversion, null, "", 0 becoming equal to null...
+                    // if anything changes in language spec this might break.
+                    // TODO: consider using strict comparison
                     if ($value == null && preg_match("/_flag$/", $key)) {
                         // use default setting
                         $mergedRule[$key] = $rule[$key];
