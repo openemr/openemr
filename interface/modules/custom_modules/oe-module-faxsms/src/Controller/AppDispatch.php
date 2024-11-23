@@ -657,9 +657,10 @@ abstract class AppDispatch
 
         try {
             $query = "SELECT notification_log.* FROM notification_log " .
-                     "WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ? " .
+                     "WHERE notification_log.type = ? " .
+                     "AND notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ? " .
                      "ORDER BY notification_log.dSentDateTime DESC";
-            $res = sqlStatement($query, array($fromDate, $toDate));
+            $res = sqlStatement($query, array(strtoupper($type), $fromDate, $toDate));
             $row = array();
             $cnt = 0;
             while ($nrow = sqlFetchArray($res)) {
