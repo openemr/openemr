@@ -97,4 +97,21 @@ class ClickatellSMSClient extends AppDispatch
     {
         return 0;
     }
+
+    /**
+     * @param $uiDateRangeFlag
+     * @return false|string|null
+     */
+    public function fetchSMSList($uiDateRangeFlag = true): false|string|null
+    {
+        return "[]"; //xlt('Not Supported');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallLogs()
+    {
+        return xlt('Not Supported');
+    }
 }
