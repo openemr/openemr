@@ -1,5 +1,26 @@
 # CHANGELOG.md
 
+## [7.0.2.3](https://github.com/openemr/openemr/milestone/15?closed=1) - 2024-11-24
+
+### Fixed
+- Add new document template plugins ([#7836](https://github.com/openemr/openemr/issues/7836))
+- Feat openemr b11 7742 decision support interventions ([#7743](https://github.com/openemr/openemr/pull/7743))
+- Fix New Documents patient select for actions. ([#7812](https://github.com/openemr/openemr/issues/7812))
+- Portal Settings card Default Signature leaves backdrop on save close. ([#7835](https://github.com/openemr/openemr/issues/7835))
+- Portal Theme Resets to core theme. ([#7800](https://github.com/openemr/openemr/issues/7800))
+- Update Office Notes ([#7811](https://github.com/openemr/openemr/issues/7811))
+-  Patient Portal with no procedures throws error on viewing Customized Medical History Report ([#7814](https://github.com/openemr/openemr/issues/7814))
+-  cannot delete from address book when username is null ([#7805](https://github.com/openemr/openemr/issues/7805))
+-  cannot view fee sheet items if billing.billed is null ([#7807](https://github.com/openemr/openemr/issues/7807))
+-  prior auth module broken patient report link ([#7803](https://github.com/openemr/openemr/issues/7803))
+-  report pdf error with faxsms module installed ([#7793](https://github.com/openemr/openemr/issues/7793))
+
+
+### OpenEMR Developer Changes
+
+### Fixed
+-  Clinical Decisions Rule review screen has invalid CSRF class used ([#7832](https://github.com/openemr/openemr/issues/7832))
+
 ## [7.0.2.2](https://github.com/openemr/openemr/milestone/14?closed=1) - 2024-10-25
 
 ### Added
