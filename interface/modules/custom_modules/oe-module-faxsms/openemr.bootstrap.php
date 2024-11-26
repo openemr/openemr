@@ -59,6 +59,10 @@ $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 // Add menu items
 function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
 {
+    $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
+    $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
+    $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
+
     $sms_label = match ($allowSMS) {
         '1' => xlt("RingCentral Messaging"),
         '2' => xlt("Twilio Messaging"),
@@ -71,9 +75,6 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
         default => xlt("FAX"),
     };
 
-    $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
-    $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
-    $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
     $menu = $event->getMenu();
     // Our SMS menu
     $menuItem = new stdClass();
