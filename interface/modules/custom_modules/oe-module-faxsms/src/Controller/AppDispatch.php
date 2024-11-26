@@ -51,6 +51,7 @@ abstract class AppDispatch
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
         $this->crypto = new CryptoGen();
+        $this->getCredentials();
         $this->dispatchActions();
         $this->render();
     }
@@ -430,6 +431,8 @@ abstract class AppDispatch
                 return '_twilio';
             case '3':
                 return '_etherfax';
+            case '4':
+                return '_email';
             case '5':
                 return '_clickatell';
         }
@@ -551,7 +554,7 @@ abstract class AppDispatch
     public function getPatientDetails(): bool|string
     {
         $id = $this->getRequest('pid');
-        $query = "SELECT fname, lname, phone_cell, email FROM Patient_data WHERE pid = ?";
+        $query = "SELECT fname, lname, phone_cell, email FROM patient_data WHERE pid = ?";
         $result = sqlQuery($query, array($id));
 
         return json_encode($result);
@@ -681,5 +684,15 @@ abstract class AppDispatch
         }
 
         return $responseMsgs;
+    }
+
+    /**
+     * @param $acl
+     * @return int
+     */
+    public function authenticate($acl = ['admin', 'doc']): int
+    {
+        list($s, $v) = $acl;
+        return $this->verifyAcl($s, $v);
     }
 }

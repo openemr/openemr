@@ -39,9 +39,18 @@ class ClickatellSMSClient extends AppDispatch
     /**
      * @return string
      */
-    public function sendSMS(string $toPhone = '', string $subject = '', string $message = '', string $from = ''): string
+    public function sendSMS($toPhone = '', string $subject = '', string $message = '', string $from = ''): string
     {
-        // $subject and $from do not have valid/meaningful values passed in
+        // If this is made as an API call we need to check authorization.
+        $authErrorMsg = $this->authenticate();
+        if ($authErrorMsg !== 1) {
+            return text(js_escape($authErrorMsg));
+        }
+
+        // If this is invoked from the UI via AppDispatch::dispatchAction(), the
+        // values won't be parameters, but instead will come from the request.
+        $toPhone = $toPhone ?: $this->getRequest('phone');
+        $message = $message ?: $this->getRequest('comments');
 
         /* Reformat $toPhone number */
         $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
@@ -67,7 +76,7 @@ class ClickatellSMSClient extends AppDispatch
         $json = json_decode($response, true);
         if ($json['responseCode'] < 400) {
             if ($json['messages'][0]['accepted']) {
-                $response = $json['messages'][0]['apiMessageId'];
+                $response = xlt('Message Sent');
             }
         }
 
@@ -104,7 +113,7 @@ class ClickatellSMSClient extends AppDispatch
      */
     public function fetchSMSList($uiDateRangeFlag = true): false|string|null
     {
-        return "[]"; //xlt('Not Supported');
+        return "[]"; // Caller expects JSON result, not HTML;
     }
 
     /**
