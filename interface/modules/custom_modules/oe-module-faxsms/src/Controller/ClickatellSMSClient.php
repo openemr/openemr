@@ -76,11 +76,11 @@ class ClickatellSMSClient extends AppDispatch
         $json = json_decode($response, true);
         if ($json['responseCode'] < 400) {
             if ($json['messages'][0]['accepted']) {
-                $response = xlt('Message Sent');
+                return xlt('Message Sent');
             }
         }
 
-        return text($response);
+        return text('Error: ' . $response);
     }
 
     /**
