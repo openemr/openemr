@@ -12,28 +12,12 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 class ClickatellSMSClient extends AppDispatch
 {
-    private $appKey;
-    private $phone;
-
     public function __construct()
     {
         if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         parent::__construct();
-    }
-
-    /**
-     * @return array|mixed
-     */
-    public function getCredentials(): mixed
-    {
-        $credentials = appDispatch::getSetup();
-
-        $this->appKey = $credentials['appKey'];
-        $this->phone = $credentials['phone'];
-
-        return $credentials;
     }
 
     /**
@@ -61,9 +45,9 @@ class ClickatellSMSClient extends AppDispatch
 
         $url = sprintf(
             "https://platform.clickatell.com/messages/http/send?apiKey=%s&to=%s&from=%s&content=%s",
-            $this->appKey,
+            $this->credentials['appKey'],
             $toPhone,
-            $this->phone,
+            $this->credentials['phone'],
             rawurlencode($message)
         );
         $context = stream_context_create([

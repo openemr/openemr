@@ -31,6 +31,7 @@ abstract class AppDispatch
     public static $timeZone;
     protected $crypto;
     protected $_currentAction;
+    protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
     private $authUser;
 
@@ -51,7 +52,7 @@ abstract class AppDispatch
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
         $this->crypto = new CryptoGen();
-        $this->getCredentials();
+        $this->credentials = $this->getCredentials();
         $this->dispatchActions();
         $this->render();
     }
@@ -694,5 +695,14 @@ abstract class AppDispatch
     {
         list($s, $v) = $acl;
         return $this->verifyAcl($s, $v);
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function getCredentials(): mixed
+    {
+        $credentials = appDispatch::getSetup();
+        return $credentials;
     }
 }
