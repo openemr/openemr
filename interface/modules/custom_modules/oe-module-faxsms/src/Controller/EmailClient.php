@@ -190,4 +190,13 @@ class EmailClient extends AppDispatch
     {
         // TODO: Implement fetchReminderCount() method.
     }
+
+    /**
+     * @param $uiDateRangeFlag
+     * @return false|string|null
+     */
+    public function fetchEmailList($uiDateRangeFlag = true): false|string|null
+    {
+        return "[]"; // Caller expects JSON result, not HTML;
+    }
 }
