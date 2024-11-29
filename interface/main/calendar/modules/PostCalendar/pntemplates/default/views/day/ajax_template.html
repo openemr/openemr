@@ -625,7 +625,7 @@ foreach ($providers as $provider) {
                         // calculate the duration from this event to the outevent
                         $outH = substr($outevent['startTime'], 0, 2);
                         $outM = substr($outevent['startTime'], 3, 2);
-                        $outMins = ($outH * 60) + $outM;
+                        $outMins = (intval($outH) * 60) + intval($outM);
                         $event['duration'] = ($outMins - $eStartMin) * 60; // duration is in seconds
                         $found = 2;
                         break;
