@@ -45,6 +45,8 @@ if ($db_email_msg['sms_gateway_type'] == 'CLICKATELL') {
     include_once("sms_clickatell.php");
 } elseif ($db_email_msg['sms_gateway_type'] == 'TMB4') {
     include_once("sms_tmb4.php");
+} elseif ($db_email_msg['sms_gateway_type'] == 'AWSPINPOINT') {
+    include_once("sms_awspinpoint.php");
 }
 
 // get notification settings

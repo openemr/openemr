@@ -2560,6 +2560,17 @@ $GLOBALS_METADATA = array(
             xl('Number of hours in advance to send SMS notifications.')
         ),
 
+        'SMS_GATEWAY_TYPE' => array(
+            xl('SMS Gateway Type'),
+            array(
+                '' => xl('None'),
+                'CLICKATELL' => 'CLICKATELL',
+                'AWSPINPOINT' => 'AWSPINPOINT'
+            ),
+            '',
+            xl('SMS gateway type. Choices are CLICKATELL or AWSPINPOINT.')
+        ),
+
         'SMS_GATEWAY_USENAME' => array(
             xl('SMS Gateway Username'),
             'text',                           // data type
