@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 
 /**
@@ -30,6 +31,7 @@ abstract class AppDispatch
     public static $timeZone;
     protected $crypto;
     protected $_currentAction;
+    protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
     private $authUser;
 
@@ -49,6 +51,8 @@ abstract class AppDispatch
         if (empty(self::$_apiModule)) {
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
+        $this->crypto = new CryptoGen();
+        $this->credentials = $this->getCredentials();
         $this->dispatchActions();
         $this->render();
     }
@@ -226,6 +230,8 @@ abstract class AppDispatch
                     break;
                 case 2:
                     return new TwilioSMSClient();
+                case 5:
+                    return new ClickatellSMSClient();
             }
         } elseif ($type == 'fax') {
             switch ($s) {
@@ -426,6 +432,10 @@ abstract class AppDispatch
                 return '_twilio';
             case '3':
                 return '_etherfax';
+            case '4':
+                return '_email';
+            case '5':
+                return '_clickatell';
         }
         return null;
     }
@@ -545,7 +555,7 @@ abstract class AppDispatch
     public function getPatientDetails(): bool|string
     {
         $id = $this->getRequest('pid');
-        $query = "SELECT fname, lname, phone_cell, email FROM Patient_data WHERE pid = ?";
+        $query = "SELECT fname, lname, phone_cell, email FROM patient_data WHERE pid = ?";
         $result = sqlQuery($query, array($id));
 
         return json_encode($result);
@@ -630,5 +640,69 @@ abstract class AppDispatch
             $n = '+1' . $n;
         }
         return $n;
+    }
+
+    /**
+     * @return null
+     */
+    protected function index()
+    {
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotificationLog(): string
+    {
+        $type = $this->getRequest('type');
+        $fromDate = $this->getRequest('datefrom');
+        $toDate = $this->getRequest('dateto');
+
+        try {
+            $query = "SELECT notification_log.* FROM notification_log " .
+                     "WHERE notification_log.type = ? " .
+                     "AND notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ? " .
+                     "ORDER BY notification_log.dSentDateTime DESC";
+            $res = sqlStatement($query, array(strtoupper($type), $fromDate, $toDate));
+            $row = array();
+            $cnt = 0;
+            while ($nrow = sqlFetchArray($res)) {
+                $row[] = $nrow;
+                $cnt++;
+            }
+
+            $responseMsgs = '';
+            foreach ($row as $value) {
+                $adate = ($value['pc_eventDate'] . '::' . $value['pc_startTime']);
+                $pinfo = str_replace("|||", " ", $value['patient_info']);
+                $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
+                    "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
+            }
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            return 'Error: ' . text($message) . PHP_EOL;
+        }
+
+        return $responseMsgs;
+    }
+
+    /**
+     * @param $acl
+     * @return int
+     */
+    public function authenticate($acl = ['admin', 'doc']): int
+    {
+        list($s, $v) = $acl;
+        return $this->verifyAcl($s, $v);
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function getCredentials(): mixed
+    {
+        $credentials = appDispatch::getSetup();
+        return $credentials;
     }
 }

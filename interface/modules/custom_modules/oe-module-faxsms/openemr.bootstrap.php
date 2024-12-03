@@ -62,13 +62,26 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
     $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
     $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
+
+    $sms_label = match ($allowSMS) {
+        '1' => xlt("RingCentral Messaging"),
+        '2' => xlt("Twilio Messaging"),
+        '5' => xlt("Clickatell Messaging"),
+        default => xlt("SMS"),
+    };
+    $fax_label = match ($allowFax) {
+        '1' => xlt("RingCentral Fax"),
+        '3' => xlt("Manage etherFAX"),
+        default => xlt("FAX"),
+    };
+
     $menu = $event->getMenu();
     // Our SMS menu
     $menuItem = new stdClass();
     $menuItem->requirement = 0;
     $menuItem->target = 'sms';
     $menuItem->menu_id = 'mod0';
-    $menuItem->label = $allowSMS == '2' ? xlt("Twilio Messaging") : xlt("RingCentral SMS");
+    $menuItem->label = $sms_label;
     $menuItem->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=sms";
     $menuItem->children = [];
     $menuItem->acl_req = ["patients", "docs"];
@@ -88,7 +101,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->requirement = 0;
     $menuItem2->target = 'fax';
     $menuItem2->menu_id = 'mod1';
-    $menuItem2->label = $allowFax == '3' ? xlt("Manage etherFAX") : xlt("RingCentral FAX");
+    $menuItem2->label = $fax_label;
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
     $menuItem2->acl_req = ["patients", "docs"];

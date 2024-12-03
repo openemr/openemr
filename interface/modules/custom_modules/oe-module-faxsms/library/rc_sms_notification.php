@@ -114,7 +114,8 @@ $curr_time = time();
 $check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
 //$db_sms_msg = cron_getNotificationData($TYPE);
-$db_sms_msg['sms_gateway_type'] = "SMS";
+$db_sms_msg['type'] = $TYPE;
+$db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
 $db_sms_msg['message'] = $MESSAGE;
 ?>
     <!DOCTYPE html>
@@ -149,7 +150,6 @@ $db_sms_msg['message'] = $MESSAGE;
                 ob_flush();
                 flush();
                 $prow = $db_patient[$p];
-                $db_sms_msg['sms_gateway_type'] = "RCSMS";
                 $db_sms_msg['message'] = $MESSAGE;
 
                 $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
