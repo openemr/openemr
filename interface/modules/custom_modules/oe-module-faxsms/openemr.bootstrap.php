@@ -73,6 +73,16 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem->children = [];
     $menuItem->acl_req = ["patients", "docs"];
     $menuItem->global_req = ["oefax_enable_sms"];
+    // Our Email menu
+    $menuItemEmail = new stdClass();
+    $menuItemEmail->requirement = 0;
+    $menuItemEmail->target = 'email';
+    $menuItemEmail->menu_id = 'email';
+    $menuItemEmail->label = xlt("Email");
+    $menuItemEmail->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=email";
+    $menuItemEmail->children = [];
+    $menuItemEmail->acl_req = ["patients", "docs"];
+    $menuItemEmail->global_req = ["oe_enable_email"];
     // Our FAX menu
     $menuItem2 = new stdClass();
     $menuItem2->requirement = 0;
@@ -156,6 +166,9 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
             }
             if (!empty($allowFax)) {
                 $item->children[] = $menuItem2;
+            }
+            if (!empty($allowEmail)) {
+                $item->children[] = $menuItemEmail;
             }
             if (!empty($allowSMS)) {
                 $item->children[] = $menuItem;

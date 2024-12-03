@@ -22,7 +22,7 @@ $service = $clientApp::getServiceType();
 $title = $service == "1" ? xlt('RingCentral') : '';
 $title = $service == "2" ? xlt('Twilio SMS') : $title;
 $title = $service == "3" ? xlt('etherFAX') : $title;
-$tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
+$tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>
 <!DOCTYPE html>
 <html>
@@ -69,6 +69,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             }
             if (serviceType == 'sms') {
                 $(".sms-hide").hide();
+            }
+            if (serviceType == 'email') {
+                $(".email-hide").hide();
             }
 
             retrieveMsgs();
@@ -391,8 +394,10 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let actionUrl = (serviceType === 'fax') ? 'getPending?type=fax' : '';
             if (serviceType === 'sms' && currentService == '1') { //RC
                 actionUrl = 'getPending?type=sms';
-            } else if (serviceType === 'sms') { //Twilio
+            } else if (serviceType === 'sms') {
                 actionUrl = 'fetchSMSList?type=sms';
+            } else if (serviceType === 'email') {
+                actionUrl = 'fetchEmailList?type=email';
             }
 
             const datefrom = $('#fromdate').val();
@@ -410,7 +415,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             sentDetailsBody.empty();
             msgDetailsBody.empty();
 
-            return $.post(actionUrl, {
+            $.post(actionUrl, {
                 'type': serviceType,
                 'pid': pid,
                 'datefrom': datefrom,
@@ -467,8 +472,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     alertMsg(data);
                 }
                 $("#logdetails tbody").empty().append(data);
-                // Get SMS appointments notifications
-                if (serviceType === 'sms') {
+                // Get appointments notifications
+                if (serviceType === 'sms' || serviceType === 'email') {
                     getNotificationLog();
                 }
             }).always(function () {
@@ -482,7 +487,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             } catch (error) {
                 console.log('Session restore failed!');
             }
-            let actionUrl = 'getNotificationLog';
+            let actionUrl = 'getNotificationLog?type=' + serviceType;
             let id = pid;
             let datefrom = $('#fromdate').val() + " 00:00:01";
             let dateto = $('#todate').val() + " 23:59:59";
@@ -661,10 +666,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                         <div class="dropdown-menu" role="menu">
                             <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                             <?php if ($serviceType == 'sms') { ?>
-                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
                             <?php } ?>
-                            <a class="dropdown-item etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
+                            <?php if ($serviceType == 'email') { ?>
+                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                            <?php } ?>
+                            <a class="dropdown-item sms-hide email-hide etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                         </div>
                         <button type="button" class="nav-item etherfax d-none btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
                         </button>
@@ -688,13 +697,13 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                             </a>
                         </li>
                         <li class="nav-item" role="tab"><a class="nav-link" href="#sent" aria-controls="sent" role="tab" data-toggle="tab"><?php echo xlt("Sent") ?></a></li>
-                        <li class="nav-item rc-fax-hide etherfax-hide" role="tab"><a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><?php echo xlt("SMS Log") ?></a></li>
-                        <li class="nav-item" role="tab"><a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Call Log") ?></a></li>
+                        <li class="nav-item rc-fax-hide etherfax-hide email-hide" role="tab"><a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><?php echo xlt("SMS Log") ?></a></li>
+                        <li class="nav-item email-hide" role="tab"><a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Call Log") ?></a></li>
                         <li class="nav-item etherfax-hide rc-fax-hide" role="tab">
                             <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ml-1" onclick="getNotificationLog(event, this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>"></span></a>
                         </li>
-                        <li class="nav-item sms-hide etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
+                        <li class="nav-item sms-hide email-hide etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
                     </ul>
                     <!-- Tab panes -->
                     <?php if ($service != '1') { ?>
@@ -985,7 +994,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                     </table>
                                 </div>
                             </div>
-                            <div role="tabpanel" class="container-fluid tab-pane sms-hide fade in active" id="upLoad">
+                            <div role="tabpanel" class="container-fluid tab-pane sms-hide email-hide fade in active" id="upLoad">
                                 <div class="panel container-fluid">
                                     <div id="fax-queue-container">
                                         <div id="fax-queue">
