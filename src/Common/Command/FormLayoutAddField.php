@@ -51,12 +51,10 @@ class FormLayoutAddField extends Command
         ];
 
         $data = array_merge($data, $input->getOptions());
+        $table_name = getTableNameFromLayoutId($data['layout_id']);
 
-        // 1. addField
-        // 2. addColumn
-        // 3. setLayoutTimestamp
         addField($data['layout_id'], $data);
-        addColumn($data['layout_id'], $data['newid']);
+        addColumn($table_name, $data['newid']);
         setLayoutTimestamp($data['layout_id']);
 
         return 0;

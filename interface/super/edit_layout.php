@@ -189,7 +189,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
     $table_name = getTableNameFromLayoutId($layout_id);
     if ($add === true) {
-        addColumn($layout_id, $field_id);
+        addColumn($table_name, $field_id);
         EventAuditLogger::instance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
@@ -201,7 +201,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         return;
     }
 
-    deleteColumn($layout_id, $field_id);
+    deleteColumn($table_name, $field_id);
     EventAuditLogger::instance()->newEvent(
         "alter_table",
         $_SESSION['authUser'],
