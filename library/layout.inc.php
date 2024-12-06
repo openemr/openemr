@@ -158,13 +158,12 @@ function getTableNameFromLayoutId($layout_id) {
 }
 
 function addColumn($layout_id, $field_id): void {
-    $table_name = getTableNameFromLayoutId($layout_id);
+    $tablename = getTableNameFromLayoutId($layout_id);
     if (empty($tablename)) {
         return;
     }
 
     $column_tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
-
     // Column already exists.
     if (!empty($column_tmp)) {
         return;
