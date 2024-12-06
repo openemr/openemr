@@ -44,6 +44,10 @@ class BirthdayReminder
         $sql = "SELECT `DOB` FROM `patient_data` WHERE `pid` = ?";
         $res = sqlQuery($sql, array($this->pid));
 
+        if ($res['DOB'] == null) {
+           return false;
+        }
+
         if (is_patient_deceased($this->pid)) {
             return false;
         }
