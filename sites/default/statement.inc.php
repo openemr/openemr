@@ -1304,7 +1304,7 @@ function create_cms_statement($stmt)
     // This generates the detail lines.  Again, note that the values must
     // be specified in the order used.
     //
-    
+
     $agedate = '0000-00-00';
     $line_count = 0;
     $page_count = 0;
@@ -1317,18 +1317,18 @@ function create_cms_statement($stmt)
         //92002-14 are Eye Office Visit Codes
         $dos = $line['dos'];
         ksort($line['detail']);
-        foreach ($line['detail'] as $dkey => $ddata) {  
+        foreach ($line['detail'] as $dkey => $ddata) {
             if ($continued = true) {
                 $out .= $continued_text;
             }
-            $continued_text = '';         
+            $continued_text = '';
 
             $ddate = substr($dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-            }                        
+            }
             $amount = '';
-            
+
             if (!empty($insco)) {
                 if (strpos(($ddata['pmt_method'] ?? ''), $insco) !== false) {
                     $insco = '';
@@ -1341,7 +1341,7 @@ function create_cms_statement($stmt)
                     $agedate = $dos;
                 }
                 $amount = sprintf("%.2f", $ddata['pmt']);
-                $desc = xl('Paid') . ' ' . $ddata['src'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . $insco;
+                $desc = xl('Paid') . ' ' . $ddata['src'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
                     $desc = xl('Pt paid');
@@ -1354,9 +1354,9 @@ function create_cms_statement($stmt)
                 $dos = $ddate;
                 if ($ddata['chg']) {
                     $amount = sprintf("%.2f", ($ddata['chg'] * -1));
-                    $desc = xl('Adj') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . $insco;
+                    $desc = xl('Adj') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
                 } else {
-                    $desc = xl('Note') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . $insco;
+                    $desc = xl('Note') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
                 }
                 $out .= sprintf("%-8s %-44s           %8s\r\n", sidDate($dos), $desc, $amount);
             } elseif ($ddata['chg'] < 0) {
@@ -1370,7 +1370,7 @@ function create_cms_statement($stmt)
                 $bal = sprintf("%.2f", ($line['amount'] - $line['paid']));
                 $out .= sprintf("%-8s %-44s    %-8s          %-8s \r\n", sidDate($dos), $desc, $amount, $bal);
             }
-                            
+
             ++$count;
             ++$line_count;
             if ($line_count % 34 == 0) {
@@ -1379,17 +1379,22 @@ function create_cms_statement($stmt)
                 $continued_text = "\r\n\r\n";
                 $continued_text .= sprintf("                       %.2f", $stmt['amount']);
                 $continued_text .= "CONTINUED PAGE $page_count \r\n";
-                $continued_text .= "\014"; // this is a form feed                
+                $continued_text .= "\014"; // this is a form feed
             }
         }
         if ($agedate == '0000-00-00') {
             $agedate = $dos;
         }
-        
+
         // Compute the aging bucket index and accumulate into that bucket.
         $age_in_days = (int) (($todays_time - strtotime($agedate)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
+        if ($stmt['dun_count'] == 0) {
+            $age_index = 0;
+        } else {
+            // add better aging here based on payments made since last bill date
+        }
         $aging[$age_index] += $line['amount'] - $line['paid'];
     }
     // This generates blank lines until we are at line 42.
@@ -1422,7 +1427,7 @@ function create_cms_statement($stmt)
     if ($GLOBALS['use_dunning_message']) {
         $out .= sprintf("%-46s\r\n", $dun_message);
     }
-    
+
     if ($GLOBALS['statement_message_to_patient']) {
         $out .= "\r\n";
         $statement_message = $GLOBALS['statement_msg_text'];
@@ -1434,7 +1439,7 @@ function create_cms_statement($stmt)
         $ageline .= sprintf("      %.2f              %.2f", $aging[$age_index], $stmt['amount']);
         $out .= $ageline . "\r\n";
     //}
-    
+
     /*
     if ($GLOBALS['number_appointments_on_statement'] != 0) {
         $out .= "\r\n";

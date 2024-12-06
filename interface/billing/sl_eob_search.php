@@ -312,38 +312,38 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                 $page_lines = explode("\012", $page);
                 $page_lines_count = count($page_lines);
                 $page_count++;
-                $body_count = 0;    
+                $body_count = 0;
                 if (!$page_lines[0] && $page_lines_count == 1) {
                     continue;
                 }
 
                 $was_continued = $is_continued;
-                if (!strpos($page, "CONTINUED")) {         
+                if (!strpos($page, "CONTINUED")) {
                     $is_continued = false;
                     if (!$was_continued) {
                         $header = '';
                     }
-                } else {        
+                } else {
                     $is_continued = true;
                 }
 
                 if (!$was_continued) {
                     for ($i = 0; $i < 5; $i++) {
-                        if (isset($page_lines[$i])) { 
+                        if (isset($page_lines[$i])) {
                             $header .= $page_lines[$i];
                         }
                     }
                 }
 
                 $body = '';
-                for ($i = 5; $i < ($page_lines_count - 4); $i++) {        
+                for ($i = 5; $i < ($page_lines_count - 4); $i++) {
                     $body .= $page_lines[$i];
                     $body_count++;
                 }
                 $footer = '';
                 if ((!$is_continued && $was_continued) || !$is_continued) {
                     for ($i = ($page_lines_count - 2); $i < $page_lines_count; $i++) {
-                        if (isset($page_lines[$i])) { 
+                        if (isset($page_lines[$i])) {
                             if ($page_lines[$i] == '') {
                                 $footer .= $page_lines[$i] . "\r";
                             }
@@ -352,7 +352,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                     }
                 } else {
                     $footer = "CONTINUED \r\n";
-                }    
+                }
 
                 if (!$is_continued && !$was_continued) {
                     printHeader($header, $pdf);
@@ -387,7 +387,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                         $old_body = '';
                         $total_body_count = 0;
                         $header = '';
-                    }    
+                    }
                 }
                 if ($is_continued && $was_continued) {
                     $total_body_count += $body_count;
@@ -418,7 +418,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
                     str_replace("\014", "", $OneLine);
                 }
-    
+
                 if (
                     stristr($OneLine, 'REMIT TO') == true ||
                     stristr($OneLine, 'Visit Date') == true ||
@@ -430,11 +430,11 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                 } else {
                     $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
                 }
-    
+
                 $countline++;
             }
         }
-        
+
         // stored to a pdf file
         $fh = @fopen($STMT_TEMP_FILE_PDF, 'w');
         if ($fh) {
@@ -460,12 +460,13 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     sleep(1);
 }
 
-function printHeader($header, $pdf) {
+function printHeader($header, $pdf)
+{
     global $page_count;
     $png = $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo']);
     if ($page_count > 1) {
         $pdf->ezNewPage();
-    }       
+    }
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
     $pdf->addPngFromFile($png, 0, 0, 612, 792);
     $pdf->ezText($header, 12, array(
@@ -473,14 +474,16 @@ function printHeader($header, $pdf) {
         'leading' => 12
     ));
 }
-function printBody($content, $pdf) {
+function printBody($content, $pdf)
+{
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 130);
     $pdf->ezText($content, 12, array(
         'justification' => 'left',
         'leading' => 12
     ));
 }
-function printFooter($footer, $pdf) { 
+function printFooter($footer, $pdf)
+{
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 570);
     $pdf->ezText($footer, 12, array(
         'justification' => 'left',
