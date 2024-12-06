@@ -244,6 +244,8 @@ function upload_file_to_client($file_to_send)
     sleep(1);
 }
 
+
+
 function upload_file_to_client_email($ppid, $file_to_send)
 {
     $message = "";
@@ -273,6 +275,9 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     }
 
     global $srcdir;
+    global $page_count;
+    // we need page count so we don't create a blank page at the beginning
+    $page_count = -1;
 
     if ($GLOBALS['statement_appearance'] == '1') {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
@@ -289,36 +294,147 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $pdf2->Output($temp_filename, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
-        $pdf->ezSetMargins(45, 9, 36, 10);
-        $pdf->selectFont('Courier');
-        $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-        $countline = 1;
-        // this file contains the text to be converted to pdf.
-        $file = fopen($file_to_send, "r");
-        while (!feof($file)) {
-            // one line is read
-            $OneLine = fgets($file);
-            // form feed means we should start a new page.
-            if (stristr($OneLine, "\014") == true && !feof($file)) {
-                $pdf->ezNewPage();
-                $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-                str_replace("\014", "", $OneLine);
-            }
+        if ($GLOBALS['statement_appearance'] == '2') {
+            $pdf->ezSetMargins(170, 0, 10, 0);
+            $pdf->selectFont('Courier');
+            $page_count = 0;
+            $continued = false;
+            $is_continued = false;
+            $was_continued = false;
+            $body_count = 0;
+            $old_body = '';
+            $header = '';
+            $total_body_count = 0;
+            $content = file_get_contents($file_to_send);
+            $multi_pages = strpos($content, "\014");
+            $pages = explode("\014", $content); // form feeds separate pages
+            foreach ($pages as $page) {
+                $page_lines = explode("\012", $page);
+                $page_lines_count = count($page_lines);
+                $page_count++;
+                $body_count = 0;    
+                if (!$page_lines[0] && $page_lines_count == 1) {
+                    continue;
+                }
 
-            if (
-                stristr($OneLine, 'REMIT TO') == true ||
-                stristr($OneLine, 'Visit Date') == true ||
-                stristr($OneLine, 'Future Appointments') == true ||
-                stristr($OneLine, 'Current') == true
-            ) {
-                // lines are made bold when 'REMIT TO' or 'Visit Date' is there.
-                $pdf->ezText('<b>' . $OneLine . '</b>', 12, array('justification' => 'left', 'leading' => 6));
-            } else {
-                $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
-            }
+                $was_continued = $is_continued;
+                if (!strpos($page, "CONTINUED")) {         
+                    $is_continued = false;
+                    if (!$was_continued) {
+                        $header = '';
+                    }
+                } else {        
+                    $is_continued = true;
+                }
 
-            $countline++;
+                if (!$was_continued) {
+                    for ($i = 0; $i < 5; $i++) {
+                        if (isset($page_lines[$i])) { 
+                            $header .= $page_lines[$i];
+                        }
+                    }
+                }
+
+                $body = '';
+                for ($i = 5; $i < ($page_lines_count - 4); $i++) {        
+                    $body .= $page_lines[$i];
+                    $body_count++;
+                }
+                $footer = '';
+                if ((!$is_continued && $was_continued) || !$is_continued) {
+                    for ($i = ($page_lines_count - 2); $i < $page_lines_count; $i++) {
+                        if (isset($page_lines[$i])) { 
+                            if ($page_lines[$i] == '') {
+                                $footer .= $page_lines[$i] . "\r";
+                            }
+                            $footer .= $page_lines[$i];
+                        }
+                    }
+                } else {
+                    $footer = "CONTINUED \r\n";
+                }    
+
+                if (!$is_continued && !$was_continued) {
+                    printHeader($header, $pdf);
+                    printBody($body, $pdf);
+                    printFooter($footer, $pdf);
+                    $total_body_count = 0;
+                    $header = '';
+                    $is_continued = false;
+                }
+                if ($is_continued && !$was_continued) {
+                    $old_body .= $body;
+                    $total_body_count += $body_count;
+                }
+                if (!$is_continued && $was_continued) {
+                    $total_body_count += $body_count;
+                    if ($total_body_count < 35) {
+                        $old_body .= $body;
+                        printHeader($header, $pdf);
+                        printBody($old_body, $pdf);
+                        printFooter($footer, $pdf);
+                        $old_body = '';
+                        $total_body_count = 0;
+                        $header = '';
+                    } else {
+                        printHeader($header, $pdf);
+                        printBody($old_body, $pdf);
+                        printFooter($footer, $pdf);
+                        printHeader($header, $pdf);
+                        $body = "\r" . $body ;
+                        printBody($body, $pdf);
+                        printFooter($footer, $pdf);
+                        $old_body = '';
+                        $total_body_count = 0;
+                        $header = '';
+                    }    
+                }
+                if ($is_continued && $was_continued) {
+                    $total_body_count += $body_count;
+                    if ($total_body_count < 41) {
+                        $old_body .= $body;
+                    } else {
+                        printHeader($header, $pdf);
+                        printBody($old_body, $pdf);
+                        printFooter($footer, $pdf);
+                        $old_body = "\r" . $body ;
+                        $total_body_count = $body_count;
+                    }
+                }
+            }
+        } else {
+            $pdf->ezSetMargins(45, 9, 36, 10);
+            $pdf->selectFont('Courier');
+            $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+            $countline = 1;
+            // this file contains the text to be converted to pdf.
+            $file = fopen($file_to_send, "r");
+            while (!feof($file)) {
+                // one line is read
+                $OneLine = fgets($file);
+                // form feed means we should start a new page.
+                if (stristr($OneLine, "\014") == true && !feof($file)) {
+                    $pdf->ezNewPage();
+                    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+                    str_replace("\014", "", $OneLine);
+                }
+    
+                if (
+                    stristr($OneLine, 'REMIT TO') == true ||
+                    stristr($OneLine, 'Visit Date') == true ||
+                    stristr($OneLine, 'Future Appointments') == true ||
+                    stristr($OneLine, 'Current') == true
+                ) {
+                    // lines are made bold when 'REMIT TO' or 'Visit Date' is there.
+                    $pdf->ezText('<b>' . $OneLine . '</b>', 12, array('justification' => 'left', 'leading' => 6));
+                } else {
+                    $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
+                }
+    
+                $countline++;
+            }
         }
+        
         // stored to a pdf file
         $fh = @fopen($STMT_TEMP_FILE_PDF, 'w');
         if ($fh) {
@@ -344,6 +460,33 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     sleep(1);
 }
 
+function printHeader($header, $pdf) {
+    global $page_count;
+    $png = $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo']);
+    if ($page_count > 1) {
+        $pdf->ezNewPage();
+    }       
+    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+    $pdf->addPngFromFile($png, 0, 0, 612, 792);
+    $pdf->ezText($header, 12, array(
+        'justification' => 'left',
+        'leading' => 12
+    ));
+}
+function printBody($content, $pdf) {
+    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 130);
+    $pdf->ezText($content, 12, array(
+        'justification' => 'left',
+        'leading' => 12
+    ));
+}
+function printFooter($footer, $pdf) { 
+    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 570);
+    $pdf->ezText($footer, 12, array(
+        'justification' => 'left',
+        'leading' => 12
+    ));
+}
 
 $today = date("Y-m-d");
 
@@ -476,7 +619,7 @@ if (
             #guardiansname this will allow you to send statements to the parent
             #of a child or a guardian etc
             if (empty($row['guardiansname'])) {
-                $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+                $stmt['to'] = array(trim($row['fname']) . ' ' . $row['lname']);
             } else {
                 $stmt['to'] = array($row['guardiansname']);
             }

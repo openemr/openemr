@@ -1371,9 +1371,10 @@ $GLOBALS_METADATA = array(
             xl('Statement Appearance'),
             array(
                 '0' => xl('Plain Text'),
-                '1' => xl('Modern/images')
+                '1' => xl('Modern/images'),
+                '2' => xl('PDF custom statement')
             ),                          // data type
-            '1',                              // default = true
+            '1',                        // default = true
             xl('Patient statements can be generated as plain text or with a modern graphical appearance.')
         ),
 
