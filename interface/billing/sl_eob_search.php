@@ -5,16 +5,18 @@
  * The second is sl_eob_invoice.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Bill Cernansky
  * @author    Tony McCormick
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -243,8 +245,6 @@ function upload_file_to_client($file_to_send)
     // sleep one second to ensure there's no follow-on.
     sleep(1);
 }
-
-
 
 function upload_file_to_client_email($ppid, $file_to_send)
 {

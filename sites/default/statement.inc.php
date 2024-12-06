@@ -672,9 +672,9 @@ function create_statement($stmt)
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
     $out = "\n\n";
-    $providerNAME = getProviderName($stmt['provider_id']);
+    $providerName = getProviderName($stmt['provider_id']);
     $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
-    $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
+    $out .= sprintf("%-30s %s: %-s\n", $providerName, $label_chartnum, $stmt['pid']);
     $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
     $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
     $out .= "\n";
@@ -1266,19 +1266,7 @@ function create_cms_statement($stmt)
     $label_visit = xl('Visit Date');
     $label_desc = xl('Description');
     $label_amt = xl('Amount');
-    // This is the text for the top part of the page, up to but not
-    // including the detail lines.  Some examples of variable fields are:
-    //  %s    = string with no minimum width
-    //  %9s   = right-justified string of 9 characters padded with spaces
-    //  %-25s = left-justified string of 25 characters padded with spaces
-    // Note that "\n" is a line feed (new line) character.
-    // reformatted to handle i8n by tony
-    //$out = "\n\n";
-    $providerNAME = getProviderName($stmt['provider_id']);
-    //$out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
-    //$out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
-    //$out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
-    //$out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
+    $providerName = getProviderName($stmt['provider_id']);
     $addrline = strtoupper(preg_replace('/\s+/', ' ', $stmt['to'][1]));
     $out  = sprintf("%-9s %-55s %6s \r\n", '', strtoupper($stmt['to'][0]), $stmt['pid']);
     $out .= sprintf("%-9s %-43s %-8s \r\n", '', $addrline, date('m d y'));
@@ -1420,55 +1408,8 @@ function create_cms_statement($stmt)
     $label_dept = xl('Billing Department');
     $label_bill_phone = (!empty($GLOBALS['billing_phone_number']) ? $GLOBALS['billing_phone_number'] : $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
-    /* This is the bottom portion of the page.
-    if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
-        $out .= sprintf("%-46s\r\n", $stmt['bill_note']);
-    }
-    if ($GLOBALS['use_dunning_message']) {
-        $out .= sprintf("%-46s\r\n", $dun_message);
-    }
-
-    if ($GLOBALS['statement_message_to_patient']) {
-        $out .= "\r\n";
-        $statement_message = $GLOBALS['statement_msg_text'];
-        $out .= sprintf("%-40s\r\n", $statement_message);
-    }
-    */
-    //if ($GLOBALS['show_aging_on_custom_statement']) {
-        # code for ageing
-        $ageline .= sprintf("      %.2f              %.2f", $aging[$age_index], $stmt['amount']);
-        $out .= $ageline . "\r\n";
-    //}
-
-    /*
-    if ($GLOBALS['number_appointments_on_statement'] != 0) {
-        $out .= "\r\n";
-        $num_appts = $GLOBALS['number_appointments_on_statement'];
-        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
-        # add one day to date so it will not get todays appointment
-        $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
-        $j = 0;
-        $out .= sprintf("%-s\r\n", $label_appointments);
-        #loop to add the appointments
-        for ($x = 1; $x <= $num_appts; $x++) {
-            $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
-                    ' ' .  $events[$j]['ulname'];
-            } else {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
-            }
-            if (strlen($next_appoint_time) != 0) {
-                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
-                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\r\n", $label_plsnote[$j]);
-            }
-            $j++;
-        }
-    }
-    */
+    $ageline .= sprintf("      %.2f              %.2f", $aging[$age_index], $stmt['amount']);
+    $out .= $ageline . "\r\n";
     $out .= "\014"; // this is a form feed
     return $out;
 }
