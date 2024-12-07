@@ -405,12 +405,11 @@ class C_FormVitals
 
         // calculate BMI (weight in pounds, height in inches)
         $_POST["BMI"] = round(($weight / $height / $height) * 703, 2);
-         
         // Assign BMI status
         // TODO: this should go into the vitals form...
         if ($_POST["BMI"] > 50) {
             $_POST["BMI_status"] = 'Severe Obesity';
-        }elseif ($_POST["BMI"] > 42) {
+        } elseif ($_POST["BMI"] > 42) {
             $_POST["BMI_status"] = 'Obesity III';
         } elseif ($_POST["BMI"] > 34) {
             $_POST["BMI_status"] = 'Obesity II';
@@ -424,6 +423,8 @@ class C_FormVitals
             $_POST["BMI_status"] = 'Normal';
         } elseif ($_POST["BMI"] > 10) {
             $_POST["BMI_status"] = 'Underweight';
+        } else {
+            $_POST["BMI_status"] = 'Unclassified';   
         }
 
         $temperature = $_POST["temperature"];
