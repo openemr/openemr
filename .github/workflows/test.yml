@@ -140,14 +140,20 @@ jobs:
 
       - name: Dockers environment start
         run: |
+          set -e
+          echo "Starting docker environment...."
           source ci/ciLibrary.source
           dockers_env_start
-          sleep 60
+          while ! nc -z localhost 3306; do sleep 1; done
+          echo "Docker environment ready."
 
       - name: Install and configure
         run: |
+          set -e
+          echo "Installing and configuring environment.."
           source ci/ciLibrary.source
-          install_configure
+          install_configure || { echo "Configuration failed"; exit 1; }
+          echo "Installation and configuring completed."
 
       - name: Unit testing
         run: |
