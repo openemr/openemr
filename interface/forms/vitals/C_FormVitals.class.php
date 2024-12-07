@@ -400,7 +400,9 @@ class C_FormVitals
         $height = $_POST["height"];
         // Validate input for weight and height
         if (!is_numeric($weight) || $weight <= 0 || $weight > 1000 || !is_numeric($height) || $height <= 0 || $height > 120) {
-            die("Invalid weight or height. please check your input.");
+            $GLOBALS['error_message'] = "Invalid weight or height. Please check your input.";
+            $this->default_action(); // Render the form again with the error
+            return;
         }
 
         // calculate BMI (weight in pounds, height in inches)
