@@ -398,12 +398,19 @@ class C_FormVitals
 
         $weight = $_POST["weight"];
         $height = $_POST["height"];
-        if ($weight > 0 && $height > 0) {
-            $_POST["BMI"] = ($weight / $height / $height) * 703;
+        if (!is_numeric($weight) || $weight <= 0 || $weight > 1000 || !is_numeric($height) || $height <= 0 || $height > 120) {
+            $GLOBALS['error_message'] = "Invalid weight or height. Please check your input.";
+            $this->default_action(); // Render the form again with the error
+            return;
         }
 
+        // calculate BMI (weight in pounds, height in inches)
+        $_POST["BMI"] = round(($weight / $height / $height) * 703, 2);
+        // Assign BMI status
         // TODO: this should go into the vitals form...
-        if ($_POST["BMI"] > 42) {
+        if ($_POST["BMI"] > 50) {
+            $_POST["BMI_status"] = 'Severe Obesity';
+        } elseif ($_POST["BMI"] > 42) {
             $_POST["BMI_status"] = 'Obesity III';
         } elseif ($_POST["BMI"] > 34) {
             $_POST["BMI_status"] = 'Obesity II';
@@ -417,7 +424,10 @@ class C_FormVitals
             $_POST["BMI_status"] = 'Normal';
         } elseif ($_POST["BMI"] > 10) {
             $_POST["BMI_status"] = 'Underweight';
+        } else {
+            $_POST["BMI_status"] = 'Unclassified';   
         }
+
 
         $temperature = $_POST["temperature"];
         if ($temperature == '0' || $temperature == '') {
