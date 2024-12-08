@@ -113,7 +113,6 @@ $curr_date = date("Y-m-d");
 $curr_time = time();
 $check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
-//$db_sms_msg = cron_getNotificationData($TYPE);
 $db_sms_msg['type'] = $TYPE;
 $db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
 $db_sms_msg['message'] = $MESSAGE;
@@ -125,10 +124,10 @@ $db_sms_msg['message'] = $MESSAGE;
         <?php Header::setupHeader(); ?>
     </head>
     <style>
-        html {
-            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-            font-size: 14px;
-        }
+      html {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+        font-size: 14px;
+      }
     </style>
     <body>
         <div class="container-fluid">
@@ -362,7 +361,7 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
     $sdate = date("Y-m-d H:i:s");
     $sql_loginsert = "INSERT INTO `notification_log` (`iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'] || '', $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
+    $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
 
     sqlStatement($sql_loginsert, $safe);
 }

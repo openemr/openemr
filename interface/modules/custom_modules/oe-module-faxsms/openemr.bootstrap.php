@@ -42,8 +42,6 @@ $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
  */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
-require __DIR__ . '/vendor/autoload.php';
-
 /**
  * @var EventDispatcherInterface $eventDispatcher
  * @var array                    $module
@@ -64,9 +62,9 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
 
     $sms_label = match ($allowSMS) {
-        '1' => xlt("RingCentral Messaging"),
-        '2' => xlt("Twilio Messaging"),
-        '5' => xlt("Clickatell Messaging"),
+        '1' => xlt("RingCentral SMS"),
+        '2' => xlt("Twilio SMS"),
+        '5' => xlt("Clickatell SMS"),
         default => xlt("SMS"),
     };
     $fax_label = match ($allowFax) {
@@ -91,7 +89,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItemEmail->requirement = 0;
     $menuItemEmail->target = 'email';
     $menuItemEmail->menu_id = 'email';
-    $menuItemEmail->label = xlt("Email");
+    $menuItemEmail->label = xlt("Clinic Email");
     $menuItemEmail->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=email";
     $menuItemEmail->children = [];
     $menuItemEmail->acl_req = ["patients", "docs"];
@@ -177,11 +175,11 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
             if (!empty($allowSMS) || !empty($allowFax) || !empty($allowEmail)) {
                 $item->children[] = $menuItemSetup;
             }
-            if (!empty($allowFax)) {
-                $item->children[] = $menuItem2;
-            }
             if (!empty($allowEmail)) {
                 $item->children[] = $menuItemEmail;
+            }
+            if (!empty($allowFax)) {
+                $item->children[] = $menuItem2;
             }
             if (!empty($allowSMS)) {
                 $item->children[] = $menuItem;
@@ -239,7 +237,7 @@ $(".genfax").click(function() {getFaxContent();});
 function oe_module_faxsms_document_render_action_anchors(Event $event): void
 {
     ?>
-<a class="btn btn-success btn-sm btn-send-msg" href="" onclick="return doFax(event,file,mime)">
+<a class="btn btn-success btn-send-msg" href="" onclick="return doFax(event,file,mime)">
     <span><?php echo xlt('Send Fax'); ?></span>
 </a>
 <?php }
@@ -280,7 +278,8 @@ function sendSMS(pid, phone) {
     '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&pid=' + encodeURIComponent(pid) +
     '&recipient=' + encodeURIComponent(phone);
     dlgopen(url, '', 'modal-md', 775, '', title, {
-    buttons: [{text: btnClose, close: true, style: 'secondary'}]
+    buttons: [{text: btnClose, close: true, style: 'secondary'}],
+    sizeHeight: 'full',
     });
 }
 <?php }
@@ -300,6 +299,6 @@ if ($allowSMSButtons) {
     $eventDispatcher->addListener(SendSmsEvent::JAVASCRIPT_READY_SMS_POST, 'oe_module_faxsms_sms_render_javascript_post_load');
 }
 
-if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && $allowSMS) {
+if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail)) {
     (new NotificationEventListener())->subscribeToEvents($eventDispatcher);
 }

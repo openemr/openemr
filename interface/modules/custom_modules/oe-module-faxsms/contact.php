@@ -23,19 +23,26 @@ $clientApp = AppDispatch::getApiService($serviceType);
 if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
+// this is a function that checks if the user is logged in and must be from clientApp based on serviceType
 $logged_in = $clientApp->authenticate();
 if ($logged_in != 1) {
     die("<h3>" . text($logged_in) . "</h3>");
 }
-$isSMS = $clientApp->getRequest('isSMS', false);
-$isEmail = $clientApp->getRequest('isEmail', false);
+$isSMS = (int)$clientApp->getRequest('isSMS', false);
+$isEmail = (int)$clientApp->getRequest('isEmail', false);
 $isForward = $isFax = 0;
 $isForward = ($clientApp->getRequest('mode', '') == 'forward') ? 1 : 0;
 $isFax = ($serviceType == 'fax') ? 1 : 0;
+$isUniversal = (int)$clientApp->getRequest('isUniversal', false);
 
 $isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+$isOnetime = (int)$clientApp->getRequest('isOnetime', false);
 
-$isOnetime = $clientApp->getRequest('isOnetime', false);
+if ($isUniversal) {
+    $isSMS = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
+    $isEmail = !empty($GLOBALS['oe_enable_email'] ?? 0);
+}
+
 $service = $clientApp::getServiceType();
 
 $default_message = '';
@@ -71,7 +78,7 @@ if (empty($isSMS)) {
     <title><?php echo xlt('Contact') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
-    echo "<script>var pid=" . js_escape($pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
+    echo "<script>var pid=" . js_escape($pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";var isUniversal=" . js_escape($isUniversal) . ";</script>";
     ?>
     <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
         <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
@@ -83,7 +90,6 @@ if (empty($isSMS)) {
                 if (pid) {
                     setpatient(pid);
                 }
-                $(".smsExclude").addClass("d-none");
             }
             if (isForward) {
                 $(".forwardExclude").addClass("d-none");
@@ -98,10 +104,16 @@ if (empty($isSMS)) {
                     setpatient(pid);
                 }
             }
+            if (!isSms) {
+                $(".smsExclude").addClass("d-none");
+            }
+            if (isUniversal) {
+                $(".universalInclude").removeClass("d-none");
+            }
             // when the form is submitted
-            $(document).ready(function() {
+            $(document).ready(function () {
                 // Ensuring event handlers are set after the DOM is fully loaded
-                $('#contact-form').on('submit', function(e) {
+                $('#contact-form').on('submit', function (e) {
                     e.preventDefault(); // Prevent the default form submit
 
                     const wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
@@ -115,7 +127,7 @@ if (empty($isSMS)) {
                         url: url,
                         data: formData,
                         success: handleResponse,
-                        error: function() {
+                        error: function () {
                             showErrorMessage('An unexpected error occurred and your request could not be completed.');
                         }
                     });
@@ -157,7 +169,9 @@ if (empty($isSMS)) {
 
                     $('#contact-form').find('.messages').html(alertBox);
                     if (!isError) {
-                        setTimeout(() => { dlgclose(); }, 4000); // Auto-close dialog on success
+                        setTimeout(() => {
+                            dlgclose();
+                        }, 4000); // Auto-close dialog on success
                     }
                 }
 
@@ -169,7 +183,6 @@ if (empty($isSMS)) {
                     $('#contact-form').find('.messages').html(alertBox);
                 }
             });
-
         });
 
         function sel_patient() {
@@ -271,7 +284,7 @@ if (empty($isSMS)) {
                                 value="<?php echo attr($details['lname'] ?? '') ?>" />
                         </div>
                         <div class="form-group faxExclude smsExclude show-detail">
-                            <label for="form_email"><?php echo xlt('Email') ?></label>
+                            <label for="form_email"><?php echo xlt('Recipient Email') ?></label>
                             <input id="form_email" type="email" name="email" class="form-control"
                                 placeholder="<?php
                                 if (($isSMS || $isEmail || $isFax) && !$isForward) {
@@ -282,50 +295,52 @@ if (empty($isSMS)) {
                                 ?>"
                                 title="<?php echo xla('Attach and send to an email Address.') ?>" />
                         </div>
+                        <?php if (($isSMS || $isFax)) { ?>
                         <div class="form-group">
                             <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
                             <input id="form_phone" type="tel" name="phone" class="form-control"
                                 placeholder="<?php echo xla('Phone number of recipient') ?>"
-                                title="<?php echo xla('You may also forward to a new fax number.') ?>"
+                                title="<?php echo xla('You may also forward to a new fax number if enabled.') ?>"
                                 value="" <?php echo(!$isForward ? 'required' : ''); ?> />
                         </div>
-                        <?php if ($service == "1" || !empty($isSMS) || $isForward || $isEmail) { ?>
-                        <div class="form-group">
-                            <label for="form_message"><?php echo xlt('Message') ?></label>
-                            <textarea id="form_message" name="comments" class="form-control" placeholder="
+                        <?php } ?>
+                        <?php if ($service == "1" || $isSMS || $isForward || $isEmail) { ?>
+                            <div class="form-group">
+                                <label for="form_message"><?php echo xlt('Message') ?></label>
+                                <textarea id="form_message" name="comments" class="form-control" placeholder="
                             <?php echo "\n" . xla('Add a note to recipient or cover sheet. If enabled, double click for Text Templates.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
-                        </div>
+                            </div>
                         <?php } ?>
                         <div>
                             <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
                         </div>
                         <div class="mt-2">
-                            <button type="button" class="btn btn-primary smsExclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
-                            <?php if ($isOnetime ?? 0) { ?>
-                                <span class="form-group">
-                            <div class="form-check-inline">
-                                <label><?php echo xlt("Send Using"); ?></label>
-                            </div>
-                            <div class="form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="notification_method" value="sms" /><?php echo xlt("SMS") ?>
-                                </label>
-                            </div>
-                            <div class="form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="notification_method" value="email" checked /><?php echo xlt("Email") ?>
-                                </label>
-                            </div>
-                            <div class="form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input" name="notification_method" value="both" /><?php echo xlt("Both") ?>
-                                </label>
-                            </div>
-                        </span>
-                            <?php } ?>
+                            <button type="button" class="btn btn-primary universalInclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
                             <!-- patient picker ready once get patient info is added. -->
-                            <button type="button" class="btn btn-primary faxExclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
-                            <button type="submit" class="btn btn-success float-right" value=""><?php echo empty($isSMS) || $isOnetime ? xlt('Send') : xlt('Send SMS') ?></button>
+                            <button type="button" class="btn btn-primary universalInclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
+                            <?php if (($isOnetime) || $isUniversal) { ?>
+                            <span class="form-group mt-1">
+                                <label class="form-check-label text-success"><strong><?php echo xlt("Route") . ':'; ?></strong></label>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="notification_method" value="email" checked /><?php echo xlt("Email") ?>
+                                    </label>
+                                </div>
+                                <?php if (($isSMS)) { ?>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="notification_method" value="sms" /><?php echo xlt("SMS") ?>
+                                    </label>
+                                </div>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="notification_method" value="both" /><?php echo xlt("Both") ?>
+                                    </label>
+                                </div>
+                                <?php } ?>
+                            </span>
+                            <?php } ?>
+                            <button type="submit" class="btn btn-success btn-send-msg float-right" value=""><?php echo (empty($isSMS) || $isOnetime || $isUniversal) ? xlt('Transmit') : xlt('Send SMS') ?></button>
                         </div>
                     </div>
                 </div>

@@ -26,14 +26,13 @@ class NotificationEventListener implements EventSubscriberInterface
      * @var int|mixed
      */
     private bool $isSmsEnabled;
-    /**
-     * @var int|mixed
-     */
     private mixed $isEmailEnabled;
+    private bool $isFaxEnabled;
 
     public function __construct()
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
+        $this->isFaxEnabled = !empty($GLOBALS['oe_enable_fax'] ?? 0);
         $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
     }
 
@@ -221,14 +220,15 @@ class NotificationEventListener implements EventSubscriberInterface
         $name = $notificationEvent->getEventData()['template_name'] ?? '';
         $p_data = $p_data ?: [];
         $details = array_merge($p_data, $notificationEvent->getEventData());
+        $buttonName = $notificationEvent->getEventData()['is_universal'] == 1 ? xlt('Compose New Email') : xlt('Notify');
         ?>
-        <button type="button" class="sendsms float-right btn btn-success btn-sm btn-send-msg"
+        <button type="button" class="sendsms float-right btn btn-link btn-send-msg"
             onclick="sendNotification(
             <?php echo attr_js($notificationEvent->getPid()); ?>,
             <?php echo attr_js($name); ?>,
             <?php echo attr_js($template); ?>,
             <?php echo attr_js(json_encode($details)); ?>
-                );" value="true"><?php echo xlt('Notify'); ?></button>
+                );" value="true"><?php echo $buttonName; ?></button>
     <?php }
 
     /**
@@ -238,22 +238,39 @@ class NotificationEventListener implements EventSubscriberInterface
     public function notificationDialogFunction(SendNotificationEvent $event): void
     {
         $e = $event->getEventData();
-        $url_part = '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&isNotification=1&pid=';
+        $baseUrl = "/interface/modules/custom_modules/oe-module-faxsms/contact.php?";
+        $queryParams = [];
         if ($e['is_onetime'] ?? false) {
-            if ($this->isSmsEnabled) {
-                $url_part = '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&isOnetime=1&isNotification=1&pid=';
-            } else {
-                $url_part = '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=email&isEmail=1&isOnetime=1&isNotification=1&pid=';
-            }
+            $queryParams['type'] = $this->isSmsEnabled ? 'sms' : 'email';
+            $queryParams[$this->isSmsEnabled ? 'isSMS' : 'isEmail'] = 1;
+            $queryParams['isOnetime'] = 1;
+        } elseif ($e['is_universal'] ?? false) {
+            $queryParams['type'] = $this->isSmsEnabled ? 'sms' : 'email';
+            $queryParams['isUniversal'] = 1;
+            $queryParams['isSMS'] = $this->isSmsEnabled;
+            $queryParams['isEmail'] = $this->isEmailEnabled;
+        } else {
+            $queryParams['type'] = 'sms';
+            $queryParams['isSMS'] = 1;
         }
+        $queryParams['pid'] = '';
+        $url_part = $baseUrl . http_build_query($queryParams);
+        $modal = $e['modal_size'] ?? 'modal-md';
+        $modal_height = $e['modal_height'] ?? '775';
+        $modal_size_height = $e['modal_size_height'] ?? '';
         ?>
         function sendNotification(pid, docName, docId, details) {
-        let btnClose = <?php echo xlj("Cancel"); ?>;
-        let title = <?php echo xlj("Send Message"); ?>;
-        let url = top.webroot_url + '<?php echo $url_part ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
-        dlgopen(url, '', 'modal-sm', 775, '', title, {
-        buttons: [{text: btnClose, close: true, style: 'secondary'}]
-        });
+            let btnClose = <?php echo xlj("Cancel"); ?>;
+            let title = <?php echo xlj("Send Message"); ?>;
+            let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) +
+                '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) +
+                '&details=' + encodeURIComponent(details);
+            dlgopen(url, '', '<?php echo attr($modal); ?>', '<?php echo attr($modal_height); ?>', '', title, {
+                buttons: [{text: btnClose, close: true, style: 'secondary'}],
+                sizeHeight: '<?php echo attr($modal_size_height); ?>',
+                allowDrag: true,
+                allowResize: true,
+            });
         }
     <?php }
 }

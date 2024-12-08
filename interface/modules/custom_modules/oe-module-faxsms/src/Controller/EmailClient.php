@@ -23,9 +23,9 @@ class EmailClient extends AppDispatch
     public $baseDir;
     public $uriDir;
     public $serverUrl;
-    public mixed $credentials;
+    public $credentials;
     public string $portalUrl;
-    protected $crypto;
+    protected CryptoGen $crypto;
     private EmailClient $client;
     private bool $smtpEnabled;
 
@@ -51,8 +51,7 @@ class EmailClient extends AppDispatch
         $this->sid = $credentials['username'];
         $this->appKey = $credentials['appKey'];
         $this->appSecret = $credentials['appSecret'];
-        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-                "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
@@ -112,7 +111,7 @@ class EmailClient extends AppDispatch
     public function emailDocument($email, $body, $file, array $user = []): string
     {
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
+        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
         $from = $GLOBALS["practice_return_email_path"];

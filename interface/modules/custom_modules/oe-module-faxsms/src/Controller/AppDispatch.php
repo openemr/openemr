@@ -29,7 +29,7 @@ abstract class AppDispatch
     static mixed $_apiModule;
     public string $authErrorDefault;
     public static $timeZone;
-    protected $crypto;
+    protected CryptoGen $crypto;
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
@@ -87,12 +87,43 @@ abstract class AppDispatch
                 die(xlt("Requested") . ' ' . text($action) . ' ' . xlt("or service is not found.") . '<br />' . xlt("Install or turn service on!"));
             }
         } else {
-            // Not an internal route so pass on to current service index action..
+            // Not an internal route so pass on to current service index action.
             $this->setResponse(
                 call_user_func(array($this, self::ACTION_DEFAULT), array())
             );
         }
     }
+
+    /**
+     * Each service client must implement its own authenticate() method.
+     * This is where we decide if the user has the right to use the client
+     * service based on specific criteria required for its type, vendor and API.
+     * At minimum, a specific ACL should be checked with
+     * verifyAcl($sect = 'patients', $v = 'docs', $u = ''): bool.
+     *
+     * @return string|int|bool
+     */
+    abstract function authenticate(): string|int|bool;
+
+    /**
+     * @return string|bool
+     */
+    abstract function sendFax(): string|bool;
+
+    /**
+     * @return mixed
+     */
+    abstract function sendSMS(): mixed;
+
+    /**
+     * @return mixed
+     */
+    abstract function sendEmail(): mixed;
+
+    /**
+     * @return string|bool
+     */
+    abstract function fetchReminderCount(): string|bool;
 
     /**
      * @param $param
@@ -162,7 +193,6 @@ abstract class AppDispatch
             } else {
                 throw new \Exception(xlt('Response content must be scalar'));
             }
-
             exit;
         }
     }
@@ -171,7 +201,7 @@ abstract class AppDispatch
      * This is where we decide which Api to use.
      *
      * @param string $type
-     * @return EtherFaxActions|TwilioSMSClient|void|null
+     * @return EtherFaxActions|TwilioSMSClient|RCFaxClient|ClickatellSMSClient|EmailClient|void|null
      */
     static function getApiService(string $type)
     {
@@ -194,7 +224,7 @@ abstract class AppDispatch
      * @param string $type
      * @return void
      */
-    static function setApiService(string $type)
+    static function setApiService(string $type): void
     {
         try {
             if (empty($type)) {
@@ -286,30 +316,15 @@ abstract class AppDispatch
      */
     static function getModuleType(): mixed
     {
+        if (empty(self::$_apiModule)) {
+            self::$_apiModule = $_SESSION['oefax_current_module_type'] ?? null;
+            if (empty(self::$_apiModule)) {
+                self::$_apiModule = $_REQUEST['type'];
+            }
+        }
+
         return self::$_apiModule;
     }
-
-    //abstract function faxProcessUploads();
-
-    /**
-     * @return string|bool
-     */
-    abstract function sendFax(): string|bool;
-
-    /**
-     * @return mixed
-     */
-    abstract function sendSMS(): mixed;
-
-    /**
-     * @return mixed
-     */
-    abstract function sendEmail(): mixed;
-
-    /**
-     * @return string|bool
-     */
-    abstract function fetchReminderCount(): string|bool;
 
     /**
      * @param $param
@@ -392,7 +407,7 @@ abstract class AppDispatch
         $vendor = self::getModuleVendor();
         $this->authUser = (int)$this->getSession('authUserID') ?? 0;
         if (!($GLOBALS['oerestrict_users'] ?? null)) {
-            $this->authUser = 0;
+            $this->authUser = 0; // This makes it global and shared to all users.
         }
         // encrypt for safety.
         $content = $this->crypto->encryptStandard(json_encode($setup));
@@ -421,23 +436,18 @@ abstract class AppDispatch
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    static function getModuleVendor(): mixed
+    static function getModuleVendor(): ?string
     {
-        switch ((string)self::getServiceType()) {
-            case '1':
-                return '_ringcentral';
-            case '2':
-                return '_twilio';
-            case '3':
-                return '_etherfax';
-            case '4':
-                return '_email';
-            case '5':
-                return '_clickatell';
-        }
-        return null;
+        return match ((string)self::getServiceType()) {
+            '1' => '_ringcentral',
+            '2' => '_twilio',
+            '3' => '_etherfax',
+            '4' => '_email',
+            '5' => '_clickatell',
+            default => null,
+        };
     }
 
     public function getEmailSetup(): mixed
@@ -488,7 +498,11 @@ abstract class AppDispatch
         }
         $encoded = json_encode($credentials);
         $encrypted = $this->crypto->encryptStandard($encoded);
-        sqlStatement("INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)", array($this->authUser, $vendor, $encrypted));
+        sqlStatement(
+            "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
+            array($this->authUser, $vendor, $encrypted)
+        );
     }
 
     /**
@@ -576,6 +590,8 @@ abstract class AppDispatch
     }
 
     /**
+     * This is available to all services
+     * regardless if EmailClient is enabled.
      * @param        $email
      * @param        $from_name
      * @param        $body
@@ -632,7 +648,7 @@ abstract class AppDispatch
 
     public function formatPhoneForSave($number): string
     {
-        // this is u.s only. need E-164
+        // this is U.S. only. need E-164
         $n = preg_replace('/[^0-9]/', '', $number);
         if (stripos($n, '1') === 0) {
             $n = '+' . $n;
@@ -661,10 +677,11 @@ abstract class AppDispatch
 
         try {
             $query = "SELECT notification_log.* FROM notification_log " .
-                     "WHERE notification_log.type = ? " .
-                     "AND notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ? " .
-                     "ORDER BY notification_log.dSentDateTime DESC";
-            $res = sqlStatement($query, array(strtoupper($type), $fromDate, $toDate));
+                "WHERE UPPER(notification_log.type) = UPPER(?) " .
+                "AND notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ? " .
+                "ORDER BY notification_log.dSentDateTime DESC";
+            $res = sqlStatement($query, array($type, $fromDate, $toDate));
+
             $row = array();
             $cnt = 0;
             while ($nrow = sqlFetchArray($res)) {
@@ -688,21 +705,10 @@ abstract class AppDispatch
     }
 
     /**
-     * @param $acl
-     * @return int
-     */
-    public function authenticate($acl = ['admin', 'doc']): int
-    {
-        list($s, $v) = $acl;
-        return $this->verifyAcl($s, $v);
-    }
-
-    /**
      * @return array|mixed
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
-        return $credentials;
+        return appDispatch::getSetup();
     }
 }
