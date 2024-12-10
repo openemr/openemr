@@ -742,12 +742,14 @@ if (!empty($_REQUEST['go'])) { ?>
 
                             // The two functions below are for managing row styles in Messages table.
                             function selectRow(row) {
+                                event.stopPropagation();
                                 document.getElementById(row).style.background = "var(--gray200)";
                             }
-
                             function deselectRow(row) {
+                                event.stopPropagation();
                                 document.getElementById(row).style.background = "var(--light)";
                             }
+
                             function makeMessageRowsClickable() {
                                 let items = document.querySelectorAll(".messages-item-row");
                                 items.forEach(function(item) {
@@ -970,6 +972,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 $("#new_note").submit();
             }
         };
+
         var PrintNote = function () {
             <?php if ($noteid) { ?>
             top.restoreSession();
