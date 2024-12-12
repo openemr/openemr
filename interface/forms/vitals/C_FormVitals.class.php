@@ -427,8 +427,7 @@ class C_FormVitals
         } else {
             $_POST["BMI_status"] = 'Unclassified';   
         }
-
-
+         
         $temperature = $_POST["temperature"];
         if ($temperature == '0' || $temperature == '') {
             $_POST["temp_method"] = "";
