@@ -42,7 +42,7 @@ function doOnetimeDocumentRequest()
     }
     $details = json_decode($service->getRequest('details'), true);
     $content = $service->getRequest('comments');
-    $ot_pid = $details['pid'] ?? $service->getRequest('pid');
+    $ot_pid = $details['pid'] ?? $service->getRequest('form_pid');
     if (!empty($ot_pid)) {
         $patient = $service->getPatientDetails($ot_pid);
     } else {

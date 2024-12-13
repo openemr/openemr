@@ -91,12 +91,12 @@ class EmailClient extends AppDispatch
     public function sendEmail(): string
     {
         $statusMsg = xlt("Email Requests") . "<br />";
-        $body = $this->getRequest('comments');
+        $body = $this->getRequest('comments', '');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $subject = $this->getRequest('subject', xl("Private confidential message"));
         $user = $this::getLoggedInUser();
-        $htmlContent = $this->getRequest('html_content');
+        $htmlContent = $this->getRequest('html_content', '');
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
         if (!$hasEmail) {
             return js_escape(xlt("Error: Missing email address. Try again."));

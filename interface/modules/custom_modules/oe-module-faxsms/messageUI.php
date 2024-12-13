@@ -88,7 +88,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             'is_universal' => 1,
             'modal_size' => 'modal-mlg',
             'modal_height' => 775,
-            'modal_size_height' => 'full'
+            'modal_size_height' => 'full',
+            'type' => 'email'
             );
         $GLOBALS['kernel']->
         getEventDispatcher()->
@@ -734,7 +735,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         </li>
                         <?php if ($serviceType == 'email') { ?>
                             <?php
-                            $param = ['is_universal' => 1];
+                            $param = ['is_universal' => 1, 'type' => 'email'];
                             $GLOBALS['kernel']->getEventDispatcher()->
                             dispatch(
                                 new SendNotificationEvent($pid, $param),

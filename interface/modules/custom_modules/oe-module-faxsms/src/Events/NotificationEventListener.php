@@ -32,7 +32,7 @@ class NotificationEventListener implements EventSubscriberInterface
     public function __construct()
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
-        $this->isFaxEnabled = !empty($GLOBALS['oe_enable_fax'] ?? 0);
+        $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
         $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
     }
 
@@ -60,7 +60,7 @@ class NotificationEventListener implements EventSubscriberInterface
     }
 
     /**
-     * Send a onetime link to SMS and email.
+     * Send a onetime link to SMS and/or email.
      *
      * @param SendNotificationEvent $event
      * @return string
@@ -68,7 +68,7 @@ class NotificationEventListener implements EventSubscriberInterface
      */
     public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event)
     {
-        $status = '';
+        $status = 'Starting request.' . ' ';
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $pid = $event->getPid();
         $data = $event->getEventData() ?? [];
@@ -98,12 +98,14 @@ class NotificationEventListener implements EventSubscriberInterface
             return 'Failed! Redirect link.';
         }
 
+        $status .= "Send Method: $sendMethod\n";
         $text_message = $text_message . "\n" . $oneTime['encoded_link'];
         if (empty($html_message)) {
             $html_message = "<html><body><div class='wrapper'>" . nl2br($text_message) . "</div></body></html>";
         }
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
+            $status .= "Sending SMS to $recipientPhone" . ': ';
             $clientApp = AppDispatch::getApiService('sms');
             $status_api = $clientApp->sendSMS(
                 $recipientPhone,
@@ -113,17 +115,21 @@ class NotificationEventListener implements EventSubscriberInterface
             );
             if ($status_api !== true) {
                 $status .= text($status_api);
+            } else {
+                $status .= xlt("Message sent.");
             }
-            $status .= xlt("Message sent.");
         }
-
+        $status .= "\n";
         if (
             !empty($recipientEmail)
             && ($includeEmail)
             && ($patient['hipaa_allowemail'] == 'YES')
         ) {
+            $status .= "Sending email to $recipientEmail" . ': ';
             $status .= $this->emailNotification($recipientEmail, $html_message);
         }
+        $status .= "\n";
+        echo (nl2br($status));
         return $status;
     }
 
@@ -158,8 +164,9 @@ class NotificationEventListener implements EventSubscriberInterface
             );
             if ($status_api !== true) {
                 $status .= text($status_api);
+            } else {
+                $status .= xlt("Message sent.");
             }
-            $status .= xlt("Message sent.");
         }
 
         if (
@@ -239,16 +246,19 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         $e = $event->getEventData();
         $baseUrl = "/interface/modules/custom_modules/oe-module-faxsms/contact.php?";
+        $type = $_REQUEST['type'] ?? 'sms';
         $queryParams = [];
+        $queryParams['xmitMode'] = (($this->isSmsEnabled ?? false) && ($this->isEmailEnabled ?? false)) ? 'both' : 'sms';
+        $queryParams['isSMS'] = $this->isSmsEnabled;
+        $queryParams['isEmail'] = $this->isEmailEnabled;
+        $queryParams['isFax'] = $this->isFaxEnabled;
         if ($e['is_onetime'] ?? false) {
             $queryParams['type'] = $this->isSmsEnabled ? 'sms' : 'email';
             $queryParams[$this->isSmsEnabled ? 'isSMS' : 'isEmail'] = 1;
             $queryParams['isOnetime'] = 1;
         } elseif ($e['is_universal'] ?? false) {
-            $queryParams['type'] = $this->isSmsEnabled ? 'sms' : 'email';
+            $queryParams['type'] = $this->isEmailEnabled ? 'email' : 'sms';
             $queryParams['isUniversal'] = 1;
-            $queryParams['isSMS'] = $this->isSmsEnabled;
-            $queryParams['isEmail'] = $this->isEmailEnabled;
         } else {
             $queryParams['type'] = 'sms';
             $queryParams['isSMS'] = 1;

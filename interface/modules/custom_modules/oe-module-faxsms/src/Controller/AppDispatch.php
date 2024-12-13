@@ -599,7 +599,7 @@ abstract class AppDispatch
      * @param string $htmlContent
      * @return string
      */
-    public function mailEmail($email, $from_name, $body, string $subject = '', string $htmlContent = ''): string
+    public function mailEmail($email, $from_name, $body, $subject = '', $htmlContent = ''): string
     {
         try {
             $mail = new MyMailer();
