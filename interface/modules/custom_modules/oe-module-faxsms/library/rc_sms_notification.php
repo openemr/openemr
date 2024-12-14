@@ -52,7 +52,6 @@ if (php_sapi_name() === 'cli') {
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once("$srcdir/appointments.inc.php");
-require_once __DIR__ . "/../vendor/autoload.php";
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
@@ -70,7 +69,7 @@ if (empty($runtime['site']) && empty($_SESSION['site_id']) && empty($_GET['site'
 $TYPE = '';
 if (!empty($runtime['type'])) {
     $TYPE = strtoupper($runtime['type']);
-} elseif ($_GET['type'] ?? '' === 'email') {
+} elseif (($_GET['type'] ?? '') === 'email') {
     $TYPE = $runtime['type'] = "EMAIL";
 } else {
     $TYPE = $runtime['type'] = "SMS"; // default
@@ -182,7 +181,7 @@ $db_sms_msg['message'] = $MESSAGE;
                                 $db_sms_msg['email_sender'] ?? ''
                             );
                             if (stripos($error, 'error') !== false) {
-                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong> \n";
+                                $strMsg .= " | " . xlt("Error:") . "<strong>" . text($error) . "</strong>\n";
                                 error_log($strMsg); // text
                                 echo(nl2br($strMsg));
                                 continue;
