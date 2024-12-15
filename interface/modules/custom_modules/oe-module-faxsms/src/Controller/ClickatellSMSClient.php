@@ -26,7 +26,7 @@ class ClickatellSMSClient extends AppDispatch
     public function sendSMS($toPhone = '', string $subject = '', string $message = '', string $from = ''): string
     {
         // If this is made as an API call we need to check authorization.
-        $authErrorMsg = $this->authenticate();
+        $authErrorMsg = $this->authenticate(); // currently default is only admin can send SMS. check with author!
         if ($authErrorMsg !== 1) {
             return text(js_escape($authErrorMsg));
         }
@@ -106,5 +106,15 @@ class ClickatellSMSClient extends AppDispatch
     public function getCallLogs()
     {
         return xlt('Not Supported');
+    }
+
+    /**
+     * @param $acl
+     * @return int
+     */
+    function authenticate($acl = ['admin', 'doc']): int
+    {
+        list($s, $v) = $acl;
+        return $this->verifyAcl($s, $v);
     }
 }

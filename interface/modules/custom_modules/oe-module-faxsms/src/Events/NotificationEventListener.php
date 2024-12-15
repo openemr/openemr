@@ -26,14 +26,13 @@ class NotificationEventListener implements EventSubscriberInterface
      * @var int|mixed
      */
     private bool $isSmsEnabled;
-    /**
-     * @var int|mixed
-     */
     private mixed $isEmailEnabled;
+    private bool $isFaxEnabled;
 
     public function __construct()
     {
         $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
+        $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
         $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
     }
 
@@ -61,7 +60,7 @@ class NotificationEventListener implements EventSubscriberInterface
     }
 
     /**
-     * Send a onetime link to SMS and email.
+     * Send a onetime link to SMS and/or email.
      *
      * @param SendNotificationEvent $event
      * @return string
@@ -69,7 +68,7 @@ class NotificationEventListener implements EventSubscriberInterface
      */
     public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event)
     {
-        $status = '';
+        $status = 'Starting request.' . ' ';
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $pid = $event->getPid();
         $data = $event->getEventData() ?? [];
@@ -99,12 +98,14 @@ class NotificationEventListener implements EventSubscriberInterface
             return 'Failed! Redirect link.';
         }
 
+        $status .= "Send Method: $sendMethod\n";
         $text_message = $text_message . "\n" . $oneTime['encoded_link'];
         if (empty($html_message)) {
             $html_message = "<html><body><div class='wrapper'>" . nl2br($text_message) . "</div></body></html>";
         }
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
+            $status .= "Sending SMS to $recipientPhone" . ': ';
             $clientApp = AppDispatch::getApiService('sms');
             $status_api = $clientApp->sendSMS(
                 $recipientPhone,
@@ -114,17 +115,21 @@ class NotificationEventListener implements EventSubscriberInterface
             );
             if ($status_api !== true) {
                 $status .= text($status_api);
+            } else {
+                $status .= xlt("Message sent.");
             }
-            $status .= xlt("Message sent.");
         }
-
+        $status .= "\n";
         if (
             !empty($recipientEmail)
             && ($includeEmail)
             && ($patient['hipaa_allowemail'] == 'YES')
         ) {
+            $status .= "Sending email to $recipientEmail" . ': ';
             $status .= $this->emailNotification($recipientEmail, $html_message);
         }
+        $status .= "\n";
+        echo (nl2br($status));
         return $status;
     }
 
@@ -159,8 +164,9 @@ class NotificationEventListener implements EventSubscriberInterface
             );
             if ($status_api !== true) {
                 $status .= text($status_api);
+            } else {
+                $status .= xlt("Message sent.");
             }
-            $status .= xlt("Message sent.");
         }
 
         if (
@@ -221,14 +227,15 @@ class NotificationEventListener implements EventSubscriberInterface
         $name = $notificationEvent->getEventData()['template_name'] ?? '';
         $p_data = $p_data ?: [];
         $details = array_merge($p_data, $notificationEvent->getEventData());
+        $buttonName = $notificationEvent->getEventData()['is_universal'] == 1 ? xlt('Compose New Email') : xlt('Notify');
         ?>
-        <button type="button" class="sendsms float-right btn btn-success btn-sm btn-send-msg"
+        <button type="button" class="sendsms float-right btn btn-link btn-send-msg"
             onclick="sendNotification(
             <?php echo attr_js($notificationEvent->getPid()); ?>,
             <?php echo attr_js($name); ?>,
             <?php echo attr_js($template); ?>,
             <?php echo attr_js(json_encode($details)); ?>
-                );" value="true"><?php echo xlt('Notify'); ?></button>
+                );" value="true"><?php echo $buttonName; ?></button>
     <?php }
 
     /**
@@ -238,22 +245,42 @@ class NotificationEventListener implements EventSubscriberInterface
     public function notificationDialogFunction(SendNotificationEvent $event): void
     {
         $e = $event->getEventData();
-        $url_part = '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&isNotification=1&pid=';
+        $baseUrl = "/interface/modules/custom_modules/oe-module-faxsms/contact.php?";
+        $type = $_REQUEST['type'] ?? 'sms';
+        $queryParams = [];
+        $queryParams['xmitMode'] = (($this->isSmsEnabled ?? false) && ($this->isEmailEnabled ?? false)) ? 'both' : 'sms';
+        $queryParams['isSMS'] = $this->isSmsEnabled;
+        $queryParams['isEmail'] = $this->isEmailEnabled;
+        $queryParams['isFax'] = $this->isFaxEnabled;
         if ($e['is_onetime'] ?? false) {
-            if ($this->isSmsEnabled) {
-                $url_part = '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&isOnetime=1&isNotification=1&pid=';
-            } else {
-                $url_part = '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=email&isEmail=1&isOnetime=1&isNotification=1&pid=';
-            }
+            $queryParams['type'] = $this->isSmsEnabled ? 'sms' : 'email';
+            $queryParams[$this->isSmsEnabled ? 'isSMS' : 'isEmail'] = 1;
+            $queryParams['isOnetime'] = 1;
+        } elseif ($e['is_universal'] ?? false) {
+            $queryParams['type'] = $this->isEmailEnabled ? 'email' : 'sms';
+            $queryParams['isUniversal'] = 1;
+        } else {
+            $queryParams['type'] = 'sms';
+            $queryParams['isSMS'] = 1;
         }
+        $queryParams['pid'] = '';
+        $url_part = $baseUrl . http_build_query($queryParams);
+        $modal = $e['modal_size'] ?? 'modal-md';
+        $modal_height = $e['modal_height'] ?? '775';
+        $modal_size_height = $e['modal_size_height'] ?? '';
         ?>
         function sendNotification(pid, docName, docId, details) {
-        let btnClose = <?php echo xlj("Cancel"); ?>;
-        let title = <?php echo xlj("Send Message"); ?>;
-        let url = top.webroot_url + '<?php echo $url_part ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
-        dlgopen(url, '', 'modal-sm', 775, '', title, {
-        buttons: [{text: btnClose, close: true, style: 'secondary'}]
-        });
+            let btnClose = <?php echo xlj("Cancel"); ?>;
+            let title = <?php echo xlj("Send Message"); ?>;
+            let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) +
+                '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) +
+                '&details=' + encodeURIComponent(details);
+            dlgopen(url, '', '<?php echo attr($modal); ?>', '<?php echo attr($modal_height); ?>', '', title, {
+                buttons: [{text: btnClose, close: true, style: 'secondary'}],
+                sizeHeight: '<?php echo attr($modal_size_height); ?>',
+                allowDrag: true,
+                allowResize: true,
+            });
         }
     <?php }
 }

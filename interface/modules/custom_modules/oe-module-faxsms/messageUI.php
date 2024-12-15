@@ -14,6 +14,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 $serviceType = $_REQUEST['type'] ?? '';
@@ -22,6 +23,7 @@ $service = $clientApp::getServiceType();
 $title = $service == "1" ? xlt('RingCentral') : '';
 $title = $service == "2" ? xlt('Twilio SMS') : $title;
 $title = $service == "3" ? xlt('etherFAX') : $title;
+$title = $service == "4" ? xlt('Email') : $title;
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>
 <!DOCTYPE html>
@@ -78,13 +80,31 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             $('#received').tab('show');
         });
 
+        <?php
+        // modal_size: 'modal-sm', 'modal-md', 'modal-lg', 'modal-xl'
+        // modal_height: dialog height in pixels. Default is 775
+        // modal_size_height: 'full' or 'auto'
+        $param = array(
+            'is_universal' => 1,
+            'modal_size' => 'modal-mlg',
+            'modal_height' => 775,
+            'modal_size_height' => 'full',
+            'type' => 'email'
+            );
+        $GLOBALS['kernel']->
+        getEventDispatcher()->
+        dispatch(
+            new SendNotificationEvent($pid ?? 0, $param),
+            SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
+        );
+        ?>
         const sendFax = function (filePath, from = '') {
             let btnClose = <?php echo xlj("Cancel"); ?>;
             let title = <?php echo xlj("Send To Contact"); ?>;
             let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=fax&isDocuments=0&isQueue=' +
                 encodeURIComponent(from) + '&file=' + encodeURIComponent(filePath);
             // leave dialog name param empty so send dialogs can cascade.
-            dlgopen(url, '', 'modal-sm', 800, '', title, { // dialog restores session
+            dlgopen(url, '', 'modal-sm', 800, '', title, { // dialog auto restores session cookie
                 buttons: [
                     {text: btnClose, close: true, style: 'secondary btn-sm'}
                 ],
@@ -566,6 +586,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             );
             return false;
         }
+
         // drop bucket
         const queueMsg = '' + <?php echo xlj('Fax Queue. Drop files or Click here for Fax Contact form.') ?>;
         Dropzone.autoDiscover = false;
@@ -659,25 +680,25 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         </div>
                     </form>
                     <?php if ($clientApp->verifyAcl('admin', 'demo')) { ?>
-                    <div class="nav-item dropdown ml-auto">
-                        <button class="btn btn-lg btn-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                            <?php echo xlt('Account Actions'); ?><span class="caret"></span>
-                        </button>
-                        <div class="dropdown-menu" role="menu">
-                            <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
-                            <?php if ($serviceType == 'sms') { ?>
-                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
-                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
-                            <?php } ?>
-                            <?php if ($serviceType == 'email') { ?>
-                                <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
-                                <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
-                            <?php } ?>
-                            <a class="dropdown-item sms-hide email-hide etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
+                        <div class="nav-item dropdown ml-auto">
+                            <button class="btn btn-lg btn-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                <?php echo xlt('Account Actions'); ?><span class="caret"></span>
+                            </button>
+                            <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
+                                <?php if ($serviceType == 'sms') { ?>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test SMS Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=sms&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send SMS Reminders'); ?></a>
+                                <?php } ?>
+                                <?php if ($serviceType == 'email') { ?>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                                <?php } ?>
+                                <a class="dropdown-item sms-hide email-hide etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
+                            </div>
+                            <button type="button" class="nav-item etherfax d-none btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
+                            </button>
                         </div>
-                        <button type="button" class="nav-item etherfax d-none btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
-                        </button>
-                    </div>
                     <?php } ?>
                 </div><!-- /.navbar-collapse -->
         </nav>
@@ -688,22 +709,40 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 <h3><?php echo xlt("Activities") ?><i class="brand ml-1" id="brand"></i></h3>
                 <div id="dashboard" class="card">
                     <!-- Nav tabs -->
-                    <ul id="tab-menu" class="nav nav-pills" role="tablist">
+                    <ul id="tab-menu" class="nav nav-pills mb-1" role="tablist">
                         <li class="nav-item" role="tab">
-                            <a class="nav-link active" href="#received" aria-controls="received" role="tab" data-toggle="tab"><?php echo xlt("Received") ?>
+                            <a class="nav-link" href="#received" aria-controls="received" role="tab" data-toggle="tab"><?php echo xlt("Received") ?>
                                 <span class="fa fa-redo ml-1" onclick="retrieveMsgs('', this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>">
                                 </span>
                             </a>
                         </li>
-                        <li class="nav-item" role="tab"><a class="nav-link" href="#sent" aria-controls="sent" role="tab" data-toggle="tab"><?php echo xlt("Sent") ?></a></li>
-                        <li class="nav-item rc-fax-hide etherfax-hide email-hide" role="tab"><a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><?php echo xlt("SMS Log") ?></a></li>
-                        <li class="nav-item email-hide" role="tab"><a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Call Log") ?></a></li>
+                        <li class="nav-item" role="tab">
+                            <a class="nav-link" href="#sent" aria-controls="sent" role="tab" data-toggle="tab"><?php echo xlt("Sent") ?></a>
+                        </li>
+                        <li class="nav-item rc-fax-hide etherfax-hide email-hide" role="tab">
+                            <a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><?php echo xlt("SMS Log") ?></a>
+                        </li>
+                        <li class="nav-item email-hide" role="tab">
+                            <a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Call Log") ?></a>
+                        </li>
                         <li class="nav-item etherfax-hide rc-fax-hide" role="tab">
                             <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ml-1" onclick="getNotificationLog(event, this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>"></span></a>
                         </li>
-                        <li class="nav-item sms-hide email-hide etherfax" role="tab"><a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a></li>
+                        <li class="nav-item sms-hide email-hide etherfax" role="tab">
+                            <a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a>
+                        </li>
+                        <?php if ($serviceType == 'email') { ?>
+                            <?php
+                            $param = ['is_universal' => 1, 'type' => 'email'];
+                            $GLOBALS['kernel']->getEventDispatcher()->
+                            dispatch(
+                                new SendNotificationEvent($pid, $param),
+                                SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST
+                            );
+                            ?>
+                        <?php } ?>
                     </ul>
                     <!-- Tab panes -->
                     <?php if ($service != '1') { ?>

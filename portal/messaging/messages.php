@@ -61,6 +61,9 @@ foreach ($result as $iter) {
     $theresult[] = $iter;
 }
 
+$isSMS = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
+$isEmail = !empty($GLOBALS['oe_enable_email'] ?? 0);
+$showSMS = $isSMS && IS_DASHBOARD;
 $dashuser = array();
 if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($_SESSION['authUserID']);
@@ -530,7 +533,7 @@ function getAuthPortalUsers()
         })(); // application end
 
         <?php
-        if (IS_DASHBOARD) {
+        if ($showSMS) {
             $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
         }
         ?>
@@ -578,7 +581,7 @@ function getAuthPortalUsers()
                                 <span class="fa fa-edit fa-lg"></span> <?php echo xlt("Compose Message"); ?>
                             </button>
                             <?php
-                            if (IS_DASHBOARD) {
+                            if ($showSMS) {
                                 $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
                             }
                             ?>
