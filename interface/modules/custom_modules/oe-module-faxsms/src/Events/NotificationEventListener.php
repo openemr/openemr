@@ -105,7 +105,7 @@ class NotificationEventListener implements EventSubscriberInterface
         }
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
-            $status .= "Sending SMS to $recipientPhone" . ': ';
+            $status .= "Sending SMS to " .  text($recipientPhone) . ': ';
             $clientApp = AppDispatch::getApiService('sms');
             $status_api = $clientApp->sendSMS(
                 $recipientPhone,
@@ -125,12 +125,12 @@ class NotificationEventListener implements EventSubscriberInterface
             && ($includeEmail)
             && ($patient['hipaa_allowemail'] == 'YES')
         ) {
-            $status .= "Sending email to $recipientEmail" . ': ';
-            $status .= $this->emailNotification($recipientEmail, $html_message);
+            $status .= "Sending email to " . text($recipientEmail) . ': ';
+            $status .= text($this->emailNotification($recipientEmail, $html_message));
         }
         $status .= "\n";
-        echo (nl2br($status));
-        return $status;
+        echo (nl2br($status)); //preserve html for alert status
+        return 'okay';
     }
 
     /**
