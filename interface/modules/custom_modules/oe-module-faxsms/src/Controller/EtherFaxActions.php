@@ -239,7 +239,7 @@ class EtherFaxActions extends AppDispatch
      * @param $acl
      * @return int
      */
-    public function authenticate($acl = ['admin', 'doc']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
         if (empty($this->credentials)) {
             $this->credentials = $this->getCredentials();
