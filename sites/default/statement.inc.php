@@ -1333,10 +1333,10 @@ function create_cms_statement($stmt)
                 if ($ddata['src'] == 'Pt Paid' || $ddata['plv'] == '0') {
                     $pt_paid_flag = true;
                     $desc = xl('Pt paid');
-                    //$out .= sprintf("%-8s %-44s           %8s  -%-8s \r\n", sidDate($dos), $desc, $amount, $amount);
-                    $out .= sprintf("%-8s %-44s           %8s  \r\n", sidDate($dos), $desc, $amount);
+                    //$out .= sprintf("%-8s %-44s           %8s  -%-8s \r\n", formatDate($dos), $desc, $amount, $amount);
+                    $out .= sprintf("%-8s %-44s           %8s  \r\n", formatDate($dos), $desc, $amount);
                 } else {
-                    $out .= sprintf("%-8s %-44s           %8s\r\n", sidDate($dos), $desc, $amount);
+                    $out .= sprintf("%-8s %-44s           %8s\r\n", formatDate($dos), $desc, $amount);
                 }
             } elseif ($ddata['rsn'] ?? '') {
                 $dos = $ddate;
@@ -1346,17 +1346,17 @@ function create_cms_statement($stmt)
                 } else {
                     $desc = xl('Note') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
                 }
-                $out .= sprintf("%-8s %-44s           %8s\r\n", sidDate($dos), $desc, $amount);
+                $out .= sprintf("%-8s %-44s           %8s\r\n", formatDate($dos), $desc, $amount);
             } elseif ($ddata['chg'] < 0) {
                 $amount = sprintf("%.2f", $ddata['chg']);
                 $desc = xl('Patient Payment');
-                $out .= sprintf("%-8s %-44s           %8s\r\n", sidDate($dos), $desc, $amount);
+                $out .= sprintf("%-8s %-44s           %8s\r\n", formatDate($dos), $desc, $amount);
             } else {
                 $amount = sprintf("%.2f", $ddata['chg']);
                 $dos = $line['dos'];
                 $desc = $description;
                 $bal = sprintf("%.2f", ($line['amount'] - $line['paid']));
-                $out .= sprintf("%-8s %-44s    %-8s          %-8s \r\n", sidDate($dos), $desc, $amount, $bal);
+                $out .= sprintf("%-8s %-44s    %-8s          %-8s \r\n", formatDate($dos), $desc, $amount, $bal);
             }
 
             ++$count;
@@ -1412,4 +1412,10 @@ function create_cms_statement($stmt)
     $out .= $ageline . "\r\n";
     $out .= "\014"; // this is a form feed
     return $out;
+}
+
+function formatDate($date)
+{
+    $strtotime = strtotime($date);
+    return date('m d y', $strtotime);
 }
