@@ -348,7 +348,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) +
                 '&pid=' + encodeURIComponent(pid);
             paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
-            parent.clearPatient();
             parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
             parent.left_nav.setEncounter(datestr, enc, 'enc');
             parent.left_nav.loadFrame('enc2', 'enc', encurl);
