@@ -125,7 +125,7 @@ if (file_exists("../../custom/fee_sheet_codes.php")) {
 }
 
 // TBD: Move these to globals.php, or make them user-specific.
-$fontsize = 7;
+$fontsize = 14;
 $page_height = 700;
 
 $padding = 0;
@@ -221,7 +221,7 @@ if (empty($SBCODES)) {
     array_splice($SBCODES, $lines * 1 + $page_start_index, 0, '*C|');
 }
 
-$lheight = sprintf('%d', ($page_height - $header_height) / $lines_per_page);
+$lheight = sprintf('%d', ($page_height - $header_height) * 1.6 / $lines_per_page);
 
 // Common HTML Header information
 
@@ -290,14 +290,14 @@ margin: 0 0 8pt 0;
  width: 33%;
  vertical-align: top;
  text-align: left;
- font-size: 14pt;
+ font-size: 16pt;
  font-weight: bold;
 }
 .ftitlecell2 {
  width: 33%;
  vertical-align: top;
  text-align: right;
- font-size: 9pt;
+ font-size: 14pt;
 }
 .ftitlecellm {
  width: 34%;
@@ -310,6 +310,16 @@ margin: 0 0 8pt 0;
 div.pagebreak {
 page-break-after: always;
 height: " . attr($page_height) . "pt;
+}
+
+@media print {
+    @page {
+    }
+    html, body {
+    }
+    .fsgroup, .fshead, .fscode {
+        height: auto;
+    }
 }
 </style>";
 
