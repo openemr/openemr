@@ -2440,9 +2440,9 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 2) { // simple text field
-        $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+        $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES | ENT_SUBSTITUTE));
     } elseif ($data_type == 3) { // long or multi-line text field
-        $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
+        $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES | ENT_SUBSTITUTE));
     } elseif ($data_type == 4) { // date
         $asof = ''; //not used here, but set to prevent a php warning when call optionalAge
         $s = '';
