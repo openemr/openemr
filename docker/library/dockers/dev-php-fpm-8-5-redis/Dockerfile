@@ -26,15 +26,10 @@ RUN apt-get install -y mariadb-client \
 RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash -
 RUN apt-get install nodejs -y
 
-#####
-# NOTE NEEDED TO DROP pdo_mysql for now due to some issues with the install-php-extensions script
-# TODO: Add back pdo_mysql when the install-php-extensions script is fixed
-####
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions \
-                           # pdo_mysql \
+    install-php-extensions pdo_mysql \
                            ldap \
                            xsl \
                            gd \
