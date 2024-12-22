@@ -11,12 +11,6 @@
 #
 FROM php:8.4-fpm
 
-#
-# TODO
-# Add back the redis statement in line 51 below when it works in the future
-# TODO
-#
-
 # Update
 RUN apt-get update
 
