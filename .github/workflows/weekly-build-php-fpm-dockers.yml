@@ -1,4 +1,4 @@
-name: Manual Build php-fpm Dockers
+name: Weekly Build php-fpm Dockers
 
 on:
   workflow_dispatch:
