@@ -1,4 +1,4 @@
-name: Nightly Build development php-fpm Docker
+name: Nightly Build development 8.5 php-fpm Docker
 
 on:
   workflow_dispatch:
