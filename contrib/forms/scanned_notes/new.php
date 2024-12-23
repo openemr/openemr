@@ -28,18 +28,23 @@ if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
 
-$formid = $_GET['id'];
+$formid = $_GET['id'] ?? '0';
 $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($pid) . "/encounters";
 
+if (($_POST['delete'] ?? null) == 'delete' || ($_POST['back'] ?? null) == 'back') {
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
+}
 // If Save was clicked, save the info.
-//
-if ($_POST['bn_save']) {
+if ($_POST['bn_save'] ?? null) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
- // If updating an existing form...
- //
+    // If updating an existing form...
+    //
     if ($formid) {
         $query = "UPDATE form_scanned_notes SET notes = ? WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'], $formid));
@@ -51,11 +56,11 @@ if ($_POST['bn_save']) {
 
     $imagepath = $imagedir . "/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . ".jpg";
 
- // Upload new or replacement document.
- // Always convert it to jpeg.
+    // Upload new or replacement document.
+    // Always convert it to jpeg.
     if ($_FILES['form_image']['size']) {
         // If the patient's encounter image directory does not yet exist, create it.
-        if (! is_dir($imagedir)) {
+        if (!is_dir($imagedir)) {
             $tmp0 = exec("mkdir -p " . escapeshellarg($imagedir), $tmp1, $tmp2);
             if ($tmp2) {
                 die("mkdir returned " . text($tmp2) . ": " . text($tmp0));
@@ -66,8 +71,8 @@ if ($_POST['bn_save']) {
 
         // Remove any previous image files for this encounter and form ID.
         for ($i = -1; true; ++$i) {
-             $suffix = ($i < 0) ? "" : "-$i";
-             $path = $imagedir . "/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . check_file_dir_name($suffix) . ".jpg";
+            $suffix = ($i < 0) ? "" : "-$i";
+            $path = $imagedir . "/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . check_file_dir_name($suffix) . ".jpg";
             if (is_file($path)) {
                 unlink($path);
             } else {
@@ -80,131 +85,140 @@ if ($_POST['bn_save']) {
         $tmp_name = $_FILES['form_image']['tmp_name'];
         // default density is 72 dpi, we change to 96.  And -append was removed
         // to create a separate image file for each page.
-        $cmd = "convert -density 96 " . escapeshellarg($tmp_name) . " " . escapeshellarg($imagepath);
+        $cmd = "magick -density 96 " . escapeshellarg($tmp_name) . " " . escapeshellarg($imagepath);
         $tmp0 = exec($cmd, $tmp1, $tmp2);
-        if ($tmp2) {
-            die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
+
+        // Handle errors
+        if ($tmp2 !== 0) {
+            error_log("Command executed: $cmd");
+            error_log("Command output: " . implode("\n", $tmp1));
+            echo("\"" . text($cmd) . "\" returned $tmp2: " . text(implode("\n", $tmp1)));
         }
     }
 
- // formHeader("Redirecting....");
- // formJump();
- // formFooter();
- // exit;
+    /*formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;*/
 }
 
-// ID check dir Fix
-if (empty($_GET['id'])) {
-    // Sometimes we don't have an ID, so default to zero to prevent code failure
-    $formid = '0';
-}
-
-$imagepath = $imagedir . "/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . ".jpg";
+$imagepath = $imagedir . "/" . check_file_dir_name($encounter . "_" . $formid . ".jpg");
 $imageurl = "$web_root/sites/" . $_SESSION['site_id'] .
-  "/documents/" . check_file_dir_name($pid) . "/encounters/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . ".jpg";
+    "/documents/" . check_file_dir_name($pid) . "/encounters/" . check_file_dir_name($encounter . "_" . $formid . ".jpg");
 
 if ($formid) {
     $row = sqlQuery(
-        "SELECT * FROM form_scanned_notes WHERE " .
-        "id = ? AND activity = '1'",
+        "SELECT * FROM form_scanned_notes WHERE id = ? AND activity = '1'",
         array($formid)
     );
     $formrow = sqlQuery(
-        "SELECT id FROM forms WHERE " .
-        "form_id = ? AND formdir = 'scanned_notes'",
+        "SELECT id FROM forms WHERE form_id = ? AND formdir = 'scanned_notes'",
         array($formid)
     );
 }
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo xlt('Scanned Notes'); ?></title>
     <?php Header::setupHeader(); ?>
-<style>
-    .dehead {
+    <style>
+      .dehead {
         font-family: sans-serif;
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
         font-weight: bold;
-    }
-    .detail {
+      }
+
+      .detail {
         font-family: sans-serif;
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
         font-weight: normal;
-    }
-</style>
+      }
+    </style>
+    <script>
+        function newEvt() {
+            dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>, '_blank', 775, 500);
+            return false;
+        }
 
-<script>
+        function deleteme(event) {
+            event.stopPropagation();
+            dlgopen('../../patient_file/deleter.php?formid=' + <?php echo js_url($formrow['id']); ?> +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450, '', '', {
+                resolvePromiseOn: 'close'
+            }).then(function (data) {
+                // Restore the session and proceed with form submission
+                top.restoreSession();
+            }).catch(function (error) {
+                // Handle errors if dialog promise is rejected
+                console.error("Dialog operation failed:", error);
+                alert("Operation was canceled or failed.");
+            });
+            return false;
+        }
 
- function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>,
-   '_blank', 775, 500);
-  return false;
- }
+        function imdeleted() {
+            top.restoreSession();
+            $("#delete").val("delete"); // Set the delete flag
+            $("#scanned-form").submit(); // Submit the form
+        }
 
- // Process click on Delete button.
- function deleteme() {
-  dlgopen('../../patient_file/deleter.php?formid=' + <?php echo js_url($formrow['id']); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
-  return false;
- }
-
- // Called by the deleteme.php window on a successful delete.
- function imdeleted() {
-  top.restoreSession();
-  location = '<?php echo $GLOBALS['form_exit_url']; ?>';
- }
-
-</script>
-
+        function goBack() {
+            top.restoreSession();
+            $("#back").val("back");
+            $("#scanned-form").submit(); // Submit the form
+        }
+    </script>
 </head>
-
 <body class="body_top">
+    <form method="post" enctype="multipart/form-data" id="scanned-form" class="container mt-4"
+        action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo attr_url($formid); ?>">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<form method="post" enctype="multipart/form-data"
- action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo attr_url($formid); ?>"
- onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-<center>
-<table class="table table-bordered" border='1' width='95%'>
-
- <tr class='table-light dehead'>
-  <td colspan='2' class='text-center'>Scanned Encounter Notes</td>
- </tr>
-
- <tr>
-  <td width='5%' class='dehead' nowrap>&nbsp;Comments&nbsp;</td>
-  <td width='95%' class='detail' nowrap>
-   <textarea class="w-100" name='form_notes' rows='4'><?php echo text($row['notes']); ?></textarea>
-  </td>
- </tr>
-
- <tr>
-  <td class='dehead' nowrap>&nbsp;Document&nbsp;</td>
-  <td class='detail' nowrap>
-<?php
-if ($formid && is_file($imagepath)) {
-    echo "   <img src='$imageurl' />\n";
-}
-?>
-   <p>&nbsp;
-    <?php echo xlt('Upload this file:') ?>
-   <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
-   <input name="form_image" type="file" />
-   <br />&nbsp;</p>
-  </td>
- </tr>
-
-</table>
-
-<div class='btn-group'>
-    <input type='submit' class='btn btn-primary' name='bn_save' value='Save' />
-    <input type='button' class='btn btn-primary' value='Add Appointment' onclick='newEvt()' />
-    <input type='button' class='btn btn-secondary' value='Back' onclick="parent.closeTab(window.name, false)" />
-    <?php if ($formrow['id'] && AclMain::aclCheckCore('admin', 'super')) { ?>
-    <input type='button' class='btn btn-danger' value='Delete' onclick='deleteme()' style='color:red' />
-    <?php } ?>
-</div>
-</center>
-
-</form>
+        <div class="card">
+            <div class="card-header text-center bg-light">
+                <h5 class="dehead m-0"><?php echo xlt('Scanned Encounter Notes'); ?></h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <label for="form_notes" class="col-sm-2 col-form-label dehead"><?php echo xlt('Comments'); ?></label>
+                    <div class="col-sm-10">
+                        <textarea id="form_notes" name="form_notes" rows="4" class="form-control"><?php echo text($row['notes']); ?></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="form_image" class="col-sm-2 col-form-label dehead"><?php echo xlt('Document'); ?></label>
+                    <div class="col-sm-10">
+                        <?php if (is_file($imagepath)) { ?>
+                            <label class="m-0"><?php echo xlt('Replace this Scanned Note:'); ?></label>
+                        <?php } else { ?>
+                            <label class="m-0"><?php echo xlt('Upload a Scanned Note:'); ?></label>
+                        <?php } ?>
+                        <input id="form_image" name="form_image" type="file" class="form-control-file" />
+                        <hr />
+                        <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
+                        <?php if ($formid && is_file($imagepath)) { ?>
+                            <div class="text-center">
+                                <img src="<?php echo attr($imageurl); ?>" class="img-fluid" alt="<?php echo xla("Unable to load image") . ": " . attr($imageurl); ?>">
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 text-center">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" name='bn_save' value="save"><?php echo xlt('Save'); ?></button>
+                <button type="button" class="btn btn-primary" onclick="newEvt()"><?php echo xlt('Add Appointment'); ?></button>
+                <input type="hidden" id="back" name="back" value="">
+                <button type="button" class="btn btn-secondary" onclick="return goBack()"><?php echo xlt('Back'); ?></button>
+                <?php if ($formrow['id'] && AclMain::aclCheckCore('admin', 'super')) { ?>
+                    <input type="hidden" id="delete" name="delete" value="">
+                    <button type="button" class="btn btn-danger" onclick="return deleteme(event);"><?php echo xlt('Delete'); ?></button>
+                <?php } ?>
+            </div>
+        </div>
+    </form>
 </body>
 </html>
