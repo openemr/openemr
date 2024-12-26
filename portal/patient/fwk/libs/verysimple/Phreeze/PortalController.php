@@ -81,7 +81,7 @@ abstract class PortalController
      * @param
      *          Router (optional) a custom writer for URL formatting
      */
-    final function __construct(Phreezer $phreezer, $renderEngine, $context = null, IRouter $router = null)
+    final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
         $this->Phreezer = & $phreezer;
         $this->RenderEngine = & $renderEngine;

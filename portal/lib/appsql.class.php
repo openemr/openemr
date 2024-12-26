@@ -137,7 +137,7 @@ class ApplicationTable
      *         $audit['action_taken_time']="";
      *         $audit['checksum']="";
      */
-    public function portalAudit(string $type = null, string $rec = null, array $auditvals, $oelog = true, $error = true)
+    public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
         $return = false;
         $result = false;

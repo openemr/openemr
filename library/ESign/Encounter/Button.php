@@ -48,12 +48,12 @@ class Encounter_Button implements ButtonIF
         return $GLOBALS['srcdir'] . '/ESign/views/encounter/esign_button.php';
     }
 
-    public function render(SignableIF $signable = null)
+    public function render(?SignableIF $signable = null)
     {
         return $this->_viewer->render($this);
     }
 
-    public function getHtml(SignableIF $signable = null)
+    public function getHtml(?SignableIF $signable = null)
     {
         return $this->_viewer->getHtml($this);
     }

@@ -1434,7 +1434,7 @@ class BillingUtilities
         $code,
         $code_text,
         $pid,
-        string $authorized = null,
+        ?string $authorized,
         $provider,
         $modifier = "",
         $units = "",
