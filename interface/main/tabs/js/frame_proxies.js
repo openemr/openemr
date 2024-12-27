@@ -104,7 +104,25 @@ left_nav.loadFrame=function(id,name,url)
     navigateTab(webroot_url+"/interface/"+url,name, function () {
         activateTabByName(name,true);
     });
+
 };
+
+// Promise-based loadFrame function
+function asyncLoadFrame(id, name, url) {
+    return new Promise((resolve, reject) => {
+        try {
+            if (name === "") {
+                name = 'enc';
+            }
+            navigateTab(webroot_url + "/interface/" + url, name, function () {
+                activateTabByName(name, true);
+                resolve(); // Resolve Promise on success
+            });
+        } catch (error) {
+            reject(error); // Reject Promise
+        }
+    });
+}
 
 left_nav.syncRadios = function()
 {
