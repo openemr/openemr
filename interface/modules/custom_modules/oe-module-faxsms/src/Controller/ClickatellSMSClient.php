@@ -112,7 +112,7 @@ class ClickatellSMSClient extends AppDispatch
      * @param $acl
      * @return int
      */
-    function authenticate($acl = ['admin', 'doc']): int
+    function authenticate($acl = ['patients', 'appt']): int
     {
         list($s, $v) = $acl;
         return $this->verifyAcl($s, $v);

@@ -132,7 +132,7 @@ class TwilioSMSClient extends AppDispatch
      * @param array $acl
      * @return int
      */
-    public function authenticate(array $acl = ['admin', 'doc']): int
+    public function authenticate(array $acl = ['patients', 'appt']): int
     {
         // did construct happen...
         if (empty($this->credentials)) {

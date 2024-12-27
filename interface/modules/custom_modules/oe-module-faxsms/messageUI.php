@@ -679,7 +679,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                             <button type="button" class="btn btn-primary btn-search" onclick="retrieveMsgs(event,this)" title="<?php echo xla('Click to get current history.') ?>"></button>
                         </div>
                     </form>
-                    <?php if ($clientApp->verifyAcl('admin', 'demo')) { ?>
+                    <?php if ($clientApp->verifyAcl('patients', 'appt')) { ?>
                         <div class="nav-item dropdown ml-auto">
                             <button class="btn btn-lg btn-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                                 <?php echo xlt('Account Actions'); ?><span class="caret"></span>

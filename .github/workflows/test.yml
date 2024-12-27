@@ -197,12 +197,11 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-
-  build_apache_83_114:
-    name: PHP 8.3 - Apache - MariaDB 11.4
+  build_apache_83_116:
+    name: PHP 8.3 - Apache - MariaDB 11.6 (Rolling version)
     runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_83_114
+      DOCKER_DIR: apache_83_116
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
@@ -291,11 +290,11 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_83_112:
-    name: PHP 8.3 - Apache - MariaDB 11.2 (short term release)
+  build_apache_83_114:
+    name: PHP 8.3 - Apache - MariaDB 11.4
     runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_83_112
+      DOCKER_DIR: apache_83_114
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
@@ -1278,6 +1277,100 @@ jobs:
           source ci/ciLibrary.source
           build_test_e2e
         if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+        if: ${{ success() || failure() }}
+
+  build_nginx_85:
+    name: PHP 8.5 - Nginx - MariaDB 11.4 (skipping E2e testing at this time for PHP 8.5-dev)
+    runs-on: ubuntu-22.04
+    env:
+      DOCKER_DIR: nginx_85
+      OPENEMR_DIR: /usr/share/nginx/html/openemr
+      CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing (skipping at this time for PHP 8.5-dev)
+        run: |
+           echo "SKIPPING THIS TEST FOR NOW UNTIL IT STARTS WORKING IN FUTURE FOR PHP 8.5-dev"
+#          source ci/ciLibrary.source
+#          build_test_e2e
+#        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |

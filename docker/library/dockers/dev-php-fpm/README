@@ -1,0 +1,4 @@
+Took this from following repo (since no longer supporting) in order to allow nightly builds:
+https://github.com/devilbox/docker-php-fpm-8.3/tree/master/Dockerfiles
+
+When update to a new php version in future, need to modify the php version check done at end of Dockerfile. Also need to adjust the tag in the .github/workflows/build-dev-php-fpm-docker.yml script and update the documentation on dockerhub.

@@ -271,8 +271,8 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
             <input type="hidden" id="form_isDocuments" name="isDocuments" value='<?php echo attr($isDoc ?? ''); ?>'>
             <input type="hidden" id="form_isQueue" name="isQueue" value='<?php echo attr($isQueue ?? ''); ?>'>
             <input type="hidden" id="form_isSMS" name="isSMS" value='<?php echo attr($isSMS ?? ''); ?>'>
-            <input type="hidden" id="form_isSMS" name="isFax" value='<?php echo attr($isFax ?? ''); ?>'>
-            <input type="hidden" id="form_isSMS" name="isEmail" value='<?php echo attr($isEmail ?? ''); ?>'>
+            <input type="hidden" id="form_isFax" name="isFax" value='<?php echo attr($isFax ?? ''); ?>'>
+            <input type="hidden" id="form_isEmail" name="isEmail" value='<?php echo attr($isEmail ?? ''); ?>'>
             <input type="hidden" id="form_mime" name="mime" value='<?php echo attr($file_mime ?? ''); ?>'>
             <input type="hidden" id="form_file" name="templateName" value='<?php echo attr($template_name ?? ''); ?>'>
             <input type="hidden" id="form_details" name="details" value='<?php echo attr_js($details ?? ''); ?>'>
@@ -331,7 +331,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                     <?php if ($service == "1" || $isSMS || $isForward || $isEmail) { ?>
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
-                            <textarea id="form_message" name="comments" class="form-control" placeholder="
+                            <textarea id="form_message" name="comments" class="form-control" <?php echo($isEmail ? 'required' : ''); ?> placeholder="
                             <?php echo "\n" . xla('Add a note for the recipient or cover sheet if supported. Double click to use Text Templates if enabled.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
                         </div>
                     <?php } ?>

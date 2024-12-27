@@ -145,9 +145,9 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                                            } ?>><?php echo xlt('DOB'); ?></option>
                     </select>
                     <label for="searchparm" class="col-form-label col-form-label-sm col"><?php echo text(xl('for:')); ?></label>
-                    <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo text(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>' />
+                    <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo xla('If name, any part of lastname or lastname,firstname'); ?>' />
                     <div class="col">
-                        <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo text(xl('Search'), ENT_QUOTES); ?>' />
+                        <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>' />
                         <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
                     </div>
                 </div>
@@ -206,7 +206,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                         }
 
                         echo " <tr class='" . $trClass . "' id='" .
-                            text($iterpid . "~" . $iterlname . "~" . $iterfname . "~" . $iterdob, ENT_QUOTES) . "'>";
+                            attr($iterpid . "~" . $iterlname . "~" . $iterfname . "~" . $iterdob) . "'>";
                         echo "  <td class='srName'>" . text($iterlname . ", " . $iterfname . " " . $itermname);
                         if (!empty($iter['billing_note'])) {
                             echo "<br />" . text($iter['billing_note']);
@@ -269,7 +269,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
 
             function selpid(pid, lname, fname, dob) {
                 if (opener.closed || !opener.setpatient)
-                    alert("<?php echo text(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+                    alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
                 else
                     opener.setpatient(pid, lname, fname, dob);
                 dlgclose();
