@@ -460,7 +460,7 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
     if (!empty($form_code_type)) {
         if (is_array($form_code_type) && (count($form_code_type) > 1)) {
             // run the multiple code set search
-            return multiple_code_set_search($search_term, $form_code_type, $limit, $modes, $count, $active, $start, $number, $filter_elements);
+            return multiple_code_set_search($form_code_type, $search_term, $limit, $modes, $count, $active, $start, $number, $filter_elements);
         }
 
         if (is_array($form_code_type) && (count($form_code_type) == 1)) {
@@ -862,9 +862,9 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 *
 * It will also work for one code set search, although not meant for this.
 * (This function is not meant to be called directly)
- *
-* @param string $search_term search term
+*
 * @param ?array $form_code_types code set keys (will default to checking all active code types if blank)
+* @param string $search_term search term
 * @param integer $limit Number of results to return (NULL means return all)
 * @param array $modes Holds the search modes to process along with the order of processing (default behavior is described in above function comment)
 * @param boolean $count if true, then will only return the number of entries
@@ -874,7 +874,7 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 * @param array $filter_elements Array that contains elements to filter
 * @return mixed recordset/integer
 */
-function multiple_code_set_search($search_term, ?array $form_code_types = null, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
+function multiple_code_set_search(?array $form_code_types, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
 {
 
     if (empty($form_code_types)) {
