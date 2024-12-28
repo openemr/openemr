@@ -223,7 +223,7 @@ if ($formid) {
             }).catch(function (error) {
                 // Handle errors if dialog promise is rejected
                 console.error("Dialog operation failed:", error);
-                alert("Operation was canceled or failed.");
+                alert(xl("Operation was canceled or failed."));
             });
             return false;
         }
@@ -272,7 +272,7 @@ if ($formid) {
                     webcamEnabled = true;
                     // Handle stream events if needed
                     stream.getVideoTracks()[0].onended = () => {
-                        alert('Webcam stream ended.');
+                        alert(xl('Webcam stream ended.'));
                     };
                     errorMessage.textContent = '';
                     webPanel.scrollIntoView({behavior: 'smooth', block: 'center'});
@@ -305,13 +305,13 @@ if ($formid) {
             function handleWebcamError(err) {
                 // Customize the error message and actions based on the error type
                 if (err.name === 'NotAllowedError') {
-                    errorMessage.textContent = 'User denied access to the webcam. Please check your browser settings and allow camera access.';
+                    errorMessage.textContent = jsText(xl('User denied access to the webcam. Please check your browser settings and allow camera access.'));
                 } else if (err.name === 'NotFoundError') {
-                    errorMessage.textContent = 'No webcam found on this device. Please ensure a webcam is connected.';
+                    errorMessage.textContent = jsText(xl('No webcam found on this device. Please ensure a webcam is connected.'));
                 } else if (err.name === 'NotReadableError') {
-                    errorMessage.textContent = 'Webcam is already in use by another application or browser. Please close other apps and try again.';
+                    errorMessage.textContent = jsText(xl('Webcam is already in use by another application or browser. Please close other apps and try again.'));
                 } else {
-                    errorMessage.textContent = `Unexpected error: ${err.name + err.message}. Try refreshing page or Webcam is already in use by another application or browser.`;
+                    errorMessage.textContent = jsText(xl(`Unexpected error: ${err.name + err.message}. Try refreshing page or Webcam is already in use by another application or browser.`));
                 }
                 errorMessage.scrollIntoView({behavior: 'smooth', block: 'center'});
             }
