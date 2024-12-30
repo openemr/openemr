@@ -116,10 +116,10 @@ function asyncLoadFrame(id, name, url) {
             }
             navigateTab(webroot_url + "/interface/" + url, name, function () {
                 activateTabByName(name, true);
-                resolve(); // Resolve Promise on success
+                resolve(); // Resolve the Promise after successful tab activation
             });
         } catch (error) {
-            reject(error); // Reject Promise
+            reject(error); // Reject the Promise on error
         }
     });
 }

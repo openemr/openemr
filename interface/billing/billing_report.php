@@ -342,28 +342,38 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             f.bn_mark.disabled = !can_mark;
         }
 
-        // Process a click to go to an encounter.
         async function toPatientEncounter(pid, pubpid, pname, enc, datestr, dobstr) {
+            const encUrl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) + '&pid=' + encodeURIComponent(pid);
+            const patUrl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
+            pid = parseInt(pid, 10);
+            enc = parseInt(enc, 10);
             // Restore the session and load the encounter.
-            top.restoreSession();
-            const encurl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) + '&pid=' + encodeURIComponent(pid);
-            const paturl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
-            // Clear the patient, tabs, session, and load the patient and encounter.
-            parent.clearPatient();
-            await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
-            await parent.left_nav.setEncounter(datestr, enc, 'enc');
-            await parent.asyncLoadFrame('dem1', 'pat', paturl);
-            await parent.asyncLoadFrame('enc2', 'enc', encurl);
+            top.restoreSession()
+            try {
+                await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+                // Set encounter and load frames
+                await parent.left_nav.setEncounter(datestr, enc, 'enc');
+                await parent.asyncLoadFrame('dem1', 'pat', patUrl);
+                await parent.asyncLoadFrame('enc2', 'enc', encUrl);
+            } catch (error) {
+                console.error('Failed to process patient encounter:', error);
+            }
         }
 
         // Process a click to go to an patient.
         async function toPatientInsurance(pid, pubpid, pname, enc, datestr, dobstr) {
+            const patUrl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
+            pid = parseInt(pid, 10);
+            enc = parseInt(enc, 10);
             top.restoreSession();
-            paturl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
-            await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
-            await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
-            await parent.asyncLoadFrame('dem1', 'pat', paturl);
-            parent.activateTabByName('pat', true);
+            try {
+                await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+                await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
+                await parent.asyncLoadFrame('dem1', 'pat', patUrl);
+                parent.activateTabByName('pat', true);
+            } catch (error) {
+                console.error('Failed to process patient insurance:', error);
+            }
         }
 
         function popMBO(pid, enc, mboid) {
