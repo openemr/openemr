@@ -104,7 +104,6 @@ left_nav.loadFrame=function(id,name,url)
     navigateTab(webroot_url+"/interface/"+url,name, function () {
         activateTabByName(name,true);
     });
-
 };
 
 // Promise-based loadFrame function
