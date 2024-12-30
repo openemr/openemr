@@ -347,13 +347,18 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             const patUrl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
             pid = parseInt(pid, 10);
             enc = parseInt(enc, 10);
+            let curpid = await top.getSessionValue('pid');
             // Restore the session and load the encounter.
             top.restoreSession()
             try {
-                await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+                // No need to clear patient if set in session
+                if (curpid != pid) {
+                    top.clearPatient(false);
+                    await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+                    await parent.asyncLoadFrame('dem1', 'pat', patUrl);
+                }
                 // Set encounter and load frames
                 await parent.left_nav.setEncounter(datestr, enc, 'enc');
-                await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                 await parent.asyncLoadFrame('enc2', 'enc', encUrl);
             } catch (error) {
                 console.error('Failed to process patient encounter:', error);
@@ -365,11 +370,16 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             const patUrl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
             pid = parseInt(pid, 10);
             enc = parseInt(enc, 10);
+            let curpid = await top.getSessionValue('pid');
             top.restoreSession();
             try {
-                await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+                // No need to clear patient if set in session
+                if (curpid != pid) {
+                    top.clearPatient(false);
+                    await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+                    await parent.asyncLoadFrame('dem1', 'pat', patUrl);
+                }
                 await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
-                await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                 parent.activateTabByName('pat', true);
             } catch (error) {
                 console.error('Failed to process patient insurance:', error);
