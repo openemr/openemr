@@ -347,9 +347,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             const patUrl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
             pid = parseInt(pid, 10);
             enc = parseInt(enc, 10);
+            // Restore the session (getSessionValue calls restoreSession()) and load the encounter
             let curpid = await top.getSessionValue('pid');
-            // Restore the session and load the encounter.
-            top.restoreSession()
             try {
                 // No need to clear patient if set in session
                 if (curpid != pid) {
@@ -371,7 +370,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             pid = parseInt(pid, 10);
             enc = parseInt(enc, 10);
             let curpid = await top.getSessionValue('pid');
-            top.restoreSession();
             try {
                 // No need to clear patient if set in session
                 if (curpid != pid) {
