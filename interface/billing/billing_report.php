@@ -354,25 +354,20 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             // Restore the session (getSessionValue calls restoreSession()) and load the encounter
             let curpid = await top.getSessionValue('pid');
             try {
-                // No need to clear patient if set in session
-                if (curpid != pid) {
+                if (curpid != pid) { // set patient
                     top.clearPatient(false);
                     await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
                     await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                     await parent.left_nav.setPatientEncounter(enc_pid_array, enc_date_array, cal_cat_array);
-                    if (type == 'enc') {
-                        await top.setEncounter(enc);
-                    }
                 }
-                // Set encounter and load frames
-                if (type == 'enc') {
+                if (type == 'enc') { // to encounter
                     await parent.left_nav.setEncounter(datestr, enc, 'enc');
                     await parent.asyncLoadFrame('enc2', 'enc', encUrl);
-                } else {
+                    await parent.activateTabByName('enc', true);
+                } else { // to insurance
                     await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
-                    parent.activateTabByName('pat', true);
+                    await parent.activateTabByName('pat', true);
                 }
-                
             } catch (error) {
                 console.error('Failed to process patient:', error);
             }
