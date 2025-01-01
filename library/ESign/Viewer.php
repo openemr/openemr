@@ -38,7 +38,7 @@ class Viewer extends Abstract_Model
     public $signatures;
     public $verified;
 
-    public function __construct(array $args = null)
+    public function __construct(?array $args = null)
     {
         parent::__construct($args);
 
@@ -53,7 +53,7 @@ class Viewer extends Abstract_Model
         }
     }
 
-    public function render(ViewableIF $viewable, array $attributes = null)
+    public function render(ViewableIF $viewable, ?array $attributes = null)
     {
         if ($attributes) {
             $this->setAttributes($attributes);
@@ -62,7 +62,7 @@ class Viewer extends Abstract_Model
         include $viewable->getViewScript();
     }
 
-    public function getHtml(ViewableIF $viewable, array $attributes = null)
+    public function getHtml(ViewableIF $viewable, ?array $attributes = null)
     {
         ob_start();
         $this->render($viewable, $attributes);

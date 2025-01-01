@@ -75,7 +75,7 @@ class InsuranceCompany extends ORDataObject
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    public function __construct($id = "", $prefix = "", InsuranceCompanyService $insuranceCompanyService = null)
+    public function __construct($id = "", $prefix = "", ?InsuranceCompanyService $insuranceCompanyService = null)
     {
         $this->id = $id;
         $this->name = "";

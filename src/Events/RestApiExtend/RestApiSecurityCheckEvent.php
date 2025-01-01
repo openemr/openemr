@@ -53,7 +53,7 @@ class RestApiSecurityCheckEvent extends Event
     /**
      * @param HttpRestRequest|null $request
      */
-    public function __construct(HttpRestRequest $request = null)
+    public function __construct(?HttpRestRequest $request = null)
     {
         $this->permission = "";
         $this->scopeType = "";

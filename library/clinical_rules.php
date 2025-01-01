@@ -1887,7 +1887,7 @@ function returnTargetGroups($rule)
  *
  * @param  integer  $patient_id  pid of selected patient.
  * @param  string   $rule        id(string) of selected rule (if blank, then will ignore grouping)
- * @param  integer  $group_id    group id of target group
+ * @param  ?string  $group_id    group id of target group
  * @param  string   $dateFocus   date used for determining left boundary of intervals (format Y-m-d H:i:s).
  * @param  string   $dateTarget  date used for determining right boundary of intervals (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
@@ -1899,7 +1899,7 @@ HR: note: currently, this logic ignores inclusion/exclusion flag. Treats all as 
 test_targets() was previously called only with a single date param, which was $dateFocus in calling function.
 I changed this to pass both $dateFocus and $dateTarget so left and right interval boundaries could be determined separately
  */
-function test_targets($patient_id, $rule, string $group_id = null, $dateFocus = null, $dateTarget = null)
+function test_targets($patient_id, $rule, ?string $group_id = null, $dateFocus = null, $dateTarget = null)
 {
 
     // -------- Interval Target ----
@@ -2330,12 +2330,12 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  * Function to return applicable targets
  *
  * @param  string   $rule           id(string) of selected rule
- * @param  integer  $group_id       group id of target group (if blank, then will ignore grouping)
+ * @param  ?string  $group_id       group id of target group (if blank, then will ignore grouping)
  * @param  string   $target_method  string label of target type
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule, string $group_id = null, $target_method = '', $include_flag = 1)
+function resolve_target_sql($rule, ?string $group_id = null, $target_method = '', $include_flag = 1)
 {
 
     if ($group_id) {
@@ -2650,9 +2650,9 @@ function lists_check($patient_id, $filter, $dateTarget)
  *
  * @param  string   $patient_id       pid of selected patient.
  * @param  string   $table            selected mysql table
- * @param  string   $column           selected mysql column
+ * @param  ?string   $column           selected mysql column
  * @param  string   $data_comp        data comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $data             selected data in the mysql database (1)(2)
+ * @param  ?string   $data             selected data in the mysql database (1)(2)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
  * @param  string   $intervalType     type of interval (ie. year)
@@ -2665,7 +2665,7 @@ function lists_check($patient_id, $filter, $dateTarget)
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  *
  */
-function exist_database_item($patient_id, $table, string $column = null, $data_comp = '', string $data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateFocus = '', $dateTarget = '')
+function exist_database_item($patient_id, $table, ?string $column = null, $data_comp = '', ?string $data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateFocus = '', $dateTarget = '')
 {
     // HR: used for filters and targets
 
@@ -2764,7 +2764,7 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
  * @param  string   $proc_title       procedure title
  * @param  string   $proc_code        procedure identifier code (array of <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.)
  * @param  string   $results_comp     results comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $result_data      results data (1)
+ * @param  ?string   $result_data      results data (1)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
  * @param  string   $intervalType     type of interval (ie. year)
@@ -2776,7 +2776,7 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, string $result_data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateFocus = '', $dateTarget = '')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, ?string $result_data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateFocus = '', $dateTarget = '')
 {
 
     // Set date to current if not set
@@ -2864,13 +2864,13 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  string   $complete         label in complete column (YES,NO, or blank)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
- * @param  string   $intervalType     type of interval (ie. year)
- * @param  integer  $intervalValue    searched for within this many times of the interval type
+ * @param  ?string   $intervalType     type of interval (ie. year)
+ * @param  ?string  $intervalValue    searched for within this many times of the interval type
  * @param  string   $dateFocus        used for left boundary of interval
  * @param  string   $dateTarget       used for right boundary of interval (format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateFocus = null, $dateTarget = null)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, ?string $intervalType = null, ?string $intervalValue = null, $dateFocus = null, $dateTarget = null)
 {
 
     // Set the table
@@ -3251,11 +3251,11 @@ function collect_database_label($label, $table)
  * </pre>
  *
  * @param  string  $rule        id(string) of selected rule
- * @param  string  $dateTarget  target date(format Y-m-d H:i:s).
+ * @param  ?string  $dateTarget  target date(format Y-m-d H:i:s).
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, string $dateTarget = null, $type = null)
+function calculate_reminder_dates($rule, ?string $dateTarget = null, $type = null)
 {
 
     // Set date to current if not set

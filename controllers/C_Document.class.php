@@ -439,7 +439,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    public function view_action(string $patient_id = null, $doc_id)
+    public function view_action(?string $patient_id, $doc_id)
     {
         global $ISSUE_TYPES;
 
@@ -568,7 +568,7 @@ class C_Document extends Controller
      * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
      * @param (string) $context - given a special document scenario (e.g.: patient avatar, custom image viewer document, etc), the context can be set so that a switch statement can execute a custom strategy.
      * */
-    public function retrieve_action(string $patient_id = null, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
+    public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
@@ -912,7 +912,7 @@ class C_Document extends Controller
         }
     }
 
-    public function move_action_process(string $patient_id = null, $document_id)
+    public function move_action_process(?string $patient_id, $document_id)
     {
         if ($_POST['process'] != "true") {
             return;
@@ -959,7 +959,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function validate_action_process(string $patient_id = null, $document_id)
+    public function validate_action_process(?string $patient_id, $document_id)
     {
 
         $d = new Document($document_id);
@@ -1038,7 +1038,7 @@ class C_Document extends Controller
 
     // Added by Rod for metadata update.
     //
-    public function update_action_process(string $patient_id = null, $document_id)
+    public function update_action_process(?string $patient_id, $document_id)
     {
 
         if ($_POST['process'] != "true") {
@@ -1283,7 +1283,7 @@ class C_Document extends Controller
         //$this->_last_node = &$node1;
 
 // public function to tag a document to an encounter.
-    public function tag_action_process(string $patient_id = null, $document_id)
+    public function tag_action_process(?string $patient_id, $document_id)
     {
         if ($_POST['process'] != "true") {
             die("process is '" . text($_POST['process']) . "', expected 'true'");
@@ -1351,7 +1351,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function image_procedure_action(string $patient_id = null, $document_id)
+    public function image_procedure_action(?string $patient_id, $document_id)
     {
 
         $img_procedure_id = $_POST['image_procedure_id'];
@@ -1376,7 +1376,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function clear_procedure_tag_action(string $patient_id = null, $document_id)
+    public function clear_procedure_tag_action(?string $patient_id, $document_id)
     {
         if (is_numeric($document_id)) {
             sqlStatement("delete from procedure_result where document_id = ?", $document_id);
@@ -1417,7 +1417,7 @@ class C_Document extends Controller
     }
 
 //clear encounter tag public function
-    public function clear_encounter_tag_action(string $patient_id = null, $document_id)
+    public function clear_encounter_tag_action(?string $patient_id, $document_id)
     {
         if (is_numeric($document_id)) {
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));

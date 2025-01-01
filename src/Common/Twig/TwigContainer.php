@@ -39,7 +39,7 @@ class TwigContainer
      * @var string|null $path   Additional path to add to $fileroot/templates string
      * @var Kernel|null $kernel An instance of Kernel to test if the environment is dev vs prod
      */
-    public function __construct(string $path = null, Kernel $kernel = null)
+    public function __construct(?string $path = null, ?Kernel $kernel = null)
     {
         $this->paths[] = $GLOBALS['fileroot'] . '/templates';
         if (!empty($path)) {

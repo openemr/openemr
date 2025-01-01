@@ -989,7 +989,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return ($res_cur['option_id'] ?? null);
     }
 
-    public function getListTitle(string $option_id = null, $list_id, $codes = '')
+    public function getListTitle(?string $option_id, $list_id, $codes = '')
     {
         $appTable = new ApplicationTable();
         $res_cur = null;
