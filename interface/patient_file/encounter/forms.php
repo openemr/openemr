@@ -63,7 +63,6 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 <head>
 
 <title class="title"></title>
-<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $GLOBALS['charset']; ?>">
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>

@@ -27,8 +27,11 @@
  *  3. Using use_strict_mode, use_cookies, and use_only_cookies to optimize security.
  *  4. Using sid_bits_per_character of 6 to optimize security. This does allow comma to
  *     be used in the session id, so need to ensure properly escape it when modify it in
- *     cookie.
- *  5. Using sid_length of 48 to optimize security.
+ *     cookie. Note that this setting is not used in PHP 8.4 and higher since has been deprecated and is forced to
+ *     be set to 4 as of this writing (guessing PHP may increase over time to maintain security standards).
+ *  5. Using sid_length of 48 to optimize security. Note that this setting is not used in PHP 8.4 and higher since
+ *     has been deprecated and is forced to be set to 32 as of this writing (guessing PHP will increase over time to
+ *     maintain security standards).
  *  6. Setting gc_maxlifetime to 14400 since defaults for session.gc_maxlifetime is
  *     often too small.
  *  7. For core OpenEMR and oauth2, setting cookie_path to improve security when using different OpenEMR instances
@@ -65,14 +68,17 @@ class SessionUtil
     private const OAUTH_SESSION_ID = 'authserverOpenEMR';
 
     private static $gc_maxlifetime = 14400;
-    private static $sid_bits_per_character = 6;
-    private static $sid_length = 48;
     private static $use_strict_mode = true;
     private static $use_cookies = true;
     private static $use_only_cookies = true;
     private static $use_cookie_samesite = "Strict";
     private static $use_cookie_httponly = true;
     private static $use_cookie_secure = false;
+
+    // Following setting have been deprecated in PHP 8.4 and higher
+    // (ie. will remove them when PHP 8.4 is the minimum requirement)
+    private static $sid_bits_per_character = 6;
+    private static $sid_length = 48;
 
     public static function switchToCoreSession($web_root, $read_only = true): void
     {
@@ -85,7 +91,7 @@ class SessionUtil
     {
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
-        session_start([
+        $settings = [
             'read_and_close' => $read_only,
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => self::$use_cookie_secure,
@@ -93,12 +99,22 @@ class SessionUtil
             'cookie_httponly' => false,
             'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
-            'sid_bits_per_character' => self::$sid_bits_per_character,
-            'sid_length' => self::$sid_length,
             'use_strict_mode' => self::$use_strict_mode,
             'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies,
-        ]);
+            'use_only_cookies' => self::$use_only_cookies
+        ];
+
+        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
+        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
+        if (version_compare(phpversion(), '8.4.0', '<')) {
+            // Code to run on PHP < 8.4
+            $settings = array_merge([
+                'sid_bits_per_character' => self::$sid_bits_per_character,
+                'sid_length' => self::$sid_length
+            ], $settings);
+        }
+
+        session_start($settings);
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
@@ -154,18 +170,28 @@ class SessionUtil
     {
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
-        session_start([
+        $settings = [
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => self::$use_cookie_secure,
             'name' => 'PortalOpenEMR',
             'cookie_httponly' => self::$use_cookie_httponly,
             'gc_maxlifetime' => self::$gc_maxlifetime,
-            'sid_bits_per_character' => self::$sid_bits_per_character,
-            'sid_length' => self::$sid_length,
             'use_strict_mode' => self::$use_strict_mode,
             'use_cookies' => self::$use_cookies,
             'use_only_cookies' => self::$use_only_cookies
-        ]);
+        ];
+
+        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
+        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
+        if (version_compare(phpversion(), '8.4.0', '<')) {
+            // Code to run on PHP < 8.4
+            $settings = array_merge([
+                'sid_bits_per_character' => self::$sid_bits_per_character,
+                'sid_length' => self::$sid_length
+            ], $settings);
+        }
+
+        session_start($settings);
     }
 
     public static function portalSessionCookieDestroy(): void
@@ -177,19 +203,29 @@ class SessionUtil
 
     public static function apiSessionStart($web_root): void
     {
-        session_start([
+        $settings = [
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => true,
             'name' => 'apiOpenEMR',
             'cookie_httponly' => self::$use_cookie_httponly,
             'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
-            'sid_bits_per_character' => self::$sid_bits_per_character,
-            'sid_length' => self::$sid_length,
             'use_strict_mode' => self::$use_strict_mode,
             'use_cookies' => self::$use_cookies,
             'use_only_cookies' => self::$use_only_cookies
-        ]);
+        ];
+
+        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
+        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
+        if (version_compare(phpversion(), '8.4.0', '<')) {
+            // Code to run on PHP < 8.4
+            $settings = array_merge([
+                'sid_bits_per_character' => self::$sid_bits_per_character,
+                'sid_length' => self::$sid_length
+            ], $settings);
+        }
+
+        session_start($settings);
     }
 
     public static function apiSessionCookieDestroy(): void
@@ -206,19 +242,29 @@ class SessionUtil
 
     public static function oauthSessionStart($web_root): void
     {
-        session_start([
+        $settings = [
             'cookie_samesite' => "None",
             'cookie_secure' => true,
             'name' => self::OAUTH_SESSION_ID,
             'cookie_httponly' => self::$use_cookie_httponly,
             'cookie_path' => ((!empty($web_root)) ? $web_root . '/oauth2/' : '/oauth2/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
-            'sid_bits_per_character' => self::$sid_bits_per_character,
-            'sid_length' => self::$sid_length,
             'use_strict_mode' => self::$use_strict_mode,
             'use_cookies' => self::$use_cookies,
             'use_only_cookies' => self::$use_only_cookies
-        ]);
+        ];
+
+        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
+        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
+        if (version_compare(phpversion(), '8.4.0', '<')) {
+            // Code to run on PHP < 8.4
+            $settings = array_merge([
+                'sid_bits_per_character' => self::$sid_bits_per_character,
+                'sid_length' => self::$sid_length
+            ], $settings);
+        }
+
+        session_start($settings);
     }
 
     public static function oauthSessionCookieDestroy(): void
@@ -228,18 +274,28 @@ class SessionUtil
 
     public static function setupScriptSessionStart(): void
     {
-        session_start([
+        $settings = [
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => self::$use_cookie_secure,
             'name' => 'setupOpenEMR',
             'cookie_httponly' => self::$use_cookie_httponly,
             'gc_maxlifetime' => self::$gc_maxlifetime,
-            'sid_bits_per_character' => self::$sid_bits_per_character,
-            'sid_length' => self::$sid_length,
             'use_strict_mode' => self::$use_strict_mode,
             'use_cookies' => self::$use_cookies,
             'use_only_cookies' => self::$use_only_cookies
-        ]);
+        ];
+
+        // PHP 8.4 and higher does not support sid_bits_per_character and sid_length
+        // (ie. will remove below code block when PHP 8.4 is the minimum requirement)
+        if (version_compare(phpversion(), '8.4.0', '<')) {
+            // Code to run on PHP < 8.4
+            $settings = array_merge([
+                'sid_bits_per_character' => self::$sid_bits_per_character,
+                'sid_length' => self::$sid_length
+            ], $settings);
+        }
+
+        session_start($settings);
     }
 
     public static function setupScriptSessionCookieDestroy(): void

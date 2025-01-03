@@ -249,7 +249,7 @@ class Pharmacy extends ORDataObject
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " ";
-        if ($GLOBALS['weno_rx_enable']) {
+        if (!empty($GLOBALS['weno_rx_enable'])) {
             $sql .= "WHERE state = '" . add_escape_custom($this->state) . "' ";
         }
         $sql .= add_escape_custom($sort);

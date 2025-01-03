@@ -28,7 +28,7 @@ abstract class Abstract_Model
 {
     private $_args = array();
 
-    public function __construct(array $args = null)
+    public function __construct(?array $args = null)
     {
         if ($args !== null) {
             $this->_args = $args;
