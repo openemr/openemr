@@ -25,9 +25,3 @@ if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
     setpid($_GET["set_pid"]);
 }
 
-// For future use, if needed
-if (($_POST['mode'] ?? '') == 'session_key') {
-    $key = $_POST['key'] ?? '';
-    $current = $_SESSION[$key] ?? $pid ?? 0;
-    echo(js_escape($current));
-}
