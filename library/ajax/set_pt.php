@@ -24,4 +24,3 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
     setpid($_GET["set_pid"]);
 }
-
