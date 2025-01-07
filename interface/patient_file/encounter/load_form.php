@@ -21,7 +21,12 @@ use OpenEMR\Common\Twig\TwigContainer;
 if (substr($_GET["formname"], 0, 3) === 'LBF') {
     // Use the List Based Forms engine for all LBFxxxxx forms.
     include_once("$incdir/forms/LBF/new.php");
-} else {
+} elseif (str_starts_with($_GET["formname"], 'oe-module')) {
+    check_file_dir_name($_GET["formname"]);
+    //Change the directory to meet module requirements
+    $dir = $incdir . "/modules/custom_modules/$_GET[formname]/public/index.php";
+    include_once($dir);
+}  else {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
