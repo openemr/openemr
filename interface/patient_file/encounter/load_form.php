@@ -26,7 +26,7 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
     //Change the directory to meet module requirements
     $dir = $incdir . "/modules/custom_modules/$_GET[formname]/public/index.php";
     include_once($dir);
-}  else {
+} else {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
