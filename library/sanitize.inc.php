@@ -48,7 +48,7 @@ function json_sanitize($json)
 // If the label contains any illegal characters, then the script will die.
 function check_file_dir_name($label)
 {
-    if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
+    if (preg_match('/[^A-Za-z0-9_.-]/', $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . errorLogEscape($label));
         die(xlt("ERROR: The following variable contains invalid characters") . ": " . attr($label));
     } else {
