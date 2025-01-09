@@ -56,7 +56,7 @@ class RealWorldTesting
     private function metric2(): array
     {
         $result = [];
-        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `direct_message_log` WHERE `status` = 'D' AND `create_ts` >= ? AND `create_ts` <= ?", [$this->beginDate, $this->endDate]);
+        $check = sqlQuery("SELECT count(`id`) AS `count` FROM `direct_message_log` WHERE `status` = 'S' AND `create_ts` >= ? AND `create_ts` <= ?", [$this->beginDate, $this->endDate]);
         if (!empty($check['count']) && $check['count'] > 0) {
             $result[] = xl('Number of sent Direct messages') . ': ' . $check['count'];
         } else {
