@@ -1424,22 +1424,10 @@
             "global_req": "enable_amc"
           },
           {
-            "label": "2024 Real World Testing Report",
+            "label": "2025 Real World Testing Report",
             "menu_id": "rep0",
             "target": "rep",
-            "url": "/interface/reports/rwt_2024_report.php",
-            "children": [],
-            "requirement": 0,
-            "acl_req": [
-              "admin",
-              "super"
-            ]
-          },
-          {
-            "label": "2023 Real World Testing Report",
-            "menu_id": "rep0",
-            "target": "rep",
-            "url": "/interface/reports/rwt_2023_report.php",
+            "url": "/interface/reports/rwt_2025_report.php",
             "children": [],
             "requirement": 0,
             "acl_req": [
