@@ -36,6 +36,8 @@ class RealWorldTesting
         $output .= text($this->metric4()) . '<br /><br />';
         $output .= "<span class='font-weight-bold'>" . xlt('Metric 5') . '</span><br />';
         $output .= nl2br(text(implode("\n", $this->metric5()))) . '<br /><br />';
+        $output .= "<span class='font-weight-bold'>" . xlt('Metric 6') . '</span><br />';
+        $output .= text($this->metric6()) . '<br /><br />';
         return $output;
     }
 
@@ -139,6 +141,19 @@ class RealWorldTesting
         $result[] = xl('API requests by patients') . ': ' . $countPatient;
         foreach ($arrayResources as $key => $value) {
             $result[] = xl('API requests for resource') . ' ' . $key . ': ' . $value;
+        }
+        return $result;
+    }
+
+    // Number of Electronic Health Information (EHI) Exports.
+    private function metric6(): string
+    {
+        $result = "";
+        $check = sqlQuery("SELECT count(`ehi_task_id`) AS `count` FROM `ehi_export_job_tasks` WHERE `status` = 'completed' AND `completion_date` >= ? AND `completion_date` <= ?", [$this->beginDate, $this->endDate]);
+        if (!empty($check['count']) && $check['count'] > 0) {
+            $result .= xl('Number of Electronic Health Information (EHI) Exports') . ': ' . $check['count'];
+        } else {
+            $result .= xl('No Electronic Health Information (EHI) Exports.');
         }
         return $result;
     }
