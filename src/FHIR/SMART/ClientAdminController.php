@@ -391,7 +391,7 @@ class ClientAdminController
             'contacts' => [
                 'type' => 'text'
                 ,'label' => xl("Contacts")
-                ,'value' => implode("|", $client->getContacts())
+                ,'value' => is_array($client->getContacts()) ? implode("|", $client->getContacts()) : ''
             ],
             'registrationDate' => [
                 'type' => 'text'
