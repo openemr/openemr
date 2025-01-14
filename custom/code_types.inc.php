@@ -155,7 +155,7 @@ array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedN
 
 // SNOMED RF2 definitions
 define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "");
-if (isSnomedSpanish()) {
+if (isSnomedSpanishLang()) {
     define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "");
     define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "");
 } else {
@@ -204,13 +204,13 @@ $eventDispatcher->dispatch($externalCodesEvent, ExternalCodesCreatedEvent::EVENT
 $ct_external_options = $externalCodesEvent->getExternalCodeData();
 
 /**
- *  Checks to see if using spanish snomed
+ *  Checks to see if using spanish language snomed
  */
-function isSnomedSpanish()
+function isSnomedSpanishLang()
 {
-    // See if most recent SNOMED entry is International:Spanish
+    // See if most recent SNOMED entry is International:SpanishLang
     $sql = sqlQuery("SELECT `revision_version` FROM `standardized_tables_track` WHERE `name` = 'SNOMED' ORDER BY `id` DESC");
-    if ((!empty($sql)) && ($sql['revision_version'] == "International:Spanish")) {
+    if ((!empty($sql)) && ($sql['revision_version'] == "International:SpanishLang")) {
         return true;
     }
     return false;
