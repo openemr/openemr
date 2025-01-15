@@ -1521,11 +1521,11 @@ class X125010837P
                     "*" .
                     "*" . "XX" .
                     "*" . $claim->ordererNPI() . "~\n";
+                $edicount++;
                 $out .= "N3" . "*" . $claim->ordererStreet() . "~\n";
                 $edicount++;
                 $out .= "N4" . "*" . $claim->ordererCity() . "*" .
                     $claim->ordererState() . "*" . $claim->ordererZip() . "~\n";
-                $edicount++;
             }
 
             // Segment NM1 (Referring Provider Name) omitted.
