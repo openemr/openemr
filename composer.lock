@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c38bd64e5c27acbdc3081f0d65211b2b",
+    "content-hash": "c4bec3db331abbae66671d61fbc24e2e",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1042,16 +1042,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.387.0",
+            "version": "v0.390.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "89b7126578e0aaf6d5584d6ef7c7af165766c850"
+                "reference": "2c1ff37aea15dd9e7a434c4fcbec777d9421385c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/89b7126578e0aaf6d5584d6ef7c7af165766c850",
-                "reference": "89b7126578e0aaf6d5584d6ef7c7af165766c850",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/2c1ff37aea15dd9e7a434c4fcbec777d9421385c",
+                "reference": "2c1ff37aea15dd9e7a434c4fcbec777d9421385c",
                 "shasum": ""
             },
             "require": {
@@ -1080,9 +1080,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.387.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.390.0"
             },
-            "time": "2024-12-21T01:06:13+00:00"
+            "time": "2025-01-12T01:00:53+00:00"
         },
         {
             "name": "google/auth",
@@ -5091,16 +5091,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.3.1",
+            "version": "v5.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "8eea230464783aa9671db8eea6f8c6ac5285794b"
+                "reference": "447a020a1f875a434d62f2a401f53b82a396e494"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/8eea230464783aa9671db8eea6f8c6ac5285794b",
-                "reference": "8eea230464783aa9671db8eea6f8c6ac5285794b",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/447a020a1f875a434d62f2a401f53b82a396e494",
+                "reference": "447a020a1f875a434d62f2a401f53b82a396e494",
                 "shasum": ""
             },
             "require": {
@@ -5143,9 +5143,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.3.1"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.4.0"
             },
-            "time": "2024-10-08T18:51:32+00:00"
+            "time": "2024-12-30T11:07:19+00:00"
         },
         {
             "name": "nyholm/psr7",
@@ -6413,16 +6413,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "3.6.0",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "bce5db99872f9613121c3ad033c43318a3789396"
+                "reference": "2fc12fdc58d39297c7b8c72d65b37a1a25d65ab5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/bce5db99872f9613121c3ad033c43318a3789396",
-                "reference": "bce5db99872f9613121c3ad033c43318a3789396",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/2fc12fdc58d39297c7b8c72d65b37a1a25d65ab5",
+                "reference": "2fc12fdc58d39297c7b8c72d65b37a1a25d65ab5",
                 "shasum": ""
             },
             "require": {
@@ -6511,9 +6511,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.6.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.7.0"
             },
-            "time": "2024-12-08T15:04:12+00:00"
+            "time": "2024-12-27T05:34:47+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -8948,12 +8948,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "3.5-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -9096,12 +9096,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "3.5-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -10318,12 +10318,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "3.5-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -11736,16 +11736,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.40",
+            "version": "10.5.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "e6ddda95af52f69c1e0c7b4f977cccb58048798c"
+                "reference": "e76586fa3d49714f230221734b44892e384109d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e6ddda95af52f69c1e0c7b4f977cccb58048798c",
-                "reference": "e6ddda95af52f69c1e0c7b4f977cccb58048798c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e76586fa3d49714f230221734b44892e384109d7",
+                "reference": "e76586fa3d49714f230221734b44892e384109d7",
                 "shasum": ""
             },
             "require": {
@@ -11817,7 +11817,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.40"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.41"
             },
             "funding": [
                 {
@@ -11833,7 +11833,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-21T05:49:06+00:00"
+            "time": "2025-01-13T09:33:05+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -12888,16 +12888,16 @@
         },
         {
             "name": "symfony/error-handler",
-            "version": "v6.4.14",
+            "version": "v6.4.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/error-handler.git",
-                "reference": "9e024324511eeb00983ee76b9aedc3e6ecd993d9"
+                "reference": "37ad2380e8c1a8cf62a1200a5c10080b679b446c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/error-handler/zipball/9e024324511eeb00983ee76b9aedc3e6ecd993d9",
-                "reference": "9e024324511eeb00983ee76b9aedc3e6ecd993d9",
+                "url": "https://api.github.com/repos/symfony/error-handler/zipball/37ad2380e8c1a8cf62a1200a5c10080b679b446c",
+                "reference": "37ad2380e8c1a8cf62a1200a5c10080b679b446c",
                 "shasum": ""
             },
             "require": {
@@ -12943,7 +12943,7 @@
             "description": "Provides tools to manage errors and ease debugging PHP code",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/error-handler/tree/v6.4.14"
+                "source": "https://github.com/symfony/error-handler/tree/v6.4.17"
             },
             "funding": [
                 {
@@ -12959,20 +12959,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-05T15:34:40+00:00"
+            "time": "2024-12-06T13:30:51+00:00"
         },
         {
             "name": "symfony/http-kernel",
-            "version": "v6.4.16",
+            "version": "v6.4.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "8838b5b21d807923b893ccbfc2cbeda0f1bc00f0"
+                "reference": "c5647393c5ce11833d13e4b70fff4b571d4ac710"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/8838b5b21d807923b893ccbfc2cbeda0f1bc00f0",
-                "reference": "8838b5b21d807923b893ccbfc2cbeda0f1bc00f0",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/c5647393c5ce11833d13e4b70fff4b571d4ac710",
+                "reference": "c5647393c5ce11833d13e4b70fff4b571d4ac710",
                 "shasum": ""
             },
             "require": {
@@ -13057,7 +13057,7 @@
             "description": "Provides a structured process for converting a Request into a Response",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-kernel/tree/v6.4.16"
+                "source": "https://github.com/symfony/http-kernel/tree/v6.4.17"
             },
             "funding": [
                 {
@@ -13073,7 +13073,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-27T12:49:36+00:00"
+            "time": "2024-12-31T14:49:31+00:00"
         },
         {
             "name": "symfony/panther",
