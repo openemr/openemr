@@ -20,7 +20,7 @@
  */
 
 /**
- *  @OA\Info(title="OpenEMR API", version="7.0.3")
+ *  @OA\Info(title="OpenEMR API", version="7.0.4")
  *  @OA\Server(url="/apis/default/")
  *  @OA\SecurityScheme(
  *      securityScheme="openemr_auth",
@@ -149,6 +149,8 @@
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
+ *              "user/therapy_groups.read": "Read therapy groups the user has access to (api:oemr)",
+ *              "user/therapy_groups.write": "Write therapy groups the user has access to (api:oemr)",
  *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
  *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
  *              "user/user.read": "Read users the current user has access to (api:oemr)",
@@ -157,7 +159,8 @@
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
  *              "patient/patient.read": "Write encounters the patient has access to (api:port)",
- *              "patient/appointment.read": "Read appointments the patient has access to (api:port)"
+ *              "patient/appointment.read": "Read appointments the patient has access to (api:port)",
+ *          }   "user/participants.read": "Read participants the user has access to (api:oemr)"
  *          }
  *      )
  *  )
@@ -309,6 +312,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FacilityRestController;
+use OpenEMR\RestControllers\TherapyGroupsRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
 use OpenEMR\RestControllers\PatientRestController;
@@ -536,6 +540,53 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     *  @OA\Post(
+     *      path="/api/therapy_groups",
+     *      description="Creates a new therapy group.",
+     *      tags={"standard"},
+     *      security={{"openemr_auth":{}}}
+     * )
+     */
+    "POST /api/therapy_groups" => function () {
+        RestConfig::authorization_check("admin", "users");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new TherapyGroupsRestController())->post($data);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+         path="/api/therapy_groups",
+         description="Retrieves a list of all therapy groups.",
+         tags={"standard"},
+         security={{"openemr_auth":{}}}
+     )
+     */
+    "GET /api/therapy_groups" => function () {
+        RestConfig::authorization_check("admin", "users");
+        $return = (new TherapyGroupsRestController())->getAll();
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *    path="/api/therapy_groups/:tgid/participants",
+     *    description="Retrieves a list of all participants in a therapy group.",
+     *    tags={"standard"},
+     *    security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/therapy_groups/:tgid/participants" => function ($tgid) {
+        RestConfig::authorization_check("admin", "users");
+        $return = (new PatientRestController())->getAllForTherapyGroup(['group_id' => $tgid]);
+        RestConfig::apiLog($return);
+
+        return $return;
+    },
+
+    /**
      *  @OA\Get(
      *      path="/api/facility/{fuuid}",
      *      description="Returns a single facility.",
@@ -721,6 +772,7 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new FacilityRestController())->post($data);
         RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -1554,6 +1606,30 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
+     *  @OA\Get(
+     *   path="/api/patient/{puuid}/therapy_groups",
+     *   description="Retrieves a list of therapy groups for a single patient",
+     *   tags={"standard"},
+     *     @OA\Parameter(
+     *       name="puuid",
+     *       in="path",
+     *       description="The uuid for the patient.",
+     *       required=true,
+     *       @OA\Schema(
+     *         type="string"
+     *      )
+     *    ),
+     *    security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/therapy_groups" => function ($puuid) {
+        RestConfig::authorization_check("therapy_groups", "med");
+        $return = (new TherapyGroupsRestController())->getAllForPatient($puuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
      * Schema for the encounter request
      *
      *  @OA\Schema(
@@ -1723,6 +1799,73 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "auth_a");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController())->post($puuid, $data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
+
+    /**
+     * @OA\Put(
+     *      path="/api/patient/{puuid}/therapy_group/{pgid}",
+     *      description="Adds a patient to a therapy group",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="pgid",
+     *          in="path",
+     *          description="The id for the therapy group.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     security={{"openemr_auth":{}}},
+     *   )
+     */
+    "PUT /api/patient/:puuid/therapy_groups/:pgid" => function ($puuid, $pgid) {
+        RestConfig::authorization_check("patients", "med");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        $return = (new TherapyGroupsRestController())->addPatient($puuid, $pgid, $data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
+
+    /**
+     * @OA\Schema(
+     *   path="/api/patient/{puuid}/therapy_group/{pgid}",
+     *   description="Removes a patient from a therapy group",
+     *   tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="pgid",
+     *          in="path",
+     *          description="The id for the therapy group.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     security={{"openemr_auth":{}}},
+     )
+     */
+    "DELETE /api/patient/:puuid/therapy_groups/:pgid" => function ($puuid, $pgid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new TherapyGroupsRestController())->removePatient($puuid, $pgid);
         RestConfig::apiLog($return, $data);
         return $return;
     },

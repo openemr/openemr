@@ -99,4 +99,10 @@ class PatientRestController
         $processingResult = $this->patientService->getAll($validSearchFields, true, null, $config);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
+
+    public function getAllForTherapyGroup($search = [])
+    {
+        $processingResult = $this->patientService->getAllForTherapyGroup($search['group_id']);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+    }
 }

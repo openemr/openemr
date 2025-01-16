@@ -131,9 +131,9 @@ class ProcessingResult
 
     /**
      * Appends a new data item to the current instance.
-     * @param $newData The new data item.
+     * @param $newData array The new data item.
      */
-    public function addData($newData)
+    public function addData(array $newData)
     {
         $count = count($this->data);
         $limit = min(0, $this->getPagination()->getLimit());

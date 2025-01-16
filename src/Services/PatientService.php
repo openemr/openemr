@@ -372,6 +372,29 @@ class PatientService extends BaseService
         return $this->search($querySearch, $isAndCondition, $config);
     }
 
+    public function getAllForTherapyGroup(string $tgid)
+    {
+        // grab all patients for a given tgid
+        // iterate over it and get patient data
+        $processingResult = new ProcessingResult();
+
+        $sql = <<<SQL
+SELECT p.*
+FROM patient_data p
+INNER JOIN therapy_groups_participants tgp on tgp.pid = p.id
+WHERE tgp.group_id = ?
+SQL;
+
+        $results = sqlStatement($sql, [$tgid]);
+        while ($row = sqlFetchArray($results)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+
+
+        return $processingResult;
+    }
+
     public function search($search, $isAndCondition = true, SearchQueryConfig $config = null)
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
