@@ -3942,6 +3942,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 while ($plan_row = sqlFetchArray($PLAN_results)) {
                                                     $PLAN_arr[] = $plan_row;
                                                 }
+                                                $found = 0;
                                                 while ($row = sqlFetchArray($TODO_data)) {
                                                     $arrPLAN[$counter]['option_id'] = $row['option_id'];
                                                     $arrPLAN[$counter]['title'] = $row['title'];
@@ -4360,7 +4361,7 @@ if ($refresh and $refresh != 'fullscreen') {
         //also add in any obj.Clinical data if the form was already opened
         $codes_found = start_your_engines($encounter_data);
         if ($codes_found) { ?>
-        obj.Clinical = [<?php echo json_encode($codes_found[0]); ?>];
+        obj.Clinical = [<?php echo json_encode($codes_found[0] ?? ''); ?>];
             <?php
         } ?>
 
