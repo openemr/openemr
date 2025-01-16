@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 7.0.3
+  version: 7.0.4
 servers:
   -
     url: /apis/default/
@@ -253,6 +253,29 @@ paths:
           $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  /api/therapy_groups:
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of all therapy groups.'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      description: 'Creates a new therapy group.'
+      security:
+        -
+          openemr_auth: []
+  '/api/therapy_groups/:tgid/participants':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of all participants in a therapy group.'
       security:
         -
           openemr_auth: []
@@ -674,6 +697,45 @@ paths:
                   data: { encounter: 1, uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef }
         '401':
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/therapy_groups':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of therapy groups for a single patient'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/therapy_group/{pgid}':
+    put:
+      tags:
+        - standard
+      description: 'Adds a patient to a therapy group'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: pgid
+          in: path
+          description: 'The id for the therapy group.'
+          required: true
+          schema:
+            type: string
       security:
         -
           openemr_auth: []
@@ -3238,7 +3300,7 @@ paths:
         -
           name: type
           in: query
-          description: 'The type or category of OpenEMR insurance policy, ''primary'', ''secondary'', or ''tertiary''.'
+          description: "The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'."
           required: true
           schema:
             type: string
@@ -3916,7 +3978,7 @@ paths:
                   id: 94682fe5-f383-4885-9505-64b02e34906f
                   meta: { versionId: '1', lastUpdated: '2021-09-16T00:27:32+00:00' }
                   resourceType: AllergyIntolerance
-                  text: { status: additional, div: '<div xmlns=''http://www.w3.org/1999/xhtml''>penicillin</div>' }
+                  text: { status: additional, div: "<div xmlns='http://www.w3.org/1999/xhtml'>penicillin</div>" }
                   clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical', code: active, display: Active }] }
                   verificationStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification', code: confirmed, display: Confirmed }] }
                   category: [medication]
@@ -4675,7 +4737,7 @@ paths:
     post:
       tags:
         - fhir
-      description: 'The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient''s most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href=''http://hl7.org/fhir/us/core/OperationDefinition-docref.html'' target=''_blank'' rel=''noopener''>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.'
+      description: "The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details."
       externalDocs:
         description: 'Detailed documentation on this operation'
         url: 'https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'
@@ -4704,7 +4766,7 @@ paths:
         -
           name: type
           in: query
-          description: 'The type refers to the document type.  This is a LOINC code from the valueset of <a href=''http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html'' target=''_blank'' rel=''noopener''>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node).'
+          description: "The type refers to the document type.  This is a LOINC code from the valueset of <a href='http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html' target='_blank' rel='noopener'>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node)."
           required: false
           schema:
             type: string
@@ -4765,7 +4827,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       parameters:
         -
           name: id
@@ -4776,7 +4838,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'The documentation for working with BULK FHIR or $docref document exports can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The documentation for working with BULK FHIR or $docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4974,7 +5036,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       parameters:
         -
           name: _id
@@ -5023,7 +5085,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       parameters:
         -
           name: uuid
@@ -5034,7 +5096,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5048,7 +5110,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       parameters:
         -
           name: id
@@ -5059,7 +5121,7 @@ paths:
             type: string
       responses:
         '200':
-          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5658,7 +5720,7 @@ paths:
               resourceType: Organization
               text:
                 status: generated
-                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>'
+                div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
               identifier:
                 -
                   system: 'http://hl7.org/fhir/sid/us-npi'
@@ -5692,7 +5754,7 @@ paths:
                   id: 95f0e672-be37-4c73-95c9-649c2d200018
                   meta: { versionId: '1', lastUpdated: '2022-03-30T07:43:23+00:00' }
                   resourceType: Organization
-                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>' }
+                  text: { status: generated, div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>" }
                   identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '1234567890' }]
                   active: true
                   type: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }] }]
@@ -5732,7 +5794,7 @@ paths:
                   id: 95f0e672-be37-4c73-95c9-649c2d200018
                   meta: { versionId: '1', lastUpdated: '2022-03-30T07:43:23+00:00' }
                   resourceType: Organization
-                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>' }
+                  text: { status: generated, div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>" }
                   identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '1234567890' }]
                   active: true
                   type: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }] }]
@@ -5775,7 +5837,7 @@ paths:
               resourceType: Organization
               text:
                 status: generated
-                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>'
+                div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
               identifier:
                 -
                   system: 'http://hl7.org/fhir/sid/us-npi'
@@ -5966,7 +6028,7 @@ paths:
               resourceType: Patient
               text:
                 status: generated
-                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>'
+                div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>"
               extension:
                 -
                   valueCode: F
@@ -6004,7 +6066,7 @@ paths:
                   id: 95f22ff4-dd25-4290-8b52-1dd2fedf8e54
                   meta: { versionId: '1', lastUpdated: '2022-03-31T02:48:28+00:00' }
                   resourceType: Patient
-                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>' }
+                  text: { status: generated, div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>" }
                   extension: [{ valueCode: F, url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex' }, { extension: [{ valueCoding: { system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: Unknown }, url: ombCategory }, { valueString: Unknown, url: text }], url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race' }]
                   identifier: [{ use: official, type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: PT }] }, system: 'http://terminology.hl7.org/CodeSystem/v2-0203', value: '1' }]
                   active: true
@@ -6090,7 +6152,7 @@ paths:
               resourceType: Patient
               text:
                 status: generated
-                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>'
+                div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>"
               extension:
                 -
                   valueCode: F
@@ -6135,10 +6197,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
         '200':
-          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -6291,7 +6353,7 @@ paths:
                   id: 960c7cd6-187a-4119-8cd4-85389d80efb9
                   meta: { versionId: '1', lastUpdated: '2022-04-13T08:57:32+00:00' }
                   resourceType: Person
-                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Administrator Administrator</p></div>' }
+                  text: { status: generated, div: "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Administrator Administrator</p></div>" }
                   name: [{ use: official, family: Administrator, given: [Administrator, Larry] }]
                   telecom: [{ system: phone, value: '1234567890', use: home }, { system: phone, value: '1234567890', use: work }, { system: phone, value: '1234567890', use: mobile }, { system: email, value: hey@hey.com, use: home }]
                   address: [{ line: ['123 Lane Street'], city: Bellevue, state: WA, period: { start: '2021-04-13T08:57:32.146+00:00' } }]
@@ -6963,10 +7025,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
         '200':
-          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -6978,10 +7040,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
         '200':
-          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -6992,10 +7054,10 @@ paths:
     delete:
       tags:
         - fhir
-      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
         '200':
-          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+          description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -7817,7 +7879,7 @@ components:
           description: 'The copay of insurance.'
           type: string
         date:
-          description: 'The effective date of insurance in YYYY-MM-DD format.  This value cannot be after the date_end property and cannot be the same date as any other insurance policy for the same insurance type (''primary, ''secondary'', etc).'
+          description: "The effective date of insurance in YYYY-MM-DD format.  This value cannot be after the date_end property and cannot be the same date as any other insurance policy for the same insurance type ('primary, 'secondary', etc)."
           type: string
         date_end:
           description: 'The effective end date of insurance in YYYY-MM-DD format.  This value cannot be before the date property. If it is null then this policy is the current policy for this policy type for the patient.  There can only be one current policy per type and the request will fail if there is already a current policy for this type.'
@@ -7832,7 +7894,7 @@ components:
           description: 'The 837p list of policy types for an insurance.  See src/Billing/InsurancePolicyType.php for the list of valid values.'
           type: string
         type:
-          description: 'The type or category of OpenEMR insurance policy, ''primary'', ''secondary'', or ''tertiary''. If this field is missing it will default to ''primary''.'
+          description: "The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'. If this field is missing it will default to 'primary'."
           type: string
       type: object
       example:
@@ -7878,7 +7940,7 @@ components:
           description: 'The body of message.'
           type: string
         groupname:
-          description: 'The group name (usually is ''Default'').'
+          description: "The group name (usually is 'Default')."
           type: string
         from:
           description: 'The sender of the message.'
@@ -7914,7 +7976,7 @@ components:
           description: 'The type of transaction. Use an option from resource=/api/transaction_type'
           type: string
         groupname:
-          description: 'The group name (usually is ''Default'').'
+          description: "The group name (usually is 'Default')."
           type: string
         referByNpi:
           description: 'NPI of the person creating the referral.'
@@ -8179,6 +8241,8 @@ components:
             user/soap_note.write: 'Write soap notes the user has access to (api:oemr)'
             user/surgery.read: 'Read surgeries the user has access to (api:oemr)'
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
+            user/therapy_groups.read: 'Read therapy groups the user has access to (api:oemr)'
+            user/therapy_groups.write: 'Write therapy groups the user has access to (api:oemr)'
             user/transaction.read: 'Read transactions the user has access to (api:oemr)'
             user/transaction.write: 'Write transactions the user has access to (api:oemr)'
             user/user.read: 'Read users the current user has access to (api:oemr)'
