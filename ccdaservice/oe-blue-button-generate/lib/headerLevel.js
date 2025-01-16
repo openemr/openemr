@@ -231,8 +231,8 @@ var participants = (exports.participant = [
             typeCode: leafLevel.inputProperty("typeCode"),
         },
         // TODO: check if this middle element can be removed
-        //       if remove, the remove the comments at line 235 and 242 (since will no longer need
-        //       to bypass the no-sparse-arrays lint rule)
+        //       if remove the middle element, then remove the comments at line 236 and
+        //       244 (since will no longer need to bypass the no-sparse-arrays lint rule)
         /* eslint-disable no-sparse-arrays */
         content: [
             [fieldLevel.effectiveTime, required, key("time")],
