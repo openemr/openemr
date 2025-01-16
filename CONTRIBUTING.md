@@ -114,7 +114,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
 ---
 
-1. <a name="xdebug"></a>Xdebug and profiling is supported for PHPStorm and VSCode.
+1. <a name="xdebug"></a>Xdebug and profiling is supported for PHPStorm, VSCode and VSCodium.
 
     - For the Video Tutorial, click below:
 
@@ -128,7 +128,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
         - Untoggle "Break at first line in PHP scripts"
         - Untoggle both settings that start with "Force Break at first line..."
         - See [these images for more detail](https://github.com/openemr/openemr-devops/pull/283#issuecomment-779798156)
-    - VSCode
+    - VSCode and VSCodium
         - Listen for XDebug
         - Use this `launch.json` [template](https://github.com/openemr/openemr-devops/issues/285#issuecomment-782899207)
     - Make sure port 9003 is open on your host operating system
