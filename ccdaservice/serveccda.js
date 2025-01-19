@@ -2164,7 +2164,7 @@ function populateParticipant(participant) {
         "name": {
             "prefix": participant.prefix || "",
             "suffix": participant.suffix || "",
-            "middle": [participant.mname] || "",
+            "middle": [participant.mname ?? ""],
             "last": participant.lname || "",
             "first": participant.fname || ""
         },
@@ -2353,7 +2353,7 @@ function populateHeader(pd) {
             "name": {
                 "prefix": pd.information_recipient.prefix || "",
                 "suffix": pd.information_recipient.suffix || "",
-                "middle": [pd.information_recipient.mname] || "",
+                "middle": [pd.information_recipient.mname ?? ""],
                 "last": pd.information_recipient.lname || "",
                 "first": pd.information_recipient.fname || ""
             },
