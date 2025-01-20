@@ -1092,8 +1092,8 @@ function set_category() {
 // radio buttons are clicked.
 function set_allday() {
     var f = document.forms[0];
-    var color1 = 'var(--gray)';
-    var color2 = 'var(--gray)';
+    var color1 = 'var(--bs-gray)';
+    var color2 = 'var(--bs-gray)';
     var disabled2 = true;
     if (document.getElementById('rballday1').checked) {
         color1 = '';
@@ -1119,7 +1119,7 @@ function set_allday() {
 function set_repeat() {
     var f = document.forms[0];
     var isdisabled = true;
-    var mycolor = 'var(--gray)';
+    var mycolor = 'var(--bs-gray)';
     var myvisibility = 'hidden';
     if (f.form_repeat.checked) {
         f.days_every_week.checked = false;
@@ -1149,7 +1149,7 @@ function set_days_every_week() {
         f.form_repeat.checked = false;
         f.form_repeat_type.disabled = true;
         f.form_repeat_freq.disabled = true;
-        document.getElementById('tdrepeat1').style.color = 'var(--gray)';
+        document.getElementById('tdrepeat1').style.color = 'var(--bs-gray)';
 
         //enable end_date setting
         document.getElementById('tdrepeat2').style.color = 'var(--bs-black)';
@@ -1160,7 +1160,7 @@ function set_days_every_week() {
         var myvisibility = 'visible';
     } else {
         var isdisabled = true;
-        var mycolor = 'var(--gray)';
+        var mycolor = 'var(--bs-gray)';
         var myvisibility = 'hidden';
     }
     document.getElementById("days_label").style.color = mycolor;

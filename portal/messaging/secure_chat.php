@@ -423,9 +423,9 @@ $msgApp = new ChatController();
     position: relative;
     padding: 5px 10px;
     background: #FBFBFB;
-    border: 1px solid var(--gray);
+    border: 1px solid var(--bs-gray);
     margin: 5px 0 0 50px;
-    color: var(--dark);
+    color: var(--bs-dark);
   }
 
   .direct-chat-msg,
@@ -487,7 +487,7 @@ $msgApp = new ChatController();
 
   .direct-chat-warning .right > .direct-chat-text {
     background: rgba(251, 255, 178, 0.34);
-    border-color: var(--danger);
+    border-color: var(--bs-danger);
     color: var(--bs-black);
   }
 
@@ -561,7 +561,7 @@ $msgApp = new ChatController();
   legend {
     font-size: 14px;
     margin-bottom: 2px;
-    background: var(--white);
+    background: var(--bs-white);
   }
 
   .modal.modal-wide .modal-dialog {
@@ -644,7 +644,7 @@ $msgApp = new ChatController();
                 <form>
                     <div class="modal-header">
                         <h5 class='modal-title'><?php echo xlt('You may send Message with Image or Video'); ?></h5>
-                        <button type="button" class="close" data-dismiss="modal">
+                        <button type="button" class="btn-close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
                             <span class="visually-hidden"><?php echo xlt('Close'); ?></span>
                         </button>
@@ -665,7 +665,7 @@ $msgApp = new ChatController();
             <div class="modal-content">
                 <form>
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
+                        <button type="button" class="btn-close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
                             <span class="visually-hidden"><?php echo xlt('Close'); ?></span>
                         </button>

@@ -868,7 +868,7 @@ function writeITLine($it_array)
         }
 
         .translation {
-            color: var(--success);
+            color: var(--bs-success);
         }
 
         #theform input[type=text],
@@ -1486,7 +1486,7 @@ function writeITLine($it_array)
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="modal-header">
                         <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
                     </div>
                     <div class="modal-body">
                         <label for="newlistname" class="control-label"><?php echo xlt('List Name'); ?></label>

@@ -104,7 +104,7 @@ function mapToTable($row)
 <style>
 /* TODO: Is the below code for links necessary? */
 a, a:visited, a:hover {
-  color: var(--primary);
+  color: var(--bs-primary);
 }
 #mymaintable thead .sorting::before,
 #mymaintable thead .sorting_asc::before,

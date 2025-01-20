@@ -34,7 +34,7 @@ if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
 $CPR = 4; // cells per row
 
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
-  'var(--yellow)' : $GLOBALS['layout_search_color'];
+  'var(--bs-yellow)' : $GLOBALS['layout_search_color'];
 
 $WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2' );
 $SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3' || $GLOBALS['full_new_patient_form'] == '4');
@@ -497,7 +497,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <div class="card">
                                     <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
                                         <h2 class="mb-0">
-                                            <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
+                                            <button class="btn btn-link d-block w-100 text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
                                         </h2>
                                     </div>
                                     <div id="div_{$group_seq_attr}" class="bg-light collapse {$checked}" aria-labelledby="header_{$group_seq_attr}" >
@@ -608,7 +608,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         <div class="card">
                             <div class="card-header p-0 bg-secondary" id="header_ins">
                                 <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
+                                    <button class="btn btn-link d-block w-100 text-light text-left" type="button" data-toggle="collapse" data-target="#div_ins" aria-expanded="true" aria-controls="ins">$insuranceTitle</button>
                                 </h2>
                             </div>
                             <div id="div_ins" class="bg-light collapse" aria-labelledby="header_ins" >

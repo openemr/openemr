@@ -1,5 +1,5 @@
 .graph {
-  color: var(--primary);
+  color: var(--bs-primary);
 }
 
 .graph_button {
@@ -17,8 +17,8 @@
 }
 
 .delete_button {
-  background-color: var(--danger);
-  color: var(--white);
+  background-color: var(--bs-danger);
+  color: var(--bs-white);
   cursor: pointer;
   font: 10px "Arial", "Helvetica", sans-serif;
 }
@@ -163,7 +163,7 @@
 
 #ta_type .failure {
   background-color: #eeeeec;
-  color: var(--danger);
+  color: var(--bs-danger);
   font: 15px "Arial", "Helvetica", sans-serif;
   padding: 0;
 }
@@ -174,16 +174,16 @@
 }
 
 #ta_type table.add {
-  border: 2px solid var(--success);
+  border: 2px solid var(--bs-success);
   padding: 5px;
 }
 
 #ta_type table.edit {
-  border: 2px solid var(--primary);
+  border: 2px solid var(--bs-primary);
   padding: 5px;
 }
 
 #ta_type table.del {
-  border: 4px solid var(--danger);
+  border: 4px solid var(--bs-danger);
   padding: 5px;
 }

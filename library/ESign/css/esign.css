@@ -78,7 +78,7 @@
 }
 
 .error {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .esign-signature-form-element {

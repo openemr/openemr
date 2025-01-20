@@ -237,7 +237,7 @@
 <div class="modal fade" id="onsitePortalActivityDetailDialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"><a class="close" data-dismiss="modal">×</a>
+            <div class="modal-header"><a class="btn-close" data-dismiss="modal">×</a>
                 <h3><i class="icon-edit"></i> <?php echo xlt('Edit Onsite Portal Activity'); ?>
                     <span id="modelLoader" class="loader progress progress-striped active"><span class="bar"></span></span>
                 </h3>

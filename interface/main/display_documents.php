@@ -124,14 +124,14 @@ $display_div = "style='display:block;'";
 }
 
 .tooltip_container{
-    background-color: var(--gray);
+    background-color: var(--bs-gray);
     width: 75%;
     height: 50%;
     z-index: 1;
     display: none;
     position: absolute;
     box-sizing: border-box;
-    border: 10px solid var(--gray);
+    border: 10px solid var(--bs-gray);
 }
 
 .tooltip_doc {

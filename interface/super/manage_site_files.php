@@ -180,7 +180,7 @@ if ($GLOBALS['secure_upload']) {
 #generate_thumb {
      width: 95%;
      margin: 50px auto;
-     border: 2px solid var(--gray);
+     border: 2px solid var(--bs-gray);
 }
 #file_type_whitelist {
     width: 95%;
@@ -191,7 +191,7 @@ if ($GLOBALS['secure_upload']) {
      text-align: center;
 }
 #generate_thumb table td {
-     border-right: 1px solid var(--gray);
+     border-right: 1px solid var(--bs-gray);
      padding: 0 15px;
 }
 </style>

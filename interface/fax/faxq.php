@@ -125,12 +125,12 @@ function tabclick(tabname) {
   if (tabs[i] == tabname) {
    // thistd.style.borderBottom = '0px solid var(--bs-black)';
    thistd.style.borderBottom = '2px solid transparent';
-   thistd.style.color = 'var(--danger)';
+   thistd.style.color = 'var(--bs-danger)';
    thistd.style.cursor = 'default';
    thistable.style.display = visdisp;
   } else {
    thistd.style.borderBottom = '2px solid var(--bs-black)';
-   thistd.style.color = 'var(--gray)';
+   thistd.style.color = 'var(--bs-gray)';
    thistd.style.cursor = 'pointer';
    thistable.style.display = 'none';
   }
@@ -182,23 +182,23 @@ function dosdclick(sfname) {
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
     <?php if ($GLOBALS['enable_hylafax']) { ?>
-   style='color: var(--danger); border-right: 2px solid var(--bs-black); border-bottom: 2px solid transparent;'
+   style='color: var(--bs-danger); border-right: 2px solid var(--bs-black); border-bottom: 2px solid transparent;'
     <?php } else { ?>
-   style='color: var(--gray); border-right: 2px solid var(--bs-black); border-bottom: 2px solid var(--bs-black); cursor: pointer; display:none;'
+   style='color: var(--bs-gray); border-right: 2px solid var(--bs-black); border-bottom: 2px solid var(--bs-black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
     <?php if ($GLOBALS['enable_hylafax']) { ?>
-   style='color: var(--gray); border-right: 2px solid var(--bs-black); border-bottom: 2px solid var(--bs-black); cursor: pointer;'
+   style='color: var(--bs-gray); border-right: 2px solid var(--bs-black); border-bottom: 2px solid var(--bs-black); cursor: pointer;'
     <?php } else { ?>
-   style='color: var(--gray); border-right: 2px solid var(--bs-black); border-bottom: 2px solid var(--bs-black); cursor: pointer; display:none;'
+   style='color: var(--bs-gray); border-right: 2px solid var(--bs-black); border-bottom: 2px solid var(--bs-black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxout")'><?php echo xlt('Faxes Out'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
     <?php if ($GLOBALS['enable_scanner']) { ?>
-   style='color: var(--gray); border-bottom: 2px solid var(--bs-black); cursor: pointer;'
+   style='color: var(--bs-gray); border-bottom: 2px solid var(--bs-black); cursor: pointer;'
     <?php } else { ?>
-   style='color: var(--danger); border-bottom: 2px solid transparent; display:none;'
+   style='color: var(--bs-danger); border-bottom: 2px solid transparent; display:none;'
     <?php } ?>
    onclick='tabclick("scanin")'><?php echo xlt('Scanner In'); ?></td>
  </tr>

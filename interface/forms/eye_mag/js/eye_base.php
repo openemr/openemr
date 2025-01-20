@@ -2303,7 +2303,7 @@ $(function () {
                                             $(this).find('i').toggleClass('fa-toggle-down fa-toggle-up')
                                             return false;
                                             });
-                  $('.close').on('click', function(){
+                  $('.btn-close').on('click', function(){
                                     $('#GFS_accordion .hide').slideUp();
                                     });
                   $('#ODIOPTARGET').on('change', function() {

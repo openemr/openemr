@@ -113,14 +113,14 @@ if (!empty($_POST['form_xmit'])) {
 
 tr.head {
         font-size: 13px;
-        background-color: var(--gray);
+        background-color: var(--bs-gray);
     text-align: center;
-        color: var(--white);
+        color: var(--bs-white);
 }
 
 tr.subhead {
         font-size: 13px;
-        background-color: var(--gray200);
+        background-color: var(--bs-gray-200);
     text-align: center;
 }
 

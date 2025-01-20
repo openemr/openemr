@@ -144,7 +144,7 @@ $templateService = new DocumentTemplateService();
 
       .dz-remove {
         font-size: 16px;
-        color: var(--danger);
+        color: var(--bs-danger);
       }
 
       .dz-progress {

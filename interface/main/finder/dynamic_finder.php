@@ -82,7 +82,7 @@ $loading = "";
     div.dataTables_wrapper div.dataTables_processing {
         width: auto;
         margin: 0;
-        color: var(--danger);
+        color: var(--bs-danger);
         transform: translateX(-50%);
     }
     .card {
@@ -101,16 +101,16 @@ $loading = "";
     /* Color Overrides for jQuery-DT */
     table.dataTable thead th,
     table.dataTable thead td {
-        border-bottom: 1px solid var(--gray900) !important;
+        border-bottom: 1px solid var(--bs-gray-900) !important;
     }
 
     table.dataTable tfoot th,
     table.dataTable tfoot td {
-        border-top: 1px solid var(--gray900) !important;
+        border-top: 1px solid var(--bs-gray-900) !important;
     }
 
     table.dataTable tbody tr {
-        background-color: var(--white) !important;
+        background-color: var(--bs-white) !important;
         cursor: pointer;
     }
 
@@ -118,18 +118,18 @@ $loading = "";
     table.dataTable.row-border tbody td,
     table.dataTable.display tbody th,
     table.dataTable.display tbody td {
-        border-top: 1px solid var(--gray300) !important;
+        border-top: 1px solid var(--bs-gray-300) !important;
     }
 
     table.dataTable.cell-border tbody th,
     table.dataTable.cell-border tbody td {
-        border-top: 1px solid var(--gray300) !important;
-        border-right: 1px solid var(--gray300) !important;
+        border-top: 1px solid var(--bs-gray-300) !important;
+        border-right: 1px solid var(--bs-gray-300) !important;
     }
 
     table.dataTable.cell-border tbody tr th:first-child,
     table.dataTable.cell-border tbody tr td:first-child {
-        border-left: 1px solid var(--gray300) !important;
+        border-left: 1px solid var(--bs-gray-300) !important;
     }
 
     table.dataTable.stripe tbody tr.odd,
@@ -183,30 +183,30 @@ $loading = "";
 
     table.dataTable.display tbody tr:hover>.sorting_1,
     table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
-        background-color: var(--gray200) !important;
+        background-color: var(--bs-gray-200) !important;
     }
 
     table.dataTable.display tbody tr:hover>.sorting_2,
     table.dataTable.order-column.hover tbody tr:hover>.sorting_2 {
-        background-color: var(--gray200) !important;
+        background-color: var(--bs-gray-200) !important;
     }
 
     table.dataTable.display tbody tr:hover>.sorting_3,
     table.dataTable.order-column.hover tbody tr:hover>.sorting_3 {
-        background-color: var(--gray200) !important;
+        background-color: var(--bs-gray-200) !important;
     }
 
     table.dataTable.display tbody .odd:hover,
     table.dataTable.display tbody .even:hover {
-        background-color: var(--gray200) !important;
+        background-color: var(--bs-gray-200) !important;
     }
 
     table.dataTable.no-footer {
-        border-bottom: 1px solid var(--gray900) !important;
+        border-bottom: 1px solid var(--bs-gray-900) !important;
     }
 
     .dataTables_wrapper .dataTables_processing {
-        background-color: var(--white) !important;
+        background-color: var(--bs-white) !important;
         background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--bs-black), 0.9)), color-stop(75%, rgba(var(--bs-black), 0.9)), color-stop(100%, transparent)) !important;
         background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
         background: -moz-linear-gradient(left, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
@@ -220,7 +220,7 @@ $loading = "";
     .dataTables_wrapper .dataTables_info,
     .dataTables_wrapper .dataTables_processing,
     .dataTables_wrapper .dataTables_paginate {
-        color: var(--dark) !important;
+        color: var(--bs-dark) !important;
     }
 
     div.dataTables_length select {
@@ -228,7 +228,7 @@ $loading = "";
     }
 
     .dataTables_wrapper.no-footer .dataTables_scrollBody {
-        border-bottom: 1px solid var(--gray900) !important;
+        border-bottom: 1px solid var(--bs-gray-900) !important;
     }
 
     /* Pagination button Overrides for jQuery-DT */

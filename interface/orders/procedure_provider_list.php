@@ -72,9 +72,9 @@ function doedclick_edit(ppid) {
 <body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray-700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray-300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
@@ -124,7 +124,7 @@ function doedclick_edit(ppid) {
                                         echo "  <td class='text-center text-body'><span style='cursor: pointer;'  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class='haskids fa fa-pencil-alt' title='" . attr($trTitle) . "'></span></td>\n";
                                     } else {
                                         $trTitle = xl("Not Allowed to Edit") . ' ' . $row['name'];
-                                        echo "  <td class='text-center'><span style='color: var(--gray400); cursor: no-drop;' class='haskids fa fa-pencil-alt' title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class='text-center'><span style='color: var(--bs-gray-400); cursor: no-drop;' class='haskids fa fa-pencil-alt' title='" . attr($trTitle) . "'></span></td>\n";
                                     }
                                     echo " </tr>\n";
                                 }

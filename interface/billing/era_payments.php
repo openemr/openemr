@@ -160,7 +160,7 @@ if (!empty($_FILES['form_erafile']['size'])) {
         position: absolute;
         z-index: 10;
         background-color: #FBFDD0;
-        border: 1px solid var(--gray);
+        border: 1px solid var(--bs-gray);
         padding: 10px;
     }
     .bottom {

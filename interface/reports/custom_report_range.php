@@ -112,7 +112,7 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: var(--gray200);
+    background-color: var(--bs-gray-200);
     border: 1px solid var(--bs-black);
 }
 #superbill_insurancedata {
@@ -124,7 +124,7 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: var(--gray200);
+    background-color: var(--bs-gray-200);
     border: 1px solid var(--bs-black);
 }
 #superbill_insurancedata h2 {
@@ -133,7 +133,7 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 0px;
     width: 100%;
-    background-color: var(--gray200);
+    background-color: var(--bs-gray-200);
 }
 #superbill_billingdata {
     margin-top: 10px;
@@ -144,7 +144,7 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: var(--gray200);
+    background-color: var(--bs-gray-200);
     border: 1px solid var(--bs-black);
 }
 </style>

@@ -78,7 +78,7 @@ if (!isset($_GET["mode"])) {
 <?php Header::setupHeader(); ?>
 
 </head>
-<body bgcolor="var(--white)" topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
+<body bgcolor="var(--bs-white)" topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 
 <a href="javascript:window.close();" target="Main"><font class="title"><?php echo xlt('Billing Report')?></font></a>
 <br />

@@ -162,7 +162,7 @@ function PrintEncHeader($dt, $rsn, $dr)
 function PrintEncFooter()
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
-    echo "<tr style='background-color: var(--gray300)'>";
+    echo "<tr style='background-color: var(--bs-gray-300)'>";
     echo "<td colspan='3'>&nbsp;</td>";
     echo "<td class='detail'>" . xlt('Encounter Balance') . ":</td>";
     echo "<td class='detail text-center'>" . text($enc_units) . "</td>";
@@ -887,7 +887,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if (count($uac) > 0) {
         if ($orow) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-            echo "<tr style='background-color: var(--white);'><td colspan='9'>&nbsp;</td></tr>\n";
+            echo "<tr style='background-color: var(--bs-white);'><td colspan='9'>&nbsp;</td></tr>\n";
         }
 
         PrintCreditDetail($uac, $form_pid, true);

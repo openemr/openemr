@@ -149,7 +149,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
         $('.new_patient').on('click', function(){
             top.restoreSession();
-            $('.new_patient').css("border-color", "var(--body-color)");
+            $('.new_patient').css("border-color", "var(--bs-body-color)");
             $('.error_wrap .error').html("");
             var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
             dlgopen(url, '_blank', 500, 400);
@@ -169,7 +169,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
             if(name == ""){
                 //If no patient was chosen (validation)
-                $('.new_patient').css("border-color", "var(--danger)");
+                $('.new_patient').css("border-color", "var(--bs-danger)");
                 var err_msg = <?php echo xlj("Choose Patient"); ?>;
                 $('.error_wrap .error').html(err_msg);
             }
@@ -187,7 +187,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 });
                 var exists = $.inArray(new_patient_id, ids_array);
                 if(exists >= 0){
-                    $('.new_patient').css("border-color", "var(--danger)");
+                    $('.new_patient').css("border-color", "var(--bs-danger)");
                     var err_msg = <?php echo xlj("Patient already in form"); ?>;
                     $('.error_wrap .error').html(err_msg);
                     return;

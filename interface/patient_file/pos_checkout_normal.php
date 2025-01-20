@@ -235,7 +235,7 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         table.mini_table>tbody>tr>th {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
             text-align: center;
         }
 
@@ -270,11 +270,11 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table > thead {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3) {
@@ -282,15 +282,15 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         .bg-blue {
-            background-color:var(--secondary);
+            background-color:var(--bs-secondary);
         }
 
         .fac-name {
-            background-color:var(--secondary);
+            background-color:var(--bs-secondary);
             width: 99px;
         }
         .bg-color {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
             padding: 2px; font-weight: 600;
             -webkit-print-color-adjust: exact;
         }

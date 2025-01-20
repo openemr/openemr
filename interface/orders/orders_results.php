@@ -167,7 +167,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
 
         tr.head {
             font-size: 13px;
-            background-color: var(--gray400);
+            background-color: var(--bs-gray-400);
             text-align: center;
         }
         tr.detail {
@@ -175,7 +175,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
         }
 
         .reccolor {
-            color: var(--success);
+            color: var(--bs-success);
         }
 
     </style>

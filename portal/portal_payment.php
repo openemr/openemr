@@ -825,7 +825,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                         alert(<?php echo xlj('Validation error: Fix and resubmit. This popup info is preserved!'); ?>)
                         return false;
                     }
-                    $("#openPayModal .close").click()
+                    $("#openPayModal .btn-close").click()
                 },
                 error: function (qXHR, textStatus, errorThrow) {
                     console.log("There was an error:" + errorThrow);
@@ -841,7 +841,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
             });
             if (flag) {
-                $("#openPayModal .close").click();
+                $("#openPayModal .btn-close").click();
             }
         });
 
@@ -1293,7 +1293,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4><?php echo xlt('Submit Payment for Authorization'); ?></h4>
-                    <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                    <!--<button type="button" class="btn-close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
                     <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere') { ?>

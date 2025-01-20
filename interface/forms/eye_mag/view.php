@@ -250,7 +250,7 @@ if ($refresh and $refresh != 'fullscreen') {
         <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
           <div id="Layer1" name="Layer1" class="display">
             <div id="warning" name="warning" class="alert alert-warning <?php echo $warning; ?>">
-              <span type="button" class="close" data-dismiss="alert">&times;</span>
+              <span type="button" class="btn-close" data-dismiss="alert">&times;</span>
               <h4><?php echo xlt('Warning'); ?>!
                 <?php echo text($warning_text); ?></h4>
             </div>

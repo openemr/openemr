@@ -1,5 +1,5 @@
 .ac_results {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border: 1px solid var(--bs-black);
   overflow: hidden;
   padding: 0;
@@ -35,7 +35,7 @@
 }
 
 .ac_loading {
-  background: var(--white) url('indicator.gif') right center no-repeat;
+  background: var(--bs-white) url('indicator.gif') right center no-repeat;
 }
 
 .ac_odd {
@@ -44,5 +44,5 @@
 
 .ac_over {
   background-color: #0a246a;
-  color: var(--white);
+  color: var(--bs-white);
 }

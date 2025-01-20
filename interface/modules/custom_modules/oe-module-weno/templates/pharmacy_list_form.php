@@ -82,7 +82,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
   .select2-container--default .select2-selection--single {
     height: calc(2.25rem + 2px);
     background-color: var(--bs-light);
-    color: var(--dark);
+    color: var(--bs-dark);
     padding: .375rem .75rem;
     font-size: 1rem;
     line-height: 1.5;
@@ -91,7 +91,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
   }
 
   .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: var(--dark);
+    color: var(--bs-dark);
     line-height: 1.5;
     padding-left: 4px;
     padding-right: 6px;

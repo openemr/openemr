@@ -106,7 +106,7 @@ if ($popup && $_POST['form_save'] ?? '') {
             background-color: var(--bs-light);
         }
         tr.oddrow {
-            background-color: var(--white);
+            background-color: var(--bs-white);
         }
         tr.outertr {
             padding: 0px 0px 0px 10px;

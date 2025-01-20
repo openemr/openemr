@@ -1019,7 +1019,7 @@ if (!empty($row['lab_id'])) {
 
       .proc-table .itemDelete {
         width: 25px;
-        color: var(--danger);
+        color: var(--bs-danger);
         cursor: pointer;
       }
 

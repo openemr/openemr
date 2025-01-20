@@ -58,7 +58,7 @@ if (!empty($_GET)) {
 }
 
 #logview td {
-    background-color: var(--white);
+    background-color: var(--bs-white);
     border-bottom: 1px solid #808080;
     cursor: default;
     padding: 5px 5px;

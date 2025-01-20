@@ -31,9 +31,9 @@ $enable-responsive-font-sizes: true;
 }
 
 .fixed-top {
-  background-color: var(--gray400) !important;
-  border-bottom: 0.1px solid var(--gray) !important;
-  box-shadow: 0 0 10px var(--gray) !important;
+  background-color: var(--bs-gray-400) !important;
+  border-bottom: 0.1px solid var(--bs-gray) !important;
+  box-shadow: 0 0 10px var(--bs-gray) !important;
   padding: 0 !important;
   z-index: 1000 !important;
 }
@@ -54,12 +54,12 @@ $enable-responsive-font-sizes: true;
   }
 
   > li .open > a {
-    background-color: var(--primary) !important;
-    color: var(--white) !important;
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
   }
 
   > li > a:hover {
-    color: var(--white) !important;
+    color: var(--bs-white) !important;
   }
 }
 
@@ -71,34 +71,34 @@ $enable-responsive-font-sizes: true;
 
   > li > a:focus,
   > li:focus {
-    background-color: var(--primary) !important;
+    background-color: var(--bs-primary) !important;
     /* this is the "hover" blue */
-    color: var(--white) !important;
+    color: var(--bs-white) !important;
     text-decoration: none !important;
   }
 }
 
 .nav > .active > a,
 .navbar-nav > .open > a {
-  background-color: var(--primary) !important;
-  color: var(--white) !important;
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-white) !important;
   /* Mac Menu title bar background color */
 }
 
 .dropdown-menu {
-  background-color: var(--gray300) !important;
+  background-color: var(--bs-gray-300) !important;
   /* Mac Menu dropdown bar background color */
 
   > li > a:hover,
   > li > a:focus {
-    background-color: var(--primary) !important;
-    color: var(--white) !important;
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
     text-decoration: none !important;
     text-shadow: none !important;
   }
 
   .dropdown-divider {
-    background-color: var(--gray400) !important;
+    background-color: var(--bs-gray-400) !important;
     height: 1px !important;
     margin: 9px 0 !important;
     overflow: hidden !important;
@@ -113,7 +113,7 @@ $enable-responsive-font-sizes: true;
 }
 
 li.open > a:first {
-  color: var(--white) !important;
+  color: var(--bs-white) !important;
 }
 
 .dropdown {

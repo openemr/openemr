@@ -98,7 +98,7 @@ if (
             }
 
             .icon-bar {
-                background-color: var(--danger);
+                background-color: var(--bs-danger);
             }
         }
     </style>
@@ -143,9 +143,9 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
 
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="float-end oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-end oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray-300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -730,7 +730,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 if (document.getElementById("checkAll").checked === true) {
                                     document.getElementById("checkAll").checked = true;<?php
                                     for ($i = 1; $i <= $count; $i++) {
-                                        echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--gray200)';  ";
+                                        echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--bs-gray-200)';  ";
                                     } ?>
                                 } else {
                                     document.getElementById("checkAll").checked = false;<?php
@@ -743,7 +743,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             // The two functions below are for managing row styles in Messages table.
                             function selectRow(row) {
                                 event.stopPropagation();
-                                document.getElementById(row).style.background = "var(--gray200)";
+                                document.getElementById(row).style.background = "var(--bs-gray-200)";
                             }
                             function deselectRow(row) {
                                 event.stopPropagation();

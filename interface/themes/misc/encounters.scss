@@ -19,7 +19,7 @@ $enable-responsive-font-sizes: true;
   }
 
   .billing_note_text {
-    background-color: var(--gray300);
+    background-color: var(--bs-gray-300);
     border: 2px outset var(--bs-black);
     padding: 5px;
   }
@@ -53,13 +53,13 @@ $enable-responsive-font-sizes: true;
   }
 
   .highlight {
-    background-color: var(--white);
+    background-color: var(--bs-white);
   }
 
   .tooltip {
     background: #f7f5d1;
-    border: 1px solid var(--gray800);
-    color: var(--gray800);
+    border: 1px solid var(--bs-gray-800);
+    color: var(--bs-gray-800);
     display: none;
     padding: 2px 5px;
     position: absolute;

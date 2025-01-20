@@ -84,22 +84,22 @@ EOD;
   cursor: pointer;
 }
 #{$this->tabsid} li .icon-close:hover {
-  color: var(--danger) !important;
+  color: var(--bs-danger) !important;
 }
 .tabs-anchor {
   margin-right: 3px;
-  color: var(--white);
+  color: var(--bs-white);
   display: block;
-  background: var(--gray);
+  background: var(--bs-gray);
   text-decoration: none !important;
 }
 .tabs-anchor:hover {
-  color: var(--white);
+  color: var(--bs-white);
   text-decoration: none !important;
 }
 a.active {
-  color: var(--white);
-  background: var(--primary);
+  color: var(--bs-white);
+  background: var(--bs-primary);
 }
 </style>
 EOD;

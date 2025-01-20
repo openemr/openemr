@@ -180,7 +180,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <form method="post" action="office_comments_full.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo text('Edit Note'); ?></h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
@@ -209,7 +209,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                             <form method="post" action="office_comments_full.php">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deleteNoteModalLabel<?php echo attr($note['id']); ?>"><?php echo xlt("Delete Note"); ?></h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>

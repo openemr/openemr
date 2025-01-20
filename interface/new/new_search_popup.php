@@ -28,7 +28,7 @@ if (!empty($_POST)) {
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
-$searchcolor = empty($GLOBALS['layout_search_color']) ? 'var(--yellow)' : $GLOBALS['layout_search_color'];
+$searchcolor = empty($GLOBALS['layout_search_color']) ? 'var(--bs-yellow)' : $GLOBALS['layout_search_color'];
 $simpleSearch = $_GET['simple_search'] ?? null;
 ?>
 <!DOCTYPE html>
@@ -45,7 +45,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
     text-align: center;
     width: 100%;
     font-size: 0.8rem;
-    background-color: var(--gray300);
+    background-color: var(--bs-gray-300);
     font-weight: bold;
     padding: 3px;
   }
@@ -63,7 +63,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
   #searchResults table {
     width: 100%;
     border-collapse: collapse;
-    background-color: var(--white);
+    background-color: var(--bs-white);
   }
 
   #searchResults tr {
@@ -72,7 +72,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 
   #searchResults td {
     font-size: 0.7rem;
-    border-bottom: 1px solid var(--gray200);
+    border-bottom: 1px solid var(--bs-gray-200);
   }
 
   .topResult {
@@ -80,13 +80,13 @@ $simpleSearch = $_GET['simple_search'] ?? null;
   }
 
   .billing {
-    color: var(--danger);
+    color: var(--bs-danger);
     font-weight: bold;
   }
 
   .highlight {
-    background-color: var(--info);
-    color: var(--white);
+    background-color: var(--bs-info);
+    color: var(--bs-white);
   }
 </style>
 <script>

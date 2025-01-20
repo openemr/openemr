@@ -342,7 +342,7 @@
 }
 
 .conference-room .participant-list-container .participant-container.pinned .video-control.video-control-pin {
-  color: var(--success) !important;
+  color: var(--bs-success) !important;
   display: block;
 }
 

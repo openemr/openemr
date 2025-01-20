@@ -935,7 +935,7 @@ function writeFieldLine($linedata)
     // The "?" to click on for yet more field attributes.
     echo "  <td class='fw-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
     if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
-        echo "background-color: var(--success);";
+        echo "background-color: var(--bs-success);";
     }
 
     echo "' onclick='extShow(" . attr($fld_line_no) . ", this)' align='center' ";
@@ -958,7 +958,7 @@ function writeFieldLine($linedata)
     //
     $extra_html .= "<div id='ext_" . attr($fld_line_no) . "' " .
       "style='width: 750px; border: 1px solid var(--bs-black);" .
-      "padding: 2px; background-color: var(--gray300); visibility: hidden;" .
+      "padding: 2px; background-color: var(--bs-gray-300); visibility: hidden;" .
       "z-index: 1000; left:-1000px; top:0; font-size: 0.6875rem;' class='position-absolute'>\n" .
       "<table class='w-100'>\n" .
       " <tr>\n" .
@@ -1136,7 +1136,7 @@ function genLayoutOptions($title = '?', $default = '')
 
     .orgTable tr.head {
         font-size: 0.6875rem;
-        background-color: var(--gray400);
+        background-color: var(--bs-gray-400);
     }
 
     .orgTable tr.detail {
@@ -1158,7 +1158,7 @@ function genLayoutOptions($title = '?', $default = '')
     a,
     a:visited,
     a:hover {
-        color: var(--primary);
+        color: var(--bs-primary);
     }
 
     .optin {
@@ -1178,7 +1178,7 @@ function genLayoutOptions($title = '?', $default = '')
     }
 
     .orgTable .odd td {
-        background-color: var(--gray300);
+        background-color: var(--bs-gray-300);
         padding: 3px 0px 3px 0px;
     }
 
@@ -1192,13 +1192,13 @@ function genLayoutOptions($title = '?', $default = '')
     }
 
     .translation {
-        color: var(--success);
+        color: var(--bs-success);
         font-size: 0.6875rem;
     }
 
     .highlight * {
-        border: 2px solid var(--primary);
-        background-color: var(--yellow);
+        border: 2px solid var(--bs-primary);
+        background-color: var(--bs-yellow);
         color: var(--bs-black);
     }
 
@@ -1230,7 +1230,7 @@ function genLayoutOptions($title = '?', $default = '')
     }
 
     .select2-container--default .select2-selection--multiple {
-        background-color: var(--white) !important;
+        background-color: var(--bs-white) !important;
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -1421,7 +1421,7 @@ function changeColor(lino){
     var thisValId = document.forms[0]['fld[' + lino + '][validation]'].value;
     var thistd = document.getElementById("querytd_" + lino);
     if(thisid !='' || thisValId!='') {
-        thistd.style.backgroundColor = 'var(--success)';
+        thistd.style.backgroundColor = 'var(--bs-success)';
     }else{
         thistd.style.backgroundColor = '';
     }
@@ -1682,7 +1682,7 @@ if ($layout_id) {
 </div>
 
 <!-- template DIV that appears when user chooses to add a new group -->
-<div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--gray);">
+<div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--bs-gray);">
 <span class='fw-bold'>
 <?php echo xlt('Group Name'); ?>:
 <input type="text" size="20" maxlength="30" name="newgroupname" id="newgroupname" />

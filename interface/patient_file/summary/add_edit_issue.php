@@ -381,14 +381,14 @@ function getCodeText($code)
 
 <style>
     div.section {
-        border: 1px solid var(--primary) !important;
+        border: 1px solid var(--bs-primary) !important;
         margin: 0 0 0 13px;
         padding: 7px;
     }
 
     /* Override theme's selected tab top color so it matches tab contents. */
     ul.tabNav li.current a {
-        background: var(--white);
+        background: var(--bs-white);
     }
 </style>
 

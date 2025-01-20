@@ -54,7 +54,7 @@ div.justify_template > div {
 }
 
 div.justify_template span.search_results {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border: 1px solid var(--bs-black);
   position: absolute;
 }
@@ -69,7 +69,7 @@ tr[encounter_issue] > td.info {
 }
 
 tr.patient > td.info {
-  color: var(--primary);
+  color: var(--bs-primary);
 }
 
 tr.common > td.info {
@@ -77,7 +77,7 @@ tr.common > td.info {
 }
 
 tr.search > td.info {
-  color: var(--success);
+  color: var(--bs-success);
 }
 
 td.priority {
@@ -90,18 +90,18 @@ th.sort {
 }
 
 div.justify_template span.search_results tr:hover {
-  background-color: var(--yellow);
+  background-color: var(--bs-yellow);
 }
 
 .problem_warning {
-  background-color: var(--yellow);
+  background-color: var(--bs-yellow);
   cursor: pointer;
   font-weight: bold;
   width: 100%;
 }
 
 .warning_details {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   position: absolute;
   width: 100%;
 }

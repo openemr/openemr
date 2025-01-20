@@ -69,7 +69,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
       #searchResults {
         width: 100%;
         border-collapse: collapse;
-        background-color: var(--white);
+        background-color: var(--bs-white);
         overflow: auto;
       }
 
@@ -84,7 +84,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
       }
 
       .billing {
-        color: var(--danger);
+        color: var(--bs-danger);
         font-weight: bold;
       }
 
@@ -104,7 +104,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
       /* highlight for the mouse-over */
       .highlight {
         background-color: #336699;
-        color: var(--white);
+        color: var(--bs-white);
       }
     </style>
 

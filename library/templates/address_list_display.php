@@ -26,12 +26,12 @@ $list_address_uses = generate_list_map("address-uses");
 
 <div id="<?php echo attr($table_id); ?>" class="row mt-3">
     <div class="table_text_addresses col-12">
-        <div class ="text_addresses_header label_custom ps-1" style="text-align: left !important; padding-top: 0.1rem; background-color: var(--gray300)">
+        <div class ="text_addresses_header label_custom ps-1" style="text-align: left !important; padding-top: 0.1rem; background-color: var(--bs-gray-300)">
             <?php echo xlt("Additional Addresses"); ?>
         </div>
         <div class="d-none no_addresses">
                 <span class="text data ps-1"><?php echo xlt("NONE"); ?></span>
-                <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+                <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--bs-gray-300)" />
         </div>
     </div>
 
@@ -60,7 +60,7 @@ $list_address_uses = generate_list_map("address-uses");
                 </div>
             </div>
         </div>
-        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--bs-gray-300)" />
     </template>
 </div>
 

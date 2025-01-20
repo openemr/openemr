@@ -163,7 +163,7 @@ if ($hasErrors) { ?>
     <div class="container-fluid m-0 p-0">
         <div id="error-alert" class="col alert alert-danger mt-2 px-0 py-1" role="alert">
             <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
-            <a role="button" class="btn btn-link p-0 ps-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
+            <a role="button" class="btn btn-link p-0 ps-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle btn-close"></i></a>
             <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
                 <div id="dialog-content" class="dialog-content text-danger" style="background-color: #fff"><?php echo $validate_errors; ?></div>
             </div>

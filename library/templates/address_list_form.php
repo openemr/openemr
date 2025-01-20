@@ -49,13 +49,13 @@ $widgetConstants = [
 
 <div id="<?php echo attr($table_id); ?>" class="row mt-3">
     <div class ="table_edit_addresses col-12">
-        <div class="display_addresses_header ps-1" style="display: flex; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
+        <div class="display_addresses_header ps-1" style="display: flex; line-height: 1.5; padding-top: 0.1rem; background-color: var(--bs-gray-300)">
             <div class="label_custom mb-0"><?php echo xlt("Additional Addresses"); ?></div>
             <div class="fas fa-plus-square text-primary ps-3 pb-1"  style="display: inline-block; line-height: 1.5;"onclick="addAddress(event);return false"></div>
         </div>
         <div class="d-none no_addresses">
             <span class="label_custom ps-1" style="line-height: 2.0;"><?php echo xlt("NONE"); ?></span>
-            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--bs-gray-300)" />
         </div>
     </div>
 </div>
@@ -255,7 +255,7 @@ $widgetConstants = [
                 </div>
             </div>
         </div>
-        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--bs-gray-300)" />
 
     </div>
 </template>

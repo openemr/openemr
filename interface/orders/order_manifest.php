@@ -146,7 +146,7 @@ function generate_order_summary($orderid)
 .ordsum a,
 .ordsum a:visited,
 .ordsum a:hover {
-    color: var(--primary);
+    color: var(--bs-primary);
 }
 
 .ordsum table {

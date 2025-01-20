@@ -36,7 +36,7 @@ $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true
             font-weight: bold;
         }
         .nav-item:active {
-            background-color: var(--primary);
+            background-color: var(--bs-primary);
         }
     </style>
     <script>

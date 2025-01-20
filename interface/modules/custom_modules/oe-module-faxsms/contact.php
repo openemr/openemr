@@ -169,7 +169,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                     const messageType = isError ? 'danger' : 'success';
                     const messageText = jsonData;
                     const alertBox = `<div class="alert alert-${messageType} alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             ${messageText}
                           </div>`;
 
@@ -183,7 +183,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
 
                 function showErrorMessage(message) {
                     const alertBox = `<div class="alert alert-danger alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             ${message}
                           </div>`;
                     $('#contact-form').find('.messages').html(alertBox);

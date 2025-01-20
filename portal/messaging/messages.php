@@ -714,7 +714,7 @@ function getAuthPortalUsers()
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             </div>
                             <div class="modal-body ">
                                 <div class="col-12">

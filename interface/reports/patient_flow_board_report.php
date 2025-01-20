@@ -304,35 +304,35 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     <thead class='thead-light'>
     <?php if (!$chk_show_drug_screens && !$chk_show_completed_drug_screens) { # the first part of this block is for the Patient Flow Board report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
-        <th><a href="nojs.php" onclick="return dosort('date')" <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+        <th><a href="nojs.php" onclick="return dosort('date')" <?php echo ($form_orderby == "date") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('type')"
-        <?php echo ($form_orderby == "type") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Type'); ?></a>
+        <?php echo ($form_orderby == "type") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Type'); ?></a>
         </th>
 
         <?php if ($chk_show_details) { ?>
         <th><a href="nojs.php" onclick="return dosort('trackerstatus')"
-            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
+            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
         </th>
         <?php } else { ?>
         <th><a href="nojs.php" onclick="return dosort('trackerstatus')"
-            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Final Status'); ?></a>
+            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Final Status'); ?></a>
         </th>
         <?php } ?>
 
@@ -355,28 +355,28 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     <?php } else { # this section is for the drug screen report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
         <th><a href="nojs.php" onclick="return dosort('date')"
-        <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Date'); ?></a>
+        <?php echo ($form_orderby == "date") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
         </th>
 
         <?php if (!$chk_show_completed_drug_screens) { ?>
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
         <?php } else { ?>
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
         <?php } ?>
 
@@ -386,7 +386,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
          <th>&nbsp;</th>
         <?php } else { ?>
          <th><a href="nojs.php" onclick="return dosort('completed')"
-            <?php echo ($form_orderby == "completed") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Completed'); ?></a>
+            <?php echo ($form_orderby == "completed") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Completed'); ?></a>
          </th>
         <?php } ?>
 

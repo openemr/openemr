@@ -46,12 +46,12 @@ $N = 7;
     }
 
     .insurance .table .text {
-        color: var(--danger);
+        color: var(--bs-danger);
     }
 
     .demographics .groupname.bold {
         font-size: 1rem;
-        color: var(--primary);
+        color: var(--bs-primary);
     }
 
     .demographics table .bold {
@@ -61,7 +61,7 @@ $N = 7;
 
     .demographics table .text {
         font-weight: normal;
-        color: var(--danger);
+        color: var(--bs-danger);
     }
 
     .demographics .table td {

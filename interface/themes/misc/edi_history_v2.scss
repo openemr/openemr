@@ -73,7 +73,7 @@ $enable-responsive-font-sizes: true;
  *
  */
 table#csvTable a {
-  color: var(--primary);
+  color: var(--bs-primary);
   text-decoration: none;
 }
 
@@ -82,7 +82,7 @@ table#csvTable a:visited {
 }
 
 table#csvTable a:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 div#tbrsp {
@@ -438,12 +438,12 @@ div#processed table caption {
 }
 
 div#processed table td {
-  color: var(--body-color);
+  color: var(--bs-body-color);
   padding: 3px;
 }
 
 div#processed table td.reject {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 /* ***** f837 class *******/

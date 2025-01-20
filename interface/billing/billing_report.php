@@ -69,7 +69,7 @@ if (isset($_POST['mode'])) {
         $results = $db->Execute($sql);
         $billings = array();
         if ($results->RecordCount() == 0) {
-            echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
+            echo "<fieldset id='error_info' style='border:1px solid var(--bs-danger) !important; background-color: var(--bs-danger) !important; color: var(--bs-white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
             echo "</fieldset>";
         } else {
@@ -538,7 +538,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         button[type="submit"].subbtn-warning:hover {
             background: #da8104 !important;
-            color: var(--white) !important;
+            color: var(--bs-white) !important;
         }
 
         @media only screen and (max-width: 1024px) {
@@ -1040,7 +1040,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = ((($encount ?? null) & 1) ? "var(--bs-light)" : "var(--gray300)");
+                                $bgcolor = ((($encount ?? null) & 1) ? "var(--bs-light)" : "var(--bs-gray-300)");
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;

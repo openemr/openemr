@@ -13,7 +13,7 @@
 /*  TODO: Move to /interface/themes for GSoC so we can have a centralized area for CSS */
 
 h1 {
-  color: var(--success);
+  color: var(--bs-success);
   font-size: 150%;
   font-weight: normal;
   line-height: 1.5rem;
@@ -27,7 +27,7 @@ h1 {
 }
 
 .nav-tabs > li {
-  border: 0.5px solid var(--gray400);
+  border: 0.5px solid var(--bs-gray-400);
   display: block;
   float: left;
   height: 40px;
@@ -70,14 +70,14 @@ h1 {
 }
 
 .flow tr:nth-child(odd) {
-  background-color: var(--gray300);
+  background-color: var(--bs-gray-300);
   overflow: hidden;
 }
 
 .flow tr:last-child {
-  background-color: var(--gray400);
+  background-color: var(--bs-gray-400);
   border-radius: 5px;
-  box-shadow: 0 -4px 6px var(--gray);
+  box-shadow: 0 -4px 6px var(--bs-gray);
   color: var(--bs-black);
   overflow: hidden;
   padding: 5px;
@@ -95,9 +95,9 @@ h1 {
 }
 
 .flow tr:first-child {
-  background-color: var(--gray300);
+  background-color: var(--bs-gray-300);
   border-radius: 0 0 2px 2px;
-  box-shadow: 0 4px 6px var(--gray);
+  box-shadow: 0 4px 6px var(--bs-gray);
   text-shadow: 0 1px 0 var(--bs-light);
 }
 
@@ -113,14 +113,14 @@ h1 {
 
 .flow tr:last-child:hover,
 .flow tr:first-child:hover {
-  background-color: var(--gray300);
+  background-color: var(--bs-gray-300);
 }
 
 .flow {
-  border: 2px ridge var(--gray);
+  border: 2px ridge var(--bs-gray);
   border-collapse: unset;
   border-radius: 8px;
-  box-shadow: 2px 1px 2px var(--gray);
+  box-shadow: 2px 1px 2px var(--bs-gray);
   margin: 15px;
   overflow: hidden;
   text-align: center;
@@ -128,10 +128,10 @@ h1 {
 }
 
 .newRecall {
-  background-color: var(--white);
-  border: 0.5px ridge var(--gray400);
+  background-color: var(--bs-white);
+  border: 0.5px ridge var(--bs-gray-400);
   border-radius: 8px;
-  box-shadow: 2px 1px 2px var(--gray400);
+  box-shadow: 2px 1px 2px var(--bs-gray-400);
   display: inline-table;
   height: 300px;
   margin: 15px auto;
@@ -141,10 +141,10 @@ h1 {
 }
 
 .divTable {
-  background: var(--white);
-  border: 0.5px solid var(--gray400);
+  background: var(--bs-white);
+  border: 0.5px solid var(--bs-gray-400);
   border-radius: 8px;
-  box-shadow: 2px 3px 9px var(--gray400);
+  box-shadow: 2px 3px 9px var(--bs-gray-400);
   display: table;
   float: left;
   margin: 15px auto;
@@ -152,10 +152,10 @@ h1 {
 }
 
 .divTable2 {
-  background: var(--white);
-  border: 0.5px solid var(--gray400);
+  background: var(--bs-white);
+  border: 0.5px solid var(--bs-gray-400);
   border-radius: 8px;
-  box-shadow: 2px 3px 9px var(--gray400);
+  box-shadow: 2px 3px 9px var(--bs-gray-400);
   display: inline-block;
   margin: 15px auto;
   padding: 10px;
@@ -164,7 +164,7 @@ h1 {
 }
 
 .divTable3 {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 2px 3px 9px var(--bs-black);
@@ -183,7 +183,7 @@ h1 {
 }
 
 .divTableRow {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border-radius: 8px;
   color: var(--bs-black);
   display: table-row;
@@ -192,7 +192,7 @@ h1 {
 
 .divTableCell,
 .divTableHead {
-  border: 0.5px solid var(--gray);
+  border: 0.5px solid var(--bs-gray);
   border-radius: 3px;
   display: table-cell;
   min-height: 37px;
@@ -201,7 +201,7 @@ h1 {
 }
 
 .divTableHeading {
-  background-color: var(--gray200);
+  background-color: var(--bs-gray-200);
   font-weight: 600;
   padding: 5px;
   text-align: right;
@@ -230,7 +230,7 @@ h1 {
 }
 
 .divTableFoot {
-  background-color: var(--gray200);
+  background-color: var(--bs-gray-200);
   display: table-footer-group;
   font-weight: bold;
 }
@@ -330,19 +330,19 @@ input[type="radio"] {
 }
 
 .scheduled {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   color: var(--bs-black);
 }
 
 .no_bot_border {
   border-bottom: 1px dotted transparent;
-  box-shadow: 3px -2px 4px var(--gray400);
+  box-shadow: 3px -2px 4px var(--bs-gray-400);
   text-decoration: underline;
   top: 1px;
 }
 
 .search {
-  background-color: var(--gray400);
+  background-color: var(--bs-gray-400);
   border: 1px solid var(--bs-black);
   border-radius: 3px;
   padding: 5px;
@@ -367,7 +367,7 @@ input[type="radio"] {
 }
 
 .red {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 #save_prefs {
@@ -404,7 +404,7 @@ input[type="radio"] {
 }
 
 #reminder_wrap {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   margin: 0 auto;
   text-align: center;
   width: 100%;
@@ -425,7 +425,7 @@ input[type="radio"] {
 }
 
 #div_response {
-  color: var(--danger);
+  color: var(--bs-danger);
   min-height: 25px;
   text-align: center;
 }
@@ -444,20 +444,20 @@ td.right {
 }
 
 .borderShadow {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 6px;
-  box-shadow: 5px 5px 9px var(--gray);
+  box-shadow: 5px 5px 9px var(--bs-gray);
   padding: 6px;
   width: 80%;
 }
 
 .center-div {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 3px;
   bottom: 0;
-  box-shadow: 5px 5px 9px var(--gray);
+  box-shadow: 5px 5px 9px var(--bs-gray);
   left: 0;
   margin: auto;
   max-height: 85vh;
@@ -476,9 +476,9 @@ td.right {
 }
 
 .help {
-  background-color: var(--gray300);
+  background-color: var(--bs-gray-300);
   border-radius: 10px;
-  color: var(--white);
+  color: var(--bs-white);
   cursor: pointer;
   display: inline-block;
   font-size: x-small;
@@ -526,7 +526,7 @@ td.right {
 }
 
 .signup_help {
-  color: var(--danger);
+  color: var(--bs-danger);
   padding: 0 15px;
 }
 

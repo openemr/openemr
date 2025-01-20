@@ -104,7 +104,7 @@ foreach ($searchResult as $docResult) {
         #searchResults {
             width: 100%;
             border-collapse: collapse;
-            background-color: var(--white);
+            background-color: var(--bs-white);
             overflow: auto;
         }
 
@@ -131,7 +131,7 @@ foreach ($searchResult as $docResult) {
         /* highlight for the mouse-over */
         .oneresult:hover {
             background-color: #336699;
-            color: var(--white);
+            color: var(--bs-white);
         }
     </style>
 </head>

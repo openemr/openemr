@@ -538,7 +538,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
         min-width: 5vw !important;
         padding: 2px 2px;
         color: var(--bs-light);
-        background-color: var(--dark);
+        background-color: var(--bs-dark);
       }
 
       .select2-container {

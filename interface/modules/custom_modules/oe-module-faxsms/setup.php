@@ -57,7 +57,7 @@ $mode = $_REQUEST['mode'] ?? null;
                             const messageAlert = 'alert-' + (err !== 0 ? 'danger' : 'success');
                             const messageText = data;
                             const alertBox = '<div class="alert ' + messageAlert + ' alert-dismissable"><button type="button" ' +
-                                'class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
+                                'class="btn-close" data-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
                             if (messageAlert && messageText) {
                                 $(window).scrollTop(0);
                                 // inject the alert to .messages div in our form

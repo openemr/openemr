@@ -51,7 +51,7 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
             <div id="alertMessage" class="alert alert-${type} border border-dark alert-dismissible fade show" role="alert">
                 <div class="alert-heading bg-dark text-light text-center"><h5 class="p-0 pb-2 ">` + jsText('Alert Message!') + `</h5></div>
                 <p>${message}</p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -401,7 +401,7 @@ function initSignerApi() {
             }
         });*/
 
-        $("#openSignModal .close").on("click", function (e) {
+        $("#openSignModal .btn-close").on("click", function (e) {
             signaturePad.clear();
         });
 

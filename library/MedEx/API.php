@@ -2001,7 +2001,7 @@ class Display extends base
             <div class="showRecalls mx-auto" id="show_recalls">
                 <div name="message" id="message" class="warning">
                 </div>
-                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--danger)' : 'var(--bs-black)'; ?>; position: relative; float: right; right: 0; top: 0;">
+                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--bs-danger)' : 'var(--bs-black)'; ?>; position: relative; float: right; right: 0; top: 0;">
                     <i class="far fa-square fa-stack-2x"></i>
                     <i id="print_caret" class='fas fa-caret-<?php echo $caret = ($rcb_selectors === 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                 </span>
@@ -2046,7 +2046,7 @@ class Display extends base
                     'rcb_selectors' : 'none',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
-                        $("#rcb_caret").css('color','var(--danger)');
+                        $("#rcb_caret").css('color','var(--bs-danger)');
                     }
                 });
             }
@@ -3047,7 +3047,7 @@ class Setup extends Base
                                         <!-- Modal content-->
                                         <div class="modal-content">
                                             <div class="modal-header text-white fw-bold" style="background-color: #0d4867;">
-                                                <button type="button" class="close text-white" data-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
+                                                <button type="button" class="btn-close text-white" data-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
                                                 <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
                                             </div>
                                             <div class="modal-body" style="padding: 10px 45px;">

@@ -98,7 +98,7 @@ a:active {
 #tabs_left {
   background: transparent;
   border: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   left: 0;
   padding-left: 6.5em;
   position: fixed;
@@ -245,7 +245,7 @@ textarea.ACT {
 }
 
 .input-helper--radio::before {
-  border: 1px solid var(--dark);
+  border: 1px solid var(--bs-dark);
   border-radius: 50%;
   height: 10px;
   left: 0;
@@ -341,7 +341,7 @@ input[type=text] {
 }
 
 .refraction2 {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 5px 5px 5px #d4cece;
@@ -462,7 +462,7 @@ input[type=text] {
 /*Drop downs stuff */
 
 .dropdowns {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
   position: relative;
 }
 
@@ -483,7 +483,7 @@ input[type=text] {
 }
 
 .vitals {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 5px 5px 9px #dad7d7;
@@ -535,7 +535,7 @@ input[type=text] {
 }
 
 .borderShadow {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 6px;
   box-shadow: 5px 5px 9px #dad7d7;
@@ -609,11 +609,11 @@ input[type=text] {
 }
 
 .manifest {
-  background-color: var(--white);
+  background-color: var(--bs-white);
 }
 
 .CTL {
-  background-color: var(--white);
+  background-color: var(--bs-white);
 }
 
 .tab_content table {
@@ -687,7 +687,7 @@ body {
 }
 
 .SideBarTabClass {
-  background: var(--white);
+  background: var(--bs-white);
   border-radius: 8px;
   box-shadow: 1px 1px 1px #888;
   height: 0.5in;
@@ -791,7 +791,7 @@ textarea.ANTSEGTEXT {
 
 .button {
   background-color: #e3e1b8;
-  color: var(--success);
+  color: var(--bs-success);
   font-family: "Arial", "trebuchet ms", "Helvetica", sans-serif;
   padding: 2px 4px;
   text-decoration: none;
@@ -828,7 +828,7 @@ textarea.ANTSEGTEXT {
 }
 
 #tabs li.active a {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border-bottom: 0;
   color: #000080;
   padding: 4px 6px 5px;
@@ -873,11 +873,11 @@ textarea.ANTSEGTEXT {
 }
 
 .button_over {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
 }
 
 .buttonRefraction_selected {
-  background-color: var(--warning) !important;
+  background-color: var(--bs-warning) !important;
   border: var(--bs-black);
 }
 
@@ -920,7 +920,7 @@ textarea.ANTSEGTEXT {
 
 .color_indicator {
   border: 1pt solid #c0c0c0;
-  border-bottom: var(--white);
+  border-bottom: var(--bs-white);
   border-top: unset;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
@@ -994,7 +994,7 @@ textarea.ANTSEGTEXT {
 }
 
 .eye_button_blank {
-  border: var(--white);
+  border: var(--bs-white);
   border-radius: 7px;
   color: var(--bs-black);
   display: inline-block;
@@ -1010,14 +1010,14 @@ textarea.ANTSEGTEXT {
 .eye_button:hover {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
   background-color: #1e62d0;
-  color: var(--white);
+  color: var(--bs-white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
 }
 
 .eye_button:active {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
   background-color: #1e62d0;
-  color: var(--white);
+  color: var(--bs-white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
   position: relative;
   top: 1px;
@@ -1025,10 +1025,10 @@ textarea.ANTSEGTEXT {
 
 .eye_button_selected {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #000080), color-stop(1, #3d94f6));
-  border: var(--white);
+  border: var(--bs-white);
   border-radius: 2px;
   box-shadow: inset 0 1px 0 0 #97c4fe;
-  color: var(--white);
+  color: var(--bs-white);
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
   font-size: 11px;
@@ -1105,7 +1105,7 @@ textarea.ANTSEGTEXT {
   vertical-align: top;
 }
 
-.var(--danger) {
+.var(--bs-danger) {
   text-decoration: underline;
 }
 
@@ -1116,7 +1116,7 @@ textarea.ANTSEGTEXT {
 
 .kb_left {
   bottom: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   float: left;
   font-size: 0.7em;
   left: 0;
@@ -1128,7 +1128,7 @@ textarea.ANTSEGTEXT {
 
 .kb_right {
   bottom: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   float: right;
   font-size: 0.7em;
   position: relative;
@@ -1138,15 +1138,15 @@ textarea.ANTSEGTEXT {
 }
 
 .kb_center {
-  color: var(--danger);
+  color: var(--bs-danger);
   font-size: 0.7em;
   position: relative;
   vertical-align: top;
 
 }
 
-.var(--warning) {
-  background-color: var(--warning);
+.var(--bs-warning) {
+  background-color: var(--bs-warning);
 }
 
 textarea {
@@ -1225,13 +1225,13 @@ textarea.EXTTEXT {
 }
 
 .closeButton:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 }
 
 .closeButton:hover a {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   text-decoration: none;
 }
 
@@ -1251,7 +1251,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_2:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 
@@ -1268,7 +1268,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_3:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 
@@ -1285,7 +1285,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_4:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 }
@@ -1301,7 +1301,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_5:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 }
@@ -1328,7 +1328,7 @@ textarea.EXTTEXT {
 }
 
 #header a:hover {
-  color: var(--white);
+  color: var(--bs-white);
 }
 
 #header #selected {
@@ -1338,7 +1338,7 @@ textarea.EXTTEXT {
 
 #header #selected a {
   background-image: url('images/tableftactive.gif');
-  color: var(--white);
+  color: var(--bs-white);
 }
 
 #content {
@@ -1373,7 +1373,7 @@ h1 {
 }
 
 .ACT_selected {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border-bottom: 9;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
@@ -1396,7 +1396,7 @@ h1 {
   border-bottom-right-radius: 0;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  color: var(--white);
+  color: var(--bs-white);
   font-size: 1em;
   height: 25px;
   margin: 5px;
@@ -1428,7 +1428,7 @@ b.ACT_box {
 
 /* do some full screen playing around */
 .fullscreen {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   bottom: 0;
   box-sizing: border-box;
   font-size: 2em;
@@ -1452,7 +1452,7 @@ input[type=text].fullscreen {
 }
 
 .top_left {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border: 0;
   color: var(--bs-black);
   height: 1.2em;
@@ -1469,7 +1469,7 @@ input[type=text].fullscreen {
 }
 
 .QP_block_outer {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border: 1px solid var(--bs-black);
   float: left;
   font-size: 0.9em;
@@ -1481,7 +1481,7 @@ input[type=text].fullscreen {
 }
 
 .QP_block {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   float: left;
   font-size: 0.9em;
   margin: 3px;
@@ -1543,7 +1543,7 @@ input {
 .navbar-nav > li > li:focus {
   background-color: #3e76c2;
   border-radius: 0;
-  color: var(--white);
+  color: var(--bs-white);
   top: 0;
 }
 
@@ -1574,7 +1574,7 @@ input {
 .nav > li:focus {
   background-color: #1c5ecf;
   /* this is the "hover" blue */
-  color: var(--white);
+  color: var(--bs-white);
   text-decoration: none;
   /*#33aa33; <--- this is kelly green */
 }
@@ -1599,7 +1599,7 @@ input {
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
   background-color: #1c5ecf;
-  color: var(--white);
+  color: var(--bs-white);
   /*#262626;*/
   text-decoration: none;
   /*#3E76C2;*/
@@ -1626,7 +1626,7 @@ input {
 
 .navbar-toggle {
   /* this is the responsive view shown when the screen is very narrow
-    background-color:var(--warning);
+    background-color:var(--bs-warning);
     height:24px;
     */
 }
@@ -1663,7 +1663,7 @@ a:focus {
 }
 
 .sketch_tools:active {
-  color: var(--danger);
+  color: var(--bs-danger);
   height: 100px;
 }
 
@@ -1755,7 +1755,7 @@ a:focus {
 }
 
 .left_menu_tab a {
-  color: var(--white) !important;
+  color: var(--bs-white) !important;
   font-size: 1em;
 }
 
@@ -1829,11 +1829,11 @@ a:focus {
 }
 
 .ui-draggable-dragging {
-  box-shadow: 5px 5px 9px var(--danger);
+  box-shadow: 5px 5px 9px var(--bs-danger);
 }
 
 .build_PLAN li:hover {
-  background: var(--warning);
+  background: var(--bs-warning);
 }
 
 .building_blocks {
@@ -1847,7 +1847,7 @@ a:focus {
 }
 
 .building_blocks dd {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 1px 1px 3px #888;
@@ -1931,11 +1931,11 @@ li .handle {
 }
 
 .ui-selecting {
-  background: var(--warning);
+  background: var(--bs-warning);
 }
 
 .build_PLAN .ui-selecting .handle {
-  background: var(--danger);
+  background: var(--bs-danger);
 }
 
 .ui-selected {
@@ -2355,7 +2355,7 @@ View.php
 }
 
 #Lyr511 {
-  background: var(--white);
+  background: var(--bs-white);
   border: 0;
   font-size: 0.8em;
   left: 0;
@@ -2922,7 +2922,7 @@ input[type="checkbox"] {
   border: 1px solid var(--bs-black);
   border-radius: 3px;
   box-shadow: 2px 2px 7px #b6afaf;
-  color: var(--white);
+  color: var(--bs-white);
   margin-bottom: 3px;
   padding: 3px;
 }
@@ -2937,7 +2937,7 @@ input[type="checkbox"] {
 }
 
 .lights_off {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   padding: 0 5px;
   vertical-align: baseline;
   width: 33%;
@@ -2957,7 +2957,7 @@ input[type="checkbox"] {
 }
 
 .status_on {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
   box-shadow: 0 0 0 0 #c0c0c0;
 }
 
@@ -2967,7 +2967,7 @@ input[type="checkbox"] {
 
 #DIL_MEDS,
 #PRIORS_dil_meds {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   font-size: 0.8em;
   height: 16px;
   width: 75px;

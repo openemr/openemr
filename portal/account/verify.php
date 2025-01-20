@@ -130,7 +130,7 @@ if ($GLOBALS['language_menu_login']) {
   }
 
   .stepwiz-row::before {
-    background-color: var(--gray400);
+    background-color: var(--bs-gray-400);
     bottom: 0;
     content: " ";
     height: 1px;

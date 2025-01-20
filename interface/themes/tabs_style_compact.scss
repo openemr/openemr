@@ -141,11 +141,11 @@ body {
 }
 
 .tabSpan .fa {
-  color: var(--gray);
+  color: var(--bs-gray);
 }
 
 .tabHidden {
-  color: var(--gray);
+  color: var(--bs-gray);
 }
 
 .tabNotchosen {
@@ -178,7 +178,7 @@ body {
 }
 
 .patientEncounterList {
-  background: var(--white);
+  background: var(--bs-white);
   border: 1px solid var(--bs-black);
   cursor: pointer;
   overflow: hidden;
@@ -205,15 +205,15 @@ body {
 }
 
 .patientEncounterList > div:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientEncounterList table.encounters td:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientEncounterList .review {
-  background-color: var(--gray300);
+  background-color: var(--bs-gray-300);
   border: 1px solid var(--bs-black);
   border-radius: 5px;
   font-size: x-small;
@@ -230,7 +230,7 @@ body {
 }
 
 .patientInfo .clear {
-  background-color: var(--gray300);
+  background-color: var(--bs-gray-300);
   border: 1px solid var(--bs-black);
   border-radius: 5px;
   cursor: pointer;
@@ -240,7 +240,7 @@ body {
 }
 
 .patientInfo .clear:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientPicture {
@@ -270,8 +270,8 @@ body {
 
 .appMenu > span:hover,
 .appMenu .appMenu > span:hover {
-  background-color: var(--primary);
-  color: var(--white);
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
   text-decoration: none;
   text-shadow: none;
 }
@@ -288,8 +288,8 @@ body {
 }
 
 .appMenu li:hover {
-  background-color: var(--primary);
-  color: var(--white);
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
   text-decoration: none;
   text-shadow: none;
 }
@@ -311,7 +311,7 @@ body {
 }
 
 .menuSection > .menuEntries {
-  border: 0.5px solid var(--gray);
+  border: 0.5px solid var(--bs-gray);
   border-radius: 0 5px 5px !important;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
   color: var(--bs-black);
@@ -346,7 +346,7 @@ body {
 }
 
 .menuLabel {
-  color: var(--dark);
+  color: var(--bs-dark);
   padding-bottom: 0.3125rem;
   padding-left: 0.625rem;
   padding-right: 0.625rem;
@@ -357,12 +357,12 @@ body {
 
 .menuLabel:hover {
   background: #cce3f8;
-  color: var(--dark);
+  color: var(--bs-dark);
 }
 
 .menuDisabled {
   background-color: transparent;
-  color: var(--gray300) !important;
+  color: var(--bs-gray-300) !important;
   pointer-events: none;
 }
 
@@ -402,7 +402,7 @@ body {
 }
 
 #username > .userfunctions > div:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .logo {

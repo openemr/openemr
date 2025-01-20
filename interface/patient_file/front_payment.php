@@ -532,7 +532,7 @@ function toencounter(enc, datestr, topframe) {
         width: 100%;
     }
     table.mini_table>tbody>tr>th {
-        background-color: var(--secondary);
+        background-color: var(--bs-secondary);
         text-align: center;
     }
     body>table.mini_table>tbody>tr>td {
@@ -542,16 +542,16 @@ function toencounter(enc, datestr, topframe) {
         border: 1px solid #fff;
     }
     body>table.mini_table>tbody>tr>th {
-        border: 1px solid var(--secondary);
+        border: 1px solid var(--bs-secondary);
     }
     .bg-color {
-        background-color: var(--secondary);
+        background-color: var(--bs-secondary);
         padding: 2px;
         font-weight: 600;
         -webkit-print-color-adjust: exact;
     }
     .bg-color-w {
-        background-color: var(--secondary);
+        background-color: var(--bs-secondary);
         font-weight: 600;
         -webkit-print-color-adjust: exact!important; }
     @media print {
@@ -560,11 +560,11 @@ function toencounter(enc, datestr, topframe) {
         }
 
         tr.bg-color-w{
-            background-color: var(--secondary)!important;
+            background-color: var(--bs-secondary)!important;
             -webkit-print-color-adjust: exact;
         }
         tr.bg-color{
-            background-color: var(--secondary) !important;
+            background-color: var(--bs-secondary) !important;
             -webkit-print-color-adjust: exact;
         }
     }
@@ -816,10 +816,10 @@ function coloring() {
                     document.getElementById('paying_' + i).style.background = '#99CC00';
                 }
                 else if (paying == patient_balance) {
-                    document.getElementById('paying_' + i).style.background = 'var(--white)';
+                    document.getElementById('paying_' + i).style.background = 'var(--bs-white)';
                 }
             } else {
-                document.getElementById('paying_' + i).style.background = 'var(--white)';
+                document.getElementById('paying_' + i).style.background = 'var(--bs-white)';
             }
         }
         else {
