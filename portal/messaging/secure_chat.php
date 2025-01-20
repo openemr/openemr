@@ -646,7 +646,7 @@ $msgApp = new ChatController();
                         <h5 class='modal-title'><?php echo xlt('You may send Message with Image or Video'); ?></h5>
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
+                            <span class="visually-hidden"><?php echo xlt('Close'); ?></span>
                         </button>
                     </div>
                     <div class="modal-body">
@@ -667,7 +667,7 @@ $msgApp = new ChatController();
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
+                            <span class="visually-hidden"><?php echo xlt('Close'); ?></span>
                         </button>
                         <h4 class="modal-title"><?php echo xlt('Chat history'); ?></h4>
                     </div>

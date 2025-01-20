@@ -125,7 +125,7 @@ try {
                 <?php echo text($record['title']); ?>
                 <span class="text-info"><?php echo xlt("Validating document for errors"); ?>...</span>
                 <span class="spinner-border-sm spinner-border" role="status">
-                    <span class="sr-only"><?php echo xlt("Validating document for errors"); ?>...</span>
+                    <span class="visually-hidden"><?php echo xlt("Validating document for errors"); ?>...</span>
                 </span>
             </span>
             <span class="validation-failed text-danger d-none">

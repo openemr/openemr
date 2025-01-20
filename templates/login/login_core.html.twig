@@ -1,4 +1,4 @@
-{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
+{% set srOnly = (showLabels == true) ? "" : "visually-hidden" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +41,7 @@
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
-            element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="sr-only">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
+            element.innerHTML = '<i class="fa fa-circle-notch fa-spin mx-1"></i><span class="visually-hidden">' + jsText({{ "Authenticating"|xlj }}) + '</span>';
             {% if hasSession %}
             document.cookie = {{ cookieText }};
             {% endif %}

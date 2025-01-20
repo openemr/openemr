@@ -48,7 +48,7 @@ if ($showit == 'ext') {
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     <div class="navbar-nav">
-                        <a class="nav-item nav-link active" id="general_button" href="#">Introduction<span class="sr-only">(current)</span></a>
+                        <a class="nav-item nav-link active" id="general_button" href="#">Introduction<span class="visually-hidden">(current)</span></a>
                         <a class="nav-item nav-link" id="hpi_button" href="#">HPI</a>
                         <a class="nav-item nav-link" id="pmh_button" href="#">PMH</a>
                         <a class="nav-item nav-link" id="external_button" href="#">External</a>

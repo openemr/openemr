@@ -151,7 +151,7 @@ function displayAlert() {
 
             <div class="form-row">
                 <div class="form-group w-100">
-                    <label for='facility' class="sr-only">{{ 'Name'|xlt }}</label>
+                    <label for='facility' class="visually-hidden">{{ 'Name'|xlt }}</label>
                     <input type='text' class='form-control form-control-lg' placeholder="{{ 'Facility Name'|xla }}" name='facility' value='{{ facility.name|default('')|attr }}'>
                 </div>
             </div>
@@ -171,10 +171,10 @@ function displayAlert() {
                                 <div class="form-row">
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label for='street' class='col-form-label sr-only'>{{ 'Address'|xlt }} </label>
+                                            <label for='street' class='col-form-label visually-hidden'>{{ 'Address'|xlt }} </label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <button type="button" id="btnCopyMailing" class="btn btn-outline-secondary" title="{{ "Copy from mailing address"|xla }}"><i class="fa fa-clone"></i><span class="sr-only">{{ 'Copy Mailing'|xlt }}</span></button>
+                                                    <button type="button" id="btnCopyMailing" class="btn btn-outline-secondary" title="{{ "Copy from mailing address"|xla }}"><i class="fa fa-clone"></i><span class="visually-hidden">{{ 'Copy Mailing'|xlt }}</span></button>
                                                 </div>
                                                 <input type='text' class='form-control' name="street" placeholder="{{ 'Address'|xla }}" value="{{ facility.street|default('')|attr }}">
                                             </div>
@@ -184,25 +184,25 @@ function displayAlert() {
                                 <div class="form-row">
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label for='city' class='col-form-label sr-only'>{{ 'City'|xlt }}: </label>
+                                            <label for='city' class='col-form-label visually-hidden'>{{ 'City'|xlt }}: </label>
                                             <input type='text' class='form-control' name='city' placeholder="{{ 'City'|xla }}" value="{{ facility.city|default('')|attr }}">
                                         </div>
                                     </div>
                                     <div class="col-sm-2">
                                         <div class="form-group">
-                                            <label for='state' class='col-form-label sr-only'>{{ 'State'|xlt }}</label>
+                                            <label for='state' class='col-form-label visually-hidden'>{{ 'State'|xlt }}</label>
                                             <input type='text' class='form-control' name='state' placeholder="{{ 'State'|xla }}" value="{{ facility.state|default('')|attr }}">
                                         </div>
                                     </div>
                                     <div class="col-sm-2">
                                         <div class="form-group">
-                                            <label for='postal_code' class='col-form-label sr-only'>{{ 'Zip Code'|xlt }}</label>
+                                            <label for='postal_code' class='col-form-label visually-hidden'>{{ 'Zip Code'|xlt }}</label>
                                             <input type="text" class='form-control' placeholder="{{ 'Zip Code'|xla }}" name='postal_code' value="{{ facility.postal_code|default('')|attr }}" />
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label for='country_code' class='col-form-label sr-only'>{{ 'Country'|xlt }}</label>
+                                            <label for='country_code' class='col-form-label visually-hidden'>{{ 'Country'|xlt }}</label>
                                             <input type='text' class='form-control' placeholder="{{ 'Country'|xla }}" name='country_code' value="{{ facility.country_code|default('')|attr }}">
                                         </div>
                                     </div>
@@ -215,10 +215,10 @@ function displayAlert() {
                                 <div class="form-row">
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label for="mail_street" class="col-form-label sr-only">{{ 'Mailing Address'|xlt }}</label>
+                                            <label for="mail_street" class="col-form-label visually-hidden">{{ 'Mailing Address'|xlt }}</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                        <button type="button" id="btnCopyPhysical" class="btn btn-outline-secondary" title="{{ "Copy from physical address"|xla }}"><i class="fa fa-clone"></i><span class="sr-only">{{ 'Copy physical address'|xlt }}</span></button>
+                                                        <button type="button" id="btnCopyPhysical" class="btn btn-outline-secondary" title="{{ "Copy from physical address"|xla }}"><i class="fa fa-clone"></i><span class="visually-hidden">{{ 'Copy physical address'|xlt }}</span></button>
                                                     </div>
                                                 <input type="text" class="form-control" placeholder="{{ 'Street Addres'|xla }}" name="mail_street" value="{{ facility.mail_street|default('')|attr }}">
                                             </div>
@@ -226,22 +226,22 @@ function displayAlert() {
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label for="mail_street2" class="col-form-label sr-only">{{ 'Address Line Two'|xlt }}</label>
+                                            <label for="mail_street2" class="col-form-label visually-hidden">{{ 'Address Line Two'|xlt }}</label>
                                             <input type="text" class="form-control" placeholder="{{ 'Address Line Two'|xla }}" name="mail_street2" value="{{ facility.mail_street2|default('')|attr }}">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-sm-4">
-                                        <label for="mail_city" class="col-form-label sr-only">{{ 'City'|xlt }}</label>
+                                        <label for="mail_city" class="col-form-label visually-hidden">{{ 'City'|xlt }}</label>
                                         <input type="text" class="form-control" placeholder="{{ 'City'|xla }}" name="mail_city" value="{{ facility.mail_city|default('')|attr }}">
                                     </div>
                                     <div class="col-sm-4">
-                                        <label for="mail_state" class="col-form-label sr-only">{{ 'State'|xlt }}</label>
+                                        <label for="mail_state" class="col-form-label visually-hidden">{{ 'State'|xlt }}</label>
                                         <input type="text" class="form-control" placeholder="{{ 'State'|xla }}" name="mail_state" value="{{ facility.mail_state|default('')|attr }}">
                                     </div>
                                     <div class="col-sm-4">
-                                        <label for="mail_zip" class="col-form-label sr-only">{{ 'Zip'|xlt }}</label>
+                                        <label for="mail_zip" class="col-form-label visually-hidden">{{ 'Zip'|xlt }}</label>
                                         <input type="text" class="form-control" placeholder="{{ 'Zip Code'|xla }}" name="mail_zip" value="{{ facility.mail_zip|default('')|attr }}">
                                     </div>
                                 </div>
@@ -288,7 +288,7 @@ function displayAlert() {
                                 <input type="text" class='form-control form-control-sm' name='ncolor' id='ncolor' size='20' value="{{ facility.color|attr }}">
                                 <div class="input-group-append">
                                     <a href="#" onClick="pick('pick','newcolor'); return false;" class="btn btn-outline-secondary" name="pick" id="pick">
-                                        <i class="fa fa-eye-dropper"></i><span class="sr-only">{{ 'Pick'|xlt }}</span>
+                                        <i class="fa fa-eye-dropper"></i><span class="visually-hidden">{{ 'Pick'|xlt }}</span>
                                     </a>
                                 </div>
                             </div>

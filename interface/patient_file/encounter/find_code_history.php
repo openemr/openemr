@@ -186,7 +186,7 @@ function get_history_codes($pid)
             </section>
         </div>
         <div class="spinner-border" role="status">
-            <span class="sr-only"><?php echo xlt('Loading'); ?>...</span>
+            <span class="visually-hidden"><?php echo xlt('Loading'); ?>...</span>
         </div>
     </div>
     <div class="container-fluid">
