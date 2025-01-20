@@ -386,13 +386,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     .labres table {
         border-style: solid;
         border-width: 1px 0px 0px 1px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
     }
 
     .labres td, .labres th {
         border-style: solid;
         border-width: 0px 1px 1px 0px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
     }
 
     <?php } else { ?>
@@ -408,13 +408,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     .labres table {
         border-style: none;
         border-width: 1px 0px 0px 1px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
     }
 
     .labres td, .labres th {
         border-style: none;
         border-width: 0px 1px 1px 0px;
-        border-color: var(--black);
+        border-color: var(--bs-black);
         padding: 4px;
     }
 

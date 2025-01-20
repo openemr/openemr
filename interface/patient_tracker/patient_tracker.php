@@ -355,7 +355,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     </span>
                 </div>
                 <div id="pull_kiosk_right" class="text-right">
-                    <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();" title="<?php echo xla('Show/Hide the Selection Area'); ?>" style="color:<?php echo $color = ($setting_selectors == 'none') ? 'var(--danger)' : 'var(--black)'; ?>;">
+                    <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();" title="<?php echo xla('Show/Hide the Selection Area'); ?>" style="color:<?php echo $color = ($setting_selectors == 'none') ? 'var(--danger)' : 'var(--bs-black)'; ?>;">
                         <i class="far fa-square fa-stack-2x"></i>
                         <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                     </span>

@@ -2001,7 +2001,7 @@ class Display extends base
             <div class="showRecalls mx-auto" id="show_recalls">
                 <div name="message" id="message" class="warning">
                 </div>
-                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
+                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--danger)' : 'var(--bs-black)'; ?>; position: relative; float: right; right: 0; top: 0;">
                     <i class="far fa-square fa-stack-2x"></i>
                     <i id="print_caret" class='fas fa-caret-<?php echo $caret = ($rcb_selectors === 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                 </span>
@@ -2038,7 +2038,7 @@ class Display extends base
                     'rcb_selectors' : 'block',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
-                        $("#rcb_caret").css('color','var(--black)');
+                        $("#rcb_caret").css('color','var(--bs-black)');
                     }
                 });
             } else {

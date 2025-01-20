@@ -873,7 +873,7 @@ function writeITLine($it_array)
 
         #theform input[type=text],
         .optin {
-            color: var(--black);
+            color: var(--bs-black);
         }
     </style>
     <script>

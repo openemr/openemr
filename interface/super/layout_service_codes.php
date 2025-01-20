@@ -46,13 +46,13 @@ function applyCode($layoutid, $codetype, $code, $description)
 
 <style>
  .dehead {
-   color: var(--black);
+   color: var(--bs-black);
    font-family: sans-serif;
    font-size: 0.8125rem;
    font-weight: bold;
   }
  .detail {
-   color: var(--black);
+   color: var(--bs-black);
    font-family: sans-serif;
    font-size: 0.8125rem;
    font-weight:normal;

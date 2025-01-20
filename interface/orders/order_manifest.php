@@ -152,14 +152,14 @@ function generate_order_summary($orderid)
 .ordsum table {
     border-style: solid;
     border-width: 1px 0 0 1px;
-    border-color: var(--black);
+    border-color: var(--bs-black);
 }
 
 .ordsum td,
 .ordsum th {
     border-style: solid;
     border-width: 0 1px 1px 0;
-    border-color: var(--black);
+    border-color: var(--bs-black);
 }
 
 /* specifically exclude from printing */

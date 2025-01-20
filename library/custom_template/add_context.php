@@ -49,16 +49,16 @@ if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
         <?php Header::setupHeader('opener'); ?>
         <style>
             .bottom {
-                border-bottom: 1px solid var(--black);
+                border-bottom: 1px solid var(--bs-black);
             }
             .top {
-                border-top: 1px solid var(--black);
+                border-top: 1px solid var(--bs-black);
             }
             .left {
-                border-left: 1px solid var(--black);
+                border-left: 1px solid var(--bs-black);
             }
             .right {
-                border-right:1px solid var(--black);
+                border-right:1px solid var(--bs-black);
             }
             .class1 {
                 background-color: #add9e9;

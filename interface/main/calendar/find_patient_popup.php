@@ -80,7 +80,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
 
       #searchResults td {
         /*font-size: 0.7em;*/
-        border-bottom: 1px solid var(--light);
+        border-bottom: 1px solid var(--bs-light);
       }
 
       .billing {
@@ -92,7 +92,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
       #searchstatus {
         font-weight: bold;
         font-style: italic;
-        color: var(--black);
+        color: var(--bs-black);
         text-align: center;
       }
 

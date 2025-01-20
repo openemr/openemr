@@ -6,7 +6,7 @@ td.dayheader {
 
 table.dayheader {
   background-color: [-$STYLE.BGCOLOR2-];
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
 }
 
 .dayheader a:link {
@@ -66,5 +66,5 @@ table.eventsentry {
 }
 
 table.calcontainer {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
 }

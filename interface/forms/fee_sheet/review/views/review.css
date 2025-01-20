@@ -11,7 +11,7 @@
  */
 
 div.review {
-  background-color: var(--light);
+  background-color: var(--bs-light);
   position: absolute;
   z-index: 100;
 }
@@ -44,18 +44,18 @@ a.justify_label {
 }
 
 div.justify_template {
-  background-color: var(--light);
+  background-color: var(--bs-light);
   position: absolute;
   z-index: 100;
 }
 
 div.justify_template > div {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
 }
 
 div.justify_template span.search_results {
   background-color: var(--white);
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   position: absolute;
 }
 

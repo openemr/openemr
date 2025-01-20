@@ -957,7 +957,7 @@ function writeFieldLine($linedata)
     }
     //
     $extra_html .= "<div id='ext_" . attr($fld_line_no) . "' " .
-      "style='width: 750px; border: 1px solid var(--black);" .
+      "style='width: 750px; border: 1px solid var(--bs-black);" .
       "padding: 2px; background-color: var(--gray300); visibility: hidden;" .
       "z-index: 1000; left:-1000px; top:0; font-size: 0.6875rem;' class='position-absolute'>\n" .
       "<table class='w-100'>\n" .
@@ -1183,7 +1183,7 @@ function genLayoutOptions($title = '?', $default = '')
     }
 
     .orgTable .even td {
-        background-color: var(--light);
+        background-color: var(--bs-light);
         padding: 3px 0px 3px 0px;
     }
 
@@ -1199,7 +1199,7 @@ function genLayoutOptions($title = '?', $default = '')
     .highlight * {
         border: 2px solid var(--primary);
         background-color: var(--yellow);
-        color: var(--black);
+        color: var(--bs-black);
     }
 
     .select2-container--default .select2-selection--multiple {
@@ -1234,10 +1234,10 @@ function genLayoutOptions($title = '?', $default = '')
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
     .optin {
-        color: var(--black) !important;
+        color: var(--bs-black) !important;
     }
   </style>
 <script>

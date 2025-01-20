@@ -134,12 +134,12 @@ $loading = "";
 
     table.dataTable.stripe tbody tr.odd,
     table.dataTable.display tbody tr.odd {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.hover tbody tr:hover,
     table.dataTable.display tbody tr:hover {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.order-column tbody tr>.sorting_1,
@@ -148,37 +148,37 @@ $loading = "";
     table.dataTable.display tbody tr>.sorting_1,
     table.dataTable.display tbody tr>.sorting_2,
     table.dataTable.display tbody tr>.sorting_3 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr.odd>.sorting_1,
     table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr.odd>.sorting_2,
     table.dataTable.order-column.stripe tbody tr.odd>.sorting_2 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr.odd>.sorting_3,
     table.dataTable.order-column.stripe tbody tr.odd>.sorting_3 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr.even>.sorting_1,
     table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr.even>.sorting_2,
     table.dataTable.order-column.stripe tbody tr.even>.sorting_2 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr.even>.sorting_3,
     table.dataTable.order-column.stripe tbody tr.even>.sorting_3 {
-        background-color: var(--light) !important;
+        background-color: var(--bs-light) !important;
     }
 
     table.dataTable.display tbody tr:hover>.sorting_1,
@@ -207,12 +207,12 @@ $loading = "";
 
     .dataTables_wrapper .dataTables_processing {
         background-color: var(--white) !important;
-        background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--black), 0.9)), color-stop(75%, rgba(var(--black), 0.9)), color-stop(100%, transparent)) !important;
-        background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -moz-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -ms-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: -o-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
-        background: linear-gradient(to right, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+        background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--bs-black), 0.9)), color-stop(75%, rgba(var(--bs-black), 0.9)), color-stop(100%, transparent)) !important;
+        background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
+        background: -moz-linear-gradient(left, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
+        background: -ms-linear-gradient(left, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
+        background: -o-linear-gradient(left, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
+        background: linear-gradient(to right, transparent 0%, rgba(var(--bs-black), 0.9) 25%, rgba(var(--bs-black), 0.9) 75%, transparent 100%) !important;
     }
 
     .dataTables_wrapper .dataTables_length,

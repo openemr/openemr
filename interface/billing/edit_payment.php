@@ -548,19 +548,19 @@ $ResultSearchSub = sqlStatement(
             max-width: 75px;
         }
         .bottom {
-            border-bottom: 1px solid var(--black);
+            border-bottom: 1px solid var(--bs-black);
         }
 
         .top {
-            border-top: 1px solid var(--black);
+            border-top: 1px solid var(--bs-black);
         }
 
         .left {
-            border-left: 1px solid var(--black);
+            border-left: 1px solid var(--bs-black);
         }
 
         .right {
-            border-right: 1px solid var(--black);
+            border-right: 1px solid var(--bs-black);
         }
 
         .form-group {

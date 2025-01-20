@@ -95,7 +95,7 @@ if (empty($form_patient)) {
     }
     .pagebreak {
         width: 100%;
-        border: 2px dashed var(--black);
+        border: 2px dashed var(--bs-black);
     }
     #report_parameters {
         visibility: visible;
@@ -113,7 +113,7 @@ if (empty($form_patient)) {
     padding: 5px;
     width: 100%;
     background-color: var(--gray200);
-    border: 1px solid var(--black);
+    border: 1px solid var(--bs-black);
 }
 #superbill_insurancedata {
     margin-top: 10px;
@@ -125,7 +125,7 @@ if (empty($form_patient)) {
     padding: 5px;
     width: 100%;
     background-color: var(--gray200);
-    border: 1px solid var(--black);
+    border: 1px solid var(--bs-black);
 }
 #superbill_insurancedata h2 {
     font-weight: bold;
@@ -145,7 +145,7 @@ if (empty($form_patient)) {
     padding: 5px;
     width: 100%;
     background-color: var(--gray200);
-    border: 1px solid var(--black);
+    border: 1px solid var(--bs-black);
 }
 </style>
 

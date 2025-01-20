@@ -567,7 +567,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         a:visited,
         a:hover {
             text-decoration: none;
-            color: var(--black);
+            color: var(--bs-black);
         }
     </style>
     <script>
@@ -944,7 +944,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $rhtml = "";
                         $lcount = 0;
                         $rcount = 0;
-                        $bgcolor = "var(--light)";
+                        $bgcolor = "var(--bs-light)";
                         $skipping = false;
 
                         $mmo_empty_mod = false;
@@ -1040,7 +1040,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = ((($encount ?? null) & 1) ? "var(--light)" : "var(--gray300)");
+                                $bgcolor = ((($encount ?? null) & 1) ? "var(--bs-light)" : "var(--gray300)");
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;

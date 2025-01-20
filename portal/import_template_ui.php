@@ -537,7 +537,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
       .select2-container .select2-search--inline .select2-search__field {
         min-width: 5vw !important;
         padding: 2px 2px;
-        color: var(--light);
+        color: var(--bs-light);
         background-color: var(--dark);
       }
 

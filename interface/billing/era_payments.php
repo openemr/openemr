@@ -164,16 +164,16 @@ if (!empty($_FILES['form_erafile']['size'])) {
         padding: 10px;
     }
     .bottom {
-        border-bottom:1px solid var(--black);
+        border-bottom:1px solid var(--bs-black);
     }
     .top {
-        border-top:1px solid var(--black);
+        border-top:1px solid var(--bs-black);
     }
     .left {
-        border-left:1px solid var(--black);
+        border-left:1px solid var(--bs-black);
     }
     .right {
-        border-right:1px solid var(--black);
+        border-right:1px solid var(--bs-black);
     }
     @media only screen and (max-width: 768px) {
         [class*="col-"] {

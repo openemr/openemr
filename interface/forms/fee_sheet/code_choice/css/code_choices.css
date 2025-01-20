@@ -34,7 +34,7 @@ div.category-display > button:hover {
 
 .active-category {
   background-color: var(--white);
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   padding: 5px;
   position: absolute;
   width: 99%;

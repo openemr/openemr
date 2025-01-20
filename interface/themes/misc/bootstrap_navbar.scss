@@ -39,13 +39,13 @@ $enable-responsive-font-sizes: true;
 }
 
 .navbar-custom {
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
   padding: 0 !important;
 }
 
 .navbar-nav {
   > .nav-item > a {
-    color: var(--black) !important;
+    color: var(--bs-black) !important;
     padding-bottom: 5px !important;
     padding-left: 10px !important;
     padding-right: 20px !important;
@@ -106,7 +106,7 @@ $enable-responsive-font-sizes: true;
 }
 
 .navbar-brand {
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
   height: 24px !important;
   margin: 10px 0 2px !important;
   padding: 10px 5px 0 10px !important;

@@ -38,13 +38,13 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 
 <style>
  .dehead {
-   color: var(--black);
+   color: var(--bs-black);
    font-family: sans-serif;
    font-size: 0.8125rem;
    font-weight: bold;
   }
  .detail {
-   color: var(--black);
+   color: var(--bs-black);
    font-family: sans-serif;
    font-size: 0.8125rem;
    font-weight:normal;

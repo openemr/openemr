@@ -1131,7 +1131,7 @@ function set_repeat() {
             labels[i].style.color = mycolor;
         }
         isdisabled = false;
-        mycolor = 'var(--black)';
+        mycolor = 'var(--bs-black)';
         myvisibility = 'visible';
     }
     f.form_repeat_type.disabled = isdisabled;
@@ -1152,11 +1152,11 @@ function set_days_every_week() {
         document.getElementById('tdrepeat1').style.color = 'var(--gray)';
 
         //enable end_date setting
-        document.getElementById('tdrepeat2').style.color = 'var(--black)';
+        document.getElementById('tdrepeat2').style.color = 'var(--bs-black)';
         f.form_enddate.disabled = false;
 
         var isdisabled = false;
-        var mycolor = 'var(--black)';
+        var mycolor = 'var(--bs-black)';
         var myvisibility = 'visible';
     } else {
         var isdisabled = true;

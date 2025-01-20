@@ -249,7 +249,7 @@ $info_msg = "";
         }
 
         .last_detail {
-            border-bottom: 1px var(--black) solid;
+            border-bottom: 1px var(--bs-black) solid;
             margin-top: 2px;
         }
 

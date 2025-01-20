@@ -419,7 +419,7 @@ p.err997 {
 
 /* ***** process class table.process*******/
 div#processed table {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-collapse: collapse;
   empty-cells: show;
   font-size: medium;
@@ -430,7 +430,7 @@ div#processed table {
 /*  div#processed table  */
 div#processed table caption {
   background-color: #bcf8e7;
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   font-size: medium;
   font-weight: bold;
   padding: 2px 10px;
@@ -969,7 +969,7 @@ ol.logview li {
  */
 table.summaryRA {
   background-color: #d8e0e0;
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-collapse: collapse;
   empty-cells: show;
   width: 640px;
@@ -993,7 +993,7 @@ table.summaryRA td.denied {
 
 table.summaryRA caption {
   background-color: #c0e8e7;
-  border: 2px solid var(--black);
+  border: 2px solid var(--bs-black);
   font-size: large;
   font-weight: bold;
   padding: 2px 10px;
@@ -1020,7 +1020,7 @@ p.ak999stat {
  */
 table.era835 {
   background-color: #f2e7cf;
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-collapse: collapse;
   empty-cells: show;
   font-size: medium;
@@ -1033,7 +1033,7 @@ table.era835 th {
 }
 
 table.era835 td {
-  color: var(--black);
+  color: var(--bs-black);
   padding: 3px;
 }
 
@@ -1072,17 +1072,17 @@ table.era835 tr.plb td {
 }
 
 table.era835 tbody.eraclp {
-  border-top: 1px solid var(--black);
+  border-top: 1px solid var(--bs-black);
   overflow: auto;
 }
 
 table.era835 tfoot {
-  border-top: 1px solid var(--black);
+  border-top: 1px solid var(--bs-black);
 }
 
 table.era835 caption {
   background-color: #d8f4df;
-  border: 2px solid var(--black);
+  border: 2px solid var(--bs-black);
   font-size: large;
   font-weight: bold;
   padding: 2px;

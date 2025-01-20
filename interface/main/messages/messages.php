@@ -735,7 +735,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 } else {
                                     document.getElementById("checkAll").checked = false;<?php
                                     for ($i = 1; $i <= $count; $i++) {
-                                        echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--light)';  ";
+                                        echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--bs-light)';  ";
                                     } ?>
                                 }
                             }
@@ -747,7 +747,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             }
                             function deselectRow(row) {
                                 event.stopPropagation();
-                                document.getElementById(row).style.background = "var(--light)";
+                                document.getElementById(row).style.background = "var(--bs-light)";
                             }
 
                             function makeMessageRowsClickable() {

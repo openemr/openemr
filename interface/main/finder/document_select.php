@@ -114,13 +114,13 @@ foreach ($searchResult as $docResult) {
         }
         #searchResults td {
             /*font-size: 0.7em;*/
-            border-bottom: 1px solid var(--light);
+            border-bottom: 1px solid var(--bs-light);
         }
         /* for search results or 'searching' notification */
         #searchstatus {
             font-weight: bold;
             font-style: italic;
-            color: var(--black);
+            color: var(--bs-black);
             text-align: center;
         }
         #searchspinner {

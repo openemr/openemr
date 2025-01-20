@@ -195,7 +195,7 @@ function sqlQuery($statement, $link)
                 <div class="modal-content" style="height:700px">
                     <div class="modal-header clearfix">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span>
+                            <span aria-hidden="true" style="color:var(--bs-black); font-size:1.5em;">×</span>
                         </button>
                     </div>
                         <div class="modal-body" style="height:80%;">

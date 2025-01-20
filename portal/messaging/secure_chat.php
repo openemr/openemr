@@ -488,7 +488,7 @@ $msgApp = new ChatController();
   .direct-chat-warning .right > .direct-chat-text {
     background: rgba(251, 255, 178, 0.34);
     border-color: var(--danger);
-    color: var(--black);
+    color: var(--bs-black);
   }
 
   .right .direct-chat-text {
