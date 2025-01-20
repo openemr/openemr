@@ -1336,7 +1336,9 @@ class CdaTemplateParse
         }
 
         $code = $this->codeService->resolveCode(
-            $section['code']['code'] ?? '', $section['code']['codeSystemName'] ?? null, $section['code']['displayName'] ?? ''
+            $section['code']['code'] ?? '',
+            $section['code']['codeSystemName'] ?? null,
+            $section['code']['displayName'] ?? ''
         );
         $this->templateData['field_name_value_array']['care_plan'][$i]['plan_type'] = $plan_type;
         $this->templateData['field_name_value_array']['care_plan'][$i]['date'] = date("Y-m-d");
