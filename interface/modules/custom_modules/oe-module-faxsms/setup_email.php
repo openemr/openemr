@@ -160,7 +160,7 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
                     <?php echo xlt("Tags") ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***</span>
                 <textarea id="form_message" rows="3" name="email_message" class="form-control" required><?php echo text($credentials['email_message']) ?></textarea>
             </div>
-            <button type="submit" class="btn btn-success float-right m-2"><?php echo xlt("Save Settings") ?></button>
+            <button type="submit" class="btn btn-success float-end m-2"><?php echo xlt("Save Settings") ?></button>
         </form>
     </div>
 </body>

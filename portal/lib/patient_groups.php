@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 foreach ($group_list as $group => $groups) {
                     $group_esc = attr($groups['option_id']);
                     $groups_esc = attr($groups['option_id']);
-                    echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
+                    echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-end my-1 mr-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
                     echo "<ul id='$group_esc' class='list-group-flush m-1 p-1 collapse'>\n";
                     if (!empty($result[$groups['option_id']] ?? '')) {
                         foreach ($result[$groups['option_id']] as $pt) {
@@ -541,13 +541,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     $active = $templateService->getProfileActiveStatus($profile);
                     $active_esc = attr($active);
                     if (!empty($active)) {
-                        $active_text = '<span class="small float-left">' . xlt('Active') . '</span>';
+                        $active_text = '<span class="small float-start">' . xlt('Active') . '</span>';
                     } else {
                         $active_text = '';
                     }
                     $profile_esc = attr($profile);
                     echo "<h5 class='text-center bg-dark text-light p-1 mt-1 mb-0'>" . $active_text . text($profiles['title']) .
-                        "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";
+                        "<i class='fa fa-eye float-end my-1 mr-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";
                     echo "<ul id='$profile_esc' class='list-group-flush m-1 p-1 show' data-profile='$profile_esc' data-active='$active_esc'>\n";
                     foreach ($profile_items_list as $grp_profile => $groups) {
                         foreach ($groups as $group) {

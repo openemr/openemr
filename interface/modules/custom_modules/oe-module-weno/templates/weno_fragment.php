@@ -131,7 +131,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
 
 <div>
-    <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
+    <span id="widget-button-set" class="float-end mr-2" style="font-size: 1.1rem;">
         <a role="button" id="prescribeLink" class="text-primary" onclick="top.restoreSession(); setPrescribeLocation();">
             <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
         </a>

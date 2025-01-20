@@ -126,7 +126,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
             <div class="row">
                 <div class="col-md-12">
                     <div class="checkbox">
-                        <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
+                        <button type="submit" class="btn btn-success float-end m-2" value=""><?php echo xlt("Save Settings") ?></button>
                         <label>
                             <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
                             <?php echo xlt("Production Check") ?>
@@ -170,7 +170,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                         <div class="form-group">
                             <label for="form_jwt"><?php echo xlt("Copy and Paste JWT") ?> *</label>
                             <span class="form-group">
-                                <button type="button" class="btn btn-primary btn-download btn-sm mb-1 p-0 px-1 float-right" onclick="openJwtWindow()"><?php echo xlt("Create JWT") ?></button>
+                                <button type="button" class="btn btn-primary btn-download btn-sm mb-1 p-0 px-1 float-end" onclick="openJwtWindow()"><?php echo xlt("Create JWT") ?></button>
                             </span>
                             <textarea id="form_jwt" type="text" rows="3" name="jwt" class="form-control small" required="required"><?php echo attr($c['jwt']) ?></textarea>
                         </div>
@@ -193,7 +193,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     <p class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
                 </div>
             </div>
-            <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
+            <button type="submit" class="btn btn-success float-end m-2" value=""><?php echo xlt("Save Settings") ?></button>
         </form>
     </div>
 </body>

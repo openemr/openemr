@@ -799,7 +799,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 '</button>';
                             if ($authUploadTemplates) {
                                 echo '<button id="templateDelete' . attr($template_id) .
-                                    '" class="btn btn-sm btn-outline-danger float-right" onclick="templateDelete(' . attr_js($template_id) . ',' . attr_js($file['template_name']) . ')" type="button">' . xlt("Delete") .
+                                    '" class="btn btn-sm btn-outline-danger float-end" onclick="templateDelete(' . attr_js($template_id) . ',' . attr_js($file['template_name']) . ')" type="button">' . xlt("Delete") .
                                     '</button>';
                             }
                             echo "</td>";

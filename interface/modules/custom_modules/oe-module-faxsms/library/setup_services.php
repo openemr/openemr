@@ -182,7 +182,7 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right d-none" value="Save"><?php echo xlt("Save"); ?></button>
+                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-end d-none" value="Save"><?php echo xlt("Save"); ?></button>
                     </div>
                 </div>
             </form>

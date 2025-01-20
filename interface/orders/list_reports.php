@@ -448,7 +448,7 @@ function doWait(e){
             </select>
         </div>
         <div class="col-md">
-            <button type="submit" class="btn btn-outline-primary btn-search float-left" name='form_refresh'><?php echo xlt('Filter'); ?></button>
+            <button type="submit" class="btn btn-outline-primary btn-search float-start" name='form_refresh'><?php echo xlt('Filter'); ?></button>
         </div>
     </div>
     </div>

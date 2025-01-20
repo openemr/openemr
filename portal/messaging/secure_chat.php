@@ -603,8 +603,8 @@ $msgApp = new ChatController();
                         <div class="direct-chat-messages">
                             <div class="direct-chat-msg" ng-repeat="message in messages" ng-if="historyFromId < message.id" ng-class="{'right':!message.me}">
                                 <div class="direct-chat-info clearfix">
-                                    <span class="direct-chat-name" ng-class="{'float-left':message.me,'float-right':!message.me}">{{message.username }}</span>
-                                    <span class="direct-chat-timestamp " ng-class="{'float-left':!message.me,'float-right':message.me}">{{message.date }}</span>
+                                    <span class="direct-chat-name" ng-class="{'float-start':message.me,'float-end':!message.me}">{{message.username }}</span>
+                                    <span class="direct-chat-timestamp " ng-class="{'float-start':!message.me,'float-end':message.me}">{{message.date }}</span>
                                 </div>
                                 <i class="direct-chat-img fa fa-hand-o-left" style="cursor: pointer; font-size: 24px" ng-show="!message.me" ng-click="makeCurrent(message)" title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
                                 <i class="direct-chat-img fa fa-hand-o-right" style="cursor: pointer; font-size:24px" ng-show="message.me" ng-click="makeCurrent(message)" title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>

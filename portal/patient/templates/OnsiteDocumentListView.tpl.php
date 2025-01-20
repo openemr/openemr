@@ -552,7 +552,7 @@ $templateService = new DocumentTemplateService();
                 </ul>
                 <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
                 <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
-                    <a id="idShow" class="btn btn-outline-primary float-right  mr-0 mb-1" href='' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                    <a id="idShow" class="btn btn-outline-primary float-end  mr-0 mb-1" href='' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
                 <?php } ?>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
@@ -578,7 +578,7 @@ $templateService = new DocumentTemplateService();
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
                         <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
-                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-end" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
                         <!-- File upload -->
                         <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
@@ -615,7 +615,7 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-end m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <span>
                             </span>

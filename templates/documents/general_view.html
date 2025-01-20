@@ -107,7 +107,7 @@ function tagProcedure() {
                 <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
-            <span class="float-right">
+            <span class="float-end">
             <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
@@ -196,7 +196,7 @@ function tagProcedure() {
       <form name="notes" method="post" action="{$NOTE_ACTION|attr}" onsubmit="return top.restoreSession()">
         <div class="text">
           <div>
-            <div class="float-left mt-2 mr-1">
+            <div class="float-start mt-2 mr-1">
               <strong>{xlt t='Notes'}</strong>
             </div>
             <div class="float-none form-inline">

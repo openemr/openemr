@@ -1221,7 +1221,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <tr>
                                     <?php
                                     if ($fs->ALLOW_COPAYS) { ?>
-                                        <td class='col-md-6 float-right'>
+                                        <td class='col-md-6 float-end'>
                                             <button type="button" class="btn btn-primary btn-add" value='<?php echo xla('Add Copay'); ?>'
                                                 onclick='copayselect()'>
                                                 <?php echo xlt('Add Copay'); ?>

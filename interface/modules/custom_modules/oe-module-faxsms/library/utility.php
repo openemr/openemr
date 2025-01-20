@@ -383,7 +383,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
             </div>
             <div class="form-group col">
             </div>
-            <div class="float-right">
+            <div class="float-end">
                 <button type="button" class="btn btn-primary btn-search" id="search" value="<?php echo xla('Search'); ?>">
                     <?php echo xlt('Existing Patient'); ?>
                 </button>

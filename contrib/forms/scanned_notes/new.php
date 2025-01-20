@@ -432,7 +432,7 @@ if ($formid) {
                             <canvas id="canvas" style="display: none;"></canvas>
                         </div>
                     </div>
-                    <button type="button" id="capture-btn" class="btn btn-success mx-1 float-right" style="display: block;"><?php echo xlt('Capture Frame'); ?></button>
+                    <button type="button" id="capture-btn" class="btn btn-success mx-1 float-end" style="display: block;"><?php echo xlt('Capture Frame'); ?></button>
                 </div>
             </div>
             <input type="hidden" id="capturedImage" name="capturedImage">

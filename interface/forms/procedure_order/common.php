@@ -1556,7 +1556,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     </div>
                 </div>
                 <div class="row form-group clearfix">
-                    <div class="float-left position-override mt-2">
+                    <div class="float-start position-override mt-2">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save"
                                 name="bn_save" id="bn_save" value="save"

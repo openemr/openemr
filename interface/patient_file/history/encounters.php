@@ -287,7 +287,7 @@ window.onload = function() {
     &nbsp; &nbsp;
      <a  href='#' id='printbutton' class='btn btn-secondary btn-print'>  <?php echo xlt('Print page'); ?>   </a>
 
-    <span class="float-right">
+    <span class="float-end">
         <?php echo xlt('Results per page'); ?>:
         <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php

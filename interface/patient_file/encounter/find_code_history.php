@@ -181,7 +181,7 @@ function get_history_codes($pid)
                         echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or code list editing.") . "</li>";
                         ?>
                     </ul>
-                    <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggleClass("d-none");return false;'><?php echo xlt('Dismiss') ?></button>
+                    <button class='btn btn-sm btn-success float-end' onclick='$("#tips").toggleClass("d-none");return false;'><?php echo xlt('Dismiss') ?></button>
                 </div>
             </section>
         </div>

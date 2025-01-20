@@ -769,7 +769,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             id="btn-cancel" onclick='doClose()'><?php echo xlt("Close"); ?></button>
                     </div>
                     <?php if ($from_posting) { ?>
-                        <button type='button' class="btn btn-secondary btn-view float-right" name='form_goto' id="btn-goto"
+                        <button type='button' class="btn btn-secondary btn-view float-end" name='form_goto' id="btn-goto"
                             onclick="goEncounterSummary(event, <?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>

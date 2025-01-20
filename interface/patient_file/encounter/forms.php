@@ -676,9 +676,9 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 </div>
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div class="float-right border border-dark mb-2">
-        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
-        <div id="amc-requires" class="float-left m-2 collapse">
+    <div class="float-end border border-dark mb-2">
+        <a class="btn btn-link p-0 m-1 float-end" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+        <div id="amc-requires" class="float-start m-2 collapse">
           <table>
             <tr>
               <td>

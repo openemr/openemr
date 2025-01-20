@@ -78,9 +78,9 @@ $N = 7;
         <div class="card">
             <header class="card-header border border-bottom-0 h3"><?php echo xlt('Profile From Medical Records'); ?>
                 <?php if ($pending) {
-                    echo '<button type="button" id="editDems" class="btn btn-outline-warning btn-sm float-right">' . xlt('Edit Pending Changes.') . '</button>';
+                    echo '<button type="button" id="editDems" class="btn btn-outline-warning btn-sm float-end">' . xlt('Edit Pending Changes.') . '</button>';
                 } else {
-                    echo '<button type="button" id="editDems" class="btn  btn-success btn-sm float-right">' . xlt('Edit Profile') . '</button>';
+                    echo '<button type="button" id="editDems" class="btn  btn-success btn-sm float-end">' . xlt('Edit Profile') . '</button>';
                 }
                 ?>
             </header>

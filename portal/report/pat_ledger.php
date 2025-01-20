@@ -383,7 +383,7 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
             <table>
                 <tr>
                     <td width='35%'>
-                        <div class="float-left">
+                        <div class="float-start">
                             <table class='text'>
                                 <div>
                                     <td class='col-form-label'>

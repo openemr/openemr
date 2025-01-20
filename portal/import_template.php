@@ -360,8 +360,8 @@ function renderEditorHtml($template_id, $content)
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>
                         <textarea cols='80' rows='10' id='templateContent' name='content'><?php echo text($content) ?></textarea>
-                        <div class="row btn-group mt-1 float-right">
-                            <div class='col btn-group mt-1 float-right'>
+                        <div class="row btn-group mt-1 float-end">
+                            <div class='col btn-group mt-1 float-end'>
                                 <?php if ($authUploadTemplates) { ?>
                                     <button type="submit" class="btn btn-sm btn-primary"><?php echo xlt("Save"); ?></button>
                                 <?php } else { ?>

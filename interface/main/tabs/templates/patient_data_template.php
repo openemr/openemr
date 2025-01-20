@@ -48,7 +48,7 @@ switch ($search_any_type) {
 <script type="text/html" id="patient-data-template">
     <div class="d-lg-inline-flex w-100">
         <div class="flex-fill">
-            <div class="float-left mx-2">
+            <div class="float-start mx-2">
                 <!-- ko if: patient -->
                 <div data-bind="with: patient" class="patientPicture">
                     <img data-bind="attr: {src: patient_picture}"

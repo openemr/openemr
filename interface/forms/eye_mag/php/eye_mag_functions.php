@@ -255,7 +255,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
             <div name="prior_selector">
                     <?php
                     echo $output;//prior visit selector - already sanitized
@@ -382,7 +382,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -435,7 +435,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     // to allow for end-user customization
                     ?>
                     <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
-                      <span id="PRIORS_dil_meds" class="float-right"><?php
+                      <span id="PRIORS_dil_meds" class="float-end"><?php
                         if ($DIL_MEDS) {
                             echo text($DIL_MEDS);
                         }
@@ -544,7 +544,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -646,7 +646,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -1540,7 +1540,7 @@ margin: 2px 0 2px 2px;">
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-end fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector" class="PRIORS">
                 <?php
                 echo $output;
@@ -1557,7 +1557,7 @@ margin: 2px 0 2px 2px;">
             $k = '1';
             foreach ($PRIOR_IMPPLAN_items as $item) {
                 echo "<div class='IMPPLAN_class' style='clear:both;margin:10px;'>";
-                echo "  <span>$k. " . text($item['title']) . "</span><span class='float-right'>" . $item['code'] . "</span><br />";
+                echo "  <span>$k. " . text($item['title']) . "</span><span class='float-end'>" . $item['code'] . "</span><br />";
                 echo '  <div class="fake-textarea-disabled-4">' . nl2br(text($item['plan'])) . '</div>';
                 echo '</div>';
                 $i++;
@@ -3048,7 +3048,7 @@ function display_QP($zone, $provider_id)
          onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone) . "_" . attr($provider_id); ?>','QP Editor');"
          title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
          name="provider_todo"
-         class="bold black"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
+         class="bold black"><i class="closeButton float-end fa fa-pencil-alt fa-fw"></i> </a>
         <?php
         $QP_panel = ob_get_contents();
         ob_end_clean();

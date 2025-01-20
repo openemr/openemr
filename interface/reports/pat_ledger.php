@@ -532,7 +532,7 @@ if ($_REQUEST['form_csvexport']) {
                                     <td width='70%'>
                                         <?php
                                     } ?>
-                                        <div class="float-left">
+                                        <div class="float-start">
                                             <table class='text'>
                                                     <tr>
                                                         <?php

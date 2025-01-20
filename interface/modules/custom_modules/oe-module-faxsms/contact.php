@@ -339,7 +339,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                         <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
                     </div>
                     <div class="mt-2">
-                        <button type="button" class="btn btn-primary float-left universalInclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
+                        <button type="button" class="btn btn-primary float-start universalInclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
                         <button type="button" class="btn btn-primary float-letf universalInclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
                         <?php if (($isOnetime) || $isUniversal) { ?>
                             <span class="form-group mt-1">
@@ -363,7 +363,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                                 <?php } ?>
                             </span>
                         <?php } ?>
-                        <button type="submit" class="btn btn-success btn-send-msg float-right" value=""><?php echo (empty($isSMS) || $isOnetime || $isUniversal) ? xlt('Submit') : xlt('Send SMS') ?></button>
+                        <button type="submit" class="btn btn-success btn-send-msg float-end" value=""><?php echo (empty($isSMS) || $isOnetime || $isUniversal) ? xlt('Submit') : xlt('Send SMS') ?></button>
                     </div>
                 </div>
             </div>

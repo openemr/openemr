@@ -177,9 +177,9 @@ class ClientAdminController
     public function listAction($request)
     {
         /**
-* <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
+* <a class="btn btn-secondary btn-sm float-end" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
  */
         $clients = $this->clientRepo->listClientEntities();
         $clientListRecords = [];
@@ -646,9 +646,9 @@ class ClientAdminController
                     <div class="page-title">
                         <h2>
                             <?php echo text($title); ?>
-                            <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
                         </h2>
                     </div>
                 </div>
@@ -855,7 +855,7 @@ class ClientAdminController
         <h3><?php echo xlt("Token details"); ?>
             <?php if ($databaseRecord['revoked'] == 0) : ?>
               <a href="<?php echo attr($parts['revoke_link']); ?>"
-                       class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
+                       class="btn btn-sm btn-primary float-end" onclick="top.restoreSession()"><?php echo xlt('Revoke Token'); ?></a>
             <?php endif; ?>
         </h3>
         <ul>

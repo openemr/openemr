@@ -515,7 +515,7 @@ if ($isModule || $isDashboard || $isPortal) {
                     <button type='button' class="btn btn-secondary btn-cancel doCancel d-none" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Cancel'); ?></button>
                 </div>
             <?php } ?>
-            <button type='button' class="btn btn-success float-right doOption" onclick="toggleHideTreeLine()"><?php echo xlt('Toggle Guides'); ?></button>
+            <button type='button' class="btn btn-success float-end doOption" onclick="toggleHideTreeLine()"><?php echo xlt('Toggle Guides'); ?></button>
             <div class="bg-light text-dark" id="formContainer"></div>
             <!-- RM check if LOINC terms configured to display notice at bottom of window -->
             <?php if ($bottom_note && !$isPortal) { ?>

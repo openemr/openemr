@@ -445,7 +445,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <!-- start    QP_HPI_Build -->
                       <div id="QP_HPI" name="QP_HPI" class="QP_class left">
                         <div id="HPI_text_list" name="HPI_text_list">
-                          <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_HPI" name="BUTTON_TEXTD_HPI" value="1"></span>
+                          <span class="closeButton fa fa-times float-end z100" id="BUTTON_TEXTD_HPI" name="BUTTON_TEXTD_HPI" value="1"></span>
                           <b><?php echo xlt('HPI Elements'); ?>:</b> <br />
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
@@ -2072,14 +2072,14 @@ if ($refresh and $refresh != 'fullscreen') {
                               <table cellspacing="0" cellpadding="0">
                                   <tr>
                                       <th>
-                                          <i class="float-left fas fa-times copier" id="clear_EXT_R" title="<?php echo xla('Clear Right side values'); ?>"></i>
+                                          <i class="float-start fas fa-times copier" id="clear_EXT_R" title="<?php echo xla('Clear Right side values'); ?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="EXT_defaults_R" title="<?php echo xla('Enter defaults for Right side');?>"></i>
                                           <?php echo xlt('Right'); ?>
-                                          <i class="float-right fas fa-arrow-right copier" id="EXT_R_L" title="<?php echo xla('Copy Right to Left');?>"></i>
+                                          <i class="float-end fas fa-arrow-right copier" id="EXT_R_L" title="<?php echo xla('Copy Right to Left');?>"></i>
                                       </th>
                                       <th></th>
                                       <th>
-                                          <i class="float-left fas fa-arrow-left copier" id="EXT_L_R" title="<?php echo xla('Copy Left to Right');?>"></i>
+                                          <i class="float-start fas fa-arrow-left copier" id="EXT_L_R" title="<?php echo xla('Copy Left to Right');?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="EXT_defaults_L" title="<?php echo xla('Enter defaults values for Left side');?>"></i>
                                           <?php echo xlt('Left'); ?>
                                           <i class="delButton_2 fas fa-times copier" id="clear_EXT_L" title="<?php echo xla('Clear Left side values'); ?>"></i>
@@ -2174,7 +2174,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="QP_EXT" name="QP_EXT" class="QP_class">
                               <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix ?? ''); ?>">
 
-                              <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
+                              <span class="closeButton fa fa-times float-end z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
                               <div class="qp10">
                                   <span class="eye_button eye_button_selected" id="EXT_prefix_off" name="EXT_prefix_off" onclick="$('#EXT_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
                                   <span class="eye_button" id="EXT_defaults" name="EXT_defaults"><?php echo xlt('Defaults'); ?></span>
@@ -2285,7 +2285,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <br />
                               <span id="dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
 
-                                <input type="text" class="float-right" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php
+                                <input type="text" class="float-end" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php
                                 if ($DIL_MEDS) {
                                     echo attr($DIL_MEDS); }
                                 ?>" placeholder="Time"/>
@@ -2343,14 +2343,14 @@ if ($refresh and $refresh != 'fullscreen') {
                               <table cellspacing="0" cellpadding="0">
                                   <tr>
                                       <th>
-                                          <i class="float-left fas fa-times copier" id="clear_ANTSEG_OD" title="<?php echo xla('Clear OD{{right eye}} values'); ?>"></i>
+                                          <i class="float-start fas fa-times copier" id="clear_ANTSEG_OD" title="<?php echo xla('Clear OD{{right eye}} values'); ?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="ANTSEG_defaults_OD" title="<?php echo xla('Enter default values for OD{{right eye}}');?>"></i>
                                           <?php echo xlt('OD{{right eye}}'); ?>
-                                          <i class="float-right fas fa-arrow-right copier" id="ANTSEG_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to') . " " . xla('OS{{left eye}}');?>"></i>
+                                          <i class="float-end fas fa-arrow-right copier" id="ANTSEG_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to') . " " . xla('OS{{left eye}}');?>"></i>
                                       </th>
                                       <th></th>
                                       <th>
-                                          <i class="float-left fas fa-arrow-left copier" id="ANTSEG_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to') . " " . xla('OD{{right eye}}');?>"></i>
+                                          <i class="float-start fas fa-arrow-left copier" id="ANTSEG_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to') . " " . xla('OD{{right eye}}');?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="ANTSEG_defaults_OS" title="<?php echo xla('Enter defaults values for OS{{left eye}}');?>"></i>
                                           <?php echo xlt('OS{{left eye}}'); ?>
                                           <i class="delButton_2 fas fa-times copier" id="clear_ANTSEG_OS" title="<?php echo xla('Delete OS{{left eye}} values'); ?>"></i>
@@ -2477,7 +2477,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div class="QP_block borderShadow text_clinical " >
                             <?php echo $QP_ANTSEG = display_QP("ANTSEG", $provider_id); ?>
                           </div>
-                          <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
+                          <span class="closeButton fa fa-times float-end z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
                       </div>
                   </div>
                 </div>
@@ -2553,14 +2553,14 @@ if ($refresh and $refresh != 'fullscreen') {
                               <table cellspacing="0" cellpadding="0">
                                   <tr>
                                       <th>
-                                          <i class="float-left fas fa-times copier" id="clear_RETINA_OD" title="<?php echo xla('Clear OD{{right eye}} values'); ?>"></i>
+                                          <i class="float-start fas fa-times copier" id="clear_RETINA_OD" title="<?php echo xla('Clear OD{{right eye}} values'); ?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="RETINA_defaults_OD" title="<?php echo xla('Enter default values for OD{{right eye}}');?>"></i>
                                           <?php echo xlt('OD{{right eye}}'); ?>
-                                          <i class="float-right fas fa-arrow-right copier" id="RETINA_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to') . " " . xla('OS{{left eye}}');?>"></i>
+                                          <i class="float-end fas fa-arrow-right copier" id="RETINA_OD_OS" title="<?php echo xla('Copy OD{{right eye}} values to') . " " . xla('OS{{left eye}}');?>"></i>
                                       </th>
                                       <th></th>
                                       <th>
-                                          <i class="float-left fas fa-arrow-left copier" id="RETINA_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to') . " " . xla('OD{{right eye}}');?>"></i>
+                                          <i class="float-start fas fa-arrow-left copier" id="RETINA_OS_OD" title="<?php echo xla('Copy OS{{left eye}} values to') . " " . xla('OD{{right eye}}');?>"></i>
                                           <i class="fas fa-angle-double-down copier" id="RETINA_defaults_OS" title="<?php echo xla('Enter defaults values for OS{{left eye}}');?>"></i>
                                           <?php echo xlt('OS{{left eye}}'); ?>
                                           <i class="delButton_2 fas fa-times copier" id="clear_RETINA_OS" title="<?php echo xla('Delete OS{{left eye}} values'); ?>"></i>
@@ -2690,7 +2690,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div class="QP_block borderShadow text_clinical" >
                         <?php echo $QP_RETINA = display_QP("RETINA", $provider_id); ?>
                       </div>
-                      <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
+                      <span class="closeButton fa fa-times float-end z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
                     </div>
                   </div>
                 </div>
@@ -3490,7 +3490,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <span class="eye_button" id="NEURO_value_40" name="NEURO_value"  onclick="$('#NEURO_value').val('40').trigger('change');">40</span>
                         </div>
                       </div>
-                      <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_NEURO" name="BUTTON_TEXTD_NEURO" value="1"></span>
+                      <span class="closeButton fa fa-times float-end z100" id="BUTTON_TEXTD_NEURO" name="BUTTON_TEXTD_NEURO" value="1"></span>
                     </div>
                   </div>
                 </div>
@@ -3560,7 +3560,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="IP_P_1">
                                 <?php echo $selector = priors_select("IMPPLAN", $id, $id, $pid); ?>
                           </div>
-                          <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
+                          <span class="closeButton fa fa-times float-end z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
                           <br />
                             <?php
                               /*
@@ -3610,7 +3610,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                             foreach ($PMSFH[0]['POH'] as $k => $v) {
                                                 $insert_code = '';
                                                 if ($v['diagnosis'] > '') {
-                                                    $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                    $insert_code = "<code class='float-end diagnosis'>" . $v['diagnosis'] . "</code>";
                                                 }
 
                                                 $k = xla($k);
@@ -3622,7 +3622,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
                                                 $insert_code = '';
                                                 if ($v['diagnosis'] > '') {
-                                                    $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                    $insert_code = "<code class='float-end diagnosis'>" . $v['diagnosis'] . "</code>";
                                                 }
 
                                                 $k = xla($k);
@@ -3635,7 +3635,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
-                                                        $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
+                                                        $insert_code = "<code class='float-end diagnosis'>" . $v['diagnosis'] . "</code>";
                                                     }
 
                                                     $k = xla($k);
@@ -3762,7 +3762,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <span class="modifier" name="visit_modifier" id="visit_mod_57" value="57" title="<?php echo xla('Modifier 57: Indicates an Evaluation and Management (E/M) service resulted in the initial decision to perform surgery either the day before a major surgery (90 day global) or the day of a major surgery.'); ?>">57</span>
                                               </td>
                                               <td>
-                                                  <span id="visit_justification" class="float-right text-center" style="padding:7px 2px;"></span>
+                                                  <span id="visit_justification" class="float-end text-center" style="padding:7px 2px;"></span>
                                               </td>
                                           </tr>
 

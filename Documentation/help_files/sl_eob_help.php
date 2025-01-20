@@ -47,7 +47,7 @@ require_once("../../interface/globals.php");
                 <fieldset>
                     <legend>
                         &nbsp;<span><?php echo xlt("Select Method");?></span>
-                         <div class="float-right oe-legend-radio">
+                         <div class="float-end oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?>
                             </label>
@@ -82,7 +82,7 @@ require_once("../../interface/globals.php");
                         <fieldset>
                             <legend>
                                 &nbsp;<span><?php echo xlt("Invoice Search");?></span>
-                                <div class="float-right oe-legend-radio">
+                                <div class="float-end oe-legend-radio">
                                         <label class="radio-inline">
                                           <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?>
                                         </label>
@@ -127,7 +127,7 @@ require_once("../../interface/globals.php");
                     <fieldset>
                         <legend>
                             &nbsp;<span><?php echo xlt("Select Method");?></span>
-                            <div class="float-right oe-legend-radio">
+                            <div class="float-end oe-legend-radio">
                                 <label class="radio-inline">
                                     <input type="radio" id="invoice_search_help" name="radio-search" onclick="" value="inv-search-help"><?php echo xlt("Invoice Search"); ?>
                                 </label>

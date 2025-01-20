@@ -216,7 +216,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                   <table class='table'>
                     <tr>
                       <td width='410px'>
-                        <div class="float-left">
+                        <div class="float-start">
                           <table class="table text">
                             <tr>
                               <td class='label_custom'>

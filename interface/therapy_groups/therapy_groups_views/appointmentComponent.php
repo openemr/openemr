@@ -39,7 +39,7 @@ use OpenEMR\Common\Acl\AclMain;
     </div>
     <div class="col-md-5">
         <?php if ($edit) { ?>
-        <button id="addEvent" class="float-right"><?php echo xlt('Adding')?></button>
+        <button id="addEvent" class="float-end"><?php echo xlt('Adding')?></button>
       <?php }?>
     </div>
 </div>

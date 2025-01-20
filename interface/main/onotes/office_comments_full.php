@@ -122,7 +122,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
             <div class="form-group">
                 <textarea name="note" class="form-control mb-1" rows="3" placeholder="<?php echo xla("Enter new office note here. Text only."); ?>" required="required"></textarea>
                 <button type="submit" class="btn btn-primary btn-save"><?php echo xlt("Add New Note"); ?></button>
-                <a href="office_comments.php" type="button" class="btn btn-cancel btn-secondary float-right"><?php echo xlt("Back"); ?></a>
+                <a href="office_comments.php" type="button" class="btn btn-cancel btn-secondary float-end"><?php echo xlt("Back"); ?></a>
             </div>
         </form>
     </div>

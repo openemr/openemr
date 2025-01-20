@@ -212,7 +212,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
             <div class="card-body">
                 <div class="form-group px-2">
                     <label for="final_this_page_criteria"><?php echo xlt('Criteria Actions') . ':'; ?></label>
-                    <span class="float-right">
+                    <span class="float-end">
                         <i class="fa fa-trash fa-2x text-warning" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i>&nbsp;
                         <i class="fa fa-trash fa-2x text-danger" aria-hidden="true" onclick="removeOptionsAll()" title="<?php echo xla('Click here to delete all options'); ?>"></i>
                     </span>

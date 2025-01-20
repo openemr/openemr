@@ -1226,14 +1226,14 @@ function writeITLine($it_array)
                     $urlFrom = ($list_from > 0 ? $list_from : 1);
                     $urlTo = ($list_to > 0 ? $list_to : $records_per_page);
                     ?>
-                    <div class="blck-filter float-left w-auto my-2 my-lg-0" style="display: none;">
-                        <div id="input-type-from" class="float-left"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
+                    <div class="blck-filter float-start w-auto my-2 my-lg-0" style="display: none;">
+                        <div id="input-type-from" class="float-start"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
                             <?php echo xlt("To{{Range}}"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                         </div>
-                        <div class="float-left"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
+                        <div class="float-start"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                     </div>
                     <!--Happy end-->
-                    <div class="float-left ml-2 my-2 my-lg-0" id="total-record"></div>
+                    <div class="float-start ml-2 my-2 my-lg-0" id="total-record"></div>
                 </div><!-- /.navbar-collapse -->
             </div>
         </nav>

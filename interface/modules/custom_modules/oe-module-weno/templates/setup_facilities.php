@@ -97,7 +97,7 @@ while ($row = sqlFetchArray($list)) {
                     }
                     ?>
                 </table>
-                <button type="submit" value="update" id="save_weno_id" class="btn btn-primary float-right d-none"><?php echo xla('Update'); ?></button>
+                <button type="submit" value="update" id="save_weno_id" class="btn btn-primary float-end d-none"><?php echo xla('Update'); ?></button>
             </form>
         </div>
     </div>
