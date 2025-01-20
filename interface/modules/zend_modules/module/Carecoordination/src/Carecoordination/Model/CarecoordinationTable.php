@@ -18,17 +18,19 @@ use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
 use Documents\Model\DocumentsTable;
 use Documents\Plugin\Documents;
+use DOMDocument;
+use DOMXPath;
 use Exception;
-use Laminas\Config\Reader\ReaderInterface;
-use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
+use OpenEMR\Services\Cda\CdaComponentParseHelpers;
+use OpenEMR\Services\Cda\CdaTextParser;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use OpenEMR\Services\Cda\ProgressNoteParser;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
@@ -45,6 +47,7 @@ class CarecoordinationTable extends AbstractTableGateway
     private $parseTemplates;
     private $codeService;
     private $importService;
+    public $conditionedXmlContent;
 
     public function __construct()
     {
@@ -192,30 +195,30 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function importCore($xml_content, $doc_id = null): void
     {
-        $xml_content_new = preg_replace('#<br />#', '', $xml_content);
-        $xml_content_new = preg_replace('#<br/>#', '', $xml_content_new);
-        $xml_content_new = (string)str_replace(array("\n    ", "\n", "\r"), '', $xml_content_new);
-
         // Note the behavior of this relies on PHP's XMLReader
         // @see https://docs.zendframework.com/zend-config/reader/
         // @see https://php.net/xmlreader
         // 10/27/2022 sjp Extended base reader Laminas XML class using provided interface class
         // Needed to add LIBXML_COMPACT | LIBXML_PARSEHUGE flags because large text node(>10MB) will fail.
         try {
-            $xmltoarray = new XmlExtended();
-            $xml = $xmltoarray->fromString($xml_content_new);
+            $this->conditionedXmlContent = $this->cleanCcdaXmlContent($xml_content, true);
+            $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
+            $xml_to_array = new XmlExtended();
+            $xml = $xml_to_array->fromString($this->conditionedXmlContent);
         } catch (Exception $e) {
             die($e->getMessage());
         }
+
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
         $qrda_log['message'] = $validation_log = null;
         // test if a QRDA QDM CAT I document type from header OIDs
         $template_oid = $xml['templateId'][2]['root'] ?? null;
+        // is it QRDA document?
         if ($template_oid === '2.16.840.1.113883.10.20.24.1.2') {
             $this->is_qrda_import = 1;
             if (!empty($doc_id) && !$this->validationIsDisabled) {
-                $validation_log = $this->validateDocument->validateDocument($xml_content_new, 'qrda1');
+                $validation_log = $this->validateDocument->validateDocument($this->conditionedXmlContent, 'qrda1');
             }
             if (count($components[2]["section"]["entry"] ?? []) < 2) {
                 $name = $xml["recordTarget"]["patientRole"]["patient"]["name"]["given"] . ' ' .
@@ -227,9 +230,11 @@ class CarecoordinationTable extends AbstractTableGateway
             // Offset to Patient Data section
             $this->documentData = $this->parseTemplates->parseQRDAPatientDataSection($components[2]);
         } else {
+            // nope, it's a CCDA document!
             if (!empty($doc_id) && !$this->validationIsDisabled) {
-                $validation_log = $this->validateDocument->validateDocument($xml_content_new, 'ccda');
+                $validation_log = $this->validateDocument->validateDocument($this->conditionedXmlContent, 'ccda');
             }
+            // do we have a structured import?
             if ($template_oid === '2.16.840.1.113883.10.20.22.1.10') {
                 $this->is_unstructured_import = true;
                 $this->documentData = $this->parseTemplates->parseUnstructuredComponents($xml);
@@ -448,7 +453,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $b = 1;
         $c = 1;
         $d = 1;
-        $e = 1;
+        $e = 1; // care plan
         $f = 1;
         $g = 1;
         $h = 1;
@@ -458,6 +463,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $p = 1; // payer QRDA
         $q = 1;
         $y = 1;
+        $cn = 1; //clinical note
 
         $arr_procedure_res = array();
         $arr_encounter = array();
@@ -471,6 +477,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_functional_cognitive_status = array();
         $arr_referral = array();
         $arr_observation_preformed = array();
+        $arr_clinical_note = array();
 
         $appTable = new ApplicationTable();
 
@@ -509,7 +516,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     array($audit_master_id, $row['table_name'], $row['entry_identification'])
                 );
             } else {
-                // collect directly from $this->documentData (ie. no audit table middleman)
+                // collect directly from $this->documentData (i.e. no audit table middleman)
                 $resfield = [];
                 foreach ($this->documentData['field_name_value_array'][$row['table_name']][$row['entry_identification']] as $itemKey => $item) {
                     if (is_array($item)) {
@@ -574,6 +581,8 @@ class CarecoordinationTable extends AbstractTableGateway
                     $newdata['payer'][$rowfield['field_name']] = $rowfield['field_value'];
                 } elseif ($table == 'import_file') {
                     $newdata['import_file'][$rowfield['field_name']] = $rowfield['field_value'];
+                } elseif ($table == 'clinical_notes') {
+                    $newdata['clinical_notes'][$rowfield['field_name']] = $rowfield['field_value'];
                 }
             }
             if ($table == 'patient_data') {
@@ -863,6 +872,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_date_high'] = $newdata['care_plan']['reason_date_high'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
+            } elseif ($table == 'clinical_notes') {
+                $arr_clinical_note['clinical_notes'][$cn]['date'] = $newdata['clinical_notes']['date'] ?? null;
+                $arr_clinical_note['clinical_notes'][$cn]['code'] = $newdata['clinical_notes']['code'];
+                $arr_clinical_note['clinical_notes'][$cn]['text'] = $newdata['clinical_notes']['code_text'];
+                $arr_clinical_note['clinical_notes'][$cn]['description'] = $newdata['clinical_notes']['description'];
+                $arr_clinical_note['clinical_notes'][$cn]['plan_type'] = $newdata['clinical_notes']['plan_type'];
+                $cn++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $newdata['functional_cognitive_status']['extension'];
@@ -930,6 +946,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
         $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
         $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this, 0);
+        $this->importService->InsertClinicalNote(($arr_clinical_note['clinical_notes'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -1055,6 +1072,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $lab_results;
     }
 
+    // hmm, can't find where this is used.
     public function import($document_id)
     {
         $this->resetData();
@@ -2123,6 +2141,41 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->is_qrda_import = false;
         $this->is_unstructured_import = false;
         $this->parseTemplates = new CdaTemplateParse();
+    }
+
+    /**
+     * Cleans a CCDA XML document for use with Laminas XML or DOMDocument.
+     * Optionally removes or replaces <br/> tags.
+     *
+     * @param string $xmlContent The raw CCDA XML string.
+     * @param bool $removeBr Whether to remove <br/> tags. Defaults to false.
+     * @return string Cleaned XML content.
+     * @throws Exception If the input XML is invalid or cannot be parsed.
+     */
+    function cleanCcdaXmlContent(string $xmlContent, bool $removeBr = false): string
+    {
+        // Handle <br/> tags if required
+        if ($removeBr) {
+            $xmlContent = preg_replace('/<br\s*\/?>/', '', $xmlContent); // Remove <br/>
+        } else {
+            $xmlContent = preg_replace('/<br\s*\/?>/', "\n", $xmlContent); // Replace <br/> with newline
+        }
+        $xmlContent = preg_replace('/\xC2\xA0/', '', $xmlContent);
+
+        // Load the raw XML into DOMDocument for further cleaning
+        $dom = new DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = false;
+        libxml_use_internal_errors(true);
+        if (!$dom->loadXML($xmlContent, LIBXML_NOERROR | LIBXML_NOWARNING)) {
+            $errors = libxml_get_errors();
+            libxml_clear_errors();
+            throw new Exception("Invalid XML provided: " . implode(", ", array_map(fn($e) => $e->message, $errors)));
+        }
+        // Normalize and ensure UTF-8 encoding
+        $dom->encoding = 'UTF-8';
+
+        return $dom->saveXML();
     }
 }
 // Below was removed as couldn't find it used anywhere! Will keep for a minute or two...
