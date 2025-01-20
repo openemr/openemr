@@ -271,7 +271,7 @@ $(function () {
                         <form id="sendPrescriptionForm" name="send_prescription" method="post" action="{{TOP_ACTION}}send">
                             <div class="row">
                                 <div class="col-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <input id="sendEmailPrescriptionIds" type="hidden" name="sendEmailPrescriptionIds" value="" />
                                         <input type="hidden" name="process" value="true" />
                                         <input type="text" name="email_to"  class="form-control" value="" placeholder="{{ "Recipient email address"|xla }}">
@@ -290,7 +290,7 @@ $(function () {
                             </div>
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <input type="submit" name="submit" value="{{'Email'|xla}}" class="btn btn-sm btn-primary"/>
                                         <a id="sendEmailSectionCancel" href="#" class="btn btn-sm btn-secondary">{{'Cancel'|xlt}}</a>
                                     </div>

@@ -86,13 +86,13 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
             <div class="messages"></div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="sender_name"><?php echo xlt("Patient Reminder Sender Name") ?></label>
                         <input id="sender_name" type="text" name="sender_name" class="form-control" value='<?php echo attr($credentials['sender_name']) ?>' required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="sender_email"><?php echo xlt("Patient Reminder Sender Email") ?></label>
                         <input id="sender_email" type="email" name="sender_email" class="form-control" value='<?php echo attr($credentials['sender_email']) ?>' required>
                     </div>
@@ -100,13 +100,13 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="notification_email"><?php echo xlt("Notification Email Address") ?></label>
                         <input id="notification_email" type="email" name="notification_email" class="form-control" value='<?php echo attr($credentials['notification_email']) ?>' required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="email_transport"><?php echo xlt("Email Transport Method") ?></label>
                         <input id="email_transport" type="text" name="email_transport" class="form-control" value='<?php echo attr($credentials['email_transport']) ?>' required>
                     </div>
@@ -114,13 +114,13 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="smtp_host"><?php echo xlt("SMTP Server Hostname") ?></label>
                         <input id="smtp_host" type="text" name="smtp_host" class="form-control" value='<?php echo attr($credentials['smtp_host']) ?>' required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="smtp_port"><?php echo xlt("SMTP Server Port Number") ?></label>
                         <input id="smtp_port" type="number" name="smtp_port" class="form-control" value='<?php echo attr($credentials['smtp_port']) ?>' required>
                     </div>
@@ -128,13 +128,13 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="smtp_user"><?php echo xlt("SMTP User for Authentication") ?></label>
                         <input id="smtp_user" type="text" name="smtp_user" class="form-control" value='<?php echo attr($credentials['smtp_user']) ?>' required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="smtp_password"><?php echo xlt("SMTP Password for Authentication") ?></label>
                         <input id="smtp_password" type="password" name="smtp_password" class="form-control" value='<?php echo attr($credentials['smtp_password']) ?>' required>
                     </div>
@@ -142,19 +142,19 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="smtp_security"><?php echo xlt("SMTP Security Protocol") ?></label>
                         <input id="smtp_security" type="text" name="smtp_security" class="form-control" value='<?php echo attr($credentials['smtp_security']) ?>' required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="notification_hours"><?php echo xlt("Email Notification Hours") ?></label>
                         <input id="notification_hours" type="number" name="notification_hours" class="form-control" value='<?php echo attr($credentials['notification_hours']) ?>' required>
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="form_message"><?php echo xlt("Message Template") ?></label>
                 <span style="font-size:12px;font-style: italic;">&nbsp;
                     <?php echo xlt("Tags") ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***</span>

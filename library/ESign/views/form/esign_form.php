@@ -30,19 +30,19 @@
               <span id='esign-signature-form-prompt'><?php echo xlt("Your password is your signature"); ?></span> 
         </div>
 
-        <div class="esign-signature-form-element form-group gs-hide-element">
+        <div class="esign-signature-form-element mb-3 gs-hide-element">
             <label for='password'><?php echo xlt('Password'); ?></label> 
             <input type='password' class="form-control" id='password' name='password' size='10' placeholder="<?php echo xla("Enter your password to sign the form"); ?>" />
         </div>
         
         <?php if ($this->form->showLock) { ?>
-        <div class="esign-signature-form-element form-group">
+        <div class="esign-signature-form-element mb-3">
               <label for='lock'><?php echo xlt('Lock?');?></label> 
               <input type="checkbox" id="lock" name="lock" />
         </div>
         <?php } ?>
         
-        <div class="esign-signature-form-element form-group">
+        <div class="esign-signature-form-element mb-3">
             <label for='amendment'><?php echo xlt("Amendment"); ?></label>
             <textarea class="form-control" name='amendment' id='amendment' placeholder='<?php echo xla("Enter an amendment..."); ?>'></textarea> 
         </div>

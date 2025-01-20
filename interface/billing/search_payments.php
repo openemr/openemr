@@ -450,7 +450,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </div>
                             </div>
                             <!-- can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets -->
-                            <div class="form-group mt-3">
+                            <div class="mb-3 mt-3">
                                 <div class="col-sm-12 text-left position-override">
                                     <div class="btn-group" role="group">
                                         <a class="btn btn-primary btn-search" href="#" onclick="javascript:return SearchPayment();"><span><?php echo xlt('Search'); ?></span></a>

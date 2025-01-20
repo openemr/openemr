@@ -551,7 +551,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="d-flex justify-content-center">
                                 <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
@@ -588,15 +588,15 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="uname"><?php echo xlt('Username') ?></label>
                     <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
                 </div>
-                    <div id="standard-auth-password" class="form-group">
+                    <div id="standard-auth-password" class="mb-3">
                         <label for="pass"><?php echo xlt('Password') ?></label>
                         <div class="input-group">
                             <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
-                            <div class="input-group-append">
+                            <div class="input-group-text">
                                 <span class="input-group-text">
                                     <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
                                 </span>
@@ -604,14 +604,14 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
                         <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
                     </div>
                 <?php } ?>
                 <?php if ($GLOBALS['language_menu_login']) { ?>
                     <?php if (count($result3) != 1) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="selLanguage"><?php echo xlt('Language'); ?></label>
                     <select class="form-control" id="selLanguage" name="languageChoice">
                         <?php

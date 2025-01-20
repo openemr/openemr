@@ -176,7 +176,7 @@ if ($hasErrors) { ?>
     $titleLocation = xla("Use Location Assignment");
     $popoverLocation = xla("If desired, select a different location other than your default. Remember that the selected location must have been assigned to you in your Weno account. If it hasn't been assigned to you, you will not be able to prescribe from that location.");
     ?>
-    <div id="trigger-debug" class="form-group mb-0">
+    <div id="trigger-debug" class="mb-3 mb-0">
         <div class="input-group small">
             <label role="button" id="label-primary" class="text-primary mb-0 me-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Primary"); ?>:</b>
@@ -219,7 +219,7 @@ if ($hasErrors) { ?>
                 <?php } ?>
             </select>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <label role="button" id="label-location" class="text-primary mb-1 me-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
                 <b><?php echo xlt("Use Location"); ?>:</b>
             </label>

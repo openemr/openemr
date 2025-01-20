@@ -260,7 +260,7 @@ function msfFileChanged() {
     <form id="whitelist_form" method="post">
         <div class="form-row">
             <div class="subject-black-list col">
-                <div class="form-group">
+                <div class="mb-3">
                     <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
                     <div class="form-row align-items-center">
                         <div class="col-2">
@@ -290,7 +290,7 @@ function msfFileChanged() {
             </div>
 
             <div class="subject-white-list col">
-                <div class="form-group">
+                <div class="mb-3">
                     <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
                     <div class="form-row">
                         <div class="col-2">

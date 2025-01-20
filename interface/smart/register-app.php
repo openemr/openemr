@@ -445,29 +445,29 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                         <p><?php echo xlt("Confidential apps are applications that are able to safely and securely store a secret. Browser based and many mobile applications do not satisfy this security constraint"); ?></p>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="appName" class="text-right"><?php echo xlt('App Name'); ?>:</label>
                     <input type="text" class="form-control" id="appName" name="appName" placeholder="<?php echo xla('App Name'); ?>" />
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="contactEmail" class="text-right"><?php echo xlt('Contact Email'); ?>:</label>
                     <input type="text" class="form-control" id="contactEmail" name="contactEmail" placeholder="<?php echo xla('Email'); ?>" />
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="redirectUri" class="text-right"><?php echo xlt('App Redirect URI'); ?>:</label>
                     <input type="text" class="form-control" id="redirectUri" name="redirectUri" placeholder="<?php echo xla('URI'); ?>" />
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="launchUri" class="text-right"><?php echo xlt('App Launch URI'); ?>:</label>
                     <input type="text" class="form-control" id="launchUri" name="launchUri" placeholder="<?php echo xla('URI'); ?>" />
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="logoutURI" class="text-right"><?php echo xlt('App Logout URI'); ?>:</label>
                     <input type="text" class="form-control" id="logoutURI" name="logoutURI" placeholder="<?php echo xla('URI'); ?>" />
                 </div>
                 <!-- TODO: adunsulag display the list of scopes that can be requested here -->
 
-                <div class="form-group">
+                <div class="mb-3">
                     <?php echo xlt("Scopes Requested"); ?>:
                     <input type="button" class="select-all-toggle toggle-on btn btn-secondary d-none" value="<?php echo xlt('Select all'); ?>" />
                     <input type="button" class="select-all-toggle toggle-off btn btn-secondary" value="<?php echo xlt('Unselect all'); ?>" />
@@ -486,11 +486,11 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <div class="col">
                         <h3 class="text-center"><?php echo xlt("The following items are required for System Scopes"); ?></h3>
                         <hr />
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="jwksUri" class="text-right"><?php echo xlt('JSON Web Key Set URI'); ?>:</label>
                             <input type="text" class="form-control" id="jwksUri" name="jwksUri" placeholder="<?php echo xla('URI'); ?>" />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="jwks" class="text-right"><?php echo xlt('JSON Web Key Set (Note a hosted web URI is preferred and this feature may be removed in future SMART versions)'); ?>:</label>
                             <textarea class="form-control" id="jwks" name="jwks" rows="5"></textarea>
                         </div>
@@ -522,7 +522,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                         <h3><?php echo xlt("Predictive DSI Source Attributes"); ?></h3>
                         <?php foreach ($predictiveDSI->getFields() as $field) : ?>
                             <?php if ($field['type'] == 'text') : ?>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="<?php echo attr($field['name']); ?>"><?php echo text($field['label']); ?></label>
                                     <input type="text" class="form-control dsi-attribute" id="<?php echo attr($field['name']); ?>" name="<?php echo attr($field['name']); ?>" value="<?php echo attr($field['value']); ?>">
                                 </div>
@@ -535,7 +535,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                         <h3><?php echo xlt("Evidence Based DSI Source Attributes"); ?></h3>
                         <?php foreach ($evidenceService->getFields() as $field) : ?>
                             <?php if ($field['type'] == 'text') : ?>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="<?php echo attr($field['name']); ?>"><?php echo text($field['label']); ?></label>
                                     <input type="text" class="form-control dsi-attribute" id="<?php echo attr($field['name']); ?>" name="<?php echo attr($field['name']); ?>" value="<?php echo attr($field['value']); ?>">
                                 </div>
@@ -544,25 +544,25 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <input type="button" class="form-control btn btn-primary" id="submit" name="submit" value="<?php echo xla('Submit'); ?>" (onClick)="registerApp();" />
                 </div>
 
                 <div class="apiResponse hidden">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="clientID" class="text-right"><?php echo xlt('Client APP ID:'); ?></label>
                         <textarea class="form-control" id="clientID" name="clientID"></textarea>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="clientSecretID" class="text-right"><?php echo xlt('Client Secret APP ID:'); ?></label>
                         <textarea class="form-control" id="clientSecretID" name="clientSecretID"></textarea>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="audURL" class="text-right"><?php echo xlt('Aud URI (use this in the "aud" claim of your JWT)'); ?></label>
                         <input type="text" disabled class="form-control" id="audURL" name="audURL" value="<?php echo attr($audienceUrl); ?>" />
                     </div>
                 </div>
-                <div class="form-group errorResponse hidden">
+                <div class="mb-3 errorResponse hidden">
                     <div id="errorResponseContainer">
                     </div>
                     <div class="alert alert-danger">
@@ -582,7 +582,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <p><a target="_blank" href="https://community.open-emr.org/"><?php echo xlt("More support can be found on the OpenEMR community form"); ?></a></p>
                     <p><a target="_blank" href="https://github.com/openemr/openemr/issues"><?php echo xlt("File bug report on issue tracker"); ?></a></p>
                 </div>
-                <div class="form-group successResponse hidden">
+                <div class="mb-3 successResponse hidden">
                     <div id="successResponseContainer">
                     </div>
                 </div>

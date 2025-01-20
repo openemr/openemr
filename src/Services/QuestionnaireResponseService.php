@@ -122,7 +122,7 @@ class QuestionnaireResponseService extends BaseService
                 }
             }
             if ($item === 'question') {
-                $html .= "<div class='form-group my-0'><label class='my-0 fw-bold' style='margin-left: $margin;'>" . text($value) . ":</label>";
+                $html .= "<div class='mb-3 my-0'><label class='my-0 fw-bold' style='margin-left: $margin;'>" . text($value) . ":</label>";
             }
             if ($item === 'answer') {
                 if (is_array($value ?? null)) {

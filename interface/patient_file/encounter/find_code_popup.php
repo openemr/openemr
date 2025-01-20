@@ -113,7 +113,7 @@ $focus = "document.theform.search_term.select();";
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="input-group mt-1">
                 <?php
                 if (!empty($allowed_codes)) { ?>
@@ -158,7 +158,7 @@ $focus = "document.theform.search_term.select();";
                         value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
-                    <div class="input-group-append">
+                    <div class="input-group-text">
                         <button type='submit' class='btn btn-primary btn-search'
                             name='bn_search' value='Search'></button>
                         <?php if (!empty($target_element)) { ?>

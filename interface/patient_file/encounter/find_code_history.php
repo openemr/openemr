@@ -159,7 +159,7 @@ function get_history_codes($pid)
 <body>
     <div class="container-fluid sticky-top">
         <div class="input-group bg-white">
-            <div class="input-group-prepend">
+            <div class="input-group-text">
                 <button class="btn btn-danger" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
             </div>
             <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />

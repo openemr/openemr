@@ -298,7 +298,7 @@ function pausePoll(othis) {
     </div>
     <div>
         <form class="form-inline" method='post' action='sql_upgrade.php'>
-            <div class="form-group mb-1">
+            <div class="mb-1">
                 <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
                 <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
                     <?php

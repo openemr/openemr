@@ -515,7 +515,7 @@ class ClientAdminController
     {
         $disabled = $setting['enabled'] !== true ? "disabled readonly" : "";
         ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label for="<?php echo attr($key); ?>"><?php echo text($setting['label']); ?></label>
             <textarea id="<?php echo attr($key); ?>" name="<?php echo attr($key) ?>"
                       class="form-control" rows="10" <?php echo $disabled; ?>><?php echo attr($setting['value']); ?></textarea>

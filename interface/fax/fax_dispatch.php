@@ -795,7 +795,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     </div>
 </div>
 
-<div class="form-group form-inline">
+<div class="mb-3 form-inline">
     <label class="fw-bold"><?php echo xlt('Delete Pages'); ?>:</label>
     <div class="form-check form-check-inline">
         <input type='radio' class='form-check-input' name='form_cb_delete' value='2' />

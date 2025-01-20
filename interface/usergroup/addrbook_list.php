@@ -123,7 +123,7 @@ $res = sqlStatement($query, $sqlBindArray);
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" name="popup" value="<?php echo attr($rtn_selection); ?>" />
 
-                <div class="form-group">
+                <div class="mb-3">
                 <div class="row">
                     <div class="col-sm-2">
                     <label for="form_organization"><?php echo xlt('Organization') ?>:</label>

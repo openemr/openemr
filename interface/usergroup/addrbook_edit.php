@@ -540,7 +540,7 @@ if ($type) { // note this only happens when its new
         <input type='text' size='10' name='form_taxonomy' maxlength='10' value='<?php echo attr($row['taxonomy'] ?? ''); ?>' class='form-control form-control-sm inputtext' />
    </div>
 </div>
-<div class="form-group">
+<div class="mb-3">
     <label for="form_notes" class="fw-bold col-form-label col-form-label-sm"><?php echo xlt('Notes'); ?>:</label>
     <textarea rows='3' cols='40' name='form_notes' wrap='virtual' class='form-control inputtext w-100'><?php echo text($row['notes'] ?? '') ?></textarea>
 </div>

@@ -467,7 +467,7 @@ if ($fend > ($count ?? null)) {
 
     <div class="container">
       <p><?php echo xlt('Not all fields are required for all codes or code types.'); ?></p>
-      <div class="form-group row">
+      <div class="mb-3 row">
         <label for="code_type" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Type'); ?>:</label>
         <div class="col-md">
           <?php if ($mode != "modify") { ?>
@@ -521,7 +521,7 @@ if ($fend > ($count ?? null)) {
           <?php echo xlt('Active'); ?>
         </div>
       </div>
-      <div class="form-group row">
+      <div class="mb-3 row">
         <label for="code_text" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Description'); ?>:</label>
         <div class="col-md">
           <?php if ($mode == "modify") { ?>
@@ -541,7 +541,7 @@ if ($fend > ($count ?? null)) {
           </div>
         <?php } ?>
       </div>
-      <div class="form-group row">
+      <div class="mb-3 row">
         <label for="superbill" class="col-form-label col-form-label-sm col-md-1"><?php echo xlt('Category'); ?>:</label>
         <div class="col-md">
           <?php generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill', 'smallform' => 'true'), ($superbill ?? '')); ?>
@@ -557,7 +557,7 @@ if ($fend > ($count ?? null)) {
           <?php echo xlt('Service Reporting'); ?>
         </div>
       </div>
-      <div class="form-group row">
+      <div class="mb-3 row">
           <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
                 echo 'd-none'; } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
           <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {

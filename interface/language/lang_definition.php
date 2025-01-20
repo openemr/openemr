@@ -42,25 +42,25 @@ if (!$thisauth) {
       onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <!-- Filter for Constants -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
         <input type='text' class="form-control" id="filterForConstants" name='filter_cons'
                size='8' value='<?php echo attr($_POST['filter_cons'] ?? ''); ?>' />
-        <small class="form-text text-muted">
+        <small class="form-text d-block text-muted">
             <?php echo xlt('(% matches any string, _ matches any character)'); ?>
         </small>
     </div>
     <!-- Filter for Definitions -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="filterForDefinitions"><?php echo xlt('Filter for Definitions'); ?>:</label>
         <input type='text' class="form-control" id="filterForDefinitions" name='filter_def'
                size='8' value='<?php echo attr($_POST['filter_def'] ?? ''); ?>' />
-        <small class="form-text text-muted">
+        <small class="form-text d-block text-muted">
             <?php echo xlt('(% matches any string, _ matches any character)'); ?>
         </small>
     </div>
     <!-- Select Language -->
-    <div class="form-group">
+    <div class="mb-3">
         <label for="selectLanguage"><?php echo xlt('Select Language') . ":"; ?></label>
         <select class="form-control" name='language_select' id="selectLanguage">
             <?php
@@ -91,7 +91,7 @@ if (!$thisauth) {
         </select>
     </div>
     <!-- Submit Button -->
-    <div class="form-group">
+    <div class="mb-3">
         <input type="submit" class="btn btn-primary" name="edit" value="<?php echo xla('Search'); ?>">
     </div>
 </form>

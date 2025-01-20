@@ -59,7 +59,7 @@ switch ($search_any_type) {
                 </div>
                 <!-- /ko -->
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <!-- ko if: patient -->
                 <?php
                 $classes = "";
@@ -175,7 +175,7 @@ switch ($search_any_type) {
             <span class="me-auto">
                 <a class="btn btn-secondary btn-sm" href="#" data-bind="click: viewMessages"
                     title="<?php echo xla("View Messages"); ?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span class="badge badge-primary" style="display:inline" data-bind="text: messages()"></span>
+                    <i class="fa fa-envelope"></i>&nbsp;<span class="badge text-bg-primary" style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
             <!-- /ko --><!-- messages -->
@@ -187,27 +187,27 @@ switch ($search_any_type) {
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Portal"); ?>&nbsp;
-                    <span class="badge badge-danger" data-bind="text: portalAlerts()"></span>
+                    <span class="badge text-bg-danger" data-bind="text: portalAlerts()"></span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="portalMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalMail">
                             <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Mail"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalMail()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: portalMail()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalAudits">
                             <i class="fa fa-align-justify"></i>&nbsp;<?php echo xlt("Portal Audits"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalAudits()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: portalAudits()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalPayments">
-                            <i class="fa fa-credit-card"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge badge-success" style="display:inline" data-bind="text: portalPayments()"></span>
+                            <i class="fa fa-credit-card"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge text-bg-success" style="display:inline" data-bind="text: portalPayments()"></span>
                         </a>
                     </li>
                 </ul>
@@ -221,21 +221,21 @@ switch ($search_any_type) {
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Services"); ?>&nbsp;
-                    <span class="badge badge-danger" data-bind="text: serviceAlerts()"></span>
+                    <span class="badge text-bg-danger" data-bind="text: serviceAlerts()"></span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="servicesMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewFaxCount">
                             <i class="fa fa-solid fa-fax"></i>&nbsp;<?php echo xlt("Pending Faxes"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: faxAlerts()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: faxAlerts()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewSmsCount">
                             <i class="fa fa-sms"></i>&nbsp;<?php echo xlt("Pending SMS"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: smsAlerts()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: smsAlerts()"></span>
                         </a>
                     </li>
                 </ul>

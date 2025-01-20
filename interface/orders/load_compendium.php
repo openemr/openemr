@@ -146,11 +146,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                             <?php echo xlt('File to Upload'); ?>
                         </td>
                         <td>
-                            <div class="custom-file">
-                                <label class="custom-file-label" for="userfile"><?php echo xlt('Choose file'); ?></label>
-                                <input type='hidden' class="custom-file-input" name='MAX_FILE_SIZE' value='4000000' />
-                                <input class='form-control' type='file' name='userfile' id='userfile' />
-                            </div>
+                            <label class="form-label" for="userfile"><?php echo xlt('Choose file'); ?></label>
+                            <input type='hidden' class="form-control" name='MAX_FILE_SIZE' value='4000000' />
+                            <input class='form-control' type='file' name='userfile' id='userfile' />
                         </td>
                     </tr>
                     <tr>

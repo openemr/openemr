@@ -119,11 +119,11 @@
 
         function validateInputs(inputs) {
             let isValid = true;
-            $(".form-group").removeClass("has-error");
+            $(".mb-3").removeClass("has-error");
             inputs.each(function () {
                 if (!this.validity.valid) {
                     isValid = false;
-                    $(this).closest(".form-group").addClass("has-error");
+                    $(this).closest(".mb-3").addClass("has-error");
                 }
             });
             return isValid;
@@ -328,19 +328,19 @@
                 <legend class="bg-primary text-white">{{ 'Insurance'|xlt }}</legend>
                 <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="provider">{{ 'Insurance Company'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="{{ 'Enter Self if None'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="plan_name">{{ 'Plan Name'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="plan_name" required placeholder="{{ 'required'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="policy_number">{{ 'Policy Number'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="policy_number" required placeholder="{{ 'required'|xla }}">
@@ -348,19 +348,19 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="group_number">{{ 'Group Number'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="group_number" required placeholder="{{ 'required'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="date">{{ 'Policy Begin Date'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control datepicker" name="date" placeholder="{{ 'Policy effective date'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="copay">{{ 'Co-Payment'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="number" class="form-control" name="copay" placeholder="{{ 'Plan copay if known'|xla }}">

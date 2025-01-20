@@ -119,7 +119,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
             <input type="hidden" name="mode" value="new">
             <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
             <input type="hidden" name="active" value="<?php echo attr($active); ?>">
-            <div class="form-group">
+            <div class="mb-3">
                 <textarea name="note" class="form-control mb-1" rows="3" placeholder="<?php echo xla("Enter new office note here. Text only."); ?>" required="required"></textarea>
                 <button type="submit" class="btn btn-primary btn-save"><?php echo xlt("Add New Note"); ?></button>
                 <a href="office_comments.php" type="button" class="btn btn-cancel btn-secondary float-end"><?php echo xlt("Back"); ?></a>
@@ -190,7 +190,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                                     <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
                                     <input type="hidden" name="active" value="<?php echo attr($active); ?>">
                                     <input type="hidden" name="note_id" value="<?php echo attr($note['id']); ?>">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <textarea name="note" class="form-control" rows="15" required="required"><?php echo text($note['body']); ?></textarea>
                                     </div>
                                 </div>

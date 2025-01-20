@@ -37,7 +37,7 @@
         <form class="navbar-form" role="search">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term" />
-            <div class="input-group-append">
+            <div class="input-group-text">
                 <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
             </div>
         </div>
@@ -98,14 +98,14 @@
     <script type="text/template" id="onsitePortalActivityModelTemplate">
         <form class="form-inline" onsubmit="return false;">
             <fieldset>
-                <div class="form-group inline" id="idInputContainer">
+                <div class="mb-3 inline" id="idInputContainer">
                     <label class="control-label" for="id"><?php echo xlt('Id'); ?></label>
                     <div class="controls inline-inputs">
                         <span class="form-control uneditable-input" id="id"><%= _.escape(item.get('id') || '') %></span>
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="dateInputContainer">
+                <div class="mb-3 inline" id="dateInputContainer">
                     <label class="control-label" for="date"><?php echo xlt('Date'); ?></label>
                     <div class="controls inline-inputs">
                         <div class="input-append date date-picker" data-date-format="yyyy-mm-dd">
@@ -119,21 +119,21 @@
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="patientIdInputContainer">
+                <div class="mb-3 inline" id="patientIdInputContainer">
                     <label class="control-label" for="patientId"><?php echo xlt('Patient Id'); ?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="patientId" placeholder="<?php echo xla('Patient Id'); ?>" value="<%= _.escape(item.get('patientId') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="activityInputContainer">
+                <div class="mb-3 inline" id="activityInputContainer">
                     <label class="control-label" for="activity"><?php echo xlt('Activity'); ?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="activity" placeholder="<?php echo xla('Activity'); ?>" value="<%= _.escape(item.get('activity') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="requireAuditInputContainer">
+                <div class="mb-3 inline" id="requireAuditInputContainer">
                     <label class="control-label" for="requireAudit"><?php echo xlt('Require Audit'); ?></label>
                     <div class="controls inline-inputs">
                         <div class="radio-inline">
@@ -143,56 +143,56 @@
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="pendingActionInputContainer">
+                <div class="mb-3 inline" id="pendingActionInputContainer">
                     <label class="control-label" for="pendingAction"><?php echo xlt('Pending Action'); ?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="pendingAction" placeholder="<?php echo xla('Pending Action'); ?>" value="<%= _.escape(item.get('pendingAction') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="actionTakenInputContainer">
+                <div class="mb-3 inline" id="actionTakenInputContainer">
                     <label class="control-label" for="actionTaken"><?php echo xlt('Action Taken'); ?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="actionTaken" placeholder="<?php echo xla('Action Taken'); ?>" value="<%= _.escape(item.get('actionTaken') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="statusInputContainer">
+                <div class="mb-3 inline" id="statusInputContainer">
                     <label class="control-label" for="status"><?php echo xlt('Status'); ?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="status" placeholder="<?php echo xla('Status'); ?>" value="<%= _.escape(item.get('status') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="narrativeInputContainer">
+                <div class="mb-3 inline" id="narrativeInputContainer">
                     <label class="control-label" for="narrative"><?php echo xlt('Narrative'); ?></label>
                     <div class="controls inline-inputs">
                         <textarea class="form-control" id="narrative" rows="3"><%= _.escape(item.get('narrative') || '') %></textarea>
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="tableActionInputContainer">
+                <div class="mb-3 inline" id="tableActionInputContainer">
                     <label class="control-label" for="tableAction"><?php echo xlt('Table Action'); ?></label>
                     <div class="controls inline-inputs">
                         <textarea class="form-control" id="tableAction" rows="3"><%= _.escape(item.get('tableAction') || '') %></textarea>
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="tableArgsInputContainer">
+                <div class="mb-3 inline" id="tableArgsInputContainer">
                     <label class="control-label" for="tableArgs"><?php echo xlt('Table Args'); ?></label>
                     <div class="controls inline-inputs">
                         <textarea class="form-control" id="tableArgs" rows="3"><%= _.escape(item.get('tableArgs') || '') %></textarea>
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="actionUserInputContainer">
+                <div class="mb-3 inline" id="actionUserInputContainer">
                     <label class="control-label" for="actionUser"><?php echo xlt('Action User'); ?></label>
                     <div class="controls inline-inputs">
                         <input type="text" class="form-control" id="actionUser" placeholder="<?php echo xla('Action User'); ?>" value="<%= _.escape(item.get('actionUser') || '') %>">
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="actionTakenTimeInputContainer">
+                <div class="mb-3 inline" id="actionTakenTimeInputContainer">
                     <label class="control-label" for="actionTakenTime"><?php echo xlt('Action Taken Time'); ?></label>
                     <div class="controls inline-inputs">
                         <div class="input-append date date-picker" data-date-format="yyyy-mm-dd">
@@ -206,7 +206,7 @@
                         <span class="help-inline"></span>
                     </div>
                 </div>
-                <div class="form-group inline" id="checksumInputContainer">
+                <div class="mb-3 inline" id="checksumInputContainer">
                     <label class="control-label" for="checksum"><?php echo xlt('Checksum'); ?></label>
                     <div class="controls inline-inputs">
                         <textarea class="form-control" id="checksum" rows="3"><%= _.escape(item.get('checksum') || '') %></textarea>
@@ -219,7 +219,7 @@
         <!-- delete button is is a separate form to prevent enter key from triggering a delete -->
         <form id="deleteOnsitePortalActivityButtonContainer" class="form-inline" onsubmit="return false;">
             <fieldset>
-                <div class="form-group">
+                <div class="mb-3">
                     <label class="control-label"></label>
                     <div class="controls">
                         <button id="deleteOnsitePortalActivityButton" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> <?php echo xlt('Delete Onsite Portal Activity'); ?></button>

@@ -252,7 +252,7 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                             <hr />
                         </div>
                         <?php } ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="col-sm-12">
                                 <div class="btn-group" role="group">
                                     <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>

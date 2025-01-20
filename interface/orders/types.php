@@ -344,7 +344,7 @@ if ($popup && $_POST['form_save'] ?? '') {
                     </div>
                     <div id="con0"></div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group" role="group">
                                 <?php if ($popup) { ?>

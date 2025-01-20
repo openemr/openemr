@@ -1146,7 +1146,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($iter['id']) {
                                     $lcount += 2;
                                     $lhtml .= "<br />\n";
-                                    $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
+                                    $lhtml .= "&nbsp;<span class='mb-3'>" . xlt('Bill') . ": ";
                                     $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' class='form-control'>";
 
                                     $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
@@ -1170,7 +1170,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                                     $lhtml .= "<option value='-1'>" . xlt("Unassigned") . "</option>\n";
                                     $lhtml .= "</select>&nbsp;&nbsp;\n";
-                                    $lhtml .= "&nbsp;<span class='form-group'>X12: ";
+                                    $lhtml .= "&nbsp;<span class='mb-3'>X12: ";
                                     $lhtml .= "<select class='form-control' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
                                     $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                     foreach ($partners as $xid => $xname) {

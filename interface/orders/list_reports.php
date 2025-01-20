@@ -200,8 +200,8 @@ function doWait(e){
     <input class="d-none row" type='text' name='form_external_refresh' value='' />
     <div class="form-row">
         <div class="col-md">
-            <div class="form-group">
-                <div class="input-group-btn input-group-append">
+            <div class="mb-3">
+                <div class="input-group-btn input-group-text">
                     <button class='btn btn-primary' name='form_process_labs'
                         title="Click to process pending results from selected Labs."
                         value="true"><?php echo xlt('Process Results For'); ?><i class="ms-1 btn-transmit"></i>
@@ -223,8 +223,8 @@ function doWait(e){
                         ?>
                     </select>
                 </div>
-                <div class="form-group">
-                    <div class="input-group-append">
+                <div class="mb-3">
+                    <div class="input-group-text">
                     <input name='form_max_results' id='form_max_results' class='form-control'
                         style="max-width:75px;margin-left:20px;"
                         type="number" title="<?php echo xla('Max number of results to process at a time per Lab') ?>"

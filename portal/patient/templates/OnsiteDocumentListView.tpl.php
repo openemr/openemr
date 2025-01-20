@@ -622,7 +622,7 @@ $templateService = new DocumentTemplateService();
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="col-form-label"></label>
                                         <div class="controls">
                                             <button id="deleteOnsiteDocumentButton" class="btn btn-delete btn-sm btn-danger mt-1"><?php echo xlt('Delete Document'); ?></button>

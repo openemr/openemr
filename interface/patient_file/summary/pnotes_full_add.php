@@ -227,7 +227,7 @@ function submitform(attr) {
                 <input type='hidden' name='noteid' id="noteid" value="<?php echo attr($noteid); ?>" />
                 <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>" />
 
-                <div class="form-group mt-3">
+                <div class="mb-3 mt-3">
                     <label>
                     <?php
                     if ($noteid) {
@@ -241,7 +241,7 @@ function submitform(attr) {
                     </label>
                 </div>
 
-                <div class="form-group mt-3">
+                <div class="mb-3 mt-3">
                     <label for='note_type' class='fw-bold'><?php echo xlt('Type'); ?>:</label>
                     <?php
                     // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
@@ -249,7 +249,7 @@ function submitform(attr) {
                     ?>
                 </div>
 
-                <div class="form-group mt-3">
+                <div class="mb-3 mt-3">
                     <label for='assigned_to' class='fw-bold'><?php echo xlt('To{{Destination}}'); ?>:</label>
                     <select name='assigned_to' id='assigned_to' class='form-control'>
                         <?php
@@ -272,7 +272,7 @@ function submitform(attr) {
                 </div>
 
                 <?php if ($GLOBALS['messages_due_date']) { ?>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label for='datetime' class='fw-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php
                             generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
@@ -280,7 +280,7 @@ function submitform(attr) {
                     </div>
                 <?php } ?>
 
-                <div class="form-group mt-3">
+                <div class="mb-3 mt-3">
                     <?php
                     if ($noteid) {
                         $body = $prow['body'];
@@ -291,7 +291,7 @@ function submitform(attr) {
                     ?>
                 </div>
 
-                <div class="form-group mt-3">
+                <div class="mb-3 mt-3">
                     <textarea name='note' id='note' class='form-control' rows='4' cols='58'></textarea>
                 </div>
 

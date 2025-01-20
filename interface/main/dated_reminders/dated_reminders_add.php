@@ -315,14 +315,14 @@ if (isset($this_message['pid'])) {
             </fieldset>
 
 
-            <div class="form-group mt-3">
+            <div class="mb-3 mt-3">
                 <label for="patientName"><?php echo xlt('Link To Patient') ?>: <i id="link-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i></label>
                 <input type='text' id='patientName' name='patientName' class='form-control' value='<?php echo ($patientID > 0 ? attr(getPatName($patientID)) : xla('Click to select patient')); ?>' onclick='sel_patient()' title='<?php xla('Click to select patient'); ?>' readonly />
                 <input type="hidden" name="PatientID" id="PatientID" value="<?php echo (isset($patientID) ? attr($patientID) : 0) ?>" />
                 <button type="button" class="btn btn-secondary btn-undo mt-2" <?php echo ($patientID > 0 ? '' : 'style="display:none"') ?> id="removePatient"><?php echo xlt('unlink patient') ?></button>
             </div>
 
-            <div class="form-group mt-3">
+            <div class="mb-3 mt-3">
                 <label for="patientName">
                     <?php echo xlt('Send to') ?>:
                     <br />
@@ -340,7 +340,7 @@ if (isset($this_message['pid'])) {
                 <a class="btn btn-secondary btn-save mt-2" style="cursor: pointer" onclick="selectAll();"><?php echo xlt('Select all') ?></a>
             </div>
 
-            <div class="form-group mt-3">
+            <div class="mb-3 mt-3">
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" />  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
@@ -348,7 +348,7 @@ if (isset($this_message['pid'])) {
                 </div>
             </div>
 
-            <div class="form-group row mt-3">
+            <div class="mb-3 row mt-3">
                 <div class="col-5">
                     <label for="dueDate"><?php echo xlt('Due Date') ?>:</label>
                     <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
@@ -372,7 +372,7 @@ if (isset($this_message['pid'])) {
                 </div>
             </div>
 
-            <div class="form-group row mt-3">
+            <div class="mb-3 row mt-3">
                 <div class="col-2 text-right">
                     <label for="priority"><?php echo xlt('Priority') ?>:</label>
                 </div>
@@ -386,7 +386,7 @@ if (isset($this_message['pid'])) {
                 </div>
             </div>
 
-            <div class="form-group mt-3">
+            <div class="mb-3 mt-3">
                 <label class="text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" class="form-control text-left" rows="5" name="message" id="message" placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text'] ?? '');?></textarea>
             </div>

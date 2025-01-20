@@ -563,7 +563,7 @@ $ResultSearchSub = sqlStatement(
             border-right: 1px solid var(--bs-black);
         }
 
-        .form-group {
+        .mb-3 {
             margin-bottom: 5px;
         }
 
@@ -1052,7 +1052,7 @@ $ResultSearchSub = sqlStatement(
                 }//End of if($payment_id*1>0)
                 ?>
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                <div class="form-group clearfix">
+                <div class="mb-3 clearfix">
                     <div class="col-sm-12 text-left position-override">
                         <div class="btn-group" role="group">
                             <a class="btn btn-secondary btn-save" href="#" onclick="return ModifyPayments();"><span><?php echo xlt('Modify Payments'); ?></span></a>

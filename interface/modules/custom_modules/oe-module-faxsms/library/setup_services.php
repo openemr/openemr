@@ -115,7 +115,7 @@ $vendors = $boot->getVendorGlobals();
 </head>
 <body>
     <div class="w-100 container-xl">
-        <div class="form-group m-2 p-2 bg-dark">
+        <div class="mb-3 m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS Account"); ?><span class="caret"></span></button>
@@ -139,7 +139,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
                     <hr>
                     <div class="clearfix"></div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="sms_vendor" class="col-sm-6"><?php echo xlt("Enable SMS Module"); ?></label>
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
                             <select class="form-control persist" name="sms_vendor" id="sms_vendor">
@@ -150,7 +150,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
@@ -160,7 +160,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
@@ -169,13 +169,13 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable Send SMS Dialog"); ?></label>
                         <div class="col-sm-6" title="Enable Send SMS Dialog Support. Various opportunities in UI.">
                             <input type="checkbox" class="checkbox persist" name="allow_dialog" id="allow_dialog" value="1" <?php echo $vendors['oesms_send'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="restrict" class="col-sm-6"><?php echo xlt("Individual User Accounts"); ?></label>
                         <div class="col-sm-6" title="Restrict Users to their own account credentials. Usage accounting is tagged to username.">
                             <input type="checkbox" class="checkbox persist" name="restrict" id="restrict" value="1" <?php echo $vendors['oerestrict_users'] == '1' ? 'checked' : ''; ?>>

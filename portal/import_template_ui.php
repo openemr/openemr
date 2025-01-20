@@ -604,7 +604,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             <?php echo $select_cat_options ?>
                         </select>
                     </div>
-                    <div class="form-group mx-2">
+                    <div class="mb-3 mx-2">
                         <div class='btn-group ms-1'>
                             <button type='submit' class='btn btn-save btn-primary'><?php echo xlt("Submit"); ?></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
@@ -685,7 +685,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                         <input type="checkbox" class='form-check-inline ms-1' id='upload_scope' checked>
                                 </div>
                             </div>
-                            <div class='form-group col'>
+                            <div class='mb-3 col'>
                                 <input type='file' class='btn btn-outline-info me-1 mt-1' id="fetch_files" name='template_files[]' multiple />
                                 <div class="mt-1">
                                     <button class='btn btn-outline-success d-none' type='submit' name='upload_submit' id='upload_submit' title="<?php echo xla("Import a template file or if a Questionnaire then auto create a questionnaire template."); ?>">
@@ -698,7 +698,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             </div>
                             <div class="mt-2">
                                 <div class="text-center m-0 p-0"><small class="my-1 fw-bolder fst-italic"><?php echo xlt("Shows all existing Questionnaires available from repository. Select to automatically create template."); ?></small></div>
-                                <div class="input-group input-group-append">
+                                <div class="input-group input-group-text">
                                     <select class="select-questionnaire" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false" title="<?php echo xla('Items that are already an existing template will be overwritten if selected.') ?>">
                                         <option value=""></option>
                                         <?php

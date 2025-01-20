@@ -1367,19 +1367,19 @@ $classpati = '';
 <input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>" />
 <!-- End of addition by epsdky -->
 <div class="form-row mx-2">
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
         <label for='form_category'><?php echo xlt('Category'); ?>:</label>
         <select class='form-control' name='form_category' id='form_category' onchange='set_category()'>
             <?php echo $catoptions ?>
         </select>
     </div>
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
         <label for='form_title'><?php echo xlt('Title'); ?>:</label>
         <input class="form-control" type='text' size='10' name='form_title' id='form_title' value='<?php echo attr($row['pc_title'] ?? ''); ?>' title='<?php echo xla('Event title'); ?>' />
     </div>
 </div>
 <div class="form-row mx-2">
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
         <label for="facility"><?php echo xlt('Facility'); ?>:</label>
         <select class="form-control" name="facility" id="facility">
             <?php
@@ -1397,7 +1397,7 @@ $classpati = '';
             ?>
         </select>
     </div>
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
     <label for="billing_facility"><?php echo xlt('Billing Facility'); ?>:</label>
         <?php
         billing_facility('billing_facility', ($row['pc_billing_location'] ?? null));
@@ -1407,7 +1407,7 @@ $classpati = '';
 <?php
 if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
     <div class="bg-body-tertiary px-2 py-2 my-2" id="patient_details">
-        <div class="form-group">
+        <div class="mb-3">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
             <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
             <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
@@ -1443,7 +1443,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
         '' : 'none';
     ?>
     <div class="form-row mx-2" id='dob_row' style='display: <?php echo $dobstyle ?>'>
-        <div class="col-sm form-group">
+        <div class="col-sm mb-3">
             <span class="text-danger"><?php echo xlt('DOB is missing, please enter if possible'); ?>:</span>
             <input class="form-control datepicker" type='text' size='10' name='form_dob' id='form_dob' title='<?php echo xla('yyyy-mm-dd date of birth'); ?>' />
         </div>
@@ -1452,12 +1452,12 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
 <?php
 if ($_GET['group'] === true && $have_group_global_enabled) { ?>
     <div class="form-row mx-2" id="group_details">
-        <div class="col-sm form-group">
+        <div class="col-sm mb-3">
             <label for='form_group'><?php echo xlt('Group'); ?>:</label>
             <input class='form-control' type='text' size='10' name='form_group' id="form_group" style='cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($groupname) ? '' : attr($groupname); ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
             <input type='hidden' name='form_gid' value='<?php echo attr($groupid) ?>' />
         </div>
-        <div class="col-sm form-group" style='font-size: 0.75rem'>
+        <div class="col-sm mb-3" style='font-size: 0.75rem'>
             <span class="infobox">
             <?php
             foreach ($patienttitle as $value) {
@@ -1474,7 +1474,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
     </div>
 <?php } ?>
 <div class="form-row mx-2">
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
      <label for="provd">
         <?php if ($_GET['group'] == true) {
             echo xlt('Coordinating Counselors');
@@ -1702,7 +1702,7 @@ function isRegularRepeat($repeat)
     </div>
 </div>
 <div class="form-row mx-2">
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
         <label id='title_prefcat' class='fw-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
         <?php
@@ -1721,7 +1721,7 @@ function isRegularRepeat($repeat)
 
 <?php
 if (empty($_GET['prov'])) { ?>
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
         <label><?php echo xlt('Room Number'); ?>:</label>
         <?php
             echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
@@ -1730,7 +1730,7 @@ if (empty($_GET['prov'])) { ?>
     <?php } ?>
 </div><!-- status row -->
 <div class="form-row mx-2">
-    <div class="col-sm form-group">
+    <div class="col-sm mb-3">
         <label><?php echo xlt('Comments'); ?>:</label>
         <input class='form-control' type='text' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
     </div>

@@ -65,19 +65,19 @@ if (!empty($_POST)) {
             <div class="card">
                 <div class="row">
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="startDate"><?php echo xlt("Receive Date Start") ?>:</label>
                             <input type="date" class="form-control"  id="startDate" name="startDate" value="<?php echo isset($_POST['startDate']) ? attr($_POST['startDate']) : '' ?>"  placeholder="yyyy-mm-dd"/>
                         </div>
                     </div>                    
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="endDate"><?php echo xlt("Receive Date End"); ?>:</label>
                             <input type="date" class="form-control"  id="endDate" name="endDate" value="<?php echo isset($_POST['endDate']) ? attr($_POST['endDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="downloadStatus"><?php echo xlt("Download Status") ?>:</label>
                             <select name="downloadStatus" id="downloadStatus"  class="form-control">
                                 <option value=2 <?php echo ($dlStatus == 2) ? $selected : ''; ?> ><?php echo xlt("Waiting") ?></option>

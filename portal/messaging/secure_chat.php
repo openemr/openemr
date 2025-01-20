@@ -578,11 +578,11 @@ $msgApp = new ChatController();
         <!-- <h2 class="d-none">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h5><span class="badge badge-primary"><?php echo xlt('Current Recipients'); ?></span></h5>
+                <h5><span class="badge text-bg-primary"><?php echo xlt('Current Recipients'); ?></span></h5>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
-                <h5><span class="badge badge-primary"><?php echo xlt('Available Recipients'); ?></span></h5>
+                <h5><span class="badge text-bg-primary"><?php echo xlt('Available Recipients'); ?></span></h5>
                 <span>
                     <button id="chkall" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All{{Recipients}}'); ?></button>
                     <button id="chknone" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None{{Recipients}}'); ?></button>
@@ -618,7 +618,7 @@ $msgApp = new ChatController();
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
                                     <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus" class="form-control" ng-model="me.message" ng-enter="saveMessage()">
-                                    <span class="input-group-append">
+                                    <span class="input-group-text">
                                         <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
                                         <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
                                     </span>
@@ -629,7 +629,7 @@ $msgApp = new ChatController();
                 </div>
             </div>
             <div class="col-md-2 rtsidebar">
-                <h5><span class="badge badge-primary"><?php echo xlt("Online Users"); ?> : {{ online.total || '0' }}</span>
+                <h5><span class="badge text-bg-primary"><?php echo xlt("Online Users"); ?> : {{ online.total || '0' }}</span>
                 </h5>
                 <label ng-repeat="ol in onlines | unique : 'username'">
                     <input type="checkbox" data-checklist-model="onlines" data-checklist-value="ol"> {{ol.username}}

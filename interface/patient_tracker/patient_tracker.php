@@ -345,10 +345,10 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                 <div class=" d-sm-block">
                     <span id="status_summary">
                         <?php
-                        $statuses_output = "<span class='text badge badge-light'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
+                        $statuses_output = "<span class='text badge text-bg-light'><em>" . xlt('Total patients') . ':</em> ' . text($appointments_status['count_all']) . "</span>";
                         unset($appointments_status['count_all']);
                         foreach ($appointments_status as $status_symbol => $count) {
-                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge badge-light'>" . text($count) . "</span></span>";
+                            $statuses_output .= " | <span><em>" . text(xl_list_label($statuses_list[$status_symbol])) . ":</em> <span class='badge text-bg-light'>" . text($count) . "</span></span>";
                         }
                         echo $statuses_output;
                         ?>

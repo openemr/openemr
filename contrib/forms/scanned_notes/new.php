@@ -379,13 +379,13 @@ if ($formid) {
                     <h4 class="m-0"><?php echo xlt('Scanned Encounter Notes'); ?></h4>
                 </div>
                 <div class="card-body">
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="form_notes" class="col-sm-2 col-form-label dehead"><?php echo xlt('Comments'); ?></label>
                         <div class="col-sm-10">
                             <textarea id="form_notes" name="form_notes" rows="4" class="form-control"><?php echo text($row['notes']); ?></textarea>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <label for="fileUpload" class="col-sm-2 col-form-label dehead"><?php echo xlt('Document'); ?>
                             <button type="button" class="btn btn-warning" style="color: #000000;" onclick="return goBack()"><?php echo xlt('Exit'); ?></button>
                         </label>
@@ -425,7 +425,7 @@ if ($formid) {
                     <h4 class="m-0"><?php echo xlt('Webcam Preview'); ?></h4>
                 </div>
                 <div class="card-body">
-                    <div class="form-group row text-center">
+                    <div class="mb-3 row text-center">
                         <label for="webcam" class="col-sm-2 col-form-label"><?php echo xlt('Preview'); ?></label>
                         <div id="webcam-container" class="col-sm-10 text-center" style="display: block;">
                             <video id="webcam" autoplay playsinline style="width: 100%; max-width: 640px;"></video>

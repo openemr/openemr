@@ -144,14 +144,14 @@ if (!empty($_POST['bn_submit'])) {
                     <input type='hidden' name='type' value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code' value='<?php echo attr($codevalue); ?>' />
                     <input type='hidden' name='language' value='<?php echo attr($language); ?>' />
-                    <div class='form-group'>
+                    <div class='mb-3'>
                         <label for="source"><?php echo xlt('Select source'); ?></label>
                         <select name='source' id='source' class='form-control'>
                             <option value='MLP'><?php echo xlt('MedlinePlus Connect'); ?></option>
                             <option value='Local'><?php echo xlt('Local Content'); ?></option>
                         </select>
                     </div>
-                    <div class='form-group'>
+                    <div class='mb-3'>
                         <div class='btn-group' role='group'>
                             <button type='submit' class='btn btn-primary btn-search' name='bn_submit' value='bn_submit'>
                                 <?php echo xlt('Submit'); ?>

@@ -191,7 +191,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-radio">
                                                 <input type="radio" name="education" id="lessthanhs" value="lessthanhs" <?php echo (($obj["education"] ?? '') == "lessthanhs") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="lessthanhs"><?php echo xlt('Less than High School');?></label>
@@ -226,7 +226,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-radio">
                                                 <input type="radio" name="disability" id="disabilityyes" value="disabilityyes"<?php echo (($obj["disability"] ?? '') == "disabilityyes") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="disabilityyes"><?php echo xlt('Yes');?></label>
@@ -249,7 +249,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-radio">
                                                 <input type="radio" name="housing" id="housepermanent" name='housepermanent' value="housepermanent" <?php echo (($obj["housing"] ?? '') == "housepermanent") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="housepermanent"><?php echo xlt('Permanent and Safe');?></label>
@@ -289,7 +289,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="workfulltime" name='workfulltime' <?php echo (($obj["workfulltime"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="workfulltime"><?php echo xlt('Full Time');?></label>
@@ -340,7 +340,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-number">
                                             <input type="number" id="workhours" name='workhours' min="0" max="200" value="<?php echo attr($obj["workhours"] ?? ''); ?>"/>
                                         </div>
@@ -354,7 +354,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-number">
                                             <input type="number" id="hhincome" name='hhincome' min="0" max="10000000" value="<?php echo attr($obj["hhincome"] ?? ''); ?>"/>
                                         </div>
@@ -368,7 +368,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-number">
                                             <input type="number" id="hhsize" name='hhsize' min="1" max="20" value="<?php echo attr($obj["hhsize"] ?? ''); ?>"/>
                                         </div>
@@ -382,7 +382,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="careno" name='careno'  <?php echo (($obj["careno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="careno"><?php echo xlt('Not a primary caregiver');?></label>
@@ -425,7 +425,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="debtno" name='debtno' <?php echo (($obj["debtno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="debtno"><?php echo xlt('No debt');?></label>
@@ -477,7 +477,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="moneyno" name='moneyno' <?php echo (($obj["moneyno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="moneyno"><?php echo xlt('No Financial Struggles');?></label>
@@ -533,7 +533,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="transportationno" name='transportationno' <?php echo (($obj["transportationno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="transportationno"><?php echo xlt('No Transportation Problems');?></label>
@@ -573,7 +573,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="medicalno" name='medicalno' <?php echo (($obj["medicalno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                                 <label class="form-check-label" for="medicalno"><?php echo xlt('No delayed medical care');?></label>
@@ -625,7 +625,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="dentist" id="dentistyes" value="dentistyes" <?php echo (($obj["dentist"] ?? '') == "dentistyes") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="dentistyes"><?php echo xlt('Yes');?></label>
@@ -661,7 +661,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="social" id="sociallessthan1" value="sociallessthan1" <?php echo (($obj["social"] ?? '') == "sociallessthan1") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="sociallessthan1"><?php echo xlt('Less than once a week');?></label>
@@ -696,7 +696,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="stress" id="stresslevelno" value="stresslevelno" <?php echo (($obj["stress"] ?? '') == "stresslevelno") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="stresslevelno"><?php echo xlt('Not at all');?></label>
@@ -731,7 +731,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="stressno" name='stressno' <?php echo (($obj["stressno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="stressno"><?php echo xlt('No Stressful Life Events');?></label>
@@ -807,7 +807,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="safety" id="safeyes" value="safeyes" <?php echo (($obj["safety"] ?? '') == "safeyes") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="safeyes"><?php echo xlt('Yes, all the time');?></label>
@@ -834,7 +834,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="partnersafety" id="partnerunsafe" value="partnerunsafe" <?php echo (($obj["partnersafety"] ?? '') == "partnerunsafe") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="partnerunsafe"><?php echo xlt('Yes');?></label>
@@ -857,7 +857,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="female" id="femaleyes" value="femaleyes" <?php echo (($obj["female"] ?? '') == "femaleyes") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="femaleyes"><?php echo xlt('Yes');?></label>
@@ -881,7 +881,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="addiction" id="addictionyes" value="addictionyes" <?php echo (($obj["addiction"] ?? '') == "addictionyes") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="addictionyes"><?php echo xlt('Yes');?></label>
@@ -904,7 +904,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="armedservices" id="armedservicesyes" value="armedservicesyes" <?php echo (($obj["armedservices"] ?? '') == "armedservicesyes") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="armedservicesyes"><?php echo xlt('Yes');?></label>
@@ -927,7 +927,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="refugee" id="refugeeyes" value="refugeeyes" <?php echo (($obj["refugee"] ?? '') == "refugeeyes") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="refugeeyes"><?php echo xlt('Yes');?></label>
@@ -950,7 +950,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="discrimno" name='discrimno' <?php echo (($obj["discrimno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="discrimno"><?php echo xlt('No Discrimination');?></label>
@@ -1026,7 +1026,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="displaceno" name='displaceno' <?php echo (($obj["displaceno"] ?? '') == "on") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="displaceno"><?php echo xlt('No Discrimination');?></label>
@@ -1082,7 +1082,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="form-radio">
                                             <input type="radio" name="contact" id="contactphone" value="contactphone" <?php echo (($obj["contact"] ?? '') == "contactphone") ? "checked" : ""; ?>/>
                                             <label class="form-check-label" for="contactphone"><?php echo xlt('Yes, by phone');?></label>
@@ -1119,7 +1119,7 @@ if (!empty($_GET['id'])) {
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <textarea name="additional_notes" class="form-control" cols="80" rows="5" ><?php echo text($obj["additional_notes"] ?? ''); ?></textarea>
                                     </div>
                                 </div>
@@ -1127,7 +1127,7 @@ if (!empty($_GET['id'])) {
                         </div>
                     </fieldset>
                     <?php if (!$patientPortalSession && !$patientPortalOther) { ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-12 position-override">
                                     <div class="btn-group" role="group">

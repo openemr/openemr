@@ -98,7 +98,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
                         <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br /><br /></span>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label><?php echo xlt('Box 10 A. Employment related'); ?>:
                                 <input type="checkbox" name="employment_related" id="box10a" value="1"
                                     <?php
@@ -122,7 +122,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     value="<?php echo attr($obj["accident_state"] ?? ''); ?>" />
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
                             <input type="checkbox" name="other_accident" id="box10c" value="1"
                                 <?php
@@ -195,7 +195,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
                             if (!empty($obj["provider_id"])) {
@@ -204,7 +204,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                 $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
                             } ?>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
                             <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), 'Provider Qualifier Code'); ?>
                         </div>
@@ -259,7 +259,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     value="<?php echo attr($obj["medicaid_original_reference"] ?? ''); ?>" />
                             </div>
                         </div>
-                        <div class="form-group mt-3">
+                        <div class="mb-3 mt-3">
                             <label><?php echo xlt('Box 23. Prior Authorization No.'); ?>:</label>
                             <input type="text" class="form-control" name="prior_auth_number" id="prior_auth_number"
                                 value="<?php echo attr($obj["prior_auth_number"] ?? ''); ?>" />
@@ -298,13 +298,13 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Additional Notes'); ?></legend>
                     <div class="container">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <textarea name="comments" id="comments" class="form-control" cols="80"
                                 rows="3"><?php echo text($obj["comments"] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </fieldset>
-                <div class="form-group">
+                <div class="mb-3">
                     <div class="col-sm-12 position-override">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save save"><?php echo xlt('Save'); ?></button>

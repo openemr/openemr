@@ -132,10 +132,10 @@ try {
                 <?php echo text($record['title']); ?> -
                 <?php echo xlt("Failed to retrieve validation results from server"); ?>
             </span>
-        <span class="validation-totals validation-totals-success badge badge-pill badge-success p-2 d-none">
+        <span class="validation-totals validation-totals-success badge rounded-pill text-bg-success p-2 d-none">
                 <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
         </span>
-        <span class="validation-totals validation-totals-failed badge badge-pill badge-danger p-2 d-none">
+        <span class="validation-totals validation-totals-failed badge rounded-pill text-bg-danger p-2 d-none">
                 <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
         </span>
         <?php } ?>

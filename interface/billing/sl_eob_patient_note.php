@@ -68,12 +68,12 @@ $info_msg = "";
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="row">
                     <div class="col-12 pb-1">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <textarea type='text' name='form_note' class='textarea form-control' rows="3" maxlength="255" placeholder='<?php echo xla('Max 255 characters') ?>'><?php echo attr($row['billing_note']) ?></textarea>
                             <label><?php echo xlt('Max 255 characters') ?></label>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 text-left position-override" id="search-btn">
                             <div class="btn-group" role="group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' id="btn-save"><?php echo xlt("Save"); ?></button>

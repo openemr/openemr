@@ -50,12 +50,12 @@ formHeader("Form: assessment_intake");
 
             <p><label class="fw-bold">SSN:</label>&nbsp;<?php echo text($result['ss']);?></p>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="dcn">DCN:</label>
                 <input type="text" class="form-control" name="dcn" id="dcn" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="location">Location:</label>
                 <input type="text" class="form-control" name="location" id="location" />
             </div>
@@ -66,16 +66,16 @@ formHeader("Form: assessment_intake");
 
             <p><label class="fw-bold">Date of Birth:</label>&nbsp;<?php echo text($result['DOB']);?></p>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="time_in">Time In:</label>
                 <input type="text" class="form-control" name="time_in" id="time_in" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="time_out">Time Out:</label>
                 <input type="text" class="form-control" name="time_out" id="time_out" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Referral Source:</label>
                 <input type="text" class="form-control" name="referral_source" />
             </div>
@@ -94,27 +94,27 @@ formHeader("Form: assessment_intake");
                 <label class="fw-bold custom-control-label">Consultation</label>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Copy sent to:</label>
                 <input type="text" class="form-control" name="copy_sent_to" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Why is Assessment being requested (Goals and treatment expectations of the individual requesting services):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="reason_why"></textarea>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Behavior that led to Assessment:</label>
                 <textarea class="form-control" cols="100" rows="5" wrap="virtual" name="behavior_led_to"></textarea>
             </div>
 
             <h5 class="fw-bold mt-3" style="text-decoration: underline;">Areas of Functioning:</h5>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">School/Work:</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="school_work"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Personal Relationships (Intimate):</label>
                 <textarea class="form-control" cols="100" rows="4" wrap="virtual" name="personal_relationships"></textarea>
             </div>
@@ -125,7 +125,7 @@ formHeader("Form: assessment_intake");
                     <input type="checkbox" class='custom-control-input' name='fatherc' />
                     <label class="fw-bold custom-control-label">Father involved/present/absent (Describe relationship)</label>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="father_involved"></textarea>
                 </div>
             </div>
@@ -134,92 +134,92 @@ formHeader("Form: assessment_intake");
                     <input type="checkbox" class='custom-control-input' name='motherc' />
                     <label class="fw-bold custom-control-label">Mother involved/present/absent (Describe relationship)</label>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="mother_involved"></textarea>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Number of children:</label>
                 <input type="text" class="form-control" name="number_children" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Names, ages, quality of relationship(s):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="siblings"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Other family relationships:</label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="other_relationships"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Social Relationships (Peers/Friends):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="social_relationships"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Psychological/Personal Functioning (Current symptons):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="current_symptoms"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Personal resources and strengths (including the availability and use of family and peers):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="personal_strengths"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Spiritual:</label>
                 <input type="text" class="form-control" name="spiritual" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Legal:</label>
                 <input type="text" class="form-control" name="legal" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Prior Mental Health History/Treatment:</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="prior_history"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Number of admissions:</label>
                 <input type="text" class="form-control" name="number_admitt" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Types of admissions:</label>
                 <input type="text" class="form-control" name="type_admitt" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Alcohol and substance use for the past 30 days:</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="substance_use"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Substance abuse history (Include duration, patterns, and consequences of use):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="substance_abuse"></textarea>
             </div>
 
             <h5 class="fw-bold mt-3" style="text-decoration: underline;">Diagnoses</h5>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Axis I:</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="axis1"></textarea>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Axis II:</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="axis2"></textarea>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Axis III:</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="axis3"></textarea>
             </div>
 
             <h5 class="fw-bold mt-3" style="text-decoration: underline;">Allergies/Adverse reactions to medications:</h5>
-            <div class="form-group">
+            <div class="mb-3">
                 <input type="text" class="form-control" name="allergies" />
             </div>
             <p class="fw-bold">Axis IV Psychosocial and environmental problems in the last year:</p>
@@ -260,17 +260,17 @@ formHeader("Form: assessment_intake");
                     <input type="checkbox" class='custom-control-input' name='ax4_other_cb' />
                     <label class="fw-bold custom-control-label">Other (specify):</label>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="ax4_other"></textarea>
                 </div>
             </div>
             <p class="fw-bold">Axis V Global Assessment of Functioning (GAF) Scale (100 down to 0):</p>
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Currently</label>
                 <input type="text" class="form-control" name="ax5_current" />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Past Year</label>
                 <input type="text" class="form-control" name="ax5_past" />
             </div>
@@ -381,7 +381,7 @@ formHeader("Form: assessment_intake");
                         <label class="fw-bold custom-control-label">None/normal use:</label>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="risk_normal_use"></textarea>
                 </div>
             </div>
@@ -522,7 +522,7 @@ formHeader("Form: assessment_intake");
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Risk to community (criminal):</label>
                 <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="risk_community"></textarea>
             </div>
@@ -550,37 +550,37 @@ formHeader("Form: assessment_intake");
                     <input type="checkbox" class='custom-control-input' name='recommendations_psy_o' />
                     <label class="fw-bold custom-control-label">Other</label>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" cols="100" rows="3" wrap="virtual" name="recommendations_psy_notes"></textarea>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Date report sent to referral source:</label>
                 <input type="text" class="form-control" name='refer_date' />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold">Parent/Guardian:</label>
                 <input type="text" class="form-control" name='parent' />
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="supervision_level">Level of supervision needed:</label>
                 <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_level" id="supervision_level"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="supervision_type">Type of program:</label>
                 <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_type" id="supervision_type"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="supervision_res"><?php echo xlt("Residential or long-term placement recommended:"); ?></label>
                 <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_res" id="supervision_res"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="supervision_services"><?php echo xlt("Support services needed:"); ?></label>
                 <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_services" id="supervision_services"></textarea>
             </div>
@@ -652,37 +652,37 @@ formHeader("Form: assessment_intake");
 
             <h5 class="fw-bold mt-3" style="text-decoration: underline;"><?php echo xlt("Referrals for Continuing Services"); ?></h5>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="referrals_pepm"><?php echo xlt("Psychiatric Evaluation Psychotropic Medications:"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_pepm" id="referrals_pepm"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold"><?php echo xlt("Medical Care:"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_mc" id="referrals_mc"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="referrals_vt"><?php echo xlt("Educational/vocational services:"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_vt" id="referrals_vt"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="referrals_o"><?php echo xlt("Other:"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_o" id="referrals_o"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="referrals_cu"><?php echo xlt("Current use of resources/services from other community agencies:"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_cu" id="referrals_cu"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="referrals_docs"><?php echo xlt("Documents to be obtainded (Release of Information Required):"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_docs" id="referrals_docs"></textarea>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="fw-bold" for="referrals_or"><?php echo xlt("Other needed resources and services:"); ?></label>
                 <textarea class="form-control" cols="100" rows="2" wrap="virtual" name="referrals_or" id="referrals_or"></textarea>
             </div>

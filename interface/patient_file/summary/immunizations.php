@@ -382,7 +382,7 @@ tr.selected {
                     ?>
 
                     <?php if (!($useCVX)) { ?>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization'); ?></label>
                         <?php
                         // Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
@@ -390,7 +390,7 @@ tr.selected {
                         ?>
                     </div>
                     <?php } else { ?>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization'); ?> (<?php echo xlt('CVX Code'); ?>)</label>
                         <input type='text' class='form-control' size='10' name='cvx_code' id='cvx_code'
                             value='<?php echo attr($cvx_code ?? ''); ?>' onclick='sel_cvxcode(this)'
@@ -401,28 +401,28 @@ tr.selected {
                     </div>
                     <?php } ?>
 
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Date & Time Administered'); ?></label>
                         <input type='text' size='14' class='datetimepicker form-control' name="administered_date" id="administered_date"
                             value='<?php echo (!empty($administered_date)) ? attr($administered_date) : date('Y-m-d H:i'); ?>'
                             title='<?php echo xla('yyyy-mm-dd Hours(24):minutes'); ?>'/>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Amount Administered'); ?></label>
                         <input class='text form-control mb-2' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo attr($immuniz_amt_adminstrd ?? ''); ?>" />
                         <?php echo generate_select_list("form_drug_units", "drug_units", ($drugunitselecteditem ?? ''), 'Select Drug Unit', ''); ?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization Expiration Date'); ?></label>
                         <input type='text' size='10' class='datepicker form-control' name="immuniz_exp_date" id="immuniz_exp_date"
                             value='<?php echo (!empty($immuniz_exp_date)) ? attr($immuniz_exp_date) : ''; ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization Manufacturer'); ?></label>
                         <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', ($manufacturer ?? ''), 'Select Manufacturer', ' ');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization Lot Number'); ?></label>
                         <br>
                         <select class='auto form-control' type='text' name="lot_number" size="25" value="<?php echo attr($lot_number ?? ''); ?>"></select>
@@ -456,13 +456,13 @@ tr.selected {
                                 </select>
                         </div>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Date Immunization Information Statements Given'); ?></label>
                         <input type='text' size='10' class='datepicker form-control' name="education_date" id="education_date"
                             value='<?php echo (!empty($education_date)) ? attr($education_date) : date('Y-m-d'); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label>
                             <?php echo xlt('Date of VIS Statement'); ?>
                             (<a href="https://www.cdc.gov/vaccines/hcp/vis/current-vis.html" title="<?php echo xla('Help'); ?>" rel="noopener" target="_blank">?</a>)
@@ -471,31 +471,31 @@ tr.selected {
                             value='<?php echo (!empty($vis_date)) ? attr($vis_date) : date('Y-m-d'); ?>'
                             title='<?php echo xla('yyyy-mm-dd'); ?>' />
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Route'); ?></label>
                         <?php echo generate_select_list('immuniz_route', 'drug_route', ($immuniz_route ?? ''), 'Select Route', '');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Administration Site'); ?></label>
                         <?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', ($immuniz_admin_ste ?? ''), 'Select Administration Site', ' ', '', '', '', null, false, 'proc_body_site');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Notes'); ?></label>
                         <textarea class="form-control" name="note" id="note" rows="5" cols="25"><?php echo text($note ?? ''); ?></textarea>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Information Source'); ?></label>
                         <?php echo generate_select_list('immunization_informationsource', 'immunization_informationsource', ($immuniz_information_source ?? ''), 'Select Information Source', ' ');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Completion Status'); ?></label>
                         <?php echo generate_select_list('immuniz_completion_status', 'Immunization_Completion_Status', ($immuniz_completion_status ?? ''), 'Select Completion Status', ' ');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Substance Refusal Reason'); ?></label>
                         <?php echo generate_select_list('immunization_refusal_reason', 'immunization_refusal_reason', ($immuniz_refusal_reason ?? ''), 'Select Refusal Reason', ' ');?>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Reason Code'); ?></label>
                         <input class="code-selector-popup form-control immunizationReasonCode"
                                name="reason_code" type="text" value="<?php echo attr($reason_code ?? ''); ?>"
@@ -504,7 +504,7 @@ tr.selected {
                         <input type="hidden" name="reason_code_text" value="<?php echo attr($reason_code_text ?? ''); ?>" />
                         <p class="reason_code_text d-inline float-end p-1 ms-2 <?php echo empty($reason_code_text) ? "" : "d-none"; ?>"></p>
                     </div>
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization Ordering Provider'); ?></label>
                         <select class="form-control" name="ordered_by_id" id='ordered_by_id'>
                             <option value=""></option>
@@ -560,7 +560,7 @@ tr.selected {
                                                 $style = 'display : table-cell;width:765px !important';
                                             }
                                             ?>
-                                            <div class="form-group col" id="observation_criteria_td_<?php echo attr(($key + 1)); ?>" style="<?php echo $style;?>">
+                                            <div class="mb-3 col" id="observation_criteria_td_<?php echo attr(($key + 1)); ?>" style="<?php echo $style;?>">
                                                 <label><?php echo xlt('Observation Criteria');?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_<?php echo attr(($key + 1)); ?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
@@ -569,7 +569,7 @@ tr.selected {
                                                     <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'funding_program_eligibility' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col observation_criteria_value_td" id="observation_criteria_value_td_<?php echo attr(($key + 1)); ?>">
+                                            <div <?php echo ($value['imo_criteria'] != 'funding_program_eligibility' || $id == 0) ? 'style="display: none;"' : ''; ?> class="mb-3 col observation_criteria_value_td" id="observation_criteria_value_td_<?php echo attr(($key + 1)); ?>">
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_<?php echo attr(($key + 1)); ?>">
@@ -578,7 +578,7 @@ tr.selected {
                                                     <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_td" id="code_search_td_<?php echo attr(($key + 1)); ?>">
+                                            <div <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="mb-3 col code_serach_td" id="code_search_td_<?php echo attr(($key + 1)); ?>">
                                                 <?php $key_snomed = ($key > 0) ? (($key * 2) + 2) : ($key + 2);?>
                                                 <label><?php echo xlt('SNOMED-CT Code'); ?></label>
                                                 <br>
@@ -590,7 +590,7 @@ tr.selected {
                                                 <input type="hidden" id="codetext_<?php echo attr($key_snomed); ?>" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>" />
                                                 <input type="hidden" value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden<?php echo attr($key_snomed); ?>" />
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_<?php echo attr(($key + 1)); ?>">
+                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="mb-3 col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_<?php echo attr(($key + 1)); ?>">
                                                 <label><?php echo xlt('CVX Code');?></label>
                                                 <br>
                                                 <?php $key_cvx = ($key > 0) ? (($key * 2) + 3) : ($key + 3);?>
@@ -602,7 +602,7 @@ tr.selected {
                                                 <input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden<?php echo attr($key_cvx); ?>" />
                                                 <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden<?php echo attr($key_cvx); ?>" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'vaccine_type') ? attr($value['imo_codetext']) : ''; ?>"/>
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_published_date_td" id="vis_published_date_td_<?php echo attr(($key + 1)); ?>">
+                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="mb-3 col vis_published_date_td" id="vis_published_date_td_<?php echo attr(($key + 1)); ?>">
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
@@ -610,7 +610,7 @@ tr.selected {
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo ($id != 0 && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
-                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="form-group col vis_presented_date_td" id="vis_presented_date_td_<?php echo attr(($key + 1)); ?>">
+                                            <div <?php echo ($value['imo_criteria'] != 'vaccine_type' || $id == 0) ? 'style="display: none;"' : ''; ?> class="mb-3 col vis_presented_date_td" id="vis_presented_date_td_<?php echo attr(($key + 1)); ?>">
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
@@ -619,7 +619,7 @@ tr.selected {
                                                 <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="<?php echo ($id != 0 && $vis_presented_dateval != 0) ? attr($vis_presented_dateval) : ''; ?>" id="vis_presented_date_<?php echo attr(($key + 1)); ?>" />
                                             </div>
                                             <?php if ($key != 0 && $id != 0) {?>
-                                            <div class="form-group col">
+                                            <div class="mb-3 col">
                                                 <button type="button" class="btn btn-danger btn-delete" id ="<?php echo attr(($key + 1)); ?>"  onclick="RemoveRow(this.id);" title='<?php echo xla('Click here to delete the row'); ?>'>
                                                     <?php echo xlt('Delete'); ?>
                                                 </button>
@@ -630,7 +630,7 @@ tr.selected {
                                     }
                                 } else {?>
                                         <div class="form-row" id="or_tr_1">
-                                            <div class="form-group col" id="observation_criteria_td_1">
+                                            <div class="mb-3 col" id="observation_criteria_td_1">
                                                 <label><?php echo xlt('Observation Criteria'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
@@ -639,7 +639,7 @@ tr.selected {
                                                 <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'funding_program_eligibility'))) ? 'style="display: none;"' : ''; ?> class="form-group col observation_criteria_value_td" id="observation_criteria_value_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'funding_program_eligibility'))) ? 'style="display: none;"' : ''; ?> class="mb-3 col observation_criteria_value_td" id="observation_criteria_value_td_1">
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
                                                 <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
@@ -648,7 +648,7 @@ tr.selected {
                                                 <?php } ?>
                                                 </select>
                                             </div>
-                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'disease_with_presumed_immunity')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_td" id="code_search_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'disease_with_presumed_immunity')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="mb-3 col code_serach_td" id="code_search_td_1">
                                                 <label><?php echo xlt('SNOMED-CT Code');?></label>
                                                 <br />
                                                 <input type="text" id="sct_code_2" name="sct_code[]" class="code form-control" value="<?php echo (!empty($id) && !empty($value['imo_criteria']) && ($value['imo_criteria'] == 'disease_with_presumed_immunity')) ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);' />
@@ -658,7 +658,7 @@ tr.selected {
                                                 <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext'] ?? ''); ?>" />
                                                 <input type="hidden" value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" />
                                             </div>
-                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="mb-3 col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
                                                 <label><?php echo xlt('CVX Code'); ?></label>
                                                 <br>
                                                 <input type="text" class="form-control" id="cvx_code3" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"
@@ -669,7 +669,7 @@ tr.selected {
                                                 <input type="hidden" value="CVX" name="code_type_hidden[]" id="code_type_hidden3"/>
                                                 <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="<?php echo (!empty($id) && (!empty($value['imo_criteria']) && ($value['imo_criteria'] == 'vaccine_type'))) ? attr($value['imo_codetext']) : ''; ?>"/>
                                             </div>
-                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col vis_published_date_td" id="vis_published_date_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="mb-3 col vis_published_date_td" id="vis_published_date_td_1">
                                                 <label><?php echo xlt('Date VIS Published'); ?></label>
                                                 <br>
                                                 <?php
@@ -677,7 +677,7 @@ tr.selected {
                                                 ?>
                                                 <input type="text" class='datepicker form-control' name="vis_published_date[]" value="<?php echo (!empty($id) && $vis_published_dateval != 0) ? attr($vis_published_dateval) : ''; ?>" id="vis_published_date_1" />
                                             </div>
-                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="form-group col vis_presented_date_td" id="vis_presented_date_td_1">
+                                            <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'vaccine_type')) || empty($id)) ? 'style="display: none;"' : ''; ?> class="mb-3 col vis_presented_date_td" id="vis_presented_date_td_1">
                                                 <label><?php echo xlt('Date VIS Presented'); ?></label>
                                                 <br>
                                                 <?php
@@ -1165,27 +1165,27 @@ function addNewRow()
     label9 = <?php echo xlj('Click here to delete the row'); ?>;
     label10 = <?php echo xlj('Delete'); ?>;
     str = '<div class="form-row" id ="or_tr_'+new_tr_count+'">'+
-              '<div class="form-group col" id ="observation_criteria_td_'+new_tr_count+'"><label>'+label1+'</label><select class="form-control" id="observation_criteria_'+new_tr_count+'" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);"></select>'+
+              '<div class="mb-3 col" id ="observation_criteria_td_'+new_tr_count+'"><label>'+label1+'</label><select class="form-control" id="observation_criteria_'+new_tr_count+'" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);"></select>'+
               '</div>'+
-              '<div id="observation_criteria_value_td_'+new_tr_count+'" class="form-group col observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'"></select>'+
+              '<div id="observation_criteria_value_td_'+new_tr_count+'" class="mb-3 col observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'"></select>'+
               '</div>'+
-              '<div class="form-group col code_serach_td" id="code_search_td_'+new_tr_count+'" style="display: none;"><label>'+label3+'</label>'+
+              '<div class="mb-3 col code_serach_td" id="code_search_td_'+new_tr_count+'" style="display: none;"><label>'+label3+'</label>'+
                 '<input type="text" id="sct_code_'+new_tr_count_2+'" name="sct_code[]" class="code form-control" onclick=sel_code(this.id) /><br />'+
                 '<span id="displaytext_'+new_tr_count_2+'" class="displaytext d-block text-primary"></span>'+
                 '<input type="hidden" id="codetext_'+new_tr_count_2+'" name="codetext[]" class="codetext" />'+
                 '<input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden'+new_tr_count_2+'" /> '+
              '</div>'+
-             '<div class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_'+new_tr_count+'" style="display: none;"><label>'+label4+'</label>'+
+             '<div class="mb-3 col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_'+new_tr_count+'" style="display: none;"><label>'+label4+'</label>'+
                '<input type="text" class="form-control" id="cvx_code'+new_tr_count_3+'" name="cvx_vac_type_code[]" onclick=sel_cvxcode(this); />'+
                '<div class="imm-imm-add-12" id="imm-imm-add-12'+new_tr_count_3+'"></div> '+
                '<input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden'+new_tr_count_3+'" /> '+
                '<input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden'+new_tr_count_3+'" value="" />'+
              '</div>'+
-             '<div id="vis_published_date_td_'+new_tr_count+'" class="form-group col vis_published_date_td" style="display: none;"><label>'+label5+'</label><input type="text" class="datepicker_dynamic form-control" name= "vis_published_date[]" id ="vis_published_date_'+new_tr_count+'" />'+
+             '<div id="vis_published_date_td_'+new_tr_count+'" class="mb-3 col vis_published_date_td" style="display: none;"><label>'+label5+'</label><input type="text" class="datepicker_dynamic form-control" name= "vis_published_date[]" id ="vis_published_date_'+new_tr_count+'" />'+
              '</div>'+
-             '<div id="vis_presented_date_td_'+new_tr_count+'" class="form-group col vis_presented_date_td" style="display: none;"><label>'+label7+'</label><input type="text" class="datepicker_dynamic form-control" name= "vis_presented_date[]" id ="vis_presented_date_'+new_tr_count+'" />'+
+             '<div id="vis_presented_date_td_'+new_tr_count+'" class="mb-3 col vis_presented_date_td" style="display: none;"><label>'+label7+'</label><input type="text" class="datepicker_dynamic form-control" name= "vis_presented_date[]" id ="vis_presented_date_'+new_tr_count+'" />'+
              '</div>'+
-             '<div class="form-group col d-flex align-items-end justify-content-center"><button type="button" class="btn btn-danger btn-delete" id="' + new_tr_count +'" onclick="RemoveRow(this.id);" title="' + label9 + '">' + label10 + '</button></div></div>';
+             '<div class="mb-3 col d-flex align-items-end justify-content-center"><button type="button" class="btn btn-danger btn-delete" id="' + new_tr_count +'" onclick="RemoveRow(this.id);" title="' + label9 + '">' + label10 + '</button></div></div>';
 
     $(".obs_res_table").append(str);
 

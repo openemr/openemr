@@ -12,24 +12,24 @@ The Report template of the clinical note form.
     {% for n in notes %}
         <article role="document">
             <header class="d-flex justify-content-between bg-light border border-dark p-1 sticky-top">
-                <div class="form-group mb-0">
+                <div class="mb-0">
                     <div class="fw-bold">{{ "Date"|xlt }}</div>
                     <time datetime="{{ n.date|date()|attr }}">{{ n.date|date()|text }}</time>
                 </div>
-                <div class="form-group mb-0">
+                <div class="mb-0">
                     <div class="fw-bold">{{ "Type"|xlt }}</div>
                     <div>{{ n.codetext is not empty ? n.codetext|xlListLabel|text : "Unspecified"|xlt }}</div>
                 </div>
-                <div class="form-group mb-0">
+                <div class="mb-0">
                     <div class="fw-bold">{{ "Category"|xlt }}</div>
                     <div>{{ n.category_title is not empty ? n.category_title|xlListLabel|text : "Unspecified"|xlt }}</div>
                 </div>
-                <div class="form-group mb-0">
+                <div class="mb-0">
                     <div class="fw-bold">{{ "Author"|xlt }}</div>
                     <div>{{ n.user|text }}</div>
                 </div>
                 {% if n.code %}
-                <div class="form-group mb-0">
+                <div class="mb-0">
                     <div class="fw-bold">{{ "Code"|xlt }}</div>
                     <div>{{ n.code|text }}</div>
                 </div>

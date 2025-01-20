@@ -593,17 +593,17 @@ function renderProfileHtml()
                                         '<strong>' . text($title) . '</strong>';
                                     ?>
                                     <form class='form form-inline bg-light text-dark py-1 ps-1 d-none'>
-                                        <div class='input-group-sm input-group-prepend'>
+                                        <div class='input-group-sm input-group-text'>
                                             <label class="form-check-inline d-none"><?php echo xlt('OneTime') ?>
                                                 <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ms-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
                                             </label>
                                         </div>
                                         <label class='fw-bold me-1 d-none'><?php echo xlt('Notify') ?></label>
-                                        <div class='input-group-sm input-group-prepend d-none'>
+                                        <div class='input-group-sm input-group-text d-none'>
                                             <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ms-1' placeholder="<?php echo xla('days') ?>" value="" />
                                             <label class="mx-1"><?php echo xlt('Days') ?></label>
                                         </div>
-                                        <div class='input-group-sm input-group-prepend'>
+                                        <div class='input-group-sm input-group-text'>
                                             <select name="notify_when" class='input-control-sm mx-1 d-none'>
                                                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                                                 <option value="new"><?php echo xlt('New'); ?></option>
@@ -613,12 +613,12 @@ function renderProfileHtml()
                                                 <option value="in_edit"><?php echo xlt('In Edit'); ?></option>
                                             </select>
                                         </div>
-                                        <div class='input-group-sm input-group-prepend'>
+                                        <div class='input-group-sm input-group-text'>
                                             <label class="form-check-inline"><?php echo xlt('Recurring') ?>
                                                 <input name="recurring" type='checkbox' class="input-control-sm ms-1 mt-1" />
                                             </label>
                                         </div>
-                                        <div class='input-group-sm input-group-prepend'>
+                                        <div class='input-group-sm input-group-text'>
                                             <label><?php echo xlt('On') ?></label>
                                             <select name="when" class='input-control-sm mx-1'>
                                                 <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
@@ -627,7 +627,7 @@ function renderProfileHtml()
                                                 <option value='once'><?php echo xlt('One time') ?></option>
                                             </select>
                                         </div>
-                                        <div class='input-group-sm input-group-prepend'>
+                                        <div class='input-group-sm input-group-text'>
                                             <label><?php echo xlt('Every') ?></label>
                                             <input name="days" type="text" style="width: 50px;" class='input-control-sm ms-1' placeholder="<?php echo xla('days') ?>" value="" />
                                             <label class="mx-1"><?php echo xlt('Days') ?></label>
@@ -674,17 +674,17 @@ function renderProfileHtml()
                                         <span class="p-1 fw-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
                                         <!-- Notice! The notify event input is patched out until I get around to it. -->
                                         <form class='form form-inline bg-light text-dark py-1 ps-1'>
-                                            <div class='input-group-sm input-group-prepend d-none'>
+                                            <div class='input-group-sm input-group-text d-none'>
                                                 <label class="form-check-inline"><?php echo xlt('OneTime') ?>
                                                     <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ms-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
                                                 </label>
                                             </div>
                                             <label class='fw-bold me-1 d-none'><?php echo xlt('Notify') ?></label>
-                                            <div class='input-group-sm input-group-prepend d-none'>
+                                            <div class='input-group-sm input-group-text d-none'>
                                                 <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ms-1' placeholder="<?php echo xla('days') ?>" value="<?php echo $notify_days ?>" />
                                                 <label class="mx-1"><?php echo xlt('Days') ?></label>
                                             </div>
-                                            <div class='input-group-sm input-group-prepend d-none'>
+                                            <div class='input-group-sm input-group-text d-none'>
                                                 <select name="notify_when" class='input-control-sm mx-1'>
                                                     <option value=""><?php echo xlt('Unassigned'); ?></option>
                                                     <option <?php echo $notify_trigger === 'new' ? 'selected' : ''; ?> value="new"><?php echo xlt('New'); ?></option>
@@ -694,12 +694,12 @@ function renderProfileHtml()
                                                     <option <?php echo $notify_trigger === 'in_edit' ? 'selected' : ''; ?> value="in_edit"><?php echo xlt('In Edit'); ?></option>
                                                 </select>
                                             </div>
-                                            <div class='input-group-sm input-group-prepend'>
+                                            <div class='input-group-sm input-group-text'>
                                                 <label class="form-check-inline"><?php echo xlt('Recurring') ?>
                                                     <input <?php echo $recurring ? 'checked' : '' ?> name="recurring" type='checkbox' class="input-control-sm ms-1 mt-1" />
                                                 </label>
                                             </div>
-                                            <div class='input-group-sm input-group-prepend'>
+                                            <div class='input-group-sm input-group-text'>
                                                 <label><?php echo xlt('On') ?></label>
                                                 <select name="when" class='input-control-sm mx-1'>
                                                     <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
@@ -709,7 +709,7 @@ function renderProfileHtml()
                                                     <option <?php echo $trigger === '30:90:365' ? 'selected' : ''; ?> value='30:90:365'><?php echo xlt('30-90-365') ?></option>
                                                 </select>
                                             </div>
-                                            <div class='input-group-sm input-group-prepend'>
+                                            <div class='input-group-sm input-group-text'>
                                                 <label><?php echo xlt('Every') ?></label>
                                                 <input name="days" type="text" style="width: 50px;" class='input-control-sm ms-1' placeholder="<?php echo xla('days') ?>" value="<?php echo $days ?>" />
                                                 <label class="mx-1" for="<?php echo $profile_esc ?>-days"><?php echo xlt('Days') ?></label>

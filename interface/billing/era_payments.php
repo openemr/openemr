@@ -259,9 +259,9 @@ if (!empty($_FILES['form_erafile']['size'])) {
                                 <?php echo xlt('ERA Posting'); ?>
                             </div>
                             <div class="row">
-                                <div class="form-group col-12 oe-file-div">
+                                <div class="mb-3 col-12 oe-file-div">
                                     <div class="input-group">
-                                        <label class="input-group-prepend">
+                                        <label class="input-group-text">
                                             <span class="btn btn-secondary">
                                                 <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" />
                                                 <input name="MAX_FILE_SIZE" type="hidden" value="5000000" />
@@ -272,28 +272,28 @@ if (!empty($_FILES['form_erafile']['size'])) {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-3">
+                                <div class="mb-3 col-3">
                                     <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
                                     <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>" />
                                 </div>
-                                <div class="form-group col-3">
+                                <div class="mb-3 col-3">
                                     <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
                                     <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>" />
                                 </div>
-                                <div class="form-group col-3 clearfix">
+                                <div class="mb-3 col-3 clearfix">
                                     <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
                                     <label class="checkbox">
                                         <input name='form_without'  id='form_without' type='checkbox' value='1' />
                                         <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
                                     </label>
                                 </div>
-                                <div class="form-group col-3">
+                                <div class="mb-3 col-3">
                                     <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                                     <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>" />
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-6">
+                                <div class="mb-3 col-6">
                                     <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
                                     <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>" />
                                     <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>" />
@@ -304,7 +304,7 @@ if (!empty($_FILES['form_erafile']['size'])) {
                                         <div id="ajax_div_insurance" style="display:none;"></div>
                                     </div>
                                 </div>
-                                <div class="form-group col-6">
+                                <div class="mb-3 col-6">
                                     <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
                                     <div class="form-control" id="div_insurance_or_patient" >
                                         <?php echo text($hidden_type_code); ?>
@@ -313,7 +313,7 @@ if (!empty($_FILES['form_erafile']['size'])) {
                                 </div>
                             </div>
                             <!-- can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets -->
-                            <div class="form-group mt-3">
+                            <div class="mb-3 mt-3">
                                 <div class="col-sm-12 text-left position-override">
                                     <div class="btn-group" role="group">
                                         <a class="btn btn-primary btn-save" href="#" onclick="javascript:return Validate();"><?php echo xlt('Process ERA File');?></a>

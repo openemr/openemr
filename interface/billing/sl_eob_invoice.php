@@ -462,14 +462,14 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
             <fieldset>
                 <legend><?php echo xlt('Invoice Actions'); ?></legend>
                 <div class="form-row">
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_name"><?php echo xlt('Patient'); ?>:</label>
                         <input type="text" class="form-control" id='form_name'
                                name='form_name'
                                value="<?php echo attr($ferow['fname']) . ' ' . attr($ferow['mname']) . ' ' . attr($ferow['lname']); ?>"
                                disabled />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_provider"><?php echo xlt('Provider'); ?>:</label>
                         <?php
                         $tmp = sqlQuery("SELECT fname, mname, lname " .
@@ -483,13 +483,13 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                         <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value="<?php echo attr($provider); ?>" disabled />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
                         <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value='<?php echo attr($patient_id) . "-" . attr($encounter_id); ?>'
                                disabled />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="svc_date"><?php echo xlt('Svc Date'); ?>:</label>
                         <input type="text" class="form-control" id='svc_date' name='form_provider'
                                value='<?php echo attr($svcdate); ?>' disabled />
@@ -508,36 +508,36 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="pt_billing_note"><?php echo xlt('Patient Billing Note'); ?>:</label>
                         <textarea name="pt_billing_note" id="pt_billing_note" class="form-control" cols="5" rows="1" readonly><?php echo text($pdrow['billing_note'] ?? ''); ?></textarea>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="enc_billing_note"><?php echo xlt('Encounter Billing Note'); ?>:</label>
                         <textarea name="enc_billing_note" id="enc_billing_note" class="form-control" cols="5" rows="2"><?php echo text($bnrow['billing_note'] ?? ''); ?></textarea>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_stmt_count"><?php echo xlt('Statements Sent'); ?>:</label>
                         <input type='text' name='form_stmt_count' id='form_stmt_count' class="form-control" value='<?php echo attr((0 + $ferow['stmt_count'])); ?>' />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_last_bill"><?php echo xlt('Last Bill Date'); ?>:</label>
                         <input type='text' name="form_last_bill" id='form_last_bill' class="form-control"
                                value ='<?php echo attr($billdate); ?>' disabled />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_reference"><?php echo xlt('Check/EOB No.'); ?>:</label>
                         <input type='text' name='form_reference' id='form_reference' class="form-control" value='' />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_check_date"><?php echo xlt('Check/EOB Date'); ?>:</label>
                         <input type='text' name='form_check_date' id='form_check_date' class='form-control datepicker' value='' />
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                         <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='' />
                         <input type='hidden' name='form_payer_id' value='' />
@@ -548,7 +548,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
                         <div class="ps-3">
                             <?php
@@ -576,7 +576,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia'] ?? '') ?>'/>
                         </div>
                     </div>
-                    <div class="form-group col-lg" id='ins_done'>
+                    <div class="mb-3 col-lg" id='ins_done'>
                         <label class="col-form-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <a class="btn btn-save bg-light text-primary"
                             onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
@@ -598,7 +598,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                             ?>
                         </div>
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="mb-3 col-lg">
                         <label class="col-form-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
                         <div class="ps-3">
                             <label class="checkbox-inline">
@@ -757,7 +757,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                 </div>
             </fieldset>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-            <div class="form-group col-lg clearfix">
+            <div class="mb-3 col-lg clearfix">
                 <div class="col-sm-12 text-left position-override" id="search-btn">
                     <div class="btn-group" role="group">
                         <!-- @todo leave as I may still use sjp 08/2020 -->

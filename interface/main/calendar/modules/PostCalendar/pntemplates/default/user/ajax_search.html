@@ -24,7 +24,7 @@
             [-xlt t='Return to calendar'-]</a>
                 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                     <!-- Keywords -->
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
                         <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
                     </div>
@@ -48,7 +48,7 @@
                     </div>
                     <!-- Topic -->
                     [-if $USE_TOPICS-]
-                    <div class="form-group">
+                    <div class="mb-3">
                         <select name="pc_topic">
                             <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
                             [-$TOPIC_OPTIONS-]

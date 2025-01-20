@@ -726,7 +726,7 @@ function writeFieldLine($linedata)
     echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][originalid]' value='" .
          attr($linedata['field_id']) . "' />";
 
-    echo "<div class='input-group'><div class='input-group-prepend'><div class='input-group-text'><input type='checkbox' class='selectfield' " .
+    echo "<div class='input-group'><div class='input-group-text'><div class='input-group-text'><input type='checkbox' class='selectfield' " .
             "name='"  . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "id='"    . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "title='" . xla('Select field') . "' /></div></div>";
@@ -1667,11 +1667,11 @@ if ($layout_id) {
 <!-- template DIV that appears when user chooses to rename an existing group -->
 <div id="renamegroupdetail" class="bg-light p-3" style="border: 1px solid black; display: none; visibility: hidden;">
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
-<div class="form-group">
+<div class="mb-3">
     <label for="renamegroupname"><?php echo xlt('Group Name'); ?>:</label>
     <input type="text" class="form-control form-control-sm" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
 </div>
-<div class="form-group">
+<div class="mb-3">
     <label for="renamegroupparent"><?php echo xlt('Parent'); ?>:</label>
     <?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
 </div>

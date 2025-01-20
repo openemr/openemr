@@ -254,7 +254,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 
     <form method='post' name='theform'>
         <?php
-        echo "<div class='form-group row mb-3'>\n";
+        echo "<div class='row mb-3'>\n";
         if ($what == 'codes') {
             if (isset($allowed_codes)) {
                 if (count($allowed_codes) == 1) {

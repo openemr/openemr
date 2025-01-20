@@ -1204,7 +1204,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             }
                             ?>
                         </fieldset>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="d-flex flex-row-reverse w-100">
                                 <div class="btn-group" role="group">
                                     <button type='submit' class="btn btn-primary btn-save btn-lg" name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>

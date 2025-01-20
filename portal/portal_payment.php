@@ -1299,14 +1299,14 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <?php if ($GLOBALS['payment_gateway'] != 'Stripe' && $GLOBALS['payment_gateway'] != 'Sphere') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $GLOBALS["webroot"] ?>/portal/lib/paylib.php'>
                         <fieldset>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label label-default="label-default"
                                        class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                 <div class="controls">
                                     <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label class="control-label"><?php echo xlt('Card Number'); ?></label>
                                 <div class="controls">
                                     <div class="row">
@@ -1317,7 +1317,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label label-default="label-default"><?php echo xlt('Card Expiry Date and Card Holders Zip'); ?></label>
                                 <div class="controls">
                                     <div class="row">
@@ -1359,7 +1359,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label label-default="label-default" class="control-label"><?php echo xlt('Card CVV'); ?></label>
                                 <div class="controls">
                                     <div class="row">
@@ -1388,15 +1388,15 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <?php } else { ?>
                         <form method="post" name="payment-form" id="payment-form">
                             <fieldset>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>
                                     <div class="controls">
                                         <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
-                                    <div class="form-group" id="card-element"></div>
+                                    <div class="mb-3" id="card-element"></div>
                                     <div id="card-errors" role="alert"></div>
                                 </div>
                                 <div class="col-md-6">

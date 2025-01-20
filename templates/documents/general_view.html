@@ -124,7 +124,7 @@ function tagProcedure() {
 			{if !$hide_encryption}
 			<div class="mb-2">
         <form class="form-inline w-100" method="post" name="document_encrypt" action="{$web_path|attr}" onsubmit="return top.restoreSession()">
-          <div class="form-group">
+          <div class="mb-3">
             <label class="lead fw-bold me-1" for='passphrase'>{xlt t='Encryption Pass Phrase'}:</label>
             <input class="form-control" title="{xla t='Supports TripleDES encryption/decryption only.'} {xla t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value='' />
             <input type="hidden" name="encrypted" value="true" />
@@ -142,15 +142,15 @@ function tagProcedure() {
       </div>
       <div class="mb-2">
         <form method="post" name="document_update" action="{$UPDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
-          <div class="form-group">
+          <div class="mb-3">
             <label for="docname">{xlt t='Rename'}:</label>
             <input type='text' class="form-control" size='20' name='docname' id='docname' value='{$file->get_name()|attr}'/>
           </div>
-          <div class="form-group">
+          <div class="mb-3">
             <label for="docdate">{xlt t='Date'}:</label>
             <input type='text' size='10' class='form-control datepicker' name='docdate' id='docdate' value='{$DOCDATE|attr}' title="{xla t='yyyy-mm-dd document date'}" />
           </div>
-          <div class="form-group">
+          <div class="mb-3">
             <select name="issue_id" class="form-control">{$ISSUES_LIST}</select>
           </div>
           <button class="btn btn-primary btn-sm" onclick="document.forms['document_update'].submit();">{xlt t='Update'}</button>

@@ -69,12 +69,12 @@
                 </div>
                 {% endif %}
 
-                <div id="standard-auth-username" class="form-group">
+                <div id="standard-auth-username" class="mb-3">
                     <label for="authUser" class="text-right {{ srOnly }}">{{ "Username"|xlt }}</label>
                     <input type="text" class="form-control" id="authUser" name="authUser" placeholder="{{ "Username"|xla }}">
                 </div>
 
-                <div id="standard-auth-password" class="form-group">
+                <div id="standard-auth-password" class="mb-3">
                     <label for="clearPass" class="text-right {{ srOnly }}">{{ "Password"|xlt }}</label>
                     <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="{{ "Password"|xla }}">
                 </div>
@@ -82,7 +82,7 @@
                 {{ divApp }}
 
                 {% if displayLanguage %}
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="language" class="text-right">{{ "Language"|xlt }}</label>
                     <div>
                         <select class="form-control" name="languageChoice" size="1">
@@ -96,7 +96,7 @@
                 {% endif %}
 
                 {% if displayFacilities %}
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="facility" class="text-right">{{ "Facility"|xlt }}</label>
                     <div>
                         <select class="form-control" name="facility" size="1">
@@ -109,12 +109,12 @@
                 </div>
                 {% endif %}
 
-                <div class="form-group d-flex justify-content-between">
+                <div class="mb-3 d-flex justify-content-between">
                 {% if displayGoogleSignin %}  <div class="g_id_signin" data-type="standard"></div> {% endif %}
                     <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     {% if displayGoogleSignin %}
                     <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
                     <input type="hidden" id="google-signin-token" name="google_signin_token" value="">

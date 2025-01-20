@@ -8,12 +8,12 @@
  # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
-<div class="form-group">
+<div class="mb-3">
     <label class="fw-bold" for="comlink_registration_code">{{ comlink_app_title|default("")|xlt }} {{ "Registration Code"|xlt  }}:</label>
     <div class="input-group">
         <input type="text" name="comlink_registration_code" disabled="disabled" value="{{ comlink_registration_code|default("")|attr }}" />
     </div>
-    <div class="input-group-append">
+    <div class="input-group-text">
         {% if comlink_registration_code is empty %}
             <div class="alert alert-warning mt-1">{{ "Registration code will be created when credentials are saved"|xlt }}</div>
         {% else %}

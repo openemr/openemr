@@ -36,7 +36,7 @@ $list_address_uses = generate_list_map("address-uses");
     </div>
 
     <template class="template_text_addresses form-row">
-        <div class="text_addresses_row form-group mb-0">
+        <div class="text_addresses_row mb-3 mb-0">
             <div class="text_addresses_subrow_1 form-row ps-1">
                 <div class="col-2 text data">
                     <span class="text_addresses_use"></span>

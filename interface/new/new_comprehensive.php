@@ -87,7 +87,7 @@ $fres = getLayoutRes();
 <?php Header::setupHeader(['common','datetime-picker','select2', 'erx']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <style>
-.form-group {
+.mb-3 {
     margin-bottom: 0.25rem;
 }
 </style>
@@ -514,7 +514,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       // Handle starting of a new row.
                         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
                             end_row();
-                            echo "<div class='form-group row'>";
+                            echo "<div class='mb-3 row'>";
                         }
 
                         if ($item_count == 0 && $titlecols == 0) {
@@ -634,7 +634,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     }
                                     ?>
                               </select>
-                              <div class="input-group-append">
+                              <div class="input-group-text">
                                 <a class='btn btn-primary text-white medium_modal' href='../practice/ins_search.php' onclick='ins_search(<?php echo attr_js($i); ?>)'><?php echo xlt('Search/Add Insurer'); ?></a>
                               </div>
                             </div>
@@ -680,7 +680,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             <label class="col-form-label col-md-1 mb-2 required"><?php echo xlt('Subscriber Employer (SE)'); ?>:</label>
                             <div class="col-md-5 mb-2">
                               <input type='entry' class='form-control' aria-describedby="seHelpBlock" size='25' name='i<?php echo attr($i); ?>subscriber_employer' value="<?php echo attr($result3["subscriber_employer"] ?? ''); ?>" onchange="capitalizeMe(this);" />
-                              <small id="seHelpBlock" class="form-text text-muted">
+                              <small id="seHelpBlock" class="form-text d-block text-muted">
                                 <?php echo xlt('if unemployed enter Student'); ?>, <?php echo xlt('PT Student, or leave blank'); ?>.
                               </small>
                             </div>

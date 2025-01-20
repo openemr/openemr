@@ -1066,7 +1066,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         <?php echo xlt('Select Options for Current Order Id') . ' ' . (text($formid) ? text($formid) : 'New Order') ?>
                     </legend>
                     <div class="col-md-12 collapse show" id="orderOptions">
-                        <div class="form-group form-row">
+                        <div class="mb-3 form-row">
                             <label for="provider_id" class="col-form-label col-md-2"><?php echo xlt('Ordering Provider'); ?></label>
                             <div class="col-md-2">
                                 <?php generate_form_field(array('data_type' => 10, 'field_id' => 'provider_id'), $row['provider_id']); ?>
@@ -1097,7 +1097,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 form-row">
                             <label for="form_order_psc" class="col-form-label col-md-2"><?php echo xlt('PSC Hold Order'); ?></label>
                             <div class="col-md-2">
                                 <?php
@@ -1146,7 +1146,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             <div class="clearfix"></div>
                         </div>
                         <!--------------------Collections--------------------------->
-                        <div class="form-group form-row">
+                        <div class="mb-3 form-row">
                             <label for="form_specimen_fasting" class="col-form-label col-md-2"><?php echo xlt('Fasting'); ?></label>
                             <div class="col-md-2">
                                 <?php
@@ -1168,7 +1168,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 form-row">
                             <label for="form_order_priority"
                                 class="col-form-label col-md-2"><?php echo xlt('Priority'); ?></label>
                             <div class="col-md-2">
@@ -1195,7 +1195,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 form-row">
                             <label for="form_history_order"
                                 class="col-form-label col-md-2"><?php echo xlt('History Order'); ?></label>
                             <div class="col-md-2">
@@ -1209,7 +1209,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group form-row">
+                        <div class="mb-3 form-row">
                             <div class="col-md-6">
                                 <label for='form_clinical_hx' class='col-form-label'><?php echo xlt('Clinical History'); ?></label>
                                 <textarea class='form-control text' rows='2' cols='60' wrap='hard'
@@ -1238,7 +1238,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         </div>
                     <?php } ?>
                     <div class="col-md-12 procedure-order-container table-responsive">
-                        <div class="form-group form-row bg-dark text-light my-2 py-1">
+                        <div class="mb-3 form-row bg-dark text-light my-2 py-1">
                             <label for="form_order_diagnosis" class="col-form-label"><?php echo xlt('Primary Diagnosis'); ?></label>
                             <div class="col-md-4">
                                 <?php
@@ -1358,7 +1358,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
                                                    value=''>
                                         <?php endif; ?>
-                                        <div class='input-group-prepend'>
+                                        <div class='input-group-text'>
                                             <button type="button" class='btn btn-secondary btn-search' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
                                             <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='' />
@@ -1372,7 +1372,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td class='diagnosis-div input-group'>
-                                        <div class='input-group-prepend'>
+                                        <div class='input-group-text'>
                                             <span class='btn btn-secondary input-group-text'>
                                                 <i class='fa fa-search fa-lg search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
                                             </span>
@@ -1444,7 +1444,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
                                                 value='<?php echo attr($oprow['procedure_order_title']) ?>'>
                                         <?php endif; ?>
-                                        <div class='input-group-prepend'>
+                                        <div class='input-group-text'>
                                             <button type="button" class='btn btn-secondary btn-search' onclick='selectProcedureCode(<?php echo $i; ?>)' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
                                             <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type'] ?? ''); ?>' />
@@ -1460,7 +1460,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td class='diagnosis-div input-group'>
-                                        <div class='input-group-prepend'>
+                                        <div class='input-group-text'>
                                             <span class='btn btn-secondary input-group-text'>
                                                 <i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
                                             </span>
@@ -1509,7 +1509,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         <i class="wait fa fa-cog fa-spin ms-2 d-none"></i>
                     </legend>
                     <div class="card-body collapse" id="summary">
-                        <div class="form-group"> <!--Order document links-->
+                        <div class="mb-3"> <!--Order document links-->
                             <div class="col-md-12 text-left position-override">
                                 <legend class="bg-dark text-light"><?php echo xlt("Order Documents"); ?></legend>
                                 <div class="btn-group" role="group">
@@ -1555,7 +1555,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         </div>
                     </div>
                 </div>
-                <div class="row form-group clearfix">
+                <div class="row mb-3 clearfix">
                     <div class="float-start position-override mt-2">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save"

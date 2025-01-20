@@ -419,7 +419,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
             <form name="frm_search_globals" class="form-inline">
                 <div class="input-group">
                     <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                    <div class="input-group-append">
+                    <div class="input-group-text">
                         <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}"><i class="fa fa-search">&nbsp;</i></button>
                     </div>
                 </div>

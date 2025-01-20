@@ -1003,7 +1003,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ?>
                         <fieldset>
                         <legend><?php echo xlt('Set Price Level'); ?></legend>
-                            <div class='form-group mx-5 text-center'>
+                            <div class='mb-3 mx-5 text-center'>
                                 <?php
                                 // Allow the patient price level to be fixed here.
                                 $plres = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -1138,7 +1138,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <fieldset>
                             <legend><?php echo xlt("Search for Additional Codes")?></legend>
                                 <div class="text-center">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <?php
                                         $nofs_code_types = array();
                                         foreach ($code_types as $key => $value) {
@@ -1168,7 +1168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="mx-5 mb-3 text-center">
                                     <div class="input-group">
                                         <input type='text' class="form-control" name='search_term' value='' />
-                                        <div class="input-group-append">
+                                        <div class="input-group-text">
                                             <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
                                         </div>
                                     </div>
@@ -1701,7 +1701,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group" role="group">
                                 <button type='button' class='btn btn-primary btn-calendar' onclick='newEvt()'>

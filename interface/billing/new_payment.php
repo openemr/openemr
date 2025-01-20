@@ -363,7 +363,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                                 ?>
                                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                             <br />
-                            <div class="form-group clearfix">
+                            <div class="mb-3 clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                     <br />
                                     <div class="btn-group" role="group">

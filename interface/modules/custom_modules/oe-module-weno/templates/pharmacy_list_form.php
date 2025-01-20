@@ -184,7 +184,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()"><?php echo xlt("Clear"); ?></button>
             <span class="h5 alert-danger mt-3" id="searchResults"></span>
         </span>
-        <div id="select-div" class="form-group mt-2">
+        <div id="select-div" class="mb-3 mt-2">
             <select class="form-control form-control bg-light text-dark me-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>

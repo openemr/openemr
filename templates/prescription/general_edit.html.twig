@@ -145,15 +145,15 @@
         </div>
         {% endif %}
 
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Currently Active'|xlt}}</label>
             <input class="input-sm" type="checkbox" name="active" value="1"{% if prescription.get_active() > 0 %} checked{% endif %} />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Starting Date'|xlt}}</label>
             <input type="text" size="10" class="datepicker form-control" name="start_date" id="start_date" value="{{prescription.start_date|shortDate|attr}}" />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Provider'|xlt}}</label>
             <select class="input sm form-control" name="provider_id">
                 {% for providerId, providerName in prescription.provider.utility_provider_array() %}
@@ -162,7 +162,7 @@
             </select>
             <input type="hidden" name="patient_id" value="{{prescription.patient.id|attr}}" />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label class="me-2">{{'Drug'|xlt}}</label>
             <div class="form-check-inline">
                 <label class="form-check-label" title="{{'Search from native inventory drugs table'|xlt}}">
@@ -186,7 +186,7 @@
             <div class="p-0 mb-4 bg-body-tertiary" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
         {% if DRUG_ARRAY_VALUES is not empty %}
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>&nbsp; {{'in-house'|xlt}}</label>
             <select class="input-sm form-control" name="drug_id" onchange="drugselected(this)">
                 {% for key,drug in DRUG_ARRAY_VALUES %}
@@ -197,13 +197,13 @@
             <input type="hidden" name="rxnorm_drugcode" value="{{prescription.rxnorm_drugcode|attr}}">
         </div>
         {% endif %}
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Quantity'|xlt}}</label>
             <input class="input-sm form-control" type="text" name="quantity" id="quantity" size="10" maxlength="31"
                 value="{{prescription.quantity|attr}}" onchange="quantityChanged()" />
         </div>
 
-        <div class="form-group row mt-3 {% if SIMPLIFIED_PRESCRIPTIONS and not prescription.size %}d-none{% endif %}">
+        <div class="mb-3 row mt-3 {% if SIMPLIFIED_PRESCRIPTIONS and not prescription.size %}d-none{% endif %}">
             <div class="col-12">
                 <label>{{'Medicine Units'|xlt}}</label>
             </div>
@@ -220,7 +220,7 @@
                 </select>
             </div>
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             <div class="col-12">
                 <label>{{'Directions'|xlt}}</label>
             </div>
@@ -265,7 +265,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             <div class="col-12">
                 <label>{{'Refills'|xlt}}</label>
             </div>
@@ -289,11 +289,11 @@
                 </div>
             {% endif %}
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Notes'|xlt}}</label>
             <textarea class="form-control" name="note" cols="30" rows="1" wrap="virtual">{{prescription.note|text}}</textarea>
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             {% if WEIGHT_LOSS_CLINIC %}
                 <label>{{'Substitution'|xlt}}</label>
                 <select name="substitute" class="form-control">

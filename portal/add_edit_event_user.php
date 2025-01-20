@@ -679,7 +679,7 @@ if ($userid) {
                 <input type="hidden" name="form_action" id="form_action" value="" />
                 <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
                 <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo ($row['pc_apptstatus'] ?? '') ? attr($row['pc_apptstatus'] ?? '') : "^" ?>' />
-                <div class="row form-group">
+                <div class="row mb-3">
                     <div class="input-group col-12 col-md-6">
                         <label class="me-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
                         <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo (($row['pc_catid'] ?? '') > "") ? attr($row['pc_catid']) : '5'; ?>'>
@@ -692,7 +692,7 @@ if ($userid) {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group form-inline col-12">
+                    <div class="mb-3 form-inline col-12">
                         <div class="input-group mb-1">
                             <label class="me-2"><?php echo xlt('Time'); ?>:</label>
                             <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
@@ -705,7 +705,7 @@ if ($userid) {
                         <div class="input-group">
                             <label class="me-2" for="form_duration"><?php echo xlt('Duration'); ?></label>
                             <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo ($row['pc_duration'] ?? '') ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
-                            <span class="input-group-append">
+                            <span class="input-group-text">
                             <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
                         </span>
                         </div>

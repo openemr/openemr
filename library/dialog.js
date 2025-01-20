@@ -286,14 +286,14 @@ function inDom(dependency, type, remove) {
 }
 
 // test to see if bootstrap theming is loaded (via standard or custom bootstrap library)
-//  Will check for the badge-secondary class
+//  Will check for the text-bg-secondary class
 //   - if exist, then assume bootstrap loaded
 //   - if not exist, then assume bootstrap not loaded
 function isBootstrapCss() {
     for (let i = 0; i < document.styleSheets.length; i++) {
         let rules = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
         for (let x in rules) {
-            if (rules[x].selectorText == '.badge-secondary') {
+            if (rules[x].selectorText == '.text-bg-secondary') {
                 return true;
             }
         }

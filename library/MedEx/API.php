@@ -1902,7 +1902,7 @@ class Display extends base
                         <input type="hidden" name="go" value="Recalls" />
                         <div class="text-center row align-items-center">
                             <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row justify-content-center mx-sm-1">
+                                <div class="mb-3 row justify-content-center mx-sm-1">
                                     <select class="form-control form-control-sm" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
@@ -1921,13 +1921,13 @@ class Display extends base
                                         <?php echo $select_facs; ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
+                                <div class="mb-3 row mx-sm-1">
                                     <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
                             <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row mx-sm-1 justify-content-center">
+                                <div class="mb-3 row mx-sm-1 justify-content-center">
                                     <?php
                                     # Build a drop-down list of providers.
                                     $query = "SELECT id, lname, fname FROM users WHERE " .
@@ -1959,27 +1959,27 @@ class Display extends base
                                         ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
+                                <div class="mb-3 row mx-sm-1">
                                     <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
 
                             <div class="col-sm-4">
                                 <div class="input-append">
-                                    <div class="form-group row mt-md-5">
+                                    <div class="mb-3 row mt-md-5">
                                         <label for="flow_from" class="col"><?php echo xlt('From'); ?>:</label>
                                         <div class="col">
                                             <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
                                         </div>
                                     </div>
 
-                                    <div class="form-group row">
+                                    <div class="mb-3 row">
                                         <label for="flow_to" class="col">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label>
                                         <div class="col">
                                             <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
                                         </div>
                                     </div>
-                                    <div class="form-group row" role="group">
+                                    <div class="mb-3 row" role="group">
                                         <div class="col text-right">
                                             <button class="btn btn-primary btn-filter" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                                             <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
@@ -2536,8 +2536,8 @@ class Display extends base
                 <input type="hidden" name="action" id="go" value="addRecall" />
                 <div class="col-4 divTable m-2 ms-auto">
                     <div class="row divTableBody prefs">
-                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
-                            <div class="divTableCell indent20 form-group col-8 col-md-8">
+                            <div class="divTableCell divTableHeading text-right mb-3 col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
+                            <div class="divTableCell indent20 mb-3 col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
                                         value="<?php echo attr($result_pat['fname']) . " " . attr($result_pat['lname']); ?>" />
@@ -2545,10 +2545,10 @@ class Display extends base
                             </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('DOB'); ?></label>
                         </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8">
                             <?php
                                 $DOB = oeFormatShortDate($result_pat['DOB']);
                             ?>
@@ -2557,10 +2557,10 @@ class Display extends base
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('Recall When'); ?></label>
                         </div>
-                        <div class="form-group col-8 col-md-8 divTableCell indent20">
+                        <div class="mb-3 col-8 col-md-8 divTableCell indent20">
                             <span class="fw-bold"><?php echo xlt('Last Visit'); ?>: </span>
                             <input type="text" value="" name="DOLV" id="DOLV" class="" />
                             <br />
@@ -2586,19 +2586,19 @@ class Display extends base
 
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right mb-3 col-4 col-md-4 divTableCell divTableHeading">
                                 <label><?php echo xlt('Recall Reason'); ?></label>
                         </div>
-                        <div class="form-group col-8 col-md-8 divTableCell indent20">
+                        <div class="mb-3 col-8 col-md-8 divTableCell indent20">
                             <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
                                  echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                            <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
+                            <div class="text-right mb-3 col-4 col-md-4 divTableCell divTableHeading">
                                 <label><?php echo xlt('Provider'); ?></label>
                             </div>
-                            <div class="form-group col-8 col-md-8 divTableCell indent20">
+                            <div class="mb-3 col-8 col-md-8 divTableCell indent20">
                                     <?php
                                     $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                 //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
@@ -2635,10 +2635,10 @@ class Display extends base
                             </div>
                     </div>
                     <div class="row divTableBody prefs">
-                            <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
+                            <div class="text-right mb-3 col-4 col-md-4 divTableCell divTableHeading">
                                 <label><?php echo xlt('Facility'); ?></label>
                             </div>
-                            <div class="form-group col-8 col-md-8 divTableCell indent20">
+                            <div class="mb-3 col-8 col-md-8 divTableCell indent20">
                                 <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
                                     <?php
                                         $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
@@ -2659,10 +2659,10 @@ class Display extends base
                 </div>
                 <div class="col-4 divTable m-2 me-auto">
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('Address'); ?></label>
                         </div>
-                        <div class="divTableCell form-group col-8 col-md-8">
+                        <div class="divTableCell mb-3 col-8 col-md-8">
                             <div class="col-12 mb-12">
                                 <input type="text" class="form-control" placeholder="<?php echo xla('Address'); ?>" name="new_address" id="new_address" value="<?php echo attr($result_pat['street']); ?>" />
                             </div>
@@ -2681,26 +2681,26 @@ class Display extends base
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('Home Phone'); ?></label>
                         </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8">
                             <input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('Mobile Phone'); ?></label>
                         </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8">
                             <input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label data-toggle="tooltip" data-placement="top" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></label>
                         </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8 form-check-inline">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8 form-check-inline">
                                     <input type="radio" class="form-check-input" name="new_allowsms" id="new_allowsms_yes" value="YES" />
                                     <label class="form-check-label" for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
                            <input class="form-check-input" type="radio" name="new_allowsms" id="new_allowsms_no" value="NO" />
@@ -2708,10 +2708,10 @@ class Display extends base
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label data-toggle="tooltip" data-placement="top" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></label>
                         </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8 form-check-inline">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8 form-check-inline">
                             <input class="form-check-input" type="radio" name="new_voice" id="new_voice_yes" value="YES" />
                             <label class="form-check-label" for="new_voice_yes"><?php echo xlt('YES'); ?></label>
                             <input class="form-check-input" type="radio" name="new_voice" id="new_voice_no" value="NO" />
@@ -2719,18 +2719,18 @@ class Display extends base
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('E-Mail'); ?></label>
                             </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8 form-check-inline">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8 form-check-inline">
                             <input type="email" name="new_email" id="new_email" class="form-control" value="<?php echo attr($result_pat['email']); ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                        <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
+                        <div class="text-right btn-group-vertical mb-3 col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('E-mail OK'); ?></label>
                         </div>
-                        <div class="divTableCell indent20 form-group col-8 col-md-8 form-check-inline">
+                        <div class="divTableCell indent20 mb-3 col-8 col-md-8 form-check-inline">
                                 <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_yes" value="YES" />
                             <label class="form-check-label" for="new_email_yes"><?php echo xlt('YES'); ?></label>
                             <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_no" value="NO" />
@@ -3007,20 +3007,20 @@ class Setup extends Base
                     <form name="medex_start" id="medex_start" class="p-5 mb-4 bg-body-tertiary rounded-3">
                         <div id="setup_1">
                             <div id="answer" name="answer">
-                                <div class="form-group mt-3">
+                                <div class="mb-3 mt-3">
                                     <label for="new_email"><?php echo xlt('E-mail'); ?>:</label>
                                     <i id="email_check" name="email_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
                                     <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
                                     <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
                                 </div>
-                                <div class="form-group mt-3">
+                                <div class="mb-3 mt-3">
                                     <label for="new_password"><?php echo xlt('Password'); ?>:</label>
                                     <i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
                                     <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
                                     <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required />
                                     <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required') . ": " . xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
                                 </div>
-                                <div class="form-group mt-3">
+                                <div class="mb-3 mt-3">
                                     <label for="new_rpassword"><?php echo xlt('Repeat'); ?>:</label>
                                     <i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay text-success fa fa-check"></i>
                                     <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required />

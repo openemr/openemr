@@ -282,11 +282,11 @@ if (!empty($rowed['id'])) {
   <div class="container">
      <div class="row">
         <div class="col-12">
-           <div class="form-group"></div>
-           <div class="form-group">
+           <div class="mb-3"></div>
+           <div class="mb-3">
               <textarea name="export_data" class="form-control" rows="18" readonly><?php echo text($out) ?></textarea>
            </div>
-           <div class="form-group">
+           <div class="mb-3">
               <div class="col-12 text-right">
                  <div class="btn-group" role="group">
                     <button type="button" class="btn btn-secondary btn-cancel" onclick="dlgclose()"><?php echo xlt("Close"); ?></button>

@@ -27,19 +27,19 @@
         <div class="fw-bold">
             {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
         </div>
-        <div class="form-group">
-            <div class="form-group">
+        <div class="mb-3">
+            <div class="mb-3">
                 <p>(<small>{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</small>)</p>
                 <span>{xlt t="Source File Path"}:</span>
-                <input type="file" class="form-control-file" name="file[]" id="source-name" multiple="true" />
+                <input type="file" class="form-control" name="file[]" id="source-name" multiple="true" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <span>(<small>{xlt t="Click below to Zip a Directory of image slices."}</small>)</span>
-                <input type="file" class="form-control-file" name="dicom_folder[]" id="dicom_folder" multiple directory="" webkitdirectory="" moxdirectory="" />
+                <input type="file" class="form-control" name="dicom_folder[]" id="dicom_folder" multiple directory="" webkitdirectory="" moxdirectory="" />
                 <input type="text" class="form-control" name="destination" placeholder='{xla t="Optional Destination or Dicom Study Name"}' title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" />
             </div>
             {if !$hide_encryption}
-            <div class="form-group">
+            <div class="mb-3">
                 <label role="button" title="{xla t='Check the box if this is an encrypted file'}">{xlt t="Is The File Encrypted?"}:
                     <input type="checkbox" class="form-check-inline" name="encrypted" title="{xla t='Check the box if this is an encrypted file'}" id="encrypted" />
                 </label>
@@ -55,7 +55,7 @@
         <input type="hidden" name="category_id" value="{$category_id|attr}" />
         <input type="hidden" name="process" value="{$PROCESS|attr}" />
         {if !empty($file)}
-        <div class="form-group">
+        <div class="mb-3">
             <label class="fw-bold">
                 {xlt t='Uploaded'}
             </label>
@@ -81,10 +81,10 @@
     <form class="form-inline" method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
         <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
         <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
-        <div class='form-group col-sm-4'>
+        <div class='mb-3 col-sm-4'>
             <p class='my-1'>{xlt t="Download document template for this patient and visit"}</p>
             <div class="input-group">
-                <span class="input-group-prepend">
+                <span class="input-group-text">
                     <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
                 </span>
                 <select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
@@ -102,7 +102,7 @@
                         {$TEMPLATES_LIST_PATIENT}
                     </div>
                 </div>
-                <span class="input-group-append">
+                <span class="input-group-text">
                     <button type="button" class="btn btn-primary" onclick="callTemplateModule({$patient_id|attr_url}, '-patient-', '', 0, 0)">{xlt t="or Open Module"}</button>
                 </span>
             </div>

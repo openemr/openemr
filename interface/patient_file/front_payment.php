@@ -1411,9 +1411,9 @@ function make_insurance() {
                             </table>
                         </div>
                     </fieldset>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 text-left position-override">
-                            <div class="form-group" role="group" id="button-group">
+                            <div class="mb-3" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
                                 <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
                                     if ($GLOBALS['payment_gateway'] == 'Sphere') {
@@ -1449,7 +1449,7 @@ function make_insurance() {
                         <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
                             <form id='paymentForm' method='post' action='./front_payment_cc.php'>
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label
                                             class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                         <div class="controls">
@@ -1459,7 +1459,7 @@ function make_insurance() {
                                                 value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <label class="control-label"><?php echo xlt('Card Number'); ?></label>
@@ -1475,7 +1475,7 @@ function make_insurance() {
                                                 </span>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label
                                             class="control-label"><?php echo xlt('Card Expiry Date and Card Holders Zip'); ?></label>
                                         <div class="row">
@@ -1520,7 +1520,7 @@ function make_insurance() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="control-label"><?php echo xlt('Card CVV'); ?></label>
                                         <div class="row">
                                             <div class="col-md-3">
@@ -1551,7 +1551,7 @@ function make_insurance() {
                         if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
                             <form class="form" method="post" name="payment-form" id="payment-form">
                                 <fieldset>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="cardHolderName" class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                         <input name="cardHolderName" id="cardHolderName" type="text"
                                             class="form-control"
@@ -1559,9 +1559,9 @@ function make_insurance() {
                                             title="<?php echo xla('Fill your first and last name'); ?>"
                                             value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
-                                        <div class="form-group" id="card-element"></div>
+                                        <div class="mb-3" id="card-element"></div>
                                         <div class="text-danger" id="card-errors" role="alert"></div>
                                     </div>
                                     <div class="form-row">

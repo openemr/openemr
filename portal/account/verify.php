@@ -223,7 +223,7 @@ if ($GLOBALS['language_menu_login']) {
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                     <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) { ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="col-form-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
                             <select class="form-control" id="selLanguage" name="languageChoice">
                                 <?php
@@ -255,28 +255,28 @@ if ($GLOBALS['language_menu_login']) {
                     ?>
 
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="fname"><?php echo xlt('First Name') ?></label>
                             <input type="text" class="form-control" id="fname" name="fname" required placeholder="<?php echo xla('First Name'); ?>" />
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="mname"><?php echo xlt('Middle Name') ?></label>
                             <input type="text" class="form-control" id="mname" name="mname" placeholder="<?php echo xla('Full or Initial'); ?>" />
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="lname"><?php echo xlt('Last Name') ?></label>
                             <input type="text" class="form-control" id="lname" name="lname" required placeholder="<?php echo xla('Enter Last'); ?>" />
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="dob"><?php echo xlt('Birth Date') ?></label>
                             <input id="dob" type="text" required class="form-control datepicker" name="dob" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label class="col-form-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
                         <input id="emailInput" type="email" class="reg-email form-control" name="email" required placeholder="<?php echo xla('Enter email address to receive registration.'); ?>" maxlength="100" />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="d-flex justify-content-center">
                             <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                         </div>
