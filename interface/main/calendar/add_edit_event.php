@@ -1381,7 +1381,7 @@ $classpati = '';
 <div class="form-row mx-2">
     <div class="col-sm mb-3">
         <label for="facility"><?php echo xlt('Facility'); ?>:</label>
-        <select class="form-control" name="facility" id="facility">
+        <select class="form-select" name="facility" id="facility">
             <?php
             $facils = getUserFacilities($_SESSION['authUserID']);
             $qsql = sqlStatement("SELECT id, name FROM facility WHERE service_location != 0");

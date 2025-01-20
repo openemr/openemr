@@ -280,7 +280,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             ++$encount;
                             $bgclass = (($encount & 1) ? "bg1" : "bg2");
 
-                            $colorstyle = !empty($row['enddate']) ? "text-muted" : "";
+                            $colorstyle = !empty($row['enddate']) ? "text-body-secondary" : "";
 
                             // look up the diag codes
                             $codetext = "";

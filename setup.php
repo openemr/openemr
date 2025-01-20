@@ -742,7 +742,7 @@ STP2TBLTOP1;
                         <div class="col-sm-4">
                             <div class="clearfix mb-3">
                                 <div class="label-div">
-                                    <label class="fw-bold" for="loginhost">User Hostname:</label>
+                                    <label class="fw-bold form-label" for="loginhost">User Hostname:</label>
                                     <a href="#loginhost_info" class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
@@ -758,7 +758,7 @@ STP2TBLTOP1;
                         <div class="col-sm-4">
                             <div class="clearfix mb-3">
                                 <div class="label-div">
-                                    <label class="fw-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                    <label class="fw-bold form-label" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
                                 <div>
                                     <select name='collate' id=='collate' class='form-control'>

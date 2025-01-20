@@ -907,7 +907,7 @@ if (
             </button>
             <div class="form_header flex-fill">
                 <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
-                    <h5 class="mb-0">{$form_text} <small class="text-muted">({$by_text} {$author_text})</small></h5>
+                    <h5 class="mb-0">{$form_text} <small class="text-body-secondary">({$by_text} {$author_text})</small></h5>
                 </a>
             </div>
             <div>

@@ -151,7 +151,7 @@ function displayAlert() {
 
             <div class="form-row">
                 <div class="mb-3 w-100">
-                    <label for='facility' class="visually-hidden">{{ 'Name'|xlt }}</label>
+                    <label for='facility' class="visually-hidden form-label">{{ 'Name'|xlt }}</label>
                     <input type='text' class='form-control form-control-lg' placeholder="{{ 'Facility Name'|xla }}" name='facility' value='{{ facility.name|default('')|attr }}'>
                 </div>
             </div>
@@ -173,9 +173,7 @@ function displayAlert() {
                                         <div class="mb-3">
                                             <label for='street' class='col-form-label visually-hidden'>{{ 'Address'|xlt }} </label>
                                             <div class="input-group">
-                                                <div class="input-group-text">
-                                                    <button type="button" id="btnCopyMailing" class="btn btn-outline-secondary" title="{{ "Copy from mailing address"|xla }}"><i class="fa fa-clone"></i><span class="visually-hidden">{{ 'Copy Mailing'|xlt }}</span></button>
-                                                </div>
+                                                <button type="button" id="btnCopyMailing" class="btn btn-outline-secondary" title="{{ "Copy from mailing address"|xla }}"><i class="fa fa-clone"></i><span class="visually-hidden">{{ 'Copy Mailing'|xlt }}</span></button>
                                                 <input type='text' class='form-control' name="street" placeholder="{{ 'Address'|xla }}" value="{{ facility.street|default('')|attr }}">
                                             </div>
                                         </div>
@@ -217,9 +215,7 @@ function displayAlert() {
                                         <div class="mb-3">
                                             <label for="mail_street" class="col-form-label visually-hidden">{{ 'Mailing Address'|xlt }}</label>
                                             <div class="input-group">
-                                                <div class="input-group-text">
-                                                        <button type="button" id="btnCopyPhysical" class="btn btn-outline-secondary" title="{{ "Copy from physical address"|xla }}"><i class="fa fa-clone"></i><span class="visually-hidden">{{ 'Copy physical address'|xlt }}</span></button>
-                                                    </div>
+                                                <button type="button" id="btnCopyPhysical" class="btn btn-outline-secondary" title="{{ "Copy from physical address"|xla }}"><i class="fa fa-clone"></i><span class="visually-hidden">{{ 'Copy physical address'|xlt }}</span></button>
                                                 <input type="text" class="form-control" placeholder="{{ 'Street Addres'|xla }}" name="mail_street" value="{{ facility.mail_street|default('')|attr }}">
                                             </div>
                                         </div>
@@ -283,18 +279,16 @@ function displayAlert() {
                 <div class="border p-2 bg-light d-flex">
                     <div class="pe-1">
                         <div class="mb-3">
-                            <label for='ncolor'>{{ 'Color'|xlt }}</label>
+                            <label class='form-label' for='ncolor'>{{ 'Color'|xlt }}</label>
                             <div class="input-group">
                                 <input type="text" class='form-control form-control-sm' name='ncolor' id='ncolor' size='20' value="{{ facility.color|attr }}">
-                                <div class="input-group-text">
-                                    <a href="#" onClick="pick('pick','newcolor'); return false;" class="btn btn-outline-secondary" name="pick" id="pick">
-                                        <i class="fa fa-eye-dropper"></i><span class="visually-hidden">{{ 'Pick'|xlt }}</span>
-                                    </a>
-                                </div>
+                                <a href="#" onClick="pick('pick','newcolor'); return false;" class="btn btn-outline-secondary" name="pick" id="pick">
+                                    <i class="fa fa-eye-dropper"></i><span class="visually-hidden">{{ 'Pick'|xlt }}</span>
+                                </a>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for='pos_code'>{{ 'POS Code'|xlt }}</label>
+                            <label class='form-label' for='pos_code'>{{ 'POS Code'|xlt }}</label>
                             <select name="pos_code" class="form-control form-control-sm">
                                 {% for c in pos_code %}
                                     <option value="{{ c.code }}" {{ (facility.pos_code == c.code) ? 'selected' : '' }}>{{ c.code|text }}: {{ c.title|text }}</option>
@@ -302,11 +296,11 @@ function displayAlert() {
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="domain_identifier">{{ 'CLIA Number'|xlt }}</label>
+                            <label class="form-label" for="domain_identifier">{{ 'CLIA Number'|xlt }}</label>
                             <input type="text" class="form-control form-control-sm" name="domain_identifier" size="45" value="{{ facility.domain_identifier|attr }}">
                         </div>
                         <div class="mb-3">
-                            <label for='federal_ein'>{{ 'Tax ID'|xlt }}</label>
+                            <label class="form-label" for='federal_ein'>{{ 'Tax ID'|xlt }}</label>
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <select name='tax_id_type' class='form-control form-control-sm'>
@@ -318,29 +312,29 @@ function displayAlert() {
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for='facility_npi'>{{ (simple_dems == true) ? 'Facility Code'|xlt : 'Facility NPI'|xlt }}</label>
+                            <label class="form-label" for='facility_npi'>{{ (simple_dems == true) ? 'Facility Code'|xlt : 'Facility NPI'|xlt }}</label>
                             <input type="text" class='form-control form-control-sm' size='20' name='facility_npi' value="{{ facility.facility_npi|default('')|attr }}">
                         </div>
                     </div>
                     <div class="ps-1">
                         <div class="mb-3">
-                            <label for='iban'>{{ 'IBAN'|xlt }}</label>
+                            <label class="form-label" for='iban'>{{ 'IBAN'|xlt }}</label>
                             <input type="text" class='form-control form-control-sm' size='20' name='iban' value="{{ facility.iban|default('')|attr }}">
                         </div>
                         <div class="mb-3">
-                            <label for='facility_taxonomy'>{{ 'Facility Taxonomy'|xlt }}</label>
+                            <label class="form-label" for='facility_taxonomy'>{{ 'Facility Taxonomy'|xlt }}</label>
                             <input type="text" class='form-control form-control-sm' size='20' name='facility_taxonomy' value="{{ facility.facility_taxonomy|default('')|attr }}">
                         </div>
                         <div class="mb-3">
-                            <label for="attn">{{ 'Billing Attn'|xlt }}</label>
+                            <label class="form-label" for="attn">{{ 'Billing Attn'|xlt }}</label>
                             <input type="text" class="form-control form-control-sm" name="attn" size="45" value="{{ facility.attn|default('')|attr }}">
                         </div>
                         <div class="mb-3">
-                            <label for="facility_id">{{ 'Facility Lab Code'|xlt }}</label>
+                            <label class="form-label" for="facility_id">{{ 'Facility Lab Code'|xlt }}</label>
                             <input type="text" class="form-control form-control-sm" name="facility_id" size="45" value="{{ facility.facility_code|default('')|attr }}">
                         </div>
                         <div class="mb-3">
-                            <label for="oid">{{ 'OID'|xlt }}: </label>
+                            <label class="form-label" for="oid">{{ 'OID'|xlt }}: </label>
                             <input type="text" class="form-control form-control-sm" size="20" name="oid" value="{{ facility.oid|default('')|attr }}">
                         </div>
                     </div>
@@ -348,28 +342,28 @@ function displayAlert() {
             </div>
             <div class="col-sm-12 col-md-5">
                 <div class="border p-2 bg-light">
-                    <div class="form-row custom-control custom-switch my-2">
+                    <div class="form-row form-check form-switch my-2">
                         <div class="col">
                             <input type='checkbox' class='custom-control-input' name='billing_location' id='billing_location' value='1' {{ facility.billing_location != 0 ? 'checked' : '' }}>
                             <label for='billing_location' class='custom-control-label'>{{ 'Billing Location'|xlt }}</label>
                         </div>
                     </div>
-                    <div class="form-row custom-control custom-switch my-2">
+                    <div class="form-row form-check form-switch my-2">
                         <div class="col">
                             <input type='checkbox' class='custom-control-input' name='accepts_assignment' id='accepts_assignment' value='1' {{ facility.accepts_assignment == 1 ? 'checked' : '' }}>
                             <label for='accepts_assignment' class='custom-control-label'>{{ 'Accepts Assignment'|xlt }}</label>
                         </div>
                         <div class="col">
-                            <small class="form-text d-block text-muted mt-0">({{ 'only if billing location'|xlt }})</small>
+                            <small class="form-text d-block text-body-secondary mt-0">({{ 'only if billing location'|xlt }})</small>
                         </div>
                     </div>
-                    <div class="form-row custom-control custom-switch my-2">
+                    <div class="form-row form-check form-switch my-2">
                         <div class="col">
                             <input type='checkbox' class='custom-control-input' name='service_location' id='service_location' value='1' {{ facility.service_location == 1 ? 'checked' : '' }}>
                             <label for='service_location' class='custom-control-label'>{{ 'Service Location'|xlt }}</label>
                         </div>
                     </div>
-                    <div class="form-row custom-control custom-switch my-2">
+                    <div class="form-row form-check form-switch my-2">
                         <div class="col">
                             {% set _oc = (erxEnabled) ? 'onchange="return displayAlert()"' : '' %}
                             {% set _pbeCheck = (facility.primary_business_entity == 1) ? 'checked' : '' %}
@@ -378,7 +372,7 @@ function displayAlert() {
                             <label for='primary_business_entity' class='custom-control-label'>{{ 'Primary Business Entity'|xlt }}</label>
                         </div>
                     </div>
-                    <div class="form-row custom-control custom-switch my-2">
+                    <div class="form-row form-check form-switch my-2">
                         <div class="col">
                             <input type='checkbox' class='custom-control-input' name='inactive' id='inactive' value='1'{{ facility.inactive != 0 ? ' checked' : '' }}>
                             <label for='inactive' class='custom-control-label'>{{ 'Facility Inactive'|xlt }}</label>

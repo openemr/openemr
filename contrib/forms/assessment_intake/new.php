@@ -81,15 +81,15 @@ formHeader("Form: assessment_intake");
             </div>
 
             <p class="fw-bold">Purpose:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='new_client_eval' />
                 <label class="fw-bold custom-control-label">New client evaluation</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='readmission' />
                 <label class="fw-bold custom-control-label">Readmission</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='consultation' />
                 <label class="fw-bold custom-control-label">Consultation</label>
             </div>
@@ -121,7 +121,7 @@ formHeader("Form: assessment_intake");
 
             <p class="fw-bold">Family Relationships:</p>
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class='custom-control-input' name='fatherc' />
                     <label class="fw-bold custom-control-label">Father involved/present/absent (Describe relationship)</label>
                 </div>
@@ -130,7 +130,7 @@ formHeader("Form: assessment_intake");
                 </div>
             </div>
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class='custom-control-input' name='motherc' />
                     <label class="fw-bold custom-control-label">Mother involved/present/absent (Describe relationship)</label>
                 </div>
@@ -223,40 +223,40 @@ formHeader("Form: assessment_intake");
                 <input type="text" class="form-control" name="allergies" />
             </div>
             <p class="fw-bold">Axis IV Psychosocial and environmental problems in the last year:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_prob_support_group' />
                 <label class="fw-bold custom-control-label">Problems with primary support group</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_prob_soc_env' />
                 <label class="fw-bold custom-control-label">Problems related to the social environment</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_educational_prob' />
                 <label class="fw-bold custom-control-label">Educational problems</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_occ_prob' />
                 <label class="fw-bold custom-control-label">Occupational problems</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_housing' />
                 <label class="fw-bold custom-control-label">Housing problems</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_economic' />
                 <label class="fw-bold custom-control-label">Economic problems</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_access_hc' />
                 <label class="fw-bold custom-control-label">Problems with access to health care services</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='ax4_legal' />
                 <label class="fw-bold custom-control-label">Problems related to interaction with the legal system/crime</label>
             </div>
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class='custom-control-input' name='ax4_other_cb' />
                     <label class="fw-bold custom-control-label">Other (specify):</label>
                 </div>
@@ -279,104 +279,104 @@ formHeader("Form: assessment_intake");
 
             <p class="fw-bold">Suicide:</p>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_na' />
                 <label class="fw-bold custom-control-label">Not Assessed</label>
             </div>
 
             <p class="fw-bold mt-3">Behaviors:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_nk' />
                 <label class="fw-bold custom-control-label">Not Known</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_io' />
                 <label class="fw-bold custom-control-label">Ideation only</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_plan' />
                 <label class="fw-bold custom-control-label">Plan</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_iwom' />
                 <label class="fw-bold custom-control-label">Intent without means</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_iwm' />
                 <label class="fw-bold custom-control-label">Intent with means</label>
             </div>
 
             <p class="fw-bold mt-3">Homocide:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_homocide_na' />
                 <label class="fw-bold custom-control-label">Not Assessed</label>
             </div>
 
             <p class="fw-bold mt-3">Behaviors:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_homocide_nk' />
                 <label class="fw-bold custom-control-label">Not Known</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_homocide_io' />
                 <label class="fw-bold custom-control-label">Ideation only</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_homocide_plan' />
                 <label class="fw-bold custom-control-label">Plan</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_homocide_iwom' />
                 <label class="fw-bold custom-control-label">Intent without means</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_homocide_iwm' />
                 <label class="fw-bold custom-control-label">Intent with means</label>
             </div>
 
             <p class="fw-bold mt-3">Compliance with treatment:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_compliance_na' />
                 <label class="fw-bold custom-control-label">Not Assessed</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_compliance_fc' />
                 <label class="fw-bold custom-control-label">Full compliance</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_compliance_mc' />
                 <label class="fw-bold custom-control-label">Minimal compliance</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_compliance_moc' />
                 <label class="fw-bold custom-control-label">Moderate compliance</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_compliance_var' />
                 <label class="fw-bold custom-control-label">Variable</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_compliance_no' />
                 <label class="fw-bold custom-control-label">Little or no compliance</label>
             </div>
 
             <p class="fw-bold mt-3">Substance Abuse:</p>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_substance_na' />
                 <label class="fw-bold custom-control-label">Not Assessed</label>
             </div>
 
             <div class="form-inline">
                 <div>
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input type="checkbox" class='custom-control-input' name='risk_substance_none' />
                         <label class="fw-bold custom-control-label">None/normal use:</label>
                     </div>
@@ -385,109 +385,109 @@ formHeader("Form: assessment_intake");
                     <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="risk_normal_use"></textarea>
                 </div>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_substance_ou' />
                 <label class="fw-bold custom-control-label">Overuse</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_substance_dp' />
                 <label class="fw-bold custom-control-label">Dependence</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_substance_ur' />
                 <label class="fw-bold custom-control-label">Unstable remission of abuse</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_substance_ab' />
                 <label class="fw-bold custom-control-label">Abuse</label>
             </div>
 
             <p class="fw-bold mt-3">Current physical or sexual abuse:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_na' />
                 <label class="fw-bold custom-control-label">Not Assessed</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_y' />
                 <label class="fw-bold custom-control-label">Yes</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_n' />
                 <label class="fw-bold custom-control-label">No</label>
             </div>
 
             <p class="fw-bold mt-3">Legally reportable?</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_ry' />
                 <label class="fw-bold custom-control-label">Yes</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_rn' />
                 <label class="fw-bold custom-control-label">No</label>
             </div>
 
             <p class="fw-bold mt-3">If yes, client is </p>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_cv' />
                 <label class="fw-bold custom-control-label">victim</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_cp' />
                 <label class="fw-bold custom-control-label">perpetrator</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_b' />
                 <label class="fw-bold custom-control-label">Both</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_sexual_nf' />
                 <label class="fw-bold custom-control-label">neither, but abuse exists in family</label>
             </div>
 
             <p class="fw-bold mt-3">Current child/elder abuse:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_na' />
                 <label class="fw-bold custom-control-label">Not Assessed</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_y' />
                 <label class="fw-bold custom-control-label">Yes</label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_n' />
                 <label class="fw-bold custom-control-label">No</label>
             </div>
 
             <label class="fw-bold mt-3">Legally reportable?</label>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_ry' />
                 <label class="fw-bold custom-control-label"><?php echo xlt("Yes"); ?></label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_rn' />
                 <label class="fw-bold custom-control-label"><?php echo xlt("No"); ?></label>
             </div>
 
             <p class="fw-bold mt-3"><?php echo xlt("If yes, client is "); ?></p>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_cv' />
                 <label class="fw-bold custom-control-label"><?php echo xlt("victim"); ?></label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_cp' />
                 <label class="fw-bold custom-control-label"><?php echo xlt("perpetrator"); ?></label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_cb' />
                 <label class="fw-bold custom-control-label"><?php echo xlt("Both"); ?></label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='risk_neglect_cn' />
                 <label class="fw-bold custom-control-label"><?php echo xlt("neither, but abuse exists in family"); ?></label>
             </div>
@@ -497,25 +497,25 @@ formHeader("Form: assessment_intake");
                     <p class="fw-bold">If risk exists the client:</p>
                 </div>
                 <div class="col-4">
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input type="checkbox" class='custom-control-input' name='risk_exists_c' id='risk_exists_c' />
                         <label class="fw-bold custom-control-label">can meaningfully agree to a contract not to harm</label>
                     </div>
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input type="checkbox" class='custom-control-input' name='risk_exists_cn' id='risk_exists_cn' />
                         <label class="fw-bold custom-control-label">cannot meaningfully agree to a contract not to harm</label>
                     </div>
                 </div>
                 <div class="col-2">
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input type="checkbox" class='custom-control-input' name='risk_exists_s' />
                         <label class="fw-bold custom-control-label">self</label>
                     </div>
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input type="checkbox" class='custom-control-input' name='risk_exists_o' />
                         <label class="fw-bold custom-control-label">others</label>
                     </div>
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input type="checkbox" class='custom-control-input' name='risk_exists_b' />
                         <label class="fw-bold custom-control-label">both</label>
                     </div>
@@ -530,23 +530,23 @@ formHeader("Form: assessment_intake");
             <h5 class="fw-bold mt-3" style="text-decoration: underline;">Assessment Recommendations:</h5>
 
             <p class="fw-bold">Outpatient Psychotherapy:</p>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='recommendations_psy_i' />
                 <label class="fw-bold custom-control-label">Individual</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='recommendations_psy_f' />
                 <label class="fw-bold custom-control-label">Family</label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='recommendations_psy_m' />
                 <label class="fw-bold custom-control-label">Marital/relational</label>
             </div>
 
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class='custom-control-input' name='recommendations_psy_o' />
                     <label class="fw-bold custom-control-label">Other</label>
                 </div>
@@ -585,27 +585,27 @@ formHeader("Form: assessment_intake");
                 <textarea class="form-control" cols="100" rows="1" wrap="virtual" name="supervision_services" id="supervision_services"></textarea>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='support_ps' id='support_ps' />
                 <label class="fw-bold custom-control-label" for="support_ps"><?php echo xlt("Parenting skills/child management"); ?></label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='support_cs' id='support_cs' />
                 <label class="fw-bold custom-control-label" for="support_cs"><?php echo xlt("Communication skills"); ?></label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='support_sm' id='support_sm' />
                 <label class="fw-bold custom-control-label" for="support_sm"><?php echo xlt("Stress management"); ?></label>
             </div>
 
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='support_a' id='support_a' />
                 <label class="fw-bold custom-control-label" for="support_a"><?php echo xlt("Assertiveness"); ?></label>
             </div>
 
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class='custom-control-input' name='support_o' id='support_o' />
                     <label class="fw-bold custom-control-label" for="support_o"><?php echo xlt("Other"); ?></label>
                 </div>
@@ -615,24 +615,24 @@ formHeader("Form: assessment_intake");
             </div>
 
             <h5 class="fw-bold mt-3" style="text-decoration: underline;"><?php echo xlt("Legal Services:"); ?></h5>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class='custom-control-input' name='legal_op' id='legal_op' />
                 <label class="fw-bold custom-control-label" for="legal_op"><?php echo xlt("Offender program"); ?></label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class="custom-control-input" name='legal_so' id='legal_so' />
                 <label class="fw-bold custom-control-label" for="legal_so"><?php echo xlt("Sex Offender Groups"); ?></label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class="custom-control-input" name='legal_sa' id='legal_sa' />
                 <label class="fw-bold custom-control-label" for="legal_sa"><?php echo xlt("Substance abuse"); ?></label>
             </div>
-            <div class="custom-control custom-checkbox">
+            <div class="form-check">
                 <input type="checkbox" class="custom-control-input" name='legal_ve' id='legal_ve' />
                 <label class="fw-bold custom-control-label" for="legal_ve"><?php echo xlt("Victim empathy group"); ?></label>
             </div>
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class="custom-control-input" name='legal_ad' id='legal_ad' />
                     <label class="fw-bold custom-control-label" for="legal_ad"><?php echo xlt("Referral to advocate"); ?></label>
                 </div>
@@ -641,7 +641,7 @@ formHeader("Form: assessment_intake");
                 </div>
             </div>
             <div class="form-inline">
-                <div class="custom-control custom-checkbox">
+                <div class="form-check">
                     <input type="checkbox" class="custom-control-input" name='legal_o' id="legal_o" />
                     <label class="fw-bold custom-control-label" for="legal_o"><?php echo xlt("Other:"); ?></label>
                 </div>

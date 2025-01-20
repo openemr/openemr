@@ -195,7 +195,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
     </div>
     <div id="searchResultsHeader" class="table-responsive">
         <table class="table">
-            <thead class="thead-light">
+            <thead class="table-light">
             <tr>
                 <th class="srID" scope="col"><?php echo xlt('Hits'); ?></th>
                 <th class="srName" scope="col"><?php echo xlt('Name'); ?></th>

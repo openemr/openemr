@@ -1169,7 +1169,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <div class="input-group">
                                         <input type='text' class="form-control" name='search_term' value='' />
                                         <div class="input-group-text">
-                                            <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
+                                            <input type='submit' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
                                         </div>
                                     </div>
                                 </div>

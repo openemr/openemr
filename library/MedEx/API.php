@@ -1903,7 +1903,7 @@ class Display extends base
                         <div class="text-center row align-items-center">
                             <div class="col-sm-4 text-center mt-3">
                                 <div class="mb-3 row justify-content-center mx-sm-1">
-                                    <select class="form-control form-control-sm" id="form_facility" name="form_facility"
+                                    <select class="form-select form-control-sm" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         $select_facs = '';
@@ -1937,7 +1937,7 @@ class Display extends base
                                     $c = sqlFetchArray($ures);
                                     $count_provs = count($c ?: []);
                                     ?>
-                                    <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
+                                    <select class="form-select form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
                                         <?php
@@ -2639,7 +2639,7 @@ class Display extends base
                                 <label><?php echo xlt('Facility'); ?></label>
                             </div>
                             <div class="mb-3 col-8 col-md-8 divTableCell indent20">
-                                <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
+                                <select class="form-select ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
                                     <?php
                                         $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
                                     while ($facrow = sqlFetchArray($qsql)) {
@@ -2743,7 +2743,7 @@ class Display extends base
             <div class="col-12 text-center">
                 <button class="btn btn-primary btn-add" style="float: none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
                 <p>
-                    <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}') . " " . xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
+                    <em class="small text-body-secondary">* <?php echo xlt('N.B.{{Nota bene}}') . " " . xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                 </p>
             </div>
         </div>

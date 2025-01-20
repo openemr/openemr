@@ -62,7 +62,7 @@ $widgetConstants = [
 
 <template class="template_add_address">
     <div class="addresses_group col-12 ps-0">
-        <div class="display_addresses form-row no-gutters justify-content-between ps-1">
+        <div class="display_addresses form-row g-0 justify-content-between ps-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                 <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2;"></i>
                 <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>

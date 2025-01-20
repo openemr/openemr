@@ -1373,9 +1373,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     </td>
                                     <td class='diagnosis-div input-group'>
                                         <div class='input-group-text'>
-                                            <span class='btn btn-secondary input-group-text'>
-                                                <i class='fa fa-search fa-lg search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
-                                            </span>
+                                            <i class='fa fa-search fa-lg search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
                                         </div>
                                         <input class='form-control c-hand add-diagnosis-sel-related' type='text'
                                                name='form_proc_type_diag[<?php echo $i; ?>]'
@@ -1461,9 +1459,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     </td>
                                     <td class='diagnosis-div input-group'>
                                         <div class='input-group-text'>
-                                            <span class='btn btn-secondary input-group-text'>
                                                 <i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
-                                            </span>
                                         </div>
                                         <input class='form-control c-hand' type='text'
                                             name='form_proc_type_diag[<?php echo $i; ?>]'

@@ -190,7 +190,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                                 required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo attr($c['smsMessage']) ?></textarea>
                         </div>
                     </div>
-                    <p class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
+                    <p class="text-body-secondary"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
                 </div>
             </div>
             <button type="submit" class="btn btn-success float-end m-2" value=""><?php echo xlt("Save Settings") ?></button>

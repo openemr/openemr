@@ -225,7 +225,7 @@ if ($GLOBALS['language_menu_login']) {
                     <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) { ?>
                         <div class="mb-3">
                             <label class="col-form-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                            <select class="form-control" id="selLanguage" name="languageChoice">
+                            <select class="form-select" id="selLanguage" name="languageChoice">
                                 <?php
                                 echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                                     text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";

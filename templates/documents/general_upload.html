@@ -84,10 +84,8 @@
         <div class='mb-3 col-sm-4'>
             <p class='my-1'>{xlt t="Download document template for this patient and visit"}</p>
             <div class="input-group">
-                <span class="input-group-text">
-                    <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
-                </span>
-                <select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
+                <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
+                <select class="form-select" name='form_filename'>{$TEMPLATES_LIST}</select>
             </div>
         </div>
         <!-- Section for portal document templates -->
@@ -102,9 +100,7 @@
                         {$TEMPLATES_LIST_PATIENT}
                     </div>
                 </div>
-                <span class="input-group-text">
-                    <button type="button" class="btn btn-primary" onclick="callTemplateModule({$patient_id|attr_url}, '-patient-', '', 0, 0)">{xlt t="or Open Module"}</button>
-                </span>
+                <button type="button" class="btn btn-primary" onclick="callTemplateModule({$patient_id|attr_url}, '-patient-', '', 0, 0)">{xlt t="or Open Module"}</button>
             </div>
         </div>
     </form>

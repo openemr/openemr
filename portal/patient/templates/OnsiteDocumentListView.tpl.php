@@ -648,7 +648,7 @@ $templateService = new DocumentTemplateService();
                 <h4 class="text-sm-center"><?php echo xlt('Document and Forms Activity') ?></h4><small><%= view.getPaginationHtml(page, true) %></small><cite><%= view.sortTableWithActiveFilterHtml(false) %></cite>
 
                 <table class="collection table table-sm table-hover">
-                    <thead class='thead-dark'>
+                    <thead class='table-dark'>
                     <tr class='cursor-pointer' role="button">
                         <th scope="col" id="header_Id"><?php echo xlt('Id'); ?><% if (page.orderBy == 'Id') { %> <i class='icon-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>
                         <th scope="col" id="header_DocType"><?php echo xlt('Document'); ?><% if (page.orderBy == 'DocType') { %> <i class='fa fa-arrow-<%= page.orderDesc ? ' up' : 'down' %>' /><% } %></th>

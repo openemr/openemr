@@ -289,7 +289,7 @@ window.onload = function() {
 
     <span class="float-end">
         <?php echo xlt('Results per page'); ?>:
-        <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
+        <select class="form-select" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
             $pagesizes = array(5, 10, 15, 20, 25, 50, 0);
             for ($idx = 0, $idxMax = count($pagesizes); $idx < $idxMax; $idx++) {

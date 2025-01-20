@@ -9,7 +9,7 @@ class RuleTemplateExtension
     public static function render_select($args)
     {
         ?>
-        <select class="form-control" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id'] ?? ''); ?>">
+        <select class="form-select" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id'] ?? ''); ?>">
 
             <!-- default option -->
             <option id="" value="">--<?php echo xlt('Select'); ?>--</option>

@@ -37,9 +37,7 @@
         <form class="navbar-form" role="search">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term" />
-            <div class="input-group-text">
-                <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
-            </div>
+            <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
         </div>
         </form>
         </div>

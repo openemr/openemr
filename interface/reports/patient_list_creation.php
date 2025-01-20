@@ -479,7 +479,7 @@ if ($csv) {
                                         <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                         <td>
-                                            <select class="form-control" name="srch_option" id="srch_option"
+                                            <select class="form-select" name="srch_option" id="srch_option"
                                                 onchange="srch_option_change(this)">
                                                 <?php foreach ($search_options as $search_option_key => $search_option_items) {
                                                     if (!isset($search_option_items["hidden"]) || !$search_option_items["hidden"]) { ?>
@@ -495,7 +495,7 @@ if ($csv) {
                                                 <input class="form-control wildcard_field" name="prescription_drug" id="prescription_drug" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xla('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . attr($_POST['prescription_drug']) . '"' : '' ?>/>
                                             </span>
                                             <span id="com_pref" style="display: none">
-                                                <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
+                                                <select class="form-select" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
                                                     <option><?php echo xlt('All'); ?></option>
                                                     <option value="allow_sms" <?php echo ($communication == "allow_sms") ? "selected" : ""; ?>><?php echo xlt('Allow SMS'); ?></option>
                                                     <option value="allow_voice" <?php echo ($communication == "allow_voice") ? "selected" : ""; ?>><?php echo xlt('Allow Voice Message'); ?></option>
@@ -504,7 +504,7 @@ if ($csv) {
                                                 </select>
                                             </span>
                                             <span id="ins_co" style="display: none">
-                                                <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
+                                                <select class="form-select" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                                     <option><?php echo xlt('All'); ?></option>
                                                     <?php foreach ($insarr as $ins_id => $ins_co) { ?>
                                                         <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo attr($ins_id); ?>"><?php echo text($ins_co); ?></option>
@@ -512,7 +512,7 @@ if ($csv) {
                                                 </select>
                                             </span>
                                             <span id="enc_type" style="display: none">
-                                                <select class="form-control" name="encounter_type" id="encounter_type">
+                                                <select class="form-select" name="encounter_type" id="encounter_type">
                                                     <option><?php echo xlt('All'); ?></option>
                                                     <?php foreach ($encarr as $enc_id => $enc_t) { ?>
                                                         <option <?php echo (!empty($_POST['encounter_type']) && ($_POST['encounter_type'] == $enc_id)) ? 'selected' : ''; ?> value="<?php echo attr($enc_id); ?>"><?php echo text($enc_t); ?></option>

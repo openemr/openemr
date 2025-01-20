@@ -579,7 +579,7 @@ $msgApp = new ChatController();
         <div class="row">
             <div class="col-md-2 sidebar">
                 <h5><span class="badge text-bg-primary"><?php echo xlt('Current Recipients'); ?></span></h5>
-                <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
+                <label class="form-label" ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
                 <h5><span class="badge text-bg-primary"><?php echo xlt('Available Recipients'); ?></span></h5>
@@ -587,7 +587,7 @@ $msgApp = new ChatController();
                     <button id="chkall" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All{{Recipients}}'); ?></button>
                     <button id="chknone" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None{{Recipients}}'); ?></button>
                 </span>
-                <label ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
+                <label class="form-label" ng-repeat="user in chatusers | unique : 'username'" ng-show="!isPortal || (isPortal && user.dash)">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
             </div>
@@ -618,10 +618,8 @@ $msgApp = new ChatController();
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
                                     <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus" class="form-control" ng-model="me.message" ng-enter="saveMessage()">
-                                    <span class="input-group-text">
-                                        <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
-                                        <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
-                                    </span>
+                                    <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
+                                    <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
                                 </div>
                             </form>
                         </div>

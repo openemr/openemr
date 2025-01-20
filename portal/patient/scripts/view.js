@@ -59,7 +59,7 @@ var view = {
 		const generateActiveCheckbox = () => {
 			const showActive = localStorage.getItem('showActive') === 'true';
 			return `<span class="show-active-filter">
-                <label>
+                <label class="form-label">
                     <input type="checkbox" id="active-checkbox" class="active-only-checkbox" ${isActiveOnly ? 'checked' : ''}>
                     ${showActive ? '(' + jsText("Show Active Status") + ')' : '(' + jsText("Show All") + ')'}
                 </label>

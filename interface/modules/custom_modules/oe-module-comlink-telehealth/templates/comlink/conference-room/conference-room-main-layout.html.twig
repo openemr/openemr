@@ -38,7 +38,7 @@
             <div class="sidebar-controls conference-highlight"></div>
         </div>
         <!-- each additional remote participant will get added here using the participant-list-template-node as a clone -->
-        <div class="row no-gutters flex-grow-1">
+        <div class="row g-0 flex-grow-1">
             <div class="remote-video-container text-center col-12 align-items-center d-flex flex-row">
                 <video id="presentation-screen" class="remote-video {% if not testTemplateLayout %}d-none {% endif %}w-100"
                        autoplay="true" muted="muted" playsinline="true" preload="none"
@@ -55,7 +55,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="row no-gutters">
+        <div class="row g-0">
             <div class="col-12">
                 {% if testTemplateLayout.buttons %}
                     {% include 'comlink/video-control-bar.twig' with {buttons: testTemplateLayout.buttons}%}

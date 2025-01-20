@@ -120,7 +120,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                     ?>
                     <div class="mb-3 px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label class="control-label" for="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
-                        <select class="form-control" name="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>" id="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"
+                        <select class="form-select" name="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>" id="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"
                             onchange="appendOptionRadioCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>,this.options[this.selectedIndex].text, this.options[this.selectedIndex].value,' = ', <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)">
                             <option value="<?php echo attr($TPSCriteriaQueryDropDownDefaultKey[$TPSCriteriaIndex]) ?>" ><?php echo text($TPSCriteriaQueryDropDownDefault[$TPSCriteriaIndex]) ?></option>
                             <?php

@@ -75,23 +75,21 @@
         <p class="text-center fw-bold">{{ "Generate Username And Password For"|xlt }} {{ fname|text }}</p>
 
         <div class="mb-3">
-            <label class="fw-bold" for="uname">{{ "Account Name"|xlt}}:</label>
+            <label class="fw-bold form-label" for="uname">{{ "Account Name"|xlt}}:</label>
             <input type="text" class="form-control" name="uname" id="uname" value="{{ uname|attr }}" size="10" readonly />
         </div>
         <div class="mb-3">
-            <label class="fw-bold" for="login_uname">{{ 'Login User Name'|xlt }}:</label>
+            <label class="fw-bold form-label" for="login_uname">{{ 'Login User Name'|xlt }}:</label>
             <input type="text" class="form-control" name="login_uname" id="login_uname" value="{{ login_uname }}" readonly />
         </div>
-        <label class="fw-bold" for="pwd">{{ 'Password'|xlt }}:</label>
+        <label class="fw-bold form-label" for="pwd">{{ 'Password'|xlt }}:</label>
         <div class="input-group">
             <input type="text" class="form-control" name="pwd" id="pwd" value="{{ pwd|attr }}" size="14" />
-            <div class="input-group-text">
-                <a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()">{{ 'Generate New'|xlt }}</a>
-            </div>
+            <a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()">{{ 'Generate New'|xlt }}</a>
         </div>
         {% if enforce_signin_email %}
         <div class="mb-3">
-            <label class="fw-bold" for="email_direct">{{ "Login Trusted Email"|xlt  }}:</label>
+            <label class="fw-bold form-label" for="email_direct">{{ "Login Trusted Email"|xlt  }}:</label>
             {% if email_direct is not empty %}
             {{  email_direct|text }}
             {% else %}

@@ -206,7 +206,7 @@ if (!empty($_POST['bn_upload'])) {
                   <div class="card">
                      <h5 class="card-header"><?php echo xlt('Download or Delete a Template'); ?></h5>
                      <div class="card-body">
-                        <select class="form-control" name='form_filename'>
+                        <select class="form-select" name='form_filename'>
                         <?php
                         // Generate an <option> for each existing file.
                         if (file_exists($templatedir)) {

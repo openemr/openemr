@@ -71,33 +71,33 @@ switch ($search_any_type) {
                         $wrapperElementClass = 'btn-group btn-group-sm mb-2';
                         $closeElement = '';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
+                        $closeIconClass = 'text-body-secondary';
                         $pubpidElement = 'span';
                         break;
                     case 'text-large':
-                        $closeAnchorClasses = 'text-muted';
+                        $closeAnchorClasses = 'text-body-secondary';
                         $wrapperElement = 'h3';
                         $wrapperElementClass = 'd-inline';
                         $closeElement = 'small';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted fa-xs';
+                        $closeIconClass = 'text-body-secondary fa-xs';
                         $pubpidElement = 'small';
                         break;
                     default:
-                        $closeAnchorClasses = 'text-muted';
+                        $closeAnchorClasses = 'text-body-secondary';
                         $wrapperElement = 'div';
                         $wrapperElementClass = 'd-inline';
                         $pubpidElement = 'span';
                         $closeElement = 'span';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
+                        $closeIconClass = 'text-body-secondary';
                         break;
                 endswitch;
                 echo "<$wrapperElement class=\"$wrapperElementClass\">";
                 ?>
                     <a class="ptName <?php echo $classes ?? ''; ?> " data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
                         <span data-bind="text: pname()"></span>
-                        <<?php echo $pubpidElement;?> class="text-muted">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
+                        <<?php echo $pubpidElement;?> class="text-body-secondary">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
                     </a>
                     <?php echo ($closeElement !== '') ? "<$closeElement class=\"$closeElementClass\">" : ''; ?>
                     <a href="#" class="pt-1<?php echo (($classes ?? '') !== "") ? " " . $classes : "";?> <?php echo ($closeAnchorClasses !== "") ? " " . $closeAnchorClasses : ""; ?>" data-bind="click:clearPatient" title="<?php echo xla("Close Patient Chart") ?>">

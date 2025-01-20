@@ -743,7 +743,7 @@
         <!-- Reports List Card -->
         <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reports-list-card">
             <header class="card-header p-1 bg-dark text-light h3">{{ 'Medical Reports' | xlt }}</header>
-            <div class="row no-gutters">
+            <div class="row g-0">
                 {% if ccdaOk %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
@@ -839,9 +839,7 @@
                                                 {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
                                             {% endfor %}
                                         </select>
-                                        <div class="input-group-text">
-                                            <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
-                                        </div>
+                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
                                     </div>
                                 </div>
                             </div>

@@ -461,7 +461,7 @@ if (!empty($_POST['form_csvexport'])) {
 
 <div id="report_results">
 <table width='98%' id='mymaintable' class='table table-striped mymaintable'>
-<thead class='thead-light'>
+<thead class='table-light'>
  <th>
         <?php echo xlt('Category'); ?>
  </th>

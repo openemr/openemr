@@ -212,7 +212,7 @@ $(function () {
                                     $varmstate = $iter3["mail_state"] . " ";
                                 }
                                 ?>
-                            <tr class="<?php echo ($iter3['inactive']) ? 'inactive text-muted d-none' : '';?>">
+                            <tr class="<?php echo ($iter3['inactive']) ? 'inactive text-body-secondary d-none' : '';?>">
                                 <td valign="top" class="text">
                                     <a class="fw-bold medium_modal" href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>"><?php echo xlt($iter3["name"]);?></a>
                                     <?php echo ($iter3['inactive']) ? "<br>(" . xlt("Inactive") . ")" : ''; ?>

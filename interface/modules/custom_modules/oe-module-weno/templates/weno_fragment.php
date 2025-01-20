@@ -338,7 +338,7 @@ if ($hasErrors) { ?>
 
 <div class="table-responsive drug-table" style="max-height: 175px; overflow-y: auto;">
     <table class="table table-sm table-hover table-striped w-100">
-        <thead class="thead thead-light border-bottom">
+        <thead class="thead table-light border-bottom">
         <tr>
             <th><?php echo xlt("Weno Prescribed Drug"); ?></th>
             <th><?php echo xlt("Prescriber"); ?></th>

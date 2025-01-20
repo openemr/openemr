@@ -597,9 +597,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <div class="input-group">
                             <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
                             <div class="input-group-text">
-                                <span class="input-group-text">
-                                    <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
-                                </span>
+                                <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
                             </div>
                         </div>
                     </div>
@@ -613,7 +611,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     <?php if (count($result3) != 1) { ?>
                 <div class="mb-3">
                     <label for="selLanguage"><?php echo xlt('Language'); ?></label>
-                    <select class="form-control" id="selLanguage" name="languageChoice">
+                    <select class="form-select" id="selLanguage" name="languageChoice">
                         <?php
                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                             text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";

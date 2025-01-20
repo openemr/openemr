@@ -700,7 +700,7 @@ function getAuthPortalUsers()
                     <!--/inbox panel-->
                     <!--paging-->
                     <div class="float-end my-2" ng-hide="selected">
-                    <span class="text-muted"><strong>{{(itemsPerPage * currentPage) + 1}}</strong>~<strong>{{(itemsPerPage
+                    <span class="text-body-secondary"><strong>{{(itemsPerPage * currentPage) + 1}}</strong>~<strong>{{(itemsPerPage
                                 * currentPage) + pagedItems[currentPage].length}}</strong> of <strong>{{items.length}}</strong></span>
                         <div class="btn-group" ng-show="items.length > itemsPerPage">
                             <button type="button" class="btn btn-secondary btn-lg" ng-class="{disabled: currentPage == 0}" ng-click="prevPage()"><i class="fa fa-chevron-left"></i></button>
@@ -725,8 +725,8 @@ function getAuthPortalUsers()
                                         <fieldset class="row">
                                             <div class="col-lg-6 input-group my-2">
                                                 <label for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
-                                                <select class="form-control ms-2 to-select-forward" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:'user' track by recip.userid"></select>
-                                                <select class="form-control ms-2 to-select-send" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
+                                                <select class="form-select ms-2 to-select-forward" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:'user' track by recip.userid"></select>
+                                                <select class="form-select ms-2 to-select-send" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
                                             </div>
                                             <div class="input-group col-lg-6 my-2">
                                                 <label for="title"><?php echo xlt('Subject'); ?></label>

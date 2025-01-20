@@ -471,7 +471,7 @@ if (!empty($_POST['form_refresh'])) {
 
 <table id='mymaintable' class='table table-hover'>
 
-<thead class="thead-light">
+<thead class="table-light">
     <tr>
         <th scope="col">
             <?php echo xlt('Method') ?>

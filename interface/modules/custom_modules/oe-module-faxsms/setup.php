@@ -247,7 +247,7 @@ $mode = $_REQUEST['mode'] ?? null;
                         </div>
                     <?php } ?>
                     <div>
-                        <span class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </span>
+                        <span class="text-body-secondary"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </span>
                         <button type="submit" class="btn btn-success float-end" value=""><?php echo xlt("Save") ?></button>
                     </div>
                 </div>

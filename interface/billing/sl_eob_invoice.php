@@ -728,7 +728,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                     <a href="#" class="text-decoration-none" onclick="return writeoff(<?php echo attr_js($code); ?>)">WO</a>
                                 </td>
                                 <td class="last_detail">
-                                    <select class="form-control" name="form_line[<?php echo attr($code); ?>][reason]">
+                                    <select class="form-select" name="form_line[<?php echo attr($code); ?>][reason]">
                                         <?php
                                         // Adjustment reasons are now taken from the list_options table.
                                         echo "    <option value=''></option>\n";

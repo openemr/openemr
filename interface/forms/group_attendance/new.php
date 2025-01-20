@@ -104,7 +104,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 <td ><?php echo text($participant['fname'] . ", " . $participant['lname']); ?></td>
                 <td ><?php echo text($participant['pid']); ?></td>
                 <td >
-                    <select class="form-control status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
+                    <select class="form-select status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
                         ?> disabled <?php
                                                                      } ?> >
                         <?php foreach ($statuses_in_meeting as $status_in_meeting) {?>

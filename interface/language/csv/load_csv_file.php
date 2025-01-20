@@ -45,7 +45,7 @@ while ($row = sqlFetchArray($resLanguages)) {
     <!-- Select Language. Cloned from lang_definition.php. -->
     <div class="mb-3">
         <label for="selectLanguage"><?php echo xlt('Select Language') . ":"; ?></label>
-        <select class="form-control" name='language_id' id="selectLanguage">
+        <select class="form-select" name='language_id' id="selectLanguage">
             <?php
             // sorting order of language titles depends on language translation options.
             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];

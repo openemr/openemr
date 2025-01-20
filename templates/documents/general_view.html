@@ -159,7 +159,7 @@ function tagProcedure() {
       <div class="mb-2">
         <form class="form-inline" method="post" name="document_move" action="{$MOVE_ACTION|attr}" onsubmit="return top.restoreSession()">
           <div class="input-group">
-            <select class="form-control me-1" name="new_category_id">{$tree_html_listbox}</select>
+            <select class="form-select me-1" name="new_category_id">{$tree_html_listbox}</select>
               <label>{xlt t='Move to Patient PID'}</label><input class="ms-1" type="text" class="form-control" name="new_patient_id" size="4" />
             <a class="btn btn-search btn-secondary" href="javascript:{}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');"></a>
               <input type="hidden" name="new_patient_name" value="" />
@@ -171,11 +171,11 @@ function tagProcedure() {
         <form class="form-inline" method="post" name="document_tag" id="document_tag" action="{$TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
           <label class="fw-bold me-1">{xlt t='Tag to Encounter'}</label>
           <div class="input-group">
-            <select class="form-control" id="encounter_id"  name="encounter_id">{$ENC_LIST}</select>&nbsp;
+            <select class="form-select" id="encounter_id"  name="encounter_id">{$ENC_LIST}</select>&nbsp;
             <a href="{$clear_encounter_tag}" class="btn btn-danger hide_clear">{xlt t='clear'}</a>&nbsp;&nbsp;
             <input type="checkbox" name="encounter_check" id="encounter_check" onclick='set_checkbox(this)'/>
             <label for="encounter_check" class="fw-bold">{xlt t='Create Encounter'}</label>&nbsp;&nbsp;
-              <label class="fw-bold me-1">{xlt t='Visit Category'}</label><select class="form-control" id="visit_category_id" name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
+              <label class="fw-bold me-1">{xlt t='Visit Category'}</label><select class="form-select" id="visit_category_id" name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
           </div>
           <button class="btn btn-primary" onclick="tagUpdate();">{xlt t='submit'}</button>
         </form>
@@ -185,7 +185,7 @@ function tagProcedure() {
           <input type='hidden' name='procedure_code' value='' />
           <label class="fw-bold me-1">{xlt t='Tag to Procedure'}</label>
           <div class="input-group w-50">
-              <select class="form-control ms-1" id="image_procedure_id" name="image_procedure_id">{$TAG_PROCEDURE_LIST}</select>
+              <select class="form-select ms-1" id="image_procedure_id" name="image_procedure_id">{$TAG_PROCEDURE_LIST}</select>
               <div class="btn-group">
                 <a class="btn btn-primary btn-sm" href="javascript:;" onclick="tagProcedure();">{xlt t='Submit'}</a>
                 <a class="btn btn-danger btn-sm" href="{$clear_procedure_tag|attr}">{xlt t='Clear'}</a>

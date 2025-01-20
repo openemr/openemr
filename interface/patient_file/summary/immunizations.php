@@ -439,7 +439,7 @@ tr.selected {
                         </div>
                         <div class="col-12 col-sm-5">
                         <!-- NEEDS WORK -->
-                        <select class="form-control" name="administered_by_id" id='administered_by_id'>
+                        <select class="form-select" name="administered_by_id" id='administered_by_id'>
                                     <option value=""></option>
                                         <?php
                                         $sql = "select id, CONCAT_WS(' ',lname,fname) as full_name " .
@@ -506,7 +506,7 @@ tr.selected {
                     </div>
                     <div class="mb-3 mt-3">
                         <label><?php echo xlt('Immunization Ordering Provider'); ?></label>
-                        <select class="form-control" name="ordered_by_id" id='ordered_by_id'>
+                        <select class="form-select" name="ordered_by_id" id='ordered_by_id'>
                             <option value=""></option>
                                 <?php
                                 $sql = "select id, CONCAT(IFNULL(lname,''), ' ,',IFNULL(fname,'')) as full_name " .
@@ -563,7 +563,7 @@ tr.selected {
                                             <div class="mb-3 col" id="observation_criteria_td_<?php echo attr(($key + 1)); ?>" style="<?php echo $style;?>">
                                                 <label><?php echo xlt('Observation Criteria');?></label>
                                                 <br>
-                                                <select class="form-control" id="observation_criteria_<?php echo attr(($key + 1)); ?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
+                                                <select class="form-select" id="observation_criteria_<?php echo attr(($key + 1)); ?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
                                                     <?php foreach ($observation_criteria as $keyo => $valo) { ?>
                                                         <option value="<?php echo attr($valo['option_id']);?>" <?php echo ($valo['option_id'] == $value['imo_criteria'] && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                     <?php } ?>
@@ -572,7 +572,7 @@ tr.selected {
                                             <div <?php echo ($value['imo_criteria'] != 'funding_program_eligibility' || $id == 0) ? 'style="display: none;"' : ''; ?> class="mb-3 col observation_criteria_value_td" id="observation_criteria_value_td_<?php echo attr(($key + 1)); ?>">
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
-                                                <select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_<?php echo attr(($key + 1)); ?>">
+                                                <select class="form-select" name="observation_criteria_value[]" id="observation_criteria_value_<?php echo attr(($key + 1)); ?>">
                                                     <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
                                                         <option value="<?php echo attr($valoc['option_id']);?>" <?php echo ($valoc['option_id'] == $value['imo_criteria_value']  && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                     <?php } ?>
@@ -633,7 +633,7 @@ tr.selected {
                                             <div class="mb-3 col" id="observation_criteria_td_1">
                                                 <label><?php echo xlt('Observation Criteria'); ?></label>
                                                 <br>
-                                                <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
+                                                <select class="form-select" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
                                                 <?php foreach ($observation_criteria as $keyo => $valo) { ?>
                                                     <option value="<?php echo attr($valo['option_id']);?>" <?php echo (!empty($value['imo_criteria']) && ($valo['option_id'] == $value['imo_criteria']) && $id != 0) ? 'selected = "selected"' : ''; ?> ><?php echo text($valo['title']);?></option>
                                                 <?php } ?>
@@ -642,7 +642,7 @@ tr.selected {
                                             <div <?php echo (empty($value['imo_criteria']) || (!empty($value['imo_criteria']) && ($value['imo_criteria'] != 'funding_program_eligibility'))) ? 'style="display: none;"' : ''; ?> class="mb-3 col observation_criteria_value_td" id="observation_criteria_value_td_1">
                                                 <label><?php echo xlt('Observation Criteria Value'); ?></label>
                                                 <br>
-                                                <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
+                                                <select class="form-select" id="observation_criteria_value_1" name="observation_criteria_value[]">
                                                 <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
                                                     <option value="<?php echo attr($valoc['option_id']);?>" <?php echo (!empty($value['imo_criteria_value']) && ($valoc['option_id'] == $value['imo_criteria_value']) && $id != 0) ? 'selected = "selected"' : ''; ?>><?php echo text($valoc['title']);?></option>
                                                 <?php } ?>
@@ -1165,9 +1165,9 @@ function addNewRow()
     label9 = <?php echo xlj('Click here to delete the row'); ?>;
     label10 = <?php echo xlj('Delete'); ?>;
     str = '<div class="form-row" id ="or_tr_'+new_tr_count+'">'+
-              '<div class="mb-3 col" id ="observation_criteria_td_'+new_tr_count+'"><label>'+label1+'</label><select class="form-control" id="observation_criteria_'+new_tr_count+'" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);"></select>'+
+              '<div class="mb-3 col" id ="observation_criteria_td_'+new_tr_count+'"><label>'+label1+'</label><select class="form-select" id="observation_criteria_'+new_tr_count+'" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);"></select>'+
               '</div>'+
-              '<div id="observation_criteria_value_td_'+new_tr_count+'" class="mb-3 col observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'"></select>'+
+              '<div id="observation_criteria_value_td_'+new_tr_count+'" class="mb-3 col observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select class="form-select" name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'"></select>'+
               '</div>'+
               '<div class="mb-3 col code_serach_td" id="code_search_td_'+new_tr_count+'" style="display: none;"><label>'+label3+'</label>'+
                 '<input type="text" id="sct_code_'+new_tr_count_2+'" name="sct_code[]" class="code form-control" onclick=sel_code(this.id) /><br />'+

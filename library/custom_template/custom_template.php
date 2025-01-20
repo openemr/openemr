@@ -204,7 +204,7 @@ if (empty($isNN) && empty($rowContext)) {
                 <?php } ?>
               </div>
               <div class="col-md-4 text mb-2" id="templateDD">
-                <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
+                <select class="form-select form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
                     <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                     <?php
                     $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], ($rowContext['cl_list_id'] ?? null)));

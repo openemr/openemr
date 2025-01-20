@@ -682,7 +682,7 @@ if ($userid) {
                 <div class="row mb-3">
                     <div class="input-group col-12 col-md-6">
                         <label class="me-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
-                        <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo (($row['pc_catid'] ?? '') > "") ? attr($row['pc_catid']) : '5'; ?>'>
+                        <select class="form-select mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo (($row['pc_catid'] ?? '') > "") ? attr($row['pc_catid']) : '5'; ?>'>
                             <?php echo $catoptions ?>
                         </select>
                     </div>
@@ -697,7 +697,7 @@ if ($userid) {
                             <label class="me-2"><?php echo xlt('Time'); ?>:</label>
                             <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
                             <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                            <select class="form-control col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
+                            <select class="form-select col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
                                 <option value='1'><?php echo xlt('AM'); ?></option>
                                 <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
                             </select>
@@ -721,7 +721,7 @@ if ($userid) {
                 <div class="row">
                     <div class="input-group col-12 mb-1">
                         <label class="me-2" for="form_provider_ae"><?php echo xlt('Provider'); ?>:</label>
-                        <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
+                        <select class="form-select" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
                             <?php
                             // present a list of providers to choose from
                             // default to the currently logged-in user

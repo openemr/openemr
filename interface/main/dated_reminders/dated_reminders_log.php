@@ -151,7 +151,7 @@ if ($_GET) {
                         <div class="mb-3 row">
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
-                                <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
+                                <select class="form-select" id="sentBy" name="sentBy[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
@@ -164,7 +164,7 @@ if ($_GET) {
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
-                                <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
+                                <select class="form-select" id="sentTo" name="sentTo[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {

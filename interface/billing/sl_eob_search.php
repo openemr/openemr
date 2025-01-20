@@ -887,7 +887,7 @@ if (
                         <div class="mb-3 col-lg oe-file-div">
                             <div class="input-group">
                                 <label class="input-group-text">
-                                    <span class="btn btn-secondary">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" /><input name="MAX_FILE_SIZE" type="hidden" value="5000000" /></span>
+                                    Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" /><input name="MAX_FILE_SIZE" type="hidden" value="5000000" />
                                 </label>
                                 <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly />
                             </div>

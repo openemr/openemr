@@ -138,7 +138,7 @@ var clickmap = function(args) {
                     </div>
                     <div class="mb-3">
                         <label for="painScaleSelect">${optionsTitle}</label>
-                        <select class="form-control" id="painScaleSelect">
+                        <select class="form-select" id="painScaleSelect">
                             ${optionsSelect}
                         </select>
                     </div>

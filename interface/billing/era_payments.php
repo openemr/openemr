@@ -261,11 +261,8 @@ if (!empty($_FILES['form_erafile']['size'])) {
                             <div class="row">
                                 <div class="mb-3 col-12 oe-file-div">
                                     <div class="input-group">
-                                        <label class="input-group-text">
-                                            <span class="btn btn-secondary">
-                                                <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" />
+                                        <label class="input-group-text"><?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" />
                                                 <input name="MAX_FILE_SIZE" type="hidden" value="5000000" />
-                                            </span>
                                         </label>
                                         <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly />
                                     </div>

@@ -176,7 +176,7 @@ if (!empty($_POST['form_csvexport'])) {
 <div id="report_results">
 <table class='table'>
 
- <thead class='thead-light'>
+ <thead class='table-light'>
  <th> <?php echo xlt('Primary Insurance'); ?> </th>
  <th> <?php echo xlt('Charges'); ?> </th>
  <th> <?php echo xlt('Visits'); ?> </th>

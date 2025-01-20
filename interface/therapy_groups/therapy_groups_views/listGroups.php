@@ -63,7 +63,7 @@ use OpenEMR\Common\Acl\AclMain;
             </div>
             <div class="mb-3 col-md">
                 <label for="group_status_filter"><?php echo xlt('Status');?>:</label>
-                <select class="form-control" id="group_status_filter">
+                <select class="form-select" id="group_status_filter">
                     <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
                     <?php foreach ($statuses as $status) {?>
                         <?php if ($status != $statuses[10]) { ?>
@@ -75,7 +75,7 @@ use OpenEMR\Common\Acl\AclMain;
             </div>
             <div class="mb-3 col-md">
                 <label for="counselors_filter"><?php echo xlt('Main Counselors');?>:</label>
-                <select class="form-control" id="counselors_filter">
+                <select class="form-select" id="counselors_filter">
                     <option value=""><?php echo xlt('choose');?></option>
                     <?php foreach ($counselors as $counselor) { ?>
                         <option value="<?php echo attr($counselor);?>"><?php echo text($counselor) ;?></option>

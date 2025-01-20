@@ -85,7 +85,7 @@
                 <div class="mb-3">
                     <label for="language" class="text-right">{{ "Language"|xlt }}</label>
                     <div>
-                        <select class="form-control" name="languageChoice" size="1">
+                        <select class="form-select" name="languageChoice" size="1">
                             <option value="{{ defaultLangID|attr }}" selected>{{ "Default"|xlt }} - {{ defaultLangName|xlt }}</option>
                             {% for l in languageList %}
                                 <option value="{{ l.lang_id|attr }}">{{ l.trans_lang_description|text }}</option>
@@ -99,7 +99,7 @@
                 <div class="mb-3">
                     <label for="facility" class="text-right">{{ "Facility"|xlt }}</label>
                     <div>
-                        <select class="form-control" name="facility" size="1">
+                        <select class="form-select" name="facility" size="1">
                             <option value="user_default">{{ "My default facility"|xlt }}</option>
                             {% for f in facilityList %}
                                 <option value="{{ f.id|attr }}" {{ facilitySelected == f.id ? "selected" : "" }}>{{ f.name|text }}</option>

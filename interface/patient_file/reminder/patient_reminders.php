@@ -251,7 +251,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 <div id='report_results'>
                     <table class='table table-bordered'>
-                      <thead class='thead-light'>
+                      <thead class='table-light'>
                         <th><?php echo xlt('Item') . " " . $sortlink[0]; ?></th>
                         <th><?php echo xlt('Patient') . " " . $sortlink[1]; ?></th>
                         <th><?php echo xlt('Due Status') . " " . $sortlink[2]; ?></th>

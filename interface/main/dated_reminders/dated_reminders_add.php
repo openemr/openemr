@@ -328,7 +328,7 @@ if (isset($this_message['pid'])) {
                     <br />
                     <?php echo xlt('([ctrl] + click to select multiple recipients)'); ?>
                 </label>
-                <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
+                <select class="form-select" id="sendTo" name="sendTo[]" multiple="multiple">
                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                         <?php //
                         $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));

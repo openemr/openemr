@@ -582,7 +582,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             <hr />
             <?php include_once('./../Documentation/help_files/template_maintenance_help.php'); ?>
             <!-- Actions Scope to act on -->
-            <nav class='navbar navbar-dark bg-dark text-light sticky-top'>
+            <nav class='navbar bg-dark text-light sticky-top' data-bs-theme='dark'>
                 <form id="edit_form" name="edit_form" class="row form-inline w-100" action="" method="get">
                     <a class='navbar-brand ms-1'><?php echo xlt('Scope'); ?></a>
                     <?php
@@ -600,7 +600,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     ?>
                     <div class="input-group" id="category_group">
                         <label class="fw-bold mx-1" for="template_category"><?php echo xlt('Category'); ?></label>
-                        <select class="form-control" id="template_category" name="template_category">
+                        <select class="form-select" id="template_category" name="template_category">
                             <?php echo $select_cat_options ?>
                         </select>
                     </div>
@@ -657,7 +657,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                         }
                         ?>
-                        <select class="form-control select-dropdown d-none" id="selected_patients" name="selected_patients[]" multiple="multiple" value="<?php echo attr($searchTerm); ?>">
+                        <select class="form-select select-dropdown d-none" id="selected_patients" name="selected_patients[]" multiple="multiple" value="<?php echo attr($searchTerm); ?>">
                             <?php echo $auth ?>
                         </select>
                         <button id="selectSearch" class='btn btn-search btn-primary' role="button"><?php echo xlt("Search"); ?></button>
@@ -789,7 +789,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 echo "<td>" . $this_cat . " Id: " . attr($template_id) . "</td>";
                             } else {
                                 echo "<td><input type='checkbox' class='form-check-inline' name='send' value='" . attr($template_id) . "' /></td>";
-                                echo '<td><select class="form-control form-control-sm" id="category_table' . attr($template_id) .
+                                echo '<td><select class="form-select form-control-sm" id="category_table' . attr($template_id) .
                                     '" onchange="updateCategory(' . attr_js($template_id) . ')" value="' . attr($this_cat) . '">' .
                                     $select_cat_options . '</select></td>';
                             }

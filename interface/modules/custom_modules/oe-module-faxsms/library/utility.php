@@ -327,7 +327,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
             <input type="hidden" id="form_save_pid" name="form_save_pid" value="" />
             <div class="mb-3 col">
                 <label class="fw-bold"><?php echo xlt('Title'); ?>:</label>
-                <select class="form-control" required name='title'>
+                <select class="form-select" required name='title'>
                     <option value=''><?php echo xlt("Unassigned"); ?></option>
                     <?php
                     $ores = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -356,7 +356,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
             </div>
             <div class="mb-3 col">
                 <label class="fw-bold"><?php echo xlt('Gender'); ?>: </label>
-                <select class="form-control" required name='sex'>
+                <select class="form-select" required name='sex'>
                     <option value=''><?php echo xlt("Unassigned"); ?></option>
                     <?php
                     $ores = sqlStatement("SELECT option_id, title FROM list_options " .

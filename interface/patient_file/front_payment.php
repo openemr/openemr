@@ -1154,7 +1154,7 @@ function make_insurance() {
                             <?php endif;  ?>
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
-                            <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
+                            <select class="form-select" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
                                 $query1112 = "SELECT * FROM `list_options` where activity=1 AND list_id=?  ORDER BY seq, title ";
                                 $bres1112 = sqlStatement($query1112, array('payment_method'));

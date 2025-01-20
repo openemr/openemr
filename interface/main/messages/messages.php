@@ -611,13 +611,13 @@ if (!empty($_REQUEST['go'])) { ?>
                         if ($prev >= 0) {
                             $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
+                            $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-body-secondary\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                         }
 
                         if ($next < $total) {
                             $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
+                            $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-body-secondary\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                         }
                         // Display the Messages table header.
                         echo "

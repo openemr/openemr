@@ -1041,7 +1041,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   <div id="report_results">
   <table class='table' id='mymaintable'>
 
-   <thead class='thead-light'>
+   <thead class='table-light'>
         <?php if ($is_due_ins) { ?>
     <th>&nbsp;<?php echo xlt('Insurance')?></th>
     <?php } ?>

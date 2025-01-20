@@ -586,7 +586,7 @@ class pnHTML
             $size = $c;
         }
 
-        $output = '<select class="form-control"'
+        $output = '<select class="form-select"'
             . ' name="' . pnVarPrepForDisplay($fieldname) . '"'
             . ' id="' . pnVarPrepForDisplay($fieldname) . '"'
             . ' size="' . pnVarPrepForDisplay($size) . '"'

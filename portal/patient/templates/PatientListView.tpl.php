@@ -87,7 +87,7 @@ if ($this->exclude) {
             <div class="col-sm-auto px-3 mb-3 plist-group" id="provideridInputContainer">
                     <label class="plist-label" for="providerid"><?php echo xlt('Current Physician')?></label>
                     <div class="controls inline-inputs">
-                        <select class="form-control" id="providerid" value="<?php echo $row['providerid'] ?>">
+                        <select class="form-select" id="providerid" value="<?php echo $row['providerid'] ?>">
                             <?php
                             echo "<option value='1'>" . xlt('Administrator Assign') . "</option>";
                             foreach ($this->users_list as $user) {

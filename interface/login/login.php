@@ -102,7 +102,7 @@ if (count($emr_app)) {
             <div id="divApp" class="mb-3 row">
                 <label for="appChoice" class="col-form-label col-sm-4">%s:</label>
                 <div class="col">
-                    <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
+                    <select class="form-select" id="selApp" name="appChoice" size="1">%s</select>
                 </div>
             </div>',
             xlt('App'),
