@@ -195,7 +195,7 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                     <input type="hidden" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="code" value="<?php echo attr($obj["code"]); ?>" />
                                     <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
                                     <div class="forms col-lg-4">
-                                        <div class="row pl-2">
+                                        <div class="row ps-2">
                                             <div class="col-12">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
                                                 <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
@@ -231,12 +231,12 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                         </div>
                                     </div>
                                     <div class="forms col-lg-8">
-                                        <div class="row pl-2 pr-2">
+                                        <div class="row ps-2 pe-2">
                                             <div class="col-12">
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Narrative'); ?>:</label>
                                                 <textarea name="description[]" id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo text($context); ?>" class="form-control description" rows="14"><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="col-12 text-sm-center text-md-left mt-1">
+                                            <div class="col-12 text-sm-center text-md-start mt-1">
                                                 <button type="button" class="btn btn-primary btn-add btn-sm" onclick="duplicateRow('tb_row_<?php echo attr($key) + 1; ?>');" title='<?php echo xla('Click here to duplicate the row'); ?>'>
                                                     <?php echo xlt('Add'); ?>
                                                 </button>

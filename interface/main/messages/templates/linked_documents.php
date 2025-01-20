@@ -101,7 +101,7 @@ try {
     foreach ($records as $record) { ?>
     <div class="row mt-2 mb-2 messages-document-row <?php echo $record['requiresValidation'] ? "messages-document-validate" : ""; ?>" data-doc="<?php echo attr($record['documentId']); ?>">
     <div class="col-12">
-    <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
+    <span class='fw-bold'><?php echo xlt('Linked document'); ?>:</span>
         <?php if ($record['serviceDocType'] == 9) { ?>
         <a class='messages-document-link'
             href='javascript:void(0);' onClick='viewFaxAttachment(event, <?php echo attr_js($record['documentId']); ?>);'>

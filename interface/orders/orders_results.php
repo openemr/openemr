@@ -668,7 +668,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                             <input type='hidden' name='form_line[<?php echo attr($lino); ?>]'
                                 value='<?php echo attr($order_id) . ":" . attr($order_seq) . ":" . attr($report_id) . ":" . attr($result_id); ?>' />
                         </td>
-                        <td class='font-weight-bold text-center' style='cursor:pointer' onclick='extShow(<?php echo attr_js($lino); ?>, this)'
+                        <td class='fw-bold text-center' style='cursor:pointer' onclick='extShow(<?php echo attr_js($lino); ?>, this)'
                             title='<?php echo xla('Click here to view/edit more details'); ?>'>
                             &nbsp;?&nbsp;
                         </td>
@@ -680,7 +680,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                             "padding:2px;background-color:#cccccc;visibility:hidden;" .
                             "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
                             "<table class='table'>\n" .
-                            "<tr><td class='font-weight-bold text-center' colspan='2' style='padding:4pt 0 4pt 0'>" .
+                            "<tr><td class='fw-bold text-center' colspan='2' style='padding:4pt 0 4pt 0'>" .
                             text($result_text) .
                             "</td></tr>\n" .
                             "<tr><td class='text-nowrap'>" . xlt('Status') . ": </td>" .
@@ -691,17 +691,17 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                                 xl('Result Status'),
                                 ''
                             ) . "</td></tr>\n" .
-                            "<tr><td class='font-weight-bold text-nowrap'>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
+                            "<tr><td class='fw-bold text-nowrap'>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
                             "<td><textarea class='form-control' rows='3' cols='15' name='form_facility[" . attr($lino) . "]'" .
                             " title='" . xla('Supplier facility name') . "'" .
                             " />" . text($result_facility) .
                             "</textarea></td></tr>\n" .
-                            "<tr><td class='font-weight-bold text-nowrap'>" . xlt('Comments') . ": </td>" .
+                            "<tr><td class='fw-bold text-nowrap'>" . xlt('Comments') . ": </td>" .
                             "<td><textarea class='form-control' rows='3' cols='15' name='form_comments[" . attr($lino) . "]'" .
                             " title='" . xla('Comments for this result or recommendation') . "'" .
                             " />" . text($result_comments) .
                             "</textarea></td></tr>\n" .
-                            "<tr><td class='font-weight-bold text-nowrap'>" . xlt('Notes') . ": </td>" .
+                            "<tr><td class='fw-bold text-nowrap'>" . xlt('Notes') . ": </td>" .
                             "<td><textarea class='form-control' rows='4' cols='15' name='form_notes[" . attr($lino) . "]'" .
                             " title='" . xla('Additional notes for this result or recommendation') . "'" .
                             " />" . text($result_notes) .

@@ -41,7 +41,7 @@ if ($showit == 'ext') {
             <div class="container">
                 <a class="navbar-brand" href="#">
                     <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" width="30" height="30" alt="">
-                    OpenEMR: Eye Exam <span class="font-weight-bold">Shorthand Help</span>
+                    OpenEMR: Eye Exam <span class="fw-bold">Shorthand Help</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
                     <span class="navbar-toggler-icon"></span>
@@ -74,21 +74,21 @@ if ($showit == 'ext') {
                     </div>
                     <div id="introduction" class="collapse show" data-parent="#introductionAccordion">
                         <div class="card-body">
-                            <p class="font-weight-bold">"Documenting an exam on paper is faster because we develop our own shorthand."</p>
+                            <p class="fw-bold">"Documenting an exam on paper is faster because we develop our own shorthand."</p>
                             <p>
                                 Starting with this "paper" shorthand, we forged an electronic Shorthand, specifically designed for rapid data entry.<br />
                                 Using Shorthand, all your findings are entered in one text box,
                                 and OpenEMR automatically knows how to store them.
                             </p>
-                            <p>The structure is simple: <span class="font-weight-bold">Field:text;Field:text;Field:text</span></p>
+                            <p>The structure is simple: <span class="fw-bold">Field:text;Field:text;Field:text</span></p>
                             <p>
-                                Click on any <span class="font-weight-bold">Shorthand</span> icon <i class="fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="Open the Shorthand Window and display Shorthand Codes" data-toggle="tooltip" data-placement="top"></i> in the Eye Form and two things occur:
+                                Click on any <span class="fw-bold">Shorthand</span> icon <i class="fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="Open the Shorthand Window and display Shorthand Codes" data-toggle="tooltip" data-placement="top"></i> in the Eye Form and two things occur:
                             </p>
                             <ol>
-                                <li> The Shorthand <span class="font-weight-bold">textbox</span> opens </li>
-                                <li> Shorthand <span class="font-weight-bold text-danger">Field</span> names are visible</li>
+                                <li> The Shorthand <span class="fw-bold">textbox</span> opens </li>
+                                <li> Shorthand <span class="fw-bold text-danger">Field</span> names are visible</li>
                             </ol>
-                            <p>In the Shorthand textbox, type the <span class="font-weight-bold">Field</span> name, then a colon, followed by your findings.</p>
+                            <p>In the Shorthand textbox, type the <span class="fw-bold">Field</span> name, then a colon, followed by your findings.</p>
                             <p>
                                 Look around the form - openEMR: Eye Exam is automatically filled.
                                 <br />
@@ -102,7 +102,7 @@ if ($showit == 'ext') {
                                 <br />
                                 As an example, using a handful of lines of typing in the Shorthand textbox,
                                 <br />
-                                you will document all your normal findings <span class="font-weight-bold">and more than 40 different clinical issues</span>.
+                                you will document all your normal findings <span class="fw-bold">and more than 40 different clinical issues</span>.
                                 <br />
                                 That's a lot to document and one mighty complicated patient!
                                 <br />
@@ -110,35 +110,35 @@ if ($showit == 'ext') {
                                 <br />
                                 Documenting this many findings would take a little bit of time on paper, and a lifetime in a typical EHR.
                                 <br />
-                                The average typist can now do it <span class="font-weight-bold">in less than a minute.</span>  A normal encounter can be accurately documented in seconds.
+                                The average typist can now do it <span class="fw-bold">in less than a minute.</span>  A normal encounter can be accurately documented in seconds.
                             </p>
                             <hr />
 
-                            <h4 class="font-weight-bold mt-5">HPI: </h4>
+                            <h4 class="fw-bold mt-5">HPI: </h4>
                             <textarea class="form-control">D;CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;</textarea>
                             <button class="btn btn-primary mt-2" id="hpi_button2">Details</button>
                             <br />
 
-                            <h4 class="font-weight-bold mt-5">PMH: </h4>
+                            <h4 class="fw-bold mt-5">PMH: </h4>
                             <textarea class="form-control">POH: POAG.Myopia. Dry Eye; POS:Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995. Yag/PCO OD 6/5/1999;Meds:Timolol 0.5% GFS QHS OU. Latanoprost 0.01% QHS OU. Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998. Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             <button class="btn btn-primary mt-2" id="pmh_button2">Details</button>
                             <br />
 
-                            <h4 class="font-weight-bold mt-5">External: </h4>
+                            <h4 class="fw-bold mt-5">External: </h4>
                             <textarea class="form-control">D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a</textarea>
                             <button class="btn btn-primary mt-2" id="external_button2">Details</button>
                             <br />
 
-                            <h4 class="font-weight-bold mt-5">Anterior Segment:</h4>
+                            <h4 class="fw-bold mt-5">Anterior Segment:</h4>
                             <textarea class="form-control">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells</textarea>
                             <button class="btn btn-primary mt-2" id="antseg_button2">Details</button>
 
                             <br />
-                            <h4 class="font-weight-bold mt-5">Retina:</h4>
+                            <h4 class="fw-bold mt-5">Retina:</h4>
                             <textarea class="form-control">D;bd:+2 bowtie pallor;rcup:0.6Vx0.4H w/ inf notch;lcup:0.5;rmac:+2 BDR, +CSME;lmac:flat, tr BDR;v:+PPDR, ++venous beading;rp:ht 1 o,no vh;</textarea>
                             <button class="btn btn-primary mt-2" id="retina_button2">Details</button>
 
-                            <h4 class="font-weight-bold mt-5">Strabismus:</h4>
+                            <h4 class="fw-bold mt-5">Strabismus:</h4>
                             <textarea class="form-control">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho</textarea>
                             <button class="btn btn-primary mt-2" id="neuro_button2">Details</button>
 
@@ -178,26 +178,26 @@ if ($showit == 'ext') {
                     <div id="shorthand" class="collapse" data-parent="#introductionAccordion">
                         <div class="card-body">
                             <h4>
-                                <span class="font-weight-bold">Usage:</span>  field:text(.a)(;)
+                                <span class="fw-bold">Usage:</span>  field:text(.a)(;)
                             </h4>
-                            <div class="ml-4">
+                            <div class="ms-4">
                                 <p>
-                                    <span class="font-italic">where:</span>
+                                    <span class="fst-italic">where:</span>
                                     <br>
-                                    <span class="font-weight-bold">Field</span> is the shorthand term for the clinical field.
+                                    <span class="fw-bold">Field</span> is the shorthand term for the clinical field.
                                     <br/>
-                                    <span class="font-weight-bold">text</span> is the complete or shorthand data to enter into this <span class="font-weight-bold">field</span>:
+                                    <span class="fw-bold">text</span> is the complete or shorthand data to enter into this <span class="fw-bold">field</span>:
                                     <br />
-                                    <span class="font-weight-bold">field</span> and <span class="font-weight-bold">text</span> are separated by a "<span class="font-weight-bold"   >:</span>" colon.
+                                    <span class="fw-bold">field</span> and <span class="fw-bold">text</span> are separated by a "<span class="fw-bold"   >:</span>" colon.
                                     <br />
-                                    The trailing "<span class="font-weight-bold">.a</span>"
-                                    is optional and will <span class="font-weight-bold">append</span> the <span class="font-weight-bold">text</span> to the data already in the field, instead of replacing it.
+                                    The trailing "<span class="fw-bold">.a</span>"
+                                    is optional and will <span class="fw-bold">append</span> the <span class="fw-bold">text</span> to the data already in the field, instead of replacing it.
                                     <br />
-                                    The semi-colon "<span class="font-weight-bold">;</span>" is used to divide entries, allowing multiple field entries simultaneously.
+                                    The semi-colon "<span class="fw-bold">;</span>" is used to divide entries, allowing multiple field entries simultaneously.
                                     <br />
-                                    <span class="font-italic text-muted">The semi-colon separates entries.</span>
+                                    <span class="fst-italic text-muted">The semi-colon separates entries.</span>
                                     <br />
-                                    After pressing <span class="font-weight-bold">Enter/Return</span> or <span class="font-weight-bold">Tab</span>, the data are submitted and the form is populated.
+                                    After pressing <span class="fw-bold">Enter/Return</span> or <span class="fw-bold">Tab</span>, the data are submitted and the form is populated.
                                     <br />
                                 </p>
                             </div>
@@ -288,7 +288,7 @@ if ($showit == 'ext') {
                                 Input:
                                 <br />
                                 <br />
-                                <span class="font-weight-bold">D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a</span>
+                                <span class="fw-bold">D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a</span>
                                 <br />
                                 <br />
                                 Output:
@@ -335,13 +335,13 @@ if ($showit == 'ext') {
                                         <td>Default values</td>
                                         <td>D or d</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">d;</span>
+                                            <span class="fw-bold text-danger">d;</span>
                                             <br />
-                                            <span class="font-weight-bold text-danger">D;</span>
+                                            <span class="fw-bold text-danger">D;</span>
                                         </td>
                                         <td>
                                             All fields with defined default values are
-                                            <span class="font-weight-bold">erased</span>
+                                            <span class="fw-bold">erased</span>
                                             and filled with default values.
                                             <br />Fields without defined default values are not affected.
                                         </td>
@@ -350,13 +350,13 @@ if ($showit == 'ext') {
                                         <td>Default External values</td>
                                         <td>DEXT or dext</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">dext;</span>
+                                            <span class="fw-bold text-danger">dext;</span>
                                             <br />
-                                            <span class="font-weight-bold text-danger">DEXT;</span>
+                                            <span class="fw-bold text-danger">DEXT;</span>
                                         </td>
                                         <td>
                                             All External Exam fields with defined default values are
-                                            <span class="font-weight-bold">erased</span>
+                                            <span class="fw-bold">erased</span>
                                             and filled with default values.
                                             <br />
                                             External Fields without defined default values and all other fields on the form are not affected.
@@ -366,9 +366,9 @@ if ($showit == 'ext') {
                                         <td>Right Brow</td>
                                         <td>rb or RB</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">rb</span>:1cm lat ptosis
+                                            <span class="fw-bold text-danger">rb</span>:1cm lat ptosis
                                             <br />
-                                            <span class="font-weight-bold text-danger">rb</span>:med 2cm SCC
+                                            <span class="fw-bold text-danger">rb</span>:med 2cm SCC
                                         </td>
                                         <td>
                                             1cm lateral ptosis
@@ -380,9 +380,9 @@ if ($showit == 'ext') {
                                         <td>Left Brow</td>
                                         <td>lb or LB</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">lb</span>:loss of lat brow follicles
+                                            <span class="fw-bold text-danger">lb</span>:loss of lat brow follicles
                                             <br />
-                                            <span class="font-weight-bold text-danger">lb</span>:no rhytids from VIIth nerve palsy
+                                            <span class="fw-bold text-danger">lb</span>:no rhytids from VIIth nerve palsy
                                         </td>
                                         <td>
                                             loss of lateral brow follicles
@@ -398,9 +398,9 @@ if ($showit == 'ext') {
                                             bb or BB
                                         </td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">fh</span>:+3 fh rhytids
+                                            <span class="fw-bold text-danger">fh</span>:+3 fh rhytids
                                             <br />
-                                            <span class="font-weight-bold text-danger">BB</span>:+3 glab rhytids
+                                            <span class="fw-bold text-danger">BB</span>:+3 glab rhytids
                                         </td>
                                         <td>
                                             +3 forehead rhytids
@@ -412,9 +412,9 @@ if ($showit == 'ext') {
                                         <td>Right Upper Lid</td>
                                         <td>rul or RUL</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">RUL</span>:1cm lat ptosis
+                                            <span class="fw-bold text-danger">RUL</span>:1cm lat ptosis
                                             <br />
-                                            <span class="font-weight-bold text-danger">rul</span>:med 2cm SCC
+                                            <span class="fw-bold text-danger">rul</span>:med 2cm SCC
                                         </td>
                                         <td>
                                             1cm lateral ptosis
@@ -426,9 +426,9 @@ if ($showit == 'ext') {
                                         <td>Left Upper Lid</td>
                                         <td>lul or LUL</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">LUL</span>:1cm lat ptosis
+                                            <span class="fw-bold text-danger">LUL</span>:1cm lat ptosis
                                             <br />
-                                            <span class="font-weight-bold text-danger">lul</span>:med 2cm SCC
+                                            <span class="fw-bold text-danger">lul</span>:med 2cm SCC
                                         </td>
                                         <td>
                                             1cm lateral ptosis
@@ -440,9 +440,9 @@ if ($showit == 'ext') {
                                         <td>Right Lower Lid</td>
                                         <td>rll or RLL</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">rll</span>:1cm lat ptosis
+                                            <span class="fw-bold text-danger">rll</span>:1cm lat ptosis
                                             <br />
-                                            <span class="font-weight-bold text-danger">rll</span>:med 2cm SCC
+                                            <span class="fw-bold text-danger">rll</span>:med 2cm SCC
                                         </td>
                                         <td>
                                             1cm lateral ptosis
@@ -454,9 +454,9 @@ if ($showit == 'ext') {
                                         <td>Left Lower Lid</td>
                                         <td>lll or LLL</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">lll</span>:0.5cm lat ptosis
+                                            <span class="fw-bold text-danger">lll</span>:0.5cm lat ptosis
                                             <br />
-                                            <span class="font-weight-bold text-danger">LLL</span>:med 2cm SCC
+                                            <span class="fw-bold text-danger">LLL</span>:med 2cm SCC
                                         </td>
                                         <td>
                                             1cm lateral ptosis
@@ -468,9 +468,9 @@ if ($showit == 'ext') {
                                         <td>Both Lower Lids</td>
                                         <td>bll or BLL</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">lll</span>:0.5cm lat ptosis
+                                            <span class="fw-bold text-danger">lll</span>:0.5cm lat ptosis
                                             <br />
-                                            <span class="font-weight-bold text-danger">LLL</span>:med 2cm SCC
+                                            <span class="fw-bold text-danger">LLL</span>:med 2cm SCC
                                         </td>
                                         <td>
                                             1cm lateral ptosis
@@ -482,9 +482,9 @@ if ($showit == 'ext') {
                                         <td>All 4 Lids</td>
                                         <td>4xl or 4XL</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">4xl</span>:+2 laxity
+                                            <span class="fw-bold text-danger">4xl</span>:+2 laxity
                                             <br />
-                                            <span class="font-weight-bold text-danger">4xL</span>:+2 dermato
+                                            <span class="fw-bold text-danger">4xL</span>:+2 dermato
                                         </td>
                                         <td>
                                             +2 laxity
@@ -496,9 +496,9 @@ if ($showit == 'ext') {
                                         <td>Right Medial Canthus</td>
                                         <td>rmc or RMC</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">rmc</span>:1cm bcc
+                                            <span class="fw-bold text-danger">rmc</span>:1cm bcc
                                             <br />
-                                            <span class="font-weight-bold text-danger">RMC</span>:healed dcr scar
+                                            <span class="fw-bold text-danger">RMC</span>:healed dcr scar
                                         </td>
                                         <td>
                                             1cm BCC
@@ -510,9 +510,9 @@ if ($showit == 'ext') {
                                         <td>Left Medial Canthus</td>
                                         <td>lmc or LMC</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">lmc</span>:acute dacryo, tender w/ purulent drainage
+                                            <span class="fw-bold text-danger">lmc</span>:acute dacryo, tender w/ purulent drainage
                                             <br />
-                                            <span class="font-weight-bold text-danger">lmc</span>:1.2cm x 8mm mass
+                                            <span class="fw-bold text-danger">lmc</span>:1.2cm x 8mm mass
                                         </td>
                                         <td>
                                             acute dacryo, tender with purulent drainage
@@ -524,9 +524,9 @@ if ($showit == 'ext') {
                                         <td>Both Medial Canthi</td>
                                         <td>bmc or BMC</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">bmc</span>:chronic dacryo, non-tender
+                                            <span class="fw-bold text-danger">bmc</span>:chronic dacryo, non-tender
                                             <br />
-                                            <span class="font-weight-bold text-danger">BMC</span>:scaling, ulcerated lesion
+                                            <span class="fw-bold text-danger">BMC</span>:scaling, ulcerated lesion
                                         </td>
                                         <td>
                                             chronic dacryo, non-tender
@@ -538,9 +538,9 @@ if ($showit == 'ext') {
                                         <td>Right Adnexa</td>
                                         <td>rad or RAD</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">rad</span>:1.8x2.0cm bcc lat
+                                            <span class="fw-bold text-danger">rad</span>:1.8x2.0cm bcc lat
                                             <br />
-                                            <span class="font-weight-bold text-danger">RAD</span>:healed DCR scar
+                                            <span class="fw-bold text-danger">RAD</span>:healed DCR scar
                                         </td>
                                         <td>
                                             1cm BCC
@@ -552,9 +552,9 @@ if ($showit == 'ext') {
                                         <td>Left Adnexa</td>
                                         <td>lad or LAD</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">lad</span>:1cm lacr cyst protruding under lid
+                                            <span class="fw-bold text-danger">lad</span>:1cm lacr cyst protruding under lid
                                             <br />
-                                            <span class="font-weight-bold text-danger">LAD</span>:1.2cm x 8mm mass
+                                            <span class="fw-bold text-danger">LAD</span>:1.2cm x 8mm mass
                                         </td>
                                         <td>
                                             1cm lacrimal cyst protruding under lid
@@ -566,9 +566,9 @@ if ($showit == 'ext') {
                                         <td>Both Adnexae</td>
                                         <td>bad or BAD</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">bad</span>:lacr gland prolapse
+                                            <span class="fw-bold text-danger">bad</span>:lacr gland prolapse
                                             <br />
-                                            <span class="font-weight-bold text-danger">BAD</span>:lat orb wall missing
+                                            <span class="fw-bold text-danger">BAD</span>:lat orb wall missing
                                         </td>
                                         <td>
                                             lacrimal gland prolapse
@@ -579,14 +579,14 @@ if ($showit == 'ext') {
                                 </table>
                             </div>
                             <br />
-                            <p class="font-italic">
+                            <p class="fst-italic">
                                 *case insensitive
                                 <br />
                                 **The default action is to replace the field with the new text.
                                 <br />
-                                Adding <span class="font-weight-bold">".a"</span> at the end of a <span class="font-weight-bold">text</span> section will append the current text instead of replacing it.
+                                Adding <span class="fw-bold">".a"</span> at the end of a <span class="fw-bold">text</span> section will append the current text instead of replacing it.
                                 <br >
-                                For example, <span class="font-weight-bold">entering "4xL:+2 meibomitis.a" will <u>append</u> "+2 meibomitis"</span>
+                                For example, <span class="fw-bold">entering "4xL:+2 meibomitis.a" will <u>append</u> "+2 meibomitis"</span>
                                 to each of the eyelid fields, RUL/RLL/LUL/LLL.
                             </p>
                             <hr />
@@ -656,7 +656,7 @@ if ($showit == 'ext') {
                                 Input:
                                 <br />
                                 <br />
-                                <span class="font-weight-bold">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells</span>
+                                <span class="fw-bold">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells</span>
                                 <br />
                                 <br />
                                 Output:
@@ -708,7 +708,7 @@ if ($showit == 'ext') {
                                             <span class="font-weight-light text-danger">D</span>;
                                         </td>
                                         <td>
-                                            All fields with defined default values are <span class="font-weight-bold">erased</span> and filled with default values.
+                                            All fields with defined default values are <span class="fw-bold">erased</span> and filled with default values.
                                             <br />
                                             Fields without defined default values are not affected.
                                         </td>
@@ -717,12 +717,12 @@ if ($showit == 'ext') {
                                         <td>Default Anterior Segment values</td>
                                         <td>DANTSEG or das</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">dantseg;</span>
+                                            <span class="fw-bold text-danger">dantseg;</span>
                                             <br />
-                                            <span class="font-weight-bold text-danger">DAS;</span>
+                                            <span class="fw-bold text-danger">DAS;</span>
                                         </td>
                                         <td>
-                                            All Anterior Segment fields with defined default values are <span class="font-weight-bold">erased</span> and filled with default values.
+                                            All Anterior Segment fields with defined default values are <span class="fw-bold">erased</span> and filled with default values.
                                             <br />
                                             Anterior Segment Fields without defined default values and all other fields on the form are not affected.
                                         </td>
@@ -737,9 +737,9 @@ if ($showit == 'ext') {
                                             Both = bc or c
                                         </td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">rc:</span>+1 inj
+                                            <span class="fw-bold text-danger">rc:</span>+1 inj
                                             <br />
-                                            <span class="font-weight-bold text-danger">c:</span>med pter
+                                            <span class="fw-bold text-danger">c:</span>med pter
                                         </td>
                                         <td>
                                             "+1 injection" (right conj only)
@@ -759,7 +759,7 @@ if ($showit == 'ext') {
                                         <td>
                                             <span class="font-weight-light text-danger">rk:</span>+3 spk
                                             <br />
-                                            <span class="font-weight-light text-danger">k:</span>+2 end gut<span class="font-weight-bold text-success">;</span><span class="font-weight-light text-danger">rk:</span>+1 str edema<span class="font-weight-bold text-success">.a</span>
+                                            <span class="font-weight-light text-danger">k:</span>+2 end gut<span class="fw-bold text-success">;</span><span class="font-weight-light text-danger">rk:</span>+1 str edema<span class="fw-bold text-success">.a</span>
                                         </td>
                                         <td>
                                             "+3 SPK" (right cornea only)
@@ -817,9 +817,9 @@ if ($showit == 'ext') {
                                             Both = bi or i
                                         </td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">bi.</span>12 0 iridotomy
+                                            <span class="fw-bold text-danger">bi.</span>12 0 iridotomy
                                             <br />
-                                            <span class="font-weight-light text-danger">ri:</span>+2 TI defects<span class="font-weight-bold text-success">.a</span>;<span class="font-weight-light text-danger">li</span>.round
+                                            <span class="font-weight-light text-danger">ri:</span>+2 TI defects<span class="fw-bold text-success">.a</span>;<span class="font-weight-light text-danger">li</span>.round
                                         </td>
                                         <td>
                                             "12 o'clock iriditomy" (both iris fields)
@@ -919,7 +919,7 @@ if ($showit == 'ext') {
                                         <td>
                                             <span class="font-weight-light text-danger">tbut:</span>&lt; 10 seconds
                                             <br />
-                                            <span class="font-weight-light text-danger">Rtbut:</span>5 secs<span class="font-weight-bold text-success">;</span><span class="font-weight-light text-danger">ltbut:</span>9 seconds<span class="font-weight-bold text-success">;</span>
+                                            <span class="font-weight-light text-danger">Rtbut:</span>5 secs<span class="fw-bold text-success">;</span><span class="font-weight-light text-danger">ltbut:</span>9 seconds<span class="fw-bold text-success">;</span>
                                         </td>
                                         <td>
                                             "10 seconds" (both fields)
@@ -930,14 +930,14 @@ if ($showit == 'ext') {
                                 </table>
                             </div>
                             <br />
-                            <p class="font-italic">
+                            <p class="fst-italic">
                                 *case insensitive
                                 <br />
                                 **The default action is to replace the field with the new text.
                                 <br />
-                                Adding <span class="font-weight-bold">".a"</span> at the end of a <span class="font-weight-bold">text</span> section will append the current text instead of replacing it.
+                                Adding <span class="fw-bold">".a"</span> at the end of a <span class="fw-bold">text</span> section will append the current text instead of replacing it.
                                 <br >
-                                For example, entering <span class="font-weight-bold">"bk:+2 str scarring.a" will <u>append</u>"+2 stromal scarring"</span> to both the right (rk) and left cornea fields (lk).
+                                For example, entering <span class="fw-bold">"bk:+2 str scarring.a" will <u>append</u>"+2 stromal scarring"</span> to both the right (rk) and left cornea fields (lk).
                             </p>
 
                             <h2><u>External Shorthand Abbreviations:</u></h2>
@@ -1006,7 +1006,7 @@ if ($showit == 'ext') {
                                 Input:
                                 <br />
                                 <br />
-                                <span class="font-weight-bold">D;bd:+2 bowtie pallor;rcup:0.6Vx0.4H w/ inf notch;lcup:0.5;rmac:+2 BDR, +CSME;lmac:flat, tr BDR;v:+PPDR, ++venous beading;rp:ht 1 o,no vh;</span>
+                                <span class="fw-bold">D;bd:+2 bowtie pallor;rcup:0.6Vx0.4H w/ inf notch;lcup:0.5;rmac:+2 BDR, +CSME;lmac:flat, tr BDR;v:+PPDR, ++venous beading;rp:ht 1 o,no vh;</span>
                                 <br />
                                 <br />
                                 Output:
@@ -1058,7 +1058,7 @@ if ($showit == 'ext') {
                                             <span class="font-weight-light text-danger">D</span>;
                                         </td>
                                         <td>
-                                            All fields with defined default values are <span class="font-weight-bold">erased</span> and filled with default values.
+                                            All fields with defined default values are <span class="fw-bold">erased</span> and filled with default values.
                                             <br />Fields without defined default values are not affected.
                                         </td>
                                     </tr>
@@ -1066,12 +1066,12 @@ if ($showit == 'ext') {
                                         <td>Default Retina values</td>
                                         <td>DRET or dret</td>
                                         <td>
-                                            <span class="font-weight-bold text-danger">dext;</span>
+                                            <span class="fw-bold text-danger">dext;</span>
                                             <br />
-                                            <span class="font-weight-bold text-danger">DEXT;</span>
+                                            <span class="fw-bold text-danger">DEXT;</span>
                                         </td>
                                         <td>
-                                            All Retina/Posterior Segment Exam fields with defined default values are <span class="font-weight-bold">erased</span> and filled with default values.
+                                            All Retina/Posterior Segment Exam fields with defined default values are <span class="fw-bold">erased</span> and filled with default values.
                                             <br />Retinal Fields without defined default values and all other fields on the form are not affected.
                                         </td>
                                     </tr>
@@ -1107,7 +1107,7 @@ if ($showit == 'ext') {
                                         <td>
                                             <span class="font-weight-light text-danger">rcup:</span>0.5 w/ inf notch
                                             <br />
-                                            <span class="font-weight-light text-danger">cup:</span>temp scalloping, 0.5<span class="font-weight-bold text-success">.a</span><span class="font-weight-bold text-success">;</span>
+                                            <span class="font-weight-light text-danger">cup:</span>temp scalloping, 0.5<span class="fw-bold text-success">.a</span><span class="fw-bold text-success">;</span>
                                         </td>
                                         <td>
                                             "0.5 with inferior notch (right cup only)
@@ -1146,9 +1146,9 @@ if ($showit == 'ext') {
                                         <td>
                                             <span class="font-weight-light text-danger">RV:</span>1:2, +2 BDR
                                             <br />
-                                            <span class="font-weight-light text-danger">lv:</span>+CSME w/ hard exudate sup to fov (300um)<span class="font-weight-bold text-success">;</span>
+                                            <span class="font-weight-light text-danger">lv:</span>+CSME w/ hard exudate sup to fov (300um)<span class="fw-bold text-success">;</span>
                                             <br />
-                                            <span class="font-weight-light text-danger">v:</span>narrow arterioles, 1:2<span class="font-weight-bold text-success">.a;</span>
+                                            <span class="font-weight-light text-danger">v:</span>narrow arterioles, 1:2<span class="fw-bold text-success">.a;</span>
                                         </td>
                                         <td>
                                             "1:2, +2 BDR" (right vessels only)
@@ -1168,9 +1168,9 @@ if ($showit == 'ext') {
                                             Both = bp or p
                                         </td>
                                         <td>
-                                            <span class="font-weight-light text-danger">rp:</span>12 0 ht, no heme, amenable to bubble<span class="font-weight-bold text-success">;</span>
+                                            <span class="font-weight-light text-danger">rp:</span>12 0 ht, no heme, amenable to bubble<span class="fw-bold text-success">;</span>
                                             <br />
-                                            <span class="font-weight-bold text-danger">bp.</span>1 clock hour of lattice 2 o<span class="font-weight-bold text-success">.a</span><span class="font-weight-bold" style="color:navy">;</span>
+                                            <span class="fw-bold text-danger">bp.</span>1 clock hour of lattice 2 o<span class="fw-bold text-success">.a</span><span class="fw-bold" style="color:navy">;</span>
                                         </td>
                                         <td>
                                             "12 o'clock horseshoe tear, no heme, amenable to bubble" (right periphery field)
@@ -1201,14 +1201,14 @@ if ($showit == 'ext') {
                                 </table>
                             </div>
                             <br />
-                            <p class="font-italic">
+                            <p class="fst-italic">
                                 *case insensitive
                                 <br />
                                 **The default action is to replace the field with the new text.
                                 <br />
-                                Adding <span class="font-weight-bold">".a"</span> at the end of a <span class="font-weight-bold">text</span> section will append the current text instead of replacing it.
+                                Adding <span class="fw-bold">".a"</span> at the end of a <span class="fw-bold">text</span> section will append the current text instead of replacing it.
                                 <br >
-                                For example, entering <span class="font-weight-bold">"bcup:0.5 w/ inf notch.a" will <u>append</u> "0.5 with inferior notch"</span> to both the right (rcup) and left cup fields (lcup).
+                                For example, entering <span class="fw-bold">"bcup:0.5 w/ inf notch.a" will <u>append</u> "0.5 with inferior notch"</span> to both the right (rcup) and left cup fields (lcup).
                                 <br />
                             </p>
                             <br />
@@ -1391,7 +1391,7 @@ if ($showit == 'ext') {
                                 Input:
                                 <br />
                                 <br />
-                                <span class="font-weight-bold">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho;</span>
+                                <span class="fw-bold">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho;</span>
                                 <br />
                                 <br />
                                 Output:
@@ -1450,7 +1450,7 @@ if ($showit == 'ext') {
                                             <span class="font-weight-light text-danger">D</span>;
                                         </td>
                                         <td>
-                                            All fields with defined default values are <span class="font-weight-bold">erased</span> and filled with default values.
+                                            All fields with defined default values are <span class="fw-bold">erased</span> and filled with default values.
                                             <br />
                                             Fields without defined default values are not affected.
                                         </td>
@@ -1458,38 +1458,38 @@ if ($showit == 'ext') {
                                     <tr>
                                         <td>Without correction at Distance</td>
                                         <td>scDist</td>
-                                        <td><span class="font-weight-bold text-danger">scdist</span><span class="font-weight-bold text-success">;</span></td>
+                                        <td><span class="fw-bold text-danger">scdist</span><span class="fw-bold text-success">;</span></td>
                                         <td>scDIST is selected for ensuing values.</td>
                                     </tr>
                                     <tr>
                                         <td>With correction at Distance</td>
                                         <td>scDist</td>
-                                        <td><span class="font-weight-bold text-danger">ccdist</span><span class="font-weight-bold text-success">;</span></td>
+                                        <td><span class="fw-bold text-danger">ccdist</span><span class="fw-bold text-success">;</span></td>
                                         <td>ccDIST is selected for ensuing values.</td>
                                     </tr>
                                     <tr>
                                         <td>Without correction at Near</td>
                                         <td>scNear</td>
-                                        <td><span class="font-weight-bold text-danger">scdist</span><span class="font-weight-bold text-success">;</span></td>
+                                        <td><span class="fw-bold text-danger">scdist</span><span class="fw-bold text-success">;</span></td>
                                         <td>scDIST is selected for ensuing values.</td>
                                     </tr>
                                     <tr>
                                         <td>With correction at Near</td>
                                         <td>scNear</td>
-                                        <td><span class="font-weight-bold text-danger">scdist</span><span class="font-weight-bold text-success">;</span></td>
+                                        <td><span class="fw-bold text-danger">scdist</span><span class="fw-bold text-success">;</span></td>
                                         <td>scDIST is selected for ensuing values.</td>
                                     </tr>
                                 </table>
                             </div>
                             <br />
-                            <p class="font-italic">
+                            <p class="fst-italic">
                                 *case insensitive
                                 <br />
                                 **The default action is to replace the field with the new text.
                                 <br />
-                                Adding <span class="font-weight-bold">".a"</span> at the end of a <span class="font-weight-bold">text</span> section will append the current text instead of replacing it.
+                                Adding <span class="fw-bold">".a"</span> at the end of a <span class="fw-bold">text</span> section will append the current text instead of replacing it.
                                 <br >
-                                For example, entering <span class="font-weight-bold">"4:5ix.a" will <u>append</u> "5 X(T)"</span>
+                                For example, entering <span class="fw-bold">"4:5ix.a" will <u>append</u> "5 X(T)"</span>
                                 to any measurements previously entered into the right gaze field.
                                 <br />
                             </p>

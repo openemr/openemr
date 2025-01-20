@@ -221,7 +221,7 @@ if ($GLOBALS['language_menu_login']) {
             <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('verifyEmailCsrf')); ?>' />
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                     <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) { ?>
                         <div class="form-group">
                             <label class="col-form-label" for="selLanguage"><?php echo xlt('Language'); ?></label>

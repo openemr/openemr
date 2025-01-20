@@ -236,15 +236,15 @@ if (!empty($_FILES['form_erafile']['size'])) {
         <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-4">
             <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                        <a class="nav-link fw-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                        <a class="nav-link fw-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                        <a class="nav-link active fw-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -254,7 +254,7 @@ if (!empty($_FILES['form_erafile']['size'])) {
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
-                        <div class="jumbotron py-4">
+                        <div class="px-5 mb-4 bg-body-tertiary rounded-3 py-4">
                             <div class="row h3">
                                 <?php echo xlt('ERA Posting'); ?>
                             </div>

@@ -1294,7 +1294,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   <td class="detail" align="center">
             <?php
             if ($in_collections) {
-                echo "   <span class='font-weight-bold text-danger'>IC</span>\n";
+                echo "   <span class='fw-bold text-danger'>IC</span>\n";
             } else {
                 echo "   <input type='checkbox' name='form_cb[" .  attr($row['invnumber'])  . "]' />\n";
             }

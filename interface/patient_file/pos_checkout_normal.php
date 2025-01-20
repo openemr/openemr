@@ -436,7 +436,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             <td style="border:none !important">&nbsp;</td>
                             <td style="border:none !important">&nbsp;</td>
                             <td style="border:none !important">&nbsp;</td>
-                            <td class="font-weight-bold text-right bg-blue" style="border: 1px solid;"><?php echo xlt('Balance Due'); ?></td>
+                            <td class="fw-bold text-right bg-blue" style="border: 1px solid;"><?php echo xlt('Balance Due'); ?></td>
                             <td class='text-right bg-blue' style="border: 1px solid;"><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                     </table>
@@ -968,10 +968,10 @@ function generate_receipt($patient_id, $encounter = 0)
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
-                                        <td class="font-weight-bold"><?php echo xlt('Date'); ?></td>
-                                        <td class="font-weight-bold"><?php echo xlt('Description'); ?></td>
-                                        <td class="font-weight-bold text-right"><?php echo xlt('Qty'); ?></td>
-                                        <td class="font-weight-bold text-right"><?php echo xlt('Amount'); ?></td>
+                                        <td class="fw-bold"><?php echo xlt('Date'); ?></td>
+                                        <td class="fw-bold"><?php echo xlt('Description'); ?></td>
+                                        <td class="fw-bold text-right"><?php echo xlt('Qty'); ?></td>
+                                        <td class="fw-bold text-right"><?php echo xlt('Amount'); ?></td>
                                     </tr>
                                     <?php
                                     $inv_encounter = '';

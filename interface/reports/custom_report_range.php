@@ -367,9 +367,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = BillingUtilities::getPatientCopay($pids[$iCounter], $ta[1]);
             //}
             echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Copay Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+            echo "<tr><td class='fw-bold text-right' colspan='3'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+            echo "<tr><td class='fw-bold text-right' colspan='3'>" . xlt('Copay Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+            echo "<tr><td class='fw-bold text-right' colspan='3'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
             //print_r($billings);

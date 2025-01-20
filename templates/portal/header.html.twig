@@ -8,13 +8,13 @@
     </button>
     {% endif %}
     <a class="btn btn-outline-primary" id="quickstart_dashboard" href="#quickstart-card" data-toggle="collapse" data-parent="#cardgroup" aria-expanded="true">
-        <i class="ml-1 fas fa-tasks mr-1"></i>{{ 'Dashboard' | xlt }}
+        <i class="ms-1 fas fa-tasks me-1"></i>{{ 'Dashboard' | xlt }}
     </a>
     {% if navMenu|length > 0 %}
     <div class="collapse navbar-collapse justify-content-end" id="nav">
         <ul class="navbar-nav mt-2 mt-lg-0">
             {% for item in navMenu %}
-                <li class="nav-item {% if item.children %}dropdown h4 m-0 mr-4{% endif %}">
+                <li class="nav-item {% if item.children %}dropdown h4 m-0 me-4{% endif %}">
                     <a class="nav-link {% if item.children %}dropdown-toggle{% endif %}" href="{{ item.url | attr }}" {% if item.children %} data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" {% else %} data-toggle="{{ item.dataToggle | attr }}" data-parent="#cardgroup" {% endif %}>
                         {% if item.icon %}
                             <i class="fas {{ item.icon | attr}}"></i>
@@ -36,7 +36,7 @@
                                             {% endif %}
                                             {{ child.label | text }}
                                             {% if child.messageCount > 0 %}
-                                                <span class="badge-pill badge-danger ml-1">{{ child.messageCount | text }}</span>
+                                                <span class="badge-pill badge-danger ms-1">{{ child.messageCount | text }}</span>
                                             {% endif %}
                                         </a>
                                     </li>

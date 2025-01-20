@@ -191,7 +191,7 @@ function doWait(e){
 </head>
 
 <body onsubmit="doWait(event)">
-    <div class="page-header ml-2">
+    <div class="page-header ms-2">
         <h2><?php echo xlt('Procedure Orders and Reports'); ?></h2>
     </div>
 <form class="form-inline" method='post' action='list_reports.php' enctype='multipart/form-data'>
@@ -204,7 +204,7 @@ function doWait(e){
                 <div class="input-group-btn input-group-append">
                     <button class='btn btn-primary' name='form_process_labs'
                         title="Click to process pending results from selected Labs."
-                        value="true"><?php echo xlt('Process Results For'); ?><i class="ml-1 btn-transmit"></i>
+                        value="true"><?php echo xlt('Process Results For'); ?><i class="ms-1 btn-transmit"></i>
                     </button>
                     <select name='form_lab_id' id='form_lab_id' class='form-control'>
                         <option value="0"><?php echo xlt('All Labs'); ?></option>
@@ -232,7 +232,7 @@ function doWait(e){
                         value="<?php echo attr($_REQUEST['form_max_results'] ?? 10); ?>" />
                         <span class="input-group-text"><?php echo xlt('Results Per Lab'); ?></span>
                     </div>
-                    <div class="form-check form-check-inline ml-2">
+                    <div class="form-check form-check-inline ms-2">
                         <input class="form-check-input" type='checkbox' name='form_patient' id="ck_patient" value='1'
                             <?php if ($form_patient) {
                                 echo 'checked ';

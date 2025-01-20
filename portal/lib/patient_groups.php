@@ -255,7 +255,7 @@ if (!isset($_GET['render_group_assignments'])) {
                 <nav id='searchCriteria' class='navbar navbar-light bg-light sticky-top'>
                     <form class="form-inline" method='post' name='theform' id='theform' action=''>
                         <div class='form-row'>
-                            <select name='searchby' id='searchby' class="form-control form-control-sm ml-1">
+                            <select name='searchby' id='searchby' class="form-control form-control-sm ms-1">
                                 <option value="Last"><?php echo xlt('Name'); ?></option>
                                 <option value='Issues'<?php if (!empty($searchby) && ($searchby === 'Issues')) {
                                     echo ' selected'; } ?>><?php echo xlt('Problems or Code'); ?></option>
@@ -268,7 +268,7 @@ if (!isset($_GET['render_group_assignments'])) {
                     </form>
                     <div class='btn-group'>
                         <button type='button' class='btn btn-secondary btn-cancel btn-sm' onclick='dlgclose();'><?php echo xlt('Quit'); ?></button>
-                        <span id='search_spinner' class="d-none"><i class='fa fa-spinner fa-spin fa-2x ml-1'></i></span>
+                        <span id='search_spinner' class="d-none"><i class='fa fa-spinner fa-spin fa-2x ms-1'></i></span>
                     </div>
                 </nav>
                 <div class="">
@@ -304,19 +304,19 @@ if (!isset($_GET['render_group_assignments'])) {
             </div>
             <div class='col-6 col-height p-0 pb-1'>
                 <nav id='dispose' class='navbar navbar-light bg-light sticky-top'>
-                    <div class='btn-group ml-auto'>
+                    <div class='btn-group ms-auto'>
                         <button type='button' class='btn btn-primary btn-save btn-sm' onclick='return submitGroups();'><?php echo xlt('Save'); ?></button>
                         <button type='button' class='btn btn-secondary btn-cancel btn-sm' onclick='dlgclose();'><?php /*echo xlt('Quit'); */?></button>
-                        <span id='search_spinner' class="d-none"><i class='fa fa-spinner fa-spin fa-2x ml-1'></i></span>
+                        <span id='search_spinner' class="d-none"><i class='fa fa-spinner fa-spin fa-2x ms-1'></i></span>
                     </div>
                 </nav>
-                <div id="edit-groups" class='control-group mx-1 border-left border-right'>
+                <div id="edit-groups" class='control-group mx-1 border-start border-end'>
                     <?php
                     $result = $templateService->getPatientsByAllGroups();
                     foreach ($group_list as $group => $groups) {
                         $group_esc = attr($groups['option_id']);
                         $groups_esc = attr($groups['option_id']);
-                        echo "<h5 class='bg-dark text-light text-center' data-toggle='collapse' data-target='#$group_esc' role='button'><i class='fa fa-eye mr-1'></i>" . text($groups['title']) . "</h5>\n";
+                        echo "<h5 class='bg-dark text-light text-center' data-toggle='collapse' data-target='#$group_esc' role='button'><i class='fa fa-eye me-1'></i>" . text($groups['title']) . "</h5>\n";
                         echo "<ul id='$group_esc' class='list-group mx-1 px-1 show' data-group='$group_esc'>\n";
                         if (!empty($result[$groups['option_id']] ?? '')) {
                             foreach ($result[$groups['option_id']] as $pt) {
@@ -496,13 +496,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 </form>
             </nav>
-            <div id="edit-groups" class='control-group mx-1  border-left border-right'>
+            <div id="edit-groups" class='control-group mx-1  border-start border-end'>
                 <?php
                 $result = $templateService->getPatientsByAllGroups();
                 foreach ($group_list as $group => $groups) {
                     $group_esc = attr($groups['option_id']);
                     $groups_esc = attr($groups['option_id']);
-                    echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-end my-1 mr-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
+                    echo "<li class='list-group-item move-handle text-center bg-light text-dark fw-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($groups['title']) . "<i class='fa fa-eye float-end my-1 me-2' data-toggle='collapse' data-target='#$group_esc' role='button'></i></li>\n";
                     echo "<ul id='$group_esc' class='list-group-flush m-1 p-1 collapse'>\n";
                     if (!empty($result[$groups['option_id']] ?? '')) {
                         foreach ($result[$groups['option_id']] as $pt) {
@@ -530,11 +530,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class='btn-group'>
                         <button type="button" class='btn btn-primary btn-save btn-sm' onclick='return submitPatientGroups();'><?php echo xlt('Save');  ?></button>
                         <button type='button' class='btn btn-secondary btn-cancel btn-sm' onclick='dlgclose();'><?php echo xlt('Quit');  ?></button>
-                        <span id='search_spinner' class="d-none"><i class='fa fa-spinner fa-spin fa-2x ml-1'></i></span>
+                        <span id='search_spinner' class="d-none"><i class='fa fa-spinner fa-spin fa-2x ms-1'></i></span>
                     </div>
                 </form>
             </nav>
-            <div id='edit-profiles' class='control-group mx-1 border-left border-right'>
+            <div id='edit-profiles' class='control-group mx-1 border-start border-end'>
                 <?php
                 foreach ($profile_list as $profile => $profiles) {
                     $profile_items_list = $templateService->getPatientGroupsByProfile($profile);
@@ -547,13 +547,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     $profile_esc = attr($profile);
                     echo "<h5 class='text-center bg-dark text-light p-1 mt-1 mb-0'>" . $active_text . text($profiles['title']) .
-                        "<i class='fa fa-eye float-end my-1 mr-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";
+                        "<i class='fa fa-eye float-end my-1 me-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";
                     echo "<ul id='$profile_esc' class='list-group-flush m-1 p-1 show' data-profile='$profile_esc' data-active='$active_esc'>\n";
                     foreach ($profile_items_list as $grp_profile => $groups) {
                         foreach ($groups as $group) {
                             $group_esc = attr($group['member_of']);
                             $title = $group_list[$group['member_of']]['title'] ?: $group['member_of'];
-                            echo "<li class='list-group-item move-handle text-center bg-light text-dark font-weight-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($title) . "</li>\n";
+                            echo "<li class='list-group-item move-handle text-center bg-light text-dark fw-bolder p-1 mt-1 mb-0' data-group='$group_esc'>" . text($title) . "</li>\n";
                         }
                     }
                     echo "</ul>\n";

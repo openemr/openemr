@@ -723,7 +723,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                     </td>
                 </tr>
                 </table>
-                <table class="ml-4">
+                <table class="ms-4">
                     <tr>
                         <td>
                             <?php if (!(empty($itemAMC['date_completed']))) { ?>
@@ -759,7 +759,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                     </td>
                 </tr>
                 </table>
-                <table class="ml-4">
+                <table class="ms-4">
                     <tr>
                         <td>
                             <input type="checkbox" id="med_reconc_perf" disabled />
@@ -796,7 +796,7 @@ if ($attendant_type == 'pid') {
 if (!empty($docs_list) && count($docs_list) > 0) {
     ?>
 <div class='enc_docs'>
-<span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
+<span class="fw-bold"><?php echo xlt("Document(s)"); ?>:</span>
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {

@@ -412,7 +412,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         ?>
                         <div class='col-md-12'>
-                            <div class="jumbotron jumbotron-fluid p-2">
+                            <div class="mb-4 bg-body-tertiary p-2">
                                 <h4><?php echo text($message_legend); ?></h4>
                                 <div class="row">
                                     <div class="col-12 oe-custom-line">
@@ -525,7 +525,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         );
                                         if (sqlNumRows($tmp)) {
                                             echo " <tr>\n";
-                                            echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
+                                            echo "  <td class='text'><span class='fw-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
                                                 echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
@@ -630,11 +630,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <thead class='table-primary'>
                                                     <tr height='24'>
                                                         <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
-                                                        <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
+                                                        <th width='20%' class='fw-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
+                                                        <th width='20%' class='fw-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
+                                                        <th class='fw-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
+                                                        <th width='15%' class='fw-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                        <th width='15%' class='fw-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
                                                     </tr>
                                                 </thead>";
                         // Display the Messages table body.

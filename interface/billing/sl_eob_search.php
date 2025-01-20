@@ -1158,7 +1158,7 @@ if (
                                                    name='form_cb[<?php echo attr($row['id']) ?>]'<?php echo text($isduept); ?> />
                                             <?php
                                             if ($in_collections) {
-                                                echo "<span class='font-weight-bold text-danger'>IC</span>";
+                                                echo "<span class='fw-bold text-danger'>IC</span>";
                                             } ?>
                                             <?php
                                             if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {

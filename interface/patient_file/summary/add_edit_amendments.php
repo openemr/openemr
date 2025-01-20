@@ -238,7 +238,7 @@ $(function () {
 
             <table class="table table-bordered table-hover">
                 <!-- some columns are sortable -->
-                <thead class="table-primary font-weight-bold">
+                <thead class="table-primary fw-bold">
                     <tr>
                         <th><?php echo xlt('Date'); ?></th>
                         <th><?php echo xlt('By'); ?></th>

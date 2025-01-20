@@ -98,7 +98,7 @@ function doedclick_edit(ppid) {
             <div class="col-sm-12">
                 <form method='post' action='procedure_provider_list.php'>
                     <div class="form-check-inline mt-3">
-                        <input type='checkbox' class="form-check-input mr-2 " id="form_inactive" name='form_inactive'
+                        <input type='checkbox' class="form-check-input me-2 " id="form_inactive" name='form_inactive'
                             value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
                         <label class="form-check-label bold" for="form_inactive" ><?php echo xlt('Include Inactive Providers'); ?></label>
                     </div>

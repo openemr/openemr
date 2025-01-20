@@ -56,7 +56,7 @@
             return dlgopen('', '', "modal-md", 0, '', alertTitle, {
                 buttons: [
                     {text: 'Yes', close: true, id: 'confirmYes', style: 'primary'},
-                    {text: '<i class="fa fa-thumbs-down mr-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
+                    {text: '<i class="fa fa-thumbs-down me-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
                 type: 'Confirm',

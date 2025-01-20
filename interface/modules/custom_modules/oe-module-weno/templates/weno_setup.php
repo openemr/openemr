@@ -201,7 +201,7 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <div class="card mb-1">
             <div class="card-header p-1 mb-3 bg-light text-dark collapsed collapsed" role="button" data-toggle="collapse" href="#collapseOne">
-                <h6 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Click for Setup Help"); ?></h6>
+                <h6 class="mb-0"><i class="fa fa-expand me-2"></i><?php echo xlt("Click for Setup Help"); ?></h6>
             </div>
             <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
                 <!-- Currently no plans to translate. -->
@@ -301,7 +301,7 @@ $vendors = $boot->getVendorGlobals();
                                 <?php echo text($thisUser) . ' ' . "<span class='h5'>" . xlt("User Setting Subsection") . ' - </span><small><cite>(' . xlt('Optional') . ')</cite></small>'; ?>
                                 <span class="p-0"><cite><small><?php echo xlt("Save time! Add your Prescriber Weno Credentials now!"); ?></small></cite></span>
                             </h6>
-                            <hr class="text-dark bg-light font-weight-bold m-0 p-0" />
+                            <hr class="text-dark bg-light fw-bold m-0 p-0" />
                         </div>
                     </div>
                     <div class="row form-group">
@@ -343,7 +343,7 @@ $vendors = $boot->getVendorGlobals();
             <div id="accordion" class="accordion">
                 <div id="help-links" class="card d-none">
                     <div class="card-header p-1 bg-dark text-light collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                        <h5 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Some Helpful Sites"); ?></h5>
+                        <h5 class="mb-0"><i class="fa fa-expand me-2"></i><?php echo xlt("Some Helpful Sites"); ?></h5>
                     </div>
                     <div id="collapseTwo" class="card-body collapse" data-parent="#accordion">
                         <p>Hold</p>

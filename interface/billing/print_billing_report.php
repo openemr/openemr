@@ -182,23 +182,23 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
                 $first_time = 0;
             }
 
-            print "<tr><td colspan='5'><hr /><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";
+            print "<tr><td colspan='5'><hr /><span class='fw-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";
             //==================================
 
 
-            print "<font class='font-weight-bold'>" . xlt("Patient Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Patient Data") . ":</font><br />";
             printRecDataOne($patient_data_array, getRecPatientData($iter["pid"]), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Employer Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Employer Data") . ":</font><br />";
             printRecDataOne($employer_data_array, getRecEmployerData($iter["pid"]), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Primary Insurance Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Primary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "primary"), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Secondary Insurance Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Secondary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "secondary"), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Tertiary Insurance Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Tertiary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "tertiary"), $COLS);
 
             //==================================

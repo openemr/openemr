@@ -275,7 +275,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
                         </div>
                         <div class="col-md mb-2">
-                            <span class="text font-weight-bold"><?php echo xlt('Search In'); ?>:</span>
+                            <span class="text fw-bold"><?php echo xlt('Search In'); ?>:</span>
                             <br />
                             <?php
                             $form_id_arr = array();
@@ -424,11 +424,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                         echo "<hr />";
                         echo "<div class='text insurance'>";
                         echo "<h4>" . xlt('Insurance Data') . ":</h4>";
-                        print "<br /><span class='font-weight-bold'>" . xlt('Primary Insurance Data') . ":</span><br />";
+                        print "<br /><span class='fw-bold'>" . xlt('Primary Insurance Data') . ":</span><br />";
                         printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-                        print "<span class='font-weight-bold'>" . xlt('Secondary Insurance Data') . ":</span><br />";
+                        print "<span class='fw-bold'>" . xlt('Secondary Insurance Data') . ":</span><br />";
                         printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-                        print "<span class='font-weight-bold'>" . xlt('Tertiary Insurance Data') . ":</span><br />";
+                        print "<span class='fw-bold'>" . xlt('Tertiary Insurance Data') . ":</span><br />";
                         printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
                         echo "</div>";
                     } elseif ($val == "billing") {
@@ -438,7 +438,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         if (!empty($ar['newpatient']) && count($ar['newpatient']) > 0) {
                             $billings = array();
                             echo "<div class='table-responsive'><table class='table'>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
+                            echo "<tr><td class='fw-bold'>" . xlt('Code') . "</td><td class='fw-bold'>" . xlt('Fee') . "</td></tr>\n";
                             $total = 0.00;
                             $copays = 0.00;
                             foreach ($ar['newpatient'] as $be) {
@@ -462,9 +462,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             echo "<tr><td>&nbsp;</td></tr>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+                            echo "<tr><td class='fw-bold'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                            echo "<tr><td class='fw-bold'>" . xlt('Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                            echo "<tr><td class='fw-bold'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
                             echo "</table></div>";
                             echo "<pre>";
                             //print_r($billings);
@@ -717,17 +717,17 @@ function zip_content($source, $destination, $content = '', $create = true)
                         if ($prevIssueType != $irow['type']) {
                             // output a header for each Issue Type we encounter
                             $disptype = $ISSUE_TYPES[$irow['type']][0];
-                            echo "<div class='issue_type font-weight-bold'><h5>" . text($disptype) . ":</h5></div>\n";
+                            echo "<div class='issue_type fw-bold'><h5>" . text($disptype) . ":</h5></div>\n";
                             $prevIssueType = $irow['type'];
                         }
 
                         echo "<div class='text issue'>";
                         if ($prevIssueType == "medical_device") {
-                            echo "<span class='issue_title'><span class='font-weight-bold'>" . xlt('Title') . ": </span>" . text($irow['title']) . "</span><br>";
+                            echo "<span class='issue_title'><span class='fw-bold'>" . xlt('Title') . ": </span>" . text($irow['title']) . "</span><br>";
                             echo "<span class='issue_title'>" . (new MedicalDevice($irow['udi_data']))->fullOutputHtml() . "</span>";
                             echo "<span class='issue_comments'> " . text($irow['comments']) . "</span><br><br>\n";
                         } else {
-                            echo "<span class='issue_title font-weight-bold'>" . text($irow['title']) . ":</span>";
+                            echo "<span class='issue_title fw-bold'>" . text($irow['title']) . ":</span>";
                             echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
                             if ($prevIssueType == "medication") {
                                 echo "<span class='issue_dosage_instructions'> " . text($irow['drug_dosage_instructions']) . "</span>\n";
@@ -837,7 +837,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     array($pid, $form_encounter)
                                 );
                                 while ($brow = sqlFetchArray($bres)) {
-                                    echo "<div class='font-weight-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
+                                    echo "<div class='fw-bold d-inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text d-inline-block'>" .
                                         text($brow['code']) . ":" . text($brow['modifier']) . " " . text($brow['code_text']) . "</div><br />\n";
                                 }
                             }

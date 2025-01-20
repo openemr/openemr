@@ -449,9 +449,9 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                     if ($userMode) {
                                         echo "<div class='row'>";
                                         echo "<div class='col-sm-4'>&nbsp</div>";
-                                        echo "<div class='col-sm-4 font-weight-bold'>" . xlt('User Specific Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default') . "</div>";
+                                        echo "<div class='col-sm-4 fw-bold'>" . xlt('User Specific Setting') . "</div>";
+                                        echo "<div class='col-sm-2 fw-bold'>" . xlt('Default Setting') . "</div>";
+                                        echo "<div class='col-sm-2 fw-bold'>" . xlt('Default') . "</div>";
                                         echo "</div>";
                                     }
 

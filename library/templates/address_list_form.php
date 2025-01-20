@@ -49,20 +49,20 @@ $widgetConstants = [
 
 <div id="<?php echo attr($table_id); ?>" class="row mt-3">
     <div class ="table_edit_addresses col-12">
-        <div class="display_addresses_header pl-1" style="display: flex; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
+        <div class="display_addresses_header ps-1" style="display: flex; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300)">
             <div class="label_custom mb-0"><?php echo xlt("Additional Addresses"); ?></div>
-            <div class="fas fa-plus-square text-primary pl-3 pb-1"  style="display: inline-block; line-height: 1.5;"onclick="addAddress(event);return false"></div>
+            <div class="fas fa-plus-square text-primary ps-3 pb-1"  style="display: inline-block; line-height: 1.5;"onclick="addAddress(event);return false"></div>
         </div>
         <div class="d-none no_addresses">
-            <span class="label_custom pl-1" style="line-height: 2.0;"><?php echo xlt("NONE"); ?></span>
+            <span class="label_custom ps-1" style="line-height: 2.0;"><?php echo xlt("NONE"); ?></span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
     </div>
 </div>
 
 <template class="template_add_address">
-    <div class="addresses_group col-12 pl-0">
-        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+    <div class="addresses_group col-12 ps-0">
+        <div class="display_addresses form-row no-gutters justify-content-between ps-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                 <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2;"></i>
                 <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>

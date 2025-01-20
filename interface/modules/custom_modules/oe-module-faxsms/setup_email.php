@@ -72,7 +72,7 @@ if (empty($credentials['email_message'] ?? '') || strlen($credentials['email_mes
         </div>
         <div class="d-flex justify-content-between align-items-center">
             <h4><?php echo xlt("Setup Patient Reminder Credentials") ?></h4>
-            <div class="dropdown mr-1">
+            <div class="dropdown me-1">
                 <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <?php echo xlt("Reminder Actions") ?>
                 </button>

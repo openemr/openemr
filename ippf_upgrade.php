@@ -111,7 +111,7 @@ function do_visit_form($irow, $encounter, $first)
                 <h2>OpenEMR IPPF Upgrade</h2>
             </div>
         </div>
-        <div class="jumbotron p-4">
+        <div class="mb-4 bg-body-tertiary rounded-3 p-4">
             <?php
             if (!empty($_POST['form_submit'])) {
             // If database is not utf8, convert it.

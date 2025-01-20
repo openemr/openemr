@@ -1538,7 +1538,7 @@ class Display extends base
         <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
                 echo "display:none;"; } ?>">
 
-            <nav id="navbar_oe" class="navbar navbar-expand-sm p-0 pl-1" name="kiosk_hide" data-role="page banner navigation">
+            <nav id="navbar_oe" class="navbar navbar-expand-sm p-0 ps-1" name="kiosk_hide" data-role="page banner navigation">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -1890,7 +1890,7 @@ class Display extends base
                 <h2><?php echo xlt('Recall Board'); ?></h2>
                 <p class="text-danger"><?php echo xlt('Persons needing a recall, no appt scheduled yet.'); ?></p>
             </div>
-            <div class="col-12 jumbotron p-4">
+            <div class="col-12 mb-4 bg-body-tertiary rounded-3 p-4">
                 <div class="showRFlow text-center" id="show_recalls_params">
                     <?php
                     if ($GLOBALS['medex_enable'] == '0') {
@@ -2534,7 +2534,7 @@ class Display extends base
             <form class="prefs p-4 row" name="addRecall" id="addRecall">
                 <input type="hidden" name="go" id="go" value="addRecall" />
                 <input type="hidden" name="action" id="go" value="addRecall" />
-                <div class="col-4 divTable m-2 ml-auto">
+                <div class="col-4 divTable m-2 ms-auto">
                     <div class="row divTableBody prefs">
                             <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
@@ -2561,14 +2561,14 @@ class Display extends base
                             <label><?php echo xlt('Recall When'); ?></label>
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
-                            <span class="font-weight-bold"><?php echo xlt('Last Visit'); ?>: </span>
+                            <span class="fw-bold"><?php echo xlt('Last Visit'); ?>: </span>
                             <input type="text" value="" name="DOLV" id="DOLV" class="" />
                             <br />
                             <!-- Feel free to add in any dates you would like to show here...
                             <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
                             <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
                             -->
-                            <div class="m-2 mb-3 ml-4">
+                            <div class="m-2 mb-3 ms-4">
                                 <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox">
                                     <input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365" /> <?php echo xlt('plus 1 year'); ?>
                                 </label>
@@ -2580,7 +2580,7 @@ class Display extends base
                                 <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox">
                                 <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /> <?php echo xlt('plus 3 years'); ?></label>
                             </div>
-                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
+                            <span class="fw-bold"> <?php echo xlt('Date'); ?>:</span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
 
@@ -2657,7 +2657,7 @@ class Display extends base
 
                     </div>
                 </div>
-                <div class="col-4 divTable m-2 mr-auto">
+                <div class="col-4 divTable m-2 me-auto">
                     <div class="row divTableBody prefs">
                         <div class="text-right btn-group-vertical form-group col-4 col-md-4 divTableCell divTableHeading">
                             <label><?php echo xlt('Address'); ?></label>
@@ -2966,7 +2966,7 @@ class Setup extends Base
                         <div class="row">
                             <div class="col-12 text-center">
                                 <h2>MedEx</h2>
-                                <p class="font-italic">
+                                <p class="fst-italic">
                                     <?php echo xlt('Using technology to improve productivity'); ?>.
                                 </p>
                             </div>
@@ -3004,7 +3004,7 @@ class Setup extends Base
             <div class="row">
                 <div class="col-12">
                     <h2 class="text-center"><?php echo xlt('Register'); ?>: MedEx Bank</h2>
-                    <form name="medex_start" id="medex_start" class="jumbotron p-5">
+                    <form name="medex_start" id="medex_start" class="p-5 mb-4 bg-body-tertiary rounded-3">
                         <div id="setup_1">
                             <div id="answer" name="answer">
                                 <div class="form-group mt-3">
@@ -3046,7 +3046,7 @@ class Setup extends Base
                                     <div class="modal-dialog">
                                         <!-- Modal content-->
                                         <div class="modal-content">
-                                            <div class="modal-header text-white font-weight-bold" style="background-color: #0d4867;">
+                                            <div class="modal-header text-white fw-bold" style="background-color: #0d4867;">
                                                 <button type="button" class="close text-white" data-dismiss="modal" style="opacity:1;box-shadow:unset !important;">&times;</button>
                                                 <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
                                             </div>

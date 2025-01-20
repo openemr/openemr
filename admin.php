@@ -183,7 +183,7 @@ function sqlQuery($statement, $link)
                     </table>
                 </div>
                 <form method='post' action='setup.php'>
-                    <button type='submit' class='btn btn-primary font-weight-bold' name='form_submit' value='Add New Site'>Add New Site</button>
+                    <button type='submit' class='btn btn-primary fw-bold' name='form_submit' value='Add New Site'>Add New Site</button>
                 </form>
             </div>
         </div>

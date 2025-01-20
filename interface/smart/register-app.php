@@ -412,7 +412,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                 </div>
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input" id="appTypeConfidential" name="appType" value="private" checked="checked"/>
-                    <label for="appTypeConfidential" class="form-check-label pr-2"><?php echo xlt('Confidential'); ?></label>
+                    <label for="appTypeConfidential" class="form-check-label pe-2"><?php echo xlt('Confidential'); ?></label>
                     <input type="radio" class="form-check-input" id="appTypePublic" name="appType" value="public"/>
                     <label for="appTypePublic" class="form-check-label"><?php echo xlt('Public'); ?></label>
                 </div>
@@ -421,18 +421,18 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                         <h2><?php echo xlt("Application Context"); ?></h2>
                     </div>
                 </div>
-                <div class="row pl-3 pr-3">
+                <div class="row ps-3 pe-3">
                     <div class="col">
                         <input type="radio" class="form-check-input" id="patientTypeSingle" name="patientType" value="single"/>
-                        <label for="patientTypeSingle" class="form-check-label pr-3"><?php echo xlt('Single Patient Application'); ?></label>
+                        <label for="patientTypeSingle" class="form-check-label pe-3"><?php echo xlt('Single Patient Application'); ?></label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="patientTypeMultiple" name="patientType" value="multiple"/>
-                        <label for="patientTypeMultiple" class="form-check-label pr-3"><?php echo xlt('Multiple Patients Application'); ?></label>
+                        <label for="patientTypeMultiple" class="form-check-label pe-3"><?php echo xlt('Multiple Patients Application'); ?></label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="patientTypeClient" name="patientType" value="client"/>
-                        <label for="patientTypeClient" class="form-check-label pr-3"><?php echo xlt('System Client Application'); ?></label>
+                        <label for="patientTypeClient" class="form-check-label pe-3"><?php echo xlt('System Client Application'); ?></label>
                     </div>
                     <div class="col">
                         <input type="radio" class="form-check-input" id="patientTypeAll" name="patientType" value="all" checked="checked"/>
@@ -507,13 +507,13 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                         <hr />
                         <div class="form-check form-check-inline">
                             <input type="radio" class="form-check-input" id="dsiTypeNone" name="dsiType" value="<?php echo attr($dsiTypesStringNames["DSI_TYPE_NONE"]); ?>" checked="checked"/>
-                            <label for="dsiTypeNone" class="form-check-label pr-2"><?php echo xlt('No DSI used'); ?></label>
+                            <label for="dsiTypeNone" class="form-check-label pe-2"><?php echo xlt('No DSI used'); ?></label>
 
                             <input type="radio" class="form-check-input" id="dsiTypePrediction" name="dsiType" value="<?php echo attr($dsiTypesStringNames["DSI_TYPE_PREDICTIVE"]); ?>"/>
-                            <label for="dsiTypePrediction" class="form-check-label pr-2"><?php echo xlt('Predictive DSI Used'); ?></label>
+                            <label for="dsiTypePrediction" class="form-check-label pe-2"><?php echo xlt('Predictive DSI Used'); ?></label>
 
                             <input type="radio" class="form-check-input" id="dsiTypeEvidenceBased" name="dsiType" value="<?php echo attr($dsiTypesStringNames["DSI_TYPE_EVIDENCE"]); ?>"/>
-                            <label for="dsiTypeEvidenceBased" class="form-check-label pr-2"><?php echo xlt('Evidence Based DSI Used'); ?></label>
+                            <label for="dsiTypeEvidenceBased" class="form-check-label pe-2"><?php echo xlt('Evidence Based DSI Used'); ?></label>
                         </div>
                     </div>
                 </div>

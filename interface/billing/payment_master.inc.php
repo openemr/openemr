@@ -156,7 +156,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
         <div class="forms col-3">
             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
-            <div class="pl-0">
+            <div class="ps-0">
                 <?php
                 if ($PaymentMethod == '' && $screen == 'edit_payment') {
                     $blankValue = ' ';

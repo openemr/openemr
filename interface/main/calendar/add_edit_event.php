@@ -1406,7 +1406,7 @@ $classpati = '';
 </div>
 <?php
 if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
-    <div class="jumbotron jumbotron-fluid px-2 py-2 my-2" id="patient_details">
+    <div class="bg-body-tertiary px-2 py-2 my-2" id="patient_details">
         <div class="form-group">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
             <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
@@ -1590,7 +1590,7 @@ function isRegularRepeat($repeat)
     repeating mechanism is being used, and load settings accordingly.
     */
 ?>
-<div class="jumbotron jumbotron-fluid px-3 py-4 my-2">
+<div class="bg-body-tertiary px-3 py-4 my-2">
     <div class="form-row mb-sm-2">
         <div class='col-sm-2 form-check form-check-inline'>
             <input type='radio' class='form-check-input' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?> />
@@ -1704,7 +1704,7 @@ function isRegularRepeat($repeat)
 <div class="form-row mx-2">
     <div class="col-sm form-group">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
-        <label id='title_prefcat' class='font-weight-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
+        <label id='title_prefcat' class='fw-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
         <?php
         if ($_GET['group'] != true) {
             generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));
@@ -1741,7 +1741,7 @@ if (empty($_GET['prov'])) { ?>
 ?>
 <div class="form-row mx-2">
     <div id="recurr_popup" class="col-sm input-group alert bg-warning text-left" style="display: none; position: relative; max-width: 400px;">
-        <p class="lead small font-weight-bold" style="font-size: 16px;"><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></p>
+        <p class="lead small fw-bold" style="font-size: 16px;"><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></p>
         <br />
         <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
             <input type="button" class="btn btn-primary" name="all_events" id="all_events" value="<?php echo xla('All'); ?>" />

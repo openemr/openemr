@@ -896,7 +896,7 @@ foreach ($providers as $provider) {
                    "' title='" . attr($divTitle) . "'".
                    " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                    ">";
-               $content = "<span class='text-danger text-center font-weight-bold'>" . text($row['name']) . "</span>";
+               $content = "<span class='text-danger text-center fw-bold'>" . text($row['name']) . "</span>";
                echo $content;
                echo "</div>\n";
            }
@@ -910,7 +910,7 @@ foreach ($providers as $provider) {
                " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                ">";
            // second part for the special IN event
-           if ($event['catid'] != 2) { echo "<span class='text-danger text-center font-weight-bold'>" . text($row['name']) . "</span>"; }
+           if ($event['catid'] != 2) { echo "<span class='text-danger text-center fw-bold'>" . text($row['name']) . "</span>"; }
            echo "</div>\n";
        }
   } // end EVENT loop

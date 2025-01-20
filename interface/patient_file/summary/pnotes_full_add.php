@@ -233,7 +233,7 @@ function submitform(attr) {
                     if ($noteid) {
                     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                         echo xlt('Amend Existing Message') .
-                        "<span class='font-weight-bold'> &quot;" . generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) . "&quot;</span>\n";
+                        "<span class='fw-bold'> &quot;" . generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) . "&quot;</span>\n";
                     } else {
                         echo xlt('Add New Message') . "\n";
                     }
@@ -242,7 +242,7 @@ function submitform(attr) {
                 </div>
 
                 <div class="form-group mt-3">
-                    <label for='note_type' class='font-weight-bold'><?php echo xlt('Type'); ?>:</label>
+                    <label for='note_type' class='fw-bold'><?php echo xlt('Type'); ?>:</label>
                     <?php
                     // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
                     generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), $title);
@@ -250,7 +250,7 @@ function submitform(attr) {
                 </div>
 
                 <div class="form-group mt-3">
-                    <label for='assigned_to' class='font-weight-bold'><?php echo xlt('To{{Destination}}'); ?>:</label>
+                    <label for='assigned_to' class='fw-bold'><?php echo xlt('To{{Destination}}'); ?>:</label>
                     <select name='assigned_to' id='assigned_to' class='form-control'>
                         <?php
                         while ($urow = sqlFetchArray($ures)) {
@@ -273,7 +273,7 @@ function submitform(attr) {
 
                 <?php if ($GLOBALS['messages_due_date']) { ?>
                     <div class="form-group mt-3">
-                        <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
+                        <label for='datetime' class='fw-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php
                             generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
                         ?>

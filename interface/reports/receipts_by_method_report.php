@@ -182,11 +182,11 @@ function showLineItem(
         if ($showing_ppd) {
             $dos = substr($pferow['date'], 0, 10);
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             echo "   " . text($pferow['lname']) . ", " . text($pferow['fname']) . " " . text($pferow['mname']);
             echo "  </td>\n";
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             if ($payer_type) {
                 $ptarr = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
                 $insrow = getInsuranceDataByDate(
@@ -200,7 +200,7 @@ function showLineItem(
 
             echo "  </td>\n";
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             echo "   " . text(oeFormatShortDate($dos)) . "\n";
             echo "  </td>\n";
         }

@@ -539,7 +539,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
                         if ($datacols == 0) {
                             // Data will be in the same cell, so prevent wrapping between title and data.
-                            echo "<span class='text-nowrap mr-2'>"; // mb-2 doesn't work here
+                            echo "<span class='text-nowrap me-2'>"; // mb-2 doesn't work here
                         }
 
 
@@ -621,7 +621,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         <div class="row p-3">
                           <div class="col-md-12 mb-2">
                             <div class="input-group">
-                              <label class='col-form-label mr-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
+                              <label class='col-form-label me-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
                               <select name="i<?php echo attr($i); ?>provider" class="form-control">
                                   <option value=""><?php echo xlt('Unassigned'); ?></option>
                                   <?php

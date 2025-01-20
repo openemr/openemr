@@ -1233,7 +1233,7 @@ function writeITLine($it_array)
                         <div class="float-start"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                     </div>
                     <!--Happy end-->
-                    <div class="float-start ml-2 my-2 my-lg-0" id="total-record"></div>
+                    <div class="float-start ms-2 my-2 my-lg-0" id="total-record"></div>
                 </div><!-- /.navbar-collapse -->
             </div>
         </nav>
@@ -1252,7 +1252,7 @@ function writeITLine($it_array)
                     <th><?php echo xlt('Label'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
                     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                        echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                        echo "<th class='fw-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Seq'); ?></th>
                     <th><?php echo xlt('ModLength'); ?></th>

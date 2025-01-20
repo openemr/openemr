@@ -76,13 +76,13 @@ if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     </div>
 </div>
 <div class="container p-3">
-    <div class="jumbotron jumbotron-fluid text-center p-1">
-        <h3><?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ml-2" style="font-size: 3rem;"></i></h3>
+    <div class="mb-4 bg-body-tertiary text-center p-1">
+        <h3><?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ms-2" style="font-size: 3rem;"></i></h3>
         <p>
         <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog"><?php echo xlt('Tell me more') ?></button>
         </p>
     </div>
-<div class='jumbotron jumbotron-fluid p-4'>
+<div class='mb-4 bg-body-tertiary p-4'>
     <div class="row">
         <div class="col">
             <h4><i class="icon-cogs"></i><?php echo xlt('Templates') ?></h4>

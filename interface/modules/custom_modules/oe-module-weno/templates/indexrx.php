@@ -175,9 +175,9 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
                 <header class="bg-light text-dark text-center">
                     <h3>
                         <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
-                            <cite class="small font-weight-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
+                            <cite class="small fw-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
                         </a>
-                        <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 mr-2 float-end d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
+                        <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 me-2 float-end d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
                     </h3>
                 </header>
             </form>
@@ -224,8 +224,8 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
             <iframe id="wenoIframe-compose" title="Weno Compose" width="100%" height="900" src="<?php echo attr($urlOut); ?>"></iframe>
         </div>
         <footer>
-            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-end mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
-            <button id="triggerButton" class="btn btn-primary btn-sm m-2 ml-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
+            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-end mt-2 mb-4 me-3"><?php echo xlt("Return to Demographics"); ?></a>
+            <button id="triggerButton" class="btn btn-primary btn-sm m-2 ms-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
             <?php $wenoLog->insertWenoLog("eRx Compose Frame", "Rendered Online Compose.", $urlOut); ?>
         </footer>
         <!-- Modal Structure -->

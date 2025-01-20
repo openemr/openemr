@@ -324,7 +324,7 @@ window.onload = function() {
     </span>
 
     <div class="table-responsive">
-        <table class="table table-hover jumbotron py-4 mt-3">
+        <table class="table table-hover px-5 mb-4 bg-body-tertiary rounded-3 py-4 mt-3">
             <thead>
                 <tr class='text'>
                     <th scope="col"><?php echo xlt('Date'); ?></th>
@@ -554,7 +554,7 @@ window.onload = function() {
                     //Display the documents tagged to this encounter
                     getDocListByEncID($result4['encounter'], $raw_encounter_date, $pid);
 
-                    echo "<div class='pl-2'>";
+                    echo "<div class='ps-2'>";
 
                     // Now show a line for each encounter form, if the user is authorized to
                     // see this encounter's notes.
@@ -589,7 +589,7 @@ window.onload = function() {
                         if ($issue) {
                             echo text(xl_form_title($enc['form_name']));
                             echo "<br />";
-                            echo "<div class='encreport pl-2'>";
+                            echo "<div class='encreport ps-2'>";
                     // Use the form's report.php for display.  Forms with names starting with LBF
                     // are list-based forms sharing a single collection of code.
                             if (substr($formdir, 0, 3) == 'LBF') {

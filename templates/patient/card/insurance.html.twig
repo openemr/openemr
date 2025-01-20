@@ -44,7 +44,7 @@
                             {{ c.insco.address.city|text }} {{ c.insco.address.state|text }}, {{ c.insco.address.postal|text }}
                         </address>
                     {% else %}
-                        <span class="font-weight-bold text-danger">{{ "Unassigned"|xlt }}</span>
+                        <span class="fw-bold text-danger">{{ "Unassigned"|xlt }}</span>
                     {% endif %}
                 </div>
                 <div class="subscriber">
@@ -85,10 +85,10 @@
                 </div>
             </div>
             <div class="d-flex justify-content-between policy-details pt-2">
-                <div class="list-group list-group-flush flex-fill mr-4">
+                <div class="list-group list-group-flush flex-fill me-4">
                     <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Plan Name"|xlt }}:</strong> <span class="text-right">{{ c.plan_name|text }}</span></div>
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Policy Number"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.policy_number|text }}</span></div>
-                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Group Number"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.group_number|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Policy Number"|xlt }}:</strong> <span class="text-right font-monospace">{{ c.policy_number|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Group Number"|xlt }}:</strong> <span class="text-right font-monospace">{{ c.group_number|text }}</span></div>
                 </div>
                 <div class="list-group list-group-flush flex-fill">
                     <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Copay"|xlt }}:</strong> <span class="text-right">{{ c.copay|text }}</span></div>

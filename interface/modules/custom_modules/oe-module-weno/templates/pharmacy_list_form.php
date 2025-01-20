@@ -105,7 +105,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
-    <hr class="bg-light font-weight-bold text-dark my-0 my-1">
+    <hr class="bg-light fw-bold text-dark my-0 my-1">
     <div class="d-flex">
         <div class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy"); ?>
@@ -133,16 +133,16 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
                     <?php echo xlt("Optional Filters:"); ?>
                 </label>
             </div>
-            <div class="col pl-0 form-inline">
-                <label class="ml-1 form-check-inline">
+            <div class="col ps-0 form-inline">
+                <label class="ms-1 form-check-inline">
                     <input type="checkbox" class="form-check-input" name="24hr" id="24hr" onclick="fullDayChanged(this);">
                     <?php echo xlt("Open 24 Hours"); ?>
                 </label>
-                <label class="ml-1 form-check-inline">
+                <label class="ms-1 form-check-inline">
                     <input type="checkbox" class="form-check-input" name="weno_only" id="weno_only" onclick="onWenoChanged(this);">
                     <?php echo xlt("On Weno Only"); ?>
                 </label>
-                <label class="ml-1 form-check-inline">
+                <label class="ms-1 form-check-inline">
                     <input type="checkbox" class="form-check-input" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
                     <?php echo xlt("Test Pharmacies"); ?>
                 </label>
@@ -178,36 +178,36 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
         <cite class="mb-1 text-success text-center">
             <?php echo xlt("Search Result Actions."); ?>
         </cite>
-        <span class="ml-1 my-2" role="group">
+        <span class="ms-1 my-2" role="group">
             <button id="list-search-button" type="button" class="btn btn-success btn-sm my-2" onclick="search()"><?php echo xlt("List Search"); ?></button>
             <button id="name-search-button" type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()"><?php echo xlt("Clear"); ?></button>
             <span class="h5 alert-danger mt-3" id="searchResults"></span>
         </span>
         <div id="select-div" class="form-group mt-2">
-            <select class="form-control form-control bg-light text-dark mr-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+            <select class="form-control form-control bg-light text-dark me-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
         </div>
-        <hr class="m-0 mt-2 mb-1 p-0 font-weight-bold bg-light text-dark" />
+        <hr class="m-0 mt-2 mb-1 p-0 fw-bold bg-light text-dark" />
         <div class="mt-2 mb-1">
-            <button type="button" class="btn btn-primary btn-sm mr-1 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
+            <button type="button" class="btn btn-primary btn-sm me-1 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
             <button type="button" class="btn btn-primary btn-sm show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
         </div>
     <?php } ?>
-    <hr class="m-0 mb-1 p-0 font-weight-bold bg-light text-dark" />
+    <hr class="m-0 mb-1 p-0 fw-bold bg-light text-dark" />
     <div class="m-0 mt-1 text-center">
         <cite class="small text-primary bg-light"><?php echo xlt("Assigned Pharmacies"); ?></cite>
     </div>
     <div>
-        <span class="text-primary font-weight-bold mr-2"><?php echo xlt("Assigned Primary") . ':'; ?></span>
+        <span class="text-primary fw-bold me-2"><?php echo xlt("Assigned Primary") . ':'; ?></span>
         <i id="weno_primary"></i>
     </div>
     <div class="mb-1">
-        <span class="text-primary font-weight-bold"><?php echo xlt("Assigned Alternate") . ':'; ?></span>
+        <span class="text-primary fw-bold"><?php echo xlt("Assigned Alternate") . ':'; ?></span>
         <i id="weno_alt"></i>
-        <hr class=" font-weight-bold bg-light text-dark" />
+        <hr class=" fw-bold bg-light text-dark" />
     </div>
 </template>
 

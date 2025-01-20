@@ -165,10 +165,10 @@ $(function () {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <div class="col-sm-12">
-    <span class="font-weight-bold"><?php echo xlt('From'); ?>:</span>
+    <span class="fw-bold"><?php echo xlt('From'); ?>:</span>
     <input type='text' style="width: 200px" class='datepicker form-control d-inline' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-    <span class="font-weight-bold"><?php echo xlt('To{{Range}}'); ?>:</span>
+    <span class="fw-bold"><?php echo xlt('To{{Range}}'); ?>:</span>
     <input type='text' style="width: 200px" class='datepicker form-control d-inline' name='form_to_date' id='form_to_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
     <input class="btn btn-primary" type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>' />

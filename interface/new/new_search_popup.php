@@ -165,7 +165,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                 </td>
                 <td class='text text-center'>
                     <?php if ($message) {
-                        echo "<span class='text-danger font-weight-bold'>" . text($message) . "</span>\n";
+                        echo "<span class='text-danger fw-bold'>" . text($message) . "</span>\n";
                     } ?>
                 </td>
                 <td class='text text-right'>

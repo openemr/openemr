@@ -3866,7 +3866,7 @@ function display($pid, $encounter, $category_value)
         $id_to_show = $documents['docs_in_cat_id'][$documents['zones'][$category_value][$j]['id']][$count_here - 1]['document_id'] ?? '';
         $documents['zones'][$category_value][$j]['name'] = preg_replace("( - Eye)", "", $documents['zones'][$category_value][$j]['name']);
         $episode .= "<tr>
-        <td class='right'><span class='font-weight-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
+        <td class='right'><span class='fw-bold'>" . text($documents['zones'][$category_value][$j]['name']) . "</span>:&nbsp;</td>
         <td>
             <a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&upload&patient_id=" . attr($pid) . "&parent_id=" . attr($documents['zones'][$category_value][$j]['id']) . "&', '" . xla('Upload') . " " . attr($documents['zones'][$category_value][$j]['name']) . "');\" href='#'>
             <img src='../../forms/" . $form_folder . "/images/upload_file.png' class='little_image'>
@@ -3934,8 +3934,8 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                 <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" class="little_image">
                 <span class="brand"><?php echo xlt('Eye Exam'); ?></span>
             </div>
-            <div class="navbar-collapse oer-navbar-collapse mr-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
-                <ul class="navbar-nav mr-auto">
+            <div class="navbar-collapse oer-navbar-collapse me-auto mt-2 mt-lg-0" id="oer-navbar-collapse-1">
+                <ul class="navbar-nav me-auto">
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                         <ul class="dropdown-menu" role="menu">
@@ -4077,15 +4077,15 @@ function menu_overhaul_left($pid, $encounter)
                             <?php
                             $age = getPatientAgeDisplay($pat_data['DOB'], ($encounter_date ?? ''));
                             $DOB = oeFormatShortDate($pat_data['DOB']);
-                            echo "<span class='font-weight-bold'>" . xlt('Name') . ":</span> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
-                                    <tr><td class='right'><span class='font-weight-bold'>" . xlt('DOB') . ":</span></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
+                            echo "<span class='fw-bold'>" . xlt('Name') . ":</span> </td><td nowrap> &nbsp;" . text($pat_data['fname']) . "  " . text($pat_data['lname']) . " (" . text($pid) . ")</td></tr>
+                                    <tr><td class='right'><span class='fw-bold'>" . xlt('DOB') . ":</span></td><td  nowrap> &nbsp;" . text($DOB) . "&nbsp;&nbsp;(" . text($age) . ")";
                             ?>
                             <?php
                             ?>
                         </td>
                     </tr>
                     <?php
-                        echo "<tr><td class='right' nowrap><span class='font-weight-bold'>" . xlt('Visit Date') . ":</span></td><td>&nbsp;" . $visit_date . "</td></tr>";
+                        echo "<tr><td class='right' nowrap><span class='fw-bold'>" . xlt('Visit Date') . ":</span></td><td>&nbsp;" . $visit_date . "</td></tr>";
                     ?>
                     <tr><td class="right" style="vertical-align:top;" nowrap><span style="font-weight:bold;"><?php echo xlt("Provider"); ?>:</span>&nbsp;</td>
                         <td><?php echo text(getProviderName(getProviderIdOfEncounter($encounter))); ?></td>

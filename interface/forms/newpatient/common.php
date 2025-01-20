@@ -751,7 +751,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-row">
-                <div class="col-sm-12 text-left position-override pl-3">
+                <div class="col-sm-12 text-left position-override ps-3">
                     <div class="btn-group" role="group">
                         <?php $link_submit = ($viewmode || empty($_GET['autoloaded'])) ? '' : 'link_submit';
                               $cancel_clicked = ($viewmode) ? 'cancelClickedOld()' : 'cancelClickedNew()';?>

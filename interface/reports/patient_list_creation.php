@@ -962,7 +962,7 @@ if (!empty($_POST['form_refresh'])) {
                         echo 'colspan="' . attr($width) . '" ';
                     }
                 }
-                echo 'class="font-weight-bold">' . text($search_options[$srch_option]["cols"][$report_col]["heading"]);
+                echo 'class="fw-bold">' . text($search_options[$srch_option]["cols"][$report_col]["heading"]);
                 if (isset($search_options[$srch_option]["sort_cols"])) {
                     if ($search_options[$srch_option]["sort_cols"] != 0) {
                         if (

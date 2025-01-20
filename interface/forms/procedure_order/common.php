@@ -1498,15 +1498,15 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         }
                         ?>
                     </div>
-                    <div class="btn=group ml-4">
+                    <div class="btn=group ms-4">
                         <button type="button" class="btn btn-success btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?>
                         </button>
                     </div>
                 </fieldset>
                 <div class="row card clearfix">
                     <legend class="card-heading collapsed" data-toggle="collapse" data-target="#summary">
-                        <i class="fa fa-plus mr-2"></i><?php echo xlt("Order Documents and Logs"); ?>
-                        <i class="wait fa fa-cog fa-spin ml-2 d-none"></i>
+                        <i class="fa fa-plus me-2"></i><?php echo xlt("Order Documents and Logs"); ?>
+                        <i class="wait fa fa-cog fa-spin ms-2 d-none"></i>
                     </legend>
                     <div class="card-body collapse" id="summary">
                         <div class="form-group"> <!--Order document links-->
@@ -1522,7 +1522,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
                                         <?php }
                                     } ?>
-                                    <a class='btn btn-success ml-1' href='#'
+                                    <a class='btn btn-success ms-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php
                                     if ($gbl_lab === "labcorp") { ?>
@@ -1539,7 +1539,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         </div>
                         <div class="col-md-12">
                             <legend class="bg-dark text-light"><?php echo xlt('Order Log'); ?></legend>
-                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
+                            <div class="bg-body-tertiary rounded-3 m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
                                 <?php
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;
@@ -1574,7 +1574,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
                             </button>
                         </div>
-                        <span class="wait fa fa-cog fa-spin fa-2x ml-2 d-none"></span>
+                        <span class="wait fa fa-cog fa-spin fa-2x ms-2 d-none"></span>
                     </div>
                 </div>
             </form>

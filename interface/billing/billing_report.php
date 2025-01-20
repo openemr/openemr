@@ -1050,7 +1050,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
                                 $billing_note = $name['billing_note'];
                                 // Add Encounter Date to display with "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "<span class='font-weight-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
+                                $lhtml .= "<span class='fw-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
 
                                 // Encounter details are stored to javacript as array.
                                 $result4 = sqlStatement(
@@ -1140,7 +1140,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $divnos = $divnos + 1;
                                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br /></a>';
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                    $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
+                                    $lhtml .= '<span class="fw-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
                                 }
 
                                 if ($iter['id']) {
@@ -1187,7 +1187,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $DivPut = 'yes';
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                        $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
+                                        $lhtml .= "<br /><span class='fw-bold text-success ms-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
                                     }
                                     $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 

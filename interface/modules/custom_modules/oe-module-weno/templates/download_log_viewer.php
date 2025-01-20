@@ -149,7 +149,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                     $title = xlt("Sync Report");
                 }
                 $nextRun = $task['next_run'];
-                echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
+                echo '<span class="me-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }
             echo '</h6>';
         }

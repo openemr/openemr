@@ -378,7 +378,7 @@ function restoreSession() {
         <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>" />
     </form>
 
-    <div class='tabContainer jumbotron p-4'>
+    <div class='tabContainer mb-4 bg-body-tertiary rounded-3 p-4'>
         <?php if ($active == "all") { ?>
             <span><?php echo xlt('Show All'); ?></span>
         <?php } else { ?>
@@ -494,19 +494,19 @@ function restoreSession() {
                                 echo "  </td>\n";
 
 
-                                echo "  <td class='text font-weight-bold'>\n";
+                                echo "  <td class='text fw-bold'>\n";
                                 echo "   <input type='hidden' name='act" . attr($row_note_id) . "' value='1' />\n";
                                 echo "   <input type='checkbox' name='chk" . attr($row_note_id) . "' $checked />\n";
                                 echo "  </td>\n";
 
-                                echo "  <td class='text font-weight-bold'>\n";
+                                echo "  <td class='text fw-bold'>\n";
                                 if ($docid || $orderid) {
                                     echo "   <input type='checkbox' name='lnk" . attr($row_note_id) . "' $linked />\n";
                                 }
 
                                 echo "  </td>\n";
 
-                                echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
+                                echo "  <td class='fw-bold notecell' id='" . attr($row_note_id) . "'>" .
                                 "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                                 echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
@@ -658,19 +658,19 @@ function restoreSession() {
                         echo "  </td>\n";
 
 
-                        echo "  <td class='text font-weight-bold'>\n";
+                        echo "  <td class='text fw-bold'>\n";
                         echo "   <input type='hidden' name='act" . attr($row_note_id) . "' value='1' />\n";
                         echo "   <input type='checkbox' name='chk" . attr($row_note_id) . "' $checked />\n";
                         echo "  </td>\n";
 
-                        echo "  <td class='text font-weight-bold'>\n";
+                        echo "  <td class='text fw-bold'>\n";
                         if ($docid || $orderid) {
                             echo "   <input type='checkbox' name='lnk" . attr($row_note_id) . "' $linked />\n";
                         }
 
                         echo "  </td>\n";
 
-                        echo "  <td class='font-weight-bold notecell' id='" . attr($row_note_id) . "'>" .
+                        echo "  <td class='fw-bold notecell' id='" . attr($row_note_id) . "'>" .
                         "<a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) . "' class='note_modal' onclick='return top.restoreSession()'>\n";
                         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                         echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);

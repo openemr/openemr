@@ -525,7 +525,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                        <div class="jumbotron jumbotron-fluid px-5 py-3">
+                        <div class="mb-4 bg-body-tertiary px-5 py-3">
                             <div class="form-row my-3">
                                 <label class="col-md-2 col-form-label" for="fname"><?php echo xlt('First Name') ?></label>
                                 <div class="col-md">

@@ -103,7 +103,7 @@ if (isset($_GET['deletelid'])) {
             <?php } ?>
             <a href="demographics.php" class="btn btn-primary" onclick="top.restoreSession()"> <?php echo xlt('View Patient') ?></a>
         </div>
-        <div class="col-12 jumbotron mt-3 p-4">
+        <div class="col-12 mb-4 bg-body-tertiary rounded-3 mt-3 p-4">
             <?php
             $N = 15;
             $offset = $_REQUEST['offset'] ?? 0;

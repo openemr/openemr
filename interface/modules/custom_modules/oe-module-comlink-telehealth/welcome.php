@@ -98,7 +98,7 @@ $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true
                     echo 'd-none';} ?>">
                     <h3><?php echo xlt("Your payment subscription has been created."); ?></h3>
                     <p><?php echo xlt("Your Subscription ID / Profile ID is the following"); ?></p>
-                    <h3><input type="text" disabled="disabled" id="paypal-subscription-id" value="<?php echo attr($subscriptionId); ?>" /><i class="ml-2 fa fa-copy" id="btnCopy"></i></h3>
+                    <h3><input type="text" disabled="disabled" id="paypal-subscription-id" value="<?php echo attr($subscriptionId); ?>" /><i class="ms-2 fa fa-copy" id="btnCopy"></i></h3>
                     <p><?php echo xlt("Copy your subscription ID / Profile ID for obtaining your telehealth credentials"); ?></p>
                     <p><small><?php echo xlt("You have been sent an email from Paypal with your subscription information"); ?></small></p>
                 </div>

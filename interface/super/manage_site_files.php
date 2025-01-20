@@ -264,7 +264,7 @@ function msfFileChanged() {
                     <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
                     <div class="form-row align-items-center">
                         <div class="col-2">
-                            <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
+                            <label for="filter-black-list" class="fw-bold"><?php echo xlt('Filter');?>:</label>
                         </div>
                         <div class="col">
                             <input type="text" id="filter-black-list" class="form-control" />

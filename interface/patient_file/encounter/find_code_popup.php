@@ -181,8 +181,8 @@ $focus = "document.theform.search_term.select();";
                 <div class="table-responsive">
                 <table class='table table-striped table-responsive-sm'>
                     <thead>
-                        <th class='font-weight-bold'><?php echo xlt('Code'); ?></th>
-                        <th class='font-weight-bold'><?php echo xlt('Description'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Code'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Description'); ?></th>
                     </thead>
                     <tbody>
                     <?php

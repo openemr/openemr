@@ -367,7 +367,7 @@ tr.selected {
                 ?>
             </div>
             <div class="col-12">
-                <form class="jumbotron p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
+                <form class="mb-4 bg-body-tertiary rounded-3 p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <input type="hidden" name="mode" id="mode" value="add" />
@@ -377,7 +377,7 @@ tr.selected {
 
                     <?php
                     if (!empty($isAddedError)) {
-                        echo "<p class='text-danger font-weight-bold'>" . xlt("Entered in Error") . "</p>";
+                        echo "<p class='text-danger fw-bold'>" . xlt("Entered in Error") . "</p>";
                     }
                     ?>
 
@@ -395,7 +395,7 @@ tr.selected {
                         <input type='text' class='form-control' size='10' name='cvx_code' id='cvx_code'
                             value='<?php echo attr($cvx_code ?? ''); ?>' onclick='sel_cvxcode(this)'
                             title='<?php echo xla('Click to select or change CVX code'); ?>'/>
-                        <div id='cvx_description' class='d-inline float-end p-1 ml-2'>
+                        <div id='cvx_description' class='d-inline float-end p-1 ms-2'>
                             <?php echo xlt($code_text ?? ''); ?>
                         </div>
                     </div>
@@ -502,7 +502,7 @@ tr.selected {
                                placeholder="<?php echo xla("Select a reason code"); ?>"
                         />
                         <input type="hidden" name="reason_code_text" value="<?php echo attr($reason_code_text ?? ''); ?>" />
-                        <p class="reason_code_text d-inline float-end p-1 ml-2 <?php echo empty($reason_code_text) ? "" : "d-none"; ?>"></p>
+                        <p class="reason_code_text d-inline float-end p-1 ms-2 <?php echo empty($reason_code_text) ? "" : "d-none"; ?>"></p>
                     </div>
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Ordering Provider'); ?></label>

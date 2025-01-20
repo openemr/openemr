@@ -14,7 +14,7 @@
                 <h2>
                     {{ nav.title|text }}
                     {% for index, nav in nav.navs %}
-                        <a class="btn btn-secondary btn-sm {% if index > 0 %} mr-2 {% endif%} float-end" href="{{ nav.url|attr }}" onclick="top.restoreSession()">{{ nav.title|text }}</a>
+                        <a class="btn btn-secondary btn-sm {% if index > 0 %} me-2 {% endif%} float-end" href="{{ nav.url|attr }}" onclick="top.restoreSession()">{{ nav.title|text }}</a>
                     {% endfor %}
                 </h2>
             </div>

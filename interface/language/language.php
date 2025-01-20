@@ -60,26 +60,26 @@ function activate_lang_tab($linkid)
                 <!-- <span class="title"><?php echo xlt('Multi Language Tool'); ?></span> -->
                 <ui class="nav nav-pills">
                     <li class="nav-item" id="li-definition">
-                        <a href="?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="definition-link"><?php echo xlt('Edit Definitions'); ?></a>
+                        <a href="?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link fw-bold" id="definition-link"><?php echo xlt('Edit Definitions'); ?></a>
                     </li>
                     <li class="nav-item" id="li-language">
-                        <a href="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="language-link"><?php echo xlt('Add Language'); ?></a>
+                        <a href="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link fw-bold" id="language-link"><?php echo xlt('Add Language'); ?></a>
                     </li>
                     <li class="nav-item" id="li-constant">
-                        <a href="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="constant-link"><?php echo xlt('Add Constant'); ?></a>
+                        <a href="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link fw-bold" id="constant-link"><?php echo xlt('Add Constant'); ?></a>
                     </li>
                     <li class="nav-item" id="li-manage">
-                        <a href="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="manage-link"><?php echo xlt('Manage Translations'); ?></a>
+                        <a href="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link fw-bold" id="manage-link"><?php echo xlt('Manage Translations'); ?></a>
                     </li>
                     <li class="nav-item" id="li-csv">
-                        <a href="?m=csv&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="csv-link"><?php echo xlt('Load from CSV'); ?></a>
+                        <a href="?m=csv&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onclick="top.restoreSession()" class="nav-link fw-bold" id="csv-link"><?php echo xlt('Load from CSV'); ?></a>
                     </li>
                 </ui>
             </form>
         </div><!--end of nav-pills div-->
         <div class="row">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="px-5 mb-4 bg-body-tertiary py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <?php
                         if (!empty($_GET['m'])) {

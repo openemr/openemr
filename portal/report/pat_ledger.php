@@ -137,8 +137,8 @@ function PrintEncHeader($dt, $rsn, $dr)
         $rsn = substr($rsn, 0, 50) . '...';
     }
 
-    echo "<td colspan='4'><span class='font-weight-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
-    echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
+    echo "<td colspan='4'><span class='fw-bold'>" . xlt('Encounter Dt / Rsn') . ": </span><span class='detail'>" . text(substr($dt, 0, 10)) . " / " . text($rsn) . "</span></td>";
+    echo "<td colspan='5'><span class='fw-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
 }
@@ -456,33 +456,33 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
             <br />
             <table class="w-100 border-0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td class='font-weight-bold'><?php echo xlt('Date') ?>: <?php echo text(date('Y-m-d')); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('Patient') ?>: <?php echo text($pat_name); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('DOB') ?>: <?php echo text($pat_dob); ?></td>
-                    <td class='font-weight-bold'> <?php echo xlt('ID') ?>: <?php echo text($pid); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Date') ?>: <?php echo text(date('Y-m-d')); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Patient') ?>: <?php echo text($pat_name); ?></td>
+                    <td class='fw-bold'><?php echo xlt('DOB') ?>: <?php echo text($pat_dob); ?></td>
+                    <td class='fw-bold'> <?php echo xlt('ID') ?>: <?php echo text($pid); ?></td>
                 </tr>
             </table>
         </div>
         <div id="report_results">
             <table class="table table-bordered">
                 <tr>
-                    <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-                    <td colspan="2" class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('Type'); ?>
+                    <td class='fw-bold'><?php echo xlt('Code'); ?></td>
+                    <td colspan="2" class='fw-bold'><?php echo xlt('Description'); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Type'); ?>
                         <?php echo xlt('Units'); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('Charge'); ?></td>
-                    <td class='text-right font-weight-bold'><?php echo xlt('Payment'); ?></td>
-                    <td class='text-right font-weight-bold'><?php echo xlt('Adjustment'); ?></td>
-                    <td class='text-right font-weight-bold'><?php echo xlt('Balance'); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Charge'); ?></td>
+                    <td class='text-right fw-bold'><?php echo xlt('Payment'); ?></td>
+                    <td class='text-right fw-bold'><?php echo xlt('Adjustment'); ?></td>
+                    <td class='text-right fw-bold'><?php echo xlt('Balance'); ?></td>
                 </tr>
                 <tr>
                     <td></td>
                     <td colspan="2"></td>
                     <td></td>
                     <td></td>
-                    <td class='font-weight-bold'><?php echo xlt('UAC Appl'); ?></td>
-                    <td class='text-right font-weight-bold'><?php echo xlt('UAC Tot'); ?></td>
+                    <td class='fw-bold'><?php echo xlt('UAC Appl'); ?></td>
+                    <td class='text-right fw-bold'><?php echo xlt('UAC Tot'); ?></td>
                     <td></td>
                     <td></td>
                 </tr>
@@ -599,12 +599,12 @@ $form_to_date = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
                 if ($orow) {
                     echo "<tr bgcolor='#DDFFFF'>\n";
                     echo " <td colspan='2'></td>";
-                    echo " <td class='font-weight-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
-                    echo " <td class='font-weight-bold text-right'>" . text($total_units) . "</td>\n";
-                    echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
-                    echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
-                    echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
-                    echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
+                    echo " <td class='fw-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
+                    echo " <td class='fw-bold text-right'>" . text($total_units) . "</td>\n";
+                    echo " <td class='fw-bold text-right'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
+                    echo " <td class='fw-bold text-right'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
+                    echo " <td class='fw-bold text-right'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
+                    echo " <td class='fw-bold text-right'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
                     echo " </tr>\n";
                     ?>
             </table>

@@ -326,7 +326,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
             <input type="hidden" id="form_create" name="form_create" value="" />
             <input type="hidden" id="form_save_pid" name="form_save_pid" value="" />
             <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Title'); ?>:</label>
+                <label class="fw-bold"><?php echo xlt('Title'); ?>:</label>
                 <select class="form-control" required name='title'>
                     <option value=''><?php echo xlt("Unassigned"); ?></option>
                     <?php
@@ -343,19 +343,19 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 </select>
             </div>
             <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('First Name'); ?>: </label>
+                <label class="fw-bold"><?php echo xlt('First Name'); ?>: </label>
                 <input type='text' class="form-control" required name='fname' value='<?php echo attr($form_fname); ?>' />
             </div>
             <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Middle Name'); ?>: </label>
+                <label class="fw-bold"><?php echo xlt('Middle Name'); ?>: </label>
                 <input type='text' class="form-control" name='mname' value='<?php echo attr($form_mname); ?>' />
             </div>
             <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Last Name'); ?>: </label>
+                <label class="fw-bold"><?php echo xlt('Last Name'); ?>: </label>
                 <input type='text' class="form-control" required name='lname' value='<?php echo attr($form_lname); ?>' />
             </div>
             <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Gender'); ?>: </label>
+                <label class="fw-bold"><?php echo xlt('Gender'); ?>: </label>
                 <select class="form-control" required name='sex'>
                     <option value=''><?php echo xlt("Unassigned"); ?></option>
                     <?php
@@ -372,7 +372,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                 </select>
             </div>
             <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Birth Date'); ?>:</label>
+                <label class="fw-bold"><?php echo xlt('Birth Date'); ?>:</label>
                 <input type='text' class='form-control datepicker' required name='DOB' id='DOB' value='<?php echo attr($form_dob); ?>' />
             </div>
             <div class="form-check">

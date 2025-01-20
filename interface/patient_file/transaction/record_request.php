@@ -62,7 +62,7 @@ $recordRequest = sqlQuery("SELECT * FROM `amc_misc_data` WHERE `pid`=? AND `amc_
             </div>
         </div>
         <div class="row">
-            <div class="col-12 jumbotron py-4">
+            <div class="col-12 px-5 mb-4 bg-body-tertiary rounded-3 py-4">
                 <?php if (empty($recordRequest)) { ?>
                     <a href="javascript:void(0)" id="req_button" class="btn btn-primary btn-save"><?php echo xlt('Patient Record Request'); ?></a>
                     <span class="lead" id="openreq" style="display:none"><?php echo xlt('The patient record request has been recorded.'); ?></span>

@@ -728,7 +728,7 @@ function resetCounter(username) {
                                     if (!empty($queryCounter['last_login_fail'])) {
                                         echo ' (' . xlt('last on') . ' ' . text(oeFormatDateTime($queryCounter['last_login_fail'])) . ')';
                                     }
-                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ms-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
                                     $autoBlocked = false;
                                     $autoBlockEnd = null;
                                     if ((int)$GLOBALS['password_max_failed_logins'] != 0 && ($queryCounter['login_fail_counter'] > (int)$GLOBALS['password_max_failed_logins'])) {

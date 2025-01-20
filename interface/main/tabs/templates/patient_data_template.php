@@ -113,7 +113,7 @@ switch ($search_any_type) {
             </div>
         </div>
 
-        <div class="flex-fill ml-2">
+        <div class="flex-fill ms-2">
             <!-- ko if: patient -->
             <!-- ko with: patient -->
             <div class="btn-group btn-group-sm">
@@ -172,7 +172,7 @@ switch ($search_any_type) {
             <!-- ko if: user -->
             <!-- ko with: user -->
             <!-- ko if:messages() -->
-            <span class="mr-auto">
+            <span class="me-auto">
                 <a class="btn btn-secondary btn-sm" href="#" data-bind="click: viewMessages"
                     title="<?php echo xla("View Messages"); ?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span class="badge badge-primary" style="display:inline" data-bind="text: messages()"></span>
@@ -180,7 +180,7 @@ switch ($search_any_type) {
             </span>
             <!-- /ko --><!-- messages -->
             <!-- ko if: portal() -->
-            <nav class="btn-group dropdown mr-auto">
+            <nav class="btn-group dropdown me-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
@@ -214,7 +214,7 @@ switch ($search_any_type) {
             </nav>
             <!-- /ko --><!-- portal alert -->
             <!-- ko if: servicesOther() -->
-            <nav class="btn-group dropdown mr-auto">
+            <nav class="btn-group dropdown me-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="servicesMsgAlerts"
                     data-toggle="dropdown"

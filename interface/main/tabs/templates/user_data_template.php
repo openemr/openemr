@@ -18,7 +18,7 @@
 
 <script type="text/html" id="user-data-template">
     <!-- ko with: user -->
-        <div id="username" class="appMenu ml-3">
+        <div id="username" class="appMenu ms-3">
                 <div class='menuLabel dropdown' id="username" title="<?php echo xla('Current user') ?>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="fa-stack">
                         <i class="far text-muted fa-circle fa-2x fa-stack-2x"></i>
@@ -26,15 +26,15 @@
                     </span>
                     <ul id="userdropdown" class="userfunctions menuEntries dropdown-menu dropdown-menu-right menu-shadow-ovr rounded-0 border-0">
                         <li class="menuLabel">
-                            <span class="font-weight-bold"><span data-bind="text:fname"></span> <span data-bind="text:lname"></span></span>
+                            <span class="fw-bold"><span data-bind="text:fname"></span> <span data-bind="text:lname"></span></span>
                         </li>
-                        <li class="menuLabel" data-bind="click: editSettings"><i class="fa fa-fw pr-2 text-muted fa-cog"></i>&nbsp;<?php echo xlt("Settings");?></li>
-                        <li class="menuLabel" data-bind="click: changePassword"><i class="fa fa-fw pr-2 text-muted fa-lock"></i>&nbsp;<?php echo xlt("Change Password");?></li>
-                        <li class="menuLabel" data-bind="click: changeMFA"><i class="fa fa-fw pr-2 text-muted fa-key"></i>&nbsp;<?php echo xlt("MFA Management");?></li>
+                        <li class="menuLabel" data-bind="click: editSettings"><i class="fa fa-fw pe-2 text-muted fa-cog"></i>&nbsp;<?php echo xlt("Settings");?></li>
+                        <li class="menuLabel" data-bind="click: changePassword"><i class="fa fa-fw pe-2 text-muted fa-lock"></i>&nbsp;<?php echo xlt("Change Password");?></li>
+                        <li class="menuLabel" data-bind="click: changeMFA"><i class="fa fa-fw pe-2 text-muted fa-key"></i>&nbsp;<?php echo xlt("MFA Management");?></li>
                         <div class="dropdown-divider"></div>
-                        <li class="menuLabel" data-bind="click: function() {navigateTab('./../about_page.php', 'About', function() {activateTabByName('About',true);});}"><i class="fa fa-fw pr-2 text-muted fa-info"></i>&nbsp;<?php echo xlt("About");?> <?php echo text($GLOBALS['openemr_name']); ?></li>
+                        <li class="menuLabel" data-bind="click: function() {navigateTab('./../about_page.php', 'About', function() {activateTabByName('About',true);});}"><i class="fa fa-fw pe-2 text-muted fa-info"></i>&nbsp;<?php echo xlt("About");?> <?php echo text($GLOBALS['openemr_name']); ?></li>
                         <div class="dropdown-divider"></div>
-                        <li class="menuLabel" data-bind="click: logout"><i class="fa fa-fw pr-2 text-muted fa-sign-out-alt"></i>&nbsp;<?php echo xlt("Logout");?></li>
+                        <li class="menuLabel" data-bind="click: logout"><i class="fa fa-fw pe-2 text-muted fa-sign-out-alt"></i>&nbsp;<?php echo xlt("Logout");?></li>
                     </ul>
               </div>
         </div>

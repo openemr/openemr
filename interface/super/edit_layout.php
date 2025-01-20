@@ -933,7 +933,7 @@ function writeFieldLine($linedata)
     echo "</td>\n";
 
     // The "?" to click on for yet more field attributes.
-    echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
+    echo "  <td class='fw-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
     if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
         echo "background-color: var(--success);";
     }
@@ -962,7 +962,7 @@ function writeFieldLine($linedata)
       "z-index: 1000; left:-1000px; top:0; font-size: 0.6875rem;' class='position-absolute'>\n" .
       "<table class='w-100'>\n" .
       " <tr>\n" .
-      "  <th colspan='3' class='text-left font-weight-bold'>" .
+      "  <th colspan='3' class='text-left fw-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
       "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
       "<option value='skip'  " . ($action == 'skip'  ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
@@ -976,11 +976,11 @@ function writeFieldLine($linedata)
       "value='" . xla('Close') . "' onclick='extShow(" . attr_js($fld_line_no) . ", false)' />&nbsp;</th>\n" .
       " </tr>\n" .
       " <tr class='text-left'>\n" .
-      "  <th class='font-weight-bold'>" . xlt('Field ID') . "</th>\n" .
-      "  <th class='font-weight-bold'>" . xlt('List item ID') . "</th>\n" .
-      "  <th class='font-weight-bold'>" . xlt('Operator') . "</th>\n" .
-      "  <th class='font-weight-bold'>" . xlt('Value if comparing') . "</th>\n" .
-      "  <th class='font-weight-bold'>&nbsp;</th>\n" .
+      "  <th class='fw-bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th class='fw-bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th class='fw-bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th class='fw-bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th class='fw-bold'>&nbsp;</th>\n" .
       " </tr>\n";
     // There may be multiple condition lines for each field.
     foreach ($conditions as $i => $condition) {
@@ -1061,11 +1061,11 @@ function writeFieldLine($linedata)
 
     $extra_html .=  "<table class='w-100'>\n" .
     " <tr>\n" .
-    "  <td colspan='3' class='text-left font-weight-bold'>\"" . text($linedata['field_id']) . "\" " .
+    "  <td colspan='3' class='text-left fw-bold'>\"" . text($linedata['field_id']) . "\" " .
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td class='text-left font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
+    "  <td class='text-left fw-bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n" .
     " <tr>\n" .
     "  <td class='text-left' title='" . xla('Select a validation rule') . "'>\n" .
@@ -1482,7 +1482,7 @@ function myChangeCheck() {
 <?php echo xlt('Include inactive'); ?></label>
 
 <?php if ($layout_id) { ?>
-<div class="btn-group ml-auto">
+<div class="btn-group ms-auto">
     <button type='button' class='btn btn-secondary btn-sm' onclick='edit_layout_props("")'><?php echo xla('Layout Properties'); ?></button>
     <button type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup'><?php echo xla('Add Group'); ?></button>
     <button type='button' class="btn btn-primary btn-save btn-sm" name='save' id='save'><?php echo xla('Save Changes'); ?></button>
@@ -1592,14 +1592,14 @@ if ($layout_id) {
             <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
                 <span class="navbar-brand">{$t_vars['translate_layout']}&nbsp;{$t_vars['text_group_name']}</span>
                 <div class="btn-toolbar" role="toolbar" aria-label="Group Toolbar">
-                    <div class="btn-group mr-2" role="group" aria-label="Field Group">
+                    <div class="btn-group me-2" role="group" aria-label="Field Group">
                         <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id_attr}">{$t_vars['xla_add_field']}</button>
                     </div>
-                    <div class="btn-group ml-2 mr-2" role="group" aria-label="Move Group">
+                    <div class="btn-group ms-2 me-2" role="group" aria-label="Move Group">
                         <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xla_move_up']}</button>
                         <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
                     </div>
-                    <div class="btn-group mr-2" role="group" aria-label="Group Options">
+                    <div class="btn-group me-2" role="group" aria-label="Group Options">
                         <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['attr_gmyname']}">{$t_vars['xla_rename_group']}</button>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr_js})">{$t_vars['xla_group_props']}</button>
                         <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id_attr}">{$t_vars['xla_delete_group']}</button>
@@ -1683,7 +1683,7 @@ if ($layout_id) {
 
 <!-- template DIV that appears when user chooses to add a new group -->
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--gray);">
-<span class='font-weight-bold'>
+<span class='fw-bold'>
 <?php echo xlt('Group Name'); ?>:
 <input type="text" size="20" maxlength="30" name="newgroupname" id="newgroupname" />
 &nbsp;&nbsp;

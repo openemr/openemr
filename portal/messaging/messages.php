@@ -541,15 +541,15 @@ function getAuthPortalUsers()
     <ng ng-app="emrMessageApp">
         <div class="container-fluid" id='main'  ng-controller="inboxCtrl">
             <div class='my-3'>
-                <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
+                <h2><i class='fa fa-envelope w-auto h-auto me-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
             </div>
             <div class="row" ng-class="{'d-none': isInit}">
                 <div class="col-12">
-                    <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ml-2"></i></h3></div>
+                    <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ms-2"></i></h3></div>
                 </div>
             </div>
             <div class="row d-none"  ng-class="{'d-none': !isInit}">
-                <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
+                <div class="col-md-2 p-0 m-0 text-left border-end bg-light text-dark">
                     <div class="sticky-top">
                         <ul class="nav nav-pills nav-stacked flex-column">
                             <li class="nav-item">
@@ -649,7 +649,7 @@ function getAuthPortalUsers()
                         <!--message detail-->
                         <div class="container-fluid" ng-show="isMessageSelected()">
                             <div class="row" ng-controller="messageCtrl">
-                                <div class="w-100 pl-1 mb-1 bg-light text-dark">
+                                <div class="w-100 ps-1 mb-1 bg-light text-dark">
                                     <h5 class="pt-2">
                                         <a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation from'); ?></a>
                                         <strong>{{selected.sender_name}}</strong> <?php echo xlt('regarding'); ?> <strong>{{selected.title}}</strong> <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
@@ -667,7 +667,7 @@ function getAuthPortalUsers()
                                         </button>
                                     </span>-->
                                 </div>
-                                <div class="table-responsive row ml-1">
+                                <div class="table-responsive row ms-1">
                                     <table class="table table-hover table-striped table-bordered refresh-container pull-down">
                                         <thead><?php echo xlt('Associated Messages in thread.');?></thead>
                                         <tbody>
@@ -684,7 +684,7 @@ function getAuthPortalUsers()
                                                     <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
                                                     </button>
                                                 </span>
-                                                <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
+                                                <div class='col mb-4 bg-body-tertiary my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
                                                     <span ng-bind-html=renderMessageBody(selected.body)></span>
                                                 </div>
                                             </td>
@@ -719,18 +719,18 @@ function getAuthPortalUsers()
                             <div class="modal-body ">
                                 <div class="col-12">
                                     <label ng-show='selected.mail_chain'><?php echo xlt('Refer to Message') . ' # '; ?>{{selected.id}}</label>
-                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" ng-show='selected.mail_chain' ng-bind-html='renderMessageBody(selected.body)'></div>
+                                    <div class="mb-4 bg-body-tertiary rounded-3 col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" ng-show='selected.mail_chain' ng-bind-html='renderMessageBody(selected.body)'></div>
 
                                     <form role="form" class="form-horizontal" ng-submit="submitForm(compose)" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
                                         <fieldset class="row">
                                             <div class="col-lg-6 input-group my-2">
                                                 <label for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
-                                                <select class="form-control ml-2 to-select-forward" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:'user' track by recip.userid"></select>
-                                                <select class="form-control ml-2 to-select-send" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
+                                                <select class="form-control ms-2 to-select-forward" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:'user' track by recip.userid"></select>
+                                                <select class="form-control ms-2 to-select-send" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
                                             </div>
                                             <div class="input-group col-lg-6 my-2">
                                                 <label for="title"><?php echo xlt('Subject'); ?></label>
-                                                <input type='text' list='listid' name='title' id='title' class="form-control ml-2" ng-model='compose.title' value="<?php echo xla('General'); ?>">
+                                                <input type='text' list='listid' name='title' id='title' class="form-control ms-2" ng-model='compose.title' value="<?php echo xla('General'); ?>">
                                                 <datalist id='listid'>
                                                     <option label='<?php echo xlt('General'); ?>'
                                                         value='<?php echo xla('General'); ?>'></option>

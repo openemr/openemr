@@ -168,7 +168,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     <div class="container-fluid mt-3">
         <div id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
-            <div class="jumbotron p-4">
+            <div class="mb-4 bg-body-tertiary rounded-3 p-4">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
@@ -376,7 +376,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div class="table-responsive mt-3">
                     <table class="table table-bordered">
                     <thead class="table-primary">
-                    <tr class="small font-weight-bold text-center">
+                    <tr class="small fw-bold text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>

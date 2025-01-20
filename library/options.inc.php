@@ -1121,12 +1121,12 @@ function generate_form_field($frow, $currvalue)
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         echo "<table class='table'>";
-        echo "<tr><td class='font-weight-bold'>" . htmlspecialchars(xl('Exam or Test'), ENT_NOQUOTES) .
-        "</td><td class='font-weight-bold'>" . htmlspecialchars(xl('N/A'), ENT_NOQUOTES) .
-        "&nbsp;</td><td class='font-weight-bold'>" .
+        echo "<tr><td class='fw-bold'>" . htmlspecialchars(xl('Exam or Test'), ENT_NOQUOTES) .
+        "</td><td class='fw-bold'>" . htmlspecialchars(xl('N/A'), ENT_NOQUOTES) .
+        "&nbsp;</td><td class='fw-bold'>" .
         htmlspecialchars(xl('Nor'), ENT_NOQUOTES) . "&nbsp;</td>" .
-        "<td class='font-weight-bold'>" .
-        htmlspecialchars(xl('Abn'), ENT_NOQUOTES) . "&nbsp;</td><td class='font-weight-bold'>" .
+        "<td class='fw-bold'>" .
+        htmlspecialchars(xl('Abn'), ENT_NOQUOTES) . "&nbsp;</td><td class='fw-bold'>" .
         htmlspecialchars(xl('Date/Notes'), ENT_NOQUOTES) . "</td></tr>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -1381,7 +1381,7 @@ function generate_form_field($frow, $currvalue)
             " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$resnote' $disabled />&nbsp;</td>";
-            echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
+            echo "<td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
             htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
         } elseif ($data_type == 32) {
@@ -1408,7 +1408,7 @@ function generate_form_field($frow, $currvalue)
                 ($disabled ? array('disabled' => 'disabled') : null)
             );
             echo "</td>";
-            echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . xlt('Status') . ":&nbsp;&nbsp;</td>";
+            echo "<td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . xlt('Status') . ":&nbsp;&nbsp;</td>";
         }
 
         // current
@@ -2031,13 +2031,13 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         echo "<table class='table'>";
-        echo "<tr><td><td class='font-weight-bold'>" .
-        htmlspecialchars(xl('Exam or Test'), ENT_NOQUOTES) . "</td><td class='font-weight-bold'>" .
+        echo "<tr><td><td class='fw-bold'>" .
+        htmlspecialchars(xl('Exam or Test'), ENT_NOQUOTES) . "</td><td class='fw-bold'>" .
         htmlspecialchars(xl('N/A'), ENT_NOQUOTES) .
-        "&nbsp;</td><td class='font-weight-bold'>" .
+        "&nbsp;</td><td class='fw-bold'>" .
         htmlspecialchars(xl('Nor'), ENT_NOQUOTES) . "&nbsp;</td>" .
-        "<td class='font-weight-bold'>" .
-        htmlspecialchars(xl('Abn'), ENT_NOQUOTES) . "&nbsp;</td><td class='font-weight-bold'>" .
+        "<td class='fw-bold'>" .
+        htmlspecialchars(xl('Abn'), ENT_NOQUOTES) . "&nbsp;</td><td class='fw-bold'>" .
         htmlspecialchars(xl('Date/Notes'), ENT_NOQUOTES) . "</td></tr>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id'];
@@ -2196,7 +2196,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
             " size='$fldlength'" .
             " class='under'" .
             " value='$resnote' /></td>";
-            echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
+            echo "<td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" .
             htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;</td>";
         } elseif ($data_type == 32) {
@@ -2210,7 +2210,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
             " size='$fldlength'" .
             " class='under form-control'" .
             " value='$smoking_status_title' /></td>";
-            echo "<td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
+            echo "<td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":&nbsp;&nbsp;</td>";
         }
 
         echo "<td><input type='radio' class='form-check-inline'";
@@ -2429,7 +2429,7 @@ function generate_display_field($frow, $currvalue)
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
             $s = nl2br(text(xl_list_label($currvalue))) .
-                '<span> <i class="fa fas fa-exclamation-circle ml-1"></i></span>';
+                '<span> <i class="fa fas fa-exclamation-circle ms-1"></i></span>';
         }
 
         if ($data_type == 46) {
@@ -2587,7 +2587,7 @@ function generate_display_field($frow, $currvalue)
             }
 
             // Added 5-09 by BM - Translate label if applicable
-            $s .= "<tr><td class='font-weight-bold align-top'>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . ":&nbsp;</td>";
+            $s .= "<tr><td class='fw-bold align-top'>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . ":&nbsp;</td>";
 
             $s .= "<td class='text align-top'>" . htmlspecialchars($avalue[$option_id], ENT_NOQUOTES) . "</td></tr>";
         }
@@ -2614,7 +2614,7 @@ function generate_display_field($frow, $currvalue)
             }
 
             // Added 5-09 by BM - Translate label if applicable
-            $s .= "<tr><td class='font-weight-bold align-top'>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
+            $s .= "<tr><td class='fw-bold align-top'>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
 
             $restype = ($restype == '1') ? xl('Normal') : (($restype == '2') ? xl('Abnormal') : xl('N/A'));
             // $s .= "<td class='text align-top'>$restype</td></tr>";
@@ -2663,7 +2663,7 @@ function generate_display_field($frow, $currvalue)
             }
 
             // Added 5-09 by BM - Translate label if applicable
-            $s .= "<tr><td class='font-weight-bold align-top'>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
+            $s .= "<tr><td class='fw-bold align-top'>" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES) . "&nbsp;</td>";
 
             $restype = $restype ? xl('Yes') : xl('No');
             $s .= "<td class='text align-top'>" . htmlspecialchars($restype, ENT_NOQUOTES) . "&nbsp;</td>";
@@ -3867,7 +3867,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 
                 if ($datacols == 0) {
                     // Data will be in the same cell, so prevent wrapping to a new line.
-                    echo "<span class='text-nowrap mr-2'>";
+                    echo "<span class='text-nowrap me-2'>";
                 }
 
                 $field_id_label = 'label_' . $group_fields['field_id'];
@@ -4166,7 +4166,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
                 if ($datacols == 0) {
                     // Data will be in the same cell, so prevent wrapping to a new line.
-                    echo "<span class='text-nowrap mr-2'>";
+                    echo "<span class='text-nowrap me-2'>";
                 }
 
                 if (!$span_col_row) {
@@ -4662,13 +4662,13 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 
     if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
-        echo "<td><span class='text font-weight-bold'>" . text($title) . "</span>";
+        echo "<td><span class='text fw-bold'>" . text($title) . "</span>";
         $indicatorTag = "style='display: none'";
     }
 
     $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
-        attr_js($label . "_ps_expand") . ")'><span class='text font-weight-bold'>";
+        attr_js($label . "_ps_expand") . ")'><span class='text fw-bold'>";
     echo text($title) . "</span>";
 
     if (isset($_SESSION['patient_portal_onsite_two'])) {

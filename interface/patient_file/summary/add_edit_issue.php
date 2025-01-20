@@ -1000,7 +1000,7 @@ function getCodeText($code)
                         </div>
                         <div class="row">
                             <div class="col d-flex justify-content-end">
-                                <button type="button" class="btn btn-text mr-3" data-toggle="collapse" data-target="#expanded_options" aria-expanded="false" aria-controls="expanded_options"><?php echo xlt("Show More Fields"); ?>&nbsp;<i class="fa fa-angles-down"></i></button>
+                                <button type="button" class="btn btn-text me-3" data-toggle="collapse" data-target="#expanded_options" aria-expanded="false" aria-controls="expanded_options"><?php echo xlt("Show More Fields"); ?>&nbsp;<i class="fa fa-angles-down"></i></button>
                                 <div class="btn-group" role="group">
                                     <button type='submit' name='form_save' value="<?php echo xla('Save'); ?>" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>

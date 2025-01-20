@@ -24,7 +24,7 @@
             {xlt t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
             <br />
         </div>
-        <div class="font-weight-bold">
+        <div class="fw-bold">
             {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
         </div>
         <div class="form-group">
@@ -56,7 +56,7 @@
         <input type="hidden" name="process" value="{$PROCESS|attr}" />
         {if !empty($file)}
         <div class="form-group">
-            <label class="font-weight-bold">
+            <label class="fw-bold">
                 {xlt t='Uploaded'}
             </label>
             {foreach from=$file item=onefile}

@@ -122,7 +122,7 @@ try {
 $top_note = true; // default to top if not set in configuration
 $bottom_note = false;
 
-$loinc_text = "<span class='font-weight-bold bg-light text-dark'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " . xlt("terms of use.") . "</i>" . "</a>";
+$loinc_text = "<span class='fw-bold bg-light text-dark'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " . xlt("terms of use.") . "</i>" . "</a>";
 
 if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
     switch ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
@@ -237,7 +237,7 @@ if ($isModule || $isDashboard || $isPortal) {
             let formElement = document.getElementById("formContainer");
             let notValid = LForms.Util.checkValidity(formElement);
             if (notValid) {
-                notValid = "<span class='font-weight-bold p-2'>" + jsText(notValid) + "</span>";
+                notValid = "<span class='fw-bold p-2'>" + jsText(notValid) + "</span>";
                 let error = notValid.replace(/requires a value,/g, "requires a value,<br />");
                 error = error.replace(/requires a value/g, "<span class='text-danger'>requires a value</span>")
                 let formatText = "<span class='h5'>" + xl('Form failed validation!') + "</span><br />" + error;
@@ -480,11 +480,11 @@ if ($isModule || $isDashboard || $isPortal) {
             <?php } ?>
             <div class="mb-3">
                 <div class="input-group isNew d-none">
-                    <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
+                    <label for="loinc_item" class="fw-bold mt-2 me-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
                     <input class="form-control search_field bg-light text-dark" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
                 </div>
                 <div class="input-group isNew d-none mt-2">
-                    <label for="select_item" class="font-weight-bold my-2 mr-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>
+                    <label for="select_item" class="fw-bold my-2 me-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>
                     <select class="select-dropdown my-2" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false">
                         <option value=""></option>
                         <?php
@@ -503,8 +503,8 @@ if ($isModule || $isDashboard || $isPortal) {
                 </div>
                 <div class="input-group isNew d-none">
                     <hr />
-                    <label class="font-weight-bold my-2" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
-                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten to be more understandable.'); ?>" placeholder="<?php echo xla('Name of new Encounter form. You may change or leave as displayed.'); ?>" value="<?php echo attr((($form['form_name'] ?? null) ?: $form_name) ?? ''); ?>" />
+                    <label class="fw-bold my-2" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
+                    <input required type="text" class="form-control skip-template-editor ms-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten to be more understandable.'); ?>" placeholder="<?php echo xla('Name of new Encounter form. You may change or leave as displayed.'); ?>" value="<?php echo attr((($form['form_name'] ?? null) ?: $form_name) ?? ''); ?>" />
                 </div>
             </div>
             <hr />

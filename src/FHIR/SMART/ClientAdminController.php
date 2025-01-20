@@ -178,8 +178,8 @@ class ClientAdminController
     {
         /**
 * <a class="btn btn-secondary btn-sm float-end" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end me-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end me-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
  */
         $clients = $this->clientRepo->listClientEntities();
         $clientListRecords = [];
@@ -647,8 +647,8 @@ class ClientAdminController
                         <h2>
                             <?php echo text($title); ?>
                             <a class="btn btn-secondary btn-sm float-end" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-end mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end me-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-end me-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
                         </h2>
                     </div>
                 </div>

@@ -1175,7 +1175,7 @@ function make_insurance() {
                         </div>
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
-                            <div class="pl-3">
+                            <div class="ps-3">
                                 <label class="radio-inline">
                                     <input id="radio_type_of_coverage1" name="radio_type_of_coverage" onclick="make_visible_radio();make_self();" type="radio" value="self"><?php echo xlt('Self'); ?>
                                 </label>
@@ -1216,18 +1216,18 @@ function make_insurance() {
                             <table class="table" id="table_display">
                                 <thead>
                                     <tr class="table-active" id="tr_head">
-                                        <th class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></th>
-                                        <th class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></th>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></th>
-                                        <th class="font-weight-bold text-center" width="50"><?php echo xlt('Paying'); ?></th>
+                                        <th class="fw-bold" width="70"><?php echo xlt('DOS'); ?></th>
+                                        <th class="fw-bold" width="65"><?php echo xlt('Encounter'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></th>
+                                        <th class="fw-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></th>
+                                        <th class="fw-bold text-center" width="50"><?php echo xlt('Paying'); ?></th>
                                     </tr>
                                 </thead>
                                 <?php
@@ -1395,16 +1395,16 @@ function make_insurance() {
                                 ?>
 
                                 <tr class="table-active">
-                                    <td class="font-weight-bold" id='td_total_1'></td>
-                                    <td class="font-weight-bold" id='td_total_2'></td>
-                                    <td class="font-weight-bold" id='td_total_3'></td>
-                                    <td class="font-weight-bold" id='td_total_4'></td>
-                                    <td class="font-weight-bold" id='td_total_5'></td>
-                                    <td class="font-weight-bold" id='td_total_6'></td>
-                                    <td class="font-weight-bold" id='td_total_7'></td>
-                                    <td class="font-weight-bold" id='td_total_8'></td>
-                                    <td class="font-weight-bold text-right"><?php echo xlt('Total');?></td>
-                                    <td class="font-weight-bold text-right">
+                                    <td class="fw-bold" id='td_total_1'></td>
+                                    <td class="fw-bold" id='td_total_2'></td>
+                                    <td class="fw-bold" id='td_total_3'></td>
+                                    <td class="fw-bold" id='td_total_4'></td>
+                                    <td class="fw-bold" id='td_total_5'></td>
+                                    <td class="fw-bold" id='td_total_6'></td>
+                                    <td class="fw-bold" id='td_total_7'></td>
+                                    <td class="fw-bold" id='td_total_8'></td>
+                                    <td class="fw-bold text-right"><?php echo xlt('Total');?></td>
+                                    <td class="fw-bold text-right">
                                         <input type='text' class='form-control text-success' name='form_paytotal' value='' readonly />
                                     </td>
                                 </tr>

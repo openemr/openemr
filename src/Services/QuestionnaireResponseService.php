@@ -122,7 +122,7 @@ class QuestionnaireResponseService extends BaseService
                 }
             }
             if ($item === 'question') {
-                $html .= "<div class='form-group my-0'><label class='my-0 font-weight-bold' style='margin-left: $margin;'>" . text($value) . ":</label>";
+                $html .= "<div class='form-group my-0'><label class='my-0 fw-bold' style='margin-left: $margin;'>" . text($value) . ":</label>";
             }
             if ($item === 'answer') {
                 if (is_array($value ?? null)) {
@@ -136,7 +136,7 @@ class QuestionnaireResponseService extends BaseService
                         $value = trim($v);
                     }
                 }
-                $html .= "<span class='my-0 ml-1'>" . text($value) . "</span></div>";
+                $html .= "<span class='my-0 ms-1'>" . text($value) . "</span></div>";
             }
         }
         $html .= <<<foot

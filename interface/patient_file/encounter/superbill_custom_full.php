@@ -671,26 +671,26 @@ if ($fend > ($count ?? null)) {
 
 <table class='table table-borderless' cellpadding='5' cellspacing='0'>
     <tr>
-        <td><span class='font-weight-bold'><?php echo xlt('Code'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Mod'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Code'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Mod'); ?></span></td>
         <?php if ($institutional) { ?>
-            <td><span class='font-weight-bold'><?php echo xlt('Revenue'); ?></span></td>
+            <td><span class='fw-bold'><?php echo xlt('Revenue'); ?></span></td>
         <?php } ?>
-        <td><span class='font-weight-bold'><?php echo xlt('Act'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Category'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Dx Rep'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Serv Rep'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Type'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Description'); ?></span></td>
-        <td><span class='font-weight-bold'><?php echo xlt('Short Description'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Act'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Category'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Dx Rep'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Serv Rep'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Type'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Description'); ?></span></td>
+        <td><span class='fw-bold'><?php echo xlt('Short Description'); ?></span></td>
         <?php if (related_codes_are_used()) { ?>
-            <td><span class='font-weight-bold'><?php echo xlt('Related'); ?></span></td>
+            <td><span class='fw-bold'><?php echo xlt('Related'); ?></span></td>
         <?php } ?>
         <?php
         $pres = sqlStatement("SELECT title FROM list_options " .
             "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
         while ($prow = sqlFetchArray($pres)) {
-            echo "  <td class='font-weight-bold text-right text-nowrap'>" . text(xl_list_label($prow['title'])) . "</td>\n";
+            echo "  <td class='fw-bold text-right text-nowrap'>" . text(xl_list_label($prow['title'])) . "</td>\n";
         }
         ?>
         <td></td>

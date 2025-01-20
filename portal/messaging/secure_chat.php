@@ -594,7 +594,7 @@ $msgApp = new ChatController();
             <div class="col-md-8 fixed-panel">
                 <div class="card direct-chat direct-chat-warning">
                     <div class="card-heading bg-dark text-light py-2">
-                        <div class="clearfix btn-group ml-2">
+                        <div class="clearfix btn-group ms-2">
                             <a class='btn btn-primary' href='./../patient/provider' ng-show='!isPortal'><?php echo xlt('Home'); ?></a>
                             <a class="btn btn-secondary" href="" data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
                         </div>

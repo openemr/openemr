@@ -550,7 +550,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                 <div class="form-row">
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="type_code"><?php echo xlt('Now posting for'); ?>:</label>
-                        <div class="pl-3">
+                        <div class="ps-3">
                             <?php
                                 $last_level_closed = 0 + $ferow['last_level_closed'];
                             ?>
@@ -581,7 +581,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                         <a class="btn btn-save bg-light text-primary"
                             onclick="document.forms[0].isLastClosed.value='3'; document.forms[0].submit()"><?php echo xlt("Save Level"); ?>
                         </a>
-                        <div class="pl-3">
+                        <div class="ps-3">
                             <?php
                             // Write a checkbox for each insurance.  It is to be checked when
                             // we no longer expect any payments from that company for the claim.
@@ -600,7 +600,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     </div>
                     <div class="form-group col-lg">
                         <label class="col-form-label" for=""><?php echo xlt('Secondary billing'); ?>:</label>
-                        <div class="pl-3">
+                        <div class="ps-3">
                             <label class="checkbox-inline">
                                 <input name="form_secondary" type="checkbox" value="1" /><?php echo xlt('Needs secondary billing') ?>
                             </label>

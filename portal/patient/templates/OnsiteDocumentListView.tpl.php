@@ -503,7 +503,7 @@ $templateService = new DocumentTemplateService();
         }
     </script>
     <div class="container-xl px-1">
-        <div class="text-center"> <span class="h3 mt-1 mr-1"><?php echo xlt("Documents and Forms") ?></span>
+        <div class="text-center"> <span class="h3 mt-1 me-1"><?php echo xlt("Documents and Forms") ?></span>
         <?php if (!empty($is_portal)) { ?>
             <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
         <?php } ?>
@@ -513,7 +513,7 @@ $templateService = new DocumentTemplateService();
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div id="topmenu" class="collapse navbar-collapse">
-                <ul class="navbar-nav navCollapse mr-auto">
+                <ul class="navbar-nav navCollapse me-auto">
                     <!-- Sticky actions toolbar -->
                     <div class='helpHide d-none'>
                         <ul class="navbar-nav">
@@ -550,9 +550,9 @@ $templateService = new DocumentTemplateService();
                         </li>
                     <?php } ?>
                 </ul>
-                <a class='btn btn-outline-primary btn-refresh mr-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
+                <a class='btn btn-outline-primary btn-refresh me-0 mb-1' title='Refresh' id='refreshPage' href='#' onclick='window.location.reload()'><?php echo xlt('Reload'); ?></a>
                 <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
-                    <a id="idShow" class="btn btn-outline-primary float-end  mr-0 mb-1" href='' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
+                    <a id="idShow" class="btn btn-outline-primary float-end  me-0 mb-1" href='' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload me-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
                 <?php } ?>
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
@@ -577,14 +577,14 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                        <header class="card-header fw-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
                             <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-end" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
                         <!-- File upload -->
                         <?php if ($GLOBALS['allow_portal_uploads'] ?? 1) { ?>
                         <div class="card col-12 col-lg-5 col-md-3">
                             <div id="hideUpload" class="card-body" style="display: none;">
-                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
+                                <h4 class="card-title"><i class="fa fa-file-text me-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
                                 <div class="row">
                                     <div class="container-fluid h-25" id="file-queue-container">
                                         <div id="file-queue">
@@ -602,7 +602,7 @@ $templateService = new DocumentTemplateService();
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
                                 <div id="templatecontent" class="template-body bg-light">
-                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ms-auto"></i></div>
                                 </div>
                             </div>
                             <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib')); ?>" />

@@ -608,15 +608,15 @@ $ResultSearchSub = sqlStatement(
                     <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
                         <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="myNavbar">
-                            <ul class="navbar-nav mr-auto">
+                            <ul class="navbar-nav me-auto">
                                 <li class="nav-item active">
-                                    <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                                    <a class="nav-link fw-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                                    <a class="nav-link fw-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                                    <a class="nav-link fw-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
                                 </li>
                             </ul>
                         </div>

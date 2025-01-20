@@ -92,7 +92,7 @@
     <form name="prescribe" id="prescribe"  method="post" action="{{ webroot }}/controller.php?prescription&edit&id={{ prescription.id|attr_url }}&pid={{ pid|attr_url }}" >
         <table>
             <tr>
-                <td class="title font-weight-bold">{{"Add"|xlt}}&nbsp;</td>
+                <td class="title fw-bold">{{"Add"|xlt}}&nbsp;</td>
                 <td>
                     {% if topActionBarDisplay %}
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save">{{'Save'|xlt}}</a>
@@ -103,7 +103,7 @@
                     {% if DRUG_ARRAY_VALUES is not empty%}
                     &nbsp; &nbsp; &nbsp; &nbsp;
                         {% if prescription.get_refills() >= prescription.get_dispensation_count() %}
-                            <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 mr-1 ml-1' value="{{'Save and Dispense'|xla}}" />
+                            <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 me-1 ms-1' value="{{'Save and Dispense'|xla}}" />
                             <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{{DISP_QUANTITY|attr}}" />
                             units, {{GBL_CURRENCY_SYMBOL|text}}
                             <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{{DISP_FEE|attr}}" />
@@ -119,7 +119,7 @@
         </table>
 
         {% if enable_amc_prompting %}
-        <div class='float-end border mr-5'>
+        <div class='float-end border me-5'>
             <div class='float-start m-1'>
             {% if amcCollectReturnFlag is not empty %}
                 <input type="checkbox" id="escribe_flag" name="escribe_flag" />
@@ -163,7 +163,7 @@
             <input type="hidden" name="patient_id" value="{{prescription.patient.id|attr}}" />
         </div>
         <div class="form-group mt-3">
-            <label class="mr-2">{{'Drug'|xlt}}</label>
+            <label class="me-2">{{'Drug'|xlt}}</label>
             <div class="form-check-inline">
                 <label class="form-check-label" title="{{'Search from native inventory drugs table'|xlt}}">
                     <input type="radio" class="form-check-input" name="rxcui_select" checked />{{'Use Default'|xlt}}
@@ -183,7 +183,7 @@
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({{'Search Web API'|xlt}})
             </a>
-            <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
+            <div class="p-0 mb-4 bg-body-tertiary" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
         {% if DRUG_ARRAY_VALUES is not empty %}
         <div class="form-group mt-3">
@@ -328,7 +328,7 @@
         {% if bottomActionBarDisplay %}
             <div class="row">
                 <div class="col-12 justify-content-end">
-                    <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save mr-3">{{'Save'|xlt}}</a>
+                    <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save me-3">{{'Save'|xlt}}</a>
                     <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
                 </div>
             </div>

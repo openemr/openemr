@@ -603,13 +603,13 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
-<span class="font-weight-bold"><?php echo xlt('Copy Pages to Patient Chart'); ?></span></p>
+<span class="fw-bold"><?php echo xlt('Copy Pages to Patient Chart'); ?></span></p>
 
 <!-- Copy Pages to Patient Chart Section -->
-<div id='div_copy' class='jumbotron' style='display:none;'>
+<div id='div_copy' class='p-5 mb-4 bg-body-tertiary rounded-3' style='display:none;'>
     <!-- Patient Section -->
     <div class="form-row mt-2">
-        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Patient'); ?></label>
+        <label class="col-2 col-form-label fw-bold"><?php echo xlt('Patient'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_patient' class='form-control bg-light'
                 value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient()'
@@ -623,17 +623,17 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
         <div class="col-12 col-form-label">
             <input type='radio' name='form_cb_copy_type' value='1'
                 onclick='return divclick(this,"div_copy_doc");' checked />
-            <label class="font-weight-bold"><?php echo xlt('Patient Document'); ?></label>
+            <label class="fw-bold"><?php echo xlt('Patient Document'); ?></label>
             <?php if ($using_scanned_notes) { ?>
                 <input type='radio' name='form_cb_copy_type' value='2'
                     onclick='return divclick(this,"div_copy_sn");' />
-                <label class="font-weight-bold"><?php echo xlt('Scanned Encounter Note'); ?></label>
+                <label class="fw-bold"><?php echo xlt('Scanned Encounter Note'); ?></label>
             <?php } ?>
             <!-- div_copy_doc Section -->
             <div id='div_copy_doc' class='bg-secondary border rounded p-2'>
                 <!-- Category Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Category'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Category'); ?></label>
                     <div class="col-10">
                         <select name='form_category' class='form-control'>
                             <?php
@@ -647,7 +647,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 </div>
                 <!-- Filename Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Filename'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Filename'); ?></label>
                     <div class="col-10">
                         <input type='text' size='10' name='form_filename' class='form-control'
                             value='<?php echo attr($filebase) . ".pdf" ?>'
@@ -657,7 +657,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 </div>
                 <!-- Document Date Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Document Date'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Document Date'); ?></label>
                     <div class="col-10">
                         <input type='text' class='datepicker form-control' size='10' name='form_docdate' id='form_docdate'
                             value='<?php echo date('Y-m-d'); ?>'
@@ -670,7 +670,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <div id='div_copy_sn' class='bg-secondary border rounded p-2' style='display:none;margin-top:0.5em;'>
                 <!-- Visit Date Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Visit Date'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Visit Date'); ?></label>
                     <div class="col-10">
                         <select name='form_copy_sn_visit' class='form-control'>
                         </select>
@@ -678,7 +678,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 </div>
                 <!-- Comments Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Comments'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Comments'); ?></label>
                     <div class="col-10">
                         <textarea name='form_copy_sn_comments' rows='3' cols='30' class='form-control'
                             data-toggle='tooltip' data-placement='top'
@@ -694,12 +694,12 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
         <div class="col-12 col-form-label">
             <input type='checkbox' name='form_cb_note' value='1'
                 onclick='return divclick(this,"div_note");' />
-            <label class="font-weight-bold"><?php echo xlt('Create Patient Note'); ?></label>
+            <label class="fw-bold"><?php echo xlt('Create Patient Note'); ?></label>
             <!-- div_note Section -->
             <div id='div_note' class='bg-secondary border rounded p-2' style='display:none;'>
                 <!-- Type Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Type'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Type'); ?></label>
                     <div class="col-10">
                         <?php
                         // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
@@ -709,7 +709,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 </div>
                 <!-- To Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('To'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('To'); ?></label>
                     <div class="col-10">
                     <select name='form_note_to' class='form-control'>
                         <?php
@@ -729,7 +729,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                 </div>
                 <!-- Message Section -->
                 <div class="form-row mt-2">
-                    <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Message'); ?></label>
+                    <label class="col-2 col-form-label fw-bold"><?php echo xlt('Message'); ?></label>
                     <div class="col-10">
                         <textarea name='form_note_message' rows='3' cols='30' class='form-control'
                             data-toggle='tooltip' data-placement='top'
@@ -744,34 +744,34 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <p><input type='checkbox' name='form_cb_forward' value='1'
  onclick='return divclick(this,"div_forward");' />
-<span class="font-weight-bold"><?php echo xlt('Forward Pages via Fax'); ?></span></p>
+<span class="fw-bold"><?php echo xlt('Forward Pages via Fax'); ?></span></p>
 
 <!-- Forward Pages via Fax Section -->
-<div id='div_forward' class='jumbotron' style='display:none;'>
+<div id='div_forward' class='p-5 mb-4 bg-body-tertiary rounded-3' style='display:none;'>
     <!-- From Section -->
     <div class="form-row mt-2">
-        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('From'); ?></label>
+        <label class="col-2 col-form-label fw-bold"><?php echo xlt('From'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_from' class='form-control' data-toggle='tooltip' data-placement='top' title='Type your name here'>
         </div>
     </div>
     <!-- To Section -->
     <div class="form-row mt-2">
-        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('To{{Destination}}'); ?></label>
+        <label class="col-2 col-form-label fw-bold"><?php echo xlt('To{{Destination}}'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_to' class='form-control' data-toggle='tooltip' data-placement='top' title='Type the recipient name here'>
         </div>
     </div>
     <!-- Fax Section -->
     <div class="form-row mt-2">
-        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Fax'); ?></label>
+        <label class="col-2 col-form-label fw-bold"><?php echo xlt('Fax'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_fax' class='form-control' data-toggle='tooltip' data-placement='top' title='The fax phone number to send this to'>
         </div>
     </div>
     <!-- Message Section -->
     <div class="form-row mt-2">
-        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Message'); ?></label>
+        <label class="col-2 col-form-label fw-bold"><?php echo xlt('Message'); ?></label>
         <div class="col-10">
             <textarea name='form_message' rows='3' cols='30' class='form-control'
                 data-toggle='tooltip' data-placement='top'
@@ -781,7 +781,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     </div>
     <!-- Quality Section -->
     <div class="form-row mt-2">
-        <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Quality'); ?></label>
+        <label class="col-2 col-form-label fw-bold"><?php echo xlt('Quality'); ?></label>
         <div class="col-10">
             <div class="form-check form-check-inline">
                 <input type='radio' class='form-check-input' name='form_finemode' value=''>
@@ -796,7 +796,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 </div>
 
 <div class="form-group form-inline">
-    <label class="font-weight-bold"><?php echo xlt('Delete Pages'); ?>:</label>
+    <label class="fw-bold"><?php echo xlt('Delete Pages'); ?>:</label>
     <div class="form-check form-check-inline">
         <input type='radio' class='form-check-input' name='form_cb_delete' value='2' />
         <label class="form-check-label">All</label>
@@ -818,7 +818,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     <button type='button' class='btn btn-secondary' value='<?php echo xla('Clear All'); ?>' onclick='allCheckboxes(false)'><?php echo xla('Clear All'); ?></button>
 </div>
 
-<p class="mt-2 font-weight-bold"><?php echo xlt('Please select the desired pages to copy or forward:'); ?></p>
+<p class="mt-2 fw-bold"><?php echo xlt('Please select the desired pages to copy or forward:'); ?></p>
 <table>
 
 <?php
