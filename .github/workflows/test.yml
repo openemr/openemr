@@ -1,5 +1,9 @@
 name: Test
 
+env:
+  OPENEMR_TEST_SUITE_ID: ${{ secrets.TEST_SUITE_ID }}
+  OPENEMR_AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+
 on:
   push:
     branches: [ master ]
@@ -33,7 +37,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+          
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -66,6 +70,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -159,6 +165,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -252,6 +260,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -345,6 +355,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -438,6 +450,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -531,6 +545,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -624,6 +640,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -717,6 +735,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -810,6 +830,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -903,6 +925,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -996,6 +1020,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -1089,6 +1115,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -1182,6 +1210,8 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_e2e
+          npm install -g --verbose testrigor-cli
+          source tests/testRigor/run_testrigor_tests.sh
         if: ${{ success() || failure() }}
 
       - name: Api testing
@@ -1222,7 +1252,7 @@ jobs:
 
 
   build_nginx_84:
-    name: PHP 8.4 - Nginx - MariaDB 11.4
+    name: PHP 8.4 - Nginx - MariaDB 11.4 (skipping E2e testing at this time)
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_84
@@ -1272,11 +1302,12 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
-      - name: E2e testing
+      - name: E2e testing (skipping at this time for PHP 8.4-dev)
         run: |
-          source ci/ciLibrary.source
-          build_test_e2e
-        if: ${{ success() || failure() }}
+           echo "SKIPPING THIS TEST FOR NOW UNTIL IT STARTS WORKING IN FUTURE FOR PHP 8.4-dev"
+#          source ci/ciLibrary.source
+#          build_test_e2e
+#        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |

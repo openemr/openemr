@@ -1,0 +1,11 @@
+LoginAndValidate
+NavigateToPatientCreationSearch
+CreatePatient
+check that page contains saved value "firstName"
+CreatePatientPortalAccount
+start browser "Patient" and switch
+OpenPatientPortal
+click "Dashboard"
+click "Profile"
+check that page contains string with parameters "${firstName} ${lastName}"
+LogoutPatientPortal
