@@ -408,7 +408,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
                 <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                    <img src="<?php echo $menuLogo;?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo');?>">
+                    <img src="<?php echo $menuLogo;?>" class="d-block ms-3" height="30" alt="<?php echo xlt('Main Menu Logo');?>">
                 </a>
             <?php endif; ?>
             <button class="navbar-toggler me-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -441,8 +441,8 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
                 $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
             });
             if ($('body').css('direction') == "rtl") {
-                $('.dropdown-menu-right').each(function() {
-                    $(this).removeClass('dropdown-menu-right');
+                $('.dropdown-menu-end').each(function() {
+                    $(this).removeClass('dropdown-menu-end');
                 });
             }
         });

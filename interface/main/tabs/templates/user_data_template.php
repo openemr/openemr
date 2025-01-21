@@ -24,7 +24,7 @@
                         <i class="far text-body-secondary fa-circle fa-2x fa-stack-2x"></i>
                         <i class="fa text-body-secondary fa-user fa-lg fa-stack-1x" aria-hidden="true" id="user_icon"></i>
                     </span>
-                    <ul id="userdropdown" class="userfunctions menuEntries dropdown-menu dropdown-menu-right menu-shadow-ovr rounded-0 border-0">
+                    <ul id="userdropdown" class="userfunctions menuEntries dropdown-menu dropdown-menu-end menu-shadow-ovr rounded-0 border-0">
                         <li class="menuLabel">
                             <span class="fw-bold"><span data-bind="text:fname"></span> <span data-bind="text:lname"></span></span>
                         </li>

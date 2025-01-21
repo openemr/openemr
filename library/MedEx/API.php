@@ -1903,7 +1903,7 @@ class Display extends base
                         <div class="text-center row align-items-center">
                             <div class="col-sm-4 text-center mt-3">
                                 <div class="mb-3 row justify-content-center mx-sm-1">
-                                    <select class="form-select form-control-sm" id="form_facility" name="form_facility"
+                                    <select class="form-select form-select-sm" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         $select_facs = '';
@@ -1937,7 +1937,7 @@ class Display extends base
                                     $c = sqlFetchArray($ures);
                                     $count_provs = count($c ?: []);
                                     ?>
-                                    <select class="form-select form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
+                                    <select class="form-select form-select-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
                                         <?php
@@ -2618,7 +2618,7 @@ class Display extends base
                                         $defaultProvider = $userid;
                                     }
 
-                                    echo "<select class='form-control' name='new_provider' id='new_provider' style='width: 95%;'>";
+                                    echo "<select class='form-select' name='new_provider' id='new_provider' style='width: 95%;'>";
                                     while ($urow = sqlFetchArray($ures)) {
                                         echo "    <option value='" . attr($urow['id']) . "'";
                                         if ($urow['id'] == $defaultProvider) {

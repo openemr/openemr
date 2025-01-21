@@ -40,7 +40,7 @@
         {% endif %}
     {% endif %}
     <style>
-      .dropdown-menu-right {
+      .dropdown-menu-end {
         right: 0;
         left: auto;
       }
@@ -196,11 +196,11 @@
                 $('.float-start').each(function () {
                     $(this).addClass('float-end').removeClass('float-start');
                 });
-                $('.dropdown-menu-right').each(function () {
-                    $(this).removeClass('dropdown-menu-right');
+                $('.dropdown-menu-end').each(function () {
+                    $(this).removeClass('dropdown-menu-end');
                 });
-                $('.dropdown-menu-md-right').each(function () {
-                    $(this).removeClass('dropdown-menu-md-right');
+                $('.dropdown-menu-md-end').each(function () {
+                    $(this).removeClass('dropdown-menu-md-end');
                 });
             }
 
@@ -830,7 +830,7 @@
                                 <div class="col">
                                     <label class="" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
                                     <div class="input-group">
-                                        <select class='form-control' id='my_theme'>
+                                        <select class='form-select' id='my_theme'>
                                             {% for styleKey, styleValue in styleArray %}
                                                 {{ "<option value='" ~ styleKey | attr ~ "'" }}
                                                 {% if styleKey == current_theme %}

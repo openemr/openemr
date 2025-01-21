@@ -90,7 +90,7 @@ function genGroupSelector($name, $layout_id, $default = '')
         "grp_form_id = ? AND grp_group_id != '' ORDER BY grp_group_id",
         array($layout_id)
     );
-    $s  = "<select class='form-control form-control-sm' name='" . xla($name) . "'>";
+    $s  = "<select class='form-select form-select-sm' name='" . xla($name) . "'>";
     $s .= "<option value=''>" . xlt('None{{Group}}') . "</option>";
     $arr = array();
     $arrid = '';
@@ -779,7 +779,7 @@ function writeFieldLine($linedata)
     echo "</td>\n";
 
     echo "  <td class='text-center optcell'>";
-    echo "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][datatype]' id='fld[" . attr($fld_line_no) . "][datatype]' onchange=NationNotesContext(" . attr_js($fld_line_no) . ",this.value)>";
+    echo "<select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][datatype]' id='fld[" . attr($fld_line_no) . "][datatype]' onchange=NationNotesContext(" . attr_js($fld_line_no) . ",this.value)>";
     echo "<option value=''></option>";
     global $datatypes;
     global $sorted_datatypes;
@@ -852,7 +852,7 @@ function writeFieldLine($linedata)
         " size='6' maxlength='100' class='form-control form-control-sm optin listid' style='cursor: pointer;'" .
         "title='" . xla('Choose list') . "' />";
 
-        echo "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' " . $disp . ">";
+        echo "<select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' " . $disp . ">";
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {
             $sel = '';
@@ -964,7 +964,7 @@ function writeFieldLine($linedata)
       " <tr>\n" .
       "  <th colspan='3' class='text-left fw-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
-      "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
+      "<select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
       "<option value='skip'  " . ($action == 'skip'  ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
       "<option value='value' " . ($action == 'value' ? 'selected' : '') . ">" . xlt('set value to') . "</option>" .
       "<option value='hsval' " . ($action == 'hsval' ? 'selected' : '') . ">" . xlt('hide else set to') . "</option>" .
@@ -990,17 +990,17 @@ function writeFieldLine($linedata)
         $extra_html .=
         " <tr>\n" .
         "  <td class='text-left'>\n" .
-        "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_id][" . attr($i) . "]' onchange='cidChanged(" . attr_js($fld_line_no) . ", " . attr_js($i) . ")'>" .
+        "   <select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][condition_id][" . attr($i) . "]' onchange='cidChanged(" . attr_js($fld_line_no) . ", " . attr_js($i) . ")'>" .
         genFieldOptionList($condition['id']) . " </select>\n" .
         "  </td>\n" .
         "  <td class='text-left'>\n" .
         // List item choices are populated on the client side but will need the current value,
         // so we insert a temporary option here to hold that value.
-        "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_itemid][" . attr($i) . "]'><option value='" .
+        "   <select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][condition_itemid][" . attr($i) . "]'><option value='" .
         attr($condition['itemid']) . "'>...</option></select>\n" .
         "  </td>\n" .
         "  <td class='text-left'>\n" .
-        "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_operator][" . attr($i) . "]'>\n";
+        "   <select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][condition_operator][" . attr($i) . "]'>\n";
         foreach (
             array(
             'eq' => xl('Equals'),
@@ -1032,7 +1032,7 @@ function writeFieldLine($linedata)
         } else {
             $extra_html .=
             "  <td class='text-right'>\n" .
-            "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_andor][" . attr($i) . "]'>\n";
+            "   <select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][condition_andor][" . attr($i) . "]'>\n";
             foreach (
                 array(
                 'and' => xl('And'),
@@ -1071,7 +1071,7 @@ function writeFieldLine($linedata)
     "  <td class='text-left' title='" . xla('Select a validation rule') . "'>\n" .
 
 
-    "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][validation]' onchange='valChanged(" . attr_js($fld_line_no) . ")'>\n" .
+    "   <select class='form-select form-select-sm' name='fld[" . attr($fld_line_no) . "][validation]' onchange='valChanged(" . attr_js($fld_line_no) . ")'>\n" .
     "   <option value=''";
     if (empty($linedata['validation'])) {
         $extra_html .= " selected";
@@ -1315,7 +1315,7 @@ function extAddCondition(lino, btnelem) {
 
   // Replace contents of the tdplus cell.
   tdplus.innerHTML =
-    "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
+    "<select class='form-select form-select-sm' name='fld[" + lino + "][condition_andor][" + (i-1) + "]'>" +
     "<option value='and'>" + jsText(<?php echo xlj('And') ?>) + "</option>" +
     "<option value='or' >" + jsText(<?php echo xlj('Or') ?>) + "</option>" +
     "</select>";
@@ -1324,15 +1324,15 @@ function extAddCondition(lino, btnelem) {
   var newtrelem = telem.insertRow(i+2);
   newtrelem.innerHTML =
     "<td class='text-left'>" +
-    "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
+    "<select class='form-select form-select-sm' name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
     <?php echo js_escape(genFieldOptionList()) ?> +
     "</select>" +
     "</td>" +
     "<td class='text-left'>" +
-    "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
+    "<select class='form-select form-select-sm' name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
     "</td>" +
     "<td class='text-left'>" +
-    "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_operator][" + i + "]'>" +
+    "<select class='form-select form-select-sm' name='fld[" + lino + "][condition_operator][" + i + "]'>" +
     "<option value='eq'>" + jsText(<?php echo xlj('Equals') ?>) + "</option>" +
     "<option value='ne'>" + jsText(<?php echo xlj('Does not equal') ?>) + "</option>" +
     "<option value='se'>" + jsText(<?php echo xlj('Is selected') ?>) + "</option>" +
@@ -1725,7 +1725,7 @@ if ($layout_id) {
   <tr class='text-center'>
    <td><input type="text" class="form-control form-control-sm" name="newseq" id="newseq" value="" size="2" maxlength="4" /> </td>
    <td<?php echo " $lbfonly"; ?>>
-    <select class='form-control form-control-sm' name='newsource' id='newsource'>
+    <select class='form-select form-select-sm' name='newsource' id='newsource'>
 <?php
 foreach ($sources as $key => $value) {
     echo "    <option value='" . attr($key) . "'>" . text($value) . "</option>\n";
@@ -1736,14 +1736,14 @@ foreach ($sources as $key => $value) {
    <td ><input type="text" class="form-control form-control-sm" name="newid" id="newid" value="" size="10" maxlength="31" onclick='FieldIDClicked(this)' /> </td>
    <td><input type="text" class="form-control form-control-sm" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
    <td>
-    <select class='form-control form-control-sm' name="newuor" id="newuor">
+    <select class='form-select form-select-sm' name="newuor" id="newuor">
      <option value="0"><?php echo xlt('Unused'); ?></option>
      <option value="1" selected><?php echo xlt('Optional'); ?></option>
      <option value="2"><?php echo xlt('Required'); ?></option>
     </select>
    </td>
    <td align='center'>
-    <select class='form-control form-control-sm' name='newdatatype' id='newdatatype'>
+    <select class='form-select form-select-sm' name='newdatatype' id='newdatatype'>
      <option value=''></option>
 <?php
 global $sorted_datatypes;
@@ -1757,7 +1757,7 @@ foreach ($sorted_datatypes as $key => $value) {
    <td><input class='form-control form-control-sm' type="text" name="newlengthHeight" id="newlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
    <td><input class='form-control form-control-sm' type="text" name="newmaxSize" id="newmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
    <td><input type="text" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="form-control form-control-sm listid" />
-       <select class='form-control form-control-sm' name='contextName' id='contextName' style='display:none'>
+       <select class='form-select form-select-sm' name='contextName' id='contextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {

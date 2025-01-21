@@ -149,7 +149,7 @@ function styles_style_uni() {
 function styles_style_uni_compact() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
+        .pipe(gap.prependText('$compact-theme: true;@import "../compact-theme-defaults";\n'))
         .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
@@ -202,7 +202,7 @@ function styles_style_color() {
 function styles_style_color_compact() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
+        .pipe(gap.prependText('$compact-theme: true;@import "../compact-theme-defaults";\n'))
         .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', (err) => {
@@ -305,7 +305,7 @@ function rtl_style_uni() {
 function rtl_style_uni_compact() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
+        .pipe(gap.prependText('$compact-theme: true;@import "../compact-theme-defaults";\n'))
         .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))
@@ -364,7 +364,7 @@ function rtl_style_color() {
 function rtl_style_color_compact() {
     let isSuccess = true;
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('@import "../compact-theme-defaults";\n'))
+        .pipe(gap.prependText('$compact-theme: true;@import "../compact-theme-defaults";\n'))
         .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(injector.replace('// bs4import', '@import "../oemr_compact_imports";'))

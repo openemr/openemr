@@ -117,7 +117,7 @@ $focus = "document.theform.search_term.select();";
                 <div class="input-group mt-1">
                 <?php
                 if (!empty($allowed_codes)) { ?>
-                    <select class='form-control' name='form_code_type'>
+                    <select class='form-select' name='form_code_type'>
                         <?php
                         foreach (array_keys($code_types) as $code) {
                             if (empty($code_types[$code]['label'])) {
@@ -132,7 +132,7 @@ $focus = "document.theform.search_term.select();";
                     <?php
                 } else {
                     // No allowed types were specified, so show all.
-                    echo "<select class='form-control' name='form_code_type'";
+                    echo "<select class='form-select' name='form_code_type'";
                     echo ">\n";
                     foreach ($code_types as $key => $value) {
                         if (empty($value['label'])) {

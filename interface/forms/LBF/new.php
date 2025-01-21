@@ -708,7 +708,7 @@ if (
                 "<td class='text border-top-0'>" + code + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
-                "<select class='form-control' name='form_fs_bill[" + lino + "][provid]'>" +
+                "<select class='form-select' name='form_fs_bill[" + lino + "][provid]'>" +
                 "<?php echo addslashes($fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
                 "</select>&nbsp;" +
                 "</td>" +
@@ -733,7 +733,7 @@ if (
             trelem.innerHTML =
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
-                "<select class='form-control' name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
+                "<select class='form-select' name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" +
                 "<input type='text' class='form-control' name='form_fs_prod[" + lino + "][units]' size='3' value='1' />&nbsp;" +
@@ -936,7 +936,7 @@ if (
                                 // Provider selector.
                                 echo "&nbsp;&nbsp;";
                                 echo xlt('Provider') . ": ";
-                                echo "<select class='form-control' name='form_provider_id'>";
+                                echo "<select class='form-select' name='form_provider_id'>";
                                 echo FeeSheetHtml::genProviderOptionList(
                                     '-- ' . xl("Please Select") . ' --',
                                     ($form_provider_id ?? '')
@@ -1414,7 +1414,7 @@ if (
                     $fscres = sqlStatement("SELECT * FROM fee_sheet_options ORDER BY fs_category, fs_option");
                     if (sqlNumRows($fscres)) {
                         $last_category = '';
-                        echo "<select class='form-control' onchange='fs_package_selected(this)'>\n";
+                        echo "<select class='form-select' onchange='fs_package_selected(this)'>\n";
                         echo " <option value=''>" . xlt('Add Package') . "</option>\n";
                         while ($row = sqlFetchArray($fscres)) {
                             $fs_category = $row['fs_category'];
@@ -1440,7 +1440,7 @@ if (
                         $tmp_provider_id = $_SESSION['authUserID'];
                     }
                     echo xlt('Main Provider') . ": ";
-                    echo "<select class='form-control' name='form_fs_provid'>";
+                    echo "<select class='form-select' name='form_fs_provid'>";
                     echo FeeSheetHtml::genProviderOptionList(
                         ' ',
                         $tmp_provider_id

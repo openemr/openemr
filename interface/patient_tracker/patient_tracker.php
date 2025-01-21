@@ -209,7 +209,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                               </div>
                               <!-- Facility Section -->
                               <div class="col-sm">
-                                  <select class="form-select form-control-sm" id="form_facility" name="form_facility"
+                                  <select class="form-select form-select-sm" id="form_facility" name="form_facility"
                                       <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         while ($fac = sqlFetchArray($fac_sql)) {
@@ -249,7 +249,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 ?>
                               <!-- Provider Section -->
                               <div class="col-sm">
-                                  <select class="form-select form-control-sm" id="form_provider" name="form_provider" <?php
+                                  <select class="form-select form-select-sm" id="form_provider" name="form_provider" <?php
                                     if ($count_provs < '2') {
                                         echo "disabled";
                                     }

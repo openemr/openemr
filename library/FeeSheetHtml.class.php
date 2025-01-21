@@ -77,7 +77,7 @@ class FeeSheetHtml extends FeeSheet
   //
     public static function genProviderSelect($tagname, $toptext, $default = 0, $disabled = false, $tooltip = '')
     {
-        $s = "   <span><select class='form-control' name='" . attr($tagname) . "'";
+        $s = "   <span><select class='form-select' name='" . attr($tagname) . "'";
         if ($disabled) {
             $s .= " disabled";
         }
@@ -97,7 +97,7 @@ class FeeSheetHtml extends FeeSheet
         $s = '';
         if ($this->got_warehouses) {
             // Normally would use generate_select_list() but it's not flexible enough here.
-            $s .= "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'";
+            $s .= "<span class='form-inline'><select class='form-select' name='" . attr($tagname) . "'";
             if (!$disabled) {
                 $s .= " onchange='warehouse_changed(this);'";
             }
@@ -157,7 +157,7 @@ class FeeSheetHtml extends FeeSheet
     public function genPriceLevelSelect($tagname, $toptext, $pr_id, $pr_selector = '', $default = '', $disabled = false)
     {
         // echo "<!-- pr_id = '$pr_id', pr_selector = '$pr_selector' -->\n"; // debugging
-        $s = "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'";
+        $s = "<span class='form-inline'><select class='form-select' name='" . attr($tagname) . "'";
         if (!$disabled) {
             $s .= " onchange='pricelevel_changed(this);'";
         }
@@ -241,7 +241,7 @@ class FeeSheetHtml extends FeeSheet
                     "ORDER BY fe.date DESC LIMIT 1";
                   $csrow = sqlQuery($query, array($this->pid));
                 if (empty($csrow)) {
-                    $s .= "<span class='form-inline'><select class='form-control' name='$tagname'>\n";
+                    $s .= "<span class='form-inline'><select class='form-select' name='$tagname'>\n";
                     $s .= " <option value='2'>" . xlt('First Modern Contraceptive Use (Lifetime)') . "</option>\n";
                     $s .= " <option value='1'>" . xlt('First Modern Contraception at this Clinic (with Prior Contraceptive Use)') . "</option>\n";
                     $s .= " <option value='0'>" . xlt('Method Change at this Clinic') . "</option>\n";
@@ -255,7 +255,7 @@ class FeeSheetHtml extends FeeSheet
                 array($this->pid)
             );
             if ($csrow['count'] == 0) {
-                $s .= "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'>\n";
+                $s .= "<span class='form-inline'><select class='form-select' name='" . attr($tagname) . "'>\n";
                 $s .= " <option value='2'>" . xlt('First Modern Contraceptive Use (Lifetime)') . "</option>\n";
                 $s .= " <option value='1'>" . xlt('First Modern Contraception at this Clinic (with Prior Contraceptive Use)') . "</option>\n";
                 $s .= " <option value='0'>" . xlt('Method Change at this Clinic') . "</option>\n";
@@ -270,7 +270,7 @@ class FeeSheetHtml extends FeeSheet
   //
     public function generatePriceLevelSelector($tagname = 'pricelevel', $disabled = false)
     {
-        $s = "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'";
+        $s = "<span class='form-inline'><select class='form-select' name='" . attr($tagname) . "'";
         if ($disabled) {
             $s .= " disabled";
         }

@@ -162,7 +162,7 @@ if (!empty($codetype)) {
                     echo "</select></div>\n";
                 }
             } else {
-                echo "<div class='col'><select class='form-control' name='form_code_type' onchange='oTable.fnDraw()'>\n";
+                echo "<div class='col'><select class='form-select' name='form_code_type' onchange='oTable.fnDraw()'>\n";
                 foreach ($code_types as $key => $value) {
                     echo " <option value='" . attr($key) . "'";
                     echo ">" . xlt($value['label']) . "</option>\n";

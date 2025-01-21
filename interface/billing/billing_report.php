@@ -1171,7 +1171,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "<option value='-1'>" . xlt("Unassigned") . "</option>\n";
                                     $lhtml .= "</select>&nbsp;&nbsp;\n";
                                     $lhtml .= "&nbsp;<span class='mb-3'>X12: ";
-                                    $lhtml .= "<select class='form-control' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
+                                    $lhtml .= "<select class='form-select' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
                                     $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                     foreach ($partners as $xid => $xname) {
                                         if (empty(trim($xname))) {

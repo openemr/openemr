@@ -1369,7 +1369,7 @@ $classpati = '';
 <div class="form-row mx-2">
     <div class="col-sm mb-3">
         <label for='form_category'><?php echo xlt('Category'); ?>:</label>
-        <select class='form-control' name='form_category' id='form_category' onchange='set_category()'>
+        <select class='form-select' name='form_category' id='form_category' onchange='set_category()'>
             <?php echo $catoptions ?>
         </select>
     </div>
@@ -1503,7 +1503,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
             }
         }
         // build the selection tool
-        echo "<select class='form-control' name='form_provider[]' id='provd' multiple='multiple' size='5' >";
+        echo "<select class='form-select' name='form_provider[]' id='provd' multiple='multiple' size='5' >";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . attr($urow['id']) . "'";
             if ($userid) {
@@ -1547,7 +1547,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
                 $defaultProvider = $userid;
             }
         }
-        echo "<select class='form-control' name='form_provider' id='provd'>";
+        echo "<select class='form-select' name='form_provider' id='provd'>";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . attr($urow['id']) . "'";
             if ($urow['id'] == $defaultProvider) {
@@ -1714,7 +1714,7 @@ function isRegularRepeat($repeat)
         ?>
         <!-- The following list will be invisible unless this is an In Office
          event, in which case form_apptstatus (above) is to be invisible. -->
-        <select class='form-control form-control-sm' name='form_prefcat' style='display:none' title='<?php echo xla('Preferred Event Category'); ?>'>
+        <select class='form-select form-select-sm' name='form_prefcat' style='display:none' title='<?php echo xla('Preferred Event Category'); ?>'>
             <?php echo $prefcat_options ?>
         </select>
     </div>

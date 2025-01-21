@@ -150,7 +150,7 @@ Partial twig file that represents the insurance edit screen for a patient
                 <span data-validation-field="policy_type">{{ 'Secondary Medicare Type'|xlt }}:</span>
             </div>
             <div class="col-md-9">
-                <select class='form-control form-control-sm mb-1 sel2' name='form_policy_type'>
+                <select class='form-select form-select-sm mb-1 sel2' name='form_policy_type'>
                     {% for key,value in policy_types %}
                         <option value="{{ key|attr }}">{{ value|text }}</option>
                     {% endfor %}

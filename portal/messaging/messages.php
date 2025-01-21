@@ -589,7 +589,7 @@ function getAuthPortalUsers()
                             </a>
                             <div class="btn-group btn-group float-end">
                                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a class="dropdown-item" href="javascript:;" ng-click="readAll()"><?php echo xlt('Mark all as read'); ?></a>
                                     </li>

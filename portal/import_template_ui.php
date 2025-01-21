@@ -789,7 +789,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 echo "<td>" . $this_cat . " Id: " . attr($template_id) . "</td>";
                             } else {
                                 echo "<td><input type='checkbox' class='form-check-inline' name='send' value='" . attr($template_id) . "' /></td>";
-                                echo '<td><select class="form-select form-control-sm" id="category_table' . attr($template_id) .
+                                echo '<td><select class="form-select form-select-sm" id="category_table' . attr($template_id) .
                                     '" onchange="updateCategory(' . attr_js($template_id) . ')" value="' . attr($this_cat) . '">' .
                                     $select_cat_options . '</select></td>';
                             }

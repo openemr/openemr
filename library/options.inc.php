@@ -4528,7 +4528,7 @@ function dropdown_facility(
     if ($multiple) {
         $name = $name . "[]";
     }
-    echo "   <select class='form-control$class";
+    echo "   <select class='form-select$class";
     if ($multiple) {
         echo " select-dropdown";
     }

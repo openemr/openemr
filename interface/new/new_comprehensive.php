@@ -763,7 +763,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Accept Assignment'); ?>:</label>
                           <div class="col-md-5 mb-2">
-                            <select class='form-control' name='i<?php echo attr($i); ?>accept_assignment'>
+                            <select class='form-select' name='i<?php echo attr($i); ?>accept_assignment'>
                                 <option value="TRUE" <?php echo (strtoupper($result3["accept_assignment"] ?? '') == "TRUE") ? "selected" : ""; ?>><?php echo xlt('YES'); ?></option>
                                 <option value="FALSE" <?php echo (strtoupper($result3["accept_assignment"] ?? '') == "FALSE") ? "selected" : ""; ?>><?php echo xlt('NO'); ?></option>
                             </select>

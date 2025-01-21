@@ -163,7 +163,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
                     <input type="text" size="16" class="form-control" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode" onchange="zipChanged()" value="">
                     <div class="warn"></div>
                 </div>
-                <select class="form-select form-control" name="weno_state" id="weno_state" onchange="stateChanged()">
+                <select class="form-select" name="weno_state" id="weno_state" onchange="stateChanged()">
                     <option value=""><?php echo xlt("State"); ?></option>
                     <?php while ($row = sqlFetchArray($res)) { ?>
                         <option value="<?php echo attr($row['option_id']); ?>"><?php echo text($row['title']); ?></option>
@@ -185,7 +185,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
             <span class="h5 alert-danger mt-3" id="searchResults"></span>
         </span>
         <div id="select-div" class="mb-3 mt-2">
-            <select class="form-select form-control bg-light text-dark me-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+            <select class="form-select bg-light text-dark me-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
         </div>

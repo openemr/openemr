@@ -262,7 +262,7 @@ function echoServiceLines()
 
                     if (!empty($code_types[$codetype]['just']) || !empty($li['justify'])) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
-                        echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<select class='form-select form-select-sm' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
                         echo "</td>\n";
                         $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
@@ -316,7 +316,7 @@ function echoServiceLines()
             echo "<input type='text' class='form-control form-control-sm text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
-            echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
+            echo "<select class='form-select form-select-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
             foreach ($fs->ndc_uom_choices as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $li['ndcuom']) {
@@ -1054,7 +1054,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $cleave_opt = is_numeric(substr($fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
                                     echo "  <td class='text-nowrap' width='50%'>\n";
-                                    echo "   <select class='form-control' onchange='codeselect(this)'>\n";
+                                    echo "   <select class='form-select' onchange='codeselect(this)'>\n";
                                     echo "    <option value=''> " . xlt(substr($fs_category, $cleave_cat)) . "</option>\n";
                                 }
                                 echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, $cleave_opt)) . "</option>\n";
@@ -1069,7 +1069,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
                                 echo "  <td class='text-center text-nowrap' width='50%'>\n";
-                                echo "   <select class='form-control' onchange='codeselect(this)'>\n";
+                                echo "   <select class='form-select' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
                                 $res = sqlStatement("SELECT code_type, code, code_text, modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .

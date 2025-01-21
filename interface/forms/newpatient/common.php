@@ -642,7 +642,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                         <div class="col-sm <?php echo $collectionDisplay; ?>">
                             <div class="mb-3">
                                 <label for='in_collection' class="text-right"><?php echo xlt('In Collection'); ?>:</label>
-                                <select class='form-control' name='in_collection' id='in_collection'>
+                                <select class='form-select' name='in_collection' id='in_collection'>
                                     <option value="1" <?php echo (($result["in_collection"] ?? null) == 1) ? "selected" : ""; ?>><?php echo xlt('Yes'); ?></option>
                                     <option value="0" <?php echo (($result["in_collection"] ?? null) == 0) ? "selected" : ""; ?>><?php echo xlt('No'); ?></option>
                                 </select>

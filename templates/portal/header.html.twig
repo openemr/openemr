@@ -26,7 +26,7 @@
                     </a>
 
                     {% if item.children | length > 0 %}
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="{{ item.dropdownID | attr }}-dropdown">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="{{ item.dropdownID | attr }}-dropdown">
                             {% for child in item.children %}
                                 {% if not child.hide %}
                                     <li class="m-2">

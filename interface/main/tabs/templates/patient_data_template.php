@@ -190,7 +190,7 @@ switch ($search_any_type) {
                     <span class="badge text-bg-danger" data-bind="text: portalAlerts()"></span>
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="portalMsgAlerts">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="portalMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalMail">
                             <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Mail"); ?>&nbsp;
@@ -224,7 +224,7 @@ switch ($search_any_type) {
                     <span class="badge text-bg-danger" data-bind="text: serviceAlerts()"></span>
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="servicesMsgAlerts">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="servicesMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewFaxCount">
                             <i class="fa fa-solid fa-fax"></i>&nbsp;<?php echo xlt("Pending Faxes"); ?>&nbsp;
