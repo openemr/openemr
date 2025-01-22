@@ -208,7 +208,6 @@ function genFacilityTitle($repname = '', $facid = 0, $logo = "")
         if (preg_match('/[1-9]/', ($r['fax'] ?? ''))) {
             $s .= "<br />Fax: " . text($r['fax']) . "\n";
         }
-
     }
 
     $s .= "  </td>\n";
