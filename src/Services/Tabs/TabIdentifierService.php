@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * OpenEMR <https://open-emr.org>.
+ * Code written by ChatGPTo4 <https://www.chatgpt.com/>
+ * Code distributed under the GNU General Public License (GPL).
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Services\Tabs;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;

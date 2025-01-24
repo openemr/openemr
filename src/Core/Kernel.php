@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * @package OpenEMR
  * @subpackage Core
  * @author Robert Down <robertdown@live.com>
+ * @author Sherwin Gaddis <sherwingaddis@gmail.com> (2025) added TabIdentifierService  to the container
  * @copyright Copyright (c) 2017-2022 Robert Down
  */
 class Kernel
