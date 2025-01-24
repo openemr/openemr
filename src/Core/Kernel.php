@@ -50,6 +50,13 @@ class Kernel
             $definition = new Definition(EventDispatcher::class, [new Reference('service_container')]);
             $definition->setPublic(true);
             $builder->setDefinition('event_dispatcher', $definition);
+            // Register the Session service
+            $builder->register(SessionInterface::class, Session::class)
+                ->setPublic(true);
+            // Register other services (e.g., TabIdentifierService)
+            $builder->register(\OpenEMR\Services\Tabs\TabIdentifierService::class)
+                ->addArgument(new Reference(SessionInterface::class))
+                ->setPublic(true);
             $builder->compile();
             $this->container = $builder;
         }

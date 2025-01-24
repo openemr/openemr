@@ -62,6 +62,19 @@ use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/** @var TabIdentifierService $tabIdentifierService */
+$tabIdentifierService = $GLOBALS['kernel']->getContainer();
+// Retrieve the session service
+/** @var SessionInterface $session */
+$browserTabSession = $tabIdentifierService->get(SessionInterface::class);
+
+// Retrieve the TabIdentifierService
+/** @var TabIdentifierService $tabIdentifierService */
+$tabIdentifierService = $tabIdentifierService->get(TabIdentifierService::class);
+
+// Use the services
+$tabToken = $tabIdentifierService->generateTabIdentifier();
+
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
