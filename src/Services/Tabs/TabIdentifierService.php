@@ -41,4 +41,3 @@ class TabIdentifierService
         $this->session->set('tabContexts.' . $tabIdentifier, $data);
     }
 }
-
