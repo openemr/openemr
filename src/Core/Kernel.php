@@ -14,6 +14,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Class Kernel.
@@ -72,7 +74,14 @@ class Kernel
         if (!$this->container) {
             $this->prepareContainer();
         }
+        // Register the Session service
+        $this->container->register(SessionInterface::class, Session::class)
+            ->setPublic(true);
 
+        // Register other services (e.g., TabIdentifierService)
+        $this->container->register(\OpenEMR\Services\Tabs\TabIdentifierService::class)
+            ->addArgument(new Reference(SessionInterface::class))
+            ->setPublic(true);
         return $this->container;
     }
 
