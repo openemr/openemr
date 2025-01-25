@@ -100,7 +100,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
 
 <td width="130" align="right"><?php echo xlt('Appearance:'); ?>  <span class="text"></span></td>
 <td><input type="text" name="bronchitis_ops_appearance" value="<?php echo
-stripslashes($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
+text($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
 </tr>
 </table>
 
@@ -301,7 +301,7 @@ stripslashes($obj["bronchitis_ops_appearance"]);?>" size="15"></td>
                                                                            };?>><span class=text></span><br /></td>
 <td width="130" align="right"><?php echo xlt('Appearance:'); ?>  <span class="text"></span></td>
 <td><input type="text" name="bronchitis_oropharynx_appearance" value="<?php echo
-stripslashes($obj["bronchitis_oropharynx_appearance"]);?>" size="15"></td>
+text($obj["bronchitis_oropharynx_appearance"]);?>" size="15"></td>
 </tr>
 </table>
 
