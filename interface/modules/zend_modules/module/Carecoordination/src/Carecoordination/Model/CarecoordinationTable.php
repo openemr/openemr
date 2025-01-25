@@ -21,6 +21,8 @@ use Documents\Plugin\Documents;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Laminas\Config\Reader\ReaderInterface;
+use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
@@ -30,7 +32,7 @@ use OpenEMR\Services\Cda\CdaTextParser;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
-use OpenEMR\Services\Cda\ProgressNoteParser;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
@@ -208,7 +210,6 @@ class CarecoordinationTable extends AbstractTableGateway
         } catch (Exception $e) {
             die($e->getMessage());
         }
-
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
         $qrda_log['message'] = $validation_log = null;
@@ -369,6 +370,18 @@ class CarecoordinationTable extends AbstractTableGateway
         $patient_language = substr(($xml['recordTarget']['patientRole']['patient']['languageCommunication']['languageCode']['code'] ?? null), 0, 2);
         $patient_language = sqlQuery("SELECT `option_id`  FROM `list_options` WHERE `list_id` = 'language' And `notes` = ?", [$patient_language])['option_id'];
         $this->documentData['field_name_value_array']['patient_data'][1]['language'] = $patient_language ?: '';
+
+        // Guardian Details
+        $parser = new CdaComponentParseHelpers($this->conditionedXmlContent);
+        $guardian = $parser->parseGuardianParticipant();
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardiansname'] = $guardian['name'][0]['given'] . ' ' . ($guardian['name'][1]['given'] ?? '') . ' ' . $guardian['name']['family'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardianaddress'] = $guardian['address']['street'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardiancity'] = $guardian['address']['city'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardianstate'] = $guardian['address']['state'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardianpostalcode'] = $guardian['address']['postalCode'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardiancountry'] = $guardian['address']['country'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardianphone'] = $guardian['contact']['HP'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardianworkphone'] = $guardian['contact']['WP'] ?? $guardian['contact']['MC'] ?? null;
 
         //Author details
         $this->documentData['field_name_value_array']['author'][1]['extension'] = $xml['author']['assignedAuthor']['id']['extension'] ?? null;
@@ -672,7 +685,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_med_pblm['lists1'][$d]['observation_code'] = $newdata['lists1']['observation'];
                 $arr_med_pblm['lists1'][$d]['subtype'] = $newdata['lists1']['subtype'];
                 $d++;
-            } elseif ($table == 'lists2' && !empty($newdata['lists2']['list_code'])) {
+            } elseif ($table == 'lists2' && !empty($newdata['lists2']['list_code_text'])) {
                 $arr_allergies['lists2'][$c]['extension'] = $newdata['lists2']['extension'];
                 $arr_allergies['lists2'][$c]['begdate'] = $newdata['lists2']['begdate'];
                 $arr_allergies['lists2'][$c]['enddate'] = $newdata['lists2']['enddate'];
@@ -714,6 +727,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_code'] = $newdata['encounter']['encounter_diagnosis_code'];
                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $newdata['encounter']['encounter_diagnosis_issue'];
                 $arr_encounter['encounter'][$k]['encounter_discharge_code'] = $newdata['encounter']['encounter_discharge_code'];
+                $arr_encounter['encounter'][$k]['reason'] = $newdata['encounter']['reason'];
                 $k++;
             } elseif ($table == 'vital_sign') {
                 $arr_vitals['vitals'][$q]['extension'] = $newdata['vital_sign']['extension'];
@@ -936,17 +950,17 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertAllergies(($arr_allergies['lists2'] ?? null), $pid, $this, 0);
         $this->importService->InsertMedicalProblem(($arr_med_pblm['lists1'] ?? null), $pid, $this, 0);
         $this->importService->InsertEncounter(($arr_encounter['encounter'] ?? null), $pid, $this, 0);
+        $this->importService->InsertCarePlan(($arr_care_plan['care_plan'] ?? null), $pid, $this, 0);
+        $this->importService->InsertClinicalNote(($arr_clinical_note['clinical_notes'] ?? null), $pid, $this, 0);
         $this->importService->InsertVitals(($arr_vitals['vitals'] ?? null), $pid, $this, 0);
         $lab_results = $this->buildLabArray($arr_procedure_res['procedure_result'] ?? null);
         $this->importService->InsertProcedures(($arr_procedures['procedure'] ?? null), $pid, $this, 0);
         $this->importService->InsertLabResults($lab_results, $pid, $this);
-        $this->importService->InsertCarePlan(($arr_care_plan['care_plan'] ?? null), $pid, $this, 0);
         $this->importService->InsertFunctionalCognitiveStatus(($arr_functional_cognitive_status['functional_cognitive_status'] ?? null), $pid, $this, 0);
         $this->importService->InsertReferrals(($arr_referral['referral'] ?? null), $pid, 0);
         $this->importService->InsertObservationPerformed(($arr_observation_preformed['observation_preformed'] ?? null), $pid, $this, 0);
         $this->importService->InsertPayers(($arr_payer['payer'] ?? null), $pid, $this, 0);
         $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this, 0);
-        $this->importService->InsertClinicalNote(($arr_clinical_note['clinical_notes'] ?? null), $pid, $this, 0);
 
         if (!empty($audit_master_id)) {
             $appTable->zQuery("UPDATE audit_master
@@ -2161,6 +2175,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $xmlContent = preg_replace('/<br\s*\/?>/', "\n", $xmlContent); // Replace <br/> with newline
         }
         $xmlContent = preg_replace('/\xC2\xA0/', '', $xmlContent);
+        $xmlContent = str_replace('Â', '', $xmlContent);
 
         // Load the raw XML into DOMDocument for further cleaning
         $dom = new DOMDocument();

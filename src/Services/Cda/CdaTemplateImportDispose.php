@@ -663,12 +663,14 @@ class CdaTemplateImportDispose
             $catname = '';
             $pc_catid = null;
             $pc_catid_default = 5;
-            $reason = null;
+            $reason = $value['reason'] ?? '';
             if (!empty($value['code_text'] ?? null)) {
                 $cat = explode('|', $value['code_text'] ?? null);
                 $catname = trim($cat[0]);
-                $catname = substr($catname, 0, 100);
-                $reason = trim($cat[1] ?? '');
+                $catname = substr($catname, 0, 92);
+                if (empty($reason)) {
+                    $reason = trim($cat[1] ?? '');
+                }
                 $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?? '';
             }
             if (empty($pc_catid) && !empty($catname)) {
@@ -1230,7 +1232,7 @@ class CdaTemplateImportDispose
                 $res_q_sel_pres = $appTable->zQuery($q_sel_pres, array($pid, $value['extension']));
                 $res_q_sel_pres_cnt = $res_q_sel_pres->count();
             } else {
-                // prevent bunch of duplicated prescriptions/medications
+                // prevent a bunch of duplicated prescriptions/medications
                 $q_sel_pres_r = "SELECT *
                          FROM `prescriptions`
                          WHERE `patient_id` = ? AND `drug` = ?";
@@ -1272,7 +1274,9 @@ class CdaTemplateImportDispose
                     }
                 } while ($choice !== $yesContinue);
             }
+            $addMedication = false;
             if ((empty($value['extension']) && $res_q_sel_pres_r_cnt === 0) || ($res_q_sel_pres_cnt === 0)) {
+                $addMedication = true;
                 $query = "INSERT INTO prescriptions
                   ( patient_id,
                     date_added,
@@ -1368,6 +1372,26 @@ class CdaTemplateImportDispose
                     $pid,
                     0,
                     ($value['request_intent'] ?? null)));
+            }
+
+            // Medication additions
+            if ($addMedication) {
+                $sql = "INSERT INTO lists SET `type` = ?, `begdate` = ?, `enddate` = ?, `pid` = ?, 
+                      `title` = ?, `diagnosis` = ?, `date` = ?, `activity` = ?, `user` = ?, `groupname` = ?";
+                $med = [
+                    'medication',
+                    $value['begdate'],
+                    $value['enddate'],
+                    $pid,
+                    $value['drug_text'],
+                    $value['drug_code'],
+                    date('YmdHis'),
+                    $active,
+                    $provider_id,
+                    'Default'
+                ];
+                $appTable->zQuery($sql, $med);
+                $addMedication = false;
             }
         }
     }
