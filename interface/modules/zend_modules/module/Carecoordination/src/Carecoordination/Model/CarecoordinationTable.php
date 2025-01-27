@@ -1083,7 +1083,49 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
 
-        return $lab_results;
+        $consolidatedData = $this->consolidateResultsByDate($lab_array);
+
+        return $consolidatedData;
+    }
+
+
+    /**
+     * Consolidate lab results grouped by date.
+     *
+     * @param array $labResults Input array of lab results.
+     * @return array Consolidated results grouped by date.
+     */
+    function consolidateResultsByDate(array $labResults): array
+    {
+        $consolidatedResults = [];
+
+        foreach ($labResults as $result) {
+            $formattedDate = date('Y-m-d H:i:s', strtotime($result['date']));
+
+            if (!isset($consolidatedResults[$formattedDate])) {
+                // Initialize a new group for this date
+                $consolidatedResults[$formattedDate] = [
+                    'date' => $formattedDate,
+                    'results' => []
+                ];
+            }
+
+            $consolidatedResults[$formattedDate]['results'][] = [
+                'proc_text' => $result['proc_text'],
+                'proc_code' => $result['proc_code'],
+                'extension' => $result['extension'],
+                'status' => $result['status'],
+                'result_date' => $result['results_date'] ?? '',
+                'result_text' => $result['results_text'] ?? '',
+                'result_value' => $result['results_value'] ?? '',
+                'result_range' => $result['results_range'] ?? '',
+                'result_code' => $result['results_code'] ?? '',
+                'result_unit' => $result['results_unit'] ?? '',
+            ];
+        }
+
+        // sequential
+        return array_values($consolidatedResults);
     }
 
     // hmm, can't find where this is used.

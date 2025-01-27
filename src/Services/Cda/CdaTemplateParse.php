@@ -1030,8 +1030,13 @@ class CdaTemplateParse
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['results_extension'] = $value['observation']['id']['extension'] ?? null;
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['results_root'] = $value['observation']['id']['root'] ?? null;
                     // @TODO code lookup here
-                    $this->templateData['field_name_value_array']['procedure_result'][$i]['results_code'] = $value['observation']['code']['code'] ?? null;
-                    $this->templateData['field_name_value_array']['procedure_result'][$i]['results_text'] = $value['observation']['code']['displayName'] ?? null;
+                    $code = $this->codeService->resolveCode(
+                        $value['observation']['code']['code'],
+                        $value['observation']['code']['codeSystemName'] ?? 'LOINC',
+                        $value['observation']['code']['displayName'] ?? ''
+                    );
+                    $this->templateData['field_name_value_array']['procedure_result'][$i]['results_code'] = $code['code'] ?? null;
+                    $this->templateData['field_name_value_array']['procedure_result'][$i]['results_text'] = $code['code_text'] ?? null;
                     $this->templateData['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'] ?? null;
                     if ($value['observation']['value']['type'] == 'ST') {
                         $this->templateData['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['_'] ?? null;

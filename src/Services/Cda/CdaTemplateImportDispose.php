@@ -1258,8 +1258,8 @@ class CdaTemplateImportDispose
                             , 'date_ended' => $value['enddate']
                             , 'active' => $active
                             , 'drug' => $value['drug_text']
-                            , 'size' =>    $value['rate']
-                            , 'form' =>  $oidu_unit
+                            , 'size' => $value['rate']
+                            , 'form' => $oidu_unit
                             , 'dosage' => $value['dose']
                             , 'route' => $oid_route
                             , 'unit' => $unit_option_id
@@ -1588,13 +1588,14 @@ class CdaTemplateImportDispose
         if (empty($lab_results)) {
             return;
         }
-
-        $pro_name = xlt('External DX/Lab');
+        $pro_name = xlt('External Lab');
         if ($carecoordinationTable->is_qrda_import) {
             $pro_name = xlt('Qrda Lab');
         }
         $appTable = new ApplicationTable();
         foreach ($lab_results as $key => $value) {
+            $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
+            $value['proc_text'] = $value['proc_text'] ?? (xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date'])));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
             $result_pro = $appTable->zQuery($query_select_pro, array($pro_name));
             if ($result_pro->count() == 0) {
@@ -1606,8 +1607,6 @@ class CdaTemplateImportDispose
                     $pro_id = $value1['ppid'];
                 }
             }
-
-            $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             // which encounter?
             $enc_id = $this->findClosestEncounter(trim($value['date']), $pid);
             if (empty($enc_id)) {
@@ -1624,15 +1623,15 @@ class CdaTemplateImportDispose
             if ($result_pt->count() == 0) {
                 //procedure_type
                 $query_insert_pt = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
-                $result_pt = $appTable->zQuery($query_insert_pt, array($value['proc_text'], $pro_id, $value['proc_code'], 'ord', 1, 'laboratory_test'));
+                $result_pt = $appTable->zQuery($query_insert_pt, array($value['proc_text'], $pro_id, $value['proc_code'] ?? '', 'ord', 1, 'laboratory_test'));
                 $res_pt_id = $result_pt->getGeneratedValue();
                 $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
                 $appTable->zQuery($query_update_pt, array($res_pt_id, $res_pt_id));
             }
 
-            if (!empty($value['result'][0]['result_date']) && empty($date)) {
+            if (!empty($value['results'][0]['result_date']) && empty($date)) {
                 // no order date so give result date
-                $date = date("Y-m-d H:i:s", $this->str_to_time(trim($value['result'][0]['result_date'])));
+                $date = date("Y-m-d H:i:s", $this->str_to_time(trim($value['results'][0]['result_date'])));
             }
             if (empty($date)) {
                 // no order date make today
@@ -1646,7 +1645,7 @@ class CdaTemplateImportDispose
             //procedure_order_code
             $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
 
-            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $value['proc_code'], $value['proc_text'], '', 'laboratory_test', 'laboratory_test'));
+            $result_poc = $appTable->zQuery($query_insert_poc, array($po_id, 1, $value['proc_code'] ?? '', $value['proc_text'], '', 'laboratory_test', 'laboratory_test'));
             addForm($enc_id, $pro_name . '-' . $po_id, $po_id, 'procedure_order', $pid, $this->userauthorized);
 
             //procedure_report
@@ -1654,7 +1653,7 @@ class CdaTemplateImportDispose
             $result_pr = $appTable->zQuery($query_insert_pr, array($po_id, $date, $date, 'final', 'reviewed'));
             $res_id = $result_pr->getGeneratedValue();
 
-            foreach ($value['result'] as $res) {
+            foreach ($value['results'] as $res) {
                 //procedure_result
                 $range = $res['result_range'] ?? '';
                 $unit = $res['result_unit'] ?? '';
