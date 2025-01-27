@@ -493,8 +493,8 @@ if ($fend > ($count ?? null)) {
                             <?php if ($mode != "modify") { ?>
                                 <option
                                     value="<?php echo attr($value['id']) ?>"<?php if (!empty($code_type) && ($code_type == $value['id'])) {
-                                    echo " selected";
-                                } ?>><?php echo xlt($value['label']) ?></option>
+                                                                                echo " selected";
+                                                                            } ?>><?php echo xlt($value['label']) ?></option>
                             <?php } ?>
                         <?php } ?>
                         <?php if ($value['external']) {
@@ -540,8 +540,8 @@ if ($fend > ($count ?? null)) {
             <div class="col-md">
                 <input type='checkbox' name='active'
                        value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) {
-                    echo ' checked';
-                } ?> />
+                                    echo ' checked';
+                                } ?> />
                 <?php echo xlt('Active'); ?>
             </div>
         </div>
@@ -581,34 +581,34 @@ if ($fend > ($count ?? null)) {
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable'
                        value='1'<?php if (!empty($reportable)) {
-                    echo ' checked';
-                } ?> />
+                                    echo ' checked';
+                                } ?> />
                 <?php echo xlt('Diagnosis Reporting'); ?>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Service Code Finance Reporting") ?>'
                        name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) {
-                    echo ' checked';
-                } ?> />
+                                                                echo ' checked';
+                                                            } ?> />
                 <?php echo xlt('Service Reporting'); ?>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
-                echo 'd-none';
-            } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
+                                                                        echo 'd-none';
+                                                                    } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
             <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
-                echo 'd-none';
-            } ?>">
+                                    echo 'd-none';
+                                } ?>">
                 <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor"
                        value='<?php echo attr($cyp_factor ?? '') ?>'/>
             </div>
             <label class="col-form-label col-form-label-sm col-md-1 <?php if (!related_codes_are_used()) {
-                echo "d-none";
-            } ?>"><?php echo xlt('Relate To'); ?>:</label>
+                                                                        echo "d-none";
+                                                                    } ?>"><?php echo xlt('Relate To'); ?>:</label>
             <div class="col-md <?php if (!related_codes_are_used()) {
-                echo "d-none";
-            } ?>">
+                                    echo "d-none";
+                                } ?>">
                 <input type='text' class='form-control form-control-sm' size='50' name='related_desc'
                        value='<?php echo attr($related_desc) ?>' onclick="sel_related()"
                        title='<?php echo xla('Click to select related code'); ?>' readonly/>
@@ -685,21 +685,21 @@ if ($fend > ($count ?? null)) {
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>'
                        name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
-                    echo ' checked';
-                } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
+                                                            echo ' checked';
+                                                        } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>'
                        name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
-                    echo ' checked';
-                } ?> /><?php echo xlt('Service Reporting Only'); ?>
+                                                                    echo ' checked';
+                                                                } ?> /><?php echo xlt('Service Reporting Only'); ?>
                 <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'/>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Active Codes ") ?>' name='search_active'
                        value='1'<?php if (!empty($search_active)) {
-                    echo ' checked';
-                } ?> /><?php echo xlt('Active Codes'); ?>
+                                    echo ' checked';
+                                } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
             <div class="col-md text-right">
                 <?php if ($fstart) { ?>
