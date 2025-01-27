@@ -60,6 +60,9 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->validationIsDisabled = $GLOBALS['ccda_validation_disable'] ?? false;
     }
 
+    /**
+     * @return CdaTemplateImportDispose
+     */
     public function getImportService(): CdaTemplateImportDispose
     {
         return $this->importService;
@@ -70,6 +73,10 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @param       $title      String      Category Name
      * @return      $records    Array       Category ID
+     */
+    /**
+     * @param $title
+     * @return array
      */
     public function fetch_cat_id($title): array
     {
@@ -95,6 +102,10 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @return records       Array     List of documents uploaded by the user during a particular time
      */
+    /**
+     * @param $data
+     * @return array
+     */
     public function fetch_uploaded_documents($data): array
     {
         $query = "SELECT *
@@ -116,6 +127,10 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @param    cat_title   Text    Category Name
      * @return   records     Array   List of CCDA imported to the system, pending approval
+     */
+    /**
+     * @param $data
+     * @return array
      */
     public function document_fetch($data): array
     {
@@ -177,6 +192,11 @@ class CarecoordinationTable extends AbstractTableGateway
      *  and directly import them into a new patient.
      *
      * @param   $document     Path to xml document
+     */
+    /**
+     * @param $document
+     * @return void
+     * @throws Exception
      */
     public function importNewPatient($document): void
     {
@@ -458,6 +478,11 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param   $xml_content     The xml document
      */
 
+    /**
+     * @param $audit_master_id
+     * @param $document_id
+     * @return void
+     */
     public function insert_patient($audit_master_id, $document_id)
     {
         require_once(__DIR__ . "/../../../../../../../../library/patient.inc.php");
@@ -976,6 +1001,11 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
+    /**
+     * @param $unformatted_date
+     * @param $ymd
+     * @return string
+     */
     public function formatDate($unformatted_date, $ymd = 1)
     {
         $day = substr($unformatted_date, 6, 2);
@@ -997,6 +1027,12 @@ class CarecoordinationTable extends AbstractTableGateway
      * @return  $content        String      File content
      */
 
+    /**
+     * @param $list_id
+     * @param $title
+     * @param $codes
+     * @return mixed|null
+     */
     public function getOptionId($list_id, $title, $codes = null)
     {
         $appTable = new ApplicationTable();
@@ -1020,6 +1056,12 @@ class CarecoordinationTable extends AbstractTableGateway
         return ($res_cur['option_id'] ?? null);
     }
 
+    /**
+     * @param string|null $option_id
+     * @param             $list_id
+     * @param             $codes
+     * @return mixed|null
+     */
     public function getListTitle(?string $option_id, $list_id, $codes = '')
     {
         $appTable = new ApplicationTable();
@@ -1043,78 +1085,31 @@ class CarecoordinationTable extends AbstractTableGateway
         return ($res_cur['title'] ?? null);
     }
 
+    /**
+     * @param $lab_array
+     * @return array
+     */
     public function buildLabArray($lab_array)
     {
         // nothing to build if we are empty here.
         if (empty($lab_array)) {
             return [];
         }
-
-        $lab_results = array();
-        $j = 0;
-        foreach ($lab_array as $key => $value) {
-            // @todo fix below conditional to work for CCD.
-            if (!empty($lab_results[$value['extension']]['result']) && is_countable($lab_results[$value['extension']]['result'])) {
-                $j = count($lab_results[$value['extension']]['result']) + 1;
-                $lab_results[$value['extension']]['proc_text'] = $value['proc_text'];
-                $lab_results[$value['extension']]['date'] = $value['date'];
-                $lab_results[$value['extension']]['proc_code'] = $value['proc_code'];
-                $lab_results[$value['extension']]['extension'] = $value['extension'];
-                $lab_results[$value['extension']]['status'] = $value['status'];
-                $lab_results[$value['extension']]['result'][$j]['result_date'] = $value['results_date'];
-                $lab_results[$value['extension']]['result'][$j]['result_text'] = $value['results_text'];
-                $lab_results[$value['extension']]['result'][$j]['result_value'] = $value['results_value'];
-                $lab_results[$value['extension']]['result'][$j]['result_range'] = $value['results_range'];
-                $lab_results[$value['extension']]['result'][$j]['result_code'] = $value['results_code'];
-                $lab_results[$value['extension']]['result'][$j]['result_unit'] = $value['results_unit'];
-            } elseif (!empty($value['extension'])) {
-                $j = 0;
-                $lab_results[$value['extension']]['proc_text'] = $value['proc_text'];
-                $lab_results[$value['extension']]['date'] = $value['date'];
-                $lab_results[$value['extension']]['proc_code'] = $value['proc_code'];
-                $lab_results[$value['extension']]['extension'] = $value['extension'];
-                $lab_results[$value['extension']]['status'] = $value['status'];
-                $lab_results[$value['extension']]['result'][$j]['result_date'] = $value['results_date'];
-                $lab_results[$value['extension']]['result'][$j]['result_text'] = $value['results_text'];
-                $lab_results[$value['extension']]['result'][$j]['result_value'] = $value['results_value'];
-                $lab_results[$value['extension']]['result'][$j]['result_range'] = $value['results_range'];
-                $lab_results[$value['extension']]['result'][$j]['result_code'] = $value['results_code'];
-                $lab_results[$value['extension']]['result'][$j]['result_unit'] = $value['results_unit'];
-            }
-        }
-
-        $consolidatedData = $this->consolidateResultsByDate($lab_array);
-
-        return $consolidatedData;
-    }
-
-
-    /**
-     * Consolidate lab results grouped by date.
-     *
-     * @param array $labResults Input array of lab results.
-     * @return array Consolidated results grouped by date.
-     */
-    function consolidateResultsByDate(array $labResults): array
-    {
-        $consolidatedResults = [];
-
-        foreach ($labResults as $result) {
+        $groupResults = [];
+        foreach ($lab_array as $result) {
             $formattedDate = date('Y-m-d H:i:s', strtotime($result['date']));
-
-            if (!isset($consolidatedResults[$formattedDate])) {
+            if (!isset($groupResults[$formattedDate])) {
                 // Initialize a new group for this date
-                $consolidatedResults[$formattedDate] = [
+                $groupResults[$formattedDate] = [
                     'date' => $formattedDate,
+                    'proc_text' => $result['proc_text'],
+                    'proc_code' => $result['proc_code'],
+                    'extension' => $result['extension'],
+                    'status' => $result['status'],
                     'results' => []
                 ];
             }
-
-            $consolidatedResults[$formattedDate]['results'][] = [
-                'proc_text' => $result['proc_text'],
-                'proc_code' => $result['proc_code'],
-                'extension' => $result['extension'],
-                'status' => $result['status'],
+            $groupResults[$formattedDate]['results'][] = [
                 'result_date' => $result['results_date'] ?? '',
                 'result_text' => $result['results_text'] ?? '',
                 'result_value' => $result['results_value'] ?? '',
@@ -1123,12 +1118,17 @@ class CarecoordinationTable extends AbstractTableGateway
                 'result_unit' => $result['results_unit'] ?? '',
             ];
         }
-
         // sequential
-        return array_values($consolidatedResults);
+        return array_values($groupResults);
     }
 
     // hmm, can't find where this is used.
+
+    /**
+     * @param $document_id
+     * @return void
+     * @throws Exception
+     */
     public function import($document_id)
     {
         $this->resetData();
@@ -1140,11 +1140,22 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
     }
 
+    /**
+     * @param $document_id
+     * @return string
+     */
     public static function getDocument($document_id): string
     {
         return Documents::getDocument($document_id);
     }
 
+    /**
+     * @param $document_id
+     * @param $audit_master_id
+     * @param $audit_master_approval_status
+     * @param $documentationOf
+     * @return void
+     */
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf): void
     {
         $appTable = new ApplicationTable();
@@ -1161,12 +1172,19 @@ class CarecoordinationTable extends AbstractTableGateway
             $document_id));
     }
 
+    /**
+     * @return array
+     */
     public function getCategory()
     {
         $doc_obj = new DocumentsTable();
         return $doc_obj->getCategory();
     }
 
+    /**
+     * @param $pid
+     * @return mixed
+     */
     public function getIssues($pid)
     {
         // @todo Beware getIssues() doesn't exist in DocumentTable()! Method not used
@@ -1175,12 +1193,19 @@ class CarecoordinationTable extends AbstractTableGateway
         return $issues;
     }
 
+    /**
+     * @return string
+     */
     public function getCategoryIDs(): string
     {
         $doc_obj = new DocumentsTable();
         return implode("|", $doc_obj->getCategoryIDs(array('CCD', 'CCR', 'CCDA')));
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getDemographics($data): array
     {
         $appTable = new ApplicationTable();
@@ -1201,6 +1226,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getDemographicsOld($data)
     {
         $appTable = new ApplicationTable();
@@ -1216,6 +1245,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getProblems($data): array
     {
         $appTable = new ApplicationTable();
@@ -1231,6 +1264,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getAllergies($data): array
     {
         $appTable = new ApplicationTable();
@@ -1246,6 +1283,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getMedications($data): array
     {
         $appTable = new ApplicationTable();
@@ -1261,6 +1302,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getImmunizations($data): array
     {
         $appTable = new ApplicationTable();
@@ -1276,6 +1321,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getLabResults($data): array
     {
         $appTable = new ApplicationTable();
@@ -1304,6 +1353,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getVitals($data): array
     {
         $appTable = new ApplicationTable();
@@ -1319,6 +1372,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getSocialHistory($data): array
     {
         $appTable = new ApplicationTable();
@@ -1335,6 +1392,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getEncounterData($data): array
     {
         $appTable = new ApplicationTable();
@@ -1352,6 +1413,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getProcedure($data): array
     {
         $appTable = new ApplicationTable();
@@ -1367,6 +1432,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getCarePlan($data): array
     {
         $appTable = new ApplicationTable();
@@ -1382,6 +1451,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getFunctionalCognitiveStatus($data): array
     {
         $appTable = new ApplicationTable();
@@ -1397,6 +1470,11 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $am_id
+     * @param $table_name
+     * @return array
+     */
     public function createAuditArray($am_id, $table_name): array
     {
         $appTable = new ApplicationTable();
@@ -1437,6 +1515,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
+    /**
+     * @param $data
+     * @return void
+     */
     public function insertApprovedData($data)
     {
         $appTable = new ApplicationTable();
@@ -2052,6 +2134,11 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable->zQuery("DELETE FROM documents WHERE audit_master_id=?", array($data['audit_master_id']));
     }
 
+    /**
+     * @param $option_id
+     * @param $list_id
+     * @return mixed
+     */
     public function getCodes($option_id, $list_id)
     {
         $appTable = new ApplicationTable();
@@ -2071,6 +2158,10 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @param    list_id  string
      * @return   records   Array  list of list details
+     */
+    /**
+     * @param $list
+     * @return array
      */
     public function getList($list)
     {
@@ -2092,6 +2183,10 @@ class CarecoordinationTable extends AbstractTableGateway
      * @return   records   Array       list of Referral values
      */
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function getReferralReason($data)
     {
         $appTable = new ApplicationTable();
@@ -2112,6 +2207,10 @@ class CarecoordinationTable extends AbstractTableGateway
  *
  * @param audit_master_id   Integer  ID from audi_master table
  */
+    /**
+     * @param $audit_master_id
+     * @return mixed
+     */
     public function getdocumentationOf($audit_master_id)
     {
         $appTable = new ApplicationTable();
@@ -2130,6 +2229,10 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    $type
      * @return   Array       $components
      */
+    /**
+     * @param $type
+     * @return string[]
+     */
     public function getCCDAComponents($type)
     {
         $components = array('schematron' => 'Errors');
@@ -2144,6 +2247,10 @@ class CarecoordinationTable extends AbstractTableGateway
         return $components;
     }
 
+    /**
+     * @param $m
+     * @return string|void
+     */
     public function getMonthString($m)
     {
         $m = trim($m);
@@ -2174,6 +2281,11 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
+    /**
+     * @param $option_id
+     * @param $list_id
+     * @return mixed|string
+     */
     public function getListCodes($option_id, $list_id)
     {
         $appTable = new ApplicationTable();
@@ -2204,7 +2316,7 @@ class CarecoordinationTable extends AbstractTableGateway
      * Optionally removes or replaces <br/> tags.
      *
      * @param string $xmlContent The raw CCDA XML string.
-     * @param bool $removeBr Whether to remove <br/> tags. Defaults to false.
+     * @param bool   $removeBr   Whether to remove <br/> tags. Defaults to false.
      * @return string Cleaned XML content.
      * @throws Exception If the input XML is invalid or cannot be parsed.
      */
