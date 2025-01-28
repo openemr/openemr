@@ -113,11 +113,11 @@ $focus = "document.theform.search_term.select();";
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="input-group mt-1">
                 <?php
                 if (!empty($allowed_codes)) { ?>
-                    <select class='form-control' name='form_code_type'>
+                    <select class='form-select' name='form_code_type'>
                         <?php
                         foreach (array_keys($code_types) as $code) {
                             if (empty($code_types[$code]['label'])) {
@@ -132,7 +132,7 @@ $focus = "document.theform.search_term.select();";
                     <?php
                 } else {
                     // No allowed types were specified, so show all.
-                    echo "<select class='form-control' name='form_code_type'";
+                    echo "<select class='form-select' name='form_code_type'";
                     echo ">\n";
                     foreach ($code_types as $key => $value) {
                         if (empty($value['label'])) {
@@ -158,7 +158,7 @@ $focus = "document.theform.search_term.select();";
                         value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
-                    <div class="input-group-append">
+                    <div class="input-group-text">
                         <button type='submit' class='btn btn-primary btn-search'
                             name='bn_search' value='Search'></button>
                         <?php if (!empty($target_element)) { ?>
@@ -181,8 +181,8 @@ $focus = "document.theform.search_term.select();";
                 <div class="table-responsive">
                 <table class='table table-striped table-responsive-sm'>
                     <thead>
-                        <th class='font-weight-bold'><?php echo xlt('Code'); ?></th>
-                        <th class='font-weight-bold'><?php echo xlt('Description'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Code'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Description'); ?></th>
                     </thead>
                     <tbody>
                     <?php

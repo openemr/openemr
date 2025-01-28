@@ -110,9 +110,9 @@ tr.detail { font-size:10pt; background-color:#eeeeee; }
 // These are the possible colors for table rows.
 var trcolors = new Object();
 // Colors for:            Foreground Background
-trcolors['U'] = new Array('var(--black)', 'var(--gray200)'); // unselected
-trcolors['K'] = new Array('var(--black)', 'var(--yellow)'); // selected key
-trcolors['V'] = new Array('var(--black)', 'var(--indigo)'); // selected value
+trcolors['U'] = new Array('var(--bs-black)', 'var(--bs-gray-200)'); // unselected
+trcolors['K'] = new Array('var(--bs-black)', 'var(--bs-yellow)'); // selected key
+trcolors['V'] = new Array('var(--bs-black)', 'var(--indigo)'); // selected value
 
 var pselected = new Object();
 var eselected = new Object();
@@ -276,18 +276,18 @@ function doclick(pfx, id) {
             <div class="table-responsive">
                 <table class="table">
                     <tr>
-                        <td colspan='2' class="text-center font-weight-bold">
+                        <td colspan='2' class="text-center fw-bold">
                             <?php echo xlt('Issues and Encounters for'); ?> <?php echo text($patdata['fname']) . " " . text($patdata['lname']) . " (" . text($pid) . ")</b>\n"; ?>
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-center align-top p-0 pl-3">
+                        <td class="text-center align-top p-0 ps-3">
                             <div class="table-responsive">
                                 <table class="table table-sm">
                                     <tr class='head'>
                                         <td colspan='3' class="text-center">
                                             <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
-                                            <span class="font-weight-bold"><?php echo xlt('Issues Section'); ?></span>
+                                            <span class="fw-bold"><?php echo xlt('Issues Section'); ?></span>
                                         </td>
                                     </tr>
                                     <tr class='head'>
@@ -309,13 +309,13 @@ function doclick(pfx, id) {
                                 </table>
                             </div>
                         </td>
-                        <td class="text-center align-top p-0 pr-3">
+                        <td class="text-center align-top p-0 pe-3">
                             <div class="table-responsive">
                                 <table class="table table-sm">
                                     <tr class='head'>
                                         <td colspan='2' class="text-center">
                                             <input type='radio' name='form_key' value='e' onclick='clearall()' />
-                                            <span class="font-weight-bold"><?php echo xlt('Encounters Section'); ?></span>
+                                            <span class="fw-bold"><?php echo xlt('Encounters Section'); ?></span>
                                         </td>
                                     </tr>
                                     <tr class='head'>
@@ -353,7 +353,7 @@ function doclick(pfx, id) {
             </div>
         </form>
         <p>
-            <span class="font-weight-bold"><?php echo xlt('Instructions:'); ?></span> <?php echo xlt('Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.'); ?>
+            <span class="fw-bold"><?php echo xlt('Instructions:'); ?></span> <?php echo xlt('Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.'); ?>
         </p>
     </div>
 <script>

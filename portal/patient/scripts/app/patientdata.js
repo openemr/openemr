@@ -366,7 +366,7 @@ var page = {
     updateModel: function (live = 0) {
         // reset any previous errors
         $('#modelAlert').html('');
-        $('.form-group').removeClass('error');
+        $('.mb-3').removeClass('error');
         $('.help-inline').html('');
 
         // if this is new then on success we need to add it to the collection

@@ -235,7 +235,7 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         table.mini_table>tbody>tr>th {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
             text-align: center;
         }
 
@@ -270,11 +270,11 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         body > div:nth-child(2) > div:nth-child(3) > div > table > thead > tr {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table > thead {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
         }
 
         body > div:nth-child(3) > div:nth-child(3) > div > table:nth-child(1) > tbody > tr:nth-child(3) {
@@ -282,15 +282,15 @@ function generate_receipt($patient_id, $encounter = 0)
         }
 
         .bg-blue {
-            background-color:var(--secondary);
+            background-color:var(--bs-secondary);
         }
 
         .fac-name {
-            background-color:var(--secondary);
+            background-color:var(--bs-secondary);
             width: 99px;
         }
         .bg-color {
-            background-color: var(--secondary);
+            background-color: var(--bs-secondary);
             padding: 2px; font-weight: 600;
             -webkit-print-color-adjust: exact;
         }
@@ -436,7 +436,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             <td style="border:none !important">&nbsp;</td>
                             <td style="border:none !important">&nbsp;</td>
                             <td style="border:none !important">&nbsp;</td>
-                            <td class="font-weight-bold text-right bg-blue" style="border: 1px solid;"><?php echo xlt('Balance Due'); ?></td>
+                            <td class="fw-bold text-right bg-blue" style="border: 1px solid;"><?php echo xlt('Balance Due'); ?></td>
                             <td class='text-right bg-blue' style="border: 1px solid;"><?php echo text(oeFormatMoney($charges, true)) ?></td>
                         </tr>
                     </table>
@@ -968,10 +968,10 @@ function generate_receipt($patient_id, $encounter = 0)
                             <div class="table-responsive">
                                 <table class="table">
                                     <tr>
-                                        <td class="font-weight-bold"><?php echo xlt('Date'); ?></td>
-                                        <td class="font-weight-bold"><?php echo xlt('Description'); ?></td>
-                                        <td class="font-weight-bold text-right"><?php echo xlt('Qty'); ?></td>
-                                        <td class="font-weight-bold text-right"><?php echo xlt('Amount'); ?></td>
+                                        <td class="fw-bold"><?php echo xlt('Date'); ?></td>
+                                        <td class="fw-bold"><?php echo xlt('Description'); ?></td>
+                                        <td class="fw-bold text-right"><?php echo xlt('Qty'); ?></td>
+                                        <td class="fw-bold text-right"><?php echo xlt('Amount'); ?></td>
                                     </tr>
                                     <?php
                                     $inv_encounter = '';
@@ -1204,7 +1204,7 @@ function generate_receipt($patient_id, $encounter = 0)
                             }
                             ?>
                         </fieldset>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="d-flex flex-row-reverse w-100">
                                 <div class="btn-group" role="group">
                                     <button type='submit' class="btn btn-primary btn-save btn-lg" name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>

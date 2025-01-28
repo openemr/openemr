@@ -13,7 +13,7 @@ and semantic choices
 @copyright Copyright (c) 2023 Providence Healthtech
 @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
-{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
+{% set srOnly = (showLabels == true) ? "" : "visually-hidden" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +32,7 @@ and semantic choices
         .band,
         .box,
         .vertical-band {
-            background-color: var(--light);
+            background-color: var(--bs-light);
         }
     </style>
     {% endblock %}

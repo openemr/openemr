@@ -124,13 +124,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div id="date_div" style="display: none">
                                     <div class="form-row">
                                         <div class="col-12 col-sm-2">
-                                        <label for="Start" class='font-weight-bold'><?php echo xlt('Start Date');?>: </label>
+                                        <label for="Start" class='fw-bold'><?php echo xlt('Start Date');?>: </label>
                                         </div>
                                         <div class="col-12 col-sm-4">
                                             <input type='text' class='datepicker form-control' size='10' name='Start' id='Start' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                                         </div>
                                         <div class="col-12 col-sm-2">
-                                            <label for="End" class='font-weight-bold'><?php echo xlt('End Date');?>: </label>
+                                            <label for="End" class='fw-bold'><?php echo xlt('End Date');?>: </label>
                                         </div>
                                         <div class="col-12 col-sm-4">
                                             <input type='text' class='datepicker form-control' size='10' name='End' id='End' title='<?php echo xla('yyyy-mm-dd'); ?>' />
@@ -152,7 +152,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <table class="table border-0">
                                                 <tr>
                                                     <td>
-                                                        <span class='font-weight-bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
+                                                        <span class='fw-bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                                                         <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="" />
                                                         <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user" />
                                                         <button type="button" class="viewCCR_transmit btn btn-primary btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>"><?php echo xlt('Send CCR'); ?></button>
@@ -184,7 +184,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <div id="ccd_send_dialog" style="display: none">
                                         <div class="form-row mt-3">
                                             <div class="col-12">
-                                                <label for="" class="font-weight-bold">
+                                                <label for="" class="fw-bold">
                                                     <?php echo xlt('Enter Recipient\'s Direct Address');?>:
                                                 </label>
                                             </div>
@@ -287,7 +287,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <!-- Issues -->
                             <div class="col-md-6">
                                 <div class="issues table-responsive">
-                                    <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Issues'); ?>:</span>
+                                    <span class='fw-bold oe-report-section-header'><?php echo xlt('Issues'); ?>:</span>
                                     <br />
                                     <br />
 
@@ -317,7 +317,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 $disptype = $ISSUE_TYPES[$lasttype][0];
 
                                                 echo " <tr>\n";
-                                                echo "  <td colspan='4' class='font-weight-bold'><span class='oe-report-section-header'>" . xlt($disptype) . ":</span></td>\n";
+                                                echo "  <td colspan='4' class='fw-bold'><span class='oe-report-section-header'>" . xlt($disptype) . ":</span></td>\n";
                                                 echo " </tr>\n";
                                             }
 
@@ -357,7 +357,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <!-- Encounters and Forms -->
                             <div class="col-md-6">
                                 <div class='encounters table-responsive'>
-                                    <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Encounters & Forms'); ?>:</span>
+                                    <span class='fw-bold oe-report-section-header'><?php echo xlt('Encounters & Forms'); ?>:</span>
                                     <br />
                                     <br />
 
@@ -474,7 +474,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="table-responsive">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td class='font-weight-bold'><span class='oe-report-section-header'><?php echo xlt('Procedures'); ?>:</span></td>
+                                    <td class='fw-bold'><span class='oe-report-section-header'><?php echo xlt('Procedures'); ?>:</span></td>
                                     <td class='text'>&nbsp;<?php echo xlt('Order Date'); ?>&nbsp;&nbsp;</td>
                                     <td class='text'><?php echo xlt('Encounter Date'); ?>&nbsp;&nbsp;</td>
                                     <td class='text'><?php echo xlt('Order Descriptions'); ?></td>
@@ -522,7 +522,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <hr/>
                     <div>
 
-                    <span class="font-weight-bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br />
+                    <span class="fw-bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br />
                     <ul>
                         <?php
                         // show available documents
@@ -537,7 +537,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         while ($result && !$result->EOF) {
                             if (empty($result->fields['aco_spec']) || AclMain::aclCheckAcoSpec($result->fields['aco_spec'])) {
-                                echo "<li class='font-weight-bold'>";
+                                echo "<li class='fw-bold'>";
                                 echo '<input type="checkbox" name="documents[]" value="' .
                                 attr($result->fields['id']) . '">';
                                 echo '&nbsp;&nbsp;<i>' .  text(xl_document_category($result->fields['name'])) . "</i>";

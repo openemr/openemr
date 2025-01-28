@@ -279,7 +279,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         ?>
 <div id="report_results">
 <table class='table' id='mymaintable'>
-<thead class='thead-light'>
+<thead class='table-light'>
 <th>
         <?php echo xlt('Procedure Codes'); ?>
 </th>

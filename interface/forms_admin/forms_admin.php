@@ -103,9 +103,9 @@ $bigdata = getRegistered("%") or $bigdata = false;
             ?>
 
             <?php //REGISTERED SECTION ?>
-            <span class="font-weight-bold"><?php echo xlt('Registered');?></span>
+            <span class="fw-bold"><?php echo xlt('Registered');?></span>
             <form method="post" action ='./forms_admin.php'>
-                <span class="font-italic">
+                <span class="fst-italic">
                     <?php echo xlt('click here to update priority, category, nickname and access control settings'); ?>
                 </span>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -191,7 +191,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                 <hr>
 
                 <?php  //UNREGISTERED SECTION ?>
-                <span class="font-weight-bold"><?php echo xlt('Unregistered'); ?></span>
+                <span class="fw-bold"><?php echo xlt('Unregistered'); ?></span>
                 <div class="table-responsive mt-3">
                     <table class="table table-striped table-sm">
                         <?php

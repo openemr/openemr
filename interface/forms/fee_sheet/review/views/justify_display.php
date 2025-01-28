@@ -35,7 +35,7 @@
                         </tbody>
                     </table>
                 </span>
-                <select class="form-control" data-bind="value: searchType, options: diag_code_types, optionsText: 'key'"></select>
+                <select class="form-select" data-bind="value: searchType, options: diag_code_types, optionsText: 'key'"></select>
             </span>
         </span>
         <table class="table table-sm">

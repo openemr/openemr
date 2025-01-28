@@ -175,7 +175,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 if($(parent_div).is('div')) {
                     var div_id = $(parent_div).attr('id');
                     var type_tab = div_id.substr(4);
-                    $('a#header_tab_'+type_tab).css('color', 'var(--danger)');
+                    $('a#header_tab_'+type_tab).css('color', 'var(--bs-danger)');
                  }
 
                 //open tab for new patient form
@@ -216,7 +216,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 if($(parent_div).is('div')) {
                     var div_id = $(parent_div).attr('id');
                     var type_tab = div_id.substr(4);
-                    $('a#header_tab_'+type_tab).css('color', 'var(--black)');
+                    $('a#header_tab_'+type_tab).css('color', 'var(--bs-black)');
                 }
             }
             /*

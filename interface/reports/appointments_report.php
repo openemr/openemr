@@ -390,9 +390,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 <div id="report_results">
 <table class='table'>
 
-    <thead class='thead-light'>
+    <thead class='table-light'>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Provider'); ?>
         </a></th>
 
         <th <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
@@ -402,19 +402,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         </th>
 
         <th <?php echo $showDate ? '' : 'style="display:none;"' ?>><a href="nojs.php" onclick="return dosort('date')"
-        <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+        <?php echo ($form_orderby == "date") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Time'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
+        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
         </th>
 
             <th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
@@ -422,11 +422,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 <th><?php echo xlt('Cell'); //Sorting by phone# not really useful ?></th>
 
         <th><a href="nojs.php" onclick="return dosort('type')"
-        <?php echo ($form_orderby == "type") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Type'); ?></a>
+        <?php echo ($form_orderby == "type") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Type'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('status')"
-        <?php echo ($form_orderby == "status") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
+        <?php echo ($form_orderby == "status") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
         </th>
     </thead>
     <tbody>

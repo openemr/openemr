@@ -872,13 +872,13 @@ foreach ($providers as $provider) {
 			}
 			else{
 				echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . " event' style='top:".$evtTop."; height:".$evtHeight.
-						"; background-color: var(--gray300)".
+						"; background-color: var(--bs-gray-300)".
 						"; $divWidth".
 						"; $divLeft".
 						"' title='" . attr($divTitle) . "'".
 						" id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
 						">";
-				echo "<span class='text-center text-danger font-weight-bold'>" . text($row['name']) . "</span>";
+				echo "<span class='text-center text-danger fw-bold'>" . text($row['name']) . "</span>";
 				echo "</div>\n";
 			}
      } // end EVENT loop

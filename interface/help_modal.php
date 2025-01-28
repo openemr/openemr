@@ -26,7 +26,7 @@ $help_modal = <<<HELP
         <div class="modal-dialog modal-lg">
             <div class="modal-content oe-modal-content" style="height: 700px">
                 <div class="modal-header clearfix">
-                    <button type="button" class="close" data-dismiss="modal" aria-label=$close>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label=$close>
                     <span aria-hidden="true" class="text-body" style="font-size: 1.5rem;">&times;</span></button>
                 </div>
                 <div class="modal-body" style="height:80%;">

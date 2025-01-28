@@ -65,7 +65,7 @@ if (!empty($fldvalue)) {
         </li>
     </template>
     <div class="mb-2">
-        <select class="form-control gbl-field-multi-sorted-list-picker">
+        <select class="form-select gbl-field-multi-sorted-list-picker">
             <option value=""><?php echo xlt("Select an item to add"); ?></option>
             <?php foreach ($listOptions as $item) : ?>
             <option value="<?php echo attr($item['option_id']); ?>"><?php echo xlt($item['title']); ?></option>

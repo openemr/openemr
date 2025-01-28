@@ -261,7 +261,7 @@ while ($type = sqlFetchArray($res)) {
                             ?>
                         </div>
                     </fieldset>
-                    <div class="form-group clearfix">
+                    <div class="mb-3 clearfix">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group" role="group">
                                 <button type="submit" onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>

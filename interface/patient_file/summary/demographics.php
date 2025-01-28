@@ -997,11 +997,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
       }
 
       body {
-        background: var(--bg) !important;
+        background: var(--bs-body-bg) !important;
       }
 
       section {
-        background: var(--white);
+        background: var(--bs-white);
         margin-top: .25em;
         padding: .25em;
       }

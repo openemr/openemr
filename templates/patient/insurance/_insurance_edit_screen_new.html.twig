@@ -29,7 +29,7 @@ Partial twig file that represents the insurance new policy screen for a patient
         </div>
     </div>
     <div class="form-row mb-2">
-        <div class="col-md-6 text-align-right">
+        <div class="col-md-6 text-end">
             <div class="radio-group">
                 <input id="createOptionBlank" checked="checked" type="radio" name="createOption" value="blank" /><label for="createOptionBlank">{{ "Create blank policy"|xlt }}</label>
                 <input id="createOptionCopy" type="radio" name="createOption" value="copy" /><label for="createOptionCopy">{{ "Copy from existing policy"|xlt }}</label>
@@ -46,7 +46,7 @@ Partial twig file that represents the insurance new policy screen for a patient
                     <div class="alert alert-warning new-policy-list-empty d-none">
                         {{ "No policy exists for this insurance type"|xlt }}
                     </div>
-                    <select class="form-control form-control-sm sel2 mb-1 new-policy-copy-list" class="d-none">
+                    <select class="form-select form-select-sm sel2 mb-1 new-policy-copy-list" class="d-none">
                     </select>
                 </div>
             </div>
@@ -91,7 +91,7 @@ Partial twig file that represents the insurance new policy screen for a patient
         <div class="form-row">
             <div class="col-md-12">
                 <input type="button" class="btn btn-action btn-new-policy-next btn-primary" value="{{ "Next"|xlt }}" />
-                <button type="button" class="btn btn-info btn-new-policy-saving d-none">{{ "Updating current insurance..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
+                <button type="button" class="btn btn-info btn-new-policy-saving d-none">{{ "Updating current insurance..."|xlt }}<i class="wait fa fa-cog fa-spin ms-2"></i></button>
             </div>
         </div>
     </div>

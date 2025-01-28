@@ -30,7 +30,7 @@
             }
         }
         .oe-text-green {
-            color: var(--success);
+            color: var(--bs-success);
         }
     </style>
     </head>

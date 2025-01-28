@@ -132,17 +132,17 @@ var clickmap = function(args) {
                     style: 'btn-sm btn-secondary'}],
                 type: 'Alert',
                 html: `
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="counterInput">${xl('Label')}</label>
                         <input type="text" class="form-control" id="counterInput" value="${counter + 1}">
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="painScaleSelect">${optionsTitle}</label>
-                        <select class="form-control" id="painScaleSelect">
+                        <select class="form-select" id="painScaleSelect">
                             ${optionsSelect}
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="detailTextArea">${xl('Detail')}</label>
                         <textarea class="form-control" id="detailTextArea" rows="3"></textarea>
                     </div>`,

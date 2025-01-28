@@ -287,9 +287,9 @@ window.onload = function() {
     &nbsp; &nbsp;
      <a  href='#' id='printbutton' class='btn btn-secondary btn-print'>  <?php echo xlt('Print page'); ?>   </a>
 
-    <span class="float-right">
+    <span class="float-end">
         <?php echo xlt('Results per page'); ?>:
-        <select class="form-control" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
+        <select class="form-select" id="selPagesize" billing="<?php echo attr($billing_view); ?>" issue="<?php echo attr($issue); ?>" pagestart="<?php echo attr($pagestart); ?>" >
             <?php
             $pagesizes = array(5, 10, 15, 20, 25, 50, 0);
             for ($idx = 0, $idxMax = count($pagesizes); $idx < $idxMax; $idx++) {
@@ -324,7 +324,7 @@ window.onload = function() {
     </span>
 
     <div class="table-responsive">
-        <table class="table table-hover jumbotron py-4 mt-3">
+        <table class="table table-hover px-5 mb-4 bg-body-tertiary rounded-3 py-4 mt-3">
             <thead>
                 <tr class='text'>
                     <th scope="col"><?php echo xlt('Date'); ?></th>
@@ -554,7 +554,7 @@ window.onload = function() {
                     //Display the documents tagged to this encounter
                     getDocListByEncID($result4['encounter'], $raw_encounter_date, $pid);
 
-                    echo "<div class='pl-2'>";
+                    echo "<div class='ps-2'>";
 
                     // Now show a line for each encounter form, if the user is authorized to
                     // see this encounter's notes.
@@ -589,7 +589,7 @@ window.onload = function() {
                         if ($issue) {
                             echo text(xl_form_title($enc['form_name']));
                             echo "<br />";
-                            echo "<div class='encreport pl-2'>";
+                            echo "<div class='encreport ps-2'>";
                     // Use the form's report.php for display.  Forms with names starting with LBF
                     // are list-based forms sharing a single collection of code.
                             if (substr($formdir, 0, 3) == 'LBF') {
@@ -784,7 +784,7 @@ window.onload = function() {
                         }
                         $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
                         if (!empty($subresult5["provider_name"])) {
-                            $style = $responsible == 1 ? " style='color: var(--danger)'" : "";
+                            $style = $responsible == 1 ? " style='color: var(--bs-danger)'" : "";
                             $insured = "<span class='text'$style>&nbsp;" . xlt('Primary') . ": " .
                                 text($subresult5["provider_name"]) . "</span><br />\n";
                         } else {
@@ -792,18 +792,18 @@ window.onload = function() {
                         }
                         $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
                         if (!empty($subresult6["provider_name"])) {
-                            $style = $responsible == 2 ? " style='color: var(--danger)'" : "";
+                            $style = $responsible == 2 ? " style='color: var(--bs-danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Secondary') . ": " .
                                 text($subresult6["provider_name"]) . "</span><br />\n";
                         }
                         $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
                         if ($subresult6 && !empty($subresult7["provider_name"])) {
-                            $style = $responsible == 3 ? " style='color: var(--danger)'" : "";
+                            $style = $responsible == 3 ? " style='color: var(--bs-danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Tertiary') . ": " .
                                 text($subresult7["provider_name"]) . "</span><br />\n";
                         }
                         if ($responsible == 0) {
-                            $insured .= "<span class='text' style='color: var(--danger)'>&nbsp;" . xlt('Patient') .
+                            $insured .= "<span class='text' style='color: var(--bs-danger)'>&nbsp;" . xlt('Patient') .
                                 "</span><br />\n";
                         }
                     } else {

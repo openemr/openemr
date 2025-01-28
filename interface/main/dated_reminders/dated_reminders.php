@@ -115,11 +115,11 @@ function openAddScreen(id){
 function updateme(id){
   refreshInterval = <?php echo attr($updateDelay); ?>;
   if (id > 0) {
-    $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
+    $(".drTD").html('<p class="text-body fw-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
   }
 
   if (id == 'new') {
-    $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
+    $(".drTD").html('<p class="text-body fw-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
   }
 
   top.restoreSession();
@@ -137,7 +137,7 @@ function updateme(id){
       alert("<?php echo xls('Error Removing Message') ?>");
     } else {
       if (id > 0) {
-        $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
+        $(".drTD").html('<p class="text-body fw-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
       }
       $(".drTD").html(data);
     }

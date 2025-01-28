@@ -209,7 +209,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table table-striped'>
-<thead class='thead-light'>
+<thead class='table-light'>
 <th> <?php echo xlt('Time'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th> <?php echo xlt('ID'); ?> </th>

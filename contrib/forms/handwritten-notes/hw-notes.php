@@ -121,7 +121,7 @@ if (!empty($_POST['hw-notes'])) {
     <form method="post" id="fileform" action="hw-notes.php" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type="hidden" name="hw-notes" id="hw-notes" value="" />
-        <input type="submit" class="btn btn-primary btn-sm btn-block" id="submitnotes" value="<?php echo xla('Submit'); ?>" />
+        <input type="submit" class="btn btn-primary btn-sm d-block w-100" id="submitnotes" value="<?php echo xla('Submit'); ?>" />
     </form>
 </body>
 

@@ -325,9 +325,9 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" id="form_create" name="form_create" value="" />
             <input type="hidden" id="form_save_pid" name="form_save_pid" value="" />
-            <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Title'); ?>:</label>
-                <select class="form-control" required name='title'>
+            <div class="mb-3 col">
+                <label class="fw-bold"><?php echo xlt('Title'); ?>:</label>
+                <select class="form-select" required name='title'>
                     <option value=''><?php echo xlt("Unassigned"); ?></option>
                     <?php
                     $ores = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -342,21 +342,21 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                     ?>
                 </select>
             </div>
-            <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('First Name'); ?>: </label>
+            <div class="mb-3 col">
+                <label class="fw-bold"><?php echo xlt('First Name'); ?>: </label>
                 <input type='text' class="form-control" required name='fname' value='<?php echo attr($form_fname); ?>' />
             </div>
-            <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Middle Name'); ?>: </label>
+            <div class="mb-3 col">
+                <label class="fw-bold"><?php echo xlt('Middle Name'); ?>: </label>
                 <input type='text' class="form-control" name='mname' value='<?php echo attr($form_mname); ?>' />
             </div>
-            <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Last Name'); ?>: </label>
+            <div class="mb-3 col">
+                <label class="fw-bold"><?php echo xlt('Last Name'); ?>: </label>
                 <input type='text' class="form-control" required name='lname' value='<?php echo attr($form_lname); ?>' />
             </div>
-            <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Gender'); ?>: </label>
-                <select class="form-control" required name='sex'>
+            <div class="mb-3 col">
+                <label class="fw-bold"><?php echo xlt('Gender'); ?>: </label>
+                <select class="form-select" required name='sex'>
                     <option value=''><?php echo xlt("Unassigned"); ?></option>
                     <?php
                     $ores = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -371,8 +371,8 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                     ?>
                 </select>
             </div>
-            <div class="form-group col">
-                <label class="font-weight-bold"><?php echo xlt('Birth Date'); ?>:</label>
+            <div class="mb-3 col">
+                <label class="fw-bold"><?php echo xlt('Birth Date'); ?>:</label>
                 <input type='text' class='form-control datepicker' required name='DOB' id='DOB' value='<?php echo attr($form_dob); ?>' />
             </div>
             <div class="form-check">
@@ -381,9 +381,9 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d'
                     <?php echo xlt('Copy Fax Id') . " '" . text($job_id) . "' " . xlt('to Documents'); ?>
                 </label>
             </div>
-            <div class="form-group col">
+            <div class="mb-3 col">
             </div>
-            <div class="float-right">
+            <div class="float-end">
                 <button type="button" class="btn btn-primary btn-search" id="search" value="<?php echo xla('Search'); ?>">
                     <?php echo xlt('Existing Patient'); ?>
                 </button>

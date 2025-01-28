@@ -177,14 +177,14 @@ function onvalue($name)
     }
     ?>
     <div class="page-header" name="form_legend" id="form_legend">
-        <h4><?php echo xlt('Enter Provider Details'); ?><i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript ml-2" aria-hidden="true"></i></h4>
+        <h4><?php echo xlt('Enter Provider Details'); ?><i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript ms-2" aria-hidden="true"></i></h4>
     </div>
     <div class="row">
         <div class="col-sm-12">
             <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="form-check-inline">
-                    <label class='form-check-label mr-2' for="form_active"><?php echo xlt('Active'); ?></label>
+                    <label class='form-check-label me-2' for="form_active"><?php echo xlt('Active'); ?></label>
                     <input type='checkbox' class='form-check-input' name='form_active' id='form_active'
                         <?php if ($ppid) {
                             echo !empty($ppid_active) ? " checked" : "";
@@ -478,7 +478,7 @@ function onvalue($name)
                     </div>
                 </div>
                 <div class="row mt-3">
-                    <div class="form-group clearfix" id="button-container">
+                    <div class="mb-3 clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group" role="group">
                                 <button type='submit' name='form_save' class="btn btn-primary btn-save" value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>

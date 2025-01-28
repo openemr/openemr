@@ -247,17 +247,17 @@ if ($_REQUEST['providerid']) {
       #searchResults table {
         width: 100%;
         border-collapse: collapse;
-        background-color: var(--white);
+        background-color: var(--bs-white);
       }
 
       #searchResults td {
-        border-bottom: 1px solid var(--gray600);
+        border-bottom: 1px solid var(--bs-gray-600);
         padding: 1px 5px;
       }
 
       .blue_highlight {
         background-color: #BBCCDD;
-        color: var(--white);
+        color: var(--bs-white);
       }
 
       #am a, #am a:hover {
@@ -266,7 +266,7 @@ if ($_REQUEST['providerid']) {
       }
 
       #pm a, #pm a:hover {
-        color: var(--danger);
+        color: var(--bs-danger);
         padding: 4px;
         text-decoration: none;
       }
@@ -290,7 +290,7 @@ if ($_REQUEST['providerid']) {
                 </div>
                 <label for="searchdays" class="col-auto col-form-label"><?php echo xlt('days'); ?></label>
                 <div class="col-auto">
-                    <input type='submit' class="btn btn-primary btn-sm btn-block" value='<?php echo xla('Search'); ?>' />
+                    <input type='submit' class="btn btn-primary btn-sm d-block w-100" value='<?php echo xla('Search'); ?>' />
                 </div>
             </div>
     </div>

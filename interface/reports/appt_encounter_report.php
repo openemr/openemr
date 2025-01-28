@@ -334,7 +334,7 @@ if (!empty($_POST['form_refresh'])) {
 <div id="report_results">
 <table class='table' id='mymaintable'>
 
-<thead class='thead-light'>
+<thead class='table-light'>
 <th> &nbsp;<?php echo xlt('Practitioner'); ?> </th>
 <th> &nbsp;<?php echo xlt('Date/Appt'); ?> </th>
 <th> &nbsp;<?php echo xlt('Patient'); ?> </th>

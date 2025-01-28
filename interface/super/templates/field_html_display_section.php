@@ -5,7 +5,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 $fldid = $fldid ?? '';
 $fldarr = $fldarr ?? [];
-echo "<div class='row form-group'><div class='col-12'>";
+echo "<div class='row mb-3'><div class='col-12'>";
 if (
     isset($fldoptions[GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK])
     && is_callable($fldoptions[GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK])

@@ -447,7 +447,7 @@ $condition_str = '';
 <br />
 <div class='container-xl demographicsEditContainer'>
     <div class="section-header">
-        <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
+        <span class="text fw-bold"><?php echo xlt("Demographics")?></span>
     </div>
     <ul class="tabNav">
         <?php display_layout_tabs('DEM', $result, $result2); ?>

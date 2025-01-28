@@ -11,7 +11,7 @@
 #}
 <!-- Health Snapshot Card -->
 <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
-    <div class="card d-flex mr-1 mb-1">
+    <div class="card d-flex me-1 mb-1">
         <header class="card-header p-1 bg-dark text-light h3">{{ 'Health Snapshot (Medical Lists)' | xlt }}</header>
         <div class="card-body">
             {% include "portal/partial/cards/_health_snapshot_immunization_card.html.twig" with {immunizationRecords: healthSnapshot.immunizationRecords} %}

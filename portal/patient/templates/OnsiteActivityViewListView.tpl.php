@@ -42,11 +42,11 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
 <h3>
     <i class="icon-th-list"></i><?php echo xlt('Onsite Patient Activities'); ?>
     <span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
-    <div class="col-sm-3 col-md-3 float-right">
+    <div class="col-sm-3 col-md-3 float-end">
         <form class="navbar-form" role="search">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term" />
-            <div class="input-group-append">
+            <div class="input-group-text">
                 <button class="btn btn-secondary" type="submit"><i class="fas fa-search"></i></button>
             </div>
         </div>

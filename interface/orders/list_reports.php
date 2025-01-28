@@ -113,14 +113,14 @@ if (!empty($_POST['form_xmit'])) {
 
 tr.head {
         font-size: 13px;
-        background-color: var(--gray);
+        background-color: var(--bs-gray);
     text-align: center;
-        color: var(--white);
+        color: var(--bs-white);
 }
 
 tr.subhead {
         font-size: 13px;
-        background-color: var(--gray200);
+        background-color: var(--bs-gray-200);
     text-align: center;
 }
 
@@ -191,7 +191,7 @@ function doWait(e){
 </head>
 
 <body onsubmit="doWait(event)">
-    <div class="page-header ml-2">
+    <div class="page-header ms-2">
         <h2><?php echo xlt('Procedure Orders and Reports'); ?></h2>
     </div>
 <form class="form-inline" method='post' action='list_reports.php' enctype='multipart/form-data'>
@@ -200,11 +200,11 @@ function doWait(e){
     <input class="d-none row" type='text' name='form_external_refresh' value='' />
     <div class="form-row">
         <div class="col-md">
-            <div class="form-group">
-                <div class="input-group-btn input-group-append">
+            <div class="mb-3">
+                <div class="input-group-btn input-group-text">
                     <button class='btn btn-primary' name='form_process_labs'
                         title="Click to process pending results from selected Labs."
-                        value="true"><?php echo xlt('Process Results For'); ?><i class="ml-1 btn-transmit"></i>
+                        value="true"><?php echo xlt('Process Results For'); ?><i class="ms-1 btn-transmit"></i>
                     </button>
                     <select name='form_lab_id' id='form_lab_id' class='form-control'>
                         <option value="0"><?php echo xlt('All Labs'); ?></option>
@@ -223,8 +223,8 @@ function doWait(e){
                         ?>
                     </select>
                 </div>
-                <div class="form-group">
-                    <div class="input-group-append">
+                <div class="mb-3">
+                    <div class="input-group-text">
                     <input name='form_max_results' id='form_max_results' class='form-control'
                         style="max-width:75px;margin-left:20px;"
                         type="number" title="<?php echo xla('Max number of results to process at a time per Lab') ?>"
@@ -232,7 +232,7 @@ function doWait(e){
                         value="<?php echo attr($_REQUEST['form_max_results'] ?? 10); ?>" />
                         <span class="input-group-text"><?php echo xlt('Results Per Lab'); ?></span>
                     </div>
-                    <div class="form-check form-check-inline ml-2">
+                    <div class="form-check form-check-inline ms-2">
                         <input class="form-check-input" type='checkbox' name='form_patient' id="ck_patient" value='1'
                             <?php if ($form_patient) {
                                 echo 'checked ';
@@ -448,7 +448,7 @@ function doWait(e){
             </select>
         </div>
         <div class="col-md">
-            <button type="submit" class="btn btn-outline-primary btn-search float-left" name='form_refresh'><?php echo xlt('Filter'); ?></button>
+            <button type="submit" class="btn btn-outline-primary btn-search float-start" name='form_refresh'><?php echo xlt('Filter'); ?></button>
         </div>
     </div>
     </div>

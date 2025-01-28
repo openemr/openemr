@@ -408,10 +408,10 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
                 <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                    <img src="<?php echo $menuLogo;?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo');?>">
+                    <img src="<?php echo $menuLogo;?>" class="d-block ms-3" height="30" alt="<?php echo xlt('Main Menu Logo');?>">
                 </a>
             <?php endif; ?>
-            <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler me-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
@@ -419,9 +419,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
             <form name="frm_search_globals" class="form-inline">
                 <div class="input-group">
                     <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                    <div class="input-group-append">
-                        <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}"><i class="fa fa-search">&nbsp;</i></button>
-                    </div>
+                    <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}"><i class="fa fa-search">&nbsp;</i></button>
                 </div>
             </form>
             <?php endif; ?>
@@ -443,8 +441,8 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
                 $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
             });
             if ($('body').css('direction') == "rtl") {
-                $('.dropdown-menu-right').each(function() {
-                    $(this).removeClass('dropdown-menu-right');
+                $('.dropdown-menu-end').each(function() {
+                    $(this).removeClass('dropdown-menu-end');
                 });
             }
         });

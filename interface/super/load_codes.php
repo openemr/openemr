@@ -38,13 +38,13 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 
 <style>
  .dehead {
-   color: var(--black);
+   color: var(--bs-black);
    font-family: sans-serif;
    font-size: 0.8125rem;
    font-weight: bold;
   }
  .detail {
-   color: var(--black);
+   color: var(--bs-black);
    font-family: sans-serif;
    font-size: 0.8125rem;
    font-weight:normal;
@@ -212,13 +212,13 @@ if (!empty($_POST['bn_upload'])) {
                     </tbody>
                 </table>
             </div>
-            <p class='font-weight-bold text-center'>
+            <p class='fw-bold text-center'>
                 <?php echo xlt('Be patient, some files can take several minutes to process!'); ?>
             </p>
 
             <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
             <p class='text'>
-            <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
+            <span class="fw-bold">RXCUI codes</span> may be downloaded from
             <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
             www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
             Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".

@@ -14,7 +14,7 @@ Render the language list, label and selectbox
 #}
 {% if displayLanguage %}
 {% block display_languages %}
-<div class="{{ language_container_class_list|default(['form-group', 'row'])|join(' ') }}">
+<div class="{{ language_container_class_list|default(['mb-3', 'row'])|join(' ') }}">
     <label for="language" class="{{ srOnly }} {{ language_label_class_list|default(['col-form-label', 'col-sm-4'])|join(' ') }}">{{ "Language"|xlt }}</label>
     <div class="col">
         <select class="{{ language_select_class_list|default(['form-control'])|join(' ') }}" name="languageChoice" size="1">

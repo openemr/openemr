@@ -316,15 +316,15 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-2">
             <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                        <a class="nav-link active fw-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                        <a class="nav-link fw-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                        <a class="nav-link fw-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -339,7 +339,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 }?>" style="display:inline">
 
                     <fieldset>
-                        <div class="jumbotron py-4">
+                        <div class="px-5 mb-4 bg-body-tertiary rounded-3 py-4">
                         <?php
                             require_once("payment_master.inc.php"); //Check/cash details are entered here.
                         ?>
@@ -363,7 +363,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                                 ?>
                                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                             <br />
-                            <div class="form-group clearfix">
+                            <div class="mb-3 clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                     <br />
                                     <div class="btn-group" role="group">

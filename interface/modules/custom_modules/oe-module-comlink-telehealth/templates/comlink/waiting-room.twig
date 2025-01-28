@@ -18,7 +18,7 @@
                     <input disabled class="disabled btn btn-primary btn-comlink-conference-join d-inline-block d-lg-none" type="button" value="{{ "Join Now"|xla }}">
                 </div>
             </div>
-            <div class="row no-gutters pt-2">
+            <div class="row g-0 pt-2">
                 <div class="col card collapse flex-column" id="waitingRoomProfile">
                     {% if isPatient %}
                         {% include 'comlink/waiting-room-patient.twig' with {patient: patient, provider:provider, appointment: appointment} %}
@@ -31,7 +31,7 @@
     </div>
     <div class="row">
         <div class="col-12 col-lg-6" id="local-video-container">
-            <div class="row bg-dark no-gutters">
+            <div class="row bg-dark g-0">
                 <div class="col-12">
                     {% include 'comlink/local-participant-container.html.twig' with {callerName: callerName} %}
 {#                <video class="w-100" autoplay="true" muted="muted"#}

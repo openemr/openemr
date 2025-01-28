@@ -467,22 +467,22 @@ class EtherFaxActions extends AppDispatch
     private function generateActionLinks($id, $record_id, $pid_assumed)
     {
         return "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
-                <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
+                <i class='fa fa-chart-simple me-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
             </a>
             <a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($pid_assumed) . ")\">
-                <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i>
+                <i class='fa fa-paper-plane me-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i>
             </a>
             <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\">
-                <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i>
+                <i class='fa fa-file-download me-2' title='" . xla("Download and delete fax") . "'></i>
             </a>
             <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\">
-                <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i>
+                <i class='fa fa-file-pdf me-2' title='" . xla("View fax document") . "'></i>
             </a>
             <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\">
-                <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i>
+                <i class='text-danger fa fa-trash me-2' title='" . xla("Delete this fax document") . "'></i>
             </a>
             <a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\">
-                <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i>
+                <i class='fa fa-forward me-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i>
             </a>";
     }
 

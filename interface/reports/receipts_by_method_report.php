@@ -182,11 +182,11 @@ function showLineItem(
         if ($showing_ppd) {
             $dos = substr($pferow['date'], 0, 10);
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             echo "   " . text($pferow['lname']) . ", " . text($pferow['fname']) . " " . text($pferow['mname']);
             echo "  </td>\n";
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             if ($payer_type) {
                 $ptarr = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
                 $insrow = getInsuranceDataByDate(
@@ -200,7 +200,7 @@ function showLineItem(
 
             echo "  </td>\n";
 
-            echo "  <td class='font-weight-bold'>\n";
+            echo "  <td class='fw-bold'>\n";
             echo "   " . text(oeFormatShortDate($dos)) . "\n";
             echo "  </td>\n";
         }
@@ -347,7 +347,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 <div id="report_parameters">
     <div class="form-row col-md-6">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-        <div class="form-group auto">
+        <div class="mb-3 auto">
             <label for='form_report_by'><?php echo xlt('Report by'); ?></label>
             <?php echo " <select name='form_report_by' id='form_report_by' class='form-control'>\n";
             foreach (
@@ -368,13 +368,13 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 echo "   </select>&nbsp;\n";
             ?>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for='form_facility'><?php echo xlt('Facility'); ?></label>
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
         </div>    
     </div>
     <div class="form-row col-md-6">
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for='form_provider'><?php echo xlt('Provider'); ?></label>
             <?php echo xlt('Provider'); ?>:
                 <td>
@@ -404,7 +404,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                     ?>
                 </td>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for="form_proc_codefull">
             <?php
             if (!$GLOBALS['simplified_demographics']) {
@@ -421,7 +421,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
         </div>
     </div>    
     <div class="form-row col-md-6">
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for='form_use_edate'>
                 <select name='form_use_edate' class='form-control'>
                     <option value='0'><?php echo xlt('Payment Date'); ?></option>
@@ -429,7 +429,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 </select>
             </label>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <div class="form-check">
                 <input class="form-check-input" type='checkbox' name='form_details' value='1'<?php echo (!empty($_POST['form_details'])) ? " checked" : ""; ?> />
                 <label class="form-check-label">
@@ -437,13 +437,13 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 </label>
             </div>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for="form_from_date">
                 <?php echo xlt('From'); ?>
             </label>
             <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
         </div>
-        <div class="form-group col-auto">
+        <div class="mb-3 col-auto">
             <label for="form_to_date">
                 <?php echo xlt('To{{Range}}'); ?>
             </label>
@@ -471,7 +471,7 @@ if (!empty($_POST['form_refresh'])) {
 
 <table id='mymaintable' class='table table-hover'>
 
-<thead class="thead-light">
+<thead class="table-light">
     <tr>
         <th scope="col">
             <?php echo xlt('Method') ?>

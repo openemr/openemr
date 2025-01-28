@@ -173,7 +173,7 @@ $help_icon = '';
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id="visit-details">
                       <div class="row p-3">
-                        <div class="col-md-6 form-group row">
+                        <div class="col-md-6 mb-3 row">
                             <label for="pc_catid" class="col-form-label col-sm-2"><?php echo xlt('Visit Category'); ?>:</label>
                             <div class="col-sm-3">
                                 <select name='pc_catid' id='pc_catid' class='form-control'>
@@ -242,7 +242,7 @@ $help_icon = '';
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="col-md-6 form-group row">
+                        <div class="col-md-6 mb-3 row">
                             <label for='form_date' class="col-form-label col-sm-2"><?php echo xlt('Date of Service'); ?>:</label>
                             <div class="col-sm-3">
                                 <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?>
@@ -262,7 +262,7 @@ $help_icon = '';
                                 echo "</div>"; } ?>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="col-md-6 form-group row"
+                        <div class="col-md-6 mb-3 row"
                             <?php
                             if (!$GLOBALS['gbl_visit_referral_source']) {
                                 echo "style='display:none'";
@@ -274,7 +274,7 @@ $help_icon = '';
                             <div class="clearfix"></div>
                         </div>
                         <?php if ($GLOBALS['enable_group_therapy']) { ?>
-                            <div class="col-md-6 form-group row" id="therapy_group_name" style="display: none">
+                            <div class="col-md-6 mb-3 row" id="therapy_group_name" style="display: none">
                                 <label for="form_group" class="col-form-label col-sm-2"><?php echo xlt('Group name'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text'name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
@@ -284,7 +284,7 @@ $help_icon = '';
                             </div>
                         <?php }?>
                         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-                            <div class="col-md-6 form-group row">
+                            <div class="col-md-6 mb-3 row">
                                 <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('POS Code'); ?>:</label>
                                 <div class="col-sm-8">
                                     <select name="pos_code" id="pos_code" class='form-control'>
@@ -304,7 +304,7 @@ $help_icon = '';
                                 <div class="clearfix"></div>
                             </div>
                         <?php }?>
-                        <div class="col-md-6 form-group row">
+                        <div class="col-md-6 mb-3 row">
                             <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('Facility'); ?>:</label>
                             <div class="col-sm-8">
                                 <select name='facility_id' id='facility_id' class='form-control' onChange="bill_loc()">
@@ -340,12 +340,12 @@ $help_icon = '';
                     </div>
                 </fieldset>
                 <fieldset>
-                    <div class="col-md-12 form-group">
+                    <div class="col-md-12 mb-3">
                       <legend><?php echo xlt('Reason for Visit')?></legend>
                       <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
                     </div>
                 </fieldset>
-                <div class="col-md-12 form-group clearfix">
+                <div class="col-md-12 mb-3 clearfix">
                       <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
                       <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
                           <button type="button" class="btn btn-link btn-cancel" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>

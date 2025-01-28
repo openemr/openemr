@@ -119,7 +119,7 @@ function checkAll(bx) {
                 </div>
                 <?php } ?>
             </div>
-            <div class='col-12 jumbotron py-4 mt-3' id='labdata'>
+            <div class='col-12 px-5 mb-4 bg-body-tertiary rounded-3 py-4 mt-3' id='labdata'>
                 <?php
                 // some patient data...
                 $spell  = "SELECT * ";
@@ -138,7 +138,7 @@ function checkAll(bx) {
                         <table class="table">
                             <tr>
                                 <td><?php echo xlt('Patient'); ?></td>
-                                <td class="font-weight-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
+                                <td class="fw-bold"><?php echo text($lastname) . ", " . text($firstname) ?></td>
                             </tr>
                             <tr>
                                 <td><?php echo xlt('Patient ID') ?></td>

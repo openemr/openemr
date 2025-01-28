@@ -398,7 +398,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             $targets = null;
             $target_pid = intval($_POST['form_target_pid']);
             $source_pid = intval($_POST['form_source_pid']);
-            echo "<div class='jumbotron jumbotron-fluid m-0 p-0 px-2'>";
+            echo "<div class='bg-body-tertiary m-0 p-0 px-2'>";
             if ($target_pid == $source_pid) {
                 die(xlt('Target and source pid may not be the same!'));
             }
@@ -646,8 +646,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                         value='dedupe'><?php echo xla('Merge with Encounter Deduplication'); ?></button></span>
             </div>
         </form>
-        <div class="jumbotron p-2 m-0 mt-2">
-            <p class="font-weight-bold"><?php echo xlt('Be careful with this feature. Back up your database and documents before using it!'); ?></p>
+        <div class="mb-4 bg-body-tertiary rounded-3 p-2 m-0 mt-2">
+            <p class="fw-bold"><?php echo xlt('Be careful with this feature. Back up your database and documents before using it!'); ?></p>
             <?php if (!$PRODUCTION) { ?>
                 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
             <?php } ?>

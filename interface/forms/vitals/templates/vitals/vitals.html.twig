@@ -34,7 +34,7 @@
 <body>
 
  <div class="container mt-3">
-    <div class="row no-gutters">
+    <div class="row g-0">
         <div class="col-4">
             <h2 class="h2-responsive">
                 {{ "Vitals"|xlt }}&nbsp;&nbsp;&nbsp;
@@ -54,7 +54,7 @@
                 <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
                 {% if has_id %}
                 <div class="row">
-                    <div class="col-md-auto p-3 font-weight-bold text-right">
+                    <div class="col-md-auto p-3 fw-bold text-right">
                         <label for="date">{{ "Date"|xlt }}</label>
                     </div>
                     <div class="col-md-auto p-2">
@@ -101,7 +101,7 @@
                         </table>
 
                     </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <div class="text-left position-override">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save editonly" name="Submit" value=''>{{ "Save"|xlt }}</button>

@@ -180,7 +180,7 @@ if ($GLOBALS['secure_upload']) {
 #generate_thumb {
      width: 95%;
      margin: 50px auto;
-     border: 2px solid var(--gray);
+     border: 2px solid var(--bs-gray);
 }
 #file_type_whitelist {
     width: 95%;
@@ -191,7 +191,7 @@ if ($GLOBALS['secure_upload']) {
      text-align: center;
 }
 #generate_thumb table td {
-     border-right: 1px solid var(--gray);
+     border-right: 1px solid var(--bs-gray);
      padding: 0 15px;
 }
 </style>
@@ -260,11 +260,11 @@ function msfFileChanged() {
     <form id="whitelist_form" method="post">
         <div class="form-row">
             <div class="subject-black-list col">
-                <div class="form-group">
+                <div class="mb-3">
                     <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
                     <div class="form-row align-items-center">
                         <div class="col-2">
-                            <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
+                            <label for="filter-black-list" class="fw-bold"><?php echo xlt('Filter');?>:</label>
                         </div>
                         <div class="col">
                             <input type="text" id="filter-black-list" class="form-control" />
@@ -290,7 +290,7 @@ function msfFileChanged() {
             </div>
 
             <div class="subject-white-list col">
-                <div class="form-group">
+                <div class="mb-3">
                     <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
                     <div class="form-row">
                         <div class="col-2">

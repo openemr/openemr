@@ -9,7 +9,7 @@ class RuleTemplateExtension
     public static function render_select($args)
     {
         ?>
-        <select class="form-control" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id'] ?? ''); ?>">
+        <select class="form-select" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id'] ?? ''); ?>">
 
             <!-- default option -->
             <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
@@ -34,7 +34,7 @@ class RuleTemplateExtension
             <span class="end_col">
         <input id="<?php echo $args['id'] ? attr($args['id']) : "" ?>" data-grp-tgt="<?php echo attr($args['target'] ?? ''); ?>" class="form-control field <?php echo attr($args['class'] ?? ''); ?>" type="text" name="<?php echo attr($args['name']); ?>" value="<?php echo attr($args['value']);?>" />
     </span>
-            <span class="ml-1"><?php echo $args['render_link'] ?? ""; ?></span>
+            <span class="ms-1"><?php echo $args['render_link'] ?? ""; ?></span>
         </p>
     <?php }
 

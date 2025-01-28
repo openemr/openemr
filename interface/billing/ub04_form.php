@@ -956,7 +956,7 @@ textarea{
     <button class="btn btn-info btn-sm" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
     <button class="btn btn-sm btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
 </div>
-<div id='formhelp' class='jumbotron jumbotron-fluid' style='display:none; text-align:center; width: auto; margin: 5px auto;'>
+<div id='formhelp' class='py-5 px-0 mb-4 bg-body-tertiary rounded-0' style='display:none; text-align:center; width: auto; margin: 5px auto;'>
     <h4>Help</h4>
      <div style='text-align:left;'>
         * <?php echo xlt('Many code items have a lookup/hint.'); ?>

@@ -141,7 +141,7 @@
 
 /** sidebar highlight **/
 .conference-room .sidebar .conference-highlight {
-  /** patient portal has var(--black) but OpenEMR theme does not... so we use #000 **/
+  /** patient portal has var(--bs-black) but OpenEMR theme does not... so we use #000 **/
   background: #000;
   position: absolute;
   transition: opacity 1s;
@@ -342,7 +342,7 @@
 }
 
 .conference-room .participant-list-container .participant-container.pinned .video-control.video-control-pin {
-  color: var(--success) !important;
+  color: var(--bs-success) !important;
   display: block;
 }
 

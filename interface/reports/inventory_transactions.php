@@ -194,12 +194,12 @@ if ($form_action == 'export') {
      font-weight:normal;
 }
  .dehead {
-     color:var(--black);
+     color:var(--bs-black);
      font-family:sans-serif;
      font-size:10pt;
      font-weight:bold;
 }
- .detail { color:var(--black);
+ .detail { color:var(--bs-black);
      font-family:sans-serif;
      font-size:10pt;
      font-weight:normal;

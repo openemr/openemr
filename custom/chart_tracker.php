@@ -123,7 +123,7 @@ if (!empty($row)) {
     ?>
 
     <div class="row">
-        <div class="col-sm-6 jumbotron jumbotron-fluid p-3">
+        <div class="col-sm-6 mb-4 bg-body-tertiary rounded-3 p-3">
             <div class="form-row">
                 <label for="form_pat_id" class='col-form-label col-sm-3'><?php echo xlt('Patient ID') . ":"; ?></label>
                 <div class='col-sm-9'>
@@ -190,7 +190,7 @@ if (!empty($row)) {
     <?php
 }
 ?>
-        <div class="col-sm-6 jumbotron jumbotron-fluid p-3">
+        <div class="col-sm-6 mb-4 bg-body-tertiary rounded-0 p-3">
             <div class="form-row">
                 <label for='form_newid' class='col-form-label col-sm-3'><?php echo xlt('New Patient ID') . ":"; ?></label>
                 <div class='col-sm-9'>

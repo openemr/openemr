@@ -196,12 +196,12 @@ $vendors = $boot->getVendorGlobals();
 </head>
 <body>
     <div class="container-xl border mt-2 mb-5">
-        <div class="form-group text-center m-2 p-2">
+        <div class="mb-3 text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
         </div>
         <div class="card mb-1">
             <div class="card-header p-1 mb-3 bg-light text-dark collapsed collapsed" role="button" data-toggle="collapse" href="#collapseOne">
-                <h6 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Click for Setup Help"); ?></h6>
+                <h6 class="mb-0"><i class="fa fa-expand me-2"></i><?php echo xlt("Click for Setup Help"); ?></h6>
             </div>
             <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
                 <!-- Currently no plans to translate. -->
@@ -236,7 +236,7 @@ $vendors = $boot->getVendorGlobals();
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <!-- never active and for persist submit. -->
                 <button type="submit" id="form_save_top" name="form_save_top" class="d-none" value="true"></button>
-                <div class="row form-group">
+                <div class="row mb-3">
                     <div class="col-12 m-0 text-center">
                         <h5>
                             <?php echo xlt("Weno Primary Admin Section") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
@@ -245,79 +245,79 @@ $vendors = $boot->getVendorGlobals();
                         </h5>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="row form-group">
+                <div class="mb-3">
+                    <div class="row mb-3">
                         <label for="weno_rx_enable" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service"); ?></label>
                         <div class="col-sm-6" title="<?php echo xla("Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
                             <input type="checkbox" class="checkbox persist" name="weno_rx_enable" id="weno_rx_enable" value="1" <?php echo $vendors['weno_rx_enable'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="weno_rx_enable_test" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service Test Mode"); ?></label>
                         <div class="col-sm-6" title="<?php echo xla("Enable Weno eRx Service Test mode. This option will automatically include test pharmacies in your pharmacy download.") ?>">
                             <input type="checkbox" class="checkbox persist" name="weno_rx_enable_test" id="weno_rx_enable_test" value="1" <?php echo $vendors['weno_rx_enable_test'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="" class="col-sm-6"><?php echo xlt("Weno Primary Encryption Key") ?></label>
-                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
+                        <div class="col-sm-6 input-group-text" title="<?php echo xla("Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_encryption_key" id="weno_encryption_key" value="<?php echo attr($vendors['weno_encryption_key']); ?>" />
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="weno_admin_username" class="col-sm-6"><?php echo xlt("Weno Primary Admin Username") ?></label>
                         <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
                             <input type="text" autocomplete="off" class="form-control persist" maxlength="255" name="weno_admin_username" id="weno_admin_username" value="<?php echo attr($vendors['weno_admin_username']); ?>" />
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="weno_admin_password" class="col-sm-6"><?php echo xlt("Weno Primary Admin Password") ?></label>
-                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
+                        <div class="col-sm-6 input-group-text" title="<?php echo xla("Required Weno account password") ?>">
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
                     </div>
-                    <div class="row form-group my-0">
-                        <div class="col form-group">
-                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset"
+                    <div class="row mb-3 my-0">
+                        <div class="col mb-3">
+                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-end" value="Reset"
                                 title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>">
                                 <?php echo xlt("Encryption Reset"); ?>
                             </button>
                         </div>
-                        <div class="col-12 m-0 m-0 form-group">
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh_top" onclick="top.location.reload()"
+                        <div class="col-12 m-0 m-0 mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-start" id="app_refresh_top" onclick="top.location.reload()"
                                 title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>">
                                 <?php echo xlt("Restart OpenEMR"); ?>
                             </button>
-                            <button type="submit" id="form_save" name="form_save" class="btn btn-success btn-sm btn-save float-right" value="Save">
+                            <button type="submit" id="form_save" name="form_save" class="btn btn-success btn-sm btn-save float-end" value="Save">
                                 <?php echo xlt("Validate Primary Admin"); ?>
                             </button>
                         </div>
                     </div>
                     <!-- Config User Settings Credentials -->
-                    <div id="scroll-to" class="row form-group">
+                    <div id="scroll-to" class="row mb-3">
                         <div class="col-12 m-0 text-center">
                             <h6>
                                 <hr class="text-dark bg-light" />
                                 <?php echo text($thisUser) . ' ' . "<span class='h5'>" . xlt("User Setting Subsection") . ' - </span><small><cite>(' . xlt('Optional') . ')</cite></small>'; ?>
                                 <span class="p-0"><cite><small><?php echo xlt("Save time! Add your Prescriber Weno Credentials now!"); ?></small></cite></span>
                             </h6>
-                            <hr class="text-dark bg-light font-weight-bold m-0 p-0" />
+                            <hr class="text-dark bg-light fw-bold m-0 p-0" />
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="weno_provider_email" class="col-sm-6"><?php echo xlt("Weno Prescriber Email for") . " " . text($thisUser); ?></label>
                         <div class="col-sm-6" title="<?php echo xla("This is required for your Prescriber user setup. Same as email for logging in into Weno"); ?>">
                             <input type="text" autocomplete="off" class="form-control persist" maxlength="255" name="weno_provider_email" id="weno_provider_email" value="<?php echo attr($vendors['weno_provider_email']); ?>" />
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="weno_provider_password" class="col-sm-6"><?php echo xlt("Weno Prescriber Password for") . " " . text($thisUser); ?></label>
-                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
+                        <div class="col-sm-6 input-group-text" title="<?php echo xla("Required Weno account password") ?>">
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_provider_password" id="weno_provider_password" value="<?php echo attr($vendors['weno_provider_password']); ?>" />
                         </div>
                     </div>
                     <!-- Locations -->
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <div class="col-12 m-0 text-center">
                             <h5 class="m-0">
                                 <hr class="text-dark bg-light" />
@@ -327,7 +327,7 @@ $vendors = $boot->getVendorGlobals();
                         <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 150px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
                     </div>
                     <!-- Users Weno Location ID's -->
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <div class="col-12 m-0 text-center">
                             <h5>
                                 <hr class="text-dark bg-light" />
@@ -343,7 +343,7 @@ $vendors = $boot->getVendorGlobals();
             <div id="accordion" class="accordion">
                 <div id="help-links" class="card d-none">
                     <div class="card-header p-1 bg-dark text-light collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                        <h5 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Some Helpful Sites"); ?></h5>
+                        <h5 class="mb-0"><i class="fa fa-expand me-2"></i><?php echo xlt("Some Helpful Sites"); ?></h5>
                     </div>
                     <div id="collapseTwo" class="card-body collapse" data-parent="#accordion">
                         <p>Hold</p>

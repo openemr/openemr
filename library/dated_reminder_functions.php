@@ -234,7 +234,7 @@ function getRemindersHTML($today, $reminders = array()): string
             $class = '';
         } elseif (strtotime($r['dueDate']) == $today) {
             // --------- check if reminder is due
-            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color: var(--orange)\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color: var(--bs-orange)\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
             $class = '';
         } elseif (strtotime($r['dueDate']) > $today) {
             $warning = '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');

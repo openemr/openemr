@@ -345,23 +345,23 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table' id='mymaintable'>
-<thead class='thead-light'>
+<thead class='table-light'>
     <?php if ($form_details) { ?>
   <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
+        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
         <?php echo xlt('Status'); ?>
@@ -371,7 +371,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('encounter')"
-        <?php echo ($form_orderby == "encounter") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
+        <?php echo ($form_orderby == "encounter") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
   </th>
   <th>
         <?php echo xlt('Form'); ?>

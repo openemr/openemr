@@ -525,7 +525,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                        <div class="jumbotron jumbotron-fluid px-5 py-3">
+                        <div class="mb-4 bg-body-tertiary px-5 py-3">
                             <div class="form-row my-3">
                                 <label class="col-md-2 col-form-label" for="fname"><?php echo xlt('First Name') ?></label>
                                 <div class="col-md">
@@ -551,7 +551,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="d-flex justify-content-center">
                                 <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
                             </div>
@@ -588,32 +588,30 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="uname"><?php echo xlt('Username') ?></label>
                     <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
                 </div>
-                    <div id="standard-auth-password" class="form-group">
+                    <div id="standard-auth-password" class="mb-3">
                         <label for="pass"><?php echo xlt('Password') ?></label>
                         <div class="input-group">
                             <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
-                                </span>
+                            <div class="input-group-text">
+                                <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
                             </div>
                         </div>
                     </div>
                 <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
                         <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
                     </div>
                 <?php } ?>
                 <?php if ($GLOBALS['language_menu_login']) { ?>
                     <?php if (count($result3) != 1) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="selLanguage"><?php echo xlt('Language'); ?></label>
-                    <select class="form-control" id="selLanguage" name="languageChoice">
+                    <select class="form-select" id="selLanguage" name="languageChoice">
                         <?php
                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                             text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
@@ -640,12 +638,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 } ?>
                 </div>
                 <div class="col col-md col-sm">
-                    <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
+                    <button class="btn btn-success d-block w-100" type="submit"><?php echo xlt('Log In'); ?></button>
                     <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
-                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
+                        <button class="btn btn-secondary d-block w-100" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                     <?php } ?>
                     <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                        <button class="btn btn-danger d-block w-100" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                     <?php } ?>
                 </div>
@@ -660,7 +658,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 
     <div id="alertStore" class="d-none">
         <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
-            <button type="button" class="close my-1 py-0" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="btn-close my-1 py-0" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>

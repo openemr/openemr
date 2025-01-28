@@ -131,15 +131,15 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
 
 <div>
-    <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
+    <span id="widget-button-set" class="float-end me-2" style="font-size: 1.1rem;">
         <a role="button" id="prescribeLink" class="text-primary" onclick="top.restoreSession(); setPrescribeLocation();">
-            <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
+            <span><i class="fa fa-pencil-alt me-1"></i><?php echo xlt("Prescribe"); ?></span>
         </a>
         <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
-            <span><i id="sync-icon" class="fa-solid fa-refresh mr-1"></i><?php echo xlt("Sync"); ?></span>
+            <span><i id="sync-icon" class="fa-solid fa-refresh me-1"></i><?php echo xlt("Sync"); ?></span>
         </a>
         <a role="button" class="text-primary" onclick="refreshDemographics();">
-            <span><i id="reload-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Reload"); ?></span>
+            <span><i id="reload-icon" class="fa-solid fa-rotate-right me-1"></i><?php echo xlt("Reload"); ?></span>
         </a>
     </span>
 </div>
@@ -163,7 +163,7 @@ if ($hasErrors) { ?>
     <div class="container-fluid m-0 p-0">
         <div id="error-alert" class="col alert alert-danger mt-2 px-0 py-1" role="alert">
             <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
-            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
+            <a role="button" class="btn btn-link p-0 ps-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle btn-close"></i></a>
             <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
                 <div id="dialog-content" class="dialog-content text-danger" style="background-color: #fff"><?php echo $validate_errors; ?></div>
             </div>
@@ -176,9 +176,9 @@ if ($hasErrors) { ?>
     $titleLocation = xla("Use Location Assignment");
     $popoverLocation = xla("If desired, select a different location other than your default. Remember that the selected location must have been assigned to you in your Weno account. If it hasn't been assigned to you, you will not be able to prescribe from that location.");
     ?>
-    <div id="trigger-debug" class="form-group mb-0">
+    <div id="trigger-debug" class="mb-3 mb-0">
         <div class="input-group small">
-            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+            <label role="button" id="label-primary" class="text-primary mb-0 me-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Primary"); ?>:</b>
             </label>
             <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>" />
@@ -199,7 +199,7 @@ if ($hasErrors) { ?>
             </select>
         </div>
         <div class="input-group small">
-            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+            <label role="button" id="label-alternate" class="text-primary mb-1 me-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Alternate"); ?>:</b>
             </label>
             <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>" />
@@ -219,8 +219,8 @@ if ($hasErrors) { ?>
                 <?php } ?>
             </select>
         </div>
-        <div class="form-group">
-            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
+        <div class="mb-3">
+            <label role="button" id="label-location" class="text-primary mb-1 me-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
                 <b><?php echo xlt("Use Location"); ?>:</b>
             </label>
             <select id="facilitySelect" name="facilitySelect" class="form-control-sm mt-2 border-0 bg-light text-dark">
@@ -338,7 +338,7 @@ if ($hasErrors) { ?>
 
 <div class="table-responsive drug-table" style="max-height: 175px; overflow-y: auto;">
     <table class="table table-sm table-hover table-striped w-100">
-        <thead class="thead thead-light border-bottom">
+        <thead class="thead table-light border-bottom">
         <tr>
             <th><?php echo xlt("Weno Prescribed Drug"); ?></th>
             <th><?php echo xlt("Prescriber"); ?></th>

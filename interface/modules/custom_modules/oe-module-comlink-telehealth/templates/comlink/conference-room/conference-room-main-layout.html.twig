@@ -12,7 +12,7 @@
         <div class="sidebar col-xl-2 col-lg-2 col-md-3 col-sm-4 col-5 p-0">
             <div class="sidebar-highlight conference-highlight"></div>
             <div id="participant-list-container"
-                 class="participant-list-container pt-2 pl-2 pr-2 align-items-start d-flex flex-column"
+                 class="participant-list-container pt-2 ps-2 pe-2 align-items-start d-flex flex-column"
                  data-class-minimize="participant-list-container p-0 d-flex flex-row"
                  data-class-maximize="participant-list-container p-0"
             >
@@ -38,7 +38,7 @@
             <div class="sidebar-controls conference-highlight"></div>
         </div>
         <!-- each additional remote participant will get added here using the participant-list-template-node as a clone -->
-        <div class="row no-gutters flex-grow-1">
+        <div class="row g-0 flex-grow-1">
             <div class="remote-video-container text-center col-12 align-items-center d-flex flex-row">
                 <video id="presentation-screen" class="remote-video {% if not testTemplateLayout %}d-none {% endif %}w-100"
                        autoplay="true" muted="muted" playsinline="true" preload="none"
@@ -49,13 +49,13 @@
                 {% if not testTemplateLayout %}
                     <div class="waiting-container w-100">
                         <h1 class="h1-responsive text-light text-center">{{ "Waiting for participants to join"|xlt }}<div class="spinner-border" role="status">
-                                <span class="sr-only">{{ "Waiting"|xlt }}...</span>
+                                <span class="visually-hidden">{{ "Waiting"|xlt }}...</span>
                             </div></h1>
                     </div>
                 {% endif %}
             </div>
         </div>
-        <div class="row no-gutters">
+        <div class="row g-0">
             <div class="col-12">
                 {% if testTemplateLayout.buttons %}
                     {% include 'comlink/video-control-bar.twig' with {buttons: testTemplateLayout.buttons}%}

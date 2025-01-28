@@ -84,14 +84,14 @@ if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
         <div class="container-fluid mb-3">
             <ul class="nav nav-pills">
                 <li class="nav-item" id='li-mess'>
-                    <a href='messages.php' class="active nav-link font-weight-bold" id='messages-li'><?php echo xlt('Back to Messages'); ?></a>
+                    <a href='messages.php' class="active nav-link fw-bold" id='messages-li'><?php echo xlt('Back to Messages'); ?></a>
                 </li>
             </ul>
         </div>
         <div class="container-fluid mb-3">
             <div class="row" id="messages-div">
                 <div class="col-sm-12">
-                    <form class="jumbotron jumbotron-fluid p-3" id="trustedForm">
+                    <form class="mb-4 bg-body-tertiary p-3" id="trustedForm">
                         <h4><?php echo text("Create New Trusted Direct Message"); ?></h4>
 
                         <div class="row">
@@ -155,12 +155,12 @@ if ($GLOBALS['phimail_verifyrecipientreceived_enable'] == '1') {
                             <div class="col-12 oe-custom-line">
                                 <div class="row">
                                     <div class="col-6 col-md-4">
-                                        <label class='font-weight-bold' for="patientName"><?php echo xlt('Patient'); ?></label>
+                                        <label class='fw-bold' for="patientName"><?php echo xlt('Patient'); ?></label>
                                         <input id="patientName" class="form-control" type="textbox" name="patientName" value="<?php echo attr($patientName); ?>" placeholder="<?php echo xla('Choose a patient'); ?>" readonly />
                                         <input id="patientPid" type="hidden" name="pid" value="<?php echo attr($pid); ?>" />
                                     </div>
                                     <div class="col-6 col-md-8 d-flex align-items-end flex-wrap">
-                                        <label class='font-weight-bold' for="trusted_email"><?php echo xlt("To (Trusted Email Address)"); ?>*</label>
+                                        <label class='fw-bold' for="trusted_email"><?php echo xlt("To (Trusted Email Address)"); ?>*</label>
                                         <input class="form-control" type="textbox" name="trusted_email" value="" />
                                         <?php
                                         // TODO: good future improvement is to allow selecting the address from the address book

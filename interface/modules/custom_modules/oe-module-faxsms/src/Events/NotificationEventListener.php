@@ -229,7 +229,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $details = array_merge($p_data, $notificationEvent->getEventData());
         $buttonName = $notificationEvent->getEventData()['is_universal'] == 1 ? xlt('Compose New Email') : xlt('Notify');
         ?>
-        <button type="button" class="sendsms float-right btn btn-link btn-send-msg"
+        <button type="button" class="sendsms float-end btn btn-link btn-send-msg"
             onclick="sendNotification(
             <?php echo attr_js($notificationEvent->getPid()); ?>,
             <?php echo attr_js($name); ?>,

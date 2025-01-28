@@ -158,7 +158,7 @@ if (!empty($_POST['form_refresh']) || !empty($ptrow)) {
     ?>
 <div id="report_results">
 <table class='table'>
-<thead class='thead-light'>
+<thead class='table-light'>
 <th> <?php echo xlt('Time'); ?> </th>
 <th> <?php echo xlt('Destination'); ?> </th>
 </thead>

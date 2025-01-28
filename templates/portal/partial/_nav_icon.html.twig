@@ -1,7 +1,7 @@
 {% set localLink = localLink is null ? true : localLink %}
 {% set cardGroup = cardGroup is null ? "cardgroup" : cardGroup %}
 
-<a id="{{ id|attr }}" class="col-lg-2 col-md-4 col-sm-6 col-6 card bg-light pl-sm-2 pr-sm-2 pl-0 pr-0 pt-2 pb-2 text-center text-decoration-none"
+<a id="{{ id|attr }}" class="col-lg-2 col-md-4 col-sm-6 col-6 card bg-light ps-sm-2 pe-sm-2 ps-0 pe-0 pt-2 pb-2 text-center text-decoration-none"
    {% if localLink %}
     data-toggle="collapse" data-parent="#{{ cardGroup|attr }}" aria-expanded="false"
     href="#{{ url|attr_url }}"
@@ -18,7 +18,7 @@
     <h1 class="card-image">
         <i class="fa fa-2x fa-{{ icon|attr }} text-dark"></i>
     </h1>
-    <div class="card-body pl-1 pr-1 pl-sm-3 pr-sm-3">
+    <div class="card-body ps-1 pe-1 ps-sm-3 pe-sm-3">
         <button class="btn btn-success d-block w-100 text-light">
             {% block navTextBlock %}
             {{ navText | text }}

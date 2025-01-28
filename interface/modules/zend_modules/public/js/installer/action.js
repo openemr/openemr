@@ -116,7 +116,7 @@ function configure(id, imgpath) {
             function (data) {
                 $(".config").hide();
                 $("#ConfigRow_" + id).hide();
-                $("#ConfigRow_" + id).html('<td colspan="10" style="background-color: var(--light);">' + data + '</td>').fadeIn();
+                $("#ConfigRow_" + id).html('<td colspan="10" style="background-color: var(--bs-light);">' + data + '</td>').fadeIn();
             }
         );
     }

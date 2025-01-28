@@ -40,7 +40,7 @@
         {% endif %}
     {% endif %}
     <style>
-      .dropdown-menu-right {
+      .dropdown-menu-end {
         right: 0;
         left: auto;
       }
@@ -193,14 +193,14 @@
             });
 
             if ($('body').css('direction') === "rtl") {
-                $('.float-left').each(function () {
-                    $(this).addClass('float-right').removeClass('float-left');
+                $('.float-start').each(function () {
+                    $(this).addClass('float-end').removeClass('float-start');
                 });
-                $('.dropdown-menu-right').each(function () {
-                    $(this).removeClass('dropdown-menu-right');
+                $('.dropdown-menu-end').each(function () {
+                    $(this).removeClass('dropdown-menu-end');
                 });
-                $('.dropdown-menu-md-right').each(function () {
-                    $(this).removeClass('dropdown-menu-md-right');
+                $('.dropdown-menu-md-end').each(function () {
+                    $(this).removeClass('dropdown-menu-md-end');
                 });
             }
 
@@ -378,7 +378,7 @@
                     var screen = "";
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
+                            screen = screen + `<label class="fw-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
                                 screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
@@ -412,7 +412,7 @@
                     $('.assessment-row').toggleClass('d-none');
                     for (var j = 0; j < data.Items[0].Elements.length; j++) {
                         if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
+                            screen = screen + `<label class="fw-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
                         } else {
                             for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
                                 screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
@@ -493,7 +493,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h4 class="modal-title">{{ 'About Portal Dashboard' | xlt }}</h4>
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <button type="button" class="btn-close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
                                     <div>
@@ -509,13 +509,13 @@
                         </div>
                     </div>
                     <div class="container-fluid p-0 p-sm-3">
-                        <div class="jumbotron jumbotron-fluid text-center mb-1 p-1">
+                        <div class="mb-4 bg-body-tertiary text-center mb-1 p-1">
                             <h2>{{ 'Dashboard' | xlt }}</h2>
                             {# <p>
                                 <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
                             </p> #}
                         </div>
-                        <div class='jumbotron jumbotron-fluid p-4'>
+                        <div class='mb-4 bg-body-tertiary p-4'>
 
                             <div class="row" id="inject_card">
                                 <!-- Forms and Documents -->
@@ -743,7 +743,7 @@
         <!-- Reports List Card -->
         <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reports-list-card">
             <header class="card-header p-1 bg-dark text-light h3">{{ 'Medical Reports' | xlt }}</header>
-            <div class="row no-gutters">
+            <div class="row g-0">
                 {% if ccdaOk %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
@@ -805,32 +805,32 @@
             <header class="card-header p-1 bg-dark text-light h3">{{ 'Settings' | xlt }}</header>
             <div>
                 <!-- Signature -->
-                <div class="card d-flex mr-1 mb-1">
+                <div class="card d-flex me-1 mb-1">
                     <div class="card-body row">
                         <h4 class="card-title d-flex align-items-center btn-link">
                             <a role="button" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature" data-parent="#cardgroup">
-                                <i class="fas fa-file-signature mr-1"></i>{{ 'Default Digital Signature' | xlt }}</a>
+                                <i class="fas fa-file-signature me-1"></i>{{ 'Default Digital Signature' | xlt }}</a>
                         </h4>
                     </div>
                 </div>
                 <!-- Password -->
-                <div class="card d-flex mr-1 mb-1">
+                <div class="card d-flex me-1 mb-1">
                     <div class="card-body row">
-                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw mr-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
+                        <h4 class="card-title d-flex align-items-center btn-link" role="button" onclick="changeCredentials(event)"><i class="fa fa-cog fa-fw me-1"></i>{{ 'Manage Login Credentials' | xlt }}</h4>
                     </div>
                 </div>
                 <!-- Theme -->
-                <div class="card d-flex mr-1 mb-1">
+                <div class="card d-flex me-1 mb-1">
                     <div class="card-body row">
                         <h4 class="card-title d-flex align-items-center btn-link" data-toggle="collapse" data-target="#settings-content" role="button">
                             <i class="fa fa-link mx-1"></i>{{ 'Select Theme' | xlt }}
                         </h4>
                         <div id="settings-content" class="collapse col-12">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="col">
                                     <label class="" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
                                     <div class="input-group">
-                                        <select class='form-control' id='my_theme'>
+                                        <select class='form-select' id='my_theme'>
                                             {% for styleKey, styleValue in styleArray %}
                                                 {{ "<option value='" ~ styleKey | attr ~ "'" }}
                                                 {% if styleKey == current_theme %}
@@ -839,9 +839,7 @@
                                                 {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
                                             {% endfor %}
                                         </select>
-                                        <div class="input-group-append">
-                                            <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
-                                        </div>
+                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
                                     </div>
                                 </div>
                             </div>

@@ -345,7 +345,7 @@ class OemrUI
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="$close">
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="$close">
                             <span aria-hidden="true" class='text-black' style='font-size:1.5em;'>×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">

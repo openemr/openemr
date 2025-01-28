@@ -10,24 +10,24 @@
 
 th.currentvalues,
 th.historicalvalues {
-  background: var(--gray200);
+  background: var(--bs-gray-200);
 }
 
 .valuesunfocus {
-  background-color: var(--gray400);
+  background-color: var(--bs-gray-400);
   padding-right: 5px;
   text-align: left;
 }
 
 .unfocus {
-  background-color: var(--gray400);
+  background-color: var(--bs-gray-400);
 }
 
 .historicalvalues {
-  background: var(--gray200);
-  background-color: var(--gray400);
-  border-bottom: 1px solid var(--gray300);
-  border-right: 1px solid var(--gray300);
+  background: var(--bs-gray-200);
+  background-color: var(--bs-gray-400);
+  border-bottom: 1px solid var(--bs-gray-300);
+  border-right: 1px solid var(--bs-gray-300);
   text-align: right;
 }
 
@@ -38,12 +38,12 @@ th.historicalvalues {
 
 .vitals-complete-history .table td:nth-child(3),
 .vitals-complete-history .table th:nth-child(3) {
-  border-left: 1px solid var(--gray300);
+  border-left: 1px solid var(--bs-gray-300);
 }
 
 .historicalvalues:nth-child(6),
 .reasonCodeContainer .historicalvalues:nth-child(2) {
-  border-left: 1px solid var(--gray300);
+  border-left: 1px solid var(--bs-gray-300);
 }
 
 table {
@@ -80,5 +80,5 @@ select {
 }
 
 .error {
-  border: 2px solid var(--danger);
+  border: 2px solid var(--bs-danger);
 }

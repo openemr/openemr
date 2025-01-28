@@ -78,7 +78,7 @@
 }
 
 .error {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .esign-signature-form-element {
@@ -100,7 +100,7 @@
 }
 
 #esign-mask {
-  background-color: var(--black);
+  background-color: var(--bs-black);
   display: none;
   left: 0;
   position: absolute;

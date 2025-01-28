@@ -48,7 +48,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         font-size: 1.1rem;
         font-weight: normal;
         width: 700px;
-        color: var(--primary);
+        color: var(--bs-primary);
     }
     .atr {
         font-size: 0.8rem;
@@ -58,11 +58,11 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     }
     .left_wrpr {
         padding: 20px;
-        background-color: var(--gray200);
+        background-color: var(--bs-gray-200);
     }
     .wrpr {
         padding: 20px;
-        background-color: var(--gray200);
+        background-color: var(--bs-gray-200);
     }
     <!-- Keeping empty classes for jquery hooks -->
     .inst_dets {
@@ -89,7 +89,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         height: 16px;
         background-color: #89A4CC;
         line-height: 16px;
-        color: var(--white);
+        color: var(--bs-white);
         font-size: 0.8125rem;
         font-weight: bold;
         border-radius: 8px;

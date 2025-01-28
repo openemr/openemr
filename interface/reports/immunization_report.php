@@ -457,7 +457,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             ?>
             <div id="report_results">
                 <table class='table'>
-                    <thead class='thead-light'>
+                    <thead class='table-light'>
                     <tr>
                         <th> <?php echo xlt('Patient ID'); ?> </th>
                         <th> <?php echo xlt('Patient Name'); ?> </th>

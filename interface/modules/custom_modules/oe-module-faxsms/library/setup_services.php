@@ -115,7 +115,7 @@ $vendors = $boot->getVendorGlobals();
 </head>
 <body>
     <div class="w-100 container-xl">
-        <div class="form-group m-2 p-2 bg-dark">
+        <div class="mb-3 m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS Account"); ?><span class="caret"></span></button>
@@ -139,10 +139,10 @@ $vendors = $boot->getVendorGlobals();
                     <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
                     <hr>
                     <div class="clearfix"></div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="sms_vendor" class="col-sm-6"><?php echo xlt("Enable SMS Module"); ?></label>
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
-                            <select class="form-control persist" name="sms_vendor" id="sms_vendor">
+                            <select class="form-select persist" name="sms_vendor" id="sms_vendor">
                                 <option value="0" <?php echo $vendors['oefax_enable_sms'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <option value="1" <?php echo $vendors['oefax_enable_sms'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral SMS"); ?></option>
                                 <option value="2" <?php echo $vendors['oefax_enable_sms'] == '2' ? 'selected' : ''; ?>><?php echo xlt("Twilio SMS"); ?></option>
@@ -150,39 +150,39 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
-                            <select class="form-control persist" name="fax_vendor" id="fax_vendor">
+                            <select class="form-select persist" name="fax_vendor" id="fax_vendor">
                                 <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <option value="1" <?php echo $vendors['oefax_enable_fax'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral Fax"); ?></option>
                                 <option value="3" <?php echo $vendors['oefax_enable_fax'] == '3' ? 'selected' : ''; ?>><?php echo xlt("etherFAX"); ?></option>
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
-                            <select class="form-control persist" name="email_vendor" id="email_vendor">
+                            <select class="form-select persist" name="email_vendor" id="email_vendor">
                                 <option value="0" <?php echo $vendors['oe_enable_email'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <option value="4" <?php echo $vendors['oe_enable_email'] == '4' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable Send SMS Dialog"); ?></label>
                         <div class="col-sm-6" title="Enable Send SMS Dialog Support. Various opportunities in UI.">
                             <input type="checkbox" class="checkbox persist" name="allow_dialog" id="allow_dialog" value="1" <?php echo $vendors['oesms_send'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="restrict" class="col-sm-6"><?php echo xlt("Individual User Accounts"); ?></label>
                         <div class="col-sm-6" title="Restrict Users to their own account credentials. Usage accounting is tagged to username.">
                             <input type="checkbox" class="checkbox persist" name="restrict" id="restrict" value="1" <?php echo $vendors['oerestrict_users'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right d-none" value="Save"><?php echo xlt("Save"); ?></button>
+                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-end d-none" value="Save"><?php echo xlt("Save"); ?></button>
                     </div>
                 </div>
             </form>

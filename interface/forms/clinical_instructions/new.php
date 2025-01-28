@@ -40,12 +40,12 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
                         <fieldset>
                             <legend><?php echo xlt('Instructions'); ?></legend>
                             <div class="container">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <textarea name="instruction" id="instruction" class="form-control" cols="80" rows="5" ><?php echo text($check_res['instruction'] ?? ''); ?></textarea>
                                 </div>
                             </div>
                         </fieldset>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="btn-group" role="group">
                                 <button type="submit" onclick='top.restoreSession()' class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);"><?php echo xlt('Cancel');?></button>

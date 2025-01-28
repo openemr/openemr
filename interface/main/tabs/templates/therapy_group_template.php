@@ -21,7 +21,7 @@
 <script type="text/html" id="therapy-group-template">
     <div>
         <span class="patientDataColumn">
-            <span class="float-left"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
+            <span class="float-start"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">

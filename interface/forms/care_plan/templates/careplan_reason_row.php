@@ -22,7 +22,7 @@
                 </p>
             </div>
             <div class="row">
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label><?php echo xlt("Reason Code"); ?></label>
                     <input class="code-selector-popup form-control"
                            name="reasonCode[]" type="text" value="<?php echo attr($obj['reason_code'] ?? ""); ?>"
@@ -31,7 +31,7 @@
                     <p class="code-selector-text-display <?php echo empty($obj['reason_description']) ? "d-none" : ''; ?>"><?php echo text($obj['reason_description'] ?? ""); ?></p>
                     <input type="hidden" name="reasonCodeText[]" class="code-selector-text" value="<?php echo attr($obj['reason_description'] ?? ""); ?>" />
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label><?php echo xlt("Reason Status"); ?></label>
                     <select name="reasonCodeStatus[]" class="form-control">
                         <?php foreach ($reasonCodeStatii as $code => $codeDesc) : ?>
@@ -43,11 +43,11 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label><?php echo xlt("Reason Recording Date"); ?></label>
                     <input type='text' name='reasonDateLow[]' class="form-control reason_start_date datepicker" value='<?php echo attr($obj["reason_date_low"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd HH:MM Reason Recording Date'); ?>' />
                 </div>
-                <div class="col-md-6 form-group">
+                <div class="col-md-6 mb-3">
                     <label><?php echo xlt("Reason End Date (Leave empty if there is no end date)"); ?></label>
                     <input type='text' name='reasonDateHigh[]' class="form-control reason_end_date datepicker" value='<?php echo attr($obj["reason_date_high"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd HH:MM Reason End Date'); ?>' />
                 </div>

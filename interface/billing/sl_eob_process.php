@@ -232,13 +232,13 @@ function era_callback(&$out)
     if (isset($_REQUEST['chk' . $chk_123])) {
         if ($encount == 0) {
             writeMessageLine(
-                'var(--white)',
+                'var(--bs-white)',
                 'infdetail',
                 "Payer: " . $out['payer_name']
             );
             if ($debug) {
                 writeMessageLine(
-                    'var(--white)',
+                    'var(--bs-white)',
                     'infdetail',
                     "WITHOUT UPDATE is selected; no changes will be applied."
                 );
@@ -716,19 +716,19 @@ if (!$debug) {
         font-weight: normal;
     }
     .newdetail {
-        color: var(--success);
+        color: var(--bs-success);
         font-family: sans-serif;
         font-size: 0.75rem;
         font-weight: normal;
     }
     .errdetail {
-        color: var(--danger);
+        color: var(--bs-danger);
         font-family: sans-serif;
         font-size: 0.75rem;
         font-weight: normal;
     }
     .infdetail {
-        color: var(--primary);
+        color: var(--bs-primary);
         font-family: sans-serif;
         font-size: 0.75rem;
         font-weight: normal;

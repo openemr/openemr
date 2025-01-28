@@ -607,7 +607,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
 }
 
 if ($form_step == 101) {
-    echo "<p class='font-weight-bold'>&nbsp;" . xlt('Select the configuration items to export') . ":</p>";
+    echo "<p class='fw-bold'>&nbsp;" . xlt('Select the configuration items to export') . ":</p>";
 
     echo "<table cellspacing='10' cellpadding='0'>\n<tr>\n<td valign='top' nowrap>\n";
 
@@ -630,7 +630,7 @@ if ($form_step == 101) {
   // Multi-select for lists.
     echo "</td><td valign='top'>\n";
     echo "<strong>" . xlt('Lists') . "</strong><br />\n";
-    echo "<select class='form-control' multiple name='form_sel_lists[]' size='15'>";
+    echo "<select class='form-select' multiple name='form_sel_lists[]' size='15'>";
     $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
     while ($lrow = sqlFetchArray($lres)) {
@@ -643,7 +643,7 @@ if ($form_step == 101) {
     // Multi-select for layouts.
     echo "</td><td valign='top'>\n";
     echo "<strong>" . xlt('Layouts') . "</strong><br />\n";
-    echo "<select class='form-control' multiple name='form_sel_layouts[]' size='15'>";
+    echo "<select class='form-select' multiple name='form_sel_layouts[]' size='15'>";
     $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
       "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
     while ($lrow = sqlFetchArray($lres)) {

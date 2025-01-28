@@ -56,13 +56,13 @@ if (isset($_POST['SubmitButton'])) {
                     <div class="card">  
                         <div class="row">
                             <div class="col">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="startDate"><?php echo xlt("Created Date Start");?></label>
                                     <input type="date" class="form-control"  id="startDate" name="startDate"  value="<?php echo isset($_POST['startDate']) ? attr($_POST['startDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                                 </div>
                             </div>                    
                             <div class="col">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="endDate"><?php echo xlt("Created Date End");?></label>
                                     <input type="date" class="form-control"  id="endDate" name="endDate"  value="<?php echo isset($_POST['endDate']) ? attr($_POST['endDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                                 </div>

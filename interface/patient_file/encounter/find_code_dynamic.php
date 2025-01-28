@@ -254,7 +254,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 
     <form method='post' name='theform'>
         <?php
-        echo "<div class='form-group row mb-3'>\n";
+        echo "<div class='row mb-3'>\n";
         if ($what == 'codes') {
             if (isset($allowed_codes)) {
                 if (count($allowed_codes) == 1) {
@@ -270,7 +270,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                     echo "</select></div>\n";
                 }
             } else {
-                echo "<div class='col'><select class='form-control' name='form_code_type' onchange='oTable.fnDraw()'>\n";
+                echo "<div class='col'><select class='form-select' name='form_code_type' onchange='oTable.fnDraw()'>\n";
                 foreach ($code_types as $key => $value) {
                     if (empty($value['label'])) {
                         continue;

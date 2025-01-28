@@ -79,16 +79,16 @@ if (!empty($_GET)) {
         <div class="container-fluid mb-3">
             <ul class="nav nav-pills">
                 <li class="nav-item" id='li-main-log'>
-                    <a href='#' class="active nav-link font-weight-bold" id='main-log-li'><?php echo xlt('Main Log'); ?></a>
+                    <a href='#' class="active nav-link fw-bold" id='main-log-li'><?php echo xlt('Main Log'); ?></a>
                 </li>
                 <li class="nav-item" id='li-others-log'>
-                    <a href='#' id='others-log-li' class="nav-link font-weight-bold"><?php echo xlt('Other Logs'); ?></a>
+                    <a href='#' id='others-log-li' class="nav-link fw-bold"><?php echo xlt('Other Logs'); ?></a>
                 </li>
             </ul>
         </div><!--end of nav-pills div-->
         <div class="row" id="main-log-div">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-1">
+                <div class="px-5 mb-4 bg-body-tertiary py-1">
                     <div class="col-sm-12 col-md-12 col-lg-12 p-0 m-0 px-1">
                         <?php
                         $err_message = 0;
@@ -126,7 +126,7 @@ if (!empty($_GET)) {
                         $direction = $_GET['direction'] ?? '';
                         ?>
 
-                        <div class="jumbotron jumbotron-fluid bg-light p-1 m-0">
+                        <div class="bg-light p-1 m-0">
                             <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
                             <form method="get" name="theform" id="theform">
                                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -438,7 +438,7 @@ if (!empty($_GET)) {
         </div>
         <div class="row oe-display" id="other-logs-div">
             <div class="col-sm-12">
-                <div class="jumbotron jumbotron-fluid py-3">
+                <div class="px-5 mb-4 bg-body-tertiary py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <div class="col-lg">
                             <h3 class="text-center"><?php echo xlt('Other Logs'); ?></h3>

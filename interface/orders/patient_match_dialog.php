@@ -165,6 +165,5 @@ if ($form_key) {
 </p>
 
 </form>
-</center>
 </body>
 </html>

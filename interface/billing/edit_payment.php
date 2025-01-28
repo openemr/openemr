@@ -548,22 +548,22 @@ $ResultSearchSub = sqlStatement(
             max-width: 75px;
         }
         .bottom {
-            border-bottom: 1px solid var(--black);
+            border-bottom: 1px solid var(--bs-black);
         }
 
         .top {
-            border-top: 1px solid var(--black);
+            border-top: 1px solid var(--bs-black);
         }
 
         .left {
-            border-left: 1px solid var(--black);
+            border-left: 1px solid var(--bs-black);
         }
 
         .right {
-            border-right: 1px solid var(--black);
+            border-right: 1px solid var(--bs-black);
         }
 
-        .form-group {
+        .mb-3 {
             margin-bottom: 5px;
         }
 
@@ -608,15 +608,15 @@ $ResultSearchSub = sqlStatement(
                     <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
                         <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="myNavbar">
-                            <ul class="navbar-nav mr-auto">
+                            <ul class="navbar-nav me-auto">
                                 <li class="nav-item active">
-                                    <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                                    <a class="nav-link fw-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                                    <a class="nav-link fw-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                                    <a class="nav-link fw-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
                                 </li>
                             </ul>
                         </div>
@@ -1052,7 +1052,7 @@ $ResultSearchSub = sqlStatement(
                 }//End of if($payment_id*1>0)
                 ?>
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                <div class="form-group clearfix">
+                <div class="mb-3 clearfix">
                     <div class="col-sm-12 text-left position-override">
                         <div class="btn-group" role="group">
                             <a class="btn btn-secondary btn-save" href="#" onclick="return ModifyPayments();"><span><?php echo xlt('Modify Payments'); ?></span></a>

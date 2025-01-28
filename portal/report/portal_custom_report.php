@@ -616,11 +616,11 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text insurance'>";
             echo "<h1>" . xlt('Insurance Data') . ":</h1>";
-            print "<br /><span class='font-weight-bold'>" . xlt('Primary Insurance Data') . ":</span><br />";
+            print "<br /><span class='fw-bold'>" . xlt('Primary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class='font-weight-bold'>" . xlt('Secondary Insurance Data') . ":</span><br />";
+            print "<span class='fw-bold'>" . xlt('Secondary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class='font-weight-bold'>" . xlt('Tertiary Insurance Data') . ":</span><br />";
+            print "<span class='fw-bold'>" . xlt('Tertiary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
@@ -630,7 +630,7 @@ foreach ($ar as $key => $val) {
             if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
+                echo "<tr><td width='400' class='fw-bold'>" . xlt('Code') . "</td><td class='fw-bold'>" . xlt('Fee') . "</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -654,9 +654,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class='font-weight-bold'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                echo "<tr><td class='font-weight-bold'>" . xlt('Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                echo "<tr><td class='font-weight-bold'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+                echo "<tr><td class='fw-bold'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                echo "<tr><td class='fw-bold'>" . xlt('Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                echo "<tr><td class='fw-bold'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -671,17 +671,17 @@ foreach ($ar as $key => $val) {
 
         } elseif ($val == "allergies") {
 
-            print "<span class='font-weight-bold'>Patient Allergies:</span><br />";
+            print "<span class='fw-bold'>Patient Allergies:</span><br />";
             printListData($pid, "allergy", "1");
 
         } elseif ($val == "medications") {
 
-            print "<span class='font-weight-bold'>Patient Medications:</span><br />";
+            print "<span class='fw-bold'>Patient Medications:</span><br />";
             printListData($pid, "medication", "1");
 
         } elseif ($val == "medical_problems") {
 
-            print "<span class='font-weight-bold'>Patient Medical Problems:</span><br />";
+            print "<span class='fw-bold'>Patient Medical Problems:</span><br />";
             printListData($pid, "medical_problem", "1");
 
     ****/

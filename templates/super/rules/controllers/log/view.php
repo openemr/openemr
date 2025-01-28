@@ -150,7 +150,7 @@ $records = $viewBean->records ?>
             </tr>
             <tr>
                 <td colspan="2">
-                    <p class="text-left"><i class='ml-2 fa fa-comment' title=" <?php echo xla("Select feedback icon to show feedback") ?>"></i> <?php echo xlt("Rule has user provided feedback, select icon to show feedback"); ?></p>
+                    <p class="text-left"><i class='ms-2 fa fa-comment' title=" <?php echo xla("Select feedback icon to show feedback") ?>"></i> <?php echo xlt("Rule has user provided feedback, select icon to show feedback"); ?></p>
                 </td>
             </tr>
         </table>
@@ -217,7 +217,7 @@ $records = $viewBean->records ?>
                                 //  need to add comment icon here if we have one
                                 if (!empty($alert['feedback'])) {
                                     $id = $row['id'] . "-" . $alert['rule_id'];
-                                    echo "<i class='ml-2 fa fa-comment cdr-rule-feedback' title=" . xla("Select feedback icon to show feedback") . " data-feedback='" . attr($alert['feedback']) . "'></i>";
+                                    echo "<i class='ms-2 fa fa-comment cdr-rule-feedback' title=" . xla("Select feedback icon to show feedback") . " data-feedback='" . attr($alert['feedback']) . "'></i>";
                                 }
                                 echo "<br />";
                             }
@@ -239,7 +239,7 @@ $records = $viewBean->records ?>
                                     //  need to add comment icon here if we have one
                                     if (!empty($alert['feedback'])) {
                                         $id = $row['id'] . "-" . $alert['rule_id'];
-                                        echo "<i class='ml-2 fa fa-comment cdr-rule-feedback' title=" . xla("Select feedback icon to show feedback") . " data-feedback='" . attr($alert['feedback']) . "'></i>";
+                                        echo "<i class='ms-2 fa fa-comment cdr-rule-feedback' title=" . xla("Select feedback icon to show feedback") . " data-feedback='" . attr($alert['feedback']) . "'></i>";
                                     }
                                     echo "<br />";
                                 }

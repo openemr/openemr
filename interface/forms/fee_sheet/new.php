@@ -262,7 +262,7 @@ function echoServiceLines()
 
                     if (!empty($code_types[$codetype]['just']) || !empty($li['justify'])) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
-                        echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<select class='form-select form-select-sm' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
                         echo "</td>\n";
                         $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
@@ -316,7 +316,7 @@ function echoServiceLines()
             echo "<input type='text' class='form-control form-control-sm text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
-            echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
+            echo "<select class='form-select form-select-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
             foreach ($fs->ndc_uom_choices as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $li['ndcuom']) {
@@ -1003,7 +1003,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ?>
                         <fieldset>
                         <legend><?php echo xlt('Set Price Level'); ?></legend>
-                            <div class='form-group mx-5 text-center'>
+                            <div class='mb-3 mx-5 text-center'>
                                 <?php
                                 // Allow the patient price level to be fixed here.
                                 $plres = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -1054,7 +1054,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $cleave_opt = is_numeric(substr($fs_option, 0, 2)) ? 2 : 1;
                                     echo ($i <= 1) ? " <tr>\n" : "";
                                     echo "  <td class='text-nowrap' width='50%'>\n";
-                                    echo "   <select class='form-control' onchange='codeselect(this)'>\n";
+                                    echo "   <select class='form-select' onchange='codeselect(this)'>\n";
                                     echo "    <option value=''> " . xlt(substr($fs_category, $cleave_cat)) . "</option>\n";
                                 }
                                 echo "    <option value='" . attr($fs_codes) . "'>" . xlt(substr($fs_option, $cleave_opt)) . "</option>\n";
@@ -1069,7 +1069,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
                                 echo "  <td class='text-center text-nowrap' width='50%'>\n";
-                                echo "   <select class='form-control' onchange='codeselect(this)'>\n";
+                                echo "   <select class='form-select' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
                                 $res = sqlStatement("SELECT code_type, code, code_text, modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .
@@ -1138,7 +1138,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <fieldset>
                             <legend><?php echo xlt("Search for Additional Codes")?></legend>
                                 <div class="text-center">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <?php
                                         $nofs_code_types = array();
                                         foreach ($code_types as $key => $value) {
@@ -1168,8 +1168,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="mx-5 mb-3 text-center">
                                     <div class="input-group">
                                         <input type='text' class="form-control" name='search_term' value='' />
-                                        <div class="input-group-append">
-                                            <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
+                                        <div class="input-group-text">
+                                            <input type='submit' name='bn_search' value='<?php echo xla('Search');?>' onclick='return this.clicked = true;' />
                                         </div>
                                     </div>
                                 </div>
@@ -1221,7 +1221,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <tr>
                                     <?php
                                     if ($fs->ALLOW_COPAYS) { ?>
-                                        <td class='col-md-6 float-right'>
+                                        <td class='col-md-6 float-end'>
                                             <button type="button" class="btn btn-primary btn-add" value='<?php echo xla('Add Copay'); ?>'
                                                 onclick='copayselect()'>
                                                 <?php echo xlt('Add Copay'); ?>
@@ -1701,7 +1701,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group" role="group">
                                 <button type='button' class='btn btn-primary btn-calendar' onclick='newEvt()'>
@@ -1714,7 +1714,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type='submit' name='bn_save' class='btn btn-primary btn-save' value='<?php echo xla('Save');?>'
                                     <?php
                                     if ($rapid_data_entry) {
-                                        echo " style='background-color: #cc0000'; color: var(--white)'";
+                                        echo " style='background-color: #cc0000'; color: var(--bs-white)'";
                                     } ?>><?php echo xla('Save');?></button>
                                     <button type='submit' name='bn_save_stay' class='btn btn-primary btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
                                     <?php if ($GLOBALS['ippf_specific'] && (AclMain::aclCheckForm('admin', 'super') || AclMain::aclCheckForm('acct', 'bill') || AclMain::aclCheckForm('acct', 'disc'))) { // start ippf-only stuff ?>

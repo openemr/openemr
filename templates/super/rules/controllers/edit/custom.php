@@ -53,7 +53,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 <p class="form-row">
     <span class="left_col colhead req" data-field="fld_value"><?php echo xlt('Value'); ?></span>
     <span class="end_col">
-        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_value_comparator" id="">
+        <select class="form-select" data-grp-tgt="" type="dropdown" name="fld_value_comparator" id="">
             <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->valueComparator == "le" ? "SELECTED" : "" ?>><?php echo "<=" ;?></option>
             <option id="lt" value="lt" <?php echo $criteria->valueComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<" ;?></option>
@@ -71,7 +71,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 <p class="form-row">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
-        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
+        <select class="form-select" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
             <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->frequencyComparator == "le" ? "SELECTED" : "" ?>><?php echo "<=" ;?></option>
             <option id="lt" value="lt" <?php echo $criteria->frequencyComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<" ;?></option>

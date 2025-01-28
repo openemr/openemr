@@ -95,7 +95,7 @@ body {
 }
 
 .signature img {
-  color: var(--danger) !important;
+  color: var(--bs-danger) !important;
   cursor: pointer;
   -webkit-user-drag: none;
   user-select: none;

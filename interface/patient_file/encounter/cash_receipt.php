@@ -35,7 +35,7 @@ $first_issue = 1;
 <?php Header::setupHeader(); ?>
 </head>
 
-<body class="bg-white ml-1">
+<body class="bg-white ms-1">
 <p>
 <?php
 $titleres = getPatientData($pid, "fname,lname,providerID");

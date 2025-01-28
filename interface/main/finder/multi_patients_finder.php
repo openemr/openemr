@@ -47,7 +47,7 @@ if (isset($_GET['patients'])) {
         #searchCriteria {
             text-align: center;
             width: 100%;
-            background-color: var(--gray300);
+            background-color: var(--bs-gray-300);
             font-weight: bold;
             padding: 7px;
         }
@@ -69,7 +69,7 @@ if (isset($_GET['patients'])) {
             vertical-align: middle;
         }
         .remove-patient {
-            color: var(--danger);
+            color: var(--bs-danger);
             pointer-events: auto;
         }
 
@@ -80,7 +80,7 @@ if (isset($_GET['patients'])) {
         #searchResults {
             width: 100%;
             border-collapse: collapse;
-            background-color: var(--white);
+            background-color: var(--bs-white);
             overflow: auto;
         }
 
@@ -90,7 +90,7 @@ if (isset($_GET['patients'])) {
         }
 
         #searchResults td {
-            border-bottom: 1px solid var(--gray200);
+            border-bottom: 1px solid var(--bs-gray-200);
         }
     </style>
 

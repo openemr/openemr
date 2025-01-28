@@ -381,14 +381,14 @@ function getCodeText($code)
 
 <style>
     div.section {
-        border: 1px solid var(--primary) !important;
+        border: 1px solid var(--bs-primary) !important;
         margin: 0 0 0 13px;
         padding: 7px;
     }
 
     /* Override theme's selected tab top color so it matches tab contents. */
     ul.tabNav li.current a {
-        background: var(--white);
+        background: var(--bs-white);
     }
 </style>
 
@@ -830,38 +830,38 @@ function getCodeText($code)
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col" id='row_titles'>
+                            <div class="mb-3 col" id='row_titles'>
                                 <label for="form_titles" class=""><?php echo xlt('Select from list or type your own in Title'); ?></label>
                                 <select name='form_titles' id='form_titles' class="form-control select2" multiple onchange='set_text()'><option></option></select>
                             </div>
-                            <div class="form-group col">
+                            <div class="mb-3 col">
                                 <label for="title_diagnosis"><?php echo xlt('Title'); ?>:</label>
                                 <div class="input-group">
                                     <input type='text' class="form-control" name='form_title' id='form_title' value='<?php echo attr($irow['title'] ?? '') ?>' />
-                                    <div class="input-group-append">
+                                    <div class="input-group-text">
                                         <button type="button" id="btnCodeSearch" class="btn btn-outline-secondary" onclick="onAddCode()" title="<?php echo xla("Select a Code"); ?>"><i class="fa fa-sm fa-magnifying-glass"></i></button>
                                     </div>
                                 </div>
                                 <input type='hidden' name='form_title_id' value='<?php echo attr($irow['list_option_id'] ?? '') ?>'>
                             </div>
-                            <div class="form-group col-sm-12 col-md-3">
+                            <div class="mb-3 col-sm-12 col-md-3">
                                 <label for="form_begin"><?php echo xlt('Begin Date and Time'); ?>:</label>
                                 <input type='text' class='datepicker form-control' name='form_begin' id='form_begin' value='<?php echo attr(trim(oeFormatDateTime($irow['begdate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of onset, surgery or start of medication'); ?>' />
                             </div>
-                            <div class="form-group col-sm-12 col-md-3" id='row_enddate'>
+                            <div class="mb-3 col-sm-12 col-md-3" id='row_enddate'>
                                 <label for="form_begin"><?php echo xlt('End Date and Time'); ?>:</label>
                                 <input type='text' class='datepicker form-control' placeholder="<?php echo xlt('leave blank if still active'); ?>" name='form_end' id='form_end' value='<?php echo attr(trim(oeFormatDateTime($irow['enddate'] ?? ''))) ?>' title='<?php echo xla('yyyy-mm-dd HH:MM date of recovery or end of medication'); ?>' />
                             </div>
                         </div>
                         <div class="row">
                             <!-- Reaction For Medication Allergy -->
-                            <div class="form-group col" id='row_reaction'>
+                            <div class="mb-3 col" id='row_reaction'>
                                 <label for="form_reaction"><?php echo xlt('Reaction'); ?>:</label>
                                 <?php
                                 echo generate_select_list('form_reaction', 'reaction', ($irow['reaction'] ?? null), '', '', '', '');
                                 ?>
                             </div>
-                            <div class="form-group col" id='row_severity'>
+                            <div class="mb-3 col" id='row_severity'>
                                 <label for="form_severity_id"><?php echo xlt('Severity'); ?>:</label>
                                 <?php
                                 $severity = $irow['severity_al'] ?? null;
@@ -872,11 +872,11 @@ function getCodeText($code)
                         </div>
                         <?php if ($thistype == 'medical_device' || (!empty($irow['type']) && $irow['type'] == 'medical_device')) : ?>
                         <div class="row">
-                            <div class="form-group col-12">
+                            <div class="mb-3 col-12">
                                 <label class="col-form-label" for="form_udi"><?php echo xlt('UDI{{Unique Device Identifier}}'); ?>:</label>
                                 <div class="input-group">
                                     <input type='text' class="form-control" name='form_udi' id='form_udi' onkeydown="processUdiEnter(event)" value='<?php echo attr($irow['udi'] ?? '') ?>' />
-                                    <div class="input-group-append">
+                                    <div class="input-group-text">
                                         <button type="button" class="btn btn-secondary btn-sm" id='udi_process_button' style="margin-right:5px;" onclick='processUdi(this)'><?php echo (!empty($irow['udi_data'])) ? xlt('Re-Process UDI') : xlt('Process UDI'); ?></button>
                                     </div>
                                 </div>
@@ -894,19 +894,19 @@ function getCodeText($code)
                             <?php endif; ?>
                         </div>
                         <div class="row">
-                            <div class="form-group col-12" id='row_comments'>
+                            <div class="mb-3 col-12" id='row_comments'>
                                 <label class="col-form-label" for="form_comments"><?php echo xlt('Comments'); ?>:</label>
                                 <textarea class="form-control" name='form_comments' id='form_comments' rows="2" id='form_comments'><?php echo text($irow['comments'] ?? '') ?></textarea>
                             </div>
                         </div>
                         <div id="expanded_options" class="collapse">
                             <div class="row">
-                                <div class="form-group col-sm-12 col-md-6" id='row_active_codes'>
+                                <div class="mb-3 col-sm-12 col-md-6" id='row_active_codes'>
                                     <label for="form_active_codes" class="col-form-label"><?php echo xlt('Active Issue Codes'); ?>:</label>
                                     <select name='form_active_codes' id='form_active_codes' class= "form-control" size='4'
                                         onchange="onActiveCodeSelected()"></select>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-6" id='row_selected_codes'>
+                                <div class="mb-3 col-sm-12 col-md-6" id='row_selected_codes'>
                                     <label for="form_selected_codes" class="col-form-label"><?php echo xlt('Coding'); ?>:</label>
                                     <select name='form_selected_codes' id='form_selected_codes' class= "form-control" multiple size='4'
                                         onchange="onCodeSelectionChange()">
@@ -929,25 +929,25 @@ function getCodeText($code)
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-sm-12 col-md-4" id='row_occurrence'>
+                                <div class="mb-3 col-sm-12 col-md-4" id='row_occurrence'>
                                     <label for="form_occur"><?php echo xlt('Occurrence'); ?>:</label>
                                     <?php
                                     // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
                                     generate_form_field(array('data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'), ($irow['occurrence'] ?? null));
                                     ?>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : '';?>">
+                                <div class="mb-3 col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : '';?>">
                                     <label for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                                     <?php
                                     echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
                                     ?>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4" id='row_subtype'>
+                                <div class="mb-3 col-sm-12 col-md-4" id='row_subtype'>
                                     <label for="form_subtype"><?php echo xlt('Classification Type'); ?>:</label>
                                     <?php
                                     echo generate_select_list('form_subtype', 'issue_subtypes', ($irow['subtype'] ?? null), '', 'NA', '', '');
                                     ?>
-                                    <div class="form-group" id='row_classification'>
+                                    <div class="mb-3" id='row_classification'>
                                         <label for="form_classification"><?php echo xlt('Classification'); ?>:</label>
                                         <select name='form_classification' id='form_classification' class='form-control'>
                                             <?php
@@ -965,7 +965,7 @@ function getCodeText($code)
                             </div>
                             <div class="row">
                                 <!-- Verification Status for Medication Allergy -->
-                                <div class="form-group col-sm-12 col-md-4" id='row_verification'>
+                                <div class="mb-3 col-sm-12 col-md-4" id='row_verification'>
                                     <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
                                     <?php
                                     $codeListName = ($thistype == 'medical_problem') ? 'condition-verification' : 'allergyintolerance-verification';
@@ -973,11 +973,11 @@ function getCodeText($code)
                                     ?>
                                 </div>
                                 <!-- End of Verification Status -->
-                                <div class="form-group col-sm-12 col-md-4" id='row_referredby'>
+                                <div class="mb-3 col-sm-12 col-md-4" id='row_referredby'>
                                     <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                                     <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby'] ?? '') ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : ''; ?>">
+                                <div class="mb-3 col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : ''; ?>">
                                     <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                                     <?php if (true) { ?>
                                         <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination'] ?? '') ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />
@@ -991,7 +991,7 @@ function getCodeText($code)
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col" id='row_returndate'>
+                                <div class="mb-3 col" id='row_returndate'>
                                     <input type='hidden' name='form_return' id='form_return' />
                                     <input type='hidden' name='row_reinjury_id' id='row_reinjury_id' />
                                     <img id='img_return' />
@@ -1000,7 +1000,7 @@ function getCodeText($code)
                         </div>
                         <div class="row">
                             <div class="col d-flex justify-content-end">
-                                <button type="button" class="btn btn-text mr-3" data-toggle="collapse" data-target="#expanded_options" aria-expanded="false" aria-controls="expanded_options"><?php echo xlt("Show More Fields"); ?>&nbsp;<i class="fa fa-angles-down"></i></button>
+                                <button type="button" class="btn btn-text me-3" data-toggle="collapse" data-target="#expanded_options" aria-expanded="false" aria-controls="expanded_options"><?php echo xlt("Show More Fields"); ?>&nbsp;<i class="fa fa-angles-down"></i></button>
                                 <div class="btn-group" role="group">
                                     <button type='submit' name='form_save' value="<?php echo xla('Save'); ?>" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>
                                     <button type="button" class="btn btn-secondary btn-cancel" onclick='closeme();'><?php echo xlt('Cancel'); ?></button>
