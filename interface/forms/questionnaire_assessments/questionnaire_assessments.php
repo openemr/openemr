@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php")
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
@@ -46,9 +47,15 @@ if ($isModule) {
 if ($isPortal) {
     $questionnaire_form = $_GET['formname'] ?? null;
 }
-// for new questionnaires user must be admin. leave strict conditional.
-$isAdmin = AclMain::aclCheckCore('admin', 'forms');
-$is_authorized = $isAdmin || ($questionnaire_form !== 'New Questionnaire' && $_GET['formname'] ?? null === 'questionnaire_assessments');
+
+$isAdmin = true;
+$is_authorized = true;
+if (!AclMain::aclCheckForm($_GET["formname"])) {
+    $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
+    $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+    exit;
+}
 
 // General error trap. Echo and die.
 try {
@@ -179,9 +186,9 @@ if ($isModule || $isDashboard || $isPortal) {
     <?php Header::setupHeader(); ?>
     <!-- TODO remove next release -->
     <style>
-        .lhc-form-title {
-            padding: .25rem !important;
-        }
+      .lhc-form-title {
+        padding: .25rem !important;
+      }
     </style>
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
@@ -449,7 +456,8 @@ if ($isModule || $isDashboard || $isPortal) {
                     } ?>
                 </h4>
             </div>
-        <?php } if (!$is_authorized) { ?>
+        <?php }
+        if (!$is_authorized) { ?>
             <div class="d-flex flex-column w-100 align-items-center">
                 <?php
                 echo "<h3>" . xlt("Not Authorized") . "</h3>";
