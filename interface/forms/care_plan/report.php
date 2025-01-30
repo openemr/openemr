@@ -48,10 +48,10 @@ function care_plan_report($pid, $encounter, $cols, $id): void
                 <tr>
                     <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
                     <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>
-                    <td class="border p-1"><span class=text><?php echo text($value['code']); ?></span></td>
-                    <td class="border p-1"><span class=text><?php echo text($value['codetext']); ?></span></td>
-                    <td class="border p-1"><span class=text><?php echo text($value['description']); ?></span></td>
-                    <td class="border p-1"><span class=text><?php echo text($value['date']); ?></span></td>
+                    <td class="border p-1"><span class='text'><?php echo text($value['code']); ?></span></td>
+                    <td class="border p-1"><span class='text'><?php echo text($value['codetext']); ?></span></td>
+                    <td class="border p-1"><span class='text'><?php echo nl2br(text($value['description'])); ?></span></td>
+                    <td class="border p-1"><span class='text'><?php echo text($value['date']); ?></span></td>
                 </tr>
                 <?php } ?>
             </tbody>
