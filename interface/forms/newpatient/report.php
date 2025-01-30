@@ -52,5 +52,6 @@ function newpatient_report($pid, $encounter, $cols, $id)
             'facility' => $facility_name,
         ];
     }
+    // TODO: @adunsulag in future EMR version switch this to templates/newpatient/report.html.twig
     echo $t->render("templates/report.html.twig", ['encounters' => $encounters]);
 }
