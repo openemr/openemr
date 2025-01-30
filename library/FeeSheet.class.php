@@ -925,6 +925,23 @@ class FeeSheet
             $main_supid = 0;
         }
 
+        function formatICD10Codes($inputArray): string
+        {
+            $result = [];
+
+            foreach ($inputArray as $item) {
+                // Check if the code_type is ICD10 and the code is set
+                if (isset($item['code_type'], $item['code']) && $item['code_type'] === 'ICD10') {
+                    $result[] = 'ICD10|' . $item['code'];
+                }
+            }
+
+            // Join the formatted codes with a comma
+            return implode(',', $result);
+        }
+
+        $justifyCpt = formatICD10Codes($bill);
+
         $copay_update = false;
         $update_session_id = '';
         $ct0  = ''; // takes the code type of the first fee type code type entry from the fee sheet, against which the copay is posted
@@ -946,7 +963,7 @@ class FeeSheet
                 $pricelevel = empty($iter['pricelevel']) ? '' : $iter['pricelevel'];
                 $revenue_code  = empty($iter['revenue_code']) ? '' : trim($iter['revenue_code']);
                 $modifier  = empty($iter['mod']) ? '' : trim($iter['mod']);
-                $justify   = empty($iter['justify'  ]) ? '' : trim($iter['justify']);
+                $justify   = empty($iter['justify'  ]) ? trim($justifyCpt) : trim($iter['justify']);
                 $notecodes = empty($iter['notecodes']) ? '' : trim($iter['notecodes']);
                 $provid    = empty($iter['provid'   ]) ? 0 : intval($iter['provid']);
 
