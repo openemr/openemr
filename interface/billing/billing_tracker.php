@@ -36,7 +36,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
+    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs', 'i18formatting']); ?>
     <title><?php echo xlt("Claim File Tracker"); ?></title>
     <style>
         table.dataTable td.details-control:before {
@@ -104,8 +104,29 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                             return data;
                         }
                     },
-                    { "data": "created_at" },
-                    { "data": "updated_at" },
+                    { 
+                        "data": "created_at", 
+                        "render": function(data, type, row, meta) {
+                            // Build the URL so the user can download the claim batch file
+                            if (type === 'display') {
+                                data = '<td>' + window.top.oeFormatters.I18NDateFormat(data) + '</td>';
+                            }
+
+                            return data;
+                        }
+                    },
+                    
+                    { 
+                        "data": "updated_at",
+                        "render": function(data, type, row, meta) {
+                            // Build the URL so the user can download the claim batch file
+                            if (type === 'display') {
+                                data = '<td>' + window.top.oeFormatters.I18NDateFormat(data) + '</td>';
+                            }
+
+                            return data;
+                        }
+                    },
                 ],
                 "order": [[4, 'desc']] // Order by 'Date Created' with newest first
             });
