@@ -115,7 +115,6 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                             return data;
                         }
                     },
-                    
                     { 
                         "data": "updated_at",
                         "render": function(data, type, row, meta) {
