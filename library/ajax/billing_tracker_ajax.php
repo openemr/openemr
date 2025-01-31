@@ -31,8 +31,8 @@ foreach ($claim_files as $claim_file) {
     $element->x12_partner_name = text($claim_file['name']);
     $element->x12_filename = text($claim_file['x12_filename']);
     $element->status = xl($claim_file['status']);
-    $element->created_at = oeFormatDateTime($claim_file['created_at']);
-    $element->updated_at = oeFormatDateTime($claim_file['updated_at']);
+    $element->created_at = $claim_file['created_at'];
+    $element->updated_at = $claim_file['updated_at'];
     $element->claims = json_decode($claim_file['claims']);
     $element->messages = json_decode($claim_file['messages'] ?? '');
     $response->data[] = $element;
