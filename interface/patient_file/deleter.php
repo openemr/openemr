@@ -237,12 +237,9 @@ function popup_close() {
 
                 $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
                 while ($row = sqlFetchArray($res)) {
-                    row_modify(
-                        "forms",
-                        "deleted = 1",
-                        "pid = '" . add_escape_custom($row['pid']) .
-                            "' AND form_id = '" . add_escape_custom($row['form_id']) . "'"
-                    );
+                    row_delete("forms","pid = '" . add_escape_custom($row['pid']) .
+                            "' AND form_id = '" . add_escape_custom($row['form_id']) . "'");
+                    row_delete("form_encounter","pid = '" . add_escape_custom($row['pid']) . "'");
                 }
 
                 // Delete all documents for the patient.

@@ -1537,6 +1537,7 @@ class CdaTemplateImportDispose
     {
         $appTable = new ApplicationTable();
         $userName = "";
+        $is_user = [];
 
         if (!empty($value['provider_fname'] ?? '')) {
             $value['provider_name'] = $value['provider_fname'];
@@ -1546,10 +1547,12 @@ class CdaTemplateImportDispose
         }
 
         // so for those that don't use NPI's or npi was missed we'll take a look for user by name.
-        $is_user = sqlQuery(
-            "Select id From users Where fname = ? And lname = ?",
-            array($value['provider_name'] ?? null, $value['provider_family'] ?? null)
-        );
+        if (!empty($value['provider_name']) && !empty($value['provider_family'])) {
+            $is_user = sqlQuery(
+                "Select id From users Where fname = ? And lname = ?",
+                array($value['provider_name'] ?? null, $value['provider_family'] ?? null)
+            );
+        }
         if (empty($is_user['id'])) {
             $is_user = sqlQuery("Select id From users Where fname = ? And lname = ?", array('External', 'Provider'));
         }
