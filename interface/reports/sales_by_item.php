@@ -146,7 +146,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         <td class="detail">
          &nbsp;
         </td>
-        <td class="detail" colspan="3">
+        <td class="detail font-weight-bold" colspan="3">
                 <?php echo xlt('Total for category') . ' ';
                 echo text(display_desc($category)); ?>
   </td>
@@ -158,10 +158,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td class="text-right">
    &nbsp;
   </td>
-  <td class="text-right">
+  <td class="text-right font-weight-bold">
                 <?php echo text($catqty); ?>
   </td>
-  <td class="text-right">
+  <td class="text-right font-weight-bold">
                 <?php echo text(FormatMoney::getBucks($cattotal)); ?>
   </td>
  </tr>
@@ -662,10 +662,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <td class="detail">
    &nbsp;
   </td>
-  <td class="detail" colspan="3"><strong>
+  <td class="detail font-weight-bold" colspan="3">
         <?php echo xlt('Total for category') . ' ';
         echo text(display_desc($category)); ?>
-  </strong></td>
+  </td>
         <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
@@ -674,18 +674,18 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <td class="text-right">
    &nbsp;
   </td>
-  <td class="text-right"><strong>
+  <td class="text-right font-weight-bold">
         <?php echo text($catqty); ?>
-  </strong></td>
-  <td class="text-right"><strong>
+  </td>
+  <td class="text-right font-weight-bold">
         <?php echo text(FormatMoney::getBucks($cattotal)); ?>
-  </strong></td>
+  </td>
  </tr>
 
  <tr>
-  <td class="detail" colspan="4"><strong>
+  <td class="detail font-weight-bold" colspan="4">
         <?php echo xlt('Grand Total'); ?>
-  </strong></td>
+  </td>
         <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
@@ -694,12 +694,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <td class="text-right">
    &nbsp;
   </td>
-  <td class="text-right"><strong>
+  <td class="text-right font-weight-bold">
         <?php echo text($grandqty); ?>
-  </strong></td>
-  <td class="text-right"><strong>
+  </td>
+  <td class="text-right font-weight-bold">
         <?php echo text(FormatMoney::getBucks($grandtotal)); ?>
-  </strong></td>
+  </td>
  </tr>
         <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
         $report_to_date = oeFormatShortDate($form_to_date)  ;
