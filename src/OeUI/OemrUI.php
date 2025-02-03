@@ -290,7 +290,7 @@ class OemrUI
         if ($GLOBALS['enable_help'] == "1") {
             $title = xl("Click to view Help");
         } elseif ($GLOBALS['enable_help'] == "2") {
-            $title = xl("Enable help under your User Menu > Settings > Featurees > Enable Help Modal");
+            $title = xl("Enable help under your User Menu > Settings > Features > Enable Help Modal");
         }
 
         $id = 'help-href';

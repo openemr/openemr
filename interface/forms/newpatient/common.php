@@ -527,7 +527,6 @@ $referringProviders = array_map(function($provider) use ($viewmode, $encounter, 
         $refProviderId = QueryUtils::fetchSingleValue("SELECT ref_providerID FROM patient_data WHERE pid = ?",
             'ref_ProviderID', [$pid]);
         $encounter["referring_provider_id"] = $refProviderId ?? 0;
-//        $encounter["referring_provider_id"] = getPatientData($pid, "ref_providerID")['ref_providerID'] ?? 0;
     }
     if ($viewmode && !empty($encouter["referring_provider_id"])) {
         $provider['selected'] = $provider['id'] == $encouter['referring_provider_id'];
