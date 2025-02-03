@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025      Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -103,7 +105,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   </td>
   <td class="detail" colspan="3">
                 <?php
-                if ($_POST['form_details']) {
+                if ($_POST['form_details'] ?? '') {
                     echo xlt('Total for') . ' ';
                 }
 
@@ -114,13 +116,13 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right">
+  <td class="text-right">
                 <?php echo text($productqty); ?>
   </td>
-  <td align="right">
+  <td class="text-right">
                 <?php echo text(FormatMoney::getBucks($producttotal)); ?>
   </td>
  </tr>
@@ -153,13 +155,13 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right">
+  <td class="text-right">
                 <?php echo text($catqty); ?>
   </td>
-  <td align="right">
+  <td class="text-right">
                 <?php echo text(FormatMoney::getBucks($cattotal)); ?>
   </td>
  </tr>
@@ -235,10 +237,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    &nbsp;
   </td>
         <?php } ?>
-      <td align="right">
+      <td class="text-right">
             <?php echo text($qty); ?>
       </td>
-      <td align="right">
+      <td class="text-right">
             <?php echo text(FormatMoney::getBucks($rowamount)); ?>
       </td>
      </tr>
@@ -515,10 +517,10 @@ if (!empty($_POST['form_csvexport'])) {
         }
         ?>
   </th>
-  <th align="right">
+  <th scope="col" class="text-right">
         <?php echo xlt('Qty'); ?>
   </th>
-  <th align="right">
+  <th scope="col" class="text-right">
         <?php echo xlt('Amount'); ?>
   </th>
  </thead>
@@ -573,7 +575,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             $row['title'],
             $row['code'] . ' ' . $row['code_text'],
             substr($row['date'], 0, 10),
-            $row['units'],
+            $row['units'] ?? 1,
             $row['fee'],
             $row['invoice_refno']
         );
@@ -645,13 +647,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right">
+  <td class="text-right">
         <?php echo text($productqty); ?>
   </td>
-  <td align="right">
+  <td class="text-right">
         <?php echo text(FormatMoney::getBucks($producttotal)); ?>
   </td>
  </tr>
@@ -669,13 +671,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right"><strong>
+  <td class="text-right"><strong>
         <?php echo text($catqty); ?>
   </strong></td>
-  <td align="right"><strong>
+  <td class="text-right"><strong>
         <?php echo text(FormatMoney::getBucks($cattotal)); ?>
   </strong></td>
  </tr>
@@ -689,13 +691,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td align="right">
+  <td class="text-right">
    &nbsp;
   </td>
-  <td align="right"><strong>
+  <td class="text-right"><strong>
         <?php echo text($grandqty); ?>
   </strong></td>
-  <td align="right"><strong>
+  <td class="text-right"><strong>
         <?php echo text(FormatMoney::getBucks($grandtotal)); ?>
   </strong></td>
  </tr>
