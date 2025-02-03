@@ -24,6 +24,7 @@ use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -42,6 +43,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     protected $kernel;
 
+    protected OemrUI $oemrUI;
+
+    protected function getOemrUiInstance($oemrSettings = array()) {
+        if (!isset($this->oemrUI)) {
+            $this->oemrUI = new OemrUI($oemrSettings);
+        }
+        return $this->oemrUI;
+    }
     /**
      * TwigExtension constructor.
      * @param GlobalsService $globals
@@ -194,10 +203,23 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
+            // I don't like how the OemrUi class is being used, it uses event listeners to control parts of the
+            // UI and those events can be added again and again everytime the class is instantiated so it assumes
+            // its a singleton, so we'll treat it as a singleton here, but its annoying.
+            new TwigFunction('oemrUiContainerClass', function(array $oemr_settings) {
+                $oemrUi = $this->getOemrUiInstance($oemr_settings);
+                $heading =  $oemrUi->oeContainer();
+                return $heading;
+            }),
+            new TwigFunction('oemrUiPageHeading', function(array $oemr_settings) {
+                $oemrUi = $this->getOemrUiInstance($oemr_settings);
+                $heading =  $oemrUi->pageHeading(false);
+                return $heading;
+            }),
             new TwigFunction(
                 'oemrUiBelowContainerDiv',
                 function ($oemr_settings) {
-                    $oemrUi = new OemrUI($oemr_settings);
+                    $oemrUi = $this->getOemrUiInstance($oemr_settings);
                     ob_start();
                     $oemrUi->oeBelowContainerDiv();
                     return ob_get_clean();
@@ -324,6 +346,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'shortDate',
                 function ($string) {
                     return oeFormatShortDate($string);
+                }
+            ),
+            new TwigFilter(
+                'oeFormatDateTime'
+                ,function($string, $formatTime = "global", $seconds = false) {
+                    return oeFormatDateTime($string, $formatTime, $seconds);
                 }
             ),
             new TwigFilter(

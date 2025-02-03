@@ -1,0 +1,391 @@
+{#
+# Template for the New Patient Encounter Form
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+# @author    Brady Miller <brady.g.miller@gmail.com>
+# @author    Ranganath Pathak <pathak@scrs1.org>
+# @author    Jerry Padgett <sjpadgett@gmail.com>
+# @author    Stephen Nielson <snielson@discoverandchange.com>
+# @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+# @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+# @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+# @license   This code was generated as a translation of code in the newpatient/common.php file via Claude.ai and are licensed as Public Domain.  They have been marked with a header and footer.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ pageTitle|text }}</title>
+    {# datetimepicker used for encounter date pickers #}
+    {# moment(moment.js) & validation_script used for script validation, with moment needed for date validators #}
+    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'common', 'moment', 'validation_script'])|attr }}
+    <script src="{{ contextPath|attr }}/interface/forms/newpatient/newpatient.js?v={{ assetVersion|attr_url }}"></script>
+    <style>
+        @media only screen and (max-width: 1024px) {
+            #visit-details [class*="col-"],
+            #visit-issues [class*="col-"] {
+                width: 100%;
+                text-align: {{ language_direction == 'rtl' ? 'right ' : 'left '}} !important;
+            %}
+        }
+    </style>
+</head>
+<body class="{{ bodyClass|attr }}">
+<div id="container_div" class="{{ oemrUiContainerClass(oemrUiSettings) }} mt-3">
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
+            {{ oemrUiPageHeading(oemrUiSettings) }}
+        </div>
+    </div>
+
+    {# Note formAction HAS to be escaped in the twig caller class #}
+    <form id="new-encounter-form" method="post" action="{{ webroot }}{{ formAction }}" name="new_encounter" class="mt-3">
+        {% include "templates/newpatient/partials/_common-hidden-fields.html.twig" %}
+
+        <fieldset>
+            <legend>
+                {{ "Visit Details"|xlt }}
+                <small>
+                    {% if encounter_followup %}
+                        {{ "Follow up for"|xlt }}: {{ encounter_followup }} {{ "Dated"|xlt }}: {{ followup_date }}
+                    {% endif %}
+                </small>
+            </legend>
+
+            <div id="visit-details" class="px-3">
+                <div class="form-row align-items-center">
+                    {# Visit Category #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_visit_category') }}">
+                        <div class="form-group">
+                            <label for="pc_catid" class="text-right">{{ "Visit Category:"|xlt }}</label>
+                            <select name="pc_catid" id="pc_catid" class="form-control" {{ mode == 'followup' ? 'disabled' : '' }}>
+                                <option value="_blank">-- {{ "Select One"|xlt }} --</option>
+                                {% for category in visitCategories %}
+                                    <option value="{{ category.id|attr }}" {{ category.selected ? 'selected' : '' }}>
+                                        {{ category.name|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if mode == 'followup' %}
+                                <input type="hidden" name="pc_catid" value="{{ encounter.pc_catid|attr }}" />
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Class #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_class') }}">
+                        <div class="form-group">
+                            <label for="class_code" class="text-right">{{ "Class"|xlt }}:</label>
+                            {{ selectList('class_code', '_ActEncounterCode', defaultClassCodeValue, '', {empty_name: ''}) }}
+                        </div>
+                    </div>
+
+                    {# Class #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_type') }}">
+                        <div class="form-group">
+                            <label for="class_code" class="text-right">{{ "Type"|xlt }}:</label>
+                            {{ selectList('encounter_type', 'encounter-types', defaultEncounterTypeValue, '', {empty_name: '--'~'Select One'|xl~'--'}) }}
+                        </div>
+                    </div>
+
+                    {# Sensitivity #}
+                    {% if sensitivities %}
+                        <div class="col-sm {{ displayOptionClass('enc_sensitivity_visibility') }}">
+                            <div class="form-group">
+                                <label for="form_sensitivity" class="text-right">
+                                    {{ "Sensitivity:"|xlt }}
+                                    <i id="sensitivity-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                                </label>
+                                <select name="form_sensitivity" id="form_sensitivity" class="form-control">
+                                    {% for sensitivity in sensitivities %}
+                                        <option value="{{ sensitivity.value|attr }}" {{ sensitivity.selected ? 'selected' : '' }}>
+                                            {{ sensitivity.display|xlt }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row align-items-center">
+{#                     Provider Selection #}
+                    <div class="col-sm">
+                        <div class="form-group">
+                            <label for="provider_id" class="text-right">{{ "Encounter Provider"|xlt }}:</label>
+                            {# Note provider_id change will update facility info in javascript #}
+                            <select name="provider_id" id="provider_id" class="form-control">
+                                {% for provider in providers %}
+                                    <option value="{{ provider.id|attr }}" {{ provider.selected ? 'selected' : '' }}>
+                                        {{ provider.name|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    {# Referring Provider #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_referring_provider') }}">
+                        <div class="form-group">
+                            <label for='referring_provider_id' class="text-right">{{ 'Referring Provider'|xlt  }}:</label>
+                            {% if referringProviders|length > 0 %}
+                            <select name="referring_provider_id" id="referring_provider_id" class="form-control">
+                                {% for provider in referringProviders %}
+                                    <option value="{{ provider.id|attr }}" {{ provider.selected ? 'selected' : '' }}>
+                                        {{ provider.lname|default("")|text }}, {{ provider.fname|default("")|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                                <input type="hidden" name="referring_provider_id" value="" />
+                                <input type="text" class="form-control" value="{{ "No available providers"|xla }}" disabled />
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Ordering Provider #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_ordering_provider') }}">
+                        <div class="form-group">
+                            <label for='ordering_provider_id' class="text-right">{{ 'Ordering Provider'|xlt  }}:</label>
+                            {% if orderingProviders|length > 0 %}
+                            <select name="ordering_provider_id" id="ordering_provider_id" class="form-control">
+                                {% for provider in orderingProviders %}
+                                    <option value="{{ provider.id|attr }}" {{ provider.selected ? 'selected' : '' }}>
+                                        {{ provider.lname|text }}, {{ provider.fname|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                                <input type="hidden" name="ordering_provider_id" value="" />
+                                <input type="text" class="form-control" value="{{ "No available providers"|xla }}" disabled />
+                            {% endif %}
+                        </div>
+                    </div>
+
+                      {# Facility #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_facility') }}">
+                        <div class="form-group">
+                            <label for="facility_id" class="text-right">{{ "Facility"|xlt }}:</label>
+                            <select name="facility_id_sel" id="facility_id_sel" class="form-control" {{ mode == 'followup' ? 'disabled' : '' }}>
+                                <option value="">-- {{ "Select Facility"|xlt }} --</option>
+                                {% for facility in facilities %}
+                                    <option value="{{ facility.id|attr }}" {{ facility.selected ? 'selected' : '' }}>
+                                        {{ facility.name|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    {# Billing Facility #}
+                    {% if not globals.hide_billing_widget %}
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="billing_facility" class="text-right">{{ "Billing Facility"|xlt }}:</label>
+                                <select name="billing_facility" id="billing_facility" class="form-control">
+                                    <option value="">-- {{ "Select Facility"|xlt }} --</option>
+                                    {% for facility in billingFacilities %}
+                                        <option value="{{ facility.id|attr }}" {{ facility.selected ? 'selected' : '' }}>
+                                            {{ facility.name|text }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                    {# Additional form rows for dates, POS code, etc #}
+                <div class="form-row align-items-center">
+                    <div class="col-sm {{ displayOptionClass('enc_service_date') }}">
+                        <div class="form-group">
+                            <label for="form_date" class="text-right">{{ "Date of Service:"|xlt }}</label>
+                            <input type="text"
+                                   class="form-control datepicker"
+                                   name="form_date"
+                                   id="form_date"
+                                   value="{{ encounter.date|oeFormatDateTime|attr }}" />
+                        </div>
+                    </div>
+
+                    {% if globals.gbl_visit_onset_date %}
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="form_onset_date" class="text-right">
+                                    {{ "Onset/hosp. date:"|xlt }}
+                                    <i id="onset-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                                </label>
+                                <input type="text"
+                                       class="form-control datepicker"
+                                       name="form_onset_date"
+                                       id="form_onset_date"
+                                       value="{{ encounter.onset_data ? '' : encounter.onset_date|oeFormatDateTime|attr }}"
+                                       title='{{ 'Date of onset or hospitalization'|xla }}'/>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {# POS Code #}
+                    {% if isPosEnabled %}
+                        <div class="col-sm">
+                            <div class="form-group">
+                                <label for="pos_code" class="text-right">{{ "POS Code"|xlt }}:</label>
+                                <select name="pos_code" id="pos_code" class="form-control">
+                                    {% for pos in posOptions %}
+                                        <option value="{{ pos.code|attr }}" {{ pos.selected ? 'selected' : '' }}>
+                                            {{ pos.code|text }}: {{ pos.title|xlt }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col-sm {{ globals.gbl_visit_referral_source == 1 ? '' : 'd-none' }}">
+                        <div class="form-group">
+                            <label for="form_referral_source" class="text-right">{{ 'Referral Source'|xlt  }}:</label>
+                            {{ selectList('form_referral_source', 'refsource', defaultReferralSource, '', {empty_name: ''}) }}
+                        </div>
+                    </div>
+                    {# In Collection #}
+                    {% if showInCollection %}
+                        <div class="col-sm {{ displayOptionClass('enc_in_collection') }}">
+                            <div class="form-group">
+                                <label for="in_collection" class="text-right">{{ "In Collection"|xlt }}:</label>
+                                <select name="in_collection" id="in_collection" class="form-control">
+                                    {% for option in inCollectionOptions %}
+                                        <option value="{{ option.value|attr }}" {{ option.selected ? 'selected' : '' }}>
+                                            {{ option.title|text }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-row align-items-center">
+                    {# Discharge Disposition #}
+                    <div class="col-sm {{ displayOptionClass('enc_enable_discharge_disposition') }}">
+                        <div class="form-group">
+                            <label for="discharge_disposition" class="text-right">{{ "Discharge Disposition"|xlt }}:</label>
+                            <select name="discharge_disposition" id="discharge_disposition" class="form-control">
+                                {% for disposition in dischargeDispositions %}
+                                    <option value="{{ disposition.option_id|attr }}" {{ disposition.selected ? 'selected' : '' }}>
+                                        {{ disposition.title|text }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {# Group Therapy #}
+                    {% if enableGroupTherapy %}
+                        <div class="col-sm">
+                            <div class="form-group {{ therapyGroupCategories|length > 0 ? '' : 'd-none' }}" id="therapy_group_name" >
+                                <label for="form_group" class="text-right">{{ "Group name"|xlt }}:</label>
+                                {# note in JS we will launch a selector for this see newpatient.js #}
+                                <input type='text'
+                                       name='form_group'
+                                       class='form-control'
+                                       id="form_group"
+                                       placeholder='{{ "Click to select"|xla }}'
+                                       value='{{ groupData.name|attr }}'
+                                       title='{{ "Click to select group"|xla }}'
+                                       readonly />
+                                <input type='hidden'
+                                       name='form_gid'
+                                       value='{{ groupData.group_id|attr }}' />
+                            </div>
+                        </div>
+                    {% else %}
+                        {# leave it as blank #}
+                        <input type="hidden" name="form_gid" value="" />
+                        <input type="hidden" name="form_group" value="" />
+                    {% endif %}
+                </div>
+            </div>
+        </fieldset>
+
+        {# Reason for Visit & Issues Section #}
+        <div class="form-row">
+            <div class="col-sm">
+                <fieldset>
+                    <legend>{{ "Reason for Visit"|xlt }}</legend>
+                    <div class="form-row mx-3 h-100">
+                        <textarea name="reason" id="reason" class="form-control" cols="80" rows="4">{{ encounter.reason|default("")|text }}</textarea>
+                    </div>
+                </fieldset>
+            </div>
+            {% if issuesEnabled and issuesAuth %}
+                <div class="col-sm">
+                    <fieldset>
+                        <legend>{{ "Link/Add Issues to This Visit"|xlt }}</legend>
+                        <div id="visit-issues">
+                            <div class="form-row px-3">
+                                {% if canAddIssues %}
+                                    <div class="pb-1 col-sm">
+                                        <a href="{{ webroot }}/interface/patient_file/summary/add_edit_issue.php"
+                                           class="btn d-block btn-primary btn-add btn-sm enc_issue"
+                                           onclick="top.restoreSession()">{{ "Add Issue"|xlt }}</a>
+                                    </div>
+                                {% endif %}
+                                <select multiple name="issues[]" class="form-control">
+                                    {% for issue in issues %}
+                                        <option value="{{ issue.id|attr }}" {{ issue.selected ? 'selected' : '' }}>
+                                            {{ issue.type|text }}: {{ issue.title|text }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <p><i>{{ 'To link this encounter/consult to an existing issue, click the '
+                                                ~ 'desired issue above to highlight it and then click [Save]. '
+                                                ~ 'Hold down [Ctrl] button to select multiple issues.'|xlt }}</i></p>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Form Buttons #}
+        <div class="form-row">
+            <div class="col-sm-12 text-left position-override pl-3">
+                <div class="btn-group" role="group">
+                    <button id="saveEncounter" type="button" class="btn btn-primary btn-save">
+                        {{ "Save"|xlt }}
+                    </button>
+                    {# Note cancel behavior is wired via javascript. See newpatient.js #}
+                    <button type="button" class="btn btn-cancel {{ viewmode or autoloaded ? '' : 'link_submit' }}">
+                        {{ "Cancel"|xlt }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{# End of container div #}
+{{ oemrUiBelowContainerDiv(oemrUiSettings) }}
+<script>
+    (function() {
+        window.document.addEventListener("DOMContentLoaded", function() {
+            if (window.NewPatientForm) {
+                let config = {
+                    webroot: {{ webroot|xlj }},
+                    pid: {{ pid|xlj }},
+                    encounter: {{ encounter|xlj }},
+                    validationConstraints: {{ validationConstraints|json_encode }},
+                    isPosEnabled: {{ isPosEnabled ? "true" : "false" }},
+                    csrfToken: {{CSRF_TOKEN_FORM|xlj}},
+                    enableGroupTherapy: {{ enableGroupTherapy ? "true" : "false" }},
+                    therapyGroupCategories: {{ therapyGroupCategories|json_encode }},
+                };
+                window.NewPatientForm.init(config);
+            }
+        });
+    })(window);
+</script>
+{# TODO: It seems like this should be put in a module for this form #}
+{% if textTemplatesEnabled %}
+    {# NOTE this is the Nation Notes integration / implementation to launch the templates when double clicking on the encounter reason textfield #}
+    <script src="{{ webroot }}/library/js/CustomTemplateLoader.js"></script>
+{% endif %}
+</body>
+</html>
