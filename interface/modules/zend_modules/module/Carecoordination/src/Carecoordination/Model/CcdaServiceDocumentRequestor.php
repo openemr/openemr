@@ -18,6 +18,9 @@ use OpenEMR\Common\System\System;
 
 class CcdaServiceDocumentRequestor
 {
+    /**
+     * @throws CcdaServiceConnectionException
+     */
     public function socket_get($data)
     {
         $output = "";
@@ -38,15 +41,21 @@ class CcdaServiceDocumentRequestor
                 if (IS_WINDOWS) {
                     // node server is quite with errors(hidden process) so we'll do redirect of tty
                     // to generally Windows/Temp.
-                    $redirect_errors = " > " .
-                        $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/ccdaserver.log") . " 2>&1";
-                    $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
-                    $pipeHandle = popen("start /B " . $cmd, "r");
+                    $nodePath    = 'node';
+                    $scriptPath  = ($path . '\\serveccda.js');
+                    $logPath     = ($GLOBALS['temporary_files_dir'] . "\\ccdaserver.log");  // redirect logs here if desired
+                    $cmd = sprintf(
+                        'start /B "%s" "%s" > "%s" 2>&1',
+                        $nodePath,
+                        $scriptPath,
+                        $logPath
+                    );
+                    $pipeHandle = popen($cmd, 'r');
                     if ($pipeHandle === false) {
-                        throw new CcdaServiceConnectionException("Failed to start local ccdaservice");
-                    }
-                    if (pclose($pipeHandle) === -1) {
-                        error_log("Failed to close pipehandle for ccdaservice");
+                        error_log("Failed to start Node process via popen()");
+                    } else {
+                        // close the pipe
+                        pclose($pipeHandle);
                     }
                 } else {
                     $command = 'node';
@@ -62,11 +71,14 @@ class CcdaServiceDocumentRequestor
                     $cmd = $system->escapeshellcmd("$command " . $path . "/serveccda.js");
                     exec($cmd . " > /dev/null &");
                 }
-                sleep(2); // give cpu a rest
-                $result = socket_connect($socket, "127.0.0.1", "6661");
-                if ($result === false) { // hmm something is amiss with service. user will likely try again.
-                    error_log("Failed to start and connect to local ccdaservice server on port 6661");
-                    throw new CcdaServiceConnectionException("Connection Failed");
+                sleep(5); // give cpu a rest
+                // now try to connect to the server
+                $result = socket_connect($socket, "127.0.0.1", (int)6661);
+                if ($result === false) {
+                    $errorCode = socket_last_error($socket);
+                    $errorMsg = socket_strerror($errorCode);
+                    error_log("Socket connection error $errorCode: $errorMsg");
+                    throw new CcdaServiceConnectionException("Connection Failed: $errorMsg");
                 }
             } else {
                 error_log("C-CDA Service is not enabled in Global Settings");
