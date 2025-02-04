@@ -67,7 +67,7 @@ class C_EncounterVisitForm
     public function __construct($templatePath, Kernel $kernel, $issueTypes, $rootdir, $pageName = 'newpatient/common.php')
     {
         // Initialize Twig
-        $twig = new TwigContainer($templatePath, $GLOBALS['kernel']);
+        $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
         $this->issueTypes = $issueTypes;
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
@@ -525,7 +525,7 @@ class C_EncounterVisitForm
             }
 
             if ($encounter['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $encounter['sensitivity'])) {
-                $this->twig->render("templates/newpatient/unauthorized.html.twig");
+                $this->twig->render("newpatient/unauthorized.html.twig");
                 exit();
             }
         }
@@ -715,7 +715,7 @@ class C_EncounterVisitForm
         ];
         // END AI GENERATED CODE
 
-        $layout = "templates/newpatient/common.html.twig";
+        $layout = "newpatient/common.html.twig";
         $templatePageEvent = new TemplatePageEvent('newpatient/common.php', [], $layout, $viewArgs);
         $event = $this->eventDispatcher->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
         if (!$event instanceof TemplatePageEvent) {
