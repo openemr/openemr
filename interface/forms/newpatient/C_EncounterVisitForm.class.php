@@ -79,7 +79,8 @@ class C_EncounterVisitForm
         $this->mode = 'edit';
     }
 
-    private function setMode(?string $mode) {
+    private function setMode(?string $mode)
+    {
         if (in_array($mode, ['new', 'edit', 'followup'])) {
             $this->mode = $mode;
         } else {
