@@ -17,17 +17,34 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/**
+ * @global $srcdir  Note all globals come from the globals.php file
+ */
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 
 if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc.php");
 }
-
+// I'd prefer to pull this into src... but it breaks the modularity of this form.  Not sure how to handle that.
 require_once "C_EncounterVisitForm.class.php";
 
-$controller = new \OpenEMR\Forms\NewPatient\C_EncounterVisitForm(__DIR__, $GLOBALS['kernel'], $GLOBALS['ISSUE_TYPES']);
-/**
- * @global $pid
- */
-$controller->render($pid);
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
+
+try {
+    /**
+     * @global $rootdir
+     */
+    $controller = new C_EncounterVisitForm(__DIR__, $GLOBALS['kernel'], $GLOBALS['ISSUE_TYPES'], $rootdir, 'newpatient/common.php');
+    /**
+     * @global $pid
+     */
+    $controller->render($pid);
+}
+// any twig errors or other errors are caught
+catch (\Exception $e) {
+    (new SystemLogger())->error($e->getMessage(), ['trace' => $e->getTraceAsString(), 'pid' => $pid]);
+    echo $e->getMessage();
+    die();
+}

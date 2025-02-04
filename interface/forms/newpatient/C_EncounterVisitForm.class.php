@@ -26,11 +26,14 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Common\Database\QueryUtils;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\TwigFunction;
 use OpenEMR\Billing\MiscBillingOptions;
 use Twig\Environment;
@@ -41,14 +44,34 @@ class C_EncounterVisitForm
 {
     private Environment $twig;
     private array $issueTypes;
-    public function __construct($templatePath, $kernel, $issueTypes)
+
+    private string $rootdir;
+
+    /**
+     * @var string $pageName The name to use when firing off any events for this page
+     */
+    private string $pageName;
+
+    private EventDispatcher $eventDispatcher;
+
+    /**
+     * @param $templatePath
+     * @param Kernel $kernel
+     * @param $issueTypes
+     * @param $rootdir
+     * @throws \Exception
+     */
+    public function __construct($templatePath, Kernel $kernel, $issueTypes, $rootdir, $pageName = 'newpatient/common.php')
     {
         // Initialize Twig
-        $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
+        $twig = new TwigContainer($templatePath, $GLOBALS['kernel']);
         $this->issueTypes = $issueTypes;
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', [$this, 'displayOption']));
+        $this->eventDispatcher = $kernel->getEventDispatcher();
+        $this->rootdir = $rootdir;
+        $this->pageName = $pageName;
     }
 
 
@@ -426,6 +449,13 @@ class C_EncounterVisitForm
         return $duplicate;
     }
 
+    /**
+     * @param $pid
+     * @return void
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
     public function render($pid)
     {
 
@@ -617,9 +647,7 @@ class C_EncounterVisitForm
         /**
          * @global $rootdir
          */
-// Render template
-// START AI GENERATED CODE
-        echo $this->twig->render("templates/newpatient/common.html.twig", [
+        $viewArgs = [
             'globals' => $GLOBALS,
             'viewmode' => $viewmode,
             'mode' => $mode,
@@ -665,7 +693,16 @@ class C_EncounterVisitForm
             'posOptions' => $posOptions,
             'textTemplatesEnabled' => $GLOBALS['text_templates_enabled'] === '1',
             'duplicate' => $this->getDuplicateEncounterRecords($viewmode, $pid),
-        ]);
+        ];
         // END AI GENERATED CODE
+
+        $layout = "templates/newpatient/common.html.twig";
+        $templatePageEvent = new TemplatePageEvent('newpatient/common.php', [], $layout, $viewArgs);
+        $event = $this->eventDispatcher->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
+        if (!$event instanceof TemplatePageEvent) {
+            throw new \RuntimeException('Invalid event returned from template page event');
+        }
+// Render template
+        echo $this->twig->render($event->getTwigTemplate(), $event->getTwigVariables());
     }
 }
