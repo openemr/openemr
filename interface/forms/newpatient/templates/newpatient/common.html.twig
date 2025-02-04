@@ -28,7 +28,7 @@
     {# Note formAction HAS to be escaped in the twig caller class #}
     <form id="new-encounter-form" method="post" action="{{ webroot }}{{ formAction }}" name="new_encounter" class="mt-3">
         {% include "templates/newpatient/partials/common/_form-start.html.twig" %}
-        {% include "templates/newpatient/partials/common/_hidden-fields.html.twig" %}
+        {% include "templates/newpatient/partials/common/fields/_hidden-fields.html.twig" %}
         {% include "templates/newpatient/partials/common/_form-heading.html.twig" %}
         <fieldset>
 
@@ -88,7 +88,7 @@
 
         {# Reason for Visit & Issues Section #}
         <div class="form-row">
-            {% include "templates/newpatient/partials/common/fields/_reasonForVisit.html.twig" %}
+            {% include "templates/newpatient/partials/common/fields/_reason-for-visit.html.twig" %}
             {% include "templates/newpatient/partials/common/fields/_issues.html.twig" %}
         </div>
 
