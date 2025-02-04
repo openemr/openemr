@@ -45,7 +45,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     protected OemrUI $oemrUI;
 
-    protected function getOemrUiInstance($oemrSettings = array()) {
+    protected function getOemrUiInstance($oemrSettings = array())
+    {
         if (!isset($this->oemrUI)) {
             $this->oemrUI = new OemrUI($oemrSettings);
         }
@@ -206,12 +207,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // I don't like how the OemrUi class is being used, it uses event listeners to control parts of the
             // UI and those events can be added again and again everytime the class is instantiated so it assumes
             // its a singleton, so we'll treat it as a singleton here, but its annoying.
-            new TwigFunction('oemrUiContainerClass', function(array $oemr_settings) {
+            new TwigFunction('oemrUiContainerClass', function (array $oemr_settings) {
                 $oemrUi = $this->getOemrUiInstance($oemr_settings);
                 $heading =  $oemrUi->oeContainer();
                 return $heading;
             }),
-            new TwigFunction('oemrUiPageHeading', function(array $oemr_settings) {
+            new TwigFunction('oemrUiPageHeading', function (array $oemr_settings) {
                 $oemrUi = $this->getOemrUiInstance($oemr_settings);
                 $heading =  $oemrUi->pageHeading(false);
                 return $heading;
@@ -349,8 +350,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFilter(
-                'oeFormatDateTime'
-                ,function($string, $formatTime = "global", $seconds = false) {
+                'oeFormatDateTime',
+                function ($string, $formatTime = "global", $seconds = false) {
                     return oeFormatDateTime($string, $formatTime, $seconds);
                 }
             ),

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Common script for the encounter form (new and view) scripts.
  *

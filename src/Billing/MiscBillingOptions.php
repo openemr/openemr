@@ -66,7 +66,8 @@ class MiscBillingOptions
         echo     "</select>";
     }
 
-    public function getReferringProviders() {
+    public function getReferringProviders()
+    {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
@@ -94,7 +95,8 @@ class MiscBillingOptions
         echo "</select>\n";
     }
 
-    public function getOrderingProviders() {
+    public function getOrderingProviders()
+    {
         $query = "SELECT id, lname, fname,npi FROM users WHERE npi != '' ORDER BY lname, fname";
         return QueryUtils::fetchRecords($query, []);
     }
