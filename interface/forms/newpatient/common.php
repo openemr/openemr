@@ -41,9 +41,8 @@ try {
      * @global $pid
      */
     $controller->render($pid);
-}
-// any twig errors or other errors are caught
-catch (\Exception $e) {
+} catch (\Exception $e) {
+    // any twig errors or other errors are caught
     (new SystemLogger())->error($e->getMessage(), ['trace' => $e->getTraceAsString(), 'pid' => $pid]);
     echo $e->getMessage();
     die();

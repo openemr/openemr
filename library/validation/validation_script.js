@@ -123,7 +123,7 @@ window.OeFormValidation = (function(window) {
 
                 for (var key in errors) {
                     element = $('[name="'+ key + '"]');
-                    if (errors.hasOwnProperty(key)) {
+                    if (Object.prototype.hasOwnProperty.call(errors, key)) {
                         appendError(element, key, errors[key][0])
                     }
                 }
