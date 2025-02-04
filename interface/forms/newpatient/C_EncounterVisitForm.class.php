@@ -544,11 +544,11 @@ class C_EncounterVisitForm
         }
 
 // Set up page display variables
-        $pageTitle = $viewmode ? xl('Patient Encounter Form') : xl('New Encounter Form');
+        $headingTitle = $viewmode ? xl('Patient Encounter Form') : xl('New Encounter Form');
 
 // UI settings
         $arrOeUiSettings = array(
-            'heading_title' => $pageTitle,
+            'heading_title' => $headingTitle,
             'include_patient_name' => true,
             'expandable' => false,
             'expandable_files' => array(),
@@ -674,7 +674,7 @@ class C_EncounterVisitForm
             'encounter' => $encounter,
             'encounter_followup' => $encounter_followup,
             'followup_date' => $followup_date,
-            'pageTitle' => $pageTitle,
+            'pageTitle' => xl('Patient Encounter'),
             'facilities' => $facilities,
             'providers' => $this->getProvidersForTemplate(new UserService(), $encounter),
             'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, $GLOBALS['default_visit_category']),
