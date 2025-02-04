@@ -27,6 +27,7 @@ window.NewPatientForm = function(window) {
             viewmode: config.viewmode || false,
             enableGroupTherapy: config.enableGroupTherapy || false,
             therapyGroupCategories: config.therapyGroupCategories || [],
+            duplicate: config.duplicate || {isDuplicate: false, encounter: null, dateStr: null}
         };
         if ((formConfig.webroot === undefined || formConfig === null) || !formConfig.pid || !formConfig.csrfToken) {
             console.error('Missing required configuration values', formConfig);
@@ -50,6 +51,8 @@ window.NewPatientForm = function(window) {
         }
 
         setupGlobalFunctions();
+
+        checkForDuplicateEncounter(formConfig);
     };
 
     let xl = window.top.xl || function(str) { return str; };
@@ -74,6 +77,19 @@ window.NewPatientForm = function(window) {
                     therapyGroupDiv.style.display = 'none';
                 }
             });
+        }
+    }
+
+    function checkForDuplicateEncounter(config) {
+        if (config.duplicate && config.duplicate.isDuplicate) {
+            if (!confirm(xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one."))) {
+                // User pressed the cancel button, so redirect to today's encounter
+                top.restoreSession();
+                parent.left_nav.setEncounter(config.duplicate.dateStr, config.duplicate.encounter, window.name);
+                parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter='
+                    + encodeURIComponent(config.duplicate.encounter));
+                return;
+            }
         }
     }
 
@@ -251,7 +267,7 @@ window.NewPatientForm = function(window) {
 
     const cancelClickedOld = function() {
         top.restoreSession();
-        location.href = formConfig.webroot + '/patient_file/encounter/forms.php';
+        location.href = formConfig.webroot + '/interface/patient_file/encounter/forms.php';
         return false;
     };
 
@@ -273,21 +289,9 @@ window.NewPatientForm = function(window) {
         f.form_gid.value = gid;
     };
 
-    // Check for duplicate visits
-    const duplicateVisit = function(enc, datestr) {
-        if (!confirm(xl("A visit already exists for this patient today. Click Cancel to open it, or OK to proceed with creating a new one."))) {
-            // User pressed the cancel button, so redirect to today's encounter
-            top.restoreSession();
-            parent.left_nav.setEncounter(datestr, enc, window.name);
-            parent.left_nav.loadFrame('enc2', window.name, 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc));
-            return;
-        }
-    };
-
     return {
         init: init,
         setGroup: setGroup,
-        duplicateVisit: duplicateVisit,
         getPOS: getPOS
     };
 }(window);
