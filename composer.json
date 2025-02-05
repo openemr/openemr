@@ -53,7 +53,7 @@
         "particle/validator": "2.3.5",
         "pear/archive_tar": "1.5.0",
         "phpmailer/phpmailer": "6.9.3",
-        "phpoffice/phpspreadsheet": "3.8.0",
+        "phpoffice/phpspreadsheet": "3.9.0",
         "phpseclib/phpseclib": "3.0.43",
         "php81_bc/strftime": "0.7.6",
         "php-http/discovery": "1.20.0",
