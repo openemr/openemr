@@ -2,9 +2,9 @@ name: Syntax
 
 on:
   push:
-    branches: [ master ]
+    branches: [ rel-703 ]
   pull_request:
-    branches: [ master ]
+    branches: [ rel-703 ]
 
 permissions:
   contents: read
