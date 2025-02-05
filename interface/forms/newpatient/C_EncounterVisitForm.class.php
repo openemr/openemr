@@ -95,7 +95,8 @@ class C_EncounterVisitForm
         echo RenderFormFieldHelper::shouldDisplayFormField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
     }
 
-    function getCareTeamFacilityForPatient($pid) {
+    function getCareTeamFacilityForPatient($pid)
+    {
         $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", array($pid));
         // TODO: @adunsulag right now care facility is an array... the original code in common.php treats this as a single value
         // we need to look at fixing this if there is multiple facilities
@@ -594,8 +595,7 @@ class C_EncounterVisitForm
 
             ];
             // note we don't set provider id here as an else as we want what is saved in the record.
-        }
-        else {
+        } else {
             $default_fac_override = $encounter['facility_id'] ?? $default_fac_override;
         }
 
