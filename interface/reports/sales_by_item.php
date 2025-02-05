@@ -223,7 +223,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         <?php } ?>
   <td class="detail">
             <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) { ?>
-   <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter_id); ?>' target='_blank'>
+   <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter_id); ?>' target='_blank' rel='noopener'>
                 <?php echo text($invnumber); ?></a>
     <?php }
 
