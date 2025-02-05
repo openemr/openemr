@@ -78,7 +78,7 @@ if (!isset($_GET["mode"])) {
 <?php Header::setupHeader(); ?>
 
 </head>
-<body bgcolor="var(--white)" topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
+<body bgcolor="var(--bs-white)" topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 
 <a href="javascript:window.close();" target="Main"><font class="title"><?php echo xlt('Billing Report')?></font></a>
 <br />
@@ -182,23 +182,23 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
                 $first_time = 0;
             }
 
-            print "<tr><td colspan='5'><hr /><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";
+            print "<tr><td colspan='5'><hr /><span class='fw-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";
             //==================================
 
 
-            print "<font class='font-weight-bold'>" . xlt("Patient Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Patient Data") . ":</font><br />";
             printRecDataOne($patient_data_array, getRecPatientData($iter["pid"]), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Employer Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Employer Data") . ":</font><br />";
             printRecDataOne($employer_data_array, getRecEmployerData($iter["pid"]), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Primary Insurance Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Primary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "primary"), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Secondary Insurance Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Secondary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "secondary"), $COLS);
 
-            print "<font class='font-weight-bold'>" . xlt("Tertiary Insurance Data") . ":</font><br />";
+            print "<font class='fw-bold'>" . xlt("Tertiary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "tertiary"), $COLS);
 
             //==================================

@@ -92,7 +92,7 @@
     <form name="prescribe" id="prescribe"  method="post" action="{{ webroot }}/controller.php?prescription&edit&id={{ prescription.id|attr_url }}&pid={{ pid|attr_url }}" >
         <table>
             <tr>
-                <td class="title font-weight-bold">{{"Add"|xlt}}&nbsp;</td>
+                <td class="title fw-bold">{{"Add"|xlt}}&nbsp;</td>
                 <td>
                     {% if topActionBarDisplay %}
                     <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save">{{'Save'|xlt}}</a>
@@ -103,7 +103,7 @@
                     {% if DRUG_ARRAY_VALUES is not empty%}
                     &nbsp; &nbsp; &nbsp; &nbsp;
                         {% if prescription.get_refills() >= prescription.get_dispensation_count() %}
-                            <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 mr-1 ml-1' value="{{'Save and Dispense'|xla}}" />
+                            <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 me-1 ms-1' value="{{'Save and Dispense'|xla}}" />
                             <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{{DISP_QUANTITY|attr}}" />
                             units, {{GBL_CURRENCY_SYMBOL|text}}
                             <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{{DISP_FEE|attr}}" />
@@ -119,8 +119,8 @@
         </table>
 
         {% if enable_amc_prompting %}
-        <div class='float-right border mr-5'>
-            <div class='float-left m-1'>
+        <div class='float-end border me-5'>
+            <div class='float-start m-1'>
             {% if amcCollectReturnFlag is not empty %}
                 <input type="checkbox" id="escribe_flag" name="escribe_flag" />
             {% else %}
@@ -145,15 +145,15 @@
         </div>
         {% endif %}
 
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Currently Active'|xlt}}</label>
             <input class="input-sm" type="checkbox" name="active" value="1"{% if prescription.get_active() > 0 %} checked{% endif %} />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Starting Date'|xlt}}</label>
             <input type="text" size="10" class="datepicker form-control" name="start_date" id="start_date" value="{{prescription.start_date|shortDate|attr}}" />
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Provider'|xlt}}</label>
             <select class="input sm form-control" name="provider_id">
                 {% for providerId, providerName in prescription.provider.utility_provider_array() %}
@@ -162,8 +162,8 @@
             </select>
             <input type="hidden" name="patient_id" value="{{prescription.patient.id|attr}}" />
         </div>
-        <div class="form-group mt-3">
-            <label class="mr-2">{{'Drug'|xlt}}</label>
+        <div class="mb-3 mt-3">
+            <label class="me-2">{{'Drug'|xlt}}</label>
             <div class="form-check-inline">
                 <label class="form-check-label" title="{{'Search from native inventory drugs table'|xlt}}">
                     <input type="radio" class="form-check-input" name="rxcui_select" checked />{{'Use Default'|xlt}}
@@ -183,10 +183,10 @@
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
                 ({{'Search Web API'|xlt}})
             </a>
-            <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
+            <div class="p-0 mb-4 bg-body-tertiary" id="hiddendiv" style="display: none">&nbsp;</div>
         </div>
         {% if DRUG_ARRAY_VALUES is not empty %}
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>&nbsp; {{'in-house'|xlt}}</label>
             <select class="input-sm form-control" name="drug_id" onchange="drugselected(this)">
                 {% for key,drug in DRUG_ARRAY_VALUES %}
@@ -197,13 +197,13 @@
             <input type="hidden" name="rxnorm_drugcode" value="{{prescription.rxnorm_drugcode|attr}}">
         </div>
         {% endif %}
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Quantity'|xlt}}</label>
             <input class="input-sm form-control" type="text" name="quantity" id="quantity" size="10" maxlength="31"
                 value="{{prescription.quantity|attr}}" onchange="quantityChanged()" />
         </div>
 
-        <div class="form-group row mt-3 {% if SIMPLIFIED_PRESCRIPTIONS and not prescription.size %}d-none{% endif %}">
+        <div class="mb-3 row mt-3 {% if SIMPLIFIED_PRESCRIPTIONS and not prescription.size %}d-none{% endif %}">
             <div class="col-12">
                 <label>{{'Medicine Units'|xlt}}</label>
             </div>
@@ -220,7 +220,7 @@
                 </select>
             </div>
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             <div class="col-12">
                 <label>{{'Directions'|xlt}}</label>
             </div>
@@ -265,7 +265,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             <div class="col-12">
                 <label>{{'Refills'|xlt}}</label>
             </div>
@@ -289,11 +289,11 @@
                 </div>
             {% endif %}
         </div>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <label>{{'Notes'|xlt}}</label>
             <textarea class="form-control" name="note" cols="30" rows="1" wrap="virtual">{{prescription.note|text}}</textarea>
         </div>
-        <div class="form-group row mt-3">
+        <div class="mb-3 row mt-3">
             {% if WEIGHT_LOSS_CLINIC %}
                 <label>{{'Substitution'|xlt}}</label>
                 <select name="substitute" class="form-control">
@@ -328,7 +328,7 @@
         {% if bottomActionBarDisplay %}
             <div class="row">
                 <div class="col-12 justify-content-end">
-                    <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save mr-3">{{'Save'|xlt}}</a>
+                    <a id="save" href=# onclick="submitfun();" class="btn btn-primary btn-sm btn-save me-3">{{'Save'|xlt}}</a>
                     <a id="back" class='btn btn-secondary btn-sm btn-back' href="controller.php?prescription&list&id={{prescription.patient.id|attr_url}}">{{'Back'|xlt}}</a>
                 </div>
             </div>

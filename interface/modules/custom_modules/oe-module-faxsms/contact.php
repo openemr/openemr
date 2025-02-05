@@ -169,7 +169,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                     const messageType = isError ? 'danger' : 'success';
                     const messageText = jsonData;
                     const alertBox = `<div class="alert alert-${messageType} alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             ${messageText}
                           </div>`;
 
@@ -183,7 +183,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
 
                 function showErrorMessage(message) {
                     const alertBox = `<div class="alert alert-danger alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true">&times;</button>
                             ${message}
                           </div>`;
                     $('#contact-form').find('.messages').html(alertBox);
@@ -278,7 +278,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
             <input type="hidden" id="form_details" name="details" value='<?php echo attr_js($details ?? ''); ?>'>
             <div class="messages"></div>
             <div class="row">
-                <div class="form-group col-md-12 show-detail d-none">
+                <div class="mb-3 col-md-12 show-detail d-none">
                     <label for="form_pid"><?php echo xlt('Medical Record Number') ?></label>
                     <input id="form_pid" type="text" name="form_pid" class="form-control"
                         placeholder="<?php echo xla('If Applicable for charting.') ?>"
@@ -299,7 +299,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="form-group faxExclude smsExclude show-detail">
+                    <div class="mb-3 faxExclude smsExclude show-detail">
                         <label for="form_email"><?php echo xlt('Recipient Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
                             placeholder="<?php
@@ -312,7 +312,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                             title="<?php echo xla('Attach and send to an email Address.') ?>" />
                     </div>
                     <?php if (($isSMS || $isFax)) { ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
                             <input id="form_phone" type="tel" name="phone" class="form-control"
                                 placeholder="<?php echo xla('Phone number of recipient') ?>"
@@ -321,7 +321,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                         </div>
                     <?php } ?>
                     <?php if ($isUniversal && $isEmail) { ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_subject"><?php echo xlt('Subject') ?></label>
                             <input type="text" id="form_subject" name="subject" class="form-control"
                                 placeholder="<?php echo xla('Enter a subject for this message.') ?>"
@@ -329,7 +329,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                         </div>
                     <?php } ?>
                     <?php if ($service == "1" || $isSMS || $isForward || $isEmail) { ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
                             <textarea id="form_message" name="comments" class="form-control" <?php echo($isEmail ? 'required' : ''); ?> placeholder="
                             <?php echo "\n" . xla('Add a note for the recipient or cover sheet if supported. Double click to use Text Templates if enabled.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
@@ -339,10 +339,10 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                         <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
                     </div>
                     <div class="mt-2">
-                        <button type="button" class="btn btn-primary float-left universalInclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
+                        <button type="button" class="btn btn-primary float-start universalInclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
                         <button type="button" class="btn btn-primary float-letf universalInclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
                         <?php if (($isOnetime) || $isUniversal) { ?>
-                            <span class="form-group mt-1">
+                            <span class="mb-3 mt-1">
                                 <label class="form-check-label text-success"><strong><?php echo xlt("Route") . ':'; ?></strong></label>
                                 <div class="form-check-inline">
                                     <label class="form-check-label">
@@ -363,7 +363,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                                 <?php } ?>
                             </span>
                         <?php } ?>
-                        <button type="submit" class="btn btn-success btn-send-msg float-right" value=""><?php echo (empty($isSMS) || $isOnetime || $isUniversal) ? xlt('Submit') : xlt('Send SMS') ?></button>
+                        <button type="submit" class="btn btn-success btn-send-msg float-end" value=""><?php echo (empty($isSMS) || $isOnetime || $isUniversal) ? xlt('Submit') : xlt('Send SMS') ?></button>
                     </div>
                 </div>
             </div>

@@ -183,7 +183,7 @@ $(function () {
 <div id="report_results">
 <table class='table'>
 
-<thead class='thead-light'>
+<thead class='table-light'>
 <th> <?php echo xlt('Last Visit'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th align='right'> <?php echo xlt('Visits'); ?> </th>

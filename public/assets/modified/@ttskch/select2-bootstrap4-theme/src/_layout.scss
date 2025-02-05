@@ -12,7 +12,7 @@
   flex-grow: 1;
 }
 // for prepended input
-.input-group-prepend ~ .select2-container--bootstrap4 .select2-selection {
+.input-group-text ~ .select2-container--bootstrap4 .select2-selection {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }

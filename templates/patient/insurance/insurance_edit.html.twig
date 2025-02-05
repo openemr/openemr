@@ -354,7 +354,7 @@ files for editing and adding new insurance policies for a patient.
 %}
     <div class="container-xl container-loading">
         <div class="alert alert-info">
-            <h3>{{ "Loading..."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+            <h3>{{ "Loading..."|xlt }} <i class="wait fa fa-cog fa-spin ms-2"></i></h3>
         </div>
     </div>
     <div class="container-xl container-loaded d-none">
@@ -363,7 +363,7 @@ files for editing and adding new insurance policies for a patient.
                 <h2>{{ "Edit Current Insurance"|xlt }}</h2>
             </div>
             <div class="col-12">
-                <div class="btn-group text-align-right">
+                <div class="btn-group text-end">
                     <input type="button" class="btn btn-primary btn-add-policy" value="{{ 'Add New Policy'|xla }}" />
                     <input type="button" class="btn btn-danger d-none btn-edit-return" value="{{ 'Return to Edit Screen'|xla }}" />
                     <a href="./demographics.php" class="btn btn-secondary"><i class="fa fa-back"></i>{{ 'Back to Patient'|xlt }}</a>
@@ -374,7 +374,7 @@ files for editing and adding new insurance policies for a patient.
         {# TODO: @adunsulag note that the form with id DEM here has a number of hard-coded styles which is where the insurance form gets its layout from. look at changing this. #}
         <form id="DEM">
             <div class="section-header">
-                <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
+                <span class="text fw-bold">{{ "Insurance"|xlt }}</span>
             </div>
             {% include "patient/insurance/_insurance_edit_screen_new.html.twig" %}
             {% include "patient/insurance/_insurance_edit_screen_edit.html.twig" %}

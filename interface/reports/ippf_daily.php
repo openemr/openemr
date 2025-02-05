@@ -143,8 +143,8 @@ if ($form_output == 3) {
 
 <style>
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead    { color:var(--bs-black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail    { color:var(--bs-black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 
 <script>

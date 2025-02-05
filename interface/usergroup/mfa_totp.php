@@ -124,7 +124,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                         </div>
                                     </div>
                                 </fieldset>
-                                <div class="form-group clearfix">
+                                <div class="mb-3 clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                         <button type="submit" class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>"><?php echo xlt('Submit'); ?></button>
                                         <button type="button" class="btn btn-link btn-cancel" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
@@ -204,7 +204,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     </div>
                                 </div>
                             </fieldset>
-                            <div class="form-group clearfix">
+                            <div class="mb-3 clearfix">
                                 <div class="col-sm-12 text-left position-override">
                                     <?php if (!$doesExist) { ?>
                                         <button type="button" class="btn btn-secondary btn-save" value="<?php echo xla('Register'); ?>" onclick="doregister('reg3')"><?php echo xlt('Register'); ?></button>

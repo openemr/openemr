@@ -312,17 +312,17 @@ if (isset($_REQUEST['cktime'])) {
         #searchResultsHeader {
             width: 100%;
             border-collapse: collapse;
-            background-color: var(--white);
+            background-color: var(--bs-white);
         }
         #searchResults {
             width: 100%;
             overflow: auto;
             border-collapse: collapse;
-            background-color: var(--white);
+            background-color: var(--bs-white);
         }
         #searchResults td {
             font-size: 0.9rem;
-            border-bottom: 1px solid var(--gray);
+            border-bottom: 1px solid var(--bs-gray);
             padding: 1px 5px 1px 5px;
         }
         .highlight {
@@ -330,17 +330,17 @@ if (isset($_REQUEST['cktime'])) {
         }
         .blue_highlight {
             background-color: #336699;
-            color: var(--white);
+            color: var(--bs-white);
         }
         #am {
-            border-bottom: 1px solid var(--gray);
-            color: var(--primary);
+            border-bottom: 1px solid var(--bs-gray);
+            color: var(--bs-primary);
         }
         #pm {
-            color: var(--danger);
+            color: var(--bs-danger);
         }
         #pm a {
-            color: var(--danger);
+            color: var(--bs-danger);
         }
     </style>
 </head>

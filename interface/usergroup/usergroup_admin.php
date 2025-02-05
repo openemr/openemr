@@ -607,7 +607,7 @@ function resetCounter(username) {
                 <a href="usergroup_admin_add.php" class="medium_modal btn btn-secondary btn-add"><?php echo xlt('Add User'); ?></a>
                 <a href="facility_user.php" class="btn btn-secondary btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
             </div>
-            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="float-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
+            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="float-end" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="checkbox">
                     <label for="form_inactive">
@@ -728,7 +728,7 @@ function resetCounter(username) {
                                     if (!empty($queryCounter['last_login_fail'])) {
                                         echo ' (' . xlt('last on') . ' ' . text(oeFormatDateTime($queryCounter['last_login_fail'])) . ')';
                                     }
-                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ms-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
                                     $autoBlocked = false;
                                     $autoBlockEnd = null;
                                     if ((int)$GLOBALS['password_max_failed_logins'] != 0 && ($queryCounter['login_fail_counter'] > (int)$GLOBALS['password_max_failed_logins'])) {

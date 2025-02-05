@@ -183,7 +183,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 <?php } ?>
                             </div>
                         </fieldset>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="col-sm-12 position-override">
                                 <div class="btn-group" role="group">
                                     <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>

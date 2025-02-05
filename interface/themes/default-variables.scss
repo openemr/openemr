@@ -91,3 +91,6 @@ $displays: none, inline, inline-block, block, table, table-row, table-cell, flex
 
 // Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
+
+// Compatibility layer migrating BS4 to BS5
+$close-text-shadow: 0 1px 0 $white;

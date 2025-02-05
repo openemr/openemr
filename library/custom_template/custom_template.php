@@ -204,7 +204,7 @@ if (empty($isNN) && empty($rowContext)) {
                 <?php } ?>
               </div>
               <div class="col-md-4 text mb-2" id="templateDD">
-                <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
+                <select class="form-select form-select-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
                     <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                     <?php
                     $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], ($rowContext['cl_list_id'] ?? null)));
@@ -229,7 +229,7 @@ if (empty($isNN) && empty($rowContext)) {
                 while ($row = sqlFetchArray($res)) { ?>
                     <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
                 <?php } ?>
-                  <a class="btn btn-primary btn-sm btn-transmit float-right" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
+                  <a class="btn btn-primary btn-sm btn-transmit float-end" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
               </div>
               <div class="col-md-4">
                 <div class="bg-light">
@@ -288,7 +288,7 @@ if (empty($isNN) && empty($rowContext)) {
               </div>
               <div class="col-md-8">
                 <textarea class="ckeditor" cols="100" rows="180" id="textarea1" name="textarea1"></textarea>
-                <span class="float-right my-1"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
+                <span class="float-end my-1"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary btn-sm btn-save float-end"><?php echo xlt('Insert in Form'); ?></a></span>
               </div>
             </div>
         </form>

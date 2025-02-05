@@ -119,11 +119,11 @@
 
         function validateInputs(inputs) {
             let isValid = true;
-            $(".form-group").removeClass("has-error");
+            $(".mb-3").removeClass("has-error");
             inputs.each(function () {
                 if (!this.validity.valid) {
                     isValid = false;
-                    $(this).closest(".form-group").addClass("has-error");
+                    $(this).closest(".mb-3").addClass("has-error");
                 }
             });
             return isValid;
@@ -223,7 +223,7 @@
     display: table-row;
   }
   .stepwiz-row::before {
-    background-color: var(--gray400);
+    background-color: var(--bs-gray-400);
     bottom: 0;
     content: " ";
     height: 1px;
@@ -302,7 +302,7 @@
         </div>
         <form id="startForm" role="form">
             <div class="text-center setup-content" id="step-1">
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                     <input type="hidden" name="languageChoice" value="{{ languageRegistration|attr }}" />
                     <input type="hidden" id="fname" name="fname" value="{{ fnameRegistration|attr }}" />
                     <input type="hidden" id="mname" name="mname" value="{{ mnameRegistration|attr }}" />
@@ -317,7 +317,7 @@
         <form id="profileForm" role="form" action="account/account.php" method="post">
             <div class="text-center setup-content" id="step-2" style="display: none">
                 <legend class="bg-primary text-white">{{ 'Profile'|xlt }}</legend>
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                     <iframe class="embedded-content" src="patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
                 </div>
                 <button class="btn btn-primary pull-right" type="button" id="profileNext">{{ 'Next'|xlt }}</button>
@@ -326,21 +326,21 @@
         <form id="insuranceForm" role="form" action="" method="post">
             <div class="text-center setup-content" id="step-3" style="display: none">
                 <legend class="bg-primary text-white">{{ 'Insurance'|xlt }}</legend>
-                <div class="jumbotron">
+                <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="provider">{{ 'Insurance Company'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="{{ 'Enter Self if None'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="plan_name">{{ 'Plan Name'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="plan_name" required placeholder="{{ 'required'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="policy_number">{{ 'Policy Number'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="policy_number" required placeholder="{{ 'required'|xla }}">
@@ -348,19 +348,19 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="group_number">{{ 'Group Number'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="group_number" required placeholder="{{ 'required'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="date">{{ 'Policy Begin Date'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control datepicker" name="date" placeholder="{{ 'Policy effective date'|xla }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-3 form-group">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3">
                             <label for="copay">{{ 'Co-Payment'|xlt }}</label>
                             <div class="controls inline-inputs">
                                 <input type="number" class="form-control" name="copay" placeholder="{{ 'Plan copay if known'|xla }}">
@@ -375,14 +375,14 @@
         <!-- End Insurance. Next what we've been striving towards..the end-->
         <div class="text-center setup-content" id="step-4" style="display: none">
             <legend class="bg-success text-white">{{ 'Register'|xlt }}</legend>
-            <div class="jumbotron">
+            <div class="p-5 mb-4 bg-body-tertiary rounded-3">
                 <h4 class='bg-success'>{{ "All set. Click Send Request below to finish registration."|xlt }}</h4>
                 <hr />
                 <p>{{ "An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. If after receiving credentials and you have trouble with access to the portal, please contact administration."|xlt }}</p>
             </div>
             <hr />
-            <button class="btn btn-primary prevBtn float-left" type="button">{{ 'Previous'|xlt }}</button>
-            <button class="btn btn-success float-right" type="button" id="submitPatient">{{ 'Send Request'|xlt }}</button>
+            <button class="btn btn-primary prevBtn float-start" type="button">{{ 'Previous'|xlt }}</button>
+            <button class="btn btn-success float-end" type="button" id="submitPatient">{{ 'Send Request'|xlt }}</button>
         </div>
     </div>
 </body>

@@ -620,7 +620,7 @@ function generate_receipt($patient_id, $encounter = 0)
     }
     ?>
                         </td>
-                        <td width='50%' align='center' valign='top' class='font-weight-bold'>
+                        <td width='50%' align='center' valign='top' class='fw-bold'>
                             <?php echo text($frow['name']); ?>
                             <br><?php echo text($frow['street']); ?>
                             <br><?php
@@ -635,7 +635,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         </td>
                     </tr>
                 </table>
-                <p class='font-weight-bold'>
+                <p class='fw-bold'>
     <?php
     echo xlt("Client Receipt");
     if ($invoice_refno) {
@@ -717,42 +717,42 @@ function generate_receipt($patient_id, $encounter = 0)
     <?php if ($details) { ?>
                     <tr>
                         <td colspan='<?php echo 6 + $num_optional_columns; ?>'
-                        style='padding-top:5pt;' class='font-weight-bold'>
+                        style='padding-top:5pt;' class='fw-bold'>
                                 <?php echo xlt('Charges for') . ' ' . text(oeFormatShortDate($svcdate)); ?>
                         </td>
                     </tr>
 
                     <tr>
-                        <td class='font-weight-bold'><?php echo xlt('Date'); ?></td>
-                        <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-                        <td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-                        <td class='font-weight-bold text-center'><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></td>
-                        <td class='font-weight-bold text-right'><?php echo $details ? xlt('Price') : '&nbsp;'; ?></td>
+                        <td class='fw-bold'><?php echo xlt('Date'); ?></td>
+                        <td class='fw-bold'><?php echo xlt('Code'); ?></td>
+                        <td class='fw-bold'><?php echo xlt('Description'); ?></td>
+                        <td class='fw-bold text-center'><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></td>
+                        <td class='fw-bold text-right'><?php echo $details ? xlt('Price') : '&nbsp;'; ?></td>
         <?php if (!empty($GLOBALS['gbl_checkout_charges'])) { ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Charge'); ?></td>
+                        <td class='fw-bold text-right'><?php echo xlt('Charge'); ?></td>
     <?php } ?>
         <?php
         if (!$TAXES_AFTER_ADJUSTMENT) {
             foreach ($aTaxNames as $taxname) {
-                echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+                echo "  <td class='fw-bold text-right'>" . text($taxname) . "</td>\n";
             }
         }
         ?>
         <?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Customer'); ?></td>
+                        <td class='fw-bold text-right'><?php echo xlt('Customer'); ?></td>
 <?php } ?>
         <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Adj Type'); ?></td>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Adj Amt'); ?></td>
+                        <td class='fw-bold text-right'><?php echo xlt('Adj Type'); ?></td>
+                        <td class='fw-bold text-right'><?php echo xlt('Adj Amt'); ?></td>
 <?php } ?>
         <?php
         if ($TAXES_AFTER_ADJUSTMENT) {
             foreach ($aTaxNames as $taxname) {
-                echo "  <td class='font-weight-bold text-right'>" . text($taxname) . "</td>\n";
+                echo "  <td class='fw-bold text-right'>" . text($taxname) . "</td>\n";
             }
         }
         ?>
-                        <td class='font-weight-bold text-right'><?php echo xlt('Total'); ?></td>
+                        <td class='fw-bold text-right'><?php echo xlt('Total'); ?></td>
                     </tr>
 
 <?php } // end if details ?>

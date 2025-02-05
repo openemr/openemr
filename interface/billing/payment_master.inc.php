@@ -36,10 +36,10 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
             $got_selected = true;
         }
         if (($PaymentType == 'insurance' || $screen == 'new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment')) {
-            $s .= " style='background-color: var(--light)' ";
+            $s .= " style='background-color: var(--bs-light)' ";
         }
         if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment') {
-            $s .= " style='background-color: var(--light)' ";
+            $s .= " style='background-color: var(--bs-light)' ";
         }
         $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
     }
@@ -156,7 +156,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
         <div class="forms col-3">
             <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
-            <div class="pl-0">
+            <div class="ps-0">
                 <?php
                 if ($PaymentMethod == '' && $screen == 'edit_payment') {
                     $blankValue = ' ';
@@ -250,7 +250,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         <div class="forms col-2">
             <label class="control-label" for="GlobalReset"><?php echo xlt('Distributed to Global'); ?>:</label>
             <div class="input-group">
-                <button class="input-group-prepend btn btn-secondary btn-delete" onclick="getElementById('GlobalReset').value='-0.00';this.classList.remove('btn-delete');event.target.classList.add('fa', 'fa-ban');">
+                <button class="btn btn-secondary btn-delete" onclick="getElementById('GlobalReset').value='-0.00';this.classList.remove('btn-delete');event.target.classList.add('fa', 'fa-ban');">
                 </button>
                 <input id="GlobalReset" name="global_reset" class="form-control" value="<?php echo (($global_amount ?? null) * 1 === 0) ? attr("0.00") : attr(number_format(($global_amount ?? null), 2, '.', ',')); ?>" readonly />
             </div>
@@ -264,7 +264,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
         </div>
     </div>
     <?php if ($screen == 'new_payment') { ?>
-        <div class="form-group mt-3">
+        <div class="mb-3 mt-3">
             <div class="row">
                 <div class="col-sm-12 text-left position-override">
                     <div class="btn-group" role="group">

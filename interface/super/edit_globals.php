@@ -406,17 +406,15 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                             <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                         </div>
                         <div class="input-group col-sm-4 oe-pull-away p-0">
-                        <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
-                        if (!$userMode) {
-                            $placeholder = xla('Search configuration');
-                        } else {
-                            $placeholder = xla('Search user settings');
-                        }
-                        ?>
-                        <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
-                        <span class="input-group-append">
+                            <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
+                            if (!$userMode) {
+                                $placeholder = xla('Search configuration');
+                            } else {
+                                $placeholder = xla('Search user settings');
+                            }
+                            ?>
+                            <input name='srch_desc' id='srch_desc' class='form-control' type='text' placeholder='<?php echo $placeholder; ?>' value='<?php echo (!empty($_POST['srch_desc']) ? attr($_POST['srch_desc']) : '') ?>' />
                             <button class="btn btn-secondary btn-search" type='submit' id='globals_form_search' name='form_search'><?php echo xlt('Search'); ?></button>
-                        </span>
                         </div><!-- /input-group -->
                     </div>
                     <br />
@@ -449,9 +447,9 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                     if ($userMode) {
                                         echo "<div class='row'>";
                                         echo "<div class='col-sm-4'>&nbsp</div>";
-                                        echo "<div class='col-sm-4 font-weight-bold'>" . xlt('User Specific Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default Setting') . "</div>";
-                                        echo "<div class='col-sm-2 font-weight-bold'>" . xlt('Default') . "</div>";
+                                        echo "<div class='col-sm-4 fw-bold'>" . xlt('User Specific Setting') . "</div>";
+                                        echo "<div class='col-sm-2 fw-bold'>" . xlt('Default Setting') . "</div>";
+                                        echo "<div class='col-sm-2 fw-bold'>" . xlt('Default') . "</div>";
                                         echo "</div>";
                                     }
 
@@ -504,13 +502,13 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                             }
 
                                             if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                echo " <div class='row mb-3" . $srch_cl  . "'><div class='col-sm-4'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) . "'>\n";
                                             } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
+                                                echo " <div class='row mb-3" . $srch_cl . "'><div class='col-sm-6'>" . ($highlight_search ? '<mark>' : '') . text($fldname) . ($highlight_search ? '</mark>' : '') . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) . "'>\n";
                                             }
 
                                             if (is_array($fldtype)) {
-                                                          echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                          echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 foreach ($fldtype as $key => $value) {
                                                     if ($userMode) {
                                                         if ($globalValue == $key) {
@@ -601,7 +599,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                 "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_LANGUAGE) {
                                                 $res = sqlStatement("SELECT * FROM lang_languages ORDER BY lang_description");
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 while ($row = sqlFetchArray($res)) {
                                                     echo "   <option value='" . attr($row['lang_description']) . "'";
                                                     if ($row['lang_description'] == $fldvalue) {
@@ -616,7 +614,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                           echo "  </select>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_CODE_TYPES) {
                                                 global $code_types;
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 foreach (array_keys($code_types) as $code_key) {
                                                     echo "   <option value='" . attr($code_key) . "'";
                                                     if ($code_key == $fldvalue) {
@@ -690,7 +688,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                 FROM openemr_postcalendar_categories
                                                 WHERE pc_active = 1 ORDER BY pc_seq";
                                                 $result = sqlStatement($sql);
-                                                echo "<select class='form-control' name='form_{$i}' id='form_{$i}'>\n";
+                                                echo "<select class='form-select' name='form_{$i}' id='form_{$i}'>\n";
                                                 echo "<option value='_blank'>" . xlt('None{{Category}}') . "</option>";
                                                 while ($row = sqlFetchArray($result)) {
                                                     $catId = $row['pc_catid'];
@@ -751,7 +749,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                     // Alphabetize styles
                                                     asort($styleArray);
                                                     // Generate style selector
-                                                    echo "<select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                    echo "<select class='form-select' name='form_$i' id='form_$i'>\n";
                                                     foreach ($styleArray as $styleKey => $styleValue) {
                                                         echo "<option value='" . attr($styleKey) . "'";
                                                         if ($styleKey == $fldvalue) {
@@ -769,7 +767,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                     $globalTitle = $globalValue;
                                                 }
 
-                                                echo "  <select class='form-control' name='form_$i' id='form_$i'>\n";
+                                                echo "  <select class='form-select' name='form_$i' id='form_$i'>\n";
                                                 for ($h = 0; $h < 24; ++$h) {
                                                     echo "<option value='$h'";
                                                     if ($h == $fldvalue) {

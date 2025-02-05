@@ -187,7 +187,7 @@
                 }
                 let linkTitle = telehealthNodes[i].querySelector('.link_title');
                 var btn = window.document.createElement("i");
-                btn.className = "fa fa-video btn-telehealth-calendar-launch btn btn-sm mr-1 ml-1";
+                btn.className = "fa fa-video btn-telehealth-calendar-launch btn btn-sm me-1 ms-1";
                 btn.dataset["pid"] = linkTitle.dataset['pid'];
                 btn.dataset['eid'] = telehealthNodes[i].dataset['eid'];
                 if (telehealthNodes[i].classList.contains('event_telehealth_active'))

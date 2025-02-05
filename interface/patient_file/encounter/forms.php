@@ -676,9 +676,9 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 </div>
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div class="float-right border border-dark mb-2">
-        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
-        <div id="amc-requires" class="float-left m-2 collapse">
+    <div class="float-end border border-dark mb-2">
+        <a class="btn btn-link p-0 m-1 float-end" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+        <div id="amc-requires" class="float-start m-2 collapse">
           <table>
             <tr>
               <td>
@@ -723,7 +723,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                     </td>
                 </tr>
                 </table>
-                <table class="ml-4">
+                <table class="ms-4">
                     <tr>
                         <td>
                             <?php if (!(empty($itemAMC['date_completed']))) { ?>
@@ -759,7 +759,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
                     </td>
                 </tr>
                 </table>
-                <table class="ml-4">
+                <table class="ms-4">
                     <tr>
                         <td>
                             <input type="checkbox" id="med_reconc_perf" disabled />
@@ -796,7 +796,7 @@ if ($attendant_type == 'pid') {
 if (!empty($docs_list) && count($docs_list) > 0) {
     ?>
 <div class='enc_docs'>
-<span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
+<span class="fw-bold"><?php echo xlt("Document(s)"); ?>:</span>
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {
@@ -907,7 +907,7 @@ if (
             </button>
             <div class="form_header flex-fill">
                 <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
-                    <h5 class="mb-0">{$form_text} <small class="text-muted">({$by_text} {$author_text})</small></h5>
+                    <h5 class="mb-0">{$form_text} <small class="text-body-secondary">({$by_text} {$author_text})</small></h5>
                 </a>
             </div>
             <div>

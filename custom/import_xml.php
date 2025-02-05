@@ -213,11 +213,11 @@ if (!empty($_POST['form_import'])) {
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="form-group"></div>
-                <div class="form-group">
+                <div class="mb-3"></div>
+                <div class="mb-3">
                     <textarea name='form_import_data' class='form-control' rows='10'></textarea>
                 </div>
-                <div class="form-group text-right">
+                <div class="mb-3 text-right">
                     <div class="btn-group" role="group">
                         <button type='submit' class='btn btn-secondary btn-save' name='form_import' value='bn_import'>
                             <?php echo xlt('Import'); ?>

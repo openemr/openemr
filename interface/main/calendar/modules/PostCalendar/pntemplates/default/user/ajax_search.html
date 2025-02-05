@@ -24,14 +24,14 @@
             [-xlt t='Return to calendar'-]</a>
                 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                     <!-- Keywords -->
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
                         <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
                     </div>
                     <!-- Condition -->
                     <div class="form-row">
                         <div class="col">
-                            <select class="form-control" name="pc_keywords_andor">
+                            <select class="form-select" name="pc_keywords_andor">
                                 <option value="AND">[-xlt t='AND'-]</option>
                                 <option value="OR">[-xlt t='OR'-]</option>
                             </select>
@@ -40,7 +40,7 @@
                             [-xlt t='In'-]:
                         </div>
                         <div class="col">
-                            <select class="form-control" name="pc_category">
+                            <select class="form-select" name="pc_category">
                                 <option value="">[-xlt t='Any Category'-]</option>
                                 [-$CATEGORY_OPTIONS-]
                             </select>
@@ -48,7 +48,7 @@
                     </div>
                     <!-- Topic -->
                     [-if $USE_TOPICS-]
-                    <div class="form-group">
+                    <div class="mb-3">
                         <select name="pc_topic">
                             <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
                             [-$TOPIC_OPTIONS-]
@@ -72,13 +72,13 @@
                     <div class="form-row">
                         <div class="col">
                             <label for="provider_id">[-xlt t='For'-]</label>
-                            <select class="form-control" name="provider_id" id="provider_id">
+                            <select class="form-select" name="provider_id" id="provider_id">
                                 [-$PROVIDER_OPTIONS-]
                             </select>
                         </div>
                         <div class="col">
                             <label for="pc_facility">[-xlt t='At'-]</label>
-                            <select class="form-control" name="pc_facility" id="pc_facility">
+                            <select class="form-select" name="pc_facility" id="pc_facility">
                                 [-$FACILITY_OPTIONS-]
                             </select>
                         </div>

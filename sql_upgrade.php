@@ -298,8 +298,8 @@ function pausePoll(othis) {
     </div>
     <div>
         <form class="form-inline" method='post' action='sql_upgrade.php'>
-            <div class="form-group mb-1">
-                <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
+            <div class="mb-1">
+                <label class="form-label"><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
                 <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
                     <?php
                     $cnt_versions = count($versions);
@@ -329,9 +329,9 @@ function pausePoll(othis) {
         <!-- server status card -->
         <div class="card card-header">
             <span class="btn-group">
-                <a class="btn btn-success pause-server fa fa-pause float-left" onclick="pausePoll(this)" title="<?php echo xla("Click to start or end sql server activity checks."); ?>"></a>
+                <a class="btn btn-success pause-server fa fa-pause float-start" onclick="pausePoll(this)" title="<?php echo xla("Click to start or end sql server activity checks."); ?>"></a>
                 <a class="btn btn-primary w-100" data-toggle="collapse" href="#serverStatus">
-                    <?php echo xlt("Server Status"); ?><i class="fa fa-angle-down rotate-icon float-right"></i>
+                    <?php echo xlt("Server Status"); ?><i class="fa fa-angle-down rotate-icon float-end"></i>
                 </a>
             </span>
         </div>
@@ -344,9 +344,9 @@ function pausePoll(othis) {
     <!-- collapse place holder for upgrade processing on submit. -->
     <div class="card card-header">
         <a class="btn btn-primary" data-toggle="collapse" href="#processDetails">
-            <?php echo xlt("Processing Details"); ?><i class="fas fa-angle-down rotate-icon float-right"></i>
+            <?php echo xlt("Processing Details"); ?><i class="fas fa-angle-down rotate-icon float-end"></i>
         </a>
-        <div id="progress-div" class="bg-secondary float-left">
+        <div id="progress-div" class="bg-secondary float-start">
             <div id="progress" class="mt-1 progress-bar bg-success" style="height:1.125rem;width:0;"></div>
         </div>
     </div>

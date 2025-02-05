@@ -400,7 +400,7 @@ if (
     <style>
 
         div.section {
-            border: 1px solid var(--primary);
+            border: 1px solid var(--bs-primary);
             margin: 0 0 0 0.8125rem;
             padding: 0.4375rem;
         }
@@ -408,11 +408,11 @@ if (
         .RS {
             border-style: solid;
             border-width: 0 0 1px 0;
-            border-color: var(--gray600);
+            border-color: var(--bs-gray-600);
         }
 
         .RO {
-            border-width: 1px solid var(--gray600) !important;
+            border-width: 1px solid var(--bs-gray-600) !important;
         }
 
         .linkcolor {
@@ -708,7 +708,7 @@ if (
                 "<td class='text border-top-0'>" + code + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
-                "<select class='form-control' name='form_fs_bill[" + lino + "][provid]'>" +
+                "<select class='form-select' name='form_fs_bill[" + lino + "][provid]'>" +
                 "<?php echo addslashes($fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
                 "</select>&nbsp;" +
                 "</td>" +
@@ -733,7 +733,7 @@ if (
             trelem.innerHTML =
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
-                "<select class='form-control' name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
+                "<select class='form-select' name='form_fs_prod[" + lino + "][warehouse]'>" + warehouses + "</select>&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" +
                 "<input type='text' class='form-control' name='form_fs_prod[" + lino + "][units]' size='3' value='1' />&nbsp;" +
@@ -887,7 +887,7 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'"; } ?>>
+    echo " style='background-color:var(--bs-white)'"; } ?>>
     <!-- Set as a container until xl breakpoint then make fluid. -->
     <div class="container-xl">
         <?php
@@ -936,7 +936,7 @@ if (
                                 // Provider selector.
                                 echo "&nbsp;&nbsp;";
                                 echo xlt('Provider') . ": ";
-                                echo "<select class='form-control' name='form_provider_id'>";
+                                echo "<select class='form-select' name='form_provider_id'>";
                                 echo FeeSheetHtml::genProviderOptionList(
                                     '-- ' . xl("Please Select") . ' --',
                                     ($form_provider_id ?? '')
@@ -1132,7 +1132,7 @@ if (
                         if (strlen($gname)) {
                             // <label> was inheriting .justify-content-center from .form-inline,
                             // dunno why but we fix that here.
-                            echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                            echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='me-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                             if ($display_style == 'block') {
                                 echo " checked";
                             }
@@ -1152,21 +1152,21 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols fw-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
                             echo " <table cellspacing='0' cellpadding='0' class='border-0 lbfdata'>\n";
                             if ($subtitle) {
                                 // There is a group subtitle so show it.
-                                echo "<tr><td class='font-weight-bold border-top-0 text-primary' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
-                                echo "<tr><td class='font-weight-bold border-top-0' style='height:0.3125rem;' colspan='" . attr($CPR) . "'></td></tr>\n";
+                                echo "<tr><td class='fw-bold border-top-0 text-primary' colspan='" . attr($CPR) . "'>" . text($subtitle) . "</td></tr>\n";
+                                echo "<tr><td class='fw-bold border-top-0' style='height:0.3125rem;' colspan='" . attr($CPR) . "'></td></tr>\n";
                             }
 
                             // Initialize historical data array and write date headers.
                             if ($formhistory > 0) {
                                 echo " <tr>";
-                                echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>";
+                                echo "<td colspan='" . attr($CPR) . "' class='fw-bold border-top-0 text-right'>";
                                 if (empty($is_lbf)) {
                                     // Including actual date per IPPF request 2012-08-23.
                                     echo text(oeFormatShortDate(substr($enrow['date'], 0, 10)));
@@ -1188,7 +1188,7 @@ if (
                                 // We sort these sensibly, however only the encounter date is shown here;
                                 // at some point we may wish to show also the data entry date/time.
                                 while ($hrow = sqlFetchArray($hres)) {
-                                    echo "<td colspan='" . attr($CPR) . "' class='font-weight-bold border-top-0 text-right'>&nbsp;" .
+                                    echo "<td colspan='" . attr($CPR) . "' class='fw-bold border-top-0 text-right'>&nbsp;" .
                                         text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
                                     $historical_ids[$hrow['form_id']] = '';
                                 }
@@ -1247,7 +1247,7 @@ if (
                             $titlecols = $CPR;
                             $tmp = '';
                         }
-                        $tmp .= ($frow['uor'] == 2) ? ' required' : ' font-weight-bold';
+                        $tmp .= ($frow['uor'] == 2) ? ' required' : ' fw-bold';
                         if ($graphable) {
                             $tmp .= ' graph';
                         }
@@ -1275,7 +1275,7 @@ if (
 
                     ++$item_count;
 
-                    // This gets a font-weight-bold class so removed strong
+                    // This gets a fw-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
@@ -1359,7 +1359,7 @@ if (
 
                 if (isset($LBF_SERVICES_SECTION)) {
                     // Create the checkbox and div for the Services Section.
-                    echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_fs_services' value='1' " .
+                    echo "<br /><span class='fw-bold'><input type='checkbox' name='form_cb_fs_services' value='1' " .
                         "onclick='return divclick(this, \"div_fs_services\");'";
                     if ($display_style == 'block') {
                         echo " checked";
@@ -1409,12 +1409,12 @@ if (
 
                     // A row for Search, Add Package, Main Provider.
                     $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
-                    echo "<p class='font-weight-bold'>";
+                    echo "<p class='fw-bold'>";
                     echo "<input type='button' value='" . xla('Search Services') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />&nbsp;&nbsp;\n";
                     $fscres = sqlStatement("SELECT * FROM fee_sheet_options ORDER BY fs_category, fs_option");
                     if (sqlNumRows($fscres)) {
                         $last_category = '';
-                        echo "<select class='form-control' onchange='fs_package_selected(this)'>\n";
+                        echo "<select class='form-select' onchange='fs_package_selected(this)'>\n";
                         echo " <option value=''>" . xlt('Add Package') . "</option>\n";
                         while ($row = sqlFetchArray($fscres)) {
                             $fs_category = $row['fs_category'];
@@ -1440,7 +1440,7 @@ if (
                         $tmp_provider_id = $_SESSION['authUserID'];
                     }
                     echo xlt('Main Provider') . ": ";
-                    echo "<select class='form-control' name='form_fs_provid'>";
+                    echo "<select class='form-select' name='form_fs_provid'>";
                     echo FeeSheetHtml::genProviderOptionList(
                         ' ',
                         $tmp_provider_id
@@ -1452,10 +1452,10 @@ if (
                     // Generate a line for each service already in this FS.
                     echo "<table cellpadding='0' cellspacing='2' id='fs_services_table'>\n";
                     echo " <tr>\n";
-                    echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Services Provided') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Provider') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
+                    echo "  <td class='border-top-0 fw-bold' colspan='2'>" . xlt('Services Provided') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold'>" . xlt('Provider') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
                     foreach ($fs->serviceitems as $lino => $li) {
                         // Skip diagnoses; those would be in the Diagnoses section below.
@@ -1489,7 +1489,7 @@ if (
 
                 if (isset($LBF_PRODUCTS_SECTION)) {
                     // Create the checkbox and div for the Products Section.
-                    echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_fs_products' value='1' " .
+                    echo "<br /><span class='fw-bold'><input type='checkbox' name='form_cb_fs_products' value='1' " .
                         "onclick='return divclick(this, \"div_fs_products\");'";
                     if ($display_style == 'block') {
                         echo " checked";
@@ -1543,18 +1543,18 @@ if (
 
                     // A row for Search
                     $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
-                    echo "<p class='font-weight-bold'>";
+                    echo "<p class='fw-bold'>";
                     echo "<input type='button' value='" . xla('Search Products') . "' onclick='sel_related(null,\"PROD\")' />&nbsp;&nbsp;";
                     echo "</p>\n";
 
                     // Generate a line for each product already in this FS.
                     echo "<table cellpadding='0' cellspacing='2' id='fs_products_table'>\n";
                     echo " <tr>\n";
-                    echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Products Provided') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold'>" . xlt('Warehouse') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Quantity') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
+                    echo "  <td class='border-top-0 fw-bold'>" . xlt('Products Provided') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold'>" . xlt('Warehouse') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold text-right'>" . xlt('Quantity') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold text-right'>" . xlt('Price') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
                     $fs->loadProductItems();
                     foreach ($fs->productitems as $lino => $li) {
@@ -1583,7 +1583,7 @@ if (
 
                 if (isset($LBF_DIAGS_SECTION)) {
                     // Create the checkbox and div for the Diagnoses Section.
-                    echo "<br /><span class='font-weight-bold'><input type='checkbox' name='form_cb_fs_diags' value='1' " .
+                    echo "<br /><span class='fw-bold'><input type='checkbox' name='form_cb_fs_diags' value='1' " .
                         "onclick='return divclick(this, \"div_fs_diags\");'";
                     if ($display_style == 'block') {
                         echo " checked";
@@ -1633,15 +1633,15 @@ if (
 
                     // A row for Search.
                     $ctype = collect_codetypes('diagnosis', 'csv');
-                    echo "<p class='font-weight-bold'>";
+                    echo "<p class='fw-bold'>";
                     echo "<input type='button' class='btn btn-primary' value='" . xla('Search Diagnoses') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />";
                     echo "</p>\n";
 
                     // Generate a line for each diagnosis already in this FS.
                     echo "<table cellpadding='0' cellspacing='2' id='fs_diags_table'>\n";
                     echo " <tr>\n";
-                    echo "  <td class='border-top-0 font-weight-bold' colspan='2'>" . xlt('Diagnosis') . "&nbsp;</td>\n";
-                    echo "  <td class='border-top-0 font-weight-bold text-right'>" . xlt('Delete') . "</td>\n";
+                    echo "  <td class='border-top-0 fw-bold' colspan='2'>" . xlt('Diagnosis') . "&nbsp;</td>\n";
+                    echo "  <td class='border-top-0 fw-bold text-right'>" . xlt('Delete') . "</td>\n";
                     echo " </tr>\n";
                     // Start from 1000 to avoid collisions caused by sharing form_fs_bill[]  with services.
                     // Keep track of only diagnoses to avoid gaps and thus potential collisions with newly added diagnoses.

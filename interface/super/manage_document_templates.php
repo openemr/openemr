@@ -162,13 +162,13 @@ if (!empty($_POST['bn_upload'])) {
       <?php Header::setupHeader(); ?>
       <style>
          .dehead {
-           color: var(--black);
+           color: var(--bs-black);
            font-family: sans-serif;
            font-size: 0.8125rem;
            font-weight:bold;
          }
          .detail {
-           color: var(--black);
+           color: var(--bs-black);
            font-family: sans-serif;
            font-size: 0.8125rem;
            font-weight: normal;
@@ -187,15 +187,13 @@ if (!empty($_POST['bn_upload'])) {
                   <div class="card">
                      <h5 class="card-header"><?php echo xlt('Upload a Template'); ?></h5>
                      <div class="card-body">
-                        <div class="custom-file">
-                           <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
-                           <input type="file" name="form_file" size="40" class="custom-file-input" id="customFile" />
-                           <label class="custom-file-label" for="customFile"><?php echo xlt('Choose file'); ?></label>
-                        </div>
+                        <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
+                        <input type="file" name="form_file" size="40" class="form-control" id="customFile" />
+                        <label class="form-label" for="customFile"><?php echo xlt('Choose file'); ?></label>
                         <div class="input-group mt-3">
                           <label for="form_dest_filename"><?php echo xlt('Destination Filename'); ?>:</label>
                           <input type='text' class="form-control" name='form_dest_filename' id='form_dest_filename' size='30' />
-                          <div class="input-group-append">
+                          <div class="input-group-text">
                             <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
                           </div>
                         </div>
@@ -208,7 +206,7 @@ if (!empty($_POST['bn_upload'])) {
                   <div class="card">
                      <h5 class="card-header"><?php echo xlt('Download or Delete a Template'); ?></h5>
                      <div class="card-body">
-                        <select class="form-control" name='form_filename'>
+                        <select class="form-select" name='form_filename'>
                         <?php
                         // Generate an <option> for each existing file.
                         if (file_exists($templatedir)) {
@@ -248,9 +246,9 @@ if (!empty($_POST['bn_upload'])) {
       </div>
       <script>
       //display file name
-        $(".custom-file-input").on("change", function() {
+        $(".form-control").on("change", function() {
         var fileName = $(this).val().split("\\").pop();
-        $(this).siblings(".custom-file-label").addClass("selected").html(jsText(fileName));
+        $(this).siblings(".form-label").addClass("selected").html(jsText(fileName));
         });
         </script>
    </body>

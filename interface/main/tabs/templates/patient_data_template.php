@@ -48,7 +48,7 @@ switch ($search_any_type) {
 <script type="text/html" id="patient-data-template">
     <div class="d-lg-inline-flex w-100">
         <div class="flex-fill">
-            <div class="float-left mx-2">
+            <div class="float-start mx-2">
                 <!-- ko if: patient -->
                 <div data-bind="with: patient" class="patientPicture">
                     <img data-bind="attr: {src: patient_picture}"
@@ -59,7 +59,7 @@ switch ($search_any_type) {
                 </div>
                 <!-- /ko -->
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <!-- ko if: patient -->
                 <?php
                 $classes = "";
@@ -71,33 +71,33 @@ switch ($search_any_type) {
                         $wrapperElementClass = 'btn-group btn-group-sm mb-2';
                         $closeElement = '';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
+                        $closeIconClass = 'text-body-secondary';
                         $pubpidElement = 'span';
                         break;
                     case 'text-large':
-                        $closeAnchorClasses = 'text-muted';
+                        $closeAnchorClasses = 'text-body-secondary';
                         $wrapperElement = 'h3';
                         $wrapperElementClass = 'd-inline';
                         $closeElement = 'small';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted fa-xs';
+                        $closeIconClass = 'text-body-secondary fa-xs';
                         $pubpidElement = 'small';
                         break;
                     default:
-                        $closeAnchorClasses = 'text-muted';
+                        $closeAnchorClasses = 'text-body-secondary';
                         $wrapperElement = 'div';
                         $wrapperElementClass = 'd-inline';
                         $pubpidElement = 'span';
                         $closeElement = 'span';
                         $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
+                        $closeIconClass = 'text-body-secondary';
                         break;
                 endswitch;
                 echo "<$wrapperElement class=\"$wrapperElementClass\">";
                 ?>
                     <a class="ptName <?php echo $classes ?? ''; ?> " data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
                         <span data-bind="text: pname()"></span>
-                        <<?php echo $pubpidElement;?> class="text-muted">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
+                        <<?php echo $pubpidElement;?> class="text-body-secondary">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
                     </a>
                     <?php echo ($closeElement !== '') ? "<$closeElement class=\"$closeElementClass\">" : ''; ?>
                     <a href="#" class="pt-1<?php echo (($classes ?? '') !== "") ? " " . $classes : "";?> <?php echo ($closeAnchorClasses !== "") ? " " . $closeAnchorClasses : ""; ?>" data-bind="click:clearPatient" title="<?php echo xla("Close Patient Chart") ?>">
@@ -113,7 +113,7 @@ switch ($search_any_type) {
             </div>
         </div>
 
-        <div class="flex-fill ml-2">
+        <div class="flex-fill ms-2">
             <!-- ko if: patient -->
             <!-- ko with: patient -->
             <div class="btn-group btn-group-sm">
@@ -172,70 +172,70 @@ switch ($search_any_type) {
             <!-- ko if: user -->
             <!-- ko with: user -->
             <!-- ko if:messages() -->
-            <span class="mr-auto">
+            <span class="me-auto">
                 <a class="btn btn-secondary btn-sm" href="#" data-bind="click: viewMessages"
                     title="<?php echo xla("View Messages"); ?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span class="badge badge-primary" style="display:inline" data-bind="text: messages()"></span>
+                    <i class="fa fa-envelope"></i>&nbsp;<span class="badge text-bg-primary" style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
             <!-- /ko --><!-- messages -->
             <!-- ko if: portal() -->
-            <nav class="btn-group dropdown mr-auto">
+            <nav class="btn-group dropdown me-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Portal"); ?>&nbsp;
-                    <span class="badge badge-danger" data-bind="text: portalAlerts()"></span>
+                    <span class="badge text-bg-danger" data-bind="text: portalAlerts()"></span>
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="portalMsgAlerts">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="portalMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalMail">
                             <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Mail"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalMail()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: portalMail()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalAudits">
                             <i class="fa fa-align-justify"></i>&nbsp;<?php echo xlt("Portal Audits"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: portalAudits()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: portalAudits()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewPortalPayments">
-                            <i class="fa fa-credit-card"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge badge-success" style="display:inline" data-bind="text: portalPayments()"></span>
+                            <i class="fa fa-credit-card"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge text-bg-success" style="display:inline" data-bind="text: portalPayments()"></span>
                         </a>
                     </li>
                 </ul>
             </nav>
             <!-- /ko --><!-- portal alert -->
             <!-- ko if: servicesOther() -->
-            <nav class="btn-group dropdown mr-auto">
+            <nav class="btn-group dropdown me-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="servicesMsgAlerts"
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("Services"); ?>&nbsp;
-                    <span class="badge badge-danger" data-bind="text: serviceAlerts()"></span>
+                    <span class="badge text-bg-danger" data-bind="text: serviceAlerts()"></span>
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="servicesMsgAlerts">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="servicesMsgAlerts">
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewFaxCount">
                             <i class="fa fa-solid fa-fax"></i>&nbsp;<?php echo xlt("Pending Faxes"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: faxAlerts()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: faxAlerts()"></span>
                         </a>
                     </li>
                     <li class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="#" data-bind="click: viewSmsCount">
                             <i class="fa fa-sms"></i>&nbsp;<?php echo xlt("Pending SMS"); ?>&nbsp;
-                            <span class="badge badge-success" style="display:inline" data-bind="text: smsAlerts()"></span>
+                            <span class="badge text-bg-success" style="display:inline" data-bind="text: smsAlerts()"></span>
                         </a>
                     </li>
                 </ul>

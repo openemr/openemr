@@ -502,7 +502,7 @@ function popup_close() {
             ?>
             </p>
             <div class="btn-group">
-                <button onclick="submit_form()" class="btn btn-sm btn-primary mr-2"><?php echo xlt('Yes'); ?></button>
+                <button onclick="submit_form()" class="btn btn-sm btn-primary me-2"><?php echo xlt('Yes'); ?></button>
                 <button type="button" class="btn btn-sm btn-secondary" onclick="popup_close();"><?php echo xlt('No');?></button>
             </div>
             <input type='hidden' name='form_submit' value='delete'/>

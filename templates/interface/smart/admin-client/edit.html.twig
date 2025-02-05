@@ -7,7 +7,7 @@
         <div class="card-header">
             <h2>
                 {{ "Edit"|xlt }} <em>{{ client.getName()|text }}</em>
-                <div class="float-right">
+                <div class="float-end">
                     {% if allowSkipAuthSetting %}
                         {% if skipAuthorizationFlow %}
                             <a href="{{ disableSkipAuthorizationFlowLink|attr }}" class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ "Enable EHR Launch Authorization Flow"|xlt }}</a>
@@ -86,13 +86,13 @@
                         <div class="card-header">
                             <h4 class="text-center">{{ trustedUser.user.display_name|text }}
                                 <a href="{{ trustedUser.link|attr }}"
-                                   class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()">
+                                   class="btn btn-sm btn-primary float-end" onclick="top.restoreSession()">
                                     {{ "Revoke User"|xlt }}
                                 </a>
                             </h4>
                         </div>
                         <div class="card-body p-5">
-                            <div class="row font-weight-bold bg-secondary rounded text-dark">
+                            <div class="row fw-bold bg-secondary rounded text-dark">
                                 <div class="col-1">
                                     {{ "Type"|xlt }}
                                 </div>

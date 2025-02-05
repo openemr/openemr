@@ -146,20 +146,20 @@ function generate_order_summary($orderid)
 .ordsum a,
 .ordsum a:visited,
 .ordsum a:hover {
-    color: var(--primary);
+    color: var(--bs-primary);
 }
 
 .ordsum table {
     border-style: solid;
     border-width: 1px 0 0 1px;
-    border-color: var(--black);
+    border-color: var(--bs-black);
 }
 
 .ordsum td,
 .ordsum th {
     border-style: solid;
     border-width: 0 1px 1px 0;
-    border-color: var(--black);
+    border-color: var(--bs-black);
 }
 
 /* specifically exclude from printing */

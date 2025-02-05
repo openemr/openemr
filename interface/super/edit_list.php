@@ -868,12 +868,12 @@ function writeITLine($it_array)
         }
 
         .translation {
-            color: var(--success);
+            color: var(--bs-success);
         }
 
         #theform input[type=text],
         .optin {
-            color: var(--black);
+            color: var(--bs-black);
         }
     </style>
     <script>
@@ -1226,14 +1226,14 @@ function writeITLine($it_array)
                     $urlFrom = ($list_from > 0 ? $list_from : 1);
                     $urlTo = ($list_to > 0 ? $list_to : $records_per_page);
                     ?>
-                    <div class="blck-filter float-left w-auto my-2 my-lg-0" style="display: none;">
-                        <div id="input-type-from" class="float-left"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
+                    <div class="blck-filter float-start w-auto my-2 my-lg-0" style="display: none;">
+                        <div id="input-type-from" class="float-start"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
                             <?php echo xlt("To{{Range}}"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                         </div>
-                        <div class="float-left"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
+                        <div class="float-start"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                     </div>
                     <!--Happy end-->
-                    <div class="float-left ml-2 my-2 my-lg-0" id="total-record"></div>
+                    <div class="float-start ms-2 my-2 my-lg-0" id="total-record"></div>
                 </div><!-- /.navbar-collapse -->
             </div>
         </nav>
@@ -1252,7 +1252,7 @@ function writeITLine($it_array)
                     <th><?php echo xlt('Label'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
                     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                        echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                        echo "<th class='fw-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Seq'); ?></th>
                     <th><?php echo xlt('ModLength'); ?></th>
@@ -1486,7 +1486,7 @@ function writeITLine($it_array)
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="modal-header">
                         <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
                     </div>
                     <div class="modal-body">
                         <label for="newlistname" class="control-label"><?php echo xlt('List Name'); ?></label>

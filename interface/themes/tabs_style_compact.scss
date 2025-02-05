@@ -105,8 +105,8 @@ body {
 #framesDisplay > div {
   align-content: stretch;
   align-items: stretch;
-  border-left: 1px solid var(--black);
-  border-right: 1px solid var(--black);
+  border-left: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
@@ -129,7 +129,7 @@ body {
 }
 
 .tabSpan {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-bottom: 0;
   border-radius: 6px 6px 0 0;
   cursor: pointer;
@@ -141,21 +141,21 @@ body {
 }
 
 .tabSpan .fa {
-  color: var(--gray);
+  color: var(--bs-gray);
 }
 
 .tabHidden {
-  color: var(--gray);
+  color: var(--bs-gray);
 }
 
 .tabNotchosen {
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
   display: block;
 }
 
 .tabsNoHover {
   background: transparent !important;
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
   border-left: 0;
   border-right: 0;
   border-top: 4px solid transparent;
@@ -178,8 +178,8 @@ body {
 }
 
 .patientEncounterList {
-  background: var(--white);
-  border: 1px solid var(--black);
+  background: var(--bs-white);
+  border: 1px solid var(--bs-black);
   cursor: pointer;
   overflow: hidden;
   position: fixed;
@@ -205,16 +205,16 @@ body {
 }
 
 .patientEncounterList > div:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientEncounterList table.encounters td:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientEncounterList .review {
-  background-color: var(--gray300);
-  border: 1px solid var(--black);
+  background-color: var(--bs-gray-300);
+  border: 1px solid var(--bs-black);
   border-radius: 5px;
   font-size: x-small;
   padding: 2px;
@@ -230,8 +230,8 @@ body {
 }
 
 .patientInfo .clear {
-  background-color: var(--gray300);
-  border: 1px solid var(--black);
+  background-color: var(--bs-gray-300);
+  border: 1px solid var(--bs-black);
   border-radius: 5px;
   cursor: pointer;
   font-size: x-small;
@@ -240,7 +240,7 @@ body {
 }
 
 .patientInfo .clear:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .patientPicture {
@@ -270,8 +270,8 @@ body {
 
 .appMenu > span:hover,
 .appMenu .appMenu > span:hover {
-  background-color: var(--primary);
-  color: var(--white);
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
   text-decoration: none;
   text-shadow: none;
 }
@@ -288,8 +288,8 @@ body {
 }
 
 .appMenu li:hover {
-  background-color: var(--primary);
-  color: var(--white);
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
   text-decoration: none;
   text-shadow: none;
 }
@@ -311,10 +311,10 @@ body {
 }
 
 .menuSection > .menuEntries {
-  border: 0.5px solid var(--gray);
+  border: 0.5px solid var(--bs-gray);
   border-radius: 0 5px 5px !important;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
-  color: var(--black);
+  color: var(--bs-black);
   display: none;
   margin-top: 0;
   min-width: 175px;
@@ -346,7 +346,7 @@ body {
 }
 
 .menuLabel {
-  color: var(--dark);
+  color: var(--bs-dark);
   padding-bottom: 0.3125rem;
   padding-left: 0.625rem;
   padding-right: 0.625rem;
@@ -357,12 +357,12 @@ body {
 
 .menuLabel:hover {
   background: #cce3f8;
-  color: var(--dark);
+  color: var(--bs-dark);
 }
 
 .menuDisabled {
   background-color: transparent;
-  color: var(--gray300) !important;
+  color: var(--bs-gray-300) !important;
   pointer-events: none;
 }
 
@@ -380,19 +380,19 @@ body {
 }
 
 .body_top {
-  background-color: var(--light);
+  background-color: var(--bs-light);
   padding: 0;
   z-index: 10;
 }
 
 #mainBox_vertical > .body_top {
-  background-color: var(--light);
+  background-color: var(--bs-light);
   margin: 0 !important;
 }
 
 .body_title {
-  background-color: var(--light);
-  color: var(--black);
+  background-color: var(--bs-light);
+  color: var(--bs-black);
   padding: 10px 0 0;
 }
 
@@ -402,7 +402,7 @@ body {
 }
 
 #username > .userfunctions > div:hover {
-  color: var(--danger);
+  color: var(--bs-danger);
 }
 
 .logo {

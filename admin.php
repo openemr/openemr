@@ -183,7 +183,7 @@ function sqlQuery($statement, $link)
                     </table>
                 </div>
                 <form method='post' action='setup.php'>
-                    <button type='submit' class='btn btn-primary font-weight-bold' name='form_submit' value='Add New Site'>Add New Site</button>
+                    <button type='submit' class='btn btn-primary fw-bold' name='form_submit' value='Add New Site'>Add New Site</button>
                 </form>
             </div>
         </div>
@@ -194,8 +194,8 @@ function sqlQuery($statement, $link)
             <div class="modal-dialog modal-lg">
                 <div class="modal-content" style="height:700px">
                     <div class="modal-header clearfix">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="color:var(--bs-black); font-size:1.5em;">×</span>
                         </button>
                     </div>
                         <div class="modal-body" style="height:80%;">

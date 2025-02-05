@@ -16,7 +16,7 @@
         <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
             {% block form_header %}{% endblock %}
             <div class="row w-100">
-                <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
+                <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ms-auto me-auto">
                     <div class="text-md-center mt-2">
                         {% block clientHeader %}
                             <h4 class="mb-4 mt-1">{{ "Authorizing for Application"|xlt  }} <strong>{{ client.name|text }}</strong></h4>
@@ -32,7 +32,7 @@
                                             <hr />
                                             {% block resourcePermissions %}
                                                 <h6>{{ "Resource Permissions"|xlt }}</h6>
-                                                <div class="list-group pl-2 mt-1">
+                                                <div class="list-group ps-2 mt-1">
                                                     {% for resource,scopeCollection in scopesByResource %}
                                                         <label class="list-group-item m-0">
                                                             <strong>{{ resource|xlt }}</strong><br />
@@ -54,7 +54,7 @@
                                             {% endblock %}
                                             {% block otherPermissions %}
                                                 <h6>{{ "Other Permissions"|xlt  }}</h6>
-                                                <div class="list-group pl-2 mt-1">
+                                                <div class="list-group ps-2 mt-1">
                                                     {% for scope,description in otherScopes %}
                                                         <label class="list-group-item m-0">
                                                             <input type="checkbox" class='app-scope' name="scope[{{ scope|attr  }}]" value="{{ scope|attr }}" checked>
@@ -78,7 +78,7 @@
                                             <h5 class="card-title text-sm-center">{{ "Identity Information Requested"|xlt }}</h5>
                                             <hr />
                                             <p>{{ "This application is requesting access to the following information about you"|xlt }}</p>
-                                            <ul class="pl-2 mt-1">
+                                            <ul class="ps-2 mt-1">
                                                 {% for key,value in claims %}
                                                     {% if key == 'fhirUser' %}
                                                         <li class='col-text'>
@@ -128,7 +128,7 @@
                                     {% block form_buttons %}{% endblock %}
                                     <button type="submit" name="proceed" value="1" class="btn btn-primary">{{ "Authorize"|xlt }}</button>
                                 </div>
-                                <div class="form-check-inline float-right">
+                                <div class="form-check-inline float-end">
                                     <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
                                     <label for="persist_login" class="form-check-label">{{ "Remember Me"|xlt  }}</label>
                                 </div>

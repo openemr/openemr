@@ -44,7 +44,7 @@
 }
 
 .pure-form [disabled] {
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
 }
 
 .pure-form input[type="text"],
@@ -76,29 +76,29 @@
 }
 
 a:link {
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 /* visited link */
 a:visited {
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 /* mouse over link */
 a:hover {
-  color: var(--black);
+  color: var(--bs-black);
   text-decoration: underline;
 }
 
 /* selected link */
 a:active {
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 #tabs_left {
   background: transparent;
   border: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   left: 0;
   padding-left: 6.5em;
   position: fixed;
@@ -207,7 +207,7 @@ tabs_left-vertical .ui-tabs-panel {
 
 .ACT {
   align-items: center;
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   font-size: 1em;
   height: 43px;
   justify-content: center;
@@ -245,7 +245,7 @@ textarea.ACT {
 }
 
 .input-helper--radio::before {
-  border: 1px solid var(--dark);
+  border: 1px solid var(--bs-dark);
   border-radius: 50%;
   height: 10px;
   left: 0;
@@ -293,7 +293,7 @@ textarea.full {
 }
 
 .LayerTechnical {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   height: 1.05in;
   padding: 0.02in;
   width: 1.5in;
@@ -341,8 +341,8 @@ input[type=text] {
 }
 
 .refraction2 {
-  background: var(--white);
-  border: 1px solid var(--black);
+  background: var(--bs-white);
+  border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 5px 5px 5px #d4cece;
   float: left;
@@ -359,7 +359,7 @@ input[type=text] {
 }
 
 .refraction {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 5px 5px 5px #d4cece;
   box-sizing: content-box !important;
@@ -412,7 +412,7 @@ input[type=text] {
 }
 
 .refraction th {
-  color: var(--black);
+  color: var(--bs-black);
   font-size: 0.8em;
   padding: 2px 8px;
 }
@@ -462,7 +462,7 @@ input[type=text] {
 /*Drop downs stuff */
 
 .dropdowns {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
   position: relative;
 }
 
@@ -483,8 +483,8 @@ input[type=text] {
 }
 
 .vitals {
-  background: var(--white);
-  border: 1px solid var(--black);
+  background: var(--bs-white);
+  border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 5px 5px 9px #dad7d7;
   float: left;
@@ -535,8 +535,8 @@ input[type=text] {
 }
 
 .borderShadow {
-  background: var(--white);
-  border: 1px solid var(--black);
+  background: var(--bs-white);
+  border: 1px solid var(--bs-black);
   border-radius: 6px;
   box-shadow: 5px 5px 9px #dad7d7;
   margin: 1px auto;
@@ -609,11 +609,11 @@ input[type=text] {
 }
 
 .manifest {
-  background-color: var(--white);
+  background-color: var(--bs-white);
 }
 
 .CTL {
-  background-color: var(--white);
+  background-color: var(--bs-white);
 }
 
 .tab_content table {
@@ -627,7 +627,7 @@ input[type=text] {
 }
 
 th {
-  color: var(--black);
+  color: var(--bs-black);
   font-size: 1em;
   text-align: center;
 }
@@ -687,7 +687,7 @@ body {
 }
 
 .SideBarTabClass {
-  background: var(--white);
+  background: var(--bs-white);
   border-radius: 8px;
   box-shadow: 1px 1px 1px #888;
   height: 0.5in;
@@ -768,10 +768,10 @@ textarea.ANTSEGTEXT {
 
 .AntSegSpan {
   background: #c0c0c0;
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 1px 1px 1px #888;
-  color: var(--black);
+  color: var(--bs-black);
   font-size: 11px;
   height: 0.05in;
   margin-right: 0.1in;
@@ -791,7 +791,7 @@ textarea.ANTSEGTEXT {
 
 .button {
   background-color: #e3e1b8;
-  color: var(--success);
+  color: var(--bs-success);
   font-family: "Arial", "trebuchet ms", "Helvetica", sans-serif;
   padding: 2px 4px;
   text-decoration: none;
@@ -814,7 +814,7 @@ textarea.ANTSEGTEXT {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   box-shadow: 0 5px 9px #888;
-  color: var(--black);
+  color: var(--bs-black);
   font-size: 1.7em;
   outline: none;
   padding: 4px 6px;
@@ -828,7 +828,7 @@ textarea.ANTSEGTEXT {
 }
 
 #tabs li.active a {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border-bottom: 0;
   color: #000080;
   padding: 4px 6px 5px;
@@ -842,7 +842,7 @@ textarea.ANTSEGTEXT {
 
 #tabs li.inactive {
   background-color: #eee;
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
   width: 100%;
 }
 
@@ -873,17 +873,17 @@ textarea.ANTSEGTEXT {
 }
 
 .button_over {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
 }
 
 .buttonRefraction_selected {
-  background-color: var(--warning) !important;
-  border: var(--black);
+  background-color: var(--bs-warning) !important;
+  border: var(--bs-black);
 }
 
 .tools input[type="button"] {
-  border: 1px solid var(--black);
-  color: var(--black);
+  border: 1px solid var(--bs-black);
+  color: var(--bs-black);
   display: inline-block;
   font-weight: bold;
   height: 15px;
@@ -896,8 +896,8 @@ textarea.ANTSEGTEXT {
 }
 
 .tools {
-  border: 0 solid var(--black);
-  color: var(--black);
+  border: 0 solid var(--bs-black);
+  color: var(--bs-black);
   font-weight: bold;
   height: 50px;
   line-height: 30px;
@@ -920,7 +920,7 @@ textarea.ANTSEGTEXT {
 
 .color_indicator {
   border: 1pt solid #c0c0c0;
-  border-bottom: var(--white);
+  border-bottom: var(--bs-white);
   border-top: unset;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
@@ -960,7 +960,7 @@ textarea.ANTSEGTEXT {
 
 /* End IE5-Mac hack */
 #tabs li:hover {
-  color: var(--black);
+  color: var(--bs-black);
   text-decoration: underline;
 }
 
@@ -970,14 +970,14 @@ textarea.ANTSEGTEXT {
 .eye_button {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.6, #f6f9ed), color-stop(0.6, #f6f9ed));
   background-color: #3d94f6;
-  border: var(--black);
+  border: var(--bs-black);
   border-radius: 2px;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 3px;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   box-shadow: inset 0 1px 0 0 #97c4fe;
-  color: var(--black);
+  color: var(--bs-black);
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
   font-size: 11px;
@@ -994,9 +994,9 @@ textarea.ANTSEGTEXT {
 }
 
 .eye_button_blank {
-  border: var(--white);
+  border: var(--bs-white);
   border-radius: 7px;
-  color: var(--black);
+  color: var(--bs-black);
   display: inline-block;
   font-weight: 700;
   height: 12px;
@@ -1010,14 +1010,14 @@ textarea.ANTSEGTEXT {
 .eye_button:hover {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
   background-color: #1e62d0;
-  color: var(--white);
+  color: var(--bs-white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
 }
 
 .eye_button:active {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
   background-color: #1e62d0;
-  color: var(--white);
+  color: var(--bs-white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
   position: relative;
   top: 1px;
@@ -1025,10 +1025,10 @@ textarea.ANTSEGTEXT {
 
 .eye_button_selected {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #000080), color-stop(1, #3d94f6));
-  border: var(--white);
+  border: var(--bs-white);
   border-radius: 2px;
   box-shadow: inset 0 1px 0 0 #97c4fe;
-  color: var(--white);
+  color: var(--bs-white);
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
   font-size: 11px;
@@ -1085,7 +1085,7 @@ textarea.ANTSEGTEXT {
 
 .divCell {
   border-collapse: collapse;
-  color: var(--black);
+  color: var(--bs-black);
   /*fix for  buggy browsers*/
   display: table-column;
   float: left;
@@ -1105,7 +1105,7 @@ textarea.ANTSEGTEXT {
   vertical-align: top;
 }
 
-.var(--danger) {
+.var(--bs-danger) {
   text-decoration: underline;
 }
 
@@ -1116,7 +1116,7 @@ textarea.ANTSEGTEXT {
 
 .kb_left {
   bottom: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   float: left;
   font-size: 0.7em;
   left: 0;
@@ -1128,7 +1128,7 @@ textarea.ANTSEGTEXT {
 
 .kb_right {
   bottom: 0;
-  color: var(--danger);
+  color: var(--bs-danger);
   float: right;
   font-size: 0.7em;
   position: relative;
@@ -1138,15 +1138,15 @@ textarea.ANTSEGTEXT {
 }
 
 .kb_center {
-  color: var(--danger);
+  color: var(--bs-danger);
   font-size: 0.7em;
   position: relative;
   vertical-align: top;
 
 }
 
-.var(--warning) {
-  background-color: var(--warning);
+.var(--bs-warning) {
+  background-color: var(--bs-warning);
 }
 
 textarea {
@@ -1225,18 +1225,18 @@ textarea.EXTTEXT {
 }
 
 .closeButton:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 }
 
 .closeButton:hover a {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   text-decoration: none;
 }
 
 .closeButton a:link {
-  color: var(--black);
+  color: var(--bs-black);
   outline: none;
 }
 
@@ -1251,7 +1251,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_2:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 
@@ -1268,7 +1268,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_3:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 
@@ -1285,7 +1285,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_4:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 }
@@ -1301,7 +1301,7 @@ textarea.EXTTEXT {
 }
 
 .closeButton_5:hover {
-  background-color: var(--warning);
+  background-color: var(--bs-warning);
   cursor: pointer;
   text-decoration: none;
 }
@@ -1328,7 +1328,7 @@ textarea.EXTTEXT {
 }
 
 #header a:hover {
-  color: var(--white);
+  color: var(--bs-white);
 }
 
 #header #selected {
@@ -1338,7 +1338,7 @@ textarea.EXTTEXT {
 
 #header #selected a {
   background-image: url('images/tableftactive.gif');
-  color: var(--white);
+  color: var(--bs-white);
 }
 
 #content {
@@ -1373,17 +1373,17 @@ h1 {
 }
 
 .ACT_selected {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border-bottom: 9;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-left: 1px solid var(--black);
-  border-right: 1px solid var(--black);
-  border-top: 1px solid var(--black);
+  border-left: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
+  border-top: 1px solid var(--bs-black);
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
   box-shadow: 1px -1px 1px 0 #888;
-  color: var(--black);
+  color: var(--bs-black);
   font-size: 1.1em;
   height: 25px;
   margin: 5px 0 0;
@@ -1391,12 +1391,12 @@ h1 {
 
 .ACT_deselected {
   background-color: #2d6775;
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  color: var(--white);
+  color: var(--bs-white);
   font-size: 1em;
   height: 25px;
   margin: 5px;
@@ -1404,7 +1404,7 @@ h1 {
 }
 
 .ACT_boxed {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   font-weight: 600;
   margin: 4px;
   max-width: 45%;
@@ -1412,9 +1412,9 @@ h1 {
 }
 
 .ACT_box {
-  border-bottom: 1px solid var(--black);
-  border-left: 1px solid var(--black);
-  border-right: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
+  border-left: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
   border-top: 0;
   box-shadow: 0 3px 4px 0 #888;
   padding: 10px;
@@ -1428,7 +1428,7 @@ b.ACT_box {
 
 /* do some full screen playing around */
 .fullscreen {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   bottom: 0;
   box-sizing: border-box;
   font-size: 2em;
@@ -1452,9 +1452,9 @@ input[type=text].fullscreen {
 }
 
 .top_left {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   border: 0;
-  color: var(--black);
+  color: var(--bs-black);
   height: 1.2em;
   left: 0.05in;
   padding-bottom: 2px;
@@ -1469,8 +1469,8 @@ input[type=text].fullscreen {
 }
 
 .QP_block_outer {
-  background-color: var(--white);
-  border: 1px solid var(--black);
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-black);
   float: left;
   font-size: 0.9em;
   margin: 3px;
@@ -1481,7 +1481,7 @@ input[type=text].fullscreen {
 }
 
 .QP_block {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   float: left;
   font-size: 0.9em;
   margin: 3px;
@@ -1522,7 +1522,7 @@ input[type=text].fullscreen {
 .PRIORS textarea,
 input {
   background-color: #ccf;
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 .PRIORS a {
@@ -1536,14 +1536,14 @@ input {
 .navbar-custom {
   background-color: #1d62f0;
   box-shadow: 0 2px 8px #c0c0c0;
-  color: var(--black);
+  color: var(--bs-black);
 }
 
 .navbar-custom,
 .navbar-nav > li > li:focus {
   background-color: #3e76c2;
   border-radius: 0;
-  color: var(--white);
+  color: var(--bs-white);
   top: 0;
 }
 
@@ -1553,14 +1553,14 @@ input {
 }
 
 .navbar-custom {
-  color: var(--black);
+  color: var(--bs-black);
   margin: 0;
   /* just changes the base font color */
   padding: 2px;
 }
 
 .navbar-nav > li > a {
-  color: var(--black);
+  color: var(--bs-black);
   /* just changes the base font color */
   padding: 6px 20px 4px;
 }
@@ -1574,7 +1574,7 @@ input {
 .nav > li:focus {
   background-color: #1c5ecf;
   /* this is the "hover" blue */
-  color: var(--white);
+  color: var(--bs-white);
   text-decoration: none;
   /*#33aa33; <--- this is kelly green */
 }
@@ -1599,7 +1599,7 @@ input {
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
   background-color: #1c5ecf;
-  color: var(--white);
+  color: var(--bs-white);
   /*#262626;*/
   text-decoration: none;
   /*#3E76C2;*/
@@ -1626,7 +1626,7 @@ input {
 
 .navbar-toggle {
   /* this is the responsive view shown when the screen is very narrow
-    background-color:var(--warning);
+    background-color:var(--bs-warning);
     height:24px;
     */
 }
@@ -1663,7 +1663,7 @@ a:focus {
 }
 
 .sketch_tools:active {
-  color: var(--danger);
+  color: var(--bs-danger);
   height: 100px;
 }
 
@@ -1689,7 +1689,7 @@ a:focus {
   background-color: #f5f5dc;
   border: 1px solid #c6bbbb;
   box-shadow: inset 0 0 0 1px #808080;
-  color: var(--black);
+  color: var(--bs-black);
   display: none;
   font-size: 0.7rem;
   overflow: auto;
@@ -1711,12 +1711,12 @@ a:focus {
 .bottom_PMSFH_tab {
 
   bottom: 0;
-  color: var(--black);
+  color: var(--bs-black);
   /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
-  filter: progid:DXImageTransform.Microsoft.Glow(Color=var(--black), Strength=1);
+  filter: progid:DXImageTransform.Microsoft.Glow(Color=var(--bs-black), Strength=1);
   position: absolute;
   right: 10px;
-  text-shadow: 0 0 2px var(--black);
+  text-shadow: 0 0 2px var(--bs-black);
   /* IE<10 */
 }
 
@@ -1755,7 +1755,7 @@ a:focus {
 }
 
 .left_menu_tab a {
-  color: var(--white) !important;
+  color: var(--bs-white) !important;
   font-size: 1em;
 }
 
@@ -1829,11 +1829,11 @@ a:focus {
 }
 
 .ui-draggable-dragging {
-  box-shadow: 5px 5px 9px var(--danger);
+  box-shadow: 5px 5px 9px var(--bs-danger);
 }
 
 .build_PLAN li:hover {
-  background: var(--warning);
+  background: var(--bs-warning);
 }
 
 .building_blocks {
@@ -1847,8 +1847,8 @@ a:focus {
 }
 
 .building_blocks dd {
-  background-color: var(--white);
-  border: 1px solid var(--black);
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-black);
   border-radius: 8px;
   box-shadow: 1px 1px 3px #888;
   display: block;
@@ -1860,7 +1860,7 @@ a:focus {
 }
 
 .building_blocks dd:last-of-type {
-  border-top: 1px solid var(--black);
+  border-top: 1px solid var(--bs-black);
   position: relative;
 }
 
@@ -1882,7 +1882,7 @@ a:focus {
 }
 
 #code_me_now {
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
   float: unset;
   width: 200px;
 }
@@ -1931,11 +1931,11 @@ li .handle {
 }
 
 .ui-selecting {
-  background: var(--warning);
+  background: var(--bs-warning);
 }
 
 .build_PLAN .ui-selecting .handle {
-  background: var(--danger);
+  background: var(--bs-danger);
 }
 
 .ui-selected {
@@ -1951,7 +1951,7 @@ li .handle {
   border-radius: 4px;
   box-shadow: 0 1px 3px #ddd inset;
   box-sizing: border-box;
-  color: var(--black) !important;
+  color: var(--bs-black) !important;
   cursor: not-allowed;
   display: inline-block;
   font-size: inherit;
@@ -2128,7 +2128,7 @@ View.php
 #CODE_HELP_1,
 #CODE_HELP_2,
 #CODE_HELP_3 {
-  color: var(--black);
+  color: var(--bs-black);
   font-size: 0.7em;
   font-weight: 400;
   margin-top: 4px;
@@ -2154,7 +2154,7 @@ View.php
 }
 
 #LayerTension {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   float: left;
   height: 1.05in;
   padding: 0.02in;
@@ -2173,7 +2173,7 @@ View.php
 }
 
 #LayerVision {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   float: left;
   min-height: 1.05in;
   padding: 0.02in;
@@ -2355,7 +2355,7 @@ View.php
 }
 
 #Lyr511 {
-  background: var(--white);
+  background: var(--bs-white);
   border: 0;
   font-size: 0.8em;
   left: 0;
@@ -2373,29 +2373,29 @@ View.php
 }
 
 .VF_1 {
-  border-bottom: 1px solid var(--black);
-  border-right: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
   width: 0.2in;
 }
 
 .VF_2 {
-  border-bottom: 1px solid var(--black);
-  border-left: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
+  border-left: 1px solid var(--bs-black);
   width: 0.2in;
 }
 
 .VF_3 {
-  border-right: 1px solid var(--black);
+  border-right: 1px solid var(--bs-black);
   width: 0.2in;
 }
 
 .VF_4 {
-  border-left: 1px solid var(--black);
+  border-left: 1px solid var(--bs-black);
   width: 0.2in;
 }
 
 #Lyr70 {
-    border: 1px solid var(--black);
+    border: 1px solid var(--bs-black);
   float: left;
   min-height: 1.05in;
   padding: 0.02in;
@@ -2417,34 +2417,34 @@ View.php
 }
 
 .pupil_1 {
-  border-bottom: 1px solid var(--black);
-  border-right: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
   white-space: nowrap;
 }
 
 .pupil_2 {
-  border-bottom: 1px solid var(--black);
-  border-left: 1px solid var(--black);
-  border-right: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
+  border-left: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
 }
 
 .pupil_3 {
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
 }
 
 .pupil_4 {
-  border-right: 1px solid var(--black);
-  border-top: 1px solid var(--black);
+  border-right: 1px solid var(--bs-black);
+  border-top: 1px solid var(--bs-black);
 }
 
 .pupil_5 {
-  border-left: 1px solid var(--black);
-  border-right: 1px solid var(--black);
-  border-top: 1px solid var(--black);
+  border-left: 1px solid var(--bs-black);
+  border-right: 1px solid var(--bs-black);
+  border-top: 1px solid var(--bs-black);
 }
 
 .pupil_6 {
-  border-top: 1px solid var(--black);
+  border-top: 1px solid var(--bs-black);
 }
 
 .pupil_input,
@@ -2476,12 +2476,12 @@ View.php
 }
 
 .border-bottom {
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--bs-black);
   white-space: nowrap;
 }
 
 .border-top {
-  border-top: 1px solid var(--black);
+  border-top: 1px solid var(--bs-black);
   white-space: nowrap;
 }
 
@@ -2663,7 +2663,7 @@ div[name=prior_selector] {
 }
 
 .NEURO_P_21 {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   font-weight: 600;
   margin: 20px 4px 4px;
   padding: 4px 10px;
@@ -2751,7 +2751,7 @@ div[name=prior_selector] {
 }
 
 #NEURO_color {
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   float: left;
   font-size: 0.9em;
   font-weight: bold;
@@ -2855,7 +2855,7 @@ input[type="checkbox"] {
 
 .PMSFH_table {
   background-color: rgb(255, 248, 220);
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-collapse: separate;
   border-radius: 3px;
   box-shadow: 2px 2px 3px #c0c0c0;
@@ -2919,10 +2919,10 @@ input[type="checkbox"] {
 
 .modifier {
   background-color: #000080;
-  border: 1px solid var(--black);
+  border: 1px solid var(--bs-black);
   border-radius: 3px;
   box-shadow: 2px 2px 7px #b6afaf;
-  color: var(--white);
+  color: var(--bs-white);
   margin-bottom: 3px;
   padding: 3px;
 }
@@ -2937,7 +2937,7 @@ input[type="checkbox"] {
 }
 
 .lights_off {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   padding: 0 5px;
   vertical-align: baseline;
   width: 33%;
@@ -2957,7 +2957,7 @@ input[type="checkbox"] {
 }
 
 .status_on {
-  background-color: var(--danger);
+  background-color: var(--bs-danger);
   box-shadow: 0 0 0 0 #c0c0c0;
 }
 
@@ -2967,7 +2967,7 @@ input[type="checkbox"] {
 
 #DIL_MEDS,
 #PRIORS_dil_meds {
-  background-color: var(--white);
+  background-color: var(--bs-white);
   font-size: 0.8em;
   height: 16px;
   width: 75px;

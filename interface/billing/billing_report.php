@@ -69,7 +69,7 @@ if (isset($_POST['mode'])) {
         $results = $db->Execute($sql);
         $billings = array();
         if ($results->RecordCount() == 0) {
-            echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
+            echo "<fieldset id='error_info' style='border:1px solid var(--bs-danger) !important; background-color: var(--bs-danger) !important; color: var(--bs-white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
             echo "</fieldset>";
         } else {
@@ -538,7 +538,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         button[type="submit"].subbtn-warning:hover {
             background: #da8104 !important;
-            color: var(--white) !important;
+            color: var(--bs-white) !important;
         }
 
         @media only screen and (max-width: 1024px) {
@@ -567,7 +567,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         a:visited,
         a:hover {
             text-decoration: none;
-            color: var(--black);
+            color: var(--bs-black);
         }
     </style>
     <script>
@@ -944,7 +944,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $rhtml = "";
                         $lcount = 0;
                         $rcount = 0;
-                        $bgcolor = "var(--light)";
+                        $bgcolor = "var(--bs-light)";
                         $skipping = false;
 
                         $mmo_empty_mod = false;
@@ -1040,7 +1040,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 );
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
-                                $bgcolor = ((($encount ?? null) & 1) ? "var(--light)" : "var(--gray300)");
+                                $bgcolor = ((($encount ?? null) & 1) ? "var(--bs-light)" : "var(--bs-gray-300)");
                                 echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
@@ -1050,7 +1050,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
                                 $billing_note = $name['billing_note'];
                                 // Add Encounter Date to display with "To Encounter" button 2/17/09 JCH
-                                $lhtml .= "<span class='font-weight-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
+                                $lhtml .= "<span class='fw-bold' style='color: " . attr($namecolor) . "'>" . text($ptname) . "</span><span class=small>&nbsp;(" . text($iter['enc_pid']) . "-" . text($iter['enc_encounter']) . ")</span>";
 
                                 // Encounter details are stored to javacript as array.
                                 $result4 = sqlStatement(
@@ -1140,13 +1140,13 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $divnos = $divnos + 1;
                                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br /></a>';
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                    $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
+                                    $lhtml .= '<span class="fw-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
                                 }
 
                                 if ($iter['id']) {
                                     $lcount += 2;
                                     $lhtml .= "<br />\n";
-                                    $lhtml .= "&nbsp;<span class='form-group'>" . xlt('Bill') . ": ";
+                                    $lhtml .= "&nbsp;<span class='mb-3'>" . xlt('Bill') . ": ";
                                     $lhtml .= "<select name='claims[" . attr($this_encounter_id) . "][payer]' onchange='onNewPayer(event)' class='form-control'>";
 
                                     $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
@@ -1170,8 +1170,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                                     $lhtml .= "<option value='-1'>" . xlt("Unassigned") . "</option>\n";
                                     $lhtml .= "</select>&nbsp;&nbsp;\n";
-                                    $lhtml .= "&nbsp;<span class='form-group'>X12: ";
-                                    $lhtml .= "<select class='form-control' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
+                                    $lhtml .= "&nbsp;<span class='mb-3'>X12: ";
+                                    $lhtml .= "<select class='form-select' id='partners' name='claims[" . attr($this_encounter_id) . "][partner]'>";
                                     $lhtml .= "<option value='-1' label='Unassigned'>" . xlt("Partner not configured") . "</option>\n";
                                     foreach ($partners as $xid => $xname) {
                                         if (empty(trim($xname))) {
@@ -1187,7 +1187,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $DivPut = 'yes';
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                        $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
+                                        $lhtml .= "<br /><span class='fw-bold text-success ms-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
                                     }
                                     $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 

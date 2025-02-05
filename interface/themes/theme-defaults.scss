@@ -429,3 +429,84 @@ fieldset {
 .about-review-image > #color {
   fill: #083c5d;
 }
+
+/*
+* Compatibility Layer For Bootstrap 4
+*/
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -10px * .5;
+  margin-left: -10px * .5;
+
+  > .col,
+  > [class*="col-"] {
+    padding-right: 10px * .5;
+    padding-left: 10px * .5;
+  }
+}
+
+// Inline forms
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+
+  .form-check {
+    width: 100%;
+  }
+
+  @include media-breakpoint-up(sm) {
+    label, .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    .form-control {
+      display: inline-block;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .form-control-plaintext {
+      display: inline-block;
+    }
+
+    .input-group,
+    .form-select {
+      width: auto;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      padding-left: 0;
+    }
+
+    .form-check-input {
+      position: relative;
+      flex-shrink: 0;
+      margin-top: 0;
+      margin-right: .3rem;
+      margin-left: 0;
+    }
+
+    .custom-control {
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .custom-control-label {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.text-justify  {
+  text-align: justify !important;
+}

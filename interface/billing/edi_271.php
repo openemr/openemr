@@ -150,7 +150,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
     <table>
         <tr>
             <td width='550px'>
-                <div class='float-left'>
+                <div class='float-start'>
                     <table class='text'>
                         <tr>
                             <td style='width:125px;' class='label_custom'> <?php echo xlt('Select EDI-271 file'); ?>:   </td>

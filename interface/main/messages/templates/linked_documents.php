@@ -101,7 +101,7 @@ try {
     foreach ($records as $record) { ?>
     <div class="row mt-2 mb-2 messages-document-row <?php echo $record['requiresValidation'] ? "messages-document-validate" : ""; ?>" data-doc="<?php echo attr($record['documentId']); ?>">
     <div class="col-12">
-    <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
+    <span class='fw-bold'><?php echo xlt('Linked document'); ?>:</span>
         <?php if ($record['serviceDocType'] == 9) { ?>
         <a class='messages-document-link'
             href='javascript:void(0);' onClick='viewFaxAttachment(event, <?php echo attr_js($record['documentId']); ?>);'>
@@ -125,17 +125,17 @@ try {
                 <?php echo text($record['title']); ?>
                 <span class="text-info"><?php echo xlt("Validating document for errors"); ?>...</span>
                 <span class="spinner-border-sm spinner-border" role="status">
-                    <span class="sr-only"><?php echo xlt("Validating document for errors"); ?>...</span>
+                    <span class="visually-hidden"><?php echo xlt("Validating document for errors"); ?>...</span>
                 </span>
             </span>
             <span class="validation-failed text-danger d-none">
                 <?php echo text($record['title']); ?> -
                 <?php echo xlt("Failed to retrieve validation results from server"); ?>
             </span>
-        <span class="validation-totals validation-totals-success badge badge-pill badge-success p-2 d-none">
+        <span class="validation-totals validation-totals-success badge rounded-pill text-bg-success p-2 d-none">
                 <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
         </span>
-        <span class="validation-totals validation-totals-failed badge badge-pill badge-danger p-2 d-none">
+        <span class="validation-totals validation-totals-failed badge rounded-pill text-bg-danger p-2 d-none">
                 <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
         </span>
         <?php } ?>

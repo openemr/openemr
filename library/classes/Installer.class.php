@@ -1691,8 +1691,8 @@ DSTD;
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label=Close>
-                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
+                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="color:var(--bs-black); font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"

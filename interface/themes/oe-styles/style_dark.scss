@@ -107,7 +107,7 @@ input.list-group-item {
 .appMenu li:hover,
 .appMenu > span:hover {
   background-color: #cbd8e7 !important;
-  color: var(--white);
+  color: var(--bs-white);
 }
 
 .menuEntries li .menuLabel:hover {
@@ -130,6 +130,59 @@ input.list-group-item {
 #mainBox .logo .emr-menu-logo > #blue-color,
 #mainBox_vertical .logo .emr-menu-logo > #blue-color {
   fill: $black;
+}
+
+@if $compact-theme == false {
+  .tabSpan {
+    border-top: var(--tabTopBorderWidth) solid var(--bs-primary) !important;
+    font-weight: 600 !important;
+    padding: 0.25em 0.4em !important;
+
+    .fa {
+      color: $gray-500 !important;
+
+      &:hover {
+        color: $gray-700 !important;
+      }
+    }
+  }
+
+  .tabsNoHover {
+    border-top: var(--tabTopBorderWidth) solid transparent !important;
+    font-weight: normal !important;
+  }
+
+  // MAIN NAV
+  // The top level of the menu
+  .menuLabel {
+    font-size: 0.9em !important;
+    font-weight: normal !important;
+    padding: 0.2em 0.35rem !important;
+    transition-duration: 0ms !important;
+  }
+
+  .dropdown .dropdown-menu {
+    top: auto !important;
+  }
+
+  .dropdown ul.dropdown-menu .dropdown ul.dropdown-menu {
+    top: 0 !important;
+  }
+
+  .menuLabel:hover,
+  .menuEntries li .menuLabel:hover,
+  .menuSection:hover {
+    background-color: lighten($primary, 40%) !important;
+    color: $black !important;
+  }
+
+  .acck {
+    font-size: 0.9em !important;
+  }
+
+  .tabSpan.tabsNoHover:hover {
+    background-color: $gray-300 !important;
+  }
 }
 
 /*search any*/

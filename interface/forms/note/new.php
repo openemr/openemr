@@ -62,7 +62,7 @@ $form_name = "note";
                         <input type="button" class="btn btn-warning dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp;
                     </div>
 
-                    <select class="form-control" name="note_type">
+                    <select class="form-select" name="note_type">
                         <option value="WORK NOTE"><?php echo xlt('WORK NOTE'); ?></option>
                         <option value="SCHOOL NOTE"><?php echo xlt('SCHOOL NOTE'); ?></option>
                     </select>

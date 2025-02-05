@@ -585,7 +585,7 @@ if (!empty($_POST['form_save'])) {
 }
 $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
 ?>
-<h3 class="ml-1"><?php echo text($title);?></h3>
+<h3 class="ms-1"><?php echo text($title);?></h3>
 <form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>' onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 

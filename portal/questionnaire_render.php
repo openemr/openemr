@@ -150,7 +150,7 @@ if (!empty($q)) {
 <body>
     <div class="container-xl mt-2">
         <div class="my-2">
-            <h3><?php echo xlt("FHIR Questionnaire"); ?><small id="subtitle" class="ml-2"></small></h3>
+            <h3><?php echo xlt("FHIR Questionnaire"); ?><small id="subtitle" class="ms-2"></small></h3>
         </div>
         <form id="qForm">
             <div class="isManual isRender d-none">

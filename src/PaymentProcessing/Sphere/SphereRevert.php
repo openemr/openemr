@@ -289,7 +289,7 @@ class SphereRevert
      */
     public static function renderSphereVoidButton(string $front, string $transactionId, string $uuid): string
     {
-        return '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="revertSphere(\'void\', ' . attr_js($front) . ', ' . attr_js($transactionId) . ', ' . attr_js($uuid) . ')">' . xlt("Void Charge") . '</button>';
+        return '<button type="button" class="btn btn-sm btn-danger ms-1" onclick="revertSphere(\'void\', ' . attr_js($front) . ', ' . attr_js($transactionId) . ', ' . attr_js($uuid) . ')">' . xlt("Void Charge") . '</button>';
     }
 
     /**
@@ -297,6 +297,6 @@ class SphereRevert
      */
     public static function renderSphereCreditButton(string $front, string $transactionId, string $uuid): string
     {
-        return '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="revertSphere(\'credit\', ' . attr_js($front) . ', ' . attr_js($transactionId) . ', ' . attr_js($uuid) . ')">' . xlt("Credit Charge") . '</button>';
+        return '<button type="button" class="btn btn-sm btn-danger ms-1" onclick="revertSphere(\'credit\', ' . attr_js($front) . ', ' . attr_js($transactionId) . ', ' . attr_js($uuid) . ')">' . xlt("Credit Charge") . '</button>';
     }
 }

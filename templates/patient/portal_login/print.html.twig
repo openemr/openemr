@@ -65,33 +65,31 @@
 
     {% if (credMessage is not empty) %}
     <div class="alert alert-success" role="alert">
-        <p class="font-weight-bold">{{  "Portal Credential Information"|xlt }}</p>
+        <p class="fw-bold">{{  "Portal Credential Information"|xlt }}</p>
         {{ credMessage }}
     </div>
     {% else %}
     <form name="portallogin" action="" method="post">
         <input type="hidden" id = "csrf_token_form" name="csrf_token_form" value="{{ csrfToken|attr }}" />
 
-        <p class="text-center font-weight-bold">{{ "Generate Username And Password For"|xlt }} {{ fname|text }}</p>
+        <p class="text-center fw-bold">{{ "Generate Username And Password For"|xlt }} {{ fname|text }}</p>
 
-        <div class="form-group">
-            <label class="font-weight-bold" for="uname">{{ "Account Name"|xlt}}:</label>
+        <div class="mb-3">
+            <label class="fw-bold form-label" for="uname">{{ "Account Name"|xlt}}:</label>
             <input type="text" class="form-control" name="uname" id="uname" value="{{ uname|attr }}" size="10" readonly />
         </div>
-        <div class="form-group">
-            <label class="font-weight-bold" for="login_uname">{{ 'Login User Name'|xlt }}:</label>
+        <div class="mb-3">
+            <label class="fw-bold form-label" for="login_uname">{{ 'Login User Name'|xlt }}:</label>
             <input type="text" class="form-control" name="login_uname" id="login_uname" value="{{ login_uname }}" readonly />
         </div>
-        <label class="font-weight-bold" for="pwd">{{ 'Password'|xlt }}:</label>
+        <label class="fw-bold form-label" for="pwd">{{ 'Password'|xlt }}:</label>
         <div class="input-group">
             <input type="text" class="form-control" name="pwd" id="pwd" value="{{ pwd|attr }}" size="14" />
-            <div class="input-group-append">
-                <a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()">{{ 'Generate New'|xlt }}</a>
-            </div>
+            <a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()">{{ 'Generate New'|xlt }}</a>
         </div>
         {% if enforce_signin_email %}
-        <div class="form-group">
-            <label class="font-weight-bold" for="email_direct">{{ "Login Trusted Email"|xlt  }}:</label>
+        <div class="mb-3">
+            <label class="fw-bold form-label" for="email_direct">{{ "Login Trusted Email"|xlt  }}:</label>
             {% if email_direct is not empty %}
             {{  email_direct|text }}
             {% else %}
@@ -101,7 +99,7 @@
         {% endif %}
         {% if (forced_reset_option == '2') %}
             <div class="form-check-inline my-1">
-                <label class="form-check-label font-weight-bold">{{ 'Disable forced credential reset.'|xlt }}
+                <label class="form-check-label fw-bold">{{ 'Disable forced credential reset.'|xlt }}
                     <input type="checkbox" id="forced_reset_disable" name="forced_reset_disable" onchange='top.restoreSession(); persistCriteria(this, event) ;' value="1" {%if forced_reset_disable == 1 %} checked {% endif %} />
                 </label>
             </div>

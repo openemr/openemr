@@ -98,7 +98,7 @@ if (
             }
 
             .icon-bar {
-                background-color: var(--danger);
+                background-color: var(--bs-danger);
             }
         }
     </style>
@@ -143,9 +143,9 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
 
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--bs-gray-300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -412,7 +412,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         ?>
                         <div class='col-md-12'>
-                            <div class="jumbotron jumbotron-fluid p-2">
+                            <div class="mb-4 bg-body-tertiary p-2">
                                 <h4><?php echo text($message_legend); ?></h4>
                                 <div class="row">
                                     <div class="col-12 oe-custom-line">
@@ -465,7 +465,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <?php
                                                 if ($task == "addnew" || $result['pid'] == 0) {
                                                     echo "<label class='oe-empty-label' for='clear_patients'></label>";
-                                                    echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') . '">' . xlt("Clear") . '</button>';
+                                                    echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-start flip" value="' . xla('Clear') . '">' . xlt("Clear") . '</button>';
                                                 } ?>
                                             </div>
                                         </div>
@@ -509,7 +509,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             </div>
                                             <div class="col-6 col-sm-2  d-flex align-items-end flex-wrap">
                                                 <label class="oe-empty-label" for="users"></label>
-                                                <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
+                                                <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-start flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
                                             </div>
                                         </div>
                                     <div class='col-12 oe-margin-t-3'>
@@ -525,7 +525,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         );
                                         if (sqlNumRows($tmp)) {
                                             echo " <tr>\n";
-                                            echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
+                                            echo "  <td class='text'><span class='fw-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
                                                 echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
@@ -611,13 +611,13 @@ if (!empty($_REQUEST['go'])) { ?>
                         if ($prev >= 0) {
                             $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
+                            $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-body-secondary\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                         }
 
                         if ($next < $total) {
                             $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                         } else {
-                            $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
+                            $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-body-secondary\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                         }
                         // Display the Messages table header.
                         echo "
@@ -630,11 +630,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <thead class='table-primary'>
                                                     <tr height='24'>
                                                         <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
-                                                        <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
+                                                        <th width='20%' class='fw-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
+                                                        <th width='20%' class='fw-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
+                                                        <th class='fw-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
+                                                        <th width='15%' class='fw-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                        <th width='15%' class='fw-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
                                                     </tr>
                                                 </thead>";
                         // Display the Messages table body.
@@ -730,12 +730,12 @@ if (!empty($_REQUEST['go'])) { ?>
                                 if (document.getElementById("checkAll").checked === true) {
                                     document.getElementById("checkAll").checked = true;<?php
                                     for ($i = 1; $i <= $count; $i++) {
-                                        echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--gray200)';  ";
+                                        echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--bs-gray-200)';  ";
                                     } ?>
                                 } else {
                                     document.getElementById("checkAll").checked = false;<?php
                                     for ($i = 1; $i <= $count; $i++) {
-                                        echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--light)';  ";
+                                        echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--bs-light)';  ";
                                     } ?>
                                 }
                             }
@@ -743,11 +743,11 @@ if (!empty($_REQUEST['go'])) { ?>
                             // The two functions below are for managing row styles in Messages table.
                             function selectRow(row) {
                                 event.stopPropagation();
-                                document.getElementById(row).style.background = "var(--gray200)";
+                                document.getElementById(row).style.background = "var(--bs-gray-200)";
                             }
                             function deselectRow(row) {
                                 event.stopPropagation();
-                                document.getElementById(row).style.background = "var(--light)";
+                                document.getElementById(row).style.background = "var(--bs-light)";
                             }
 
                             function makeMessageRowsClickable() {

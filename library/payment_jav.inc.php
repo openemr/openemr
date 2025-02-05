@@ -73,9 +73,9 @@
             if (document.getElementById('option_insurance_payment'))
                 document.getElementById('option_insurance_payment').style.backgroundColor = '#DEDEDE';
             if (document.getElementById('option_family_payment'))
-                document.getElementById('option_family_payment').style.backgroundColor = 'var(--white)';
+                document.getElementById('option_family_payment').style.backgroundColor = 'var(--bs-white)';
             if (document.getElementById('option_patient_payment'))
-                document.getElementById('option_patient_payment').style.backgroundColor = 'var(--white)';
+                document.getElementById('option_patient_payment').style.backgroundColor = 'var(--bs-white)';
         }
         if (newValue == 'insurance') {
             if (document.getElementById('option_family_payment'))
@@ -83,7 +83,7 @@
             if (document.getElementById('option_patient_payment'))
                 document.getElementById('option_patient_payment').style.backgroundColor = '#DEDEDE';
             if (document.getElementById('option_insurance_payment'))
-                document.getElementById('option_insurance_payment').style.backgroundColor = 'var(--white)';
+                document.getElementById('option_insurance_payment').style.backgroundColor = 'var(--bs-white)';
         }
     }
 

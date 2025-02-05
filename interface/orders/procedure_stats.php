@@ -376,7 +376,7 @@ $(function () {
             <?php echo xlt('Sex'); ?>:
         </div>
         <div class="col">
-            <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
+            <select class='form-select' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
                 <?php
                 foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
                     echo "       <option value='" . attr($key) . "'";
@@ -396,7 +396,7 @@ $(function () {
     <div class="row">
         <div class="col">
             <?php echo xlt('Columns'); ?>:
-            <select class='form-control' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
+            <select class='form-select' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
                 <?php
                 foreach ($arr_show as $key => $value) {
                     $title = $value['title'];

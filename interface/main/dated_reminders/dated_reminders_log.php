@@ -138,7 +138,7 @@ if ($_GET) {
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>
                         <h5><?php echo xlt('Date The Message Was Sent');?></h5>
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
                                 <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
@@ -148,10 +148,10 @@ if ($_GET) {
                                 <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
-                                <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
+                                <select class="form-select" id="sentBy" name="sentBy[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
@@ -164,7 +164,7 @@ if ($_GET) {
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
-                                <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
+                                <select class="form-select" id="sentTo" name="sentTo[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
                                     if ($isAdmin) {
@@ -176,7 +176,7 @@ if ($_GET) {
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class="checkbox">
                                 <label>
                                     <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
@@ -187,9 +187,9 @@ if ($_GET) {
                             </div>
                         </div>
                     </fieldset>
-                    <div class="form-group row">
+                    <div class="mb-3 row">
                         <div class="col-sm-12 position-override">
-                            <div class="btn-group form-group" role="group">
+                            <div class="btn-group mb-3" role="group">
                                 <button type="button" value="Refresh" id="submitForm" class="btn btn-secondary btn-refresh" ><?php echo xlt('Refresh') ?></button>
                             </div>
                         </div>

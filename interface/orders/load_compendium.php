@@ -93,7 +93,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                 <h2><?php echo xlt('Load Lab Compendium'); ?></h2>
             </div>
         </div>
-        <form class="jumbotron py-4" method='post' action='load_compendium.php' enctype='multipart/form-data'>
+        <form class="px-5 mb-4 bg-body-tertiary rounded-3 py-4" method='post' action='load_compendium.php' enctype='multipart/form-data'>
             <table class="table table-borderless">
                 <?php if ($form_step == 0) { ?>
                     <tr>
@@ -101,7 +101,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                             <?php echo xlt('Vendor'); ?>
                         </td>
                         <td>
-                            <select class='form-control' name='vendor'>
+                            <select class='form-select' name='vendor'>
                                 <?php foreach ($lab_npi as $key => $value) {
                                     echo "<option value='" . attr($key) . "'";
                                     if (!getLabID($key)) {
@@ -118,7 +118,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                             <?php echo xlt('Action'); ?>
                         </td>
                         <td>
-                            <select class='form-control' name='action'>
+                            <select class='form-select' name='action'>
                                 <option value='1'><?php echo xlt('Load Order Definitions'); ?></option>
                                 <option value='2'><?php echo xlt('Load Order Entry Questions'); ?></option>
                                 <option value='3'><?php echo xlt('Load OE Question Options'); ?></option>
@@ -130,7 +130,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                             <?php echo xlt('Container Group Name'); ?>
                         </td>
                         <td>
-                            <select class='form-control' name='group'>
+                            <select class='form-select' name='group'>
                                 <?php
                                 $gres = sqlStatement("SELECT procedure_type_id, name FROM procedure_type " .
                                 "WHERE procedure_type = 'grp' ORDER BY name, procedure_type_id");
@@ -146,11 +146,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                             <?php echo xlt('File to Upload'); ?>
                         </td>
                         <td>
-                            <div class="custom-file">
-                                <label class="custom-file-label" for="userfile"><?php echo xlt('Choose file'); ?></label>
-                                <input type='hidden' class="custom-file-input" name='MAX_FILE_SIZE' value='4000000' />
-                                <input class='form-control' type='file' name='userfile' id='userfile' />
-                            </div>
+                            <label class="form-label" for="userfile"><?php echo xlt('Choose file'); ?></label>
+                            <input type='hidden' class="form-control" name='MAX_FILE_SIZE' value='4000000' />
+                            <input class='form-control' type='file' name='userfile' id='userfile' />
                         </td>
                     </tr>
                     <tr>

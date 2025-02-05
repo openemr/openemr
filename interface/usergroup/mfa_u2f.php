@@ -111,7 +111,7 @@ function docancel() {
                             </ul>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_name" class="col-sm-2 col-form-label"><?php echo xlt('Please give this key a name'); ?></label>
                         <div class="col-sm-4">
                             <input type='text' class='form-control' name='form_name' id='form_name'>
@@ -132,7 +132,7 @@ function docancel() {
                         </ul>
                     </div>
                 </fieldset>
-                <div class="form-group clearfix">
+                <div class="mb-3 clearfix">
                 <div class="col-sm-12 text-left position-override">
                         <button type="button" class="btn btn-secondary btn-save" value='<?php echo xla('Register'); ?>' onclick='doregister()'><?php echo xlt('Register'); ?></button>
                         <button type="button" class="btn btn-link btn-cancel" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>

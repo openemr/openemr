@@ -33,8 +33,8 @@ function group_attendance_report($pid, $encounter, $cols, $id)
     if ($form_data) { ?>
         <table class="table table-bordered w-100">
             <tr class="text-center">
-                <td><span class='font-weight-bold'><?php echo xlt('Date'); ?></span></td>
-                <td><span class='font-weight-bold'><?php echo xlt('Group'); ?></span></td>
+                <td><span class='fw-bold'><?php echo xlt('Date'); ?></span></td>
+                <td><span class='fw-bold'><?php echo xlt('Group'); ?></span></td>
             </tr>
             <tr>
                 <td><span class='text'><?php echo text($form_data['date']); ?></span></td>
@@ -43,9 +43,9 @@ function group_attendance_report($pid, $encounter, $cols, $id)
         </table>
         <table class="table table-bordered w-100">
             <tr>
-                <td><span class='font-weight-bold'><?php echo xlt('Participant'); ?></span></td>
-                <td><span class='font-weight-bold'><?php echo xlt('Status'); ?></span></td>
-                <td><span class='font-weight-bold'><?php echo xlt('Comments'); ?></span></td>
+                <td><span class='fw-bold'><?php echo xlt('Participant'); ?></span></td>
+                <td><span class='fw-bold'><?php echo xlt('Status'); ?></span></td>
+                <td><span class='fw-bold'><?php echo xlt('Comments'); ?></span></td>
             </tr>
             <?php
             if ($participants) {

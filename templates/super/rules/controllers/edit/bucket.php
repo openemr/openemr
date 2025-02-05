@@ -49,7 +49,7 @@ echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
 <p class="form-row">
     <span class="left_col colhead req" data-field="fld_completed"><?php echo xlt('Completed?'); ?></span>
     <span class="end_col">
-        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_completed" id="">
+        <select class="form-select" data-grp-tgt="" type="dropdown" name="fld_completed" id="">
             <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
             <option id="Yes" value="yes" <?php echo $criteria->completed ? "SELECTED" : "" ?>><?php echo xlt('Yes'); ?></option>
             <option id="No" value="no" <?php echo !$criteria->completed ? "SELECTED" : "" ?>><?php echo xlt('No'); ?></option>
@@ -61,7 +61,7 @@ echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
 <p class="form-row">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
-        <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
+        <select class="form-select" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">
             <option id="" value="">--<?php echo xlt("Select"); ?>--</option>
             <option id="le" value="le" <?php echo $criteria->frequencyComparator == "le" ? "SELECTED" : "" ?>><?php echo "<="; ?></option>
             <option id="lt" value="lt" <?php echo $criteria->frequencyComparator == "lt" ? "SELECTED" : "" ?>><?php echo "<"; ?></option>

@@ -30,7 +30,7 @@ $apiUrl = $serverConfig->getStandardApiUrl();
     <input type='hidden' class="address-book-widget-input" name='form_<?php echo attr($i); ?>' id='form_<?php echo attr($i); ?>' value='<?php echo attr($fldvalue); ?>' />
     <div class="input-group">
         <input type='text' class="address-book-widget-label form-control" readonly="readonly" id='form_label_<?php echo attr($i); ?>' value='<?php echo attr($textLabel); ?>'/>
-        <div class="input-group-append">
+        <div class="input-group-text">
             <button class="btn btn-danger address-book-widget-delete" id='form_button_delete_<?php echo attr($i); ?>' aria-label="<?php echo xla("Delete");?>">
                 <i class='fa fa-trash'></i>
             </button>

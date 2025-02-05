@@ -150,7 +150,7 @@ if (!empty($codetype)) {
     <div class="container-fluid">
         <form method='post' name='theform'>
             <?php
-            echo "<div class='form-group row mb-3'>\n";
+            echo "<div class='row mb-3'>\n";
             if (isset($allowed_codes)) {
                 if (count($allowed_codes) == 1) {
                     echo "<div class='col'><input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly /></div>\n";
@@ -162,7 +162,7 @@ if (!empty($codetype)) {
                     echo "</select></div>\n";
                 }
             } else {
-                echo "<div class='col'><select class='form-control' name='form_code_type' onchange='oTable.fnDraw()'>\n";
+                echo "<div class='col'><select class='form-select' name='form_code_type' onchange='oTable.fnDraw()'>\n";
                 foreach ($code_types as $key => $value) {
                     echo " <option value='" . attr($key) . "'";
                     echo ">" . xlt($value['label']) . "</option>\n";

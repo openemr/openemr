@@ -72,13 +72,13 @@ border-radius: 4px 0 0 4px!important;
                 </h2>
             </div>
         </div>
-        <div class="form-inline float-right col-sm-10" id="patientSearch">
-            <label for="selectPatient" class="mr-2"><h5>{xlt t='Search and Select Patient'}</h5></label>
+        <div class="form-inline float-end col-sm-10" id="patientSearch">
+            <label for="selectPatient" class="me-2"><h5>{xlt t='Search and Select Patient'}</h5></label>
             <div class="input-group">
                 <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}">
                     <option></option>
                 </select>
-                <div class="input-group-append">
+                <div class="input-group-text">
                     <button id="pid" type="button" class="btn btn-primary pBtn">&times;</button>
                 </div>
             </div>
@@ -89,7 +89,7 @@ border-radius: 4px 0 0 4px!important;
 			<div id="documents_list">
 				<fieldset>
                     <legend>{xlt t='Documents List'}</legend>
-                    <div class="pl-3">
+                    <div class="ps-3">
                         <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                         {$tree_html}
                     </div>

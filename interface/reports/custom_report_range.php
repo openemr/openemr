@@ -95,7 +95,7 @@ if (empty($form_patient)) {
     }
     .pagebreak {
         width: 100%;
-        border: 2px dashed var(--black);
+        border: 2px dashed var(--bs-black);
     }
     #report_parameters {
         visibility: visible;
@@ -112,8 +112,8 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: var(--gray200);
-    border: 1px solid var(--black);
+    background-color: var(--bs-gray-200);
+    border: 1px solid var(--bs-black);
 }
 #superbill_insurancedata {
     margin-top: 10px;
@@ -124,8 +124,8 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: var(--gray200);
-    border: 1px solid var(--black);
+    background-color: var(--bs-gray-200);
+    border: 1px solid var(--bs-black);
 }
 #superbill_insurancedata h2 {
     font-weight: bold;
@@ -133,7 +133,7 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 0px;
     width: 100%;
-    background-color: var(--gray200);
+    background-color: var(--bs-gray-200);
 }
 #superbill_billingdata {
     margin-top: 10px;
@@ -144,8 +144,8 @@ if (empty($form_patient)) {
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: var(--gray200);
-    border: 1px solid var(--black);
+    background-color: var(--bs-gray-200);
+    border: 1px solid var(--bs-black);
 }
 </style>
 
@@ -367,9 +367,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = BillingUtilities::getPatientCopay($pids[$iCounter], $ta[1]);
             //}
             echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Copay Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-            echo "<tr><td class='font-weight-bold text-right' colspan='3'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+            echo "<tr><td class='fw-bold text-right' colspan='3'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+            echo "<tr><td class='fw-bold text-right' colspan='3'>" . xlt('Copay Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+            echo "<tr><td class='fw-bold text-right' colspan='3'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
             //print_r($billings);

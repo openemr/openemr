@@ -223,7 +223,7 @@ function mapToTable($row)
 
 <style>
 a, a:visited, a:hover {
-  color: var(--primary);
+  color: var(--bs-primary);
 }
 #mymaintable thead .sorting::before,
 #mymaintable thead .sorting_asc::before,
@@ -424,7 +424,7 @@ mapToTable($prevRow);
  </tbody>
 </table>
 
-<input class="btn btn-primary btn-block w-25 mx-auto" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
+<input class="btn btn-primary d-block w-25 mx-auto" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
 
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" />
 

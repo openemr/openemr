@@ -19,7 +19,7 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
             {{ navbar.navbar_nav(primaryMenu) }}
         {% endblock %}
         {% block actionButtons %}
-            <div class="navbar-nav ml-auto" id="pageHeadingNav">
+            <div class="navbar-nav ms-auto" id="pageHeadingNav">
                 {% for a in buttonList %}
                     <a href="{{ a.getHref()|attr }}" id="{{ a.getId()|attr }}" title="{{ a.getTitle()|attr }}" {{ _self.renderAttributeArray(a.getAttributes()) }} class="nav-link {{ a.getAnchorClasses()|join(' ')|attr }} "><i class="{{ a.getIconClass()|attr }}">&nbsp;</i>{{ a.getDisplayText()|text }}</a>
                 {% endfor %}

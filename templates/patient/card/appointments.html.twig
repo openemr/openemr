@@ -21,7 +21,7 @@
                 {{ a.pc_eventTime|text }}&nbsp;{{ a.displayMeridiem|xlt }}
             </small>
         </div>
-        <div class="m-0 d-flex w-100 justify-content-between text-muted">
+        <div class="m-0 d-flex w-100 justify-content-between text-body-secondary">
             <span>{{ a.uname|text }}</span>
             <span>{{ a.pc_status|text }}
                 {% if a.pc_catid in therapyGroupCategories %}
@@ -34,15 +34,15 @@
 
 {% macro additionalAppointment(appointmentDate) %}
     <div class="list-group-item p-1">
-        <div class="m-0 pt-2 d-block w-100 text-muted text-center">
+        <div class="m-0 pt-2 d-block w-100 text-body-secondary text-center">
             {{ appointmentDate|text }}&nbsp;(+)
         </div>
     </div>
 {% endmacro %}
 
 {% macro sectionHeader(title, iconClasses) %}
-    <div class="list-group-item pl-0 pb-1 border-bottom-0">
-        <div class="text-dark font-weight-bolder">
+    <div class="list-group-item ps-0 pb-1 border-bottom-0">
+        <div class="text-dark fw-bolder">
             <i class="fa fa-fw {{ iconClasses }}"></i>&nbsp;{{ title|text }}
         </div>
     </div>
@@ -77,7 +77,7 @@
         {% for r in recurrAppts %}
             <div class="list-group-item p-1">
                 <h6>{{ r.pc_title|text }}</h6>
-                <div class="text-muted">{{ r.pc_recurrspec|text }} {{ "until"|xlt }}&nbsp;{{ r.pc_endDate|text }}</div>
+                <div class="text-body-secondary">{{ r.pc_recurrspec|text }} {{ "until"|xlt }}&nbsp;{{ r.pc_endDate|text }}</div>
             </div>
         {% endfor %}
     {% else %}

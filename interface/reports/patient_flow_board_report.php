@@ -301,38 +301,38 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table'>
-    <thead class='thead-light'>
+    <thead class='table-light'>
     <?php if (!$chk_show_drug_screens && !$chk_show_completed_drug_screens) { # the first part of this block is for the Patient Flow Board report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
-        <th><a href="nojs.php" onclick="return dosort('date')" <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+        <th><a href="nojs.php" onclick="return dosort('date')" <?php echo ($form_orderby == "date") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('type')"
-        <?php echo ($form_orderby == "type") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Type'); ?></a>
+        <?php echo ($form_orderby == "type") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Type'); ?></a>
         </th>
 
         <?php if ($chk_show_details) { ?>
         <th><a href="nojs.php" onclick="return dosort('trackerstatus')"
-            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
+            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
         </th>
         <?php } else { ?>
         <th><a href="nojs.php" onclick="return dosort('trackerstatus')"
-            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Final Status'); ?></a>
+            <?php echo ($form_orderby == "trackerstatus") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Final Status'); ?></a>
         </th>
         <?php } ?>
 
@@ -355,28 +355,28 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     <?php } else { # this section is for the drug screen report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
         <th><a href="nojs.php" onclick="return dosort('date')"
-        <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Date'); ?></a>
+        <?php echo ($form_orderby == "date") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
         </th>
 
         <?php if (!$chk_show_completed_drug_screens) { ?>
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
         <?php } else { ?>
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+            <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--bs-success)\"" : ""; ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
         <?php } ?>
 
@@ -386,7 +386,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
          <th>&nbsp;</th>
         <?php } else { ?>
          <th><a href="nojs.php" onclick="return dosort('completed')"
-            <?php echo ($form_orderby == "completed") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Completed'); ?></a>
+            <?php echo ($form_orderby == "completed") ? " style=\"color: var(--bs-success)\"" : ""; ?>><?php  echo xlt('Completed'); ?></a>
          </th>
         <?php } ?>
 
@@ -533,7 +533,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     $alert_time = $colorevents['time_alert'];
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
                         ?>
-            <td class="detail font-weight-bold">
+            <td class="detail fw-bold">
                         <?php
                     } else { ?>
             <td class="detail">
@@ -565,7 +565,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     }
 
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
-                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td><?php
+                <td class="detail fw-bold">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td><?php
                     } else { ?>
             <td class="detail">&nbsp;<?php echo text(substr($next_tracker_time, 11)) ?></td>
                         <?php # compute the total time of the status
@@ -576,13 +576,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     $timecheck = round(abs(strtotime($start_tracker_time) -  strtotime($next_tracker_time)) / 60, 0);
                     if ($timecheck > $alert_time && ($alert_time != '0')) {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
- <td class="detail font-weight-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php
+ <td class="detail fw-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php
                         } else { ?>
             <td class="detail" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php
                         }
                     } else {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) { #bold the check in and check out times in this block. ?>
-                    <td class="detail font-weight-bold">&nbsp;<?php echo text($tracker_time); ?></td><?php
+                    <td class="detail fw-bold">&nbsp;<?php echo text($tracker_time); ?></td><?php
                         } else { ?>
                     <td class="detail">&nbsp;<?php echo text($tracker_time); ?></td><?php
                         }
