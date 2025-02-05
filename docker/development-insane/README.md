@@ -47,12 +47,14 @@ options to choose from:
 - http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
 - http://localhost:8084 (with Alpine 3.18 (Apache and PHP 8.2))
 - http://localhost:8085 (with Alpine 3.20 (Apache and PHP 8.3))
-- http://localhost:8086 (with Alpine Edge (Apache and now PHP 8.3))
+- http://localhost:8086 (with Alpine 3.21 (Apache and PHP 8.4))
+- http://localhost:8087 (with Alpine Edge (Apache and now PHP 8.4))
 - http://localhost:8092 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
 - http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 - http://localhost:8094 (with Alpine 3.18 (Apache and PHP 8.2) with redis)
 - http://localhost:8095 (with Alpine 3.20 (Apache and PHP 8.3) with redis)
-- http://localhost:8096 (with Alpine Edge (Apache and now PHP 8.3) with redis)
+- http://localhost:8096 (with Alpine 3.21 (Apache and PHP 8.4) with redis)
+- http://localhost:8097 (with Alpine Edge (Apache and now PHP 8.4) with redis)
 - http://localhost:8102 (with Nginx and PHP-FPM 8.0)
 - http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 - http://localhost:8104 (with Nginx and PHP-FPM 8.2)
@@ -69,12 +71,14 @@ options to choose from:
 - https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 - https://localhost:9084 with SSL and Alpine 3.18 (with Apache and PHP 8.2)
 - https://localhost:9085 with SSL and Alpine 3.20 (with Apache and PHP 8.3)
-- https://localhost:9086 with SSL and Alpine Edge (with Apache and now PHP 8.3)
+- https://localhost:9086 with SSL and Alpine 3.21 (with Apache and PHP 8.4)
+- https://localhost:9087 with SSL and Alpine Edge (with Apache and now PHP 8.4)
 - https://localhost:9092 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
 - https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 - https://localhost:9094 with SSL and Alpine 3.18 (with Apache and PHP 8.2 with redis)
 - https://localhost:9095 with SSL and Alpine 3.20 (with Apache and PHP 8.3 with redis)
-- https://localhost:9096 with SSL and Alpine Edge (with Apache and now PHP 8.3 with redis)
+- https://localhost:9096 with SSL and Alpine 3.21 (with Apache and PHP 8.4 with redis)
+- https://localhost:9097 with SSL and Alpine Edge (with Apache and now PHP 8.4 with redis)
 - https://localhost:9102 with SSL (with Nginx and PHP-FPM 8.0)
 - https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 - https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
@@ -115,6 +119,7 @@ docker-compose up -d
 To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
 ```console
 docker pull openemr/openemr:flex-edge
+docker pull openemr/openemr:flex-3.21
 docker pull openemr/openemr:flex-3.20
 docker pull openemr/openemr:flex-3.18
 docker pull openemr/openemr:flex-3.17
