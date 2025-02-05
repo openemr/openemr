@@ -13,12 +13,14 @@
 #        http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
 #        http://localhost:8084 (with Alpine 3.18 (Apache and PHP 8.2))
 #        http://localhost:8085 (with Alpine 3.20 (Apache and PHP 8.3))
-#        http://localhost:8086 (with Alpine Edge (Apache and now PHP 8.3))
+#        http://localhost:8086 (with Alpine 3.21 (Apache and PHP 8.4))
+#        http://localhost:8087 (with Alpine Edge (Apache and now PHP 8.4))
 #        http://localhost:8092 (with Alpine 3.15 (Apache and PHP 8.0) with redis)
 #        http://localhost:8093 (with Alpine 3.17 (Apache and PHP 8.1) with redis)
 #        http://localhost:8094 (with Alpine 3.18 (Apache and PHP 8.2) with redis)
 #        http://localhost:8095 (with Alpine 3.20 (Apache and PHP 8.3) with redis)
-#        http://localhost:8096 (with Alpine Edge (Apache and now PHP 8.3) with redis)
+#        http://localhost:8096 (with Alpine 3.21 (Apache and PHP 8.4) with redis)
+#        http://localhost:8097 (with Alpine Edge (Apache and now PHP 8.4) with redis)
 #        http://localhost:8102 (with Nginx and PHP-FPM 8.0)
 #        http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 #        http://localhost:8104 (with Nginx and PHP-FPM 8.2)
@@ -35,12 +37,14 @@
 #        https://localhost:9083 with SSL and Alpine 3.17 (with Apache and PHP 8.1)
 #        https://localhost:9084 with SSL and Alpine 3.18 (with Apache and PHP 8.2)
 #        https://localhost:9085 with SSL and Alpine 3.20 (with Apache and PHP 8.3)
-#        https://localhost:9086 with SSL and Alpine Edge (with Apache and now PHP 8.3)
+#        https://localhost:9086 with SSL and Alpine 3.21 (with Apache and PHP 8.4)
+#        https://localhost:9087 with SSL and Alpine Edge (with Apache and now PHP 8.4)
 #        https://localhost:9092 with SSL and Alpine 3.15 (with Apache and PHP 8.0 with redis)
 #        https://localhost:9093 with SSL and Alpine 3.17 (with Apache and PHP 8.1 with redis)
 #        https://localhost:9094 with SSL and Alpine 3.18 (with Apache and PHP 8.2 with redis)
 #        https://localhost:9095 with SSL and Alpine 3.20 (with Apache and PHP 8.3 with redis)
-#        https://localhost:9096 with SSL and Alpine Edge (with Apache and now PHP 8.3 with redis)
+#        https://localhost:9096 with SSL and Alpine 3.21 (with Apache and PHP 8.4 with redis)
+#        https://localhost:9097 with SSL and Alpine Edge (with Apache and now PHP 8.4 with redis)
 #        https://localhost:9102 with SSL (with Nginx and PHP-FPM 8.0)
 #        https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 #        https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
@@ -119,6 +123,21 @@ services:
     - 9085:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+  openemr-8-4:
+    restart: always
+    image: openemr/openemr:flex-3.21
+    ports:
+    - 8086:80
+    - 9086:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
       DEBUG_COLORS: "true"
@@ -156,8 +175,8 @@ services:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8086:80
-    - 9086:443
+    - 8087:80
+    - 9087:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -231,12 +250,28 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+  openemr-8-4-redis:
+    restart: always
+    image: openemr/openemr:flex-3.21
+    ports:
+    - 8096:80
+    - 9096:443
+    volumes:
+    - ../..:/var/www/localhost/htdocs/openemr
+    environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
+      FORCE_NO_BUILD_MODE: "yes"
+      REDIS_SERVER: "redis"
+      EMPTY: "yes"
   openemr-edge-redis:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8096:80
-    - 9096:443
+    - 8097:80
+    - 9097:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
