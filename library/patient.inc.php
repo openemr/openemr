@@ -11,7 +11,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -1607,7 +1607,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
     $balance = 0;
     $bindarray = array($pid);
     $sqlstatement = "SELECT date, encounter, last_level_billed, " .
-      "last_level_closed, stmt_count " .
+      "last_level_closed " .
       "FROM form_encounter WHERE pid = ?";
     if ($eid) {
         $sqlstatement .= " AND encounter = ?";
@@ -1624,7 +1624,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
         $dos = substr($ferow['date'], 0, 10);
         $insarr = getEffectiveInsurances($pid, $dos);
         $inscount = count($insarr);
-        if (!$with_insurance && $ferow['last_level_closed'] < $inscount && $ferow['stmt_count'] == 0) {
+        if (!$with_insurance && $ferow['last_level_closed'] < $inscount) {
             // It's out to insurance so only the co-pay might be due.
             $brow = sqlQuery(
                 "SELECT SUM(fee) AS amount FROM billing WHERE " .
