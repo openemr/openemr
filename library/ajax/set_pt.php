@@ -21,6 +21,16 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
+if ($_GET["set_pid"] ?? '' && ($_GET["set_pid"] != $_SESSION["pid"])) {
     setpid($_GET["set_pid"]);
+}
+
+// For gotos from billing manager we are whitelisting pid
+
+if (($_POST['mode'] ?? '') == 'session_key') {
+    $key = $_POST['key'] ?? '';
+    if ($key == 'pid') {
+        $current = $_SESSION[$key] ?? $pid ?? 0;
+        echo(js_escape($current));
+    }
 }
