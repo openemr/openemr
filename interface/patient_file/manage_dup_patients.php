@@ -22,14 +22,16 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
-$firsttime = true;
+$first_time = true;
 
-function displayRow($row, $pid = '')
+/**
+ * @param $row
+ * @param $pid
+ * @return void
+ */
+function displayRow($row, $pid = ''): void
 {
-    global $firsttime;
-
-    $myscore = '';
-    $options = '';
+    global $first_time;
 
     if (empty($pid)) {
         $pid = $row['pid'];
@@ -45,12 +47,12 @@ function displayRow($row, $pid = '')
         $options = "<option value=''></option>" .
             "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
-        if (!$firsttime) {
+        if (!$first_time) {
             echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
         }
     }
 
-    $firsttime = false;
+    $first_time = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
     $phones = array();
     if (trim($row['phone_home'])) {
@@ -63,12 +65,11 @@ function displayRow($row, $pid = '')
         $phones[] = trim($row['phone_cell']);
     }
     $phones = implode(', ', $phones);
-
-    $facname = '';
+    $fac_name = '';
     if ($row['home_facility']) {
         $facrow = getFacility($row['home_facility']);
         if (!empty($facrow['name'])) {
-            $facname = $facrow['name'];
+            $fac_name = $facrow['name'];
         }
     }
     $highlight_text = $row['dupscore'] > 17 ? xlt('Merge From') : '';
@@ -80,7 +81,7 @@ function displayRow($row, $pid = '')
     echo "<tr class='$highlight_class'>";
     ?>
     <td>
-        <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
+        <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
             <?php echo $options; // this is html and already escaped as required
             ?>
         </select>
@@ -123,6 +124,44 @@ function displayRow($row, $pid = '')
     <?php
 }
 
+/**
+ * @return int
+ */
+function calculateScores(): int
+{
+    sqlStatementNoLog("UPDATE patient_data SET dupscore = -9 WHERE dupscore != -1");
+
+    $query_limit = 5000;
+    $endtime = time() + 365 * 24 * 60 * 60; // a year from now
+    $endtime = time() + 240 * 60;
+    $count = 0;
+    $finished = false;
+
+    while (!$finished && time() < $endtime) {
+        $scores = array();
+        $query = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
+            " FROM patient_data AS p1, patient_data AS p2" .
+            " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
+            " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . escape_limit($query_limit);
+        $results = sqlStatementNoLog($query);
+        while ($row1 = sqlFetchArray($results)) {
+            $scores[$row1['pid']] = $row1['dupscore'];
+        }
+        foreach ($scores as $pid => $score) {
+            sqlStatementNoLog(
+                "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
+                array($score, $pid)
+            );
+            ++$count;
+        }
+        if (count($scores) < $query_limit) {
+            $finished = true;
+        }
+    }
+
+    return $count;
+}
+
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -134,8 +173,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$scorecalc = getDupScoreSQL();
+$calc_count = calculateScores();
+$score_calculate = getDupScoreSQL();
+
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <title><?php echo xlt('Duplicate Patient Management') ?></title>
@@ -155,7 +197,6 @@ $scorecalc = getDupScoreSQL();
         background-color: #ff000733 !important;
       }
     </style>
-
     <script>
         $(function () {
             // Enable fixed headers when scrolling the report.
@@ -170,23 +211,24 @@ $scorecalc = getDupScoreSQL();
             document.fnew.submit();
         }
 
-        function selchange(sel, toppid, rowpid) {
-            var f = document.forms[0];
-            if (sel.value == '') return;
+        function selectChange(select, toppid, rowpid) {
+            let form = document.forms[0];
+            if (select.value == '') {
+                return;
+            }
             top.restoreSession();
-            if (sel.value == 'MK') {
+            if (select.value == 'MK') {
                 window.location = 'merge_patients.php?pid1=' + encodeURIComponent(rowpid) + '&pid2=' + encodeURIComponent(toppid);
-            } else if (sel.value == 'MD') {
+            } else if (select.value == 'MD') {
                 window.location = 'merge_patients.php?pid1=' + encodeURIComponent(toppid) + '&pid2=' + encodeURIComponent(rowpid);
             } else {
                 // Currently 'U' and 'R' actions are supported and rowpid is meaningless.
-                f.form_action.value = sel.value;
-                f.form_toppid.value = toppid;
-                f.form_rowpid.value = rowpid;
-                f.submit();
+                form.form_action.value = select.value;
+                form.form_toppid.value = toppid;
+                form.form_rowpid.value = rowpid;
+                form.submit();
             }
         }
-
     </script>
 </head>
 <body class="container-fluid bg-light text-dark">
@@ -197,7 +239,7 @@ $scorecalc = getDupScoreSQL();
         <form class="form" method='post' action='manage_dup_patients.php'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="btn-sm-group mb-1 text-center">
-                <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('Refresh') ?></button>
+                <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
             </div>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
@@ -257,9 +299,9 @@ $scorecalc = getDupScoreSQL();
                 $res1 = sqlStatement($query);
                 while ($row1 = sqlFetchArray($res1)) {
                     displayRow($row1);
-                    $query = "SELECT p2.*, ($scorecalc) AS myscore " .
+                    $query = "SELECT p2.*, ($score_calculate) AS myscore " .
                         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-                        "p1.pid = ? AND p2.pid < p1.pid AND ($scorecalc) > 12 " .
+                        "p1.pid = ? AND p2.pid < p1.pid AND ($score_calculate) > 12 " .
                         "ORDER BY myscore DESC, p2.pid DESC";
                     $res2 = sqlStatement($query, array($row1['pid']));
                     while ($row2 = sqlFetchArray($res2)) {
