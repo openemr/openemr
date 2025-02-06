@@ -28,8 +28,10 @@ if ($_GET["set_pid"] ?? '' && ($_GET["set_pid"] != $_SESSION["pid"])) {
 // For gotos from billing manager we are whitelisting pid
 if (($_POST['mode'] ?? '') == 'session_key') {
     $key = $_POST['key'] ?? '';
-    if ($key == 'pid') {
-        $current = $_SESSION[$key] ?? $pid ?? 0;
-        echo(js_escape($current));
+    $allowedKeys = ['pid', 'encounter'];
+
+    if (in_array($key, $allowedKeys, true)) {
+        $current = $_SESSION[$key] ?? ($key === 'pid' ? ($pid ?? 0) : 0);
+        echo text(js_escape($current));
     }
 }
