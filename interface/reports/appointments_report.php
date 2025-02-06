@@ -464,9 +464,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
         // include provider as well
-       $fields = ['ufname','ulname','pc_eventDate', 'pc_startTime', 'fname', 'lname', 'DOB'];
-    //   $fields = ['ulname','lastdocname','pc_eventDate', 'pc_startTime', 'fname', 'DOB'];
-        $spreadsheet = new SpreadSheetService($appointments, $fields, 'appts');
+          $fields = ['ufname','ulname','pc_eventDate', 'pc_startTime', 'fname', 'lname', 'DOB'];
+           $spreadsheet = new SpreadSheetService($appointments, $fields, 'appts');
         if (!empty($spreadsheet->buildSpreadsheet())) {
             $spreadsheet->downloadSpreadsheet('Csv');
         }
