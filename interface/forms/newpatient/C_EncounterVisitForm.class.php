@@ -22,23 +22,23 @@
 
 namespace OpenEMR\Forms\NewPatient;
 
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
-use OpenEMR\OeUI\RenderFormFieldHelper;
-use OpenEMR\Common\Database\QueryUtils;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Twig\TwigFunction;
-use OpenEMR\Billing\MiscBillingOptions;
-use Twig\Environment;
 use sqlStatement;
 use sqlFetchArray;
+use Twig\Environment;
+use Twig\TwigFunction;
 
 class C_EncounterVisitForm
 {

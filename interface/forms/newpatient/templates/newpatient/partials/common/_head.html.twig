@@ -3,7 +3,7 @@
     <title>{{ pageTitle|text }}</title>
     {# datetimepicker used for encounter date pickers #}
     {# moment(moment.js) & validation_script used for script validation, with moment needed for date validators #}
-    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'common', 'moment', 'validation_script'])|attr }}
+    {{ setupHeader(['datetime-picker', 'datetime-picker-translated', 'common', 'moment', 'validation_script']) }}
     <script src="{{ contextPath|attr }}/interface/forms/newpatient/newpatient.js?v={{ assetVersion|attr_url }}"></script>
     <style>
         @media only screen and (max-width: 1024px) {

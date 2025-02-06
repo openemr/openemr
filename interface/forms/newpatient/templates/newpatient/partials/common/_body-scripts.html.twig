@@ -4,13 +4,13 @@
         window.document.addEventListener("DOMContentLoaded", function() {
             if (window.NewPatientForm) {
                 let config = {
-                    webroot: {{ webroot|xlj }},
-                    pid: {{ pid|xlj }},
-                    viewmode: {{ viewmode|xlj }},
-                    encounter: {{ encounter|xlj }},
+                    webroot: {{ webroot|js_escape }},
+                    pid: {{ pid|js_escape }},
+                    viewmode: {{ viewmode|js_escape }},
+                    encounter: {{ encounter|js_escape }},
                     validationConstraints: {{ validationConstraints|json_encode }},
                     isPosEnabled: {{ isPosEnabled ? "true" : "false" }},
-                    csrfToken: {{CSRF_TOKEN_FORM|xlj}},
+                    csrfToken: {{CSRF_TOKEN_FORM|js_escape}},
                     enableGroupTherapy: {{ enableGroupTherapy ? "true" : "false" }},
                     therapyGroupCategories: {{ therapyGroupCategories|json_encode }},
                     duplicate: {{ duplicate|json_encode }},
