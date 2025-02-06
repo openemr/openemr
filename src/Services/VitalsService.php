@@ -24,11 +24,14 @@ use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class VitalsService extends BaseService
 {
+    use ServiceEventTrait;
+
     const MEASUREMENT_METRIC_ONLY = 4;
     const MEASUREMENT_USA_ONLY = 3;
     const MEASUREMENT_PERSIST_IN_METRIC = 2;
@@ -456,23 +459,6 @@ class VitalsService extends BaseService
             return $data[0];
         }
         return null;
-    }
-
-
-    /**
-     *
-     * @param string $type The type of save event to dispatch
-     * @param $vitalsData The vitals data to send in the event
-     * @return array
-     */
-    private function dispatchSaveEvent(string $type, $vitalsData)
-    {
-        $saveEvent = new ServiceSaveEvent($this, $vitalsData);
-        $filteredData = $this->getEventDispatcher()->dispatch($saveEvent, $type);
-        if ($filteredData instanceof ServiceSaveEvent) { // make sure whoever responds back gives us the right data.
-            $vitalsData = $filteredData->getSaveData();
-        }
-        return $vitalsData;
     }
 
     /**
