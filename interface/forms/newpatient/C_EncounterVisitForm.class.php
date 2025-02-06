@@ -138,7 +138,7 @@ class C_EncounterVisitForm
     {
         $facilities = $facilityService->getAllServiceLocations();
 
-        return array_map(function ($facility) use ($default_fac_override) {
+        $facilities = array_map(function ($facility) use ($default_fac_override) {
             $item = [
                 'id' => $facility['id'],
                 'name' => $facility['name'],
@@ -147,6 +147,11 @@ class C_EncounterVisitForm
             ];
             return $item;
         }, $facilities);
+        // if there is only one facility that is the one we select by default.
+        if (count($facilities) == 1) {
+            $facilities[0]['selected'] = true;
+        }
+        return $facilities;
     }
 
 // START AI GENERATED CODE
@@ -626,6 +631,9 @@ class C_EncounterVisitForm
         $posCode = '';
         foreach ($facilities as $facility) {
             if ($facility['selected']) {
+                // if the $default_fac_override is not set, we want to use the default determined by the
+                // getFacilitiesForTemplate function so it gets saved in the DOM.
+                $default_fac_override = $facility['id'];
                 $posCode = $facility['pos_code'];
                 break;
             }
