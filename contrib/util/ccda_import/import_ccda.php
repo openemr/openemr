@@ -39,31 +39,52 @@
 // comment this out when using this script (and then uncomment it again when done using script)
 // exit;
 
-if (php_sapi_name() !== 'cli' || count($argv) != 6) {
-    echo "Only php cli can execute a command\n";
-    echo "use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>\n";
-    echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true\n";
-    echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr false\n";
-    die;
+function parseArgs($argv): array
+{
+    $args = [];
+    foreach ($argv as $arg) {
+        if (str_starts_with($arg, '--')) {
+            list($key, $value) = explode('=', substr($arg, 2), 2) + [1 => null];
+            $args[$key] = $value;
+        }
+    }
+    return $args;
 }
 
-function outputMessage($message)
+function outputMessage($message): void
 {
     echo $message;
     file_put_contents("log.txt", $message, FILE_APPEND);
 }
 
 // collect parameters (need to do before globals)
-$dir = $argv[1] . '/*';
-$_GET['site'] = $argv[2];
-$openemrPath = $argv[3];
-$seriousOptimizeFlag = $argv[4];
+$args = parseArgs($argv);
+
+// Required arguments
+$requiredArgs = ['sourcePath', 'site', 'openemrPath', 'isDev', 'enableMoves'];
+
+// Validate input
+foreach ($requiredArgs as $req) {
+    if (!isset($args[$req])) {
+        die("Missing required argument: --$req\nUsage: php import_ccda.php --sourcePath=/path/to/import --site=default --openemrPath=/path/to/openemr --isDev=true --enableMoves=true\n");
+    }
+}
+
+// import_ccda.php --sourcePath=/xampp/htdocs/openemr/contrib/import_ccdas --site=default --openemrPath=/xampp/htdocs/openemr --isDev=true --enableMoves=true
+$dir = rtrim($args['sourcePath'], '/') . '/*';
+$_GET['site'] = $args['site'];
+$openemrPath = $args['openemrPath'];
+$seriousOptimizeFlag = filter_var($args['isDev'], FILTER_VALIDATE_BOOLEAN);
+$enableMoves = filter_var($args['enableMoves'], FILTER_VALIDATE_BOOLEAN);
+$help = filter_var($args['help'], FILTER_VALIDATE_BOOLEAN);
+
+$seriousOptimize = false;
 if ($seriousOptimizeFlag == "true") {
     $seriousOptimize = true;
-} else {
-    $seriousOptimize = false;
 }
-$enableMoves = $argv[5] == "true";
+if ($help) {
+    die("Usage: php import_ccda.php --sourcePath=/path/to/import --site=default --openemrPath=/path/to/openemr --isDev=true/false --enableMoves=true/false\n");
+}
 
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
