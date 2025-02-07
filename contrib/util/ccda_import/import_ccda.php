@@ -12,7 +12,7 @@
  *      not needed).
  *
  * Use:
- *   1. use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>
+ *   1. use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode> <enable-moves> <dedup>
  *   2. use example: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true
  *   3. use example: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr false
  *   4. Note that development-mode will markedly improve performance by bypassing the import of
@@ -32,7 +32,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -45,10 +47,39 @@ function parseArgs($argv): array
     foreach ($argv as $arg) {
         if (str_starts_with($arg, '--')) {
             list($key, $value) = explode('=', substr($arg, 2), 2) + [1 => null];
+            if ($key === 'help') {
+                showHelp();
+            }
             $args[$key] = $value;
         }
     }
     return $args;
+}
+
+function showHelp(): void
+{
+    // import_ccda.php --sourcePath=/xampp/htdocs/openemr/contrib/import_ccdas --site=default --openemrPath=/xampp/htdocs/openemr --isDev=true --enableMoves=true
+    echo "\n";
+    echo "Usage: php import_ccda.php [OPTIONS]\n";
+    echo "\n";
+    echo "Options:\n";
+    echo "  --sourcePath     Required. Path to the directory containing CCDA files to import.\n";
+    echo "  --site           Required. OpenEMR site ID.\n";
+    echo "  --openemrPath    Required. Path to OpenEMR web root.\n";
+    echo "  --isDev          Optional. Set to 'true' for development mode, 'false' for production. Default: true.\n";
+    echo "  --enableMoves    Optional. Set to 'true' to move processed files, 'false' to disable. Default: false.\n";
+    echo "  --dedup          Optional. Set to 'true' to enable duplicate checking, 'false' to disable. Default: false.\n";
+    echo "  --help           Show this help message.\n";
+    echo "\n";
+    echo "Example:\n";
+    echo "  php import_ccda.php --sourcePath=/path/to/import/documents \\\n";
+    echo "                      --site=default \\\n";
+    echo "                      --openemrPath=/var/www/openemr \\\n";
+    echo "                      --isDev=true \\\n";
+    echo "                      --enableMoves=false \\\n";
+    echo "                      --dedup=false\n";
+    echo "\n";
+    exit;
 }
 
 function outputMessage($message): void
@@ -61,29 +92,26 @@ function outputMessage($message): void
 $args = parseArgs($argv);
 
 // Required arguments
-$requiredArgs = ['sourcePath', 'site', 'openemrPath', 'isDev', 'enableMoves'];
+$requiredArgs = ['sourcePath', 'site', 'openemrPath'];
 
 // Validate input
 foreach ($requiredArgs as $req) {
+    // ignore defaults
     if (!isset($args[$req])) {
-        die("Missing required argument: --$req\nUsage: php import_ccda.php --sourcePath=/path/to/import --site=default --openemrPath=/path/to/openemr --isDev=true --enableMoves=true\n");
+        showHelp();
     }
 }
 
-// import_ccda.php --sourcePath=/xampp/htdocs/openemr/contrib/import_ccdas --site=default --openemrPath=/xampp/htdocs/openemr --isDev=true --enableMoves=true
 $dir = rtrim($args['sourcePath'], '/') . '/*';
-$_GET['site'] = $args['site'];
-$openemrPath = $args['openemrPath'];
-$seriousOptimizeFlag = filter_var($args['isDev'], FILTER_VALIDATE_BOOLEAN);
-$enableMoves = filter_var($args['enableMoves'], FILTER_VALIDATE_BOOLEAN);
-$help = filter_var($args['help'], FILTER_VALIDATE_BOOLEAN);
+$_GET['site'] = $args['site'] ?? 'default';
+$openemrPath = $args['openemrPath'] ?? '';
+$seriousOptimizeFlag = filter_var($args['isDev'] ?? true, FILTER_VALIDATE_BOOLEAN); // default to true/on
+$enableMoves = filter_var($args['enableMoves'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
+$deduplicate = filter_var($args['dedup'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
 
 $seriousOptimize = false;
 if ($seriousOptimizeFlag == "true") {
     $seriousOptimize = true;
-}
-if ($help) {
-    die("Usage: php import_ccda.php --sourcePath=/path/to/import --site=default --openemrPath=/path/to/openemr --isDev=true/false --enableMoves=true/false\n");
 }
 
 $ignoreAuth = 1;
@@ -118,12 +146,14 @@ foreach (glob($dir) as $file) {
     $patientData = [];
     try {
         $file = str_replace("'", "\'", $file);
-        $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
-        $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
-        if (!empty($duplicates)) {
-            CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
-            echo outputMessage("Duplicate patient found: " . json_encode($duplicates) . "\n");
-            continue;
+        if ($deduplicate) {
+            $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
+            $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
+            if (!empty($duplicates && $enableMoves)) {
+                CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
+                echo outputMessage("Duplicate patient found: " . json_encode($duplicates) . "\n");
+                continue;
+            }
         }
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
@@ -147,9 +177,11 @@ foreach (glob($dir) as $file) {
         //  3. import as new patient
         exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
     }
-    // move the C-CDA XML to the processed directory
     try {
-        CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/processed");
+        if ($enableMoves) {
+            // move the C-CDA XML to the processed directory
+            CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/processed");
+        }
     } catch (Exception $e) {
         outputMessage("Error moving file: " . $e->getMessage() . "\n");
     }
