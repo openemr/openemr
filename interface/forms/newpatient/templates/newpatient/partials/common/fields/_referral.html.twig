@@ -1,0 +1,8 @@
+{# Referral Source #}
+<div class="col-sm {{ globals.gbl_visit_referral_source == 1 ? '' : 'd-none' }}">
+    <div class="form-group">
+        <label for="form_referral_source" class="text-right">{{ 'Referral Source'|xlt  }}:</label>
+        {# Note for backwards compatability we make explicit the empty_name to be a space, otherwise the page save operation doesn't work #}
+        {{ selectList('form_referral_source', 'refsource', defaultReferralSource, '', {empty_name: ' '}) }}
+    </div>
+</div>
