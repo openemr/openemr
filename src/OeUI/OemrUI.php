@@ -17,6 +17,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Services\Globals\UserSettingsService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -88,7 +89,7 @@ class OemrUI
         $this->display_help_icon = $arrOeUiSettings['show_help_icon'] ?? null;
         $this->help_file = $arrOeUiSettings['help_file_name'] ?? null;
         if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
-            $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
+            $this->current_state = UserSettingsService::collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
 
         $act = $this->arrAction;
