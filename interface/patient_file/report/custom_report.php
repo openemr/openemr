@@ -35,6 +35,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Forms\FormReportRenderer;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
@@ -326,16 +327,13 @@ function zip_content($source, $destination, $content = '', $create = true)
 
             <?php
 
+            $reportRenderer = new FormReportRenderer();
+
             // include ALL form's report.php files
             $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", array($pid));
             while ($result = sqlFetchArray($inclookupres)) {
                 // include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
                 $formdir = $result['formdir'];
-                if (substr($formdir, 0, 3) == 'LBF') {
-                    include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-                } else {
-                    include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-                }
             }
 
             if ($PDF_OUTPUT) {
@@ -800,17 +798,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 if (!empty($res[1])) {
                                     $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
                                     if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
-                                        if (substr($res[1], 0, 3) == 'LBF') {
-                                            call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
-                                        } else {
-                                            call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
-                                        }
+                                        $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
-                                        if (substr($res[1], 0, 3) == 'LBF') {
-                                            call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1]);
-                                        } else {
-                                            call_user_func($res[1] . '_report', $pid, $form_encounter, $N, $form_id);
-                                        }
+                                        $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } else {
                                         echo "<h6>" . xlt("Not signed.") . "</h6>";
                                     }

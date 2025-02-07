@@ -16,12 +16,21 @@ require_once("../../globals.php");
 require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
+use OpenEMR\Core\ModulesApplication;
 
-if (substr($_GET["formname"], 0, 3) === 'LBF') {
-    // Use the List Based Forms engine for all LBFxxxxx forms.
-    include_once("$incdir/forms/LBF/new.php");
-} else {
+check_file_dir_name($_GET['formname']);
+/**
+ * @gloal $incdir the include directory
+ */
+$incdir = $incdir ?? "";
+
+$pageName = "new.php";
+$isLBF = false;
+if (!str_starts_with($_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
         $encounter = $_GET['encounter'];
@@ -37,9 +46,10 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
         echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
         exit;
     }
-
-    include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }
+$formLocator = new FormLocator();
+$file = $formLocator->findFile($_GET['formname'], 'view.php', 'load_form.php');
+require_once($file);
 
 if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>
     <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
