@@ -1,0 +1,3205 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "Medical History Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/MH",
+            "prefix": "Medical History",
+            "text": " The next few questions record important aspects of your medical history.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComMI",
+                            "display": "Have you ever been treated for heart disease or been told you had a heart attack, or had procedures such as angioplasty, cardiac stents or bypass surgery?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComMI",
+                    "text": "Have you ever been treated for heart disease or been told you had a heart attack, or had procedures such as angioplasty, cardiac stents or bypass surgery?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering active rehabilitation or surgery, please alert your care team of your risk of heart disease. History of heart attack or heart disease (CAD - Coronary Artery Disease) increases your risk of having heart attack with active rehabilitation or surgery.  Sharing this information with your surgical team will help them optimize your risk by adjusting your medications, surgical procedure, anesthesia and recovery plan.References: (1) Lee T H, et al. Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery.Circulation. 1999;100:1043-1049 (2) Ford MK, et al. Systematic review: Prediction of perioperative cardiac complications and mortality by the RCRI. Annals of Internal Medicine. 2010;152(1):26-35",
+                            "type": "display",
+                            "linkId": "/MH/ComMI-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComCHF",
+                            "display": "Have you ever been treated for heart failure? You may have been short of breath and the doctor may have told you that you had fluid in your lungs or that your heart was not pumping well.",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComCHF",
+                    "text": "Have you ever been treated for heart failure? You may have been short of breath and the doctor may have told you that you had fluid in your lungs or that your heart was not pumping well.",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Heart Failure due to a weak or stiff heart is important to recognize in order manage medications prescribed for your symptoms. If you are considering active rehabilitation or surgery, please alert your surgical team of your risk of heart failure. Heart failure may flare up after surgery.Preparing carefully for surgery may decrease the risk. References: (1) Healy KO, et al. Predictive outcome and long term mortality for Heart Failure patients undergoing intermediate and high risk non-cardiac surgery: Impact of Left ventricular Ejection Fraction. Congestive Heart Failure 2010;16:45-49. doi: 10.1111/j.1751-7133.2009.00130.x (2) Gupta PK, et al. Development and validation of a risk calculator for prediction of cardiac risk after surgery. Circulation. 2011 Jul 26;124(4):381-7. doi: 10.1161/CIRCULATIONAHA.110.015701 (3)Powell-Tuck J, et al. GIFTASUP - British Consensus Guidelines on Intravenous Fluid Therapy for Adult Surgical Patients. March 2011",
+                            "type": "display",
+                            "linkId": "/MH/ComCHF-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComPVD",
+                            "display": "Have you had an operation to unclog or bypass the arteries in your legs? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComPVD",
+                    "text": "Have you had an operation to unclog or bypass the arteries in your legs? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering active rehabilitation or surgery, please alert your surgical team of circulation problems. Having a history of circulation problems (vascular disease, or peripheral arterial disease, PAD) increases your risk of blockages in your heart. It is relevant for planning for surgery and anesthesia, such as whether to use a tourniquet during knee replacement, and make other management decisions during and after surgery. References: (1)  Kiani S, et al. Peripheral arterial disease is associated with severe impairment of vascular function. Vascular Medicine. 2013 Apr; 18(2): 72-78  (2)Gokce N, et al. Risk stratification for postoperative cardiovascular events via noninvasive assessment of endothelial function: a prospective study. Circulation. 2002 Apr 2;105(13):1567-72    (3)  Smith DE, et al. Arterial complications and TKA. J Am Acad Orthop Surg 2001;9:253-257 (4) Dakka AM, et al. TKA in patients with PAD. Surgeon 2009 Dec; 7(6):362-5",
+                            "type": "display",
+                            "linkId": "/MH/ComPVD-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComDVT",
+                            "display": "Have you had ever been treated for blood clots in your legs or lungs, DVT, PE? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComDVT",
+                    "text": "Have you had ever been treated for blood clots in your legs or lungs, DVT, PE? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering surgery please alert your surgical team to your risk of blood clots. It will help them investigate further and take precautions.",
+                            "type": "display",
+                            "linkId": "/MH/ComDVT-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComBleeding",
+                            "display": "Have you had ever been treated for bleeding problems? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComBleeding",
+                    "text": "Have you had ever been treated for bleeding problems? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering surgery please alert your surgical team to your risk of bleeding. It will help them investigate further and take precautions.",
+                            "type": "display",
+                            "linkId": "/MH/ComBleeding-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComCVA",
+                            "display": "Have you ever been treated for a stroke, cerebrovascular accident, blood clot or bleeding in the brain, or transient ischemic attack (TIA)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComCVA",
+                    "text": "Have you ever been treated for a stroke, cerebrovascular accident, blood clot or bleeding in the brain, or transient ischemic attack (TIA)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering active rehabilitation or surgery please alert your surgical team to your risk of stroke, to help them investigate further and take precautions. Your risk of having another stroke (brain attack or CVA) or other serious events may be increased during and after surgery. References: (1)  Fleisher LA, et al. 2014 ACC/AHA Guideline on Perioperative Cardiovascular Evaluation and Management of Patients Undergoing Noncardiac Surgery, Journal of the American College of Cardiology (2014), doi: 10.1016/j.jacc.2014.07.944 (2)  Jorgensen ME, et al. Time elapsed after ischemic stroke and risk of adverse cardiovascular events and mortality following elective noncardiac surgery. JAMA. 2014 Jul;312(3):269-77 (3)  North American Symptomatic Carotid Endarterectomy Trial Collaborators. NewEngland Journal of Medicine. 1991;325(7):445 (4)  Kernan WN, et al. Guidelines for the prevention of stroke in patients with stroke and transient ischemic attack: a guideline for healthcare professionals from the American Heart Association/American Stroke Association. Stroke. 2014;45(7):2160",
+                            "type": "display",
+                            "linkId": "/MH/ComCVA-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComHemiplegia",
+                            "display": "Do you have difficulty moving an arm or leg as a result of the stroke or cerebrovascular accident?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComHemiplegia",
+                    "text": "Do you have difficulty moving an arm or leg as a result of the stroke or cerebrovascular accident?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComCVA",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComCVA",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "If you are considering surgery, muscle weakness or loss of sensation can affect your recovery from surgery and anesthesia, and change your rehabilitation plan.  References:  (1)  Mizner RL, et al. Preoperative Quadriceps strength predicts functional ability one year after TKA. Journal of Rheumatology 2005;32:1533-9   (2)  Charlson ME, et al. A new method of classifying prognostic comorbidity in longitudinal studies : Development and Validation. Journal of Chronic Disease 1987;40:373-383",
+                            "type": "display",
+                            "linkId": "/MH/ComHemiplegia-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComAsthma",
+                            "display": "Have you ever been diagnosed with or told that you have asthma? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComAsthma",
+                    "text": "Have you ever been diagnosed with or told that you have asthma? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering surgery, please discuss this with your team to help them prepare for this risk. Asthma, COPD (emphysema, chronic bronchitis) can flare up after active rehabilitation or surgery.  History of lung disease may affect the type of anesthesia you receive, and your post-operative recovery. Reference: Tirumalasetty J, et al. Asthma, surgery, and general anesthesia: a review. Journal of Asthma 2006;43:251-4.",
+                            "type": "display",
+                            "linkId": "/MH/ComAsthma-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComAsthmaMed",
+                            "display": "Do you take medicines for your asthma?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComAsthmaMed",
+                    "text": "Do you take medicines for your asthma?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComAsthma",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComAsthma",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "If you are considering surgery, please discuss this with your team to help them prepare for this risk.  Asthma, COPD (emphysema, chronic bronchitis) can flare up after active rehabilitation or surgery.  History of lung disease may affect the type of anesthesia you receive, and your post-operative recovery. Reference:  Tirumalasetty J, et al. Asthma, surgery, and general anesthesia: a review. Journal of Asthma 2006;43:251-4.",
+                            "type": "display",
+                            "linkId": "/MH/ComAsthmaMed-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComCOPD",
+                            "display": "Do you have emphysema, chronic bronchitis, or chronic obstructive lung disease (COPD)? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComCOPD",
+                    "text": "Do you have emphysema, chronic bronchitis, or chronic obstructive lung disease (COPD)? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Lung disease can affect anesthesia and recovery from active rehabilitation or surgery.  Asthma, COPD (emphysema, chronic bronchitis) can flare up after surgery.  If you are considering surgery, please discuss this with your team to help them prepare to address this risk and prevent problems.  References: (1) Smetana GW, Lawrence VA, Cornell JE. Preoperative pulmonary risk stratification for noncardiothoracic surgery: systematic review for the American College of Physicians. Annals of Internal Medicine. 2006;144:581-95  (2)  Qaseem A, Snow V, Fitterman N, et al., for the Clinical Efficacy Assessment Subcommittee of the American College of Physicians. Risk assessment for and strategies to reduce perioperative pulmonary complications for patients undergoing noncardiothoracic surgery: a guideline from the American College of Physicians. Annals of Internal Medicine. 2006; 144:575-80  (3) Fleischmann KE et al. Cardiac and noncardiac complications were strongly linked in patients undergoing noncardiac surgery.American Journal of Medicine. 2003;115:515-20",
+                            "type": "display",
+                            "linkId": "/MH/ComCOPD-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComOxygen",
+                            "display": "Do you take medicines for your lung disease, or use oxygen, or use a home breathing machine (CPAP machine)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComOxygen",
+                    "text": "Do you take medicines for your lung disease, or use oxygen, or use a home breathing machine (CPAP machine)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComCOPD",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComCOPD",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "If you are considering surgery, you may have increased risk of needing to stay in the intensive care unit (ICU) after surgery and require a breathing machine (ventilator). This risk may be decreased by recommendations and individualized care from your anesthesia and surgical team. References:  (1)  Canet J et al. Prediction of postoperative pulmonary complications in a population-based surgical cohort. Anesthesiology. 2010;113(6):1338-50 (2) Memtsoudis SG, et al. Sleep apnea and total joint arthroplasty under various types of anesthesia: a population-based study of perioperative outcomes. Regional Anesthesia and Pain Medicine 2013;38:274-81",
+                            "type": "display",
+                            "linkId": "/MH/ComOxygen-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComGERD",
+                            "display": "Have you ever been diagnosed with or told that you have stomach ulcers, or peptic ulcer disease? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComGERD",
+                    "text": "Have you ever been diagnosed with or told that you have stomach ulcers, or peptic ulcer disease? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "A current or prior history of acid reflux, ulcers or gastritis increases your risk of blood loss and anemia. It may be relevant to the medications chosen to treat pain.  If you are considering surgery, it can affect the choice of medications to prevent blood clots after surgery.  References:  (1)  Singh JA, et al. Peptic ulcer disease and heart disease are associated with periprosthetic fractures after total hip replacement. Acta Orthopaedica 2012 Aug;83(4):353-9  (2) Madhusudhan TR, et al. Gastric protection and gastrointestinal bleeding with aspirin thromboprophylaxis in hip and knee joint replacements. Annals of the Royal College of Surgeons of England 2008 May;90(4):332-5",
+                            "type": "display",
+                            "linkId": "/MH/ComGERD-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComGERDdx",
+                            "display": "Has this condition been diagnosed by endoscopy where a doctor looks into your stomach through a scope or an upper GI or barium swallow study where you swallow chalky dye and then x-rays are taken?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComGERDdx",
+                    "text": "Has this condition been diagnosed by endoscopy where a doctor looks into your stomach through a scope or an upper GI or barium swallow study where you swallow chalky dye and then x-rays are taken?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComGERD",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComGERD",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "A current or prior history of ulcer increases your risk of blood loss and anemia and may be relevant to the medications chosen to prevent blood clots in the perioperative period. References: (1) Gralnek IM, et al. Management of acute bleeding from a peptic ulcer. N Engl J Med 2008; 359:928-937     (2) Hsu PI. New look at antiplatelet agent-related peptic ulcer: an update of prevention and treatment. Journal of Gastroenterology and Hepatology. 2012 Apr;27(4):654-61",
+                            "type": "display",
+                            "linkId": "/MH/ComGERDdx-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComDM",
+                            "display": "Have you ever been diagnosed with or treated for diabetes (high blood sugar)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComDM",
+                    "text": "Have you ever been diagnosed with or treated for diabetes (high blood sugar)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Diabetes affects medications used to treat your symptoms. If you are considering surgery, it increases risk of complications after surgery. Controlling diabetes before surgery and maintaining your blood sugars close to normal during and after surgery may decrease risk of major complications like infection. Reference:  Marchant MH, et al. The impact of glycemic control and diabetes mellitus on perioperative outcomes after total joint arthroplasty. Journal of Bone and Joint Surgery. 2009;91:1621-9",
+                            "type": "display",
+                            "linkId": "/MH/ComDM-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComDmeye",
+                            "display": "Has the diabetes caused any problems with your eyes, treated by an ophthalmologist (eye-doctor)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComDmeye",
+                    "text": "Has the diabetes caused any problems with your eyes, treated by an ophthalmologist (eye-doctor)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComDM",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComDM",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "If diabetes has resulted in eye problems, there is greater risk of nerve problems (neuropathy), which can affect the surgical plan and outcome. Reference:  Parvizi J, et al. Total knee arthroplasty for neuropathic (Charcot) joints. Clinical Orthopaedics and Related Research. 2003;416:145-50",
+                            "type": "display",
+                            "linkId": "/MH/ComDmeye-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComDmkidney",
+                            "display": "Has the diabetes caused any problems with your kidneys?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComDmkidney",
+                    "text": "Has the diabetes caused any problems with your kidneys?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComDM",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComDM",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "If diabetes has resulted in kidney problems, there is greater risk for complication like kidney injury or failure after surgery. Reference:  National Kidney Foundation. KDOQI Clinical Practice Guideline for Diabetes and CKD: 2012 Update. Am J Kidney Dis. 2012 Nov; 60(5):850-86",
+                            "type": "display",
+                            "linkId": "/MH/ComDmkidney-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComKidney",
+                            "display": "Have you ever had problems with your kidneys (poor kidney function or blood tests show high creatinine)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComKidney",
+                    "text": "Have you ever had problems with your kidneys (poor kidney function or blood tests show high creatinine)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Kidney problems can play a vital role in choosing the medications prescribed for you, including contrast agents for imaging studies.  Poor kidney function can also affect the dosing of the medications.  If you are considering surgery, please alert your surgical and anesthesia teams. Kidney problems can increase risk of complications with surgery.References: (1) Memtsoudis SG, et al. Risk factors for perioperative mortality after lower extremity arthroplasties: A population based study of 6,901,324 patient discharges. J Arthroplasty. 2010 Jan;25(1):19-26. doi: 10.1016/j.arth.2008.11.010. Epub 2008 Dec 23  (2) Godin M, et al. Fluid balance in patients with acute kidney injury: Emerging concepts. Nephron Clinical Practice 2013;123:238-245 (2) Sawhney S, et al. Long term prognosis after acute kidney injury (AKI): What is the role of baseline kidney function and recovery? A systematic review. BMJ Open. 2015 Jan 6;5(1):e006497",
+                            "type": "display",
+                            "linkId": "/MH/ComKidney-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComDialysis",
+                            "display": "Have you used hemodialysis or peritoneal dialysis (kidney dialysis)?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComDialysis",
+                    "text": "Have you used hemodialysis or peritoneal dialysis (kidney dialysis)?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComKidney",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComKidney",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "Patients on dialysis may need careful management of medications by nephrologist (kidney specialist). If you are considering surgery, additional dialysis may need to be arranged around the surgery date. References: (1) Afshar AH, et al. The validity of the VA surgical tool in predictig postoperative mortality in octogenarians. American Journal of Surgery. 2015 Feb;209(2):274-9  (2)  Shah H, et al. Perioperative management of peritoneal dialysis patients undergoing hernia surgery without the use of interim hemodialysis Peritoneal Dialysis International. 2006 Nov-Dec;26(6):684-7",
+                            "type": "display",
+                            "linkId": "/MH/ComDialysis-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComLiver",
+                            "display": "Have you ever been diagnosed with or treated for cirrhosis, or serious liver disease? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComLiver",
+                    "text": "Have you ever been diagnosed with or treated for cirrhosis, or serious liver disease? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Liver disease or cirrhosis requires careful attention to medications prescribed for your treatment.  If you are considering surgery, liver disease increases the risk of infection, bleeding, confusion, and other complications. Please alert your surgical and anesthesia teams.They may need to adjust the techniques chosen and the postoperative plan. References: (1)  Tiberi JV, et al. Increased complication rates after hip and knee arthroplasty in patients with cirrhosis of the liver. Clin Orthop Relat Res (2014) 472:2774-2778  (2) Cohen SM, et al. Operative risk of total hip and knee arthroplasty in cirrhotic patients. Journal of Arthroplasty. 2005;20:460-466  (3) Shih LY, et al. Total knee arthroplasty in patients with liver cirrhosis. Journal of Bone and Joint Surgery, 2004 Feb; 86 (2): 335 -341",
+                            "type": "display",
+                            "linkId": "/MH/ComLiver-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComTransplant",
+                            "display": "Have you received a kidney, liver, lung or other transplant?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComTransplant",
+                    "text": "Have you received a kidney, liver, lung or other transplant?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Transplant patients on anti-rejection meds may need dose adjustments, coordination of care with transplant team and close monitoring of their medications.  Reference:  Cavanaugh PK, et al.  Total Joint Arthroplasty in Transplant Recipients: In-Hospital Adverse Outcomes. J Arthroplasty. 2014 Dec 5. pii: S0883-5403(14)00913-9.",
+                            "type": "display",
+                            "linkId": "/MH/ComTransplant-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComCancer",
+                            "display": "Have you ever been diagnosed with or treated for cancer?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComCancer",
+                    "text": "Have you ever been diagnosed with or treated for cancer?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "A history of cancer is important for evaluation and treatment of your symptoms. If you are considering surgery, it can affect your risk of bleeding, infection, blood clots, and function of organs such as nerves, heart, lungs, liver or kidneys.  Please make sure your surgical team is aware of this. Cancer or its treatment may limit the benefits of surgery.  Also, some blood tests ordered before and after surgery will be expected to be abnormal in setting of cancer or its treatment. Please have your surgery and anesthesia teams coordinate carefully with your oncologist. References:  (1)  Dybvik E, et al. Long term risk for receiving a total hip replacement in cancer patients - A linkage study between the cancer register of Norway and the Norwegian arthroplasty register. Journal of Bone and Joint Surgery Br 2010;92-B:601 (2) Katz JN, et al. Elective palliative total hip replacement in a patient with lymphoma and advanced lung cancer. Arthritis and Rheumatology. 2008 Aug 15; 59(8): 1194-1196",
+                            "type": "display",
+                            "linkId": "/MH/ComCancer-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComMetastases",
+                            "display": "Has the cancer spread, or metastasized to other parts of your body?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComMetastases",
+                    "text": "Has the cancer spread, or metastasized to other parts of your body?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComCancer",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComCancer",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "Cancer may spread to bones and cause pain.  Surgery may be helpful for relief of pan, stabilization of the involved bone or joint, and to improve your quality of life.  If you are considering surgery, please have your surgery and anesthesia teams coordinate carefully with your oncologist. Reference:  Charlson ME, et al. A new method of classifying prognostic comorbidity in longitudinal studies : Development and Validation. Journal of Chronic Disease 1987;40:373-383.",
+                            "type": "display",
+                            "linkId": "/MH/ComMetastases-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComHIV",
+                            "display": "Have you ever been diagnosed with or treated for HIV/AIDS?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComHIV",
+                    "text": "Have you ever been diagnosed with or treated for HIV/AIDS?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "History of having HIV infection or AIDS is relevant to evaluation of your symptoms. It may affect the choice of medications prescribed for treating your symptoms.  If you are considering surgery, the medications used to treat HIV infection or AIDS can interact with anesthesia and surgical medications.  Untreated AIDS can lead to poor outcome including increased risk of infection after joint replacement and may need to be addressed before surgery.      Reference:  King Jr JT, et al. Thirty-Day Postoperative Mortality Among Individuals Wth HIV Infection Receiving Antiretroviral Therapy and Procedure-Matched, Uninfected Comparators. JAMA Surgery doi:10.1001/jamasurg.2014.2257 Published online February 25, 2015",
+                            "type": "display",
+                            "linkId": "/MH/ComHIV-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComIA",
+                            "display": "Do you have any rheumatic conditions like lupus, psoriasis, ankylosing spondylitis, or rheumatoid arthritis (a type of arthritis NOT related to the commonly diagnosed osteoarthritis)? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComIA",
+                    "text": "Do you have any rheumatic conditions like lupus, psoriasis, ankylosing spondylitis, or rheumatoid arthritis (a type of arthritis NOT related to the commonly diagnosed osteoarthritis)? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "Inflammatory conditions like rheumatic or autoimmune arthritis increase risk of complications from surgery such as infection. Careful management before surgery may decrease this risk.  Reference:  Howe CR, et al. Perioperative medication management for the patient with rheumatoid arthritis. Journal of the Academy of Orthopaedic Surgeons 2006;14:544-551. Grennan et al. Ann Rheum Dis. 2001;60:214-217.",
+                            "type": "display",
+                            "linkId": "/MH/ComIA-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComIAmed",
+                            "display": "Do you take medications for it regularly? ",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComIAmed",
+                    "text": "Do you take medications for it regularly? ",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "enableWhen": [
+                        {
+                            "question": "/MH/ComIA",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_2"
+                            }
+                        },
+                        {
+                            "question": "/MH/ComIA",
+                            "operator": "=",
+                            "answerCoding": {
+                                "code": "BFN_3"
+                            }
+                        }
+                    ],
+                    "item": [
+                        {
+                            "text": "Some medications taken for rheumatoid arthritis increase the risk of infection and require careful adjustment before and after surgery. References: (1) Goodman SM, Figgie M. Lower extremity arthroplasty in patients with inflammatory arthritis: preoperative and perioperative management. J Am Acad Orthop Surg. 2013 Jun;21(6):355-63. doi: 10.5435/JAAOS-21-06-355 (2) Bongartz et al. Anti-TNF antibody therapy in rheumatoid arthritis and the risk of serious infections and malignancies: systematic review and meta-analysis of rare harmful effects in randomized controlled trials. JAMA. 2006; 295:2275-85",
+                            "type": "display",
+                            "linkId": "/MH/ComIAmed-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComOAKnee",
+                            "display": "Do you have arthritis in your knees?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComOAKnee",
+                    "text": "Do you have arthritis in your knees?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering surgery, pain affecting other joint in your legs can complicate your recovery and limit the benefits you experience.  Reference: Coxib and traditional NSAID Trialists' (CNT) Collaboration.  Vascular and upper gastrointestinal effects of non-steroidal anti-infl ammatory drugs: meta-analyses of individual participant data from randomised trials. Lancet 2013; 382: 769-79",
+                            "type": "display",
+                            "linkId": "/MH/ComOAKnee-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "ComOAHip",
+                            "display": "Do you have arthritis in your hips?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/MH/ComOAHip",
+                    "text": "Do you have arthritis in your hips?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "BFN_1",
+                                "display": "No"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 0
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_2",
+                                "display": "Yes"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "BFN_3",
+                                "display": "Not sure"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "If you are considering surgery, pain affecting other joint in your legs can complicate your recovery and limit the benefits you experience. References:  Coxib and traditional NSAID Trialists' (CNT) Collaboration.  Vascular and upper gastrointestinal effects of non-steroidal anti-infl ammatory drugs: meta-analyses of individual participant data from randomised trials. Lancet 2013; 382: 769-79.",
+                            "type": "display",
+                            "linkId": "/MH/ComOAHip-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "MH-score",
+                            "display": "Medical History Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh1_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComMI').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComMI').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh2_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCHF').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCHF').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh3_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComPVD').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComPVD').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh4_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDVT').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDVT').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh5_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComBleeding').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComBleeding').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh6_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCVA').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCVA').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh7_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComHemiplegia').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComHemiplegia').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh8_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComAsthma').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComAsthma').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh9_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComAsthmaMed').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComAsthmaMed').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh10_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCOPD').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCOPD').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh11_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComOxygen').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComOxygen').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh12_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComGERD').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComGERD').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh13_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComGERDdx').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComGERDdx').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh14_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDM').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDM').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh15_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDmeye').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDmeye').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh16_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDmkidney').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDmkidney').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh17_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComKidney').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComKidney').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh18_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDialysis').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComDialysis').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh19_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComLiver').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComLiver').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh20_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComTransplant').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComTransplant').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh21_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCancer').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComCancer').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh22_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComMetastases').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComMetastases').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh23_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComHIV').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComHIV').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh24_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComIA').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComIA').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh25_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComIAmed').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComIAmed').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh26_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComOAKnee').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComOAKnee').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "mh27_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/MH').item.where(linkId = '/MH/ComOAHip').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/MH').item.where(linkId = '/MH/ComOAHip').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%mh1_value.exists() or %mh2_value.exists() or %mh3_value.exists() or %mh4_value.exists() or %mh5_value.exists() or %mh6_value.exists() or %mh7_value.exists() or %mh8_value.exists() or %mh9_value.exists() or %mh10_value.exists() or %mh11_value.exists() or %mh12_value.exists() or %mh13_value.exists() or %mh14_value.exists() or %mh15_value.exists() or %mh16_value.exists() or %mh17_value.exists() or %mh18_value.exists() or %mh19_value.exists() or %mh20_value.exists() or %mh21_value.exists() or %mh22_value.exists() or %mh23_value.exists() or %mh24_value.exists() or %mh25_value.exists() or %mh26_value.exists() or %mh27_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%mh1_value.exists(), %mh1_value, 0) + iif(%mh2_value.exists(), %mh2_value, 0) + iif(%mh3_value.exists(), %mh3_value, 0) + iif(%mh4_value.exists(), %mh4_value, 0) + iif(%mh5_value.exists(), %mh5_value, 0) + iif(%mh6_value.exists(), %mh6_value, 0) + iif(%mh7_value.exists(), %mh7_value, 0) + iif(%mh8_value.exists(), %mh8_value, 0) + iif(%mh9_value.exists(), %mh9_value, 0) + iif(%mh10_value.exists(), %mh10_value, 0) + iif(%mh11_value.exists(), %mh11_value, 0) + iif(%mh12_value.exists(), %mh12_value, 0) + iif(%mh13_value.exists(), %mh13_value, 0) + iif(%mh14_value.exists(), %mh14_value, 0) + iif(%mh15_value.exists(), %mh15_value, 0) + iif(%mh16_value.exists(), %mh16_value, 0) + iif(%mh17_value.exists(), %mh17_value, 0) + iif(%mh18_value.exists(), %mh18_value, 0) + iif(%mh19_value.exists(), %mh19_value, 0) + iif(%mh20_value.exists(), %mh20_value, 0) + iif(%mh21_value.exists(), %mh21_value, 0) + iif(%mh22_value.exists(), %mh22_value, 0) + iif(%mh23_value.exists(), %mh23_value, 0) + iif(%mh24_value.exists(), %mh24_value, 0) + iif(%mh25_value.exists(), %mh25_value, 0) + iif(%mh26_value.exists(), %mh26_value, 0) + iif(%mh27_value.exists(), %mh27_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/MH/MH-score",
+                    "text": "Medical History Score"
+                }
+            ]
+        }
+    ],
+    "name": "Medical_History_Assessment"
+}
