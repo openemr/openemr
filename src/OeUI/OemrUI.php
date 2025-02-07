@@ -123,6 +123,28 @@ class OemrUI
         }
     }
 
+
+    /**
+     * Returns a default settings array that can be used with the OemrUI class
+     * @param $headingTitle  The page title to use.
+     * @return array
+     */
+    public static function getDefaultSettings($headingTitle = ''): array
+    {
+        return [
+            'heading_title' => $headingTitle,
+            'include_patient_name' => false,
+            'expandable' => false,
+            'expandable_files' => [],
+            'action' => '',
+            'action_title' => '',
+            'action_href' => '',
+            'show_help_icon' => false,
+            'help_file_name' => '',
+        ];
+    }
+
+
     /**
     * Returns the page heading based on the options passed into the constructor.
     *
