@@ -37,9 +37,9 @@
  */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-exit;
+// exit;
 
-if (php_sapi_name() !== 'cli' || count($argv) != 5) {
+if (php_sapi_name() !== 'cli' || count($argv) != 6) {
     echo "Only php cli can execute a command\n";
     echo "use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>\n";
     echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true\n";
@@ -63,11 +63,13 @@ if ($seriousOptimizeFlag == "true") {
 } else {
     $seriousOptimize = false;
 }
+$enableMoves = $argv[5] == "true";
 
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 // show parameters (need to do after globals)
 outputMessage("ccda directory: " . $argv[1] . "\n");
@@ -89,10 +91,26 @@ outputMessage("Starting patients import\n");
 $counter = 0;
 $millisecondsStart = round(microtime(true) * 1000);
 foreach (glob($dir) as $file) {
+    if (!is_file($file)) {
+        continue;
+    }
+    $patientData = [];
+    try {
+        $file = str_replace("'", "\'", $file);
+        $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
+        $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
+        if (!empty($duplicates)) {
+            CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
+            echo outputMessage("Duplicate patient found: " . json_encode($duplicates) . "\n");
+            continue;
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+    //  1. import ccda document (bypassed in development-mode)
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
-        // 3. import as new patient (note need to escape ' characters in the filename)
-        $file = str_replace("'", "\'", $file);
+        // 3. import as new patient
         exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
     } else {
         // development mode is off
@@ -108,6 +126,12 @@ foreach (glob($dir) as $file) {
         //  3. import as new patient
         exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
     }
+    // move the C-CDA XML to the processed directory
+    try {
+        CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/processed");
+    } catch (Exception $e) {
+        outputMessage("Error moving file: " . $e->getMessage() . "\n");
+    }
     $counter++;
     $incrementCounter = 50; // echo every 50 records imported
     if (($counter % $incrementCounter) == 0) {
@@ -117,12 +141,14 @@ foreach (glob($dir) as $file) {
     }
 }
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)\n");
+if ($counter > 0) {
+    echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)\n");
 //  4. run function to populate all the uuids via the universal service function that already exists
-echo outputMessage("Started uuid creation\n");
-UuidRegistry::populateAllMissingUuids(false);
-$timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
+    echo outputMessage("Started uuid creation\n");
+    UuidRegistry::populateAllMissingUuids(false);
+    $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
+    echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
+}
 
 if ($seriousOptimize) {
     // reset the audit log to the original value
