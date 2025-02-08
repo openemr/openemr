@@ -13,7 +13,6 @@
 
 use OpenEMR\Services\Globals\UserSettingsService;
 
-
 // Set effective user - If no user id is provided, then use the currently logged in user
 /**
  * @param $user

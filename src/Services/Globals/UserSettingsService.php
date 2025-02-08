@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UserSettingService manage user global settings. Originally refactored from user.inc.php
  *
@@ -12,12 +13,12 @@
  */
 
 namespace OpenEMR\Services\Globals;
-use function \sqlStatement;
-use function \sqlQuery;
+
+use function sqlStatement;
+use function sqlQuery;
 
 class UserSettingsService
 {
-
 // Set effective user - If no user id is provided, then use the currently logged in user
     public static function effectiveUser($user)
     {
