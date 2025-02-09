@@ -69,6 +69,21 @@
             }
         }
     }
+
+    function TimeFormatRead(seconds = false) {
+        let jsGlobals = window.top.jsGlobals || {};
+        let date_display_format = jsGlobals['time_display_format'];
+        const format = typeof date_display_format !== 'undefined' ? date_display_format : 0;
+
+        let formatted;
+        if (format === 1) {
+            formatted = seconds ? "h:mm:ss a" : "h:mm a";
+        } else { // (format === 0)
+            formatted = seconds ? "HH:mm:ss" : "HH:mm";
+        }
+        return formatted;
+    }
+    oeFormatters.TimeFormatRead = TimeFormatRead;
     oeFormatters.DateFormatRead = DateFormatRead;
     oeFormatters.I18NDateFormat = I18NDateFormat;
 })(window.top.oeFormatters = window.top.oeFormatters || {});

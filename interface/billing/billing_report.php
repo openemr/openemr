@@ -14,7 +14,7 @@
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2021-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -355,7 +355,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             let curpid = await top.getSessionValue('pid');
             try {
                 if (curpid != pid) { // set patient
-                    top.clearPatient(false);
+                    if (curpid != 0) {
+                        top.clearPatient(false);
+                    }
                     await parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
                     await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                     await parent.left_nav.setPatientEncounter(enc_pid_array, enc_date_array, cal_cat_array);

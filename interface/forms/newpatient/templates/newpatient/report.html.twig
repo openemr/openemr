@@ -1,0 +1,15 @@
+<div class="w-100">
+{% for e in encounters %}
+    {% set _reason = (e.reason) ? " - " ~ e.reason|text|nl2br : "" %}
+    <h3>{{ e.category|text }}</h3>
+    <span class="text-muted" style="font-size: 1.0rem;">{{ "Reason For Visit"|xlt }}</span><span style="font-size: 1.0rem;">{{ _reason }}</span>
+    <h6 class="text-muted">{{ e.provider|text }} ({{ e.facility|text }})</h6>
+    {% if e.posCode %}
+        {{ "POS Code"|xlt }} - {{ e.posCode|text }}
+    {% endif %}
+    {% if e.referringProvider %}
+        <br />{{ "Referring Provider"|xlt }} - {{ e.referringProvider|text }}
+    {% endif %}
+
+{% endfor %}
+</div>
