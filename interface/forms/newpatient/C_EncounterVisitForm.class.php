@@ -28,6 +28,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -494,6 +495,8 @@ class C_EncounterVisitForm
             $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
             $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", array($id));
             $encounter = $result;
+            // it won't encode in the JSON if we don't convert this.
+            $encounter['uuid'] = UuidRegistry::uuidToString($result['uuid']);
             $encounter_followup_id = $encounter['parent_encounter_id'] ?? null;
             if ($encounter_followup_id) {
                 $q = "SELECT fe.date as date, fe.encounter as encounter FROM form_encounter AS fe " .
