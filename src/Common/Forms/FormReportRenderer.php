@@ -29,7 +29,7 @@ class FormReportRenderer
         $isLBF = str_starts_with($formDir, 'LBF');
         $formLocator = new FormLocator();
         $formPath = $formLocator->findFile($formDir, 'report.php', $page);
-        include $formPath;
+        include_once $formPath;
         if ($isLBF) {
             lbf_report($attendant_id, $encounter, $columns, $formId, $formDir, $noWrap);
         } else {
