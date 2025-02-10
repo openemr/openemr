@@ -492,9 +492,10 @@ if ($fend > ($count ?? null)) {
                         <?php if (!($value['external'])) { ?>
                             <?php if ($mode != "modify") { ?>
                                 <option
-                                    value="<?php echo attr($value['id']) ?>"<?php if (!empty($code_type) && ($code_type == $value['id'])) {
+                                    value="<?php echo attr($value['id']) ?>"
+                                    <?php if (!empty($code_type) && ($code_type == $value['id'])) {
                                                                                 echo " selected";
-                                                                            } ?>><?php echo xlt($value['label']) ?></option>
+                                } ?>><?php echo xlt($value['label']) ?></option>
                             <?php } ?>
                         <?php } ?>
                         <?php if ($value['external']) {
@@ -589,7 +590,7 @@ if ($fend > ($count ?? null)) {
                 <input type='checkbox' title='<?php echo xla("Service Code Finance Reporting") ?>'
                        name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) {
                                                                 echo ' checked';
-                                                            } ?> />
+                                } ?> />
                 <?php echo xlt('Service Reporting'); ?>
             </div>
         </div>
@@ -599,7 +600,7 @@ if ($fend > ($count ?? null)) {
                                                                     } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
             <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
                                     echo 'd-none';
-                                } ?>">
+                                 } ?>">
                 <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor"
                        value='<?php echo attr($cyp_factor ?? '') ?>'/>
             </div>
@@ -608,7 +609,7 @@ if ($fend > ($count ?? null)) {
                                                                     } ?>"><?php echo xlt('Relate To'); ?>:</label>
             <div class="col-md <?php if (!related_codes_are_used()) {
                                     echo "d-none";
-                                } ?>">
+                       } ?>">
                 <input type='text' class='form-control form-control-sm' size='50' name='related_desc'
                        value='<?php echo attr($related_desc) ?>' onclick="sel_related()"
                        title='<?php echo xla('Click to select related code'); ?>' readonly/>
@@ -686,13 +687,13 @@ if ($fend > ($count ?? null)) {
                 <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>'
                        name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
                                                             echo ' checked';
-                                                        } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
+                       } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>'
                        name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
                                                                     echo ' checked';
-                                                                } ?> /><?php echo xlt('Service Reporting Only'); ?>
+                       } ?> /><?php echo xlt('Service Reporting Only'); ?>
                 <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'/>
             </div>
             <div class="col-md">
