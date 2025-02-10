@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        {{ setupHeader(['i18next', 'il8formatting']) }}
+    {% endblock %}
+
+    <title>{% block pagetitle %}
+            {% if title %}
+                {{ title|text }}
+            {% else %}
+                {{ "Home"|xlt }}
+            {% endif %}
+        {% endblock %}</title>
+</head>
+<body>
+    {% block header %}{% endblock %}
+    <div id="container_div" class="{{ oemrUiSettings ? oemrUiContainerClass(oemrUiSettings) : 'container-fluid'}}">
+        {% if oemrUiSettings %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
+                {{ oemrUiPageHeading(oemrUiSettings) }}
+            </div>
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+        {% if oemrUiSettings %}
+        {{ oemrUiBelowContainerDiv(oemrUiSettings) }}
+        {% endif %}
+        {% block footer %}{% endblock %}
+        {% block scripts %}{% endblock %}
+    </div>
+</body>
+</html>
