@@ -16,20 +16,15 @@ require_once("../../globals.php");
 require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
-use OpenEMR\Core\ModulesApplication;
 
-check_file_dir_name($_GET['formname']);
 /**
  * @gloal $incdir the include directory
  */
 $incdir = $incdir ?? "";
 
 $pageName = "new.php";
-$isLBF = false;
 if (!str_starts_with($_GET["formname"], 'LBF')) {
     if ((!empty($_GET['pid'])) && ($_GET['pid'] > 0)) {
         $pid = $_GET['pid'];
@@ -48,7 +43,7 @@ if (!str_starts_with($_GET["formname"], 'LBF')) {
     }
 }
 $formLocator = new FormLocator();
-$file = $formLocator->findFile($_GET['formname'], 'view.php', 'load_form.php');
+$file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
 if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>

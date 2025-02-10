@@ -33,8 +33,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
+use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 
