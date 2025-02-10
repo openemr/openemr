@@ -252,7 +252,7 @@ foreach (explode(',', $given) as $item) {
                 document.getElementById('row_begindate').style.display = '';
                 document.getElementById('row_enddate').style.display = '';
                 document.getElementById('row_occurrence').style.display = '';
-                f.form_occur.options[2].selected = true;
+                f.form_occur.options[0].selected = true;
                 document.getElementById('row_comments').style.display = '';
 
             } else if (index == 'Allergy') {
