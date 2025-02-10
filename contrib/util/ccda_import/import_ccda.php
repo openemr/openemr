@@ -41,7 +41,7 @@ exit;
 
 // only allow use from command line
 if (php_sapi_name() !== 'cli') {
-    die ('This script can only be run from the command line.');
+    die('This script can only be run from the command line.');
 }
 
 function parseArgs($argv): array
