@@ -37,7 +37,7 @@
  */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-//exit;
+exit;
 
 // only allow use from command line
 if (php_sapi_name() !== 'cli') {
