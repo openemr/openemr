@@ -86,6 +86,7 @@ function showHelp(): void
 
 function outputMessage($message): void
 {
+    echo("\n");
     echo $message;
     file_put_contents("log.txt", $message, FILE_APPEND);
 }
@@ -109,7 +110,7 @@ $_GET['site'] = $args['site'] ?? 'default';
 $openemrPath = $args['openemrPath'] ?? '';
 $seriousOptimizeFlag = filter_var($args['isDev'] ?? true, FILTER_VALIDATE_BOOLEAN); // default to true/on
 $enableMoves = filter_var($args['enableMoves'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
-$deduplicate = filter_var($args['dedup'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
+$dedup = filter_var($args['dedup'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
 
 $seriousOptimize = false;
 if ($seriousOptimizeFlag == "true") {
@@ -123,19 +124,19 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 // show parameters (need to do after globals)
-outputMessage("ccda directory: " . $argv[1] . "\n");
-outputMessage("site: " . $_SESSION['site_id'] . "\n");
-outputMessage("openemr path: " . $openemrPath . "\n");
+outputMessage("ccda directory: " . $argv[1]);
+outputMessage("site: " . $_SESSION['site_id']);
+outputMessage("openemr path: " . $openemrPath);
 
 if ($seriousOptimize) {
-    outputMessage("development mode is on\n");
+    outputMessage("development mode is on");
     // temporarily disable the audit log
     $auditLogSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'")['gl_value'] ?? 0;
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'enable_auditlog'");
     $auditLogBreakglassSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'")['gl_value'] ?? 0;
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'gbl_force_log_breakglass'");
 } else {
-    outputMessage("development mode is off\n");
+    outputMessage("development mode is off");
 }
 
 outputMessage("Starting patients import\n");
@@ -148,12 +149,14 @@ foreach (glob($dir) as $file) {
     $patientData = [];
     try {
         $file = str_replace("'", "\'", $file);
-        if ($deduplicate) {
+        if ($dedup) {
             $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
             $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
-            if (!empty($duplicates && $enableMoves)) {
-                CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
-                echo outputMessage("Duplicate patient found: " . json_encode($duplicates) . "\n");
+            if (!empty($duplicates)) {
+                if ($enableMoves) {
+                    CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
+                }
+                echo outputMessage("Duplicate patient found and skipped: " . json_encode($duplicates) . "\n");
                 continue;
             }
         }
@@ -187,6 +190,7 @@ foreach (glob($dir) as $file) {
     } catch (Exception $e) {
         outputMessage("Error moving file: " . $e->getMessage() . "\n");
     }
+    echo('.');
     $counter++;
     $incrementCounter = 50; // echo every 50 records imported
     if (($counter % $incrementCounter) == 0) {
@@ -197,9 +201,9 @@ foreach (glob($dir) as $file) {
 }
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
 if ($counter > 0) {
-    echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)\n");
+    echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)");
 //  4. run function to populate all the uuids via the universal service function that already exists
-    echo outputMessage("Started uuid creation\n");
+    echo outputMessage("Started uuid creation");
     UuidRegistry::populateAllMissingUuids(false);
     $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
     echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");

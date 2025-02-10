@@ -274,7 +274,9 @@ class CarecoordinationTable extends AbstractTableGateway
             $index = 0;
             foreach ($xml['recordTarget']['patientRole']['patient']['name'] as $i => $iValue) {
                 if ($iValue['use'] === 'L') {
-                    $index = $i;
+                    if (!$i) { // only grab first legal name
+                        $index = $i;
+                    }
                 }
                 if ($iValue['given'][0]['qualifier'] ?? '' === 'BR') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['birth_fname'] = $iValue['given'][0]['_'] ?? null;
@@ -1125,7 +1127,7 @@ class CarecoordinationTable extends AbstractTableGateway
     // hmm, can't find where this is used.
 
     /**
-     * @param $document_id
+     * @param      $document_id
      * @return void
      * @throws Exception
      */
