@@ -1834,9 +1834,11 @@ class CdaTemplateImportDispose
         $appTable = new ApplicationTable();
         foreach ($arr_referral as $key => $value) {
             $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array(date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $_SESSION["userauthorized"]));
-            $trans_id = $res->getGeneratedValue();
-            $appTable->zQuery("INSERT INTO lbt_data SET form_id = ?,field_id = ?,field_value = ?", array($trans_id, 'body', $value['body']));
+            $res = $appTable->zQuery($query_insert, array(date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $_SESSION["userauthorized"] ?? ''));
+            if ($res) {
+                $trans_id = $res->getGeneratedValue();
+                $appTable->zQuery("INSERT INTO lbt_data SET form_id = ?,field_id = ?,field_value = ?", array($trans_id, 'body', $value['body']));
+            }
         }
     }
 

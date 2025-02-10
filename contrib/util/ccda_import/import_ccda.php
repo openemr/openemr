@@ -12,7 +12,7 @@
  *      not needed).
  *
  * Use:
- *   1. use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>
+ *   1. use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode> <enable-moves> <dedup>
  *   2. use example: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true
  *   3. use example: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr false
  *   4. Note that development-mode will markedly improve performance by bypassing the import of
@@ -32,42 +32,93 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-exit;
+// exit;
 
-if (php_sapi_name() !== 'cli' || count($argv) != 5) {
-    echo "Only php cli can execute a command\n";
-    echo "use: php import_ccda.php <ccda-directory> <site> <openemr-directory> <development-mode>\n";
-    echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr true\n";
-    echo "example use: php import_ccda.php /var/www/localhost/htdocs/openemr/synthea default /var/www/localhost/htdocs/openemr false\n";
-    die;
+function parseArgs($argv): array
+{
+    $args = [];
+    foreach ($argv as $arg) {
+        if (str_starts_with($arg, '--')) {
+            list($key, $value) = explode('=', substr($arg, 2), 2) + [1 => null];
+            if ($key === 'help') {
+                showHelp();
+            }
+            $args[$key] = $value;
+        }
+    }
+    return $args;
 }
 
-function outputMessage($message)
+function showHelp(): void
+{
+    // import_ccda.php --sourcePath=/xampp/htdocs/openemr/contrib/import_ccdas --site=default --openemrPath=/xampp/htdocs/openemr --isDev=true --enableMoves=true
+    echo "\n";
+    echo "Usage: php import_ccda.php [OPTIONS]\n";
+    echo "\n";
+    echo "Options:\n";
+    echo "  --sourcePath     Required. Path to the directory containing CCDA files to import.\n";
+    echo "  --site           Required. OpenEMR site ID.\n";
+    echo "  --openemrPath    Required. Path to OpenEMR web root.\n";
+    echo "  --isDev          Optional. Set to 'true' for development mode, 'false' for production. Default: true.\n";
+    echo "  --enableMoves    Optional. Set to 'true' to move processed files, 'false' to disable. Default: false.\n";
+    echo "  --dedup          Optional. Set to 'true' to enable duplicate checking, 'false' to disable. Default: false.\n";
+    echo "  --help           Show this help message.\n";
+    echo "\n";
+    echo "Example:\n";
+    echo "  php import_ccda.php --sourcePath=/path/to/import/documents \\\n";
+    echo "                      --site=default \\\n";
+    echo "                      --openemrPath=/var/www/openemr \\\n";
+    echo "                      --isDev=true \\\n";
+    echo "                      --enableMoves=false \\\n";
+    echo "                      --dedup=false\n";
+    echo "\n";
+    exit;
+}
+
+function outputMessage($message): void
 {
     echo $message;
     file_put_contents("log.txt", $message, FILE_APPEND);
 }
 
 // collect parameters (need to do before globals)
-$dir = $argv[1] . '/*';
-$_GET['site'] = $argv[2];
-$openemrPath = $argv[3];
-$seriousOptimizeFlag = $argv[4];
+$args = parseArgs($argv);
+
+// Required arguments
+$requiredArgs = ['sourcePath', 'site', 'openemrPath'];
+
+// Validate input
+foreach ($requiredArgs as $req) {
+    // ignore defaults
+    if (!isset($args[$req])) {
+        showHelp();
+    }
+}
+
+$dir = rtrim($args['sourcePath'], '/') . '/*';
+$_GET['site'] = $args['site'] ?? 'default';
+$openemrPath = $args['openemrPath'] ?? '';
+$seriousOptimizeFlag = filter_var($args['isDev'] ?? true, FILTER_VALIDATE_BOOLEAN); // default to true/on
+$enableMoves = filter_var($args['enableMoves'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
+$deduplicate = filter_var($args['dedup'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
+
+$seriousOptimize = false;
 if ($seriousOptimizeFlag == "true") {
     $seriousOptimize = true;
-} else {
-    $seriousOptimize = false;
 }
 
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 // show parameters (need to do after globals)
 outputMessage("ccda directory: " . $argv[1] . "\n");
@@ -89,10 +140,28 @@ outputMessage("Starting patients import\n");
 $counter = 0;
 $millisecondsStart = round(microtime(true) * 1000);
 foreach (glob($dir) as $file) {
+    if (!is_file($file)) {
+        continue;
+    }
+    $patientData = [];
+    try {
+        $file = str_replace("'", "\'", $file);
+        if ($deduplicate) {
+            $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
+            $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
+            if (!empty($duplicates && $enableMoves)) {
+                CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
+                echo outputMessage("Duplicate patient found: " . json_encode($duplicates) . "\n");
+                continue;
+            }
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+    //  1. import ccda document (bypassed in development-mode)
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
-        // 3. import as new patient (note need to escape ' characters in the filename)
-        $file = str_replace("'", "\'", $file);
+        // 3. import as new patient
         exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
     } else {
         // development mode is off
@@ -108,6 +177,14 @@ foreach (glob($dir) as $file) {
         //  3. import as new patient
         exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
     }
+    try {
+        if ($enableMoves) {
+            // move the C-CDA XML to the processed directory
+            CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/processed");
+        }
+    } catch (Exception $e) {
+        outputMessage("Error moving file: " . $e->getMessage() . "\n");
+    }
     $counter++;
     $incrementCounter = 50; // echo every 50 records imported
     if (($counter % $incrementCounter) == 0) {
@@ -117,12 +194,14 @@ foreach (glob($dir) as $file) {
     }
 }
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)\n");
+if ($counter > 0) {
+    echo outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)\n");
 //  4. run function to populate all the uuids via the universal service function that already exists
-echo outputMessage("Started uuid creation\n");
-UuidRegistry::populateAllMissingUuids(false);
-$timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
-echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
+    echo outputMessage("Started uuid creation\n");
+    UuidRegistry::populateAllMissingUuids(false);
+    $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
+    echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
+}
 
 if ($seriousOptimize) {
     // reset the audit log to the original value
