@@ -1,0 +1,24 @@
+<div class="col-sm {{ displayOptionClass('enc_enable_issues') }}">
+    <fieldset>
+        <legend>{{ "Link/Add Issues to This Visit"|xlt }}</legend>
+        <div id="visit-issues">
+            <div class="form-row px-3">
+                {% if canAddIssues %}
+                    <div class="pb-1 col-sm">
+                        <a href="{{ webroot }}/interface/patient_file/summary/add_edit_issue.php"
+                           class="btn d-block btn-primary btn-add btn-sm enc_issue"
+                           onclick="top.restoreSession()">{{ "Add Issue"|xlt }}</a>
+                    </div>
+                {% endif %}
+                <select multiple name="issues[]" class="form-control">
+                    {% for issue in issues %}
+                        <option value="{{ issue.id|attr }}" {{ issue.selected ? 'selected' : '' }}>
+                            {{ issue.type|text }}: {{ issue.title|text }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <p><i>{{ 'To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.'|xlt }}</i></p>
+            </div>
+        </div>
+    </fieldset>
+</div>

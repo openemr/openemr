@@ -1,0 +1,17 @@
+{# Visit Category #}
+<div class="col-sm {{ displayOptionClass('enc_enable_visit_category') }}">
+    <div class="form-group">
+        <label for="pc_catid" class="text-right">{{ "Visit Category:"|xlt }}</label>
+        <select name="pc_catid" id="pc_catid" class="form-control" {{ mode == 'followup' ? 'disabled' : '' }}>
+            <option value="_blank">-- {{ "Select One"|xlt }} --</option>
+            {% for category in visitCategories %}
+                <option value="{{ category.id|attr }}" {{ category.selected ? 'selected' : '' }}>
+                    {{ category.name|text }}
+                </option>
+            {% endfor %}
+        </select>
+        {% if mode == 'followup' %}
+            <input type="hidden" name="pc_catid" value="{{ encounter.pc_catid|attr }}" />
+        {% endif %}
+    </div>
+</div>

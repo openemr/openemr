@@ -48,6 +48,7 @@ function datetimepickerTranslated(selector, params) {
     let languageDirection = jsGlobals.languageDirection || 'ltr';
     let formatters = window.top.oeFormatters || {};
     let DateFormatRead = formatters.DateFormatRead || function (mode = 'legacy') { return "Y-m-d"; };
+    let TimeFormatRead = formatters.TimeFormatRead || function (includeSeconds= true) { return "H:i:s"; };
     if (typeof params === 'undefined') {
         params = {
             timepicker: false
@@ -81,14 +82,16 @@ function datetimepickerTranslated(selector, params) {
     if (params.timepicker) {
         if (params.showSeconds) {
             if (params.formatInput) {
-                defaults.format = DateFormatRead("jquery-datetimepicker") + ' H:i:s';
+                let time_format_with_secs = TimeFormatRead(true);
+                defaults.format = DateFormatRead("jquery-datetimepicker") + ' ' + time_format_with_secs;
             } else {
                 defaults.format = 'Y-m-d H:i:s';
             }
         } else {
             if (params.formatInput) {
-                defaults.format = DateFormatRead("jquery-datetimepicker") + ' g:i a';
-                defaults.formatTime = 'g:i a';
+                let time_format_with_secs = TimeFormatRead(false);
+                defaults.format = DateFormatRead("jquery-datetimepicker") + ' ' + time_format_with_secs;
+                defaults.formatTime = time_format_with_secs;
                 defaults.validateOnBlur = false;
             } else {
                 defaults.format = 'Y-m-d H:i';
