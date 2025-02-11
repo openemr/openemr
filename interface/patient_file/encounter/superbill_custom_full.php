@@ -688,7 +688,7 @@ if ($fend > ($count ?? null)) {
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>'
                        name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
-                           echo ' checked';
+                            echo ' checked';
                                                          } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
             </div>
             <div class="col-md">
