@@ -29,6 +29,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 
@@ -73,6 +76,12 @@ if (isset($_GET['billing'])) {
 } else {
     $billing_view = ($default_encounter == 0) ? 0 : 1;
 }
+
+// form locator will cache form locations (so modules can extend)
+// form report renderer will render the form reports
+$logger = new SystemLogger();
+$formLocator = new FormLocator($logger);
+$formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
 //Get Document List by Encounter ID
 function getDocListByEncID($encounter, $raw_encounter_date, $pid)
@@ -587,18 +596,19 @@ window.onload = function() {
                         //
                         $formdir = $enc['formdir'];
                         if ($issue) {
+                            // note per comments this is only used for athletic teams..
                             echo text(xl_form_title($enc['form_name']));
                             echo "<br />";
                             echo "<div class='encreport pl-2'>";
-                    // Use the form's report.php for display.  Forms with names starting with LBF
-                    // are list-based forms sharing a single collection of code.
-                            if (substr($formdir, 0, 3) == 'LBF') {
-                                include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-                                lbf_report($pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
-                            } else {
-                                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-                                call_user_func($formdir . "_report", $pid, $result4['encounter'], 2, $enc['form_id']);
-                            }
+                            // render out the form, whether its LBF or a standard file.
+                            $formReportRenderer->renderReport(
+                                $formdir,
+                                "encounters.php",
+                                $pid,
+                                $result4['encounter'],
+                                2,
+                                $enc['form_id']
+                            );
                             echo "</div>";
                         } else {
                             $formDiv = "<div ";

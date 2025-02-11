@@ -51,6 +51,9 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Pdf\Config_Mpdf;
 
 $staged_docs = array();
@@ -92,6 +95,12 @@ unset($_GET['printable']);
 $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
+
+// form locator will cache form locations (so modules can extend)
+// form report renderer will render the form reports
+$logger = new SystemLogger();
+$formLocator = new FormLocator($logger);
+$formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
 function getContent()
 {
@@ -559,18 +568,6 @@ if ($printable) {
 <?php } // end not printable ?>
 
 <?php
-// include ALL form's report.php files
-$inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", [$pid]);
-while ($result = sqlFetchArray($inclookupres)) {
-  // include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
-    $formdir = $result['formdir'];
-    if (substr($formdir, 0, 3) == 'LBF') {
-        include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-    } else {
-        include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-    }
-}
-
 if ($PDF_OUTPUT) {
     $tmp_files_remove = array();
 }
@@ -970,11 +967,7 @@ foreach ($ar as $key => $val) {
                 ?>
                 <div name="search_div" id="search_div_<?php echo attr($form_id)?>_<?php echo attr($res[1])?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                 <?php
-                if (substr($res[1], 0, 3) == 'LBF') {
-                    call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
-                } else {
-                    call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
-                }
+                $formReportRenderer->renderReport($res[1], 'portal_custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
 
                 $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
                 if ($esign->isLogViewable("report")) {
