@@ -40,7 +40,7 @@ class MedicationPatientIssueService extends BaseService
         $insert = $this->buildInsertColumns($whiteListDict);
 
         $sql = "INSERT INTO " . self::TABLE_NAME . " SET " . $insert['set'];
-        QueryUtils::sqlStatementThrowException($sql, $insert['bind']);
+        return QueryUtils::sqlInsert($sql, $insert['bind']);
     }
 
     public function updateIssue($record)
