@@ -589,6 +589,13 @@ class CdaTemplateImportDispose
             return;
         }
 
+        $isuser = sqlQuery("Select id, username From users Where fname = ? And lname = ?", array('External', 'Provider'));
+        // set the session user if not already set
+        if (empty($_SESSION['authUser'] ?? '') && !empty($isuser)) {
+            $_SESSION['authUserID'] = $isuser['id'];
+            $_SESSION['authUser'] = $isuser['username'];
+        }
+
         $appTable = new ApplicationTable();
         foreach ($enc_array as $key => $value) {
             $encounter_id = $appTable->generateSequenceID();
