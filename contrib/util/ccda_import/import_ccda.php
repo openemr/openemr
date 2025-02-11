@@ -151,6 +151,10 @@ foreach (glob($dir) as $file) {
         $file = str_replace("'", "\'", $file);
         if ($dedup) {
             $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
+            if (empty($patientData)) {
+                echo outputMessage("File load issue. Skipping: " . text($file) . "\n");
+                continue;
+            }
             $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
             if (!empty($duplicates)) {
                 if ($enableMoves) {

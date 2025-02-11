@@ -87,9 +87,14 @@ class CdaComponentParseHelpers
     {
         $patientData = [];
 
+        $content = file_get_contents($xmlFilePath);
         // too me the most reliable way to parse an HL7 CDA is to use DOMXPath
+        if (empty($content)) {
+            return $patientData;
+        }
+
         $dom = new DOMDocument();
-        $dom->loadXML(file_get_contents($xmlFilePath));
+        $dom->loadXML($content);
         $xpath = new DOMXPath($dom);
 
         //  a gotcha, HL7 uses a default namespace without a prefix
