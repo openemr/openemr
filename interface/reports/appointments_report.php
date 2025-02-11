@@ -474,7 +474,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
               $csvfields[$i]["Time"] = $appointments[$i]["pc_startTime"] ;
               $csvfields[$i]["Patient"] = $appointments[$i]["fname"] . " " .  $appointments[$i]["lname"] ;
               $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
-          }
+        }
         $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
         if (!empty($spreadsheet->buildSpreadsheet())) {
             $spreadsheet->downloadSpreadsheet('Csv');
