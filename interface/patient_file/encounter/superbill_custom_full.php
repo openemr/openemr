@@ -608,10 +608,10 @@ if ($fend > ($count ?? null)) {
             </div>
             <label class="col-form-label col-form-label-sm col-md-1 <?php if (!related_codes_are_used()) {
                 echo "d-none";
-                                                                   } ?>"><?php echo xlt('Relate To'); ?>:</label>
+                                                                    } ?>"><?php echo xlt('Relate To'); ?>:</label>
             <div class="col-md <?php if (!related_codes_are_used()) {
                 echo "d-none";
-                              } ?>">
+                               } ?>">
                 <input type='text' class='form-control form-control-sm' size='50' name='related_desc'
                        value='<?php echo attr($related_desc) ?>' onclick="sel_related()"
                        title='<?php echo xla('Click to select related code'); ?>' readonly/>
@@ -689,20 +689,20 @@ if ($fend > ($count ?? null)) {
                 <input type='checkbox' title='<?php echo xla("Only Show Diagnosis Reporting Codes") ?>'
                        name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
                            echo ' checked';
-                                                        } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
+                                                         } ?> /><?php echo xlt('Diagnosis Reporting Only'); ?>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Service Code Finance Reporting Codes") ?>'
                        name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
                             echo ' checked';
-                                                                 } ?> /><?php echo xlt('Service Reporting Only'); ?>
+                                                                  } ?> /><?php echo xlt('Service Reporting Only'); ?>
                 <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'/>
             </div>
             <div class="col-md">
                 <input type='checkbox' title='<?php echo xla("Only Show Active Codes ") ?>' name='search_active'
                        value='1'<?php if (!empty($search_active)) {
-                           echo ' checked';
-                               } ?> /><?php echo xlt('Active Codes'); ?>
+                            echo ' checked';
+                                } ?> /><?php echo xlt('Active Codes'); ?>
             </div>
             <div class="col-md text-right">
                 <?php if ($fstart) { ?>
