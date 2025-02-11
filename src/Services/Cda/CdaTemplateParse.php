@@ -696,7 +696,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['immunization'][$i]['represented_organization'] = $entry['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['name'] ?? null;
             $this->templateData['field_name_value_array']['immunization'][$i]['represented_organization_tele'] = $entry['substanceAdministration']['performer']['assignedEntity']['representedOrganization']['telecom'] ?? null;
 
-            if (($entry['substanceAdministration']['entryRelationship'] ?? '') && $entry['substanceAdministration']['entryRelationship']['observation']['value']['code']) {
+            if (($entry['substanceAdministration']['entryRelationship'] ?? '') && ($entry['substanceAdministration']['entryRelationship']['observation']['value']['code'] ?? '')) {
                 $code = $this->codeService->resolveCode(
                     $entry['substanceAdministration']['entryRelationship']['observation']['value']['code'],
                     $entry['substanceAdministration']['entryRelationship']['observation']['value']['codeSystemName'] ?: $entry['substanceAdministration']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
@@ -1306,7 +1306,7 @@ class CdaTemplateParse
     public function encounter($component)
     {
         $component['section']['text'] = '';
-        if ($component['section']['entry'][0]) {
+        if (($component['section']['entry'][0] ?? '')) {
             foreach ($component['section']['entry'] as $key => $value) {
                 $this->fetchEncounterPerformed($value);
             }
