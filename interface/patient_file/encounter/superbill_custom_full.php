@@ -544,15 +544,15 @@ if ($fend > ($count ?? null)) {
                                         echo " selected";
                                     } ?>><?php
                                     echo xlt($value['label']) ?></option>
-                            <?php
+                                <?php
                             } ?>
-                        <?php
+                            <?php
                         } ?>
                         <?php
                         if ($value['external']) {
                             array_push($external_sets, $key);
                         } ?>
-                    <?php
+                        <?php
                     } // end foreach ?>
 
                     <?php
@@ -567,7 +567,7 @@ if ($fend > ($count ?? null)) {
                     echo attr($code_type) ?>'/>
                     <?php
                     echo text($code_type_name_external); ?>
-                <?php
+                    <?php
                 } ?>
             </div>
             <label class="col-form-label col-form-label-sm col-md-1"><?php
@@ -578,13 +578,13 @@ if ($fend > ($count ?? null)) {
                     <input type='text' class='form-control form-control-sm' size='6' name='code' readonly='readonly'
                            value='<?php
                            echo attr($code) ?>'/>
-                <?php
+                    <?php
                 } else { ?>
                     <input type='text' class='form-control form-control-sm' size='6' name='code'
                            value='<?php
                            echo attr($code ?? '') ?>' onkeyup='maskkeyup(this,getCTMask())'
                            onblur='maskblur(this,getCTMask())'/>
-                <?php
+                    <?php
                 } ?>
             </div>
             <?php
@@ -598,17 +598,17 @@ if ($fend > ($count ?? null)) {
                     <input type='text' size='6' class='form-control form-control-sm' name='modifier' readonly='readonly'
                            value='<?php
                            echo attr($modifier) ?>'/>
-                <?php
+                    <?php
                 } else { ?>
                     <input type='text' size='6' class='form-control form-control-sm' name='modifier'
                            value='<?php
                            echo attr($modifier ?? '') ?>'/>
-                <?php
+                    <?php
                 } ?>
                 <?php
                 } else { ?>
                     <input type='hidden' name='modifier' value=''/>
-                <?php
+                    <?php
                 } ?>
             </div>
             <div class="col-md">
@@ -631,12 +631,12 @@ if ($fend > ($count ?? null)) {
                     <input type='text' size='50' class='form-control form-control-sm' name="code_text"
                            readonly="readonly" value='<?php
                     echo attr($code_text ?? '') ?>'/>
-                <?php
+                    <?php
                 } else { ?>
                     <input type='text' size='50' class='form-control form-control-sm' name="code_text"
                            value='<?php
                            echo attr($code_text ?? '') ?>'/>
-                <?php
+                    <?php
                 } ?>
             </div>
             <?php
@@ -650,17 +650,17 @@ if ($fend > ($count ?? null)) {
                         <input type='text' size='6' class='form-control form-control-sm' name="revenue_code"
                                readonly="readonly" value='<?php
                         echo attr($revenue_code) ?>'/>
-                    <?php
+                        <?php
                     } else { ?>
                         <input type='text' size='6' class='form-control form-control-sm revcode' name="revenue_code"
                                title='<?php
                                echo xla('Type to search and select revenue code'); ?>'
                                value='<?php
                                echo attr($revenue_code) ?>'>
-                    <?php
+                        <?php
                     } ?>
                 </div>
-            <?php
+                <?php
             } ?>
         </div>
         <div class="form-group row">
@@ -766,7 +766,7 @@ if ($fend > ($count ?? null)) {
                 <div class="col-md"><?php
                     echo xlt('Taxes'); ?>: <?php
                     echo $taxline; ?></div>
-            <?php
+                <?php
             } ?>
         </div>
         <input type="hidden" name="code_id" value="<?php
@@ -782,17 +782,17 @@ if ($fend > ($count ?? null)) {
                 if ($mode == "modify") { ?>
                     <a href='javascript:submitModifyComplete();' class='link'>[<?php
                         echo xlt('Update'); ?>]</a>
-                <?php
+                    <?php
                 } else { ?>
                     <a href='javascript:submitUpdate();' class='link'>[<?php
                         echo xlt('Update'); ?>]</a>
                     &nbsp;&nbsp;
                     <a href='javascript:submitAdd();' class='link'>[<?php
                         echo xlt('Add as New'); ?>]</a>
-                <?php
+                    <?php
                 } ?>
             </p>
-        <?php
+            <?php
         } ?>
     </div>
     <div class="container-fluid">
@@ -857,7 +857,7 @@ if ($fend > ($count ?? null)) {
                         &lt;&lt;
                     </a>
                     &nbsp;&nbsp;
-                <?php
+                    <?php
                 } ?>
                 <?php
                 echo text(($fstart + 1)) . " - " . text($fend) . " of  " . text($count ?? ''); ?>
@@ -881,7 +881,7 @@ if ($fend > ($count ?? null)) {
         if ($institutional) { ?>
             <th><span class='font-weight-bold'><?php
                     echo xlt('Revenue'); ?></span></th>
-        <?php
+            <?php
         } ?>
         <th><span class='font-weight-bold'><?php
                 echo xlt('Act'); ?></span></th>
@@ -901,7 +901,7 @@ if ($fend > ($count ?? null)) {
         if (related_codes_are_used()) { ?>
             <th><span class='font-weight-bold'><?php
                     echo xlt('Related'); ?></span></th>
-        <?php
+            <?php
         } ?>
         <?php
         $pres = sqlStatement(
