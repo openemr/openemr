@@ -12,9 +12,11 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2005-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 Sherwin Gaddis <sherwingaddis@gmail.com> (add alert for email status)
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -773,10 +775,8 @@ if (
 <body>
 <div>
     <?php
-    if ($emailStatementStatus) {
+    if ($emailStatementStatus && $_REQUEST['form_email']) {
         echo "<script> alert(" . xlj('Email Sent Successfully') . ");\n</script>";
-    } elseif (!$emailStatementStatus) {
-        echo "<script> alert(" . xlj('Email Failed to Send') . ");\n</script>";
     }
     ?>
 </div>
