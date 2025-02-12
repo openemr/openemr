@@ -39,6 +39,11 @@ class HhMainMenuLinksTest extends PantherTestCase
             //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
+
+        if (empty($loading)) {
+            $loading = "Loading";
+        }
+
         $counter = 0;
         $threwSomething = true;
         // below will basically allow 3 timeouts
