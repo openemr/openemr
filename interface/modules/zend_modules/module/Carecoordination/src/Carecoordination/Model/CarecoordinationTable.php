@@ -274,7 +274,9 @@ class CarecoordinationTable extends AbstractTableGateway
             $index = 0;
             foreach ($xml['recordTarget']['patientRole']['patient']['name'] as $i => $iValue) {
                 if ($iValue['use'] === 'L') {
-                    $index = $i;
+                    if (!$i) { // only grab first legal name
+                        $index = $i;
+                    }
                 }
                 if ($iValue['given'][0]['qualifier'] ?? '' === 'BR') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['birth_fname'] = $iValue['given'][0]['_'] ?? null;
@@ -324,13 +326,13 @@ class CarecoordinationTable extends AbstractTableGateway
 
         if (is_array($xml['recordTarget']['patientRole']['telecom'][0] ?? null)) {
             foreach ($xml['recordTarget']['patientRole']['telecom'] as $tel) {
-                if ($tel['use'] == 'MC') {
+                if (($tel['use'] ?? '') == 'MC') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif ($tel['use'] == 'HP') {
+                } elseif (($tel['use'] ?? '') == 'HP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif ($tel['use'] == 'WP') {
+                } elseif (($tel['use'] ?? '') == 'WP') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-                } elseif ($tel['use'] == 'EC') {
+                } elseif (($tel['use'] ?? '') == 'EC') {
                     $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
                 } elseif (stripos($tel['value'], 'mailto:') !== false) {
                     $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
@@ -394,7 +396,7 @@ class CarecoordinationTable extends AbstractTableGateway
         // Guardian Details
         $parser = new CdaComponentParseHelpers($this->conditionedXmlContent);
         $guardian = $parser->parseGuardianParticipant();
-        $this->documentData['field_name_value_array']['patient_data'][1]['guardiansname'] = $guardian['name'][0]['given'] . ' ' . ($guardian['name'][1]['given'] ?? '') . ' ' . $guardian['name']['family'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['guardiansname'] = ($guardian['name'][0]['given'] ?? '') . ' ' . ($guardian['name'][1]['given'] ?? '') . ' ' . ($guardian['name']['family'] ?? null);
         $this->documentData['field_name_value_array']['patient_data'][1]['guardianaddress'] = $guardian['address']['street'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['guardiancity'] = $guardian['address']['city'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['guardianstate'] = $guardian['address']['state'] ?? null;
@@ -895,13 +897,13 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_procedures['procedure'][$y]['reason_status'] = $newdata['procedure']['reason_status'] ?? null;
                 $y++;
             } elseif ($table == 'care_plan') {
-                $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'];
+                $arr_care_plan['care_plan'][$e]['extension'] = $newdata['care_plan']['extension'] ?? null;
                 $arr_care_plan['care_plan'][$e]['negate'] = $newdata['care_plan']['negate'] ?? null;
-                $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'];
-                $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'];
-                $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'];
-                $arr_care_plan['care_plan'][$e]['description'] = $newdata['care_plan']['description'];
-                $arr_care_plan['care_plan'][$e]['plan_type'] = $newdata['care_plan']['plan_type'];
+                $arr_care_plan['care_plan'][$e]['root'] = $newdata['care_plan']['root'] ?? null;
+                $arr_care_plan['care_plan'][$e]['text'] = $newdata['care_plan']['code_text'] ?? null;
+                $arr_care_plan['care_plan'][$e]['code'] = $newdata['care_plan']['code'] ?? null;
+                $arr_care_plan['care_plan'][$e]['description'] = $newdata['care_plan']['description'] ?? null;
+                $arr_care_plan['care_plan'][$e]['plan_type'] = $newdata['care_plan']['plan_type'] ?? null;
                 $arr_care_plan['care_plan'][$e]['date'] = $newdata['care_plan']['date'] ?? null;
                 $arr_care_plan['care_plan'][$e]['end_date'] = $newdata['care_plan']['end_date'] ?? null;
                 $arr_care_plan['care_plan'][$e]['reason_code'] = $newdata['care_plan']['reason_code'] ?? null;
@@ -913,10 +915,10 @@ class CarecoordinationTable extends AbstractTableGateway
                 $e++;
             } elseif ($table == 'clinical_notes') {
                 $arr_clinical_note['clinical_notes'][$cn]['date'] = $newdata['clinical_notes']['date'] ?? null;
-                $arr_clinical_note['clinical_notes'][$cn]['code'] = $newdata['clinical_notes']['code'];
-                $arr_clinical_note['clinical_notes'][$cn]['text'] = $newdata['clinical_notes']['code_text'];
-                $arr_clinical_note['clinical_notes'][$cn]['description'] = $newdata['clinical_notes']['description'];
-                $arr_clinical_note['clinical_notes'][$cn]['plan_type'] = $newdata['clinical_notes']['plan_type'];
+                $arr_clinical_note['clinical_notes'][$cn]['code'] = $newdata['clinical_notes']['code'] ?? null;
+                $arr_clinical_note['clinical_notes'][$cn]['text'] = $newdata['clinical_notes']['code_text'] ?? null;
+                $arr_clinical_note['clinical_notes'][$cn]['description'] = $newdata['clinical_notes']['description'] ?? null;
+                $arr_clinical_note['clinical_notes'][$cn]['plan_type'] = $newdata['clinical_notes']['plan_type'] ?? null;
                 $cn++;
             } elseif ($table == 'functional_cognitive_status') {
                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['cognitive'] = $newdata['functional_cognitive_status']['cognitive'];
@@ -1125,7 +1127,7 @@ class CarecoordinationTable extends AbstractTableGateway
     // hmm, can't find where this is used.
 
     /**
-     * @param $document_id
+     * @param      $document_id
      * @return void
      * @throws Exception
      */
