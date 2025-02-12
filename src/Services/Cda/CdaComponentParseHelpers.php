@@ -87,9 +87,14 @@ class CdaComponentParseHelpers
     {
         $patientData = [];
 
+        $content = file_get_contents($xmlFilePath);
         // too me the most reliable way to parse an HL7 CDA is to use DOMXPath
+        if (empty($content)) {
+            return $patientData;
+        }
+
         $dom = new DOMDocument();
-        $dom->loadXML(file_get_contents($xmlFilePath));
+        $dom->loadXML($content);
         $xpath = new DOMXPath($dom);
 
         //  a gotcha, HL7 uses a default namespace without a prefix
@@ -168,7 +173,7 @@ class CdaComponentParseHelpers
         $lastName = $patientData['names'][0]['family'];
         $dob = date("Y-m-d", strtotime($patientData['dob']));
         $phone = preg_replace('/\D/', '', $patientData['phones'][0]);
-        $address = implode(" ", $patientData['address']['street']);
+        $address = trim($patientData['address']['street'][0] ?? '');
 
         $sql = "SELECT pid, fname, lname, DOB, phone_home, phone_cell, phone_biz, street, city, state, postal_code
             FROM patient_data

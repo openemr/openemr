@@ -293,7 +293,7 @@ class CdaTemplateImportDispose
             }
 
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'] ?? '', $value['reason_code_text'] ?? '', $low_date, $high_date, $value['reason_status'] ?? null));
+            $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'] ?? '', $value['reason_code_text'] ?? '', $low_date, $high_date, $value['reason_status'] ?? null));
 
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -301,7 +301,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
-                $appTable->zQuery($query, array(date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'care_plan'));
+                $appTable->zQuery($query, array(date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $_SESSION["authUser"] ?? '', $_SESSION["authProvider"] ?? '', 'care_plan'));
             }
         }
     }
@@ -589,6 +589,13 @@ class CdaTemplateImportDispose
             return;
         }
 
+        $isuser = sqlQuery("Select id, username From users Where fname = ? And lname = ?", array('External', 'Provider'));
+        // set the session user if not already set
+        if (empty($_SESSION['authUser'] ?? '') && !empty($isuser)) {
+            $_SESSION['authUserID'] = $isuser['id'];
+            $_SESSION['authUser'] = $isuser['username'];
+        }
+
         $appTable = new ApplicationTable();
         foreach ($enc_array as $key => $value) {
             $encounter_id = $appTable->generateSequenceID();
@@ -604,6 +611,9 @@ class CdaTemplateImportDispose
                 }
             } else {
                 $provider_id = $this->insertImportedUser($value, true);
+            }
+            if (empty($_SESSION['authProviderID'])) {
+                $_SESSION['authProviderID'] = $provider_id ?? null;
             }
             //facility
             if (empty($value['represented_organization_name'])) {
@@ -1576,6 +1586,10 @@ class CdaTemplateImportDispose
             $value['provider_city'] ?? null,
             $value['provider_state'] ?? null,
             $value['provider_postalCode'] ?? null));
+
+        if (empty($_SESSION['authUser'] ?? '')) {
+            $_SESSION['authUser'] = $userName;
+        }
 
         return $res_query_ins_users->getGeneratedValue();
     }
