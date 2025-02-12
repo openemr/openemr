@@ -367,6 +367,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     await parent.asyncLoadFrame('enc2', 'enc', encUrl);
                     await parent.activateTabByName('enc', true);
                 } else { // to insurance
+                    // If current patient is the same as the one we're trying to load, load the insurance edit frame
+                    if (curpid == pid) {
+                        await parent.asyncLoadFrame('dem1', 'pat', patUrl);
+                    }
                     await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
                     await parent.activateTabByName('pat', true);
                 }
