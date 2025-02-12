@@ -4079,7 +4079,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
                                               <td class="bold">
                                                     <?php
-                                                    if (($pcp_data['fax'] ?? '') > '') {
+                                                    if (($pcp_data['fax'] ?? null) > '') {
                                                         // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
                                                         $FAX_PCP  =  sqlQuery($query, array($pat_data['providerID'],$pid,$encounter));
