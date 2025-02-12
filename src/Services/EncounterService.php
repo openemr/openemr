@@ -397,7 +397,6 @@ class EncounterService extends BaseService
             $data['user'],
             $data['group']
         );
-        $data = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $data);
 
         if ($results) {
             $processingResult = $this->getEncounter(UuidRegistry::uuidToString($data['uuid']), $puuid);
