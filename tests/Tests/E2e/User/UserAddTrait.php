@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\User;
 
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -74,6 +76,12 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsUserAddTrait::NEW_USER_IFRAME_USERADD_TRAIT);
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT);
+        $this->crawler = $this->client->refreshCrawler();
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
+            )
+        );
         $this->crawler = $this->client->refreshCrawler();
         $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
         $newUser['rumple'] = $username;
