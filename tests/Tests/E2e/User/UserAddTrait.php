@@ -78,15 +78,11 @@ trait UserAddTrait
         $this->client->waitFor(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
         $this->client->wait(10)->until(
-            WebDriverExpectedCondition::and(
-                WebDriverExpectedCondition::presenceOfElementLocated(
-                    WebDriverBy::cssSelector(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
-                ),
-                WebDriverExpectedCondition::elementToBeClickable(
-                    WebDriverBy::cssSelector(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
-                )
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::cssSelector(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
             )
         );
+        $this->crawler = $this->client->refreshCrawler();
         $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
         $newUser['rumple'] = $username;
         $newUser['stiltskin'] = UserTestData::PASSWORD;
