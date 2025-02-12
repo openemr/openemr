@@ -29,5 +29,5 @@ class XpathsConstantsUserAddTrait
 
     public const CREATE_USER_BUTTON_USERADD_TRAIT = "//a[@id='form_save']";
 
-    public const NEW_USER_FORM_RUMPLE_FIELD = "input[type='text'][name='rumple']";
+    public const NEW_USER_FORM_RUMPLE_FIELD = "//input[@type='text' and @name='rumple']";
 }

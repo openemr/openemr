@@ -134,7 +134,7 @@ trait BaseTrait
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
         $this->client->wait(10)->until(
             WebDriverExpectedCondition::elementToBeClickable(
-                WebDriverBy::cssSelector($menuLink)
+                WebDriverBy::xpath($menuLink)
             )
         );
         $this->crawler = $this->client->refreshCrawler();

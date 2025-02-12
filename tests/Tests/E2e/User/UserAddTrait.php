@@ -79,7 +79,7 @@ trait UserAddTrait
         $this->crawler = $this->client->refreshCrawler();
         $this->client->wait(10)->until(
             WebDriverExpectedCondition::elementToBeClickable(
-                WebDriverBy::cssSelector(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
+                WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
             )
         );
         $this->crawler = $this->client->refreshCrawler();
