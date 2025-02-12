@@ -32,7 +32,7 @@ class HhMainMenuLinksTest extends PantherTestCase
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      */
-    public function testMainMenuLink(string $menuLink, string $expectedTabTitle): void
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
@@ -52,7 +52,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             try {
                 $this->login(LoginTestData::username, LoginTestData::password);
                 $this->goToMainMenuLink($menuLink);
-                $this->assertActiveTab($expectedTabTitle);
+                $this->assertActiveTab($expectedTabTitle, $loading);
             } catch (\Throwable $e) {
                 // Close client
                 $this->client->quit();
@@ -73,9 +73,9 @@ class HhMainMenuLinksTest extends PantherTestCase
     {
         return [
             'Calendar menu link' => ['Calendar', 'Calendar'],
-            'Finder menu link' => ['Finder', 'Patient Finder'],
-            'Flow menu link' => ['Flow', 'Flow Board'],
-            'Recalls menu link' => ['Recalls', 'Recall Board'],
+            'Finder menu link' => ['Finder', 'Patient Finder', 'undefined...||Loading'],
+            'Flow menu link' => ['Flow', 'Flow Board', 'undefined...||Loading'],
+            'Recalls menu link' => ['Recalls', 'Recall Board', 'undefined...||Loading'],
             'Messages menu link' => ['Messages', 'Message Center'],
             'Patient -> New/Search menu link' => ['Patient||New/Search', 'Search or Add Patient'],
             'Fees -> Billing Manager menu link' => ['Fees||Billing Manager', 'Billing Manager'],
