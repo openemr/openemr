@@ -12,7 +12,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2021-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -345,16 +345,16 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         async function toPatient(type, pid, pubpid, pname, enc, datestr, dobstr, enc_pid_array, enc_date_array, cal_cat_array) {
             const encUrl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) + '&pid=' + encodeURIComponent(pid);
             if (type == 'enc') {
-                patUrl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
+                patUrl = 'patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(pid);
             } else {
-                patUrl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
+                patUrl = 'patient_file/summary/insurance_edit.php?set_pid=' + encodeURIComponent(pid);
             }
             pid = parseInt(pid, 10);
             enc = parseInt(enc, 10);
             // Restore the session (getSessionValue calls restoreSession()) and load the encounter
-            let curpid = await top.getSessionValue('pid');
+            let curpid = parseInt(await top.getSessionValue('pid'));
             try {
-                if (curpid != pid) { // set patient
+                if (curpid !== pid) { // set patient
                     if (curpid != 0) {
                         top.clearPatient(false);
                     }
@@ -367,6 +367,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     await parent.asyncLoadFrame('enc2', 'enc', encUrl);
                     await parent.activateTabByName('enc', true);
                 } else { // to insurance
+                    // If current patient is the same as the one we're trying to load, load the insurance edit frame
+                    if (curpid == pid) {
+                        await parent.asyncLoadFrame('dem1', 'pat', patUrl);
+                    }
                     await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
                     await parent.activateTabByName('pat', true);
                 }
