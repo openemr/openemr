@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\Base;
 
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 
 trait BaseTrait
@@ -131,7 +132,11 @@ trait BaseTrait
     {
         $menuLink = XpathsConstants::USER_MENU_ICON;
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
-        $this->client->waitFor($menuLink);
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::cssSelector($menuLink)
+            )
+        );
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath($menuLink)->click();
         $this->client->waitFor($menuLink2);
