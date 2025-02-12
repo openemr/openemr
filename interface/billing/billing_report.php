@@ -345,9 +345,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         async function toPatient(type, pid, pubpid, pname, enc, datestr, dobstr, enc_pid_array, enc_date_array, cal_cat_array) {
             const encUrl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) + '&pid=' + encodeURIComponent(pid);
             if (type == 'enc') {
-                patUrl = 'patient_file/summary/demographics.php?pid=' + encodeURIComponent(pid);
+                patUrl = 'patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(pid);
             } else {
-                patUrl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
+                patUrl = 'patient_file/summary/insurance_edit.php?set_pid=' + encodeURIComponent(pid);
             }
             pid = parseInt(pid, 10);
             enc = parseInt(enc, 10);
