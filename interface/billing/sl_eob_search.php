@@ -57,6 +57,7 @@ $eracount = 0;
 $g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
+$emailStatementStatus = false;
 
 /* Load dependencies only if we need them */
 if (!empty($GLOBALS['portal_onsite_two_enable'])) {
@@ -257,7 +258,7 @@ function upload_file_to_client_email($ppid, $file_to_send)
         $countline++;
     }
 
-    emailLogin($ppid, $message);
+    return emailLogin($ppid, $message);
 }
 
 function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false)
@@ -610,7 +611,7 @@ if (
     } elseif ($_REQUEST['form_pdf']) {
         upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
     } elseif ($_REQUEST['form_email']) {
-        upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
+        $emailStatementStatus = upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
     } elseif ($_REQUEST['form_portalnotify']) {
         if ($alertmsg == "") {
             $alertmsg = xl('Sending Invoice to Patient Portal Completed');
@@ -770,6 +771,15 @@ if (
 </head>
 
 <body>
+<div>
+    <?php
+    if ($emailStatementStatus) {
+        echo "<script> alert(" . xlj('Email Sent Successfully') . ");\n</script>";
+    } elseif (!$emailStatementStatus) {
+        echo "<script> alert(" . xlj('Email Failed to Send') . ");\n</script>";
+    }
+    ?>
+</div>
 <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
     <div class="row">
         <div class="col-12">
