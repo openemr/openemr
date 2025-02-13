@@ -130,6 +130,13 @@ trait PatientAddTrait
                 // re-throw since have failed 3 tries
                 throw $e;
             } else {
+                // Output error message
+                echo "Error: " . $e->getMessage() . PHP_EOL;
+                // Output the file and line where the error occurred
+                echo "In File: " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL;
+                // Output stack trace
+                echo "Stack Trace:" . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
+
                 // try again since not yet 3 tries
                 $this->patientAddAttemptCounter++;
                 echo "\n" . "TRY " . ($this->patientAddAttemptCounter) . " of 3 to add new patient to database" . "\n";
