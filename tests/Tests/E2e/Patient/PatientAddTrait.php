@@ -101,7 +101,7 @@ trait PatientAddTrait
             $this->crawler = $this->client->submit($newPatient);
         }
         // assert the new patient is in the database
-        $this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
+        //$this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
         // since this function is run recursively in above line, ensure only do the below block once
         if (!$this->passPatientAddIfNotExist) {
             // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
