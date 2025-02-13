@@ -13,12 +13,16 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\ProcessingResult;
 
 class PatientIssuesService extends BaseService
 {
+    use ServiceEventTrait;
+
     const ISSUES_TABLE_NAME = "lists";
 
     public function __construct()
@@ -60,16 +64,21 @@ class PatientIssuesService extends BaseService
         }
 
         $whiteListDict = $this->filterData($issueRecord);
+        $whiteListDict = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $whiteListDict);
         $insert = $this->buildInsertColumns($whiteListDict, ['null_value' => null]);
 
         $sql = "INSERT INTO lists SET " . $insert['set'];
-        $list_id = QueryUtils::sqlInsert($sql, $insert['bind']);
+        $whiteListDict['id'] = QueryUtils::sqlInsert($sql, $insert['bind']);
         if ($issueRecord['type'] == "medication" && !empty($issueRecord['medication'])) {
             $medication = $issueRecord['medication'] ?? [];
-            $medication['list_id'] = $list_id;
+            $medication['list_id'] = $whiteListDict['id'];
             $medicationIssueService = new MedicationPatientIssueService();
-            $medicationIssueService->createIssue($medication);
+            $medication['id'] = $medicationIssueService->createIssue($medication);
+            $whiteListDict['medication'] = $medication;
+            $whiteListDict = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $whiteListDict);
         }
+
+        return $whiteListDict;
     }
 
     public function updateIssue($issueRecord)
@@ -84,6 +93,7 @@ class PatientIssuesService extends BaseService
         }
 
         $whiteListDict = $this->filterData($issueRecord);
+        $whiteListDict = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $whiteListDict);
         $update = $this->buildUpdateColumns($whiteListDict, ['null_value' => null]);
         $values = $update['bind'];
         $sql = "UPDATE lists SET " . $update['set'] . " WHERE id = ? AND pid = ? ";
@@ -111,7 +121,7 @@ class PatientIssuesService extends BaseService
                     }
                     $medicationIssueService->updateIssue($existingMedication);
                 } else {
-                    $medicationIssueService->createIssue($medication);
+                    $medication['id'] = $medicationIssueService->createIssue($medication);
                 }
             }
             // sync the prescriptions
@@ -125,7 +135,10 @@ class PatientIssuesService extends BaseService
                     array($issueRecord['pid'], strtoupper($title))
                 );
             }
+            $whiteListDict['medication'] = $medication;
+            $whiteListDict = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $whiteListDict);
         }
+        return $whiteListDict;
     }
 
     private function validateIssueType($type)
@@ -148,7 +161,7 @@ class PatientIssuesService extends BaseService
                 ,medications.request_intent_title
                 FROM lists
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                        id AS lists_medication_id
                        ,list_id
                         ,usage_category
@@ -191,5 +204,17 @@ class PatientIssuesService extends BaseService
             unset($record['list_medication_id']);
         }
         return $record;
+    }
+
+    public function replaceIssuesForEncounter(string $pid, string $encounter, array $issues)
+    {
+        sqlStatement("DELETE FROM issue_encounter WHERE " .
+            "pid = ? AND encounter = ?", array($pid, $encounter));
+        if (!empty($issues)) {
+            foreach ($issues as $issue) {
+                $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
+                sqlStatement($query, array($pid, $issue, $encounter));
+            }
+        }
     }
 }

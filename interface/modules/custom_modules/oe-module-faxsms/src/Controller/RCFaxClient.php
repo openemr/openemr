@@ -151,7 +151,7 @@ class RCFaxClient extends AppDispatch
      * @param string[] $acl
      * @return int
      */
-    public function authenticate($acl = ['admin', 'doc']): int
+    public function authenticate($acl = ['admin', 'doc']): bool|int|string
     {
         if (empty($this->credentials['appKey'])) {
             $this->credentials = $this->getCredentials();

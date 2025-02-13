@@ -380,7 +380,7 @@ if (empty($_POST['form_csvexport'])) {
 </table>
 
 </div>
-<!-- end of search parameters --> 
+<!-- end of search parameters -->
 <?php } // end not form_csvexport
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
@@ -463,8 +463,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
-        $fields = ['pc_eventDate', 'pc_startTime', 'fname', 'lname', 'DOB'];
-        $spreadsheet = new SpreadSheetService($appointments, $fields, 'appts');
+        // include provider as well
+        //  $fields = ['ufname','ulname','pc_eventDate', 'pc_startTime', 'fname', 'lname', 'DOB'];
+        // RM generate csv file with same column headers row as used in the report itself
+        $fields = ['Provider','Date', 'Time', 'Patient', 'DOB'];
+        for ($i = 0; $i < count($appointments); ++$i) {
+              $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
+              $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
+              $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
+              $csvfields[$i]["Time"] = $appointments[$i]["pc_startTime"] ;
+              $csvfields[$i]["Patient"] = $appointments[$i]["fname"] . " " .  $appointments[$i]["lname"] ;
+              $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
+        }
+        $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
         if (!empty($spreadsheet->buildSpreadsheet())) {
             $spreadsheet->downloadSpreadsheet('Csv');
         }

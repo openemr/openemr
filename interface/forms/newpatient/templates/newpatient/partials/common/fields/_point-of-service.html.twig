@@ -1,0 +1,13 @@
+{# POS Code #}
+<div class="col-sm {{ isPosEnabled ? '' : 'd-none' }}">
+    <div class="form-group">
+        <label for="pos_code" class="text-right">{{ "POS Code"|xlt }}:</label>
+        <select name="pos_code" id="pos_code" class="form-control">
+            {% for pos in posOptions %}
+                <option value="{{ pos.code|attr }}" {{ pos.selected ? 'selected' : '' }}>
+                    {{ pos.code|text }}: {{ pos.title|xlt }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

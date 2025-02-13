@@ -188,6 +188,23 @@ class ModulesApplication
     }
 
     /**
+     * Checks to make sure the file originates in a module directory and is safe to include.
+     * @param $file
+     * @return bool
+     */
+    public static function isSafeModuleFileForInclude($file)
+    {
+        $realpath = realpath($file);
+        $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+
+        // make sure we haven't left our root path ie interface folder
+        if (strpos($realpath, $moduleRootLocation) === 0 && file_exists($realpath) && strpos($realpath, ".php") !== false) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Given a list of module files (javascript, css, etc) make sure they are locked down to be just inside the modules
      * folder.  The intent is to prevent module writers from including files outside the modules installation directory.
      * If the file exists and is inside the modules installation path it will be returned.  Otherwise it is filtered out

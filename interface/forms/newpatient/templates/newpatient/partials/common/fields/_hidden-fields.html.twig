@@ -1,0 +1,11 @@
+<input type="hidden" id="facility_id" name="facility_id" value="{{ selectedFacilityId|attr }}" />
+<input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
+{% if saveMode =='update' %}
+    <input type="hidden" name="mode" value="{{ saveMode|attr }}" />
+    <input type="hidden" name="id" value="{{ encounter.id|attr }}" />
+{% else %}
+    <input type="hidden" name="mode" value="{{ saveMode|attr }}" />
+{% endif %}
+{% if mode == 'followup' %}
+    <input type='hidden' name='parent_enc_id' value='{{ parentEncounterId|attr }}' />
+{% endif %}

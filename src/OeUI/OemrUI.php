@@ -17,6 +17,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Services\Globals\UserSettingsService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -88,7 +89,7 @@ class OemrUI
         $this->display_help_icon = $arrOeUiSettings['show_help_icon'] ?? null;
         $this->help_file = $arrOeUiSettings['help_file_name'] ?? null;
         if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
-            $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
+            $this->current_state = UserSettingsService::collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
 
         $act = $this->arrAction;
@@ -121,6 +122,28 @@ class OemrUI
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'helpIconListener']);
         }
     }
+
+
+    /**
+     * Returns a default settings array that can be used with the OemrUI class
+     * @param $headingTitle  The page title to use.
+     * @return array
+     */
+    public static function getDefaultSettings($headingTitle = ''): array
+    {
+        return [
+            'heading_title' => $headingTitle,
+            'include_patient_name' => false,
+            'expandable' => false,
+            'expandable_files' => [],
+            'action' => '',
+            'action_title' => '',
+            'action_href' => '',
+            'show_help_icon' => false,
+            'help_file_name' => '',
+        ];
+    }
+
 
     /**
     * Returns the page heading based on the options passed into the constructor.
@@ -290,7 +313,7 @@ class OemrUI
         if ($GLOBALS['enable_help'] == "1") {
             $title = xl("Click to view Help");
         } elseif ($GLOBALS['enable_help'] == "2") {
-            $title = xl("Enable help under your User Menu > Settings > Featurees > Enable Help Modal");
+            $title = xl("Enable help under your User Menu > Settings > Features > Enable Help Modal");
         }
 
         $id = 'help-href';
