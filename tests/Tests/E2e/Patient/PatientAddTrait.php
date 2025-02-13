@@ -69,6 +69,12 @@ trait PatientAddTrait
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsPatientAddTrait::NEW_PATIENT_FORM_FNAME_FIELD)
+            )
+        );
+        $this->crawler = $this->client->refreshCrawler();
         $newPatient = $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_FORM_PATIENTADD_TRAIT)->form();
         $newPatient['form_fname'] = $firstname;
         $newPatient['form_lname'] = $lastname;
