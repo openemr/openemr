@@ -667,7 +667,6 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                     $query .= $table_dot . $code_col . " like ? ";
                     $sql_bind_array[] = $search_term . "%";
                 }
-
             } elseif ($mode == "description") {
                 $description_keywords = preg_split("/ /", $search_term, -1, PREG_SPLIT_NO_EMPTY);
                 $query .= "(1=1 ";
@@ -678,8 +677,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                         $query .= "AND MATCH(" . $table_dot . $code_text_col . ") AGAINST (? IN BOOLEAN MODE)";
                         if (str_starts_with($search_term, "") && str_ends_with($search_term, '"')) {
                             $sql_bind_array[] = $search_term; // Exact match
-                        }
-                        else {
+                        } else {
                             // we believe people don't want OR conditions in their search, so we will use AND
                             $sql_bind_array[] = '"' . $search_term . '*"'; // Add wildcard for partial matches
                         }

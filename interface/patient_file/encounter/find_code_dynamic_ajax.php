@@ -325,7 +325,8 @@ if ($what == 'fields' && $source == 'V') {
         false,
         $start,
         $maxCount + 1 // always grab one more than we need to know if there are more records
-    );;
+    );
+    ;
     $count = 0;
     $iFilteredTotal = $start;
     $iTotalRecords = $start;
@@ -358,7 +359,6 @@ if ($what == 'fields' && $source == 'V') {
     }
     $out['iTotalDisplayRecords'] = min($maxCount, $start + $count);
     $out['iTotalRecords'] = min($maxCount, $start + $count);
-
 } else {
     $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
     $res = sqlStatement($query);
