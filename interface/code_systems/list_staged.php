@@ -204,6 +204,16 @@ if (is_dir($mainPATH)) {
                     $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
                     array_push($revisions, $temp_date);
                     $supported_file = 1;
+                } elseif (preg_match("/SnomedCT_ManagedServiceUS_PRODUCTION_US[0-9]{7}_([0-9a-zA-Z]{8})T[0-9Z]{7}.zip/", $file, $matches)) {
+                    // Hard code the version SNOMED feed to be Complete US Extension
+                    // file format changed in 2024 so need to handle previous versions for backwards compatability and new ones.
+                    //
+                    $version = "Complete US Extension";
+                    $rf2 = true;
+                    $date_release = substr($matches[1], 0, 4) . "-" . substr($matches[1], 4, -2) . "-" . substr($matches[1], 6);
+                    $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
+                    array_push($revisions, $temp_date);
+                    $supported_file = 1;
                 } elseif (preg_match("/SnomedCT_SpanishRelease-es_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
                     // Hard code the version SNOMED feed to be International:Spanish
                     //
