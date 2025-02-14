@@ -247,11 +247,10 @@ function create_HTML_statement($stmt)
         }
 
         $tmp = substr($description, 0, 14);
+        //92002-14 are Eye Office Visit Codes
         if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
             $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
         }
-
-        //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
         ksort($line['detail']);
@@ -1267,12 +1266,28 @@ function create_cms_statement($stmt)
     $label_desc = xl('Description');
     $label_amt = xl('Amount');
     $providerName = getProviderName($stmt['provider_id']);
-    $addrline = strtoupper(preg_replace('/\s+/', ' ', $stmt['to'][1]));
+    $addrline = strtoupper(preg_replace('/\s+/', ' ', $stmt['to'][1] ?? ''));
+    $addrline2 = strtoupper(preg_replace('/\s+/', ' ', $stmt['to'][2] ?? ''));
+    if (empty($addrline) && empty($addrline2)) {
+        $addrline = "***BAD ADDRESS***";
+    }
     $out  = sprintf("%-9s %-55s %6s \r\n", '', strtoupper($stmt['to'][0]), $stmt['pid']);
     $out .= sprintf("%-9s %-43s %-8s \r\n", '', $addrline, date('m d y'));
-    $out .= "\r\n";
-    $out .= sprintf("%-9s %-43s %-8s %9s\r\n", '', strtoupper($stmt['to'][2] ?? ''), date('m d y'), $stmt['amount']);
-    if ($stmt['to'][3] ?? '' != '') { //to avoid double blank lines the if condition is put.
+
+    if (!empty($addrline2)) {
+        $out .= sprintf("%-9s %-43s \r\n", '', $addrline2);
+    } else {
+        $out .= "\r\n";
+    }
+
+    $out .= sprintf("%-9s %-43s %-8s %9s\r\n", '', strtoupper($stmt['to'][3] ?? ''), date('m d y'), $stmt['amount']);
+
+    $cityStateZip = $stmt['to'][4] ?? '';
+    if (empty($cityStateZip)) {
+        $cityStateZip = "***BAD ADDRESS***";
+    }
+
+    if ($stmt['to'][4] ?? '' != '') { // to avoid double blank lines the if condition is put.
         $out .= sprintf("   %-32s\r\n", $stmt['to'][3]);
     }
     $out .= "\r\n";
@@ -1302,8 +1317,7 @@ function create_cms_statement($stmt)
     foreach ($stmt['lines'] as $line) {
         $procedureCode = substr($line['desc'], 10, 5) ?? '';
         $desc_row = sqlQuery("SELECT `code_text` from `codes` WHERE `code` = ? AND `code_type` = ?", array($procedureCode, $line['code_type']));
-        $description = $desc_row['code_text'] ?? $line['desc'];
-        //92002-14 are Eye Office Visit Codes
+        $description = substr($desc_row['code_text'] ?? $line['desc'], 0, 42);
         $dos = $line['dos'];
         ksort($line['detail']);
         foreach ($line['detail'] as $dkey => $ddata) {
@@ -1345,7 +1359,7 @@ function create_cms_statement($stmt)
                     $amount = sprintf("%.2f", ($ddata['chg'] * -1));
                     $desc = xl('Adj') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
                 } else {
-                    $desc = xl('Note') . ' ' . $ddata['rsn'] . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
+                    $desc = xl('Note') . ' ' . substr($ddata['rsn'] ?? '', 0, 40) . ' ' . ($ddata['pmt_method'] ?? '') . ' ' . ($insco ?? '');
                 }
                 $out .= sprintf("%-8s %-44s           %8s\r\n", formatDate($dos), $desc, $amount);
             } elseif ($ddata['chg'] < 0) {
@@ -1353,11 +1367,11 @@ function create_cms_statement($stmt)
                 $desc = xl('Patient Payment');
                 $out .= sprintf("%-8s %-44s           %8s\r\n", formatDate($dos), $desc, $amount);
             } else {
-                $amount = sprintf("%.2f", $ddata['chg']);
+                $amount = str_pad(sprintf("%.2f", $ddata['chg']), 7, " ", STR_PAD_LEFT);
                 $dos = $line['dos'];
                 $desc = $description;
-                $bal = sprintf("%.2f", ($line['amount'] - $line['paid']));
-                $out .= sprintf("%-8s %-44s    %-8s          %-8s \r\n", formatDate($dos), $desc, $amount, $bal);
+                $bal = str_pad(sprintf("%.2f", ($line['amount'] - $line['paid'])), 7, " ", STR_PAD_LEFT);
+                $out .= sprintf("%-8s %-44s   %-8s          %-8s \r\n", formatDate($dos), $desc, $amount, $bal);
             }
 
             ++$count;

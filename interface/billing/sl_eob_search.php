@@ -528,7 +528,7 @@ if (
 
     $res = sqlStatement("SELECT " .
         "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
-        "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, f.provider_id " .
+        "p.fname, p.mname, p.lname, p.street, p.street_line_2, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note, f.provider_id " .
         "FROM form_encounter AS f, patient_data AS p " .
         "WHERE $where " .
         "p.pid = f.pid " .
@@ -627,9 +627,8 @@ if (
                 $stmt['to'] = array($row['guardiansname']);
             }
 
-            if ($row['street']) {
-                $stmt['to'][] = $row['street'];
-            }
+            $stmt['to'][] = $row['street'] ?? '';
+            $stmt['to'][] = $row['street_line_2'] ?? '';
 
             $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
             $stmt['lines'] = array();
@@ -659,7 +658,9 @@ if (
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
             }
 
-            $codeTypeId = sqlQuery("SELECT `ct_id` FROM `code_types` WHERE `ct_key` = ?", array($value['code_type']))['ct_id'];
+            if (!empty($value['code_type'])) {
+                $codeTypeId = sqlQuery("SELECT `ct_id` FROM `code_types` WHERE `ct_key` = ?", array($value['code_type']))['ct_id'];
+            }
 
             $line['amount'] = sprintf("%.2f", $value['chg']);
             $line['adjust'] = sprintf("%.2f", ($value['adj'] ?? null));
@@ -667,7 +668,7 @@ if (
             $line['notice'] = $duncount + 1;
             $line['detail'] = $value['dtl'];
             $line['bill_date'] = $bdrow['bill_date'];
-            $line['code_type'] = $codeTypeId;
+            $line['code_type'] = $codeTypeId ?? '';
             $stmt['lines'][] = $line;
             $stmt['amount'] = sprintf("%.2f", $stmt['amount'] + $value['bal']);
             $stmt['ins_paid'] = $stmt['ins_paid'] + ($value['ins'] ?? null);
