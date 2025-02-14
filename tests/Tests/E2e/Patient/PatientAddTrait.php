@@ -92,9 +92,15 @@ trait PatientAddTrait
             $this->client->getWebDriver()->wait()->until(
                 WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
             );
-            //$this->crawler = $this->client->refreshCrawler();
-            //$this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-            $this->client->getWebDriver()->findElement(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))->click();
+            $this->crawler = $this->client->refreshCrawler();
+            $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+            //$this->client->getWebDriver()->findElement(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))->click();
+
+            $logs = $this->client->getWebDriver()->manage()->getLog('browser');
+            foreach ($logs as $log) {
+                echo $log['level'] . ' ' . $log['message'] . PHP_EOL;
+            }
+
         } else {
             // Fallback for older versions prior to PHP 8.3
             //   For some reason, the click is not working like it should in PHP versions less than 8.3, so going to bypass the confirmation screen
