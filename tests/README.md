@@ -10,3 +10,7 @@ This folder contains a few unit tests. Note that there is an effort to refactor 
 #### e2e
 
 This folder contains a few Selenium tests. Note that there is no current effort to improve e2e coverage.
+
+#### testRigor
+
+This folder contains a few testRigor End-to-End tests.
