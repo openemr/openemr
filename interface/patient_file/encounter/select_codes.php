@@ -168,7 +168,6 @@ if (!empty($codetype)) {
 
 <body id="codes_search">
     <div class="container-fluid">
-        <?php // we don't allow the form to submit so we can handle the submit in javascript, submitting the form just closes it ?>
         <form method='post' name='theform'>
             <?php
             echo "<div class='form-group row mb-3'>\n";
