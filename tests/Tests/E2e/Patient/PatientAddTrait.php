@@ -81,8 +81,7 @@ trait PatientAddTrait
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        if (version_compare(phpversion(), '8.3.0', '>=') &&
-            version_compare(phpversion(), '8.5.0', '<=')) {
+        if (version_compare(phpversion(), '8.3.0', '>=') && version_compare(phpversion(), '8.5.0', '<')) {
             // Code to run on PHP 8.3 or greater
             $this->crawler = $this->client->refreshCrawler();
             $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
