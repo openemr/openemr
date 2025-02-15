@@ -96,6 +96,7 @@ trait PatientAddTrait
             //$this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
             //$this->client->getWebDriver()->findElement(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))->click();
             //$this->client->executeScript("document.querySelector('#confirmCreate').click()");
+            /*
             $this->client->executeScript(
                 'const result = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
                 const element = result.singleNodeValue;
@@ -105,7 +106,8 @@ trait PatientAddTrait
                 }
                 return false;',
                 [XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT]
-            );
+            );*/
+            $this->client->executeScript('return dlgclose("srcConfirmSave", false);');
         } else {
             // Fallback for older versions prior to PHP 8.3
             //   For some reason, the click is not working like it should in PHP versions less than 8.3, so going to bypass the confirmation screen
