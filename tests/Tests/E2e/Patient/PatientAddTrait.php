@@ -81,39 +81,33 @@ trait PatientAddTrait
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        if (version_compare(phpversion(), '8.3.0', '>=') && version_compare(phpversion(), '8.5.0', '<')) {
-            // Code to run on PHP 8.3 or greater
-            $this->crawler = $this->client->refreshCrawler();
-            $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-            $this->client->switchTo()->defaultContent();
-            $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
-            $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
-            $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
-            $this->client->getWebDriver()->wait()->until(
-                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
-            );
-            $this->crawler = $this->client->refreshCrawler();
-            $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-            //$this->client->getWebDriver()->findElement(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))->click();
-            //$this->client->executeScript("document.querySelector('#confirmCreate').click()");
-            /*
-            $this->client->executeScript(
-                'const result = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-                const element = result.singleNodeValue;
-                if (element) {
-                    element.click();
-                    return true;
-                }
-                return false;',
-                [XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT]
-            );*/
-            //$this->client->executeScript('return dlgclose("srcConfirmSave", false);');
-        } else {
-            // Fallback for older versions prior to PHP 8.3 and on or after PHP 8.5
-            //   For some reason, the click is not working like it should in PHP versions less than 8.3 and 8.5-dev, so going to bypass the confirmation screen
-            // (todo: keep working on not needing this work around)
-            $this->crawler = $this->client->submit($newPatient);
-        }
+        
+        $this->crawler = $this->client->refreshCrawler();
+        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+        $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
+        $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
+        $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
+        $this->client->getWebDriver()->wait()->until(
+            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
+        );
+        $this->crawler = $this->client->refreshCrawler();
+        $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
+        //$this->client->getWebDriver()->findElement(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))->click();
+        //$this->client->executeScript("document.querySelector('#confirmCreate').click()");
+        /*
+        $this->client->executeScript(
+            'const result = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            const element = result.singleNodeValue;
+            if (element) {
+                element.click();
+                return true;
+            }
+            return false;',
+            [XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT]
+        );*/
+        //$this->client->executeScript('return dlgclose("srcConfirmSave", false);');
+
         // assert the new patient is in the database
         //$this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
         // since this function is run recursively in above line, ensure only do the below block once
