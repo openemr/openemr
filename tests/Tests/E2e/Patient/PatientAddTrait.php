@@ -29,9 +29,6 @@ trait PatientAddTrait
     use BaseTrait;
     use LoginTrait;
 
-    private int $patientAddAttemptCounter = 1;
-    private bool $passPatientAddIfNotExist = false;
-
     /**
      * @depends testLoginAuthorized
      */
@@ -81,95 +78,32 @@ trait PatientAddTrait
         $newPatient['form_DOB'] = $dob;
         $newPatient['form_sex'] = $sex;
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->switchToIFrame(XpathsConstantsPatientAddTrait::NEW_PATIENT_IFRAME_PATIENTADD_TRAIT);
         $this->client->waitFor(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT);
-        $this->client->getWebDriver()->wait()->until(
-            WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)
+            )
         );
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
-        //$this->client->getWebDriver()->findElement(WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT))->click();
-        //$this->client->executeScript("document.querySelector('#confirmCreate').click()");
-        /*
-        $this->client->executeScript(
-            'const result = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-            const element = result.singleNodeValue;
-            if (element) {
-                element.click();
-                return true;
-            }
-            return false;',
-            [XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT]
-        );*/
-        //$this->client->executeScript('return dlgclose("srcConfirmSave", false);');
+
+        // ensure the patient summary screen is shown
+        $alert = $this->client->getWebDriver()->wait(10)->until(
+            WebDriverExpectedCondition::alertIsPresent()
+        );
+        $alert->accept();
+        $this->client->switchTo()->defaultContent();
+        $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
+        $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
+        // below line will timeout if did not go to the patient summary screen for the new patient
+        $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
 
         // assert the new patient is in the database
-        //$this->assertPatientInDatabase($firstname, $lastname, $dob, $sex);
-        // since this function is run recursively in above line, ensure only do the below block once
-        if (!$this->passPatientAddIfNotExist) {
-            // Note using lower level webdriver directly since seems like a more simple and more consistent way to check for the alert
-            $alert = $this->client->getWebDriver()->wait(10)->until(
-                WebDriverExpectedCondition::alertIsPresent()
-            );
-            $alert->accept();
-            // ensure the patient summary screen is shown
-            $this->client->switchTo()->defaultContent();
-            $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
-            $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
-            // below line will timeout if did not go to the patient summary screen for the new patient
-            $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
-            $this->passPatientAddIfNotExist = true;
-        }
-    }
-
-    private function assertPatientInDatabase(string $firstname, string $lastname, string $dob, string $sex): void
-    {
-        // assert the new patient is in the database (if this fails, then will try patientAddIfNotExist() up to
-        // 3 times total before failing)
-        try {
-            $this->innerAssertPatientInDatabase($firstname, $lastname, $dob, $sex);
-        } catch (ExpectationFailedException $e) {
-            if ($this->patientAddAttemptCounter > 2) {
-                // re-throw since have failed 3 tries
-                throw $e;
-            } else {
-                // Output error message
-                echo "Error: " . $e->getMessage() . PHP_EOL;
-                // Output the file and line where the error occurred
-                echo "In File: " . $e->getFile() . " on line " . $e->getLine() . PHP_EOL;
-                // Output stack trace
-                echo "Stack Trace:" . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
-
-                // try again since not yet 3 tries
-                $this->patientAddAttemptCounter++;
-                echo "\n" . "TRY " . ($this->patientAddAttemptCounter) . " of 3 to add new patient to database" . "\n";
-                $this->logOut();
-                $this->patientAddIfNotExist($firstname, $lastname, $dob, $sex);
-            }
-        }
-    }
-
-    private function innerAssertPatientInDatabase(string $firstname, string $lastname, string $dob, string $sex): void
-    {
-        // assert the new patient is in the database (check 3 times with 5 second delay prior each check to
-        // ensure allow enough time)
-        $patientExistDatabase = false;
-        $counter = 0;
-        while (!$patientExistDatabase && $counter < 3) {
-            if ($counter > 0) {
-                echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new patient is in database" . "\n";
-            }
-            sleep(5);
-            if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
-                $patientExistDatabase = true;
-            }
-            $counter++;
-        }
-        $this->assertTrue($patientExistDatabase, 'New patient is not in database, so FAILED');
+        $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
     }
 }
