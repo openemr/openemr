@@ -269,7 +269,6 @@ class InsuranceService extends BaseService
         $data = $serviceSaveEvent->getSaveData();
         $uuid = UuidRegistry::uuidToBytes($data['uuid']);
 
-
         $results = sqlStatement(
             $sql,
             array(
@@ -416,11 +415,12 @@ class InsuranceService extends BaseService
     /**
      * Return an array of encounters within a date range
      *
+     * @param  $provider   Insurance company id
      * @param  $startDate  Any encounter starting on this date
-     * @param  $endDate  Any encounter ending on this date
-     * @return Array Encounter data payload.
+     * @param  $endDate    Any encounter ending on this date
+     * @return Array       Insurance data payload.
      */
-    public function getPidsForPayerByEffectiveDate($provider, $type, $startDate, $endDate)
+    public function getPoliciesByPayerByEffectiveDate($provider, $type, $startDate, $endDate)
     {
         // most common case of null in 'date' field aka effective date which signifies is only insurance of that type
         // TBD: add another token for 'date_end' field
