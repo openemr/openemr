@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    stephen waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2023 stephen waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2023-2025 stephen waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -35,10 +35,10 @@ $startDate = $argv[2];
 $endDate = $argv[3];
 
 // get insurance_companies by payer id, example 87726 for uhc
-$incos_by_payer_id = (new InsuranceCompanyService())->getAllByPayerID('87726');
+$inscos_by_payer_id = (new InsuranceCompanyService())->getAllByPayerID('04293');
 
 // grab pids with that insurance payer id
-foreach ($incos_by_payer_id as $key => $insco) {
+foreach ($inscos_by_payer_id as $key => $insco) {
     $pids_by_payer_id_array[] = (new InsuranceService())->getPidsForPayerByEffectiveDate(
         $insco['id'],
         $type = 'primary',
@@ -59,5 +59,4 @@ foreach ($encs_result as $key => $value) {
     $output .= ($value ?? '') . ", ";
 }
 echo "pids list \n";
-echo $output;
-echo "\n" . count($encs_result) . "\n";
+echo $output . "\n";
