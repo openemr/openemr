@@ -40,8 +40,6 @@ $payerId = $argv[5] ?? '87726';
 // get insurance_companies by payer id, example 87726 for uhc
 $inscos_by_payer_id = (new InsuranceCompanyService())->getAllByPayerID($payerId);
 
-
-
 // grab pids with that insurance payer id
 foreach ($inscos_by_payer_id as $key => $insco) {
     $policies_by_payer_id_array[] = (new InsuranceService())->getPoliciesByPayerByEffectiveDate(
