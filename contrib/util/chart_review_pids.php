@@ -15,7 +15,7 @@ exit;
 
 if (php_sapi_name() !== 'cli') {
     echo "Only php cli can execute command\n";
-    echo "example use: php default 2022-01-01 2022-12-31\n";
+    echo "example use: php default 2022-01-01 2022-12-31 primary MCDVT\n";
     die;
 }
 
