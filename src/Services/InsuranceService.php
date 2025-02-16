@@ -432,7 +432,7 @@ class InsuranceService extends BaseService
 
         // search for encounters by passed in start and end dates
         $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE);
-        $dateEndField = new DateSearchField('date_end', ['ge' . $startDate, 'ge' . $endDate], DateSearchField::DATE_TYPE_DATE);
+        $dateEndField = new DateSearchField('date_end', ['ge' . $endDate], DateSearchField::DATE_TYPE_DATE);
 
         // set up composite search with false signifying an OR condition for the effective date
         $compositeDate = new CompositeSearchField('date', [], false);

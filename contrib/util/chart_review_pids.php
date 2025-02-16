@@ -67,5 +67,5 @@ $output = $output ?? '';
 foreach ($result as $key => $value) {
     $output .= ($value ?? '') . ", ";
 }
-echo "pids list \n";
+echo "pid list \n";
 echo $output . "\n";
