@@ -342,15 +342,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             f.bn_mark.disabled = !can_mark;
         }
 
-        async function toPatient(type, pid, pubpid, pname, enc, datestr, dobstr, enc_pid_array, enc_date_array, cal_cat_array) {
-            const encUrl = 'patient_file/encounter/encounter_top.php?set_encounter=' + encodeURIComponent(enc) + '&pid=' + encodeURIComponent(pid);
-            if (type == 'enc') {
-                patUrl = 'patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(pid);
-            } else {
-                patUrl = 'patient_file/summary/insurance_edit.php?set_pid=' + encodeURIComponent(pid);
-            }
+        async function toInsurance(type, pid, pubpid, pname, enc, datestr, dobstr, enc_pid_array, enc_date_array, cal_cat_array) {
+            patUrl = 'patient_file/summary/insurance_edit.php?set_pid=' + encodeURIComponent(pid);
             pid = parseInt(pid, 10);
-            enc = parseInt(enc, 10);
             // Restore the session (getSessionValue calls restoreSession()) and load the encounter
             let curpid = parseInt(await top.getSessionValue('pid'));
             try {
@@ -362,21 +356,22 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                     await parent.left_nav.setPatientEncounter(enc_pid_array, enc_date_array, cal_cat_array);
                 }
-                if (type == 'enc') { // to encounter
-                    await parent.left_nav.setEncounter(datestr, enc, 'enc');
-                    await parent.asyncLoadFrame('enc2', 'enc', encUrl);
-                    await parent.activateTabByName('enc', true);
-                } else { // to insurance
-                    // If current patient is the same as the one we're trying to load, load the insurance edit frame
-                    if (curpid == pid) {
-                        await parent.asyncLoadFrame('dem1', 'pat', patUrl);
-                    }
-                    await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
-                    await parent.activateTabByName('pat', true);
+                // to insurance
+                // If current patient is the same as the one we're trying to load, load the insurance edit frame
+                if (curpid == pid) {
+                    await parent.asyncLoadFrame('dem1', 'pat', patUrl);
                 }
+                await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
+                await parent.activateTabByName('pat', true);
+                
             } catch (error) {
                 console.error('Failed to process patient:', error);
             }
+        }
+
+        function toEncounter(newpid, enc) {
+            top.restoreSession();
+            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
         }
 
         function popMBO(pid, enc, mboid) {
@@ -1091,25 +1086,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $lhtml .= "<div class='button-group'>";
                                 // Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09 JCH
                                 $lhtml .= "<a class='btn btn-sm btn-primary' role='button'" .
-                                    "href='javascript: window.toPatient(" .
-                                        "\"enc\"" . "," .
+                                    "href='javascript: window.toEncounter(" .
                                         attr_js($iter['enc_pid']) . "," .
-                                        attr_js($name['pubpid']) . "," .
-                                        attr_js($ptname) . "," .
-                                        attr_js($iter['enc_encounter']) . "," .
-                                        attr_js(oeFormatShortDate($raw_encounter_date)) . "," .
-                                        attr_js(" " . xl('DOB') . ": " .
-                                            oeFormatShortDate($name['DOB_YMD']) . " " .
-                                            xl('Age') . ": " .
-                                            getPatientAge($name['DOB_YMD'])) . "," .
-                                        "EncounterIdArray[" . attr_js($iter['enc_pid']) . "]" . "," .
-                                        "EncounterDateArray[" . attr_js($iter['enc_pid']) . "]" . "," .
-                                        "CalendarCategoryArray[" . attr_js($iter['enc_pid']) . "]" .
+                                        attr_js($iter['enc_encounter']) .
                                     ");" . " '>" . xlt('Encounter') . " " . text(oeFormatShortDate($raw_encounter_date)) . "</a>";
 
                                 // Changed "To xxx" buttons to allow room for encounter date display 2/17/09 JCH
                                 $lhtml .= "<a class='btn btn-sm btn-primary' role='button' " .
-                                    "href='javascript:window.toPatient(" .
+                                    "href='javascript:window.toInsurance(" .
                                         "\"ins\"" . "," .
                                         attr_js($iter['enc_pid']) . "," .
                                         attr_js($name['pubpid']) . "," .
