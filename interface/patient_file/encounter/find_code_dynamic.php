@@ -95,7 +95,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 }
                 if (obj.json && obj.json.iTotalHasMoreRecords) {
                     $(".dataTables_wrapper .dataTables_info").parent().parent()
-                        .prepend("<div class='col-sm-12'><p class='alert alert-warning moreResults'>" + <?php echo xlj("Maximum displayable results reached.  Narrow your search"); ?> + "</p></div>");
+                        .prepend("<div class='col-sm-12'><p class='alert alert-warning moreResults'>" + <?php echo xlj("Maximum displayable results reached. Narrow your search"); ?> + "</p></div>");
                 }
             },
             // Drawing a row, apply styling if it is previously selected.
@@ -135,7 +135,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 }
                 if (obj.json && obj.json.iTotalHasMoreRecords) {
                     $(".dataTables_wrapper .dataTables_info").parent().parent()
-                        .prepend("<div class='col-sm-12'><p class='alert alert-warning moreResults'>" + <?php echo xlj("Maximum displayable results reached.  Narrow your search"); ?> + "</p></div>");
+                        .prepend("<div class='col-sm-12'><p class='alert alert-warning moreResults'>" + <?php echo xlj("Maximum displayable results reached. Narrow your search"); ?> + "</p></div>");
                 }
             },
             initComplete: function () {
