@@ -13,14 +13,15 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // TODO: Replace tables with BS4 grid classes for GSoC
-
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc.php');
@@ -60,7 +61,7 @@ function is_clinic($code)
     );
 }
 
-$form_use_edate  = $_POST['form_use_edate'] ?? null;
+$form_use_edate  = intval($_POST['form_use_edate'] ?? 0);
 
 $form_proc_codefull = trim($_POST['form_proc_codefull'] ?? '');
 // Parse the code type and the code from <code_type>:<code>
@@ -220,7 +221,8 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <td>
                             <select name='form_use_edate' class='form-control'>
                                 <option value='0'><?php echo xlt('Payment Date'); ?></option>
-                                <option value='1'<?php echo ($form_use_edate) ? ' selected' : ''; ?>><?php echo xlt('Invoice Date'); ?></option>
+                                <option value='1'<?php echo ($form_use_edate == 1) ? ' selected' : ''; ?>><?php echo xlt('Service Date'); ?></option>
+                                <option value='2'<?php echo ($form_use_edate == 2) ? ' selected' : ''; ?>><?php echo xlt('Entry Date'); ?></option>
                             </select>
                             </td>
                         </tr>
@@ -543,14 +545,17 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             }
 
                             //
-                            if ($form_use_edate) {
-                                $thedate = substr($row['date'], 0, 10);
-                            } else {
+
+                            if (empty($form_use_edate)) {
                                 if (!empty($row['deposit_date'])) {
                                     $thedate = $row['deposit_date'];
                                 } else {
                                     $thedate = substr($row['post_time'], 0, 10);
                                 }
+                            } elseif ($form_use_edate == 1) {
+                                $thedate = substr($row['date'], 0, 10);
+                            } elseif ($form_use_edate == 2) {
+                                $thedate = substr($row['post_time'], 0, 10);
                             }
 
                             if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) {
@@ -648,7 +653,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $docnameleft = $docname;
                             }
 
-                            if ($_POST['form_details']) {
+                            if ($_POST['form_details'] ?? '') {
                                 ?>
 
                 <tr>
