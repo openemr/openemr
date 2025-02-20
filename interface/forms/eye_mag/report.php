@@ -40,6 +40,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
 
 $form_name = "eye_mag";
+global $form_folder;
 $form_folder = "eye_mag";
 
 $facilityService = new FacilityService();
