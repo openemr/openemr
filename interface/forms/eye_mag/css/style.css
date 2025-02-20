@@ -2208,21 +2208,21 @@ View.php
 #Visions_A > span:nth-of-type(2),
 #Visions_B > span:nth-of-type(2) {
   font-size: 0.8em;
-  left: 0.35in;
+  left: 0.4in;
   position: absolute;
 }
 
 #Visions_A > span:nth-of-type(3),
 #Visions_B > span:nth-of-type(3) {
   font-size: 0.8em;
-  left: 0.77in;
+  left: 0.95in;
   position: absolute;
 }
 
 #Visions_A > span:nth-of-type(4),
 #Visions_B > span:nth-of-type(4) {
   font-size: 0.8em;
-  left: 1.2in;
+  left: 1.5in;
   position: absolute;
 }
 
@@ -2300,21 +2300,21 @@ View.php
 
 #Lyr42 > span:nth-of-type(1) {
   font-size: 0.8em;
-  left: 0.3in;
+  left: 0.4in;
   position: absolute;
   top: 0.5in;
 }
 
 #Lyr42 > span:nth-of-type(2) {
   font-size: 0.8em;
-  left: 0.65in;
+  left: 0.95in;
   position: absolute;
   top: 0.5in;
 }
 
 #Lyr42 > span:nth-of-type(3) {
   font-size: 0.8em;
-  left: 1in;
+  left: 1.525in;
   position: absolute;
   top: 0.5in;
 }
@@ -2395,7 +2395,6 @@ View.php
 }
 
 #Lyr70 {
-    border: 1px solid var(--black);
   float: left;
   min-height: 1.05in;
   padding: 0.02in;
@@ -2471,7 +2470,7 @@ View.php
 
 #dim_pupils_panel {
   float: right;
-  width: 2.06in;
+  width: 2.6in;
   z-index: 99;
 }
 
@@ -2487,7 +2486,7 @@ View.php
 
 .pupil_dim_comments {
   border: 0;
-  left: 1.1in;
+  left: 1.55in;
   padding: auto;
   position: absolute;
   top: 0.2in;
