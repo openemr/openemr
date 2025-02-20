@@ -73,6 +73,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             // Vertical length options and their default
             "aLengthMenu": [15, 25, 50, 100],
             "iDisplayLength": 50,
+            "searchDelay": 350, // milliseconds, codes are heavy queries so we want to delay the search, default is 200ms
             // Specify a width for the first column.
             "aoColumns": [{"sWidth": "20%"}, {"sWidth": "60%"}, {"sWidth": "10%"}],
             // This callback function passes some form data on each call to the ajax handler.
@@ -86,6 +87,16 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 <?php } elseif ($what == 'groups') { ?>
                 aoData.push({"name": "layout_id", "value": <?php echo js_escape($layout_id); ?>});
                 <?php } ?>
+            },
+            fnDrawCallback: function(obj) {
+                const infoBox = $(".dataTables_wrapper p.moreResults");
+                if (infoBox.length) {
+                    infoBox.parent().remove();
+                }
+                if (obj.json && obj.json.iTotalHasMoreRecords) {
+                    $(".dataTables_wrapper .dataTables_info").parent().parent()
+                        .prepend("<div class='col-sm-12'><p class='alert alert-warning moreResults'>" + <?php echo xlj("Maximum displayable results reached. Narrow your search"); ?> + "</p></div>");
+                }
             },
             // Drawing a row, apply styling if it is previously selected.
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
@@ -107,6 +118,39 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                     "sNext": <?php echo xlj('Next'); ?>,
                     "sLast": <?php echo xlj('Last'); ?>
                 }
+            },
+            fnInfoCallback: function(settings, start, end, max, total, pre) {
+                const self = this.api();
+                let json = self.ajax ? self.ajax.json() : null;
+                if (json && json.iSearchEmptyError) {
+                    return <?php echo xlj('Please enter a search term to search for a code'); ?>;
+                } else {
+                    return pre;
+                }
+            },
+            fnDrawCallback: function(obj) {
+                const infoBox = $(".dataTables_wrapper p.moreResults");
+                if (infoBox.length) {
+                    infoBox.parent().remove();
+                }
+                if (obj.json && obj.json.iTotalHasMoreRecords) {
+                    $(".dataTables_wrapper .dataTables_info").parent().parent()
+                        .prepend("<div class='col-sm-12'><p class='alert alert-warning moreResults'>" + <?php echo xlj("Maximum displayable results reached. Narrow your search"); ?> + "</p></div>");
+                }
+            },
+            initComplete: function () {
+                // const input = $('.dataTables_filter input').unbind(),
+                const self = this.api(),
+                    $searchButton = $('<button class="btn btn-sm btn-outline-primary fa fa-search p-2">').click(function () {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        self.search(input.val()).draw();
+                    }),
+                    $clearButton = $('<button type="button" class="btn btn-sm btn-outline-warning fa-solid fa-eraser p-2">')
+                        .click(function () {
+                            input.val('');
+                        });
+                $('.dataTables_filter').append($searchButton, $clearButton);
             }
         });
 

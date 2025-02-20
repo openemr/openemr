@@ -327,3 +327,10 @@ UPDATE list_options SET title='Subcutaneous' WHERE list_id='drug_route' AND titl
 #IfRow2D list_options list_id drug_interval title q.d.
 UPDATE list_options SET title='Daily' WHERE list_id='drug_interval' AND title='q.d.';
 #EndIf
+
+#IfNotIndex sct2_description idx_term
+ALTER TABLE sct2_description
+    ADD INDEX idx_term (term),
+    ADD INDEX idx_active_term (active, term),
+    ADD FULLTEXT INDEX ft_term (term);
+#EndIf
