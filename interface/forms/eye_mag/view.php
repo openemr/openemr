@@ -2305,9 +2305,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                             echo "checked='checked'";
                                                                                                                                       } ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
-                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 1%" <?php if ($TROPICAMIDE == 'Tropicamide 1%') {
                                             echo "checked='checked'";
-                                                                                                                                           } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
+                                                                                                                                           } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 1%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
