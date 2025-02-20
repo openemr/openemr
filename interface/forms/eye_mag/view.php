@@ -2305,9 +2305,9 @@ if ($refresh and $refresh != 'fullscreen') {
                                             echo "checked='checked'";
                                                                                                                                       } ?> /><label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
-                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                                  <td><input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 1%" <?php if ($TROPICAMIDE == 'Tropicamide 1%') {
                                             echo "checked='checked'";
-                                                                                                                                           } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
+                                                                                                                                         } ?> /><label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 1%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
@@ -4079,7 +4079,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
                                               <td class="bold">
                                                     <?php
-                                                    if (($pcp_data['fax'] ?? '') > '') {
+                                                    if (($pcp_data['fax'] ?? null) > '') {
                                                         // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
                                                         $FAX_PCP  =  sqlQuery($query, array($pat_data['providerID'],$pid,$encounter));
