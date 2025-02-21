@@ -1,0 +1,10 @@
+LoginAndValidate
+NavigateToPatientCreationSearch
+CreatePatient
+//Prepare report
+click "Report" below saved value "firstName"
+click "Check All"
+click "Download PDF" below "Check All"
+//Validate report
+check that downloaded file contains string with parameters "${firstName} ${lastName}"
+check that downloaded file contains stored value "nowDateIso"
