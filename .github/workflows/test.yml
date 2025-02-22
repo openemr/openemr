@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master , feat-add-e2e-tests-7801 ]
   pull_request:
     branches: [ master ]
 
@@ -10,7 +10,6 @@ permissions:
   contents: read
 
 jobs:
-
   build_apache_81_114:
     name: PHP 8.1 - Apache - MariaDB 11.4
     runs-on: ubuntu-22.04
@@ -33,7 +32,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+          
       - name: Main build
         run: |
           source ci/ciLibrary.source
@@ -60,6 +59,14 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
         if: ${{ success() || failure() }}
 
       - name: E2e testing
@@ -155,6 +162,14 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
@@ -246,6 +261,14 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
         if: ${{ success() || failure() }}
 
       - name: E2e testing
@@ -341,6 +364,14 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
@@ -432,6 +463,14 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
         if: ${{ success() || failure() }}
 
       - name: E2e testing
@@ -527,6 +566,14 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
@@ -620,12 +667,20 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
           build_test_e2e
         if: ${{ success() || failure() }}
-
+      
       - name: Api testing
         run: |
           source ci/ciLibrary.source
@@ -711,6 +766,14 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
         if: ${{ success() || failure() }}
 
       - name: E2e testing
@@ -806,6 +869,14 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
@@ -897,6 +968,14 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
         if: ${{ success() || failure() }}
 
       - name: E2e testing
@@ -992,6 +1071,14 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
@@ -1083,6 +1170,14 @@ jobs:
         run: |
           source ci/ciLibrary.source
           build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
         if: ${{ success() || failure() }}
 
       - name: E2e testing
@@ -1178,6 +1273,14 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
+        run: |
+          source ci/ciLibrary.source
+          build_testrigor_tests
+        if: ${{ success() || failure() }}
+
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
@@ -1222,7 +1325,7 @@ jobs:
 
 
   build_nginx_84:
-    name: PHP 8.4 - Nginx - MariaDB 11.4
+    name: PHP 8.4 - Nginx - MariaDB 11.4 (skipping E2e testing at this time)
     runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_84
@@ -1272,11 +1375,20 @@ jobs:
           build_test_unit
         if: ${{ success() || failure() }}
 
-      - name: E2e testing
+      - name: testRigor testing
+        env:
+          WORKSPACE_DIR: ${{ github.workspace }}
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_testrigor_tests
         if: ${{ success() || failure() }}
+
+      - name: E2e testing (skipping at this time for PHP 8.4-dev)
+        run: |
+           echo "SKIPPING THIS TEST FOR NOW UNTIL IT STARTS WORKING IN FUTURE FOR PHP 8.4-dev"
+#          source ci/ciLibrary.source
+#          build_test_e2e
+#        if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |

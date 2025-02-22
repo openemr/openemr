@@ -99,6 +99,36 @@ build_test_e2e() {
     fi
 }
 
+build_testrigor_tests() {
+    failTest=false
+    CONTAINER_ID=$(docker ps | grep openemr[_\-] | cut -f 1 -d " ")
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'" || failTest=true
+
+    echo "Debug ====================="
+    echo "$WORKSPACE_DIR"
+    docker --debug ps --format "{{.Names}} {{.Ports}}" | grep openemr[_\-] | grep -oP '\d+(?=/tcp)' | head -n 1
+    OPENEMR_PORT=$(docker ps --format "{{.Names}} {{.Ports}}" | grep openemr[_\-] | grep -oP '(?<=->)\d+(?=/tcp)' | head -n 1)
+    echo "OpenEMR Port: $OPENEMR_PORT"
+    docker ps | grep openemr[_\-]
+    docker exec -i "$CONTAINER_ID" ls -l "$OPENEMR_DIR"
+    docker exec -i "$CONTAINER_ID" sh -c "curl -I localhost:$OPENEMR_PORT; curl -I 0.0.0.0:$OPENEMR_PORT"
+    echo "End ====================="
+
+    docker cp "$WORKSPACE_DIR"/tests/testRigor/testcases "$CONTAINER_ID":/tmp/testcases
+    docker cp "$WORKSPACE_DIR"/tests/testRigor/rules "$CONTAINER_ID":/tmp/rules
+    docker cp "$WORKSPACE_DIR"/tests/testRigor/run_testrigor_tests.sh "$CONTAINER_ID":/tmp/run_testrigor_tests.sh
+    docker exec -i "$CONTAINER_ID" sh -c \
+        "export OPENEMR_PORT=$OPENEMR_PORT && \
+        command -v npm >/dev/null || (curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt-get install -y nodejs) && \
+        npm install -g testrigor-cli && \
+        testrigor --version && \
+        chmod +x /tmp/run_testrigor_tests.sh && \
+        /tmp/run_testrigor_tests.sh" || failTest=true
+    if $failTest; then
+        exit 1
+    fi
+}
+
 build_test_api() {
     failTest=false
     docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
