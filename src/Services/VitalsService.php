@@ -392,12 +392,12 @@ class VitalsService extends BaseService
                 throw new \InvalidArgumentException("Insert new record failed.");
             }
         } else { // update
-        if (!empty($id)) {
-            $sql .= " WHERE `id` = ? ";
-            $values[] = $id;
-            $vitalsData['id'] = $id;
-        }
-        QueryUtils::sqlStatementThrowException($sql, $values);
+            if (!empty($id)) {
+                $sql .= " WHERE `id` = ? ";
+                $values[] = $id;
+                $vitalsData['id'] = $id;
+            }
+            QueryUtils::sqlStatementThrowException($sql, $values);
         }
 
         // now go through and update all of our vital details
