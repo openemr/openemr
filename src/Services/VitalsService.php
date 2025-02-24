@@ -388,7 +388,7 @@ class VitalsService extends BaseService
                 $vitalsData['id'] = $id;
                 // add new forms entry with new form_vital reference.
                 \addForm($vitalsData['eid'], "Vitals", $id, "vitals", $vitalsData['pid'], $vitalsData['authorized']);
-            } else { // unsure if will ever gets here.
+            } else { // unsure if will ever get here.
                 throw new \InvalidArgumentException("Insert new record failed.");
             }
         } else { // update
@@ -404,9 +404,7 @@ class VitalsService extends BaseService
         $updatedDetails = [];
         foreach ($details as $column => $detail) {
             $detail['form_id'] = $vitalsData['id'];
-            // $updatedDetails[$column] = $this->saveVitalDetails($detail); // TODO: sjp IMO this is a bug, didn't make sense to me
-            $this->saveVitalDetails($detail); // save the detail record
-            $updatedDetails[$column] = $detail; // update the details array with the saved record
+            $updatedDetails[$column] = $this->saveVitalDetails($detail);
         }
         $vitalsData['details'] = $updatedDetails;
         $vitalsData = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $vitalsData);
@@ -506,8 +504,11 @@ class VitalsService extends BaseService
         if (!empty($id)) {
             $sql .= " WHERE `id` = ? ";
             $values[] = $id;
+            QueryUtils::sqlStatementThrowException($sql, $values);
+        } else {
+            $vitalDetails['id'] = QueryUtils::sqlInsert($sql, $values);
         }
-        QueryUtils::sqlStatementThrowException($sql, $values);
+        return $vitalDetails;
     }
 
     public function getVitalsForPatientEncounter($pid, $eid)
