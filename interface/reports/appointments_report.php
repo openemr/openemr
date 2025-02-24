@@ -39,6 +39,9 @@ use OpenEMR\Common\{
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
 
+//RM
+echo    "poviders" . var_dump($_POST["form_provider"]);
+
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -101,6 +104,7 @@ if (!empty($_POST['show_address'])) {
 }
 
 $provider  = $_POST['form_provider'] ?? null;
+
 $facility  = $_POST['form_facility'] ?? null;  //(CHEMED) facility filter
 $form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUEST['form_orderby'])) ?  $_REQUEST['form_orderby'] : 'date';
 
@@ -246,14 +250,15 @@ if (empty($_POST['form_csvexport'])) {
                   "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
 
                 $ures = sqlStatement($query);
-// select multiple providers - rather than one or all
-                echo "   <select name='form_provider' class='form-control'  multiple >\n";
+                //RM select multiple providers - rather than one or all
+                echo "   <select name='form_provider[]' class='form-control'  multiple >\n";
+        //               echo "   <select name='form_provider' class='form-control' >\n";
                 echo "    <option value=''>-- " . xlt('All') . " --\n";
 
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
+                    if (!empty($_POST['form_provider']) && (in_array($provid, $_POST['form_provider']))) { //RM
                         echo " selected";
                     }
 

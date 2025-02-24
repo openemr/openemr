@@ -1,6 +1,9 @@
 <?php
 
 /**
+ *
+ * RM - allow multple providers to have been chosen
+ *
  * Holds library functions (and hashes) used by the appointment reporting module
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -189,6 +192,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
   ///////////////////////////////////////////////////////////////////////
 
     $events2 = array();
+//RM
+    //RM
+echo "<br><br> query : -  " .  $query . " - and whats :  " .  print_r(array_values($sqlBindArray))  ;
 
     $res = sqlStatement($query, $sqlBindArray);
 
@@ -361,6 +367,7 @@ function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id 
         array_push($sqlBindArray, $facility_id, $facility_id);
     }
 
+
     $appointments = fetchEvents($from_date, $to_date, $where, null, false, 0, $sqlBindArray);
     return $appointments;
 }
@@ -372,10 +379,19 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
 
     $where = "";
 
-    if ($provider_id) {
-        $where .= " AND e.pc_aid = ?";
-        array_push($sqlBindArray, $provider_id);
-    }
+ //RM multiple providers
+
+     if ($provider_id) {
+             $quantity = sizeof($provider_id) ;
+            $where .= " AND ( e.pc_aid = ?" ;
+            for ($i = 1; $i < $quantity; $i++) {
+                $where.=  " OR e.pc_aid = ? ";
+            }
+            $where .= ")";
+            foreach ($provider_id as $x) {
+                array_push($sqlBindArray, $x);
+            }
+     }
 
     if ($patient_id) {
         $where .= " AND e.pc_pid = ?";
@@ -418,6 +434,7 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
     if ($with_out_facility != '') {
         $where .= " AND e.pc_facility = 0";
     }
+
 
     $appointments = fetchEvents($from_date, $to_date, $where, '', $tracker_board, $nextX, $sqlBindArray);
     return $appointments;
