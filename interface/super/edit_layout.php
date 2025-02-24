@@ -26,13 +26,6 @@ use OpenEMR\Core\Header;
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
 
-function setLayoutTimestamp($layout_id)
-{
-    $query = "UPDATE layout_group_properties SET grp_last_update = CURRENT_TIMESTAMP " .
-        "WHERE grp_form_id = ? AND grp_group_id = ''";
-    sqlStatement($query, array($layout_id));
-}
-
 function collectLayoutNames($condition, $mapping = '')
 {
     global $layouts, $form_inactive;
@@ -189,147 +182,33 @@ function swapGroups($id1, $id2)
     }
 }
 
-function tableNameFromLayout($layout_id)
-{
-    // Skip layouts that store data in vertical tables.
-    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") {
-        return '';
-    }
-    if ($layout_id == "DEM") {
-        $tablename = "patient_data";
-    } elseif (substr($layout_id, 0, 3) == "HIS") {
-        $tablename = "history_data";
-    } elseif ($layout_id == "SRH") {
-        $tablename = "lists_ippf_srh";
-    } elseif ($layout_id == "CON") {
-        $tablename = "lists_ippf_con";
-    } elseif ($layout_id == "GCA") {
-        $tablename = "lists_ippf_gcac";
-    } else {
-        die(xlt('Internal error in tableNameFromLayout') . '(' . text($layout_id) . ')');
-    }
-    return $tablename;
-}
-
-// This tells you if a column name is required in code and therefore must not
-// be deleted or renamed.
-function isColumnReserved($tablename, $field_id)
-{
-    if ($tablename == 'patient_data') {
-        if (
-            in_array($field_id, array(
-            'id',
-            'DOB',
-            'title',
-            'language',
-            'fname',
-            'lname',
-            'mname',
-            'street',
-            'postal_code',
-            'city',
-            'state',
-            'ss',
-            'phone_home',
-            'phone_cell',
-            'date',
-            'sex',
-            'providerID',
-            'email',
-            'pubpid',
-            'pid',
-            'squad',
-            'home_facility',
-            'deceased_date',
-            'deceased_reason',
-            'allow_patient_portal',
-            'soap_import_status',
-            'email_direct',
-            'dupscore',
-            'cmsportal_login',
-            'care_team_provider',
-            'care_team_status',
-            'billing_note',
-            'uuid',
-            'care_team_facility',
-            'name_history',
-            'care_team_status',
-            'patient_groups',
-            'additional_addresses'
-            ))
-        ) {
-            return true;
-        }
-    } elseif ($tablename == 'history_data') {
-        if (
-            in_array($field_id, array(
-            'id',
-            'date',
-            'pid',
-            ))
-        ) {
-            return true;
-        }
-    }
-    return false;
-}
-
 // Call this when adding or removing a layout field.  This will create or drop
 // the corresponding table column when appropriate.  Table columns are not
 // dropped if they contain any non-empty values or are required internally.
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
-    $tablename = tableNameFromLayout($layout_id);
-    if (!$tablename) {
-        return;
-    }
-    // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
-    $column_exists = !empty($tmp);
-
-    if ($add && !$column_exists) {
-        sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
+    $table_name = getTableNameFromLayoutId($layout_id);
+    if ($add === true) {
+        addColumn($table_name, $field_id);
         EventAuditLogger::instance()->newEvent(
             "alter_table",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
             1,
-            "$tablename ADD $field_id"
+            "$table_name ADD $field_id"
         );
-    } elseif (!$add && $column_exists) {
-        // Do not drop a column that has any data.
-        $tmp = sqlQuery(
-            "SELECT `" . escape_sql_column_name($field_id, [$tablename]) .
-            "` AS field_id FROM `" . escape_table_name($tablename) . "` WHERE " .
-            "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `"
-            . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1"
-        );
-        if (!isset($tmp['field_id']) && !isColumnReserved($tablename, $field_id)) {
-            $lotmp = array();
-            // For History layouts do not delete a field name duplicated in another History layout
-            // (should not happen, but a bug allowed it).
-            if (substr($layout_id, 0, 3) == 'HIS') {
-                $lotmp = sqlQuery(
-                    "SELECT COUNT(*) AS count FROM layout_options WHERE " .
-                    "form_id LIKE 'HIS%' AND form_id != ? AND field_id = ?",
-                    array($layout_id, $field_id)
-                );
-            }
-            if (empty($lotmp['count'])) {
-                sqlStatement(
-                    "ALTER TABLE `" . escape_table_name($tablename) . "` " .
-                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
-                );
-                EventAuditLogger::instance()->newEvent(
-                    "alter_table",
-                    $_SESSION['authUser'],
-                    $_SESSION['authProvider'],
-                    1,
-                    "$tablename DROP $field_id "
-                );
-            }
-        }
+
+        return;
     }
+
+    deleteColumn($table_name, $field_id);
+    EventAuditLogger::instance()->newEvent(
+        "alter_table",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "$table_name DROP $field_id "
+    );
 }
 
 // Call this before renaming a layout field.
@@ -342,7 +221,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 //
 function renameColumn($layout_id, $old_field_id, $new_field_id)
 {
-    $tablename = tableNameFromLayout($layout_id);
+    $tablename = getTableNameFromLayoutId($layout_id);
     if (!$tablename) {
         return -1; // Indicate rename is not relevant.
     }
@@ -384,11 +263,6 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     return 0; // Indicate rename done and successful.
 }
 
-// Test options array for save
-function encodeModifier($jsonArray)
-{
-    return $jsonArray !== null ? json_encode($jsonArray) : "";
-}
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
@@ -403,14 +277,30 @@ natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
-$layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
+$layout_tbl = !empty($layout_id) ? getTableNameFromLayoutId($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
 $lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 
 // Handle the Form actions
+if (!empty($_POST['formaction']) && $layout_id) {
+    match ($_POST['formaction']) {
+        'save' => formActionSave(),
+        'addfield' => form_action_add_field(),
+        'movefields' => form_action_move_fields(),
+        'copytolayout' => form_action_copy_to_layout(),
+        'deletefields' => form_action_delete_fields(),
+        'addgroup' => form_action_add_group(),
+        'deletegroup' => form_action_delete_group(),
+        'movegroup' => form_action_move_group(),
+        'renamegroup' => form_action_rename_group(),
+        default => null,
+    };
+}
 
-if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
+function formActionSave(): void {
+    global $layout_id;
+
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -432,11 +322,11 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         for (; !empty($iter['condition_id'][$cix]); ++$cix) {
             $andor = empty($iter['condition_andor'][$cix]) ? '' : $iter['condition_andor'][$cix];
             $condarr[$cix] = array(
-            'id'       => $iter['condition_id'      ][$cix],
-            'itemid'   => $iter['condition_itemid'  ][$cix],
-            'operator' => $iter['condition_operator'][$cix],
-            'value'    => $iter['condition_value'   ][$cix],
-            'andor'    => $andor,
+                'id'       => $iter['condition_id'      ][$cix],
+                'itemid'   => $iter['condition_itemid'  ][$cix],
+                'operator' => $iter['condition_operator'][$cix],
+                'value'    => $iter['condition_value'   ][$cix],
+                'andor'    => $andor,
             );
         }
         $conditions = $cix ? serialize($condarr) : '';
@@ -470,54 +360,34 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                 "validation = '"   . add_escape_custom(trim($iter['validation']))   . "' " .
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
 
-              setLayoutTimestamp($layout_id);
+            setLayoutTimestamp($layout_id);
         }
     }
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
+}
+
+function form_action_add_field() {
+    global $layout_id;
+
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
+
     // Add a new field to a specific group
-    $data_type = trim($_POST['newdatatype']);
-    $max_length = $data_type == 3 ? 3 : 255;
-    $listval = $data_type == 34 ? trim($_POST['contextName']) : trim($_POST['newlistid']);
-    sqlStatement("INSERT INTO layout_options (" .
-      " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
-      ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
-      ", max_length, list_id, list_backup_id " .
-      ") VALUES ( " .
-      "'"  . add_escape_custom(trim($_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newsource'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newid'])) . "'" .
-      ",'" . add_escape_custom($_POST['newtitle']) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newfieldgroupid'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newseq'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newuor'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newtitlecols'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newdatacols'])) . "'" .
-      ",'" . add_escape_custom($data_type) . "'"                                  .
-        ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newdefault'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newcodes'])) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newdesc'])) . "'" .
-      ",'"    . add_escape_custom(trim($_POST['newmaxSize']))    . "'"  .
-      ",'" . add_escape_custom($listval) . "'" .
-      ",'" . add_escape_custom(trim($_POST['newbackuplistid'])) . "'" .
-      " )");
+    addField($layout_id, $_POST);
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
     setLayoutTimestamp($layout_id);
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
+}
+
+function form_action_move_fields() {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
     // Move field(s) to a new group in the layout
     $sqlstmt = "UPDATE layout_options SET " .
-                " group_id = '" . add_escape_custom($_POST['targetgroup']) . "' " .
-                " WHERE " .
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
-                " AND field_id IN (";
+        " group_id = '" . add_escape_custom($_POST['targetgroup']) . "' " .
+        " WHERE " .
+        " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
+        " AND field_id IN (";
     $comma = "";
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
         $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
@@ -527,7 +397,13 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
     setLayoutTimestamp($layout_id);
-} elseif (($_POST['formaction'] ?? '') == "copytolayout" && $layout_id && !empty($_POST['targetlayout'])) {
+}
+
+function form_action_copy_to_layout() {
+    if (empty($_POST['targetlayout'])) {
+        return;
+    }
+
     // Copy field(s) to the specified group in another layout.
     // It's important to skip any duplicate field names.
     $tlayout = $_POST['targetlayout'];
@@ -564,18 +440,20 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         addOrDeleteColumn($tlayout, $onefield, true);
         setLayoutTimestamp($tlayout);
     }
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
+}
+
+function form_action_delete_fields() {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
     // Delete a field from a specific group
     $sqlstmt = "DELETE FROM layout_options WHERE " .
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
-                " AND field_id IN (";
+        " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
+        " AND field_id IN (";
     $comma = "";
     $cntr = 0;
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        if (!isColumnReserved(tableNameFromLayout($_POST['layout_id']), $onefield)) {
+        if (!isColumnReserved(getTableNameFromLayoutId($_POST['layout_id']), $onefield)) {
             $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
             $comma = ", ";
             $cntr++;
@@ -589,7 +467,9 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         }
         setLayoutTimestamp($layout_id);
     }
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
+}
+
+function form_action_add_group() {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -603,7 +483,9 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         array($layout_id, $newgroupid, $_POST['newgroupname'])
     );
     setLayoutTimestamp($layout_id);
-} elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
+}
+
+function form_action_delete_group() {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -628,7 +510,9 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         array($_POST['layout_id'], $_POST['deletegroupid'])
     );
     setLayoutTimestamp($layout_id);
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
+}
+
+function form_action_move_group() {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -656,7 +540,9 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $id1 = $id2;
     }
     setLayoutTimestamp($layout_id);
-} elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
+}
+
+function form_action_rename_group() {
     // Renaming a group. This might include moving to a different parent group.
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -666,7 +552,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     $oldparent = substr($oldid, 0, -1);
     $newid = $oldid;
     if ($newparent != $oldparent) {
-      // Different parent, generate a new child prefix character.
+        // Different parent, generate a new child prefix character.
         $newid = genGroupId($newparent);
         sqlStatement(
             "UPDATE layout_options SET group_id = ? " .
@@ -675,8 +561,8 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         );
     }
     $query = "UPDATE layout_group_properties SET " .
-    "grp_group_id = ?, grp_title = ? " .
-    "WHERE grp_form_id = ? AND grp_group_id = ?";
+        "grp_group_id = ?, grp_title = ? " .
+        "WHERE grp_form_id = ? AND grp_group_id = ?";
     sqlStatement($query, array($newid, $_POST['renamegroupname'], $layout_id, $oldid));
 }
 
