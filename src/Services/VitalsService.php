@@ -356,7 +356,6 @@ class VitalsService extends BaseService
             }
             $isInsert = true;
             $sqlOperation = "INSERT INTO ";
-            // use our generate_id function here for us to create a new id
             $vitalsData['id'] = null;
             $vitalsData['uuid'] = UuidRegistry::getRegistryForTable(self::TABLE_VITALS)->createUuid();
         } else {
