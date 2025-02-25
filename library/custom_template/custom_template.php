@@ -42,8 +42,8 @@ function listitemCode($strDisp, $strInsert, $ref = '')
             $id = text($ref);
             $ref = " {|$id|}";
         }
-        echo '<li><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
-             "'" . text($strInsert) . $ref . "'" . ');">' . text($strDisp) . '</a></li>';
+        echo '<li><a href="#" class="btn-template-insert" data-template-text="'
+            . attr($strInsert . $ref) . '">' . text($strDisp) . '</a></li>';
     }
 }
 
@@ -72,13 +72,27 @@ if (empty($isNN) && empty($rowContext)) {
         cursor: move !important;
     }
 </style>
-<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
+<?php
+$ckeditorConfig = "ckeditor-limited";
+if ($isNN) {
+    $ckeditorConfig = "ckeditor-nation-notes";
+}
+    Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', $ckeditorConfig]);
+?>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
-    let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
-    <?php if (!$isNN) { ?>
-        $(function () {
+    // note these variables are set on backend server side, leaving comment for server side readers
+    const isNationNotes = <?php echo $isNN ? "true" : "false"; ?>;
+    const dataAsPlainText = !isNationNotes;
+    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    const allowTemplateWarning = <?php echo $allowTemplateWarning ? "true" : "false"; ?>;
+    function refreshme() {
+        top.restoreSession();
+        document.location.reload();
+    }
+    $(function () {
+        if (!isNationNotes) {
             $('#contextSearch').select2({
                 placeholder: <?php echo xlj('Select Template Context'); ?>,
                 width: 'resolve',
@@ -88,7 +102,7 @@ if (empty($isNN) && empty($rowContext)) {
                     data: function (params) {
                         let query = {
                             search: params.term,
-                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                            csrf_token_form: csrfToken
                         };
                         return query;
                     },
@@ -103,17 +117,58 @@ if (empty($isNN) && empty($rowContext)) {
                 $("#contextName").val(data.text);
                 $("#mainForm").submit();
             });
-        });
-    <?php } ?>
+        }
+        const {
+            ClassicEditor
+        } = CKEDITOR;
+        // ajax_function_writer.js::getCallingDocumentEditorContent
+        let initialData = getCallingDocumentEditorContent(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
 
-    function refreshme() {
-        top.restoreSession();
-        document.location.reload();
-    }
+        const config = Object.assign({}, window.oeCKEditorConfigs.defaultConfig, {initialData: initialData});
+        // window.oeCKEditorConfigs.defaultConfig comes from the ckeditor-limited or ckeditor-nation-notes config file
+        ClassicEditor
+            .create( document.querySelector( '#textarea1' ), config)
+            .then( editor => {
+                // ajax_function_writer.js::initAjaxFunctionWritersWithEditor
+                initAjaxFunctionWritersWithEditor(editor);
+                // Focus the editor on page load
+                editor.editing.view.focus();
+                let btnTemplateInserts = document.querySelectorAll('.btn-template-insert');
+                btnTemplateInserts.forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        let targetButton = e.currentTarget;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        top.restoreSession();
+                        let txt = targetButton.getAttribute('data-template-text');
+                        console.log("text is ", txt);
+                        console.log("button is ", targetButton);
+                        editor.model.change( (writer) => {
+                            // make sure we are only insert text content
+                            const textNode = writer.createText(txt);
+                            editor.model.insertContent(textNode);
+                        } );
+                    });
+                });
 
-    CKEDITOR.config.customConfig = top.webroot_url + '/library/js/nncustom_config.js';
-
-    $(function () {
+                let btnInsertForms = document.querySelectorAll(".btn-transmit");
+                btnInsertForms.forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        top.restoreSession();
+                        let insertValue = "";
+                        if (dataAsPlainText) {
+                            insertValue = editor.editing.view.getDomRoot().innerText
+                        } else {
+                            insertValue = editor.getData();
+                        }
+                        // TODO: seems like it'd be better to just inline this function here in this file, but for expediency sake, going to bring this in.
+                        SelectToSave(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>, insertValue);
+                    });
+                });
+            })
+            .catch(error => console.error(error));
         tabbify();
 
         $(".iframe_small").on('click', function (e) {
@@ -160,10 +215,7 @@ if (empty($isNN) && empty($rowContext)) {
             $("#menu5 > li > a.expanded").not(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
             $(this).toggleClass("expanded").toggleClass("collapsed").parent().find('> ul').slideToggle("medium");
         });
-    });
-</script>
-<script>
-    $(function () {
+
         function sortableCallback(elem){
             let clorder  = [];
             for (let i=0; i< elem.length; i++) {
@@ -175,7 +227,19 @@ if (empty($isNN) && empty($rowContext)) {
             $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
         }
         oeSortable(sortableCallback);
+
+        // let's popup a warning dialog if we're in a context that is text only templates
+        if (allowTemplateWarning && !isNationNotes) {
+            // teeheehee
+            let msg = xl("These templates are text only and will not render any other formatting other than pure text.") + " ";
+            msg += xl("You may still use formatting if template is also used in Nation Notes however, pure text will still render here.") +
+                "<br /><br />";
+            msg += xl("Click Got it icon to dismiss this alert forever.");
+            alertMsg(msg, 10000, 'danger', 'lg', 'disable_template_warning');
+        }
     });
+</script>
+<script>
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 </head>
@@ -216,20 +280,12 @@ if (empty($isNN) && empty($rowContext)) {
               </div>
               <div class="col-md-8 text mb-1">
                 <div id="share" style="display:none"></div>
-                <!-- Enter Key !-->
-                <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><i class="fas fa-sign-in-alt"></i></a>&nbsp;
-                <!-- Question Mark !-->
-                <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><i class="fas fa-question-circle"></i></a>&nbsp;
-                <!-- Paragraph !-->
-                <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><i class="fas fa-paragraph"></i></a>&nbsp;
-                <!-- Space !-->
-                <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?></a>
                 <?php
                 $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
                 while ($row = sqlFetchArray($res)) { ?>
-                    <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
+                    <a href="#" class="btn btn-primary btn-template-insert" data-template-text="<?php echo attr($row['cl_list_item_short']); ?>" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
                 <?php } ?>
-                  <a class="btn btn-primary btn-sm btn-transmit float-right" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
+                  <a class="btn btn-primary btn-sm btn-transmit float-right" href="#"><?php echo xlt('Insert in Form'); ?></a>
               </div>
               <div class="col-md-4">
                 <div class="bg-light">
@@ -287,8 +343,9 @@ if (empty($isNN) && empty($rowContext)) {
                 <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
               </div>
               <div class="col-md-8">
-                <textarea class="ckeditor" cols="100" rows="180" id="textarea1" name="textarea1"></textarea>
-                <span class="float-right my-1"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
+                <textarea class="ckeditor mb-5" cols="100" rows="180"
+                          id="textarea1" name="textarea1"></textarea>
+                <span class="float-right my-1"><a href="#" class="btn btn-primary btn-transmit btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
               </div>
             </div>
         </form>
@@ -299,24 +356,6 @@ if (empty($isNN) && empty($rowContext)) {
       exit();
   }
     ?>
-  <table>
-      <script>
-          <?php if (!$isNN) { ?>
-              CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
-          <?php } ?>
-          $(function () {
-              edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
-          });
-          <?php if ($allowTemplateWarning && !$isNN) { ?>
-          // teeheehee
-          let msg = xl("These templates are text only and will not render any other formatting other than pure text.") + " ";
-          msg += xl("You may still use formatting if template is also used in Nation Notes however, pure text will still render here.") +
-              "<br /><br />";
-          msg += xl("Click Got it icon to dismiss this alert forever.");
-          alertMsg(msg, 10000, 'danger', 'lg', 'disable_template_warning');
-          <?php } ?>
-      </script>
-  </table>
 </div>
 </body>
 </html>
