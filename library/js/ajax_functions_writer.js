@@ -18,7 +18,6 @@ function initAjaxFunctionWritersWithEditor(editor) {
     oeCustomTemplateEditor = editor;
 }
 function moveOptions_11(theSelFrom, theSelTo) {
-    debugger;
     if (!oeCustomTemplateEditor) {
         console.error("CKEDITOR instance not found. Verify initAjaxFunctionWritersWithEditor was called");
         return;
