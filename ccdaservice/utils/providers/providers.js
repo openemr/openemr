@@ -1,5 +1,6 @@
 const { fDate } = require('../date/date');
 const { cleanCode } = require('../clean-code/clean-code');
+const { countEntities } = require('../count-entities/count-entities');
 const { NOT_INFORMED } = require('../constants');
 
 function populateProvider(provider, documentData) {
@@ -56,4 +57,38 @@ function populateProvider(provider, documentData) {
     };
 }
 
+function populateProviders(documentData) {
+    const toPopulate = [documentData.primary_care_provider.provider];
+    const count = countEntities(documentData.care_team.provider);
+    if (count === 1) {
+        toPopulate.push(documentData.care_team.provider);
+    } else if (count > 1) {
+        for (let i in documentData.care_team.provider) {
+            toPopulate.push(documentData.care_team.provider[i]);
+        }
+    }
+    return {
+        providers: {
+            date_time: {
+                low: {
+                    date: fDate(documentData.time_start || ''),
+                    precision: 'tz',
+                },
+                high: {
+                    date: fDate(documentData.time_end || ''),
+                    precision: 'tz',
+                },
+            },
+            code: {
+                name: documentData.primary_diagnosis.text || '',
+                code: cleanCode(documentData.primary_diagnosis.code || ''),
+                code_system_name:
+                    documentData.primary_diagnosis.code_type || '',
+            },
+            provider: toPopulate.map((p) => populateProvider(p, documentData)),
+        },
+    };
+}
+
 exports.populateProvider = populateProvider;
+exports.populateProviders = populateProviders;
