@@ -104,7 +104,7 @@ if (!empty($_POST['show_address'])) {
 $provider  = $_POST['form_provider'] ?? null;
 //RM if 'all' selected set to null
 if ($provider[0] == '') {
-    $provider = NULL;
+    $provider = null;
 }
 
 $facility  = $_POST['form_facility'] ?? null;  //(CHEMED) facility filter
@@ -259,7 +259,7 @@ if (empty($_POST['form_csvexport'])) {
                 if (!empty($_POST['form_provider']) && (in_array('', $_POST['form_provider']))) { //RM
                         echo " selected";
                 }
-               echo ">  -- " . xlt('All') . " --\n";
+                echo ">  -- " . xlt('All') . " --\n";
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
@@ -442,7 +442,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         </th>
 
         <?php if ($chk_show_address) {
-        echo "<th>";  echo xlt('Address') . "</a>
+              echo "<th>";  echo xlt('Address') . "</a>
         </th>";
         } ?>
 
@@ -505,10 +505,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
               $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
               $csvfields[$i]["Time"] = $appointments[$i]["pc_startTime"] ;
               $csvfields[$i]["Patient"] = $appointments[$i]["fname"] . " " .  $appointments[$i]["lname"] ;
-              if ($chk_show_address) {
+            if ($chk_show_address) {
                   $csvfields[$i]["Address"] = $appointments[$i]["address1"];
-                   if ($appointments[$i]["address2"]) { $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]   ;}
-              }
+                if ($appointments[$i]["address2"]) { $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]   ;}
+            }
               $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
         }
         $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
@@ -567,12 +567,14 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
             </td>
 
-                  <?php if($chk_show_address) {
-           echo " <td class='detail'>&nbsp;" ;
-                echo text($appointment['address1']);
-                if ($appointment['address2']) {echo text( ", " . $appointment['address2']) ; }
-            echo "</td>" ;
-            } ?>
+                  <?php if ($chk_show_address) {
+                        echo " <td class='detail'>&nbsp;" ;
+                        echo text($appointment['address1']);
+                        if ($appointment['address2']) {
+                            echo text( ", " . $appointment['address2']) ;
+                        }
+                        echo "</td>" ;
+                    } ?>
 
             <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
 

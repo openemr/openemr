@@ -137,16 +137,16 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         }
 
         // RM add values before more custom conditions are added to the search string
-     if ($bind_param) {
-      $sqlBindArray = array_merge($sqlBindArray, $bind_param);
-   }
+        if ($bind_param) {
+            $sqlBindArray = array_merge($sqlBindArray, $bind_param);
+        }
 
         // Filter out appointments based on a custom module filter
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
         $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE, 10);
         $boundFilter = $apptFilterEvent->getBoundFilter();
-       $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
-       $where .= " AND " . $boundFilter->getFilterClause();
+        $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
+        $where .= " AND " . $boundFilter->getFilterClause();
 
         $order_by = "e.pc_eventDate, e.pc_startTime";
         if ($orderby_param) {
@@ -182,12 +182,10 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         "LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
         "WHERE $where " .
         "ORDER BY $order_by";
-
     // RM - this would add provider paramaters in the wrong place
      //   if ($bind_param) {
     ////     $sqlBindArray = array_merge($sqlBindArray, $bind_param);
     //  }
-
     }
 
 
