@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Patient;
 
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
@@ -29,6 +30,9 @@ trait PatientAddTrait
     use BaseTrait;
     use LoginTrait;
 
+    private int $patientAddAttemptCounter = 1;
+    private bool $closedClient = false;
+
     /**
      * @depends testLoginAuthorized
      */
@@ -37,14 +41,25 @@ trait PatientAddTrait
         $this->base();
         try {
             $this->patientAddIfNotExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX);
-        } catch (\Throwable $e) {
-            // Close client
-            $this->client->quit();
-            // re-throw the exception
-            throw $e;
+        } catch (TimeoutException $e) {
+            // Give it 3 tries, then re-throw the exception
+            if ($this->patientAddAttemptCounter < 4) {
+                echo "Patient add attempt " . $this->patientAddAttemptCounter . " failed. Retrying...\n";
+                $this->patientAddAttemptCounter++;
+                $this->client->quit();
+                $this->testPatientAdd();
+            } else {
+                // Close client
+                $this->client->quit();
+                // re-throw the exception
+                throw $e;
+            }
         }
-        // Close client
-        $this->client->quit();
+        // Close client (since this is a recurrent function, only close client if it's not already closed)
+        if (!$this->closedClient) {
+            $this->client->quit();
+            $this->closedClient = true;
+        }
     }
 
     private function patientAddIfNotExist(string $firstname, string $lastname, string $dob, string $sex): void
