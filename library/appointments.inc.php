@@ -385,7 +385,7 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
         $quantity = sizeof($provider_id) ;
         $where .= " AND ( e.pc_aid = ?" ;
         for ($i = 1; $i < $quantity; $i++) {
-            $where.=  " OR e.pc_aid = ? ";
+            $where .=  " OR e.pc_aid = ? ";
         }
         $where .= ")";
         foreach ($provider_id as $x) {
