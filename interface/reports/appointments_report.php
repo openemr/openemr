@@ -39,8 +39,6 @@ use OpenEMR\Common\{
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
 
-//RM
-echo    "poviders" . var_dump($_POST["form_provider"]);
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -104,6 +102,10 @@ if (!empty($_POST['show_address'])) {
 }
 
 $provider  = $_POST['form_provider'] ?? null;
+//RM if 'all' selected set to null
+if ($provider[0] == '') {
+    $provider = NULL;
+}
 
 $facility  = $_POST['form_facility'] ?? null;  //(CHEMED) facility filter
 $form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUEST['form_orderby'])) ?  $_REQUEST['form_orderby'] : 'date';
@@ -253,8 +255,11 @@ if (empty($_POST['form_csvexport'])) {
                 //RM select multiple providers - rather than one or all
                 echo "   <select name='form_provider[]' class='form-control'  multiple >\n";
         //               echo "   <select name='form_provider' class='form-control' >\n";
-                echo "    <option value=''>-- " . xlt('All') . " --\n";
-
+                echo "    <option value='' ";
+                if (!empty($_POST['form_provider']) && (in_array('', $_POST['form_provider']))) { //RM
+                        echo " selected";
+                }
+               echo ">  -- " . xlt('All') . " --\n";
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
@@ -481,13 +486,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     if (isset($_POST['with_out_facility'])) {
         $with_out_facility = $_POST['with_out_facility'];
     }
-    //RM
-echo "about to call fetchAppointments with proveder" . var_dump ($provider) . "<br>";
 
     $appointments = fetchAppointments($from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat);
-
-    //RM
-    // echo "back from sql search <br>" . print_r($appointments);
 
     if ($show_available_times) {
         $availableSlots = getAvailableSlots($from_date, $to_date, $provider, $facility);

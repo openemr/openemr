@@ -152,7 +152,6 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         if ($orderby_param) {
              $order_by = $orderby_param;
         }
-echo "<br>  sql bind array at line 153  is  :  " .  var_dump($sqlBindArray)  . "<br>" ;
         // Tracker Board specific stuff
         $tracker_fields = '';
         $tracker_joins = '';
@@ -184,13 +183,11 @@ echo "<br>  sql bind array at line 153  is  :  " .  var_dump($sqlBindArray)  . "
         "WHERE $where " .
         "ORDER BY $order_by";
 
-    // RM
+    // RM - this would add provider paramaters in the wrong place
      //   if ($bind_param) {
-
     ////     $sqlBindArray = array_merge($sqlBindArray, $bind_param);
     //  }
 
-        echo "<br><br> bind array here is  :  " .  var_dump($sqlBindArray)  ;
     }
 
 
@@ -200,8 +197,6 @@ echo "<br>  sql bind array at line 153  is  :  " .  var_dump($sqlBindArray)  . "
   ///////////////////////////////////////////////////////////////////////
 
     $events2 = array();
-//RM
-echo "<br><br> the query : -  " .  $query ;  // . " // - and whats :  " .  print_r(array_values($sqlBindArray)) //  ;
 
     $res = sqlStatement($query, $sqlBindArray);
 
@@ -221,9 +216,6 @@ echo "<br><br> the query : -  " .  $query ;  // . " // - and whats :  " .  print
 
         ///////
         $incX = 0;
-        // RM
-        echo " the result <br>" . print_r(array_values($event)) . "<br> end result <br>"  ;
-     //   echo "<br>recurr type is: " $event['pc_recurrtupe']  ;
 
         switch ($event['pc_recurrtype']) {
             case '0':
@@ -399,7 +391,6 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
             }
             $where .= ")";
             foreach ($provider_id as $x) {
-     //RM            echo "<br> x value " . $x . " <br>" ;
                 array_push($sqlBindArray, $x);
             }
      }
