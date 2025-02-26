@@ -15,7 +15,7 @@
     function vitalsFormSubmitted() {
         var invalid = "";
 
-        var elementsToValidate = ['weight_input_usa', 'weight_input_metric', 'height_input_usa', 'height_input_usa_metric', 'bps_input', 'bpd_input'];
+        var elementsToValidate = ['weight_input_usa', 'weight_input_metric', 'height_input_usa', 'height_input_metric', 'bps_input', 'bpd_input'];
 
         for (var i = 0; i < elementsToValidate.length; i++) {
             var current_elem_id = elementsToValidate[i];
