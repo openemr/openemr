@@ -507,7 +507,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
               $csvfields[$i]["Patient"] = $appointments[$i]["fname"] . " " .  $appointments[$i]["lname"] ;
             if ($chk_show_address) {
                   $csvfields[$i]["Address"] = $appointments[$i]["address1"];
-                if ($appointments[$i]["address2"]) { $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]   ;}
+                if ($appointments[$i]["address2"]) {
+                    $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]  ;
+                }
             }
               $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
         }
@@ -571,10 +573,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                         echo " <td class='detail'>&nbsp;" ;
                         echo text($appointment['address1']);
                         if ($appointment['address2']) {
-                            echo text( ", " . $appointment['address2']) ;
+                            echo text(", " . $appointment['address2']) ;
                         }
                         echo "</td>" ;
-                    } ?>
+                  } ?>
 
             <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
 

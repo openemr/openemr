@@ -374,24 +374,24 @@ function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id 
 }
 
 //Support for therapy group appointments added by shachar z.
-function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null )
+function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null)
 {
     $sqlBindArray = array();
 
     $where = "";
 
  //RM multiple providers
-     if ($provider_id) {
-             $quantity = sizeof($provider_id) ;
-            $where .= " AND ( e.pc_aid = ?" ;
-            for ($i = 1; $i < $quantity; $i++) {
-                $where.=  " OR e.pc_aid = ? ";
-            }
-            $where .= ")";
-            foreach ($provider_id as $x) {
-                array_push($sqlBindArray, $x);
-            }
-     }
+    if ($provider_id) {
+        $quantity = sizeof($provider_id) ;
+        $where .= " AND ( e.pc_aid = ?" ;
+        for ($i = 1; $i < $quantity; $i++) {
+            $where.=  " OR e.pc_aid = ? ";
+        }
+        $where .= ")";
+        foreach ($provider_id as $x) {
+            array_push($sqlBindArray, $x);
+        }
+    }
 
     if ($patient_id) {
         $where .= " AND e.pc_pid = ?";
