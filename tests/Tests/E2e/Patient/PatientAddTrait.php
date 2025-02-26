@@ -54,6 +54,11 @@ trait PatientAddTrait
                 // re-throw the exception
                 throw $e;
             }
+        } catch (\Throwable $e) {
+            // Close client
+            $this->client->quit();
+            // re-throw the exception
+            throw $e;
         }
         // Close client (since this is a recurrent function, only close client if it's not already closed)
         if (!$this->closedClient) {
