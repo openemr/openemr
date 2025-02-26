@@ -481,8 +481,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     if (isset($_POST['with_out_facility'])) {
         $with_out_facility = $_POST['with_out_facility'];
     }
+    //RM
+echo "about to call fetchAppointments with proveder" . var_dump ($provider) . "<br>";
 
     $appointments = fetchAppointments($from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat);
+
+    //RM
+    // echo "back from sql search <br>" . print_r($appointments);
 
     if ($show_available_times) {
         $availableSlots = getAvailableSlots($from_date, $to_date, $provider, $facility);

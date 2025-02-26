@@ -4,6 +4,7 @@
  *
  * RM - allow multple providers to have been chosen
  *
+ *
  * Holds library functions (and hashes) used by the appointment reporting module
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -107,12 +108,10 @@ function checkEvent($recurrtype, $recurrspec)
 
 function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null)
 {
-
     $sqlBindArray = array();
 
     if ($query_param) {
         $query = $query_param;
-
         if ($bind_param) {
             $sqlBindArray = $bind_param;
         }
@@ -137,18 +136,23 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
             $where .= $where_param;
         }
 
+        // RM add values before more custom conditions are added to the search string
+     if ($bind_param) {
+      $sqlBindArray = array_merge($sqlBindArray, $bind_param);
+   }
+
         // Filter out appointments based on a custom module filter
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
         $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE, 10);
         $boundFilter = $apptFilterEvent->getBoundFilter();
-        $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
-        $where .= " AND " . $boundFilter->getFilterClause();
+       $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
+       $where .= " AND " . $boundFilter->getFilterClause();
 
         $order_by = "e.pc_eventDate, e.pc_startTime";
         if ($orderby_param) {
              $order_by = $orderby_param;
         }
-
+echo "<br>  sql bind array at line 153  is  :  " .  var_dump($sqlBindArray)  . "<br>" ;
         // Tracker Board specific stuff
         $tracker_fields = '';
         $tracker_joins = '';
@@ -180,9 +184,13 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         "WHERE $where " .
         "ORDER BY $order_by";
 
-        if ($bind_param) {
-            $sqlBindArray = array_merge($sqlBindArray, $bind_param);
-        }
+    // RM
+     //   if ($bind_param) {
+
+    ////     $sqlBindArray = array_merge($sqlBindArray, $bind_param);
+    //  }
+
+        echo "<br><br> bind array here is  :  " .  var_dump($sqlBindArray)  ;
     }
 
 
@@ -193,8 +201,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
     $events2 = array();
 //RM
-    //RM
-echo "<br><br> query : -  " .  $query . " - and whats :  " .  print_r(array_values($sqlBindArray))  ;
+echo "<br><br> the query : -  " .  $query ;  // . " // - and whats :  " .  print_r(array_values($sqlBindArray)) //  ;
 
     $res = sqlStatement($query, $sqlBindArray);
 
@@ -214,6 +221,10 @@ echo "<br><br> query : -  " .  $query . " - and whats :  " .  print_r(array_valu
 
         ///////
         $incX = 0;
+        // RM
+        echo " the result <br>" . print_r(array_values($event)) . "<br> end result <br>"  ;
+     //   echo "<br>recurr type is: " $event['pc_recurrtupe']  ;
+
         switch ($event['pc_recurrtype']) {
             case '0':
                 $events2[] = $event;
@@ -380,7 +391,6 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
     $where = "";
 
  //RM multiple providers
-
      if ($provider_id) {
              $quantity = sizeof($provider_id) ;
             $where .= " AND ( e.pc_aid = ?" ;
@@ -389,6 +399,7 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
             }
             $where .= ")";
             foreach ($provider_id as $x) {
+     //RM            echo "<br> x value " . $x . " <br>" ;
                 array_push($sqlBindArray, $x);
             }
      }
