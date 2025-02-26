@@ -50,6 +50,17 @@ function moveOptions_11(theSelFrom, theSelTo) {
     }
 }
 
+function updateEditorContent(content) {
+    if (!oeCustomTemplateEditor) {
+        console.error("CKEDITOR instance not found. Verify initAjaxFunctionWritersWithEditor was called");
+        return;
+    }
+    oeCustomTemplateEditor.model.change(writer => {
+        let textNode = writer.createText(content);
+        oeCustomTemplateEditor.model.insertContent(textNode);
+    });
+}
+
 function nl2br(str) {
     return str.replace(/(?:\r\n|\r|\n)/g, '<br />');
 }
