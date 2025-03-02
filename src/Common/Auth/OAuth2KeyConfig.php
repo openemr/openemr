@@ -2,12 +2,13 @@
 
 /**
  * Oauth2KeyConfig is responsible for configuring, generating, and returning oauth2 keys that are used by the OpenEMR system.
- * @package openemr
+ *
+ * @package   openemr
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -39,6 +40,7 @@ class OAuth2KeyConfig
      * @var string File location of the oauth2 public key
      */
     private $publicKey;
+    private CryptoGen $cryptoGen;
 
     public function __construct($siteDir = null)
     {
@@ -52,6 +54,15 @@ class OAuth2KeyConfig
         // verify and/or setup our key pairs.
         $this->privateKey = $siteDir . '/documents/certificates/oaprivate.key';
         $this->publicKey = $siteDir . '/documents/certificates/oapublic.key';
+
+        if ($this->verifyKeys() === false) {
+            try {
+                $this->recreateKeys();
+            } catch (OAuth2KeyException $e) {
+                // if unable to recreate keys, then force exit
+                throw new OAuth2KeyException("unable to recreate keys");
+            }
+        }
     }
 
     public function getPassPhrase()
@@ -63,6 +74,7 @@ class OAuth2KeyConfig
     {
         return $this->oaEncryptionKey;
     }
+
     public function getPublicKeyLocation()
     {
         return $this->publicKey;
@@ -75,6 +87,7 @@ class OAuth2KeyConfig
 
     /**
      * Configures the public and private keys for OpenEMR OAuth2.  If they do not exist it generates them.
+     *
      * @throws OAuth2KeyException
      */
     public function configKeyPairs(): void
@@ -124,8 +137,14 @@ class OAuth2KeyConfig
                 "encrypt_key" => true,
                 "encrypt_key_cipher" => OPENSSL_CIPHER_AES_256_CBC
             ];
-            $keys = \openssl_pkey_new($keysConfig);
+            $msg = getenv('OPENSSL_CONF');
+
+            $keys = openssl_pkey_new($keysConfig);
             if ($keys === false) {
+                while ($msg = openssl_error_string()) {
+                    $msg_error .= $msg . "\n";
+                }
+                error_log($msg_error);
                 // if unable to create keys, then force exit
                 throw new OAuth2KeyException("key generation broken during oauth2");
             }
@@ -161,5 +180,85 @@ class OAuth2KeyConfig
             // key pair is missing so must exit
             throw new OAuth2KeyException("oauth2 keypair is missing");
         }
+    }
+
+
+    public function verifyKeys(): bool
+    {
+        $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
+        $pKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2passphrase'");
+
+        if (!$eKey || !$pKey || !file_exists($this->privateKey) || !file_exists($this->publicKey)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function deleteKeys(): void
+    {
+        sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = 'oauth2key'");
+        sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = 'oauth2passphrase'");
+
+        if (file_exists($this->privateKey)) {
+            unlink($this->privateKey);
+        }
+        if (file_exists($this->publicKey)) {
+            unlink($this->publicKey);
+        }
+    }
+
+    public function recreateKeys(): bool
+    {
+        $this->deleteKeys();
+
+        $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
+        if (empty($this->oaEncryptionKey)) {
+            // if empty, then force exit
+            throw new OAuth2KeyException("random generator broken during oauth2 encryption key generation");
+        }
+        $this->oaEncryptionKey = base64_encode($this->oaEncryptionKey);
+        if (empty($this->oaEncryptionKey)) {
+            // if empty, then force exit
+            throw new OAuth2KeyException("base64 encoding broken during oauth2 encryption key generation");
+        }
+        sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->oaEncryptionKey)]);
+        $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+        if (empty($this->passphrase)) {
+            // if empty, then force exit
+            throw new OAuth2KeyException("random generator broken during oauth2 key passphrase generation");
+        }
+        $keysConfig = [
+            "default_md" => "sha256",
+            "private_key_type" => OPENSSL_KEYTYPE_RSA,
+            "private_key_bits" => 2048,
+            "encrypt_key" => true,
+            "encrypt_key_cipher" => OPENSSL_CIPHER_AES_256_CBC
+        ];
+        $msgEnv = getenv('OPENSSL_CONF');
+        $keys = openssl_pkey_new($keysConfig);
+        if (!$keys) {
+            while ($msg = openssl_error_string()) {
+                $msg_error .= $msg . "\n";
+            }
+            error_log($msg_error);
+            // if unable to create keys, then force exit
+            throw new OAuth2KeyException("key generation broken OPEN_SSL: $msgEnv" . $msg_error);
+        }
+        $privkey = '';
+        openssl_pkey_export($keys, $privkey, $this->passphrase, $keysConfig);
+        $pubkey = openssl_pkey_get_details($keys);
+        $pubkey = $pubkey["key"];
+        if (empty($privkey) || empty($pubkey)) {
+            // if unable to construct keys, then force exit
+            throw new OAuth2KeyException("key construction broken during oauth2");
+        }
+
+        file_put_contents($this->privateKey, $privkey);
+        chmod($this->privateKey, 0640);
+        file_put_contents($this->publicKey, $pubkey);
+        chmod($this->publicKey, 0660);
+        sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
+        return true;
     }
 }
