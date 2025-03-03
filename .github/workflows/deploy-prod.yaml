@@ -92,8 +92,8 @@ jobs:
       - name: Prepare Docker Compose file to Base64
         id: encode-docker-compose
         run: |
-          sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}:prod|g' docker/residen-production/docker-compose.yml
-          DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/docker-compose.yml | base64 -w 0)
+          sed -i 's|REPLACEME_ECR_URL|${{ env.ECR_URL }}:prod|g' docker/residen-production/prod-compose.yml
+          DOCKER_COMPOSE_BASE64=$(cat docker/residen-production/prod-compose.yml | base64 -w 0)
           echo "DOCKER_COMPOSE_BASE64=$DOCKER_COMPOSE_BASE64" >> $GITHUB_ENV
 
       - name: Deploy App to Each Instance

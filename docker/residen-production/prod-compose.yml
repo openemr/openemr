@@ -17,9 +17,9 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/ubuntu/openemr_logs
+      device: /home/ubuntu/ehr_efs/openemr_logs
   sitevolume:
     driver_opts:
       type: none
       o: bind
-      device: /home/ubuntu/openemr_sites
+      device: /home/ubuntu/ehr_efs/openemr_sites
