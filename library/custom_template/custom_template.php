@@ -71,6 +71,12 @@ if (empty($isNN) && empty($rowContext)) {
     .is-dragging {
         cursor: move !important;
     }
+    .ck-editor__editable {
+        resize: vertical !important;
+        min-height: 200px;
+        max-height: 500px;
+        overflow: auto;
+    }
 </style>
 <?php
 $ckeditorConfig = "ckeditor-limited";

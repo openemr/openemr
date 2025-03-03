@@ -162,7 +162,7 @@
         // ListProperties,
         // MediaEmbed,
         // Mention,
-        // Paragraph,
+        Paragraph,
         // PasteFromOffice,
         // RemoveFormat,
         SourceEditing,
