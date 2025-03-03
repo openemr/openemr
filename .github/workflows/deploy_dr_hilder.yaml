@@ -59,7 +59,7 @@ jobs:
 
       - name: Save ECR URL as Artifact
         run: echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.AWS_ECR_NAME }}" > ecr-url.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ecr-url
           path: ecr-url.txt
