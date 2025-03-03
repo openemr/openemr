@@ -30,6 +30,8 @@
 
 require_once("../../interface/globals.php");
 
+// TODO: @adunsulag should this be locked down to a specific ACL?
+
 $action         = $_POST['action'];
 $updateRecordsArray     = $_POST['clorder'];
 
