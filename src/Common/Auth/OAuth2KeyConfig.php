@@ -60,7 +60,7 @@ class OAuth2KeyConfig
                 $this->recreateKeys();
             } catch (OAuth2KeyException $e) {
                 // if unable to recreate keys, then force exit
-                throw new OAuth2KeyException("unable to recreate keys");
+                throw new OAuth2KeyException("Unable to recreate keys" . $e->getMessage());
             }
         }
     }
@@ -235,7 +235,7 @@ class OAuth2KeyConfig
             "encrypt_key" => true,
             "encrypt_key_cipher" => OPENSSL_CIPHER_AES_256_CBC
         ];
-        $msgEnv = getenv('OPENSSL_CONF');
+        $msg_error = $msgEnv = getenv('OPENSSL_CONF') . "\n";
         $keys = openssl_pkey_new($keysConfig);
         if (!$keys) {
             while ($msg = openssl_error_string()) {
