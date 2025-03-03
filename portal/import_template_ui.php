@@ -1,7 +1,7 @@
 <?php
 
 /**
- * import_template_ui.php
+ * import_template_ui.php - Patient Portal Template Maintenance
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -341,11 +341,6 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             currentEdit = id;
             handleTemplate(id, 'get', '', flag);
             return false;
-        };
-
-        let templateSave = function () {
-            let markup = CKEDITOR.instances.templateContent.getData();
-            handleTemplate(currentEdit, 'save', markup);
         };
 
         let templateDelete = function (id, template = '') {

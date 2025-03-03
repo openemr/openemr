@@ -67,7 +67,12 @@ $content = $_REQUEST['content'];
             function save_this() {
                 opener.restoreSession();
                 var textFrom = document.getElementById('quest').value;
-                window.opener.CKEDITOR.instances.textarea1.insertText(textFrom);
+                if (window.opener.updateEditorContent) {
+                    window.opener.updateEditorContent(textFrom);
+                } else {
+                    alert(xl("A system error occurred in updating your content. Please try again. If the problem persists, please contact the system administrator."));
+                    console.error("updateEditorContent not found in parent window");
+                }
                 window.close();
             }
         </script>
