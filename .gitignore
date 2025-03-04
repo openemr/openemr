@@ -1,3 +1,6 @@
+#docker mount bind data directory
+docker/development-easy/docker_data
+
 # logs
 /logs
 
