@@ -13,6 +13,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/**
+ * @global $srcdir
+ * @global $attendant_type
+ * @global $therapy_group
+ * @global $pid
+ * @global $userauthorized
+ * @global $rootdir
+ */
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
@@ -25,11 +33,14 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
+use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Forms\FormReportRenderer;
+
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -56,14 +67,14 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 } else {
     throw new Exception("Could not get EventDispatcher from kernel", 1);
 }
-
+// instantiate the locator at the beginning so our file caching can be re-used.
+$formLocator = new FormLocator();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 
 <title class="title"></title>
-<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $GLOBALS['charset']; ?>">
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>
@@ -971,22 +982,9 @@ if (
 
         // Use the form's report.php for display.  Forms with names starting with LBF
         // are list-based forms sharing a single collection of code.
-        //
-        if (substr($formdir, 0, 3) == 'LBF') {
-            include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-            lbf_report($attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
-        } else {
-            if (file_exists($GLOBALS['incdir'] . "/forms/$formdir/report.php")) {
-                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-                if (function_exists($formdir . "_report")) {
-                    call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
-                } else {
-                    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("form is missing report function", ['formdir' => $formdir]);
-                }
-            } else {
-                (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("form is missing report.php file", ['formdir' => $formdir]);
-            }
-        }
+        $reportRenderer = new FormReportRenderer($formLocator);
+        $reportColumns = 2;
+        $reportRenderer->renderReport($formdir, 'forms.php', $attendant_id, $encounter, $reportColumns, $iter['form_id']);
 
         if ($esign->isLogViewable()) {
             $esign->renderLog();

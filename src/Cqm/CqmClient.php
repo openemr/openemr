@@ -100,7 +100,7 @@ class CqmClient extends HttpClient
         StreamInterface $patients,
         StreamInterface $measure,
         StreamInterface $valueSets,
-        StreamInterface $options = null
+        ?StreamInterface $options = null
     ) {
         $patients = (string)str_replace(["\r\n", "\n", "\r"], '', (string)$patients);
         $measure = (string)str_replace(["\r\n", "\n", "\r"], '', (string)$measure);

@@ -372,7 +372,7 @@ function menuActionClick(data,evt)
 
 }
 
-function clearPatient()
+function clearPatient(openFinder = true)
 {
     top.restoreSession();
     app_view_model.application_data.patient(null);
@@ -380,9 +380,11 @@ function clearPatient()
     tabCloseByName('rev');
     tabCloseByName('pop');
     tabCloseByName('pat');
-    navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin', function () {
-        activateTabByName('fin',true);
-    });
+    if (openFinder) {
+        navigateTab(webroot_url+'/interface/main/finder/dynamic_finder.php','fin', function () {
+            activateTabByName('fin',true);
+        });
+    }
 
     if (WindowTitleAddPatient)
     {

@@ -842,6 +842,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             if ($_POST['PLAN'][$i] == '') {
                 continue;
             }
+            $fields = $fields ?? [];
+            $fields['PLAN'] = $fields['PLAN'] ?? '';
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
             $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
             $okthen = sqlQuery($ORDERS_sql, array($form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID));

@@ -133,6 +133,7 @@ class FacilityService extends BaseService
 
     public function getAllBillingLocations()
     {
+        // TODO: Should we be sorting by id?  seems like we'd want to sort by name like getAllServiceLocations does
         return $this->get(array(
             "where" => "WHERE FAC.billing_location = 1",
             "order" => "ORDER BY FAC.id ASC"

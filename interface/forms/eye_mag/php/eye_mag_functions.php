@@ -1701,7 +1701,9 @@ function build_PMSFH($pid)
                 $diags = explode(";", $row['diagnosis']);
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
-                    list($codetype, $code) = explode(':', $diag);
+                    if (strpos($diag, ':') !== false) {
+                        list($codetype, $code) = explode(':', $diag);
+                    }
                     $order   = array("\r\n", "\n","\r");
                     $codedesc = str_replace($order, '', $codedesc);
                     $codetext .= text($diag) . " (" . text($codedesc) . ")";
@@ -2164,6 +2166,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                             </tr>
                         </table>
                         ';
+                    $subtype_Meds[$item['row_subtype']]['table'] = $subtype_Meds[$item['row_subtype']]['table'] ?? '';
                     $subtype_Meds[$item['row_subtype']]['table'] .= "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
                             onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",\"Eye Meds\"," . attr_js($index) . ");\">" . text($item['title']) . "</span><br />";
                     $index++;
@@ -4432,7 +4435,7 @@ function start_your_engines($FIELDS)
                             //This option is run for 3 conditions at present:
                             //CSME/NVD/NVE per eye.  It is the same every time so only do it once, per eye.
                             //Did we already code this?  If so move on.
-                            if ($hit_DM[$side1] == '1') {
+                            if (!empty($hit_DM) && ($hit_DM[$side1] ?? '') == '1') {
                                 continue;
                             }
 
@@ -4550,7 +4553,7 @@ function start_your_engines($FIELDS)
                                         //or is there a code for both eyes?
                                         if ($side1 == "OS") {
                                             $count = '0';
-                                            for ($i = 0; $i < count($codes_found[$sub_term]); $i++) {
+                                            for ($i = 0; $i < count($codes_found[$sub_term] ?? []); $i++) {
                                                 $swap = "OD";
                                                 $codes_found[$sub_term][$i]['title'] = str_replace($swap, "OU", $codes_found[$sub_term][$i]['title']);
                                                 break 2;
@@ -4645,7 +4648,7 @@ function start_your_engines($FIELDS)
 
                                         if ($side1 == "OS") {
                                             $count = '0';
-                                            for ($i = 0; $i < count($codes_found[$sub_term]); $i++) {
+                                            for ($i = 0; $i < count($codes_found[$sub_term] ?? []); $i++) {
                                                 $swap = "OD";
                                                 $codes_found[$sub_term][$i]['title'] = str_replace($swap, "OU", $codes_found[$sub_term][$i]['title']);
                                                 break 2;
@@ -4718,7 +4721,7 @@ function coding_carburetor($term, $field)
                         'code'  =>  $row['code'],
                         'code_text' => $row['code_text'],
                         'code_type' => $row['code_type_name'],
-                        'code_desc' => $row['code_desc']
+                        'code_desc' => $row['code_desc'] ?? ''
                     );
         $codes[] = $newdata;
     }
@@ -5092,7 +5095,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $count_Meds = count($PMSFH[0]['Medication']);
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] == "eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive")) {
+                        if (($drug['row_subtype'] == "eye") && (strtotime($drug['enddate'] ?? '') < strtotime($visit_date ?? '') ) && ($drug['status'] != "Inactive")) {
+                            $current_drugs = $current_drugs ?? '';
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_" . attr($drug['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($drug['rowid']) . "'
                                       onclick=\"alter_issue2(" . attr_js($drug['rowid']) . ",'Medication','" . $i . "');\">" . text($drug['title']) . "</span></td>
                                       <td class='GFS_td'>" . text(oeFormatShortDate($drug['begdate'])) . "</td></tr>";
@@ -5267,6 +5271,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $cups = "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
                             }
 
+                            $DISCS_chart = $DISCS_chart ?? '';
                             $DISCS_chart .= '"1",';
                             $count++;
                         } else {

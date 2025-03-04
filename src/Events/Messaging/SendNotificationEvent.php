@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -59,7 +59,7 @@ class SendNotificationEvent extends Event
 
     public function getEventData()
     {
-        return $this->eventData;
+        return $this->eventData ?? [];
     }
 
     /**
@@ -84,7 +84,7 @@ class SendNotificationEvent extends Event
      * @param $u
      * @return bool
      */
-    public function verifyAcl($sect = 'admin', $v = 'docs', $u = ''): bool
+    public function verifyAcl($sect = 'patients', $v = 'docs', $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
     }

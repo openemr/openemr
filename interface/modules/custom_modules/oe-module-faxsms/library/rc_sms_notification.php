@@ -52,7 +52,6 @@ if (php_sapi_name() === 'cli') {
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once("$srcdir/appointments.inc.php");
-require_once __DIR__ . "/../vendor/autoload.php";
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
@@ -70,7 +69,7 @@ if (empty($runtime['site']) && empty($_SESSION['site_id']) && empty($_GET['site'
 $TYPE = '';
 if (!empty($runtime['type'])) {
     $TYPE = strtoupper($runtime['type']);
-} elseif ($_GET['type'] ?? '' === 'email') {
+} elseif (($_GET['type'] ?? '') === 'email') {
     $TYPE = $runtime['type'] = "EMAIL";
 } else {
     $TYPE = $runtime['type'] = "SMS"; // default
@@ -113,8 +112,8 @@ $curr_date = date("Y-m-d");
 $curr_time = time();
 $check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
 
-//$db_sms_msg = cron_getNotificationData($TYPE);
-$db_sms_msg['sms_gateway_type'] = "SMS";
+$db_sms_msg['type'] = $TYPE;
+$db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
 $db_sms_msg['message'] = $MESSAGE;
 ?>
     <!DOCTYPE html>
@@ -124,10 +123,10 @@ $db_sms_msg['message'] = $MESSAGE;
         <?php Header::setupHeader(); ?>
     </head>
     <style>
-        html {
-            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-            font-size: 14px;
-        }
+      html {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+        font-size: 14px;
+      }
     </style>
     <body>
         <div class="container-fluid">
@@ -149,7 +148,6 @@ $db_sms_msg['message'] = $MESSAGE;
                 ob_flush();
                 flush();
                 $prow = $db_patient[$p];
-                $db_sms_msg['sms_gateway_type'] = "RCSMS";
                 $db_sms_msg['message'] = $MESSAGE;
 
                 $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
@@ -183,7 +181,7 @@ $db_sms_msg['message'] = $MESSAGE;
                                 $db_sms_msg['email_sender'] ?? ''
                             );
                             if (stripos($error, 'error') !== false) {
-                                $strMsg .= " | " . xlt("Error:") . "<strong> " . text($error) . "</strong> \n";
+                                $strMsg .= " | " . xlt("Error:") . "<strong>" . text($error) . "</strong>\n";
                                 error_log($strMsg); // text
                                 echo(nl2br($strMsg));
                                 continue;
@@ -362,7 +360,7 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
     $sdate = date("Y-m-d H:i:s");
     $sql_loginsert = "INSERT INTO `notification_log` (`iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'] || '', $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
+    $safe = array($prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate);
 
     sqlStatement($sql_loginsert, $safe);
 }

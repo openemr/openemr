@@ -292,7 +292,8 @@ if (!empty($_POST['form_save'])) {
         $issueRecord['activity'] = 1;
         $issueRecord['user'] = $_SESSION['authUser'];
         $issueRecord['groupname'] = $_SESSION['authProvider'];
-        $patientIssuesService->createIssue($issueRecord);
+        $savedRecord = $patientIssuesService->createIssue($issueRecord);
+        $issue = $savedRecord['id'] ?? "";
     }
 
     // For record/reporting purposes, place entry in lists_touch table.

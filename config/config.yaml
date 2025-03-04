@@ -50,7 +50,7 @@ assets:
     i18next-browser-languagedetector:
         basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
         script: i18nextBrowserLanguageDetector.min.js
-    il8formatting:
+    i18formatting:
         basePath: '%webroot%/library/js/xl/'
         script: formatting.js
     utility:
@@ -312,3 +312,12 @@ assets:
             -   src: lforms/fhir/R4/lformsFHIR.min.js
                 type: module
         link: /assets/styles/styles_openemr_lforms.css
+# Note validation_script depends on the moment asset if using the date validation
+# We currently don't have a way of enforcing this dependency so it is up to the
+# developer to ensure the moment asset is loaded before the validation_script asset
+    validation_script:
+        basePath: '%webroot%/library/validation/'
+        script:
+            -   ../js/vendors/validate/validate_modified.js
+            -   ../js/vendors/validate/validate_extend.js
+            -   validation_script.js

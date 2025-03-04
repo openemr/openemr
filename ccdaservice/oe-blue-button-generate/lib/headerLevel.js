@@ -231,13 +231,16 @@ var participants = (exports.participant = [
             typeCode: leafLevel.inputProperty("typeCode"),
         },
         // TODO: check if this middle element can be removed
-        /* eslint-disable-next-line no-sparse-arrays */
+        //       if remove the middle element, then remove the comments at line 236 and
+        //       244 (since will no longer need to bypass the no-sparse-arrays lint rule)
+        /* eslint-disable no-sparse-arrays */
         content: [
             [fieldLevel.effectiveTime, required, key("time")],
             ,
             // associatedEntity
             fieldLevel.associatedEntity,
         ],
+        /* eslint-enable no-sparse-arrays */
         dataKey: "meta.ccda_header.participants",
     },
 ]);

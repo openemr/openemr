@@ -45,9 +45,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -99,12 +101,16 @@ define('EXT_JOINS', 'joins');
 define('JOIN_TABLE', 'join');
 define('JOIN_FIELDS', 'fields');
 define('DISPLAY_DESCRIPTION', "display_description");
+define('CODE_COLUMN_TYPE_NUMERIC', 'numeric');
+define('CODE_COLUMN_TYPE_STRING', 'string');
+define('CODE_COLUMN_TYPE', 'column_type');
+define('SKIP_TOTAL_TABLE_COUNT', 'skip_total_table_count');
 
 /**
  * This is a helper function for defining the metadata that describes the tables
  *
  * @param type $results             A reference to the global array which stores all the metadata
- * @param type $index               The external table ID.  This corresponds to the value in the code_types table in the ct_external column
+ * @param int $index               The external table ID.  This corresponds to the value in the code_types table in the ct_external column
  * @param type $table_name          The name of the table which stores the code informattion (e.g. icd9_dx_code
  * @param type $col_code            The name of the column which is the code
  * @param type $col_description     The name of the column which is the description
@@ -112,8 +118,9 @@ define('DISPLAY_DESCRIPTION', "display_description");
  * @param type $filter_clauses      An array of clauses to be included in the search "WHERE" clause that limits results
  * @param type $version_order       How to choose between different revisions of codes
  * @param type $joins               An array which describes additional tables to join as part of a code search.
+ * @param array $extraColumns       An array of extra columns to be included in the table definition
  */
-function define_external_table(&$results, $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "")
+function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "", $extraColumns = array())
 {
     $results[$index] = array(EXT_TABLE_NAME => $table_name,
                            EXT_COL_CODE => $col_code,
@@ -122,8 +129,17 @@ function define_external_table(&$results, $index, $table_name, $col_code, $col_d
                            EXT_FILTER_CLAUSES => $filter_clauses,
                            EXT_JOINS => $joins,
                            EXT_VERSION_ORDER => $version_order,
-                           DISPLAY_DESCRIPTION => $display_desc
+                           DISPLAY_DESCRIPTION => $display_desc,
+                           CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_STRING,
+                           // tables with hundreds of thousands or millions of rows have abysmal performance
+                            // when doing a SELECT count(*) of tablename
+                           // because innodb has to do a full table scan to get the count due to row level transaction isolation
+                           // so we give the option to skip the total table count for these tables
+                           SKIP_TOTAL_TABLE_COUNT => false
                            );
+    foreach ($extraColumns as $key => $value) {
+        $results[$index][$key] = $value;
+    }
 }
 // In order to treat all the code types the same for lookup_code_descriptions, we include metadata for the original codes table
 define_external_table($code_external_tables, 0, 'codes', 'code', 'code_text', 'code_text_short', array(), 'id');
@@ -154,14 +170,16 @@ define_external_table($code_external_tables, 9, 'sct_descriptions', 'ConceptId',
 array_push($code_external_tables[9][EXT_JOINS][0][JOIN_FIELDS], "FullySpecifiedName like '%(procedure)'");
 
 // SNOMED RF2 definitions
-define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "");
+define_external_table($code_external_tables, 11, 'sct2_description', 'conceptId', 'term', 'term', array("active=1"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 if (isSnomedSpanish()) {
-    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "");
-    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "");
+    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(trastorno)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedimiento)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 } else {
-    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(disorder)'"), "");
-    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedure)'"), "");
+    define_external_table($code_external_tables, 10, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(disorder)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
+    define_external_table($code_external_tables, 12, 'sct2_description', 'conceptId', 'term', 'term', array("active=1", "term LIKE '%(procedure)'"), "", [], "", [CODE_COLUMN_TYPE => CODE_COLUMN_TYPE_NUMERIC, SKIP_TOTAL_TABLE_COUNT => true]);
 }
+
+define('SNOMED_RF2_EXTERNAL_TABLE_INDEXES', [10,11,12]);
 
 //**** End SNOMED Definitions
 
@@ -497,6 +515,10 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
 {
     global $code_types, $code_external_tables;
 
+    // limit the number of results we have
+    if ($limit === null) {
+        $limit = 250;
+    }
   // Figure out the appropriate limit clause
     $limit_query = limit_query_string($limit, $start, $number, $return_only_one);
 
@@ -631,14 +653,44 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                 $query .= $table_dot . $code_col . " = ? ";
                 $sql_bind_array[] = $search_term;
             } elseif ($mode == "code") {
-                $query .= $table_dot . $code_col . " like ? ";
-                $sql_bind_array[] = $search_term . "%";
+                // if a table (like snomed) uses a numeric code column the search performance is horrendous if a string is used as a comparison
+                if ($table_info[CODE_COLUMN_TYPE] == CODE_COLUMN_TYPE_NUMERIC) {
+                    if (!is_numeric($search_term)) {
+                        // If the search term is numeric and we have a non-numeric string then nothing matches and we need
+                        // to fail the query, rather than breaking the query structure, we will just fail the condition
+                        $query .= "1=0";
+                    } else {
+                        $query .= $table_dot . $code_col . " like ? ";
+                        $sql_bind_array[] = $search_term . "%";
+                    }
+                } else {
+                    $query .= $table_dot . $code_col . " like ? ";
+                    $sql_bind_array[] = $search_term . "%";
+                }
             } elseif ($mode == "description") {
                 $description_keywords = preg_split("/ /", $search_term, -1, PREG_SPLIT_NO_EMPTY);
                 $query .= "(1=1 ";
-                foreach ($description_keywords as $keyword) {
+                if (strlen($search_term) >= 3) {
+                    $result = sqlQuery("SHOW INDEX FROM " . $table . " WHERE Column_name = ? AND Index_type = 'FULLTEXT'", [$code_text_col]);
+                    if (!empty($result)) {
+                        // Use FULLTEXT search
+                        $query .= "AND MATCH(" . $table_dot . $code_text_col . ") AGAINST (? IN BOOLEAN MODE)";
+                        if (str_starts_with($search_term, "") && str_ends_with($search_term, '"')) {
+                            $sql_bind_array[] = $search_term; // Exact match
+                        } else {
+                            // we believe people don't want OR conditions in their search, so we will use AND
+                            $sql_bind_array[] = '"' . $search_term . '*"'; // Add wildcard for partial matches
+                        }
+                    } else {
+                        foreach ($description_keywords as $keyword) {
+                            $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
+                            $sql_bind_array[] = "%" . $keyword . "%";
+                        }
+                    }
+                } else if (!empty($code_text_col)) {
+                    // do only a prefix search on small character codes
                     $query .= " AND " . $table_dot . $code_text_col . " LIKE ? ";
-                    $sql_bind_array[] = "%" . $keyword . "%";
+                    $sql_bind_array[] = $search_term . "%";
                 }
 
                 $query .= ")";
@@ -863,7 +915,7 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 * It will also work for one code set search, although not meant for this.
 * (This function is not meant to be called directly)
 *
-* @param array $form_code_types code set keys (will default to checking all active code types if blank)
+* @param ?array $form_code_types code set keys (will default to checking all active code types if blank)
 * @param string $search_term search term
 * @param integer $limit Number of results to return (NULL means return all)
 * @param array $modes Holds the search modes to process along with the order of processing (default behavior is described in above function comment)
@@ -874,7 +926,7 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 * @param array $filter_elements Array that contains elements to filter
 * @return mixed recordset/integer
 */
-function multiple_code_set_search(array $form_code_types = null, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
+function multiple_code_set_search(?array $form_code_types, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
 {
 
     if (empty($form_code_types)) {

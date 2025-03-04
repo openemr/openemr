@@ -9,13 +9,7 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM php:8.4-rc-fpm
-
-#
-# TODO
-# Add back the redis statement in line 51 below when it works in the future
-# TODO
-#
+FROM php:8.4-fpm
 
 # Update
 RUN apt-get update
@@ -47,8 +41,8 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
                            tokenizer \
                            xmlreader \
                            calendar \
-                           intl
-                           #redis
+                           intl \
+                           redis
 
 # Copy over the php.ini conf
 COPY php.ini /usr/local/etc/php/php.ini

@@ -53,6 +53,12 @@ if (typeof htmlEscapesText === 'undefined') {
             return htmlEscapesAttr[match];
         });
     };
+    jsXla = function (string) {
+        return jsAttr(xl(string));
+    };
+    jsXlt = function (string) {
+        return jsText(xl(string));
+    };
 }
 
 // another useful function

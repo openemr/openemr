@@ -101,6 +101,40 @@ $esignApi = new Api();
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
         const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
         const isServicesOther = (isSms || isFax);
+
+        /**
+         * Async function to get session value from the server
+         * Usage Example
+         * let authUser;
+         * let sessionPid = await top.getSessionValue('pid');
+         * // If using then() method a promise is returned instead of the value.
+         * await top.getSessionValue('authUser').then(function (auth) {
+         *    authUser = auth;
+         *    console.log('authUser', authUser);
+         * });
+         * console.log('session pid', sessionPid);
+         * console.log('auth User', authUser);
+        */
+        async function getSessionValue(key) {
+            restoreSession();
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default')); ?>;
+            const config = {
+                url: `${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${csrf_token_js}`,
+                method: 'POST',
+                data: {
+                    mode: 'session_key',
+                    key: key
+                }
+            };
+            try {
+                const response = await $.ajax(config);
+                restoreSession();
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        }
+
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR.

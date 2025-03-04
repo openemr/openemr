@@ -146,6 +146,7 @@ $vendors = $boot->getVendorGlobals();
                                 <option value="0" <?php echo $vendors['oefax_enable_sms'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <option value="1" <?php echo $vendors['oefax_enable_sms'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral SMS"); ?></option>
                                 <option value="2" <?php echo $vendors['oefax_enable_sms'] == '2' ? 'selected' : ''; ?>><?php echo xlt("Twilio SMS"); ?></option>
+                                <option value="5" <?php echo $vendors['oefax_enable_sms'] == '5' ? 'selected' : ''; ?>><?php echo xlt("Clickatell"); ?></option>
                             </select>
                         </div>
                     </div>

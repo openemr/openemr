@@ -1,0 +1,8 @@
+Took this from following repo (since no longer supporting) in order to allow nightly builds:
+https://github.com/devilbox/docker-php-fpm-8.3/tree/master/Dockerfiles
+
+This docker is built daily.
+
+Note needed to modify near line (clearly commented) in Dockerfile to build pdo-mysql extension to fix a downstream bug when installing this via install-php-extensions command (at some point will likely be able to move this modification)
+
+When update to a new php version in future, need to modify the php version check done at end of Dockerfile. Also need to adjust the tag in the .github/workflows/build-dev-php-fpm-docker.yml script and update the documentation on dockerhub.

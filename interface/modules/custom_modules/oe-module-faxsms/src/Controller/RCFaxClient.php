@@ -32,7 +32,7 @@ class RCFaxClient extends AppDispatch
     public $apiService;
     protected $platform;
     protected $rcsdk;
-    protected $crypto;
+    protected CryptoGen $crypto;
 
     public function __construct()
     {
@@ -148,9 +148,10 @@ class RCFaxClient extends AppDispatch
     }
 
     /**
-     * @return int|string
+     * @param string[] $acl
+     * @return int
      */
-    public function authenticate(): int|string
+    public function authenticate($acl = ['admin', 'doc']): bool|int|string
     {
         if (empty($this->credentials['appKey'])) {
             $this->credentials = $this->getCredentials();
@@ -812,7 +813,7 @@ class RCFaxClient extends AppDispatch
     /**
      * @return string
      */
-    public function getNotificationLog(): string
+   /* public function getNotificationLog(): string
     {
         $type = $this->getRequest('type');
         $fromDate = $this->getRequest('datefrom');
@@ -832,7 +833,7 @@ class RCFaxClient extends AppDispatch
         }
 
         return $responseMsg;
-    }
+    }*/
 
     /**
      * @return string

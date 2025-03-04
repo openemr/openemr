@@ -303,3 +303,34 @@ ALTER TABLE `oauth_clients` ADD `dsi_type` TINYINT UNSIGNED NOT NULL DEFAULT '1'
 #IfMissingColumn clinical_rules_log facility_id
 ALTER TABLE `clinical_rules_log` ADD `facility_id` INT(11) DEFAULT '0' COMMENT 'facility where the rule was executed, 0 if unknown';
 #EndIf
+
+#IfRow2D list_options list_id drug_form title ml
+UPDATE list_options SET title='mL' WHERE list_id='drug_form' AND title='ml';
+#EndIf
+
+#IfRow2D list_options list_id drug_route title OS
+UPDATE list_options SET title='Left Eye' WHERE list_id='drug_route' AND title='OS';
+#EndIf
+
+#IfRow2D list_options list_id drug_route title OD
+UPDATE list_options SET title='Right Eye' WHERE list_id='drug_route' AND title='OD';
+#EndIf
+
+#IfRow2D list_options list_id drug_route title OU
+UPDATE list_options SET title='Each Eye' WHERE list_id='drug_route' AND title='OU';
+#EndIf
+
+#IfRow2D list_options list_id drug_route title SQ
+UPDATE list_options SET title='Subcutaneous' WHERE list_id='drug_route' AND title='SQ';
+#EndIf
+
+#IfRow2D list_options list_id drug_interval title q.d.
+UPDATE list_options SET title='Daily' WHERE list_id='drug_interval' AND title='q.d.';
+#EndIf
+
+#IfNotIndex sct2_description idx_term
+ALTER TABLE sct2_description
+    ADD INDEX idx_term (term),
+    ADD INDEX idx_active_term (active, term),
+    ADD FULLTEXT INDEX ft_term (term);
+#EndIf

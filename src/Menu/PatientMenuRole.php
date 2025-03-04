@@ -63,19 +63,8 @@ class PatientMenuRole extends MenuRole
         if (!$menu_parsed) {
             die("\nJSON ERROR: " . json_last_error());
         }
-        //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
-        foreach ($menu_parsed as $menu_obj) {
-            if (property_exists($menu_obj, 'url')) {
-                $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
-            }
-            if (!empty($menu_obj->children)) {
-                foreach ($menu_obj->children as $menu_obj) {
-                    if (property_exists($menu_obj, 'url')) {
-                        $menu_obj -> url = $this->getAbsoluteWebRoot($menu_obj -> url);
-                    }
-                }
-            }
-        }
+
+        $menu_parsed = $this->setPatientMenuUrl($menu_parsed);
 
         // Parse the menu JSON and build the menu. Also, tell the EventDispatcher about the event
         // so that 3rd party modules may modify the menu items
@@ -94,8 +83,8 @@ class PatientMenuRole extends MenuRole
     /**
      * Build the html select element to list the PatientMenuRole options.
      *
-     * @var string $selected Current PatientMenuRole for current users.
      * @return string Html select element to list the PatientMenuRole options.
+     * @var string $selected Current PatientMenuRole for current users.
      */
     public function displayMenuRoleSelector($selected = "")
     {
@@ -142,6 +131,7 @@ class PatientMenuRole extends MenuRole
 
     /**
      * load demographics created by modules system
+     *
      * @param $menu_list
      */
     protected function updateModulesDemographicsMenu(&$menu_list)
@@ -161,7 +151,7 @@ class PatientMenuRole extends MenuRole
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
-                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ? "" : "1") {
                     continue;
                 }
 
@@ -181,6 +171,7 @@ class PatientMenuRole extends MenuRole
             }
         }
     }
+
     /**
      * displays a bootstrap4 horizontal nav bar
      */
@@ -233,6 +224,7 @@ class PatientMenuRole extends MenuRole
 
     /**
      * make the url absolute to web root
+     *
      * @param $rel_url
      *
      * @return string
@@ -240,8 +232,35 @@ class PatientMenuRole extends MenuRole
     private function getAbsoluteWebRoot($rel_url)
     {
         if ($rel_url && !strpos($rel_url, "://")) {
+            // Normalize URL if it starts with a forward or backward slash
+            if (strpos($rel_url, '/') === 0 || strpos($rel_url, '\\') === 0) {
+                $rel_url = ltrim($rel_url, '/\\');
+            }
             return $GLOBALS['webroot'] . "/" . $rel_url;
         }
         return $rel_url;
+    }
+
+    /**
+     * @param $menu_parsed
+     * @return mixed
+     */
+    public function setPatientMenuUrl($menu_parsed)
+    {
+        //to make the url absolute to web root and to account for external urls i.e. those beginning with http or https
+        foreach ($menu_parsed as $menu_obj) {
+            if (property_exists($menu_obj, 'url')) {
+                $menu_obj->url = $this->getAbsoluteWebRoot($menu_obj->url);
+            }
+            if (!empty($menu_obj->children)) {
+                foreach ($menu_obj->children as $menu_obj) {
+                    if (property_exists($menu_obj, 'url')) {
+                        $menu_obj->url = $this->getAbsoluteWebRoot($menu_obj->url);
+                    }
+                }
+            }
+        }
+
+        return $menu_parsed;
     }
 }

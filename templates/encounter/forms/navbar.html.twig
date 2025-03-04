@@ -16,7 +16,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="category_{{ category|attr }}" role="button" data-toggle="dropdown" aria-expanded="false">
                             {{ category|text }}
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="category_{{ category|attr }}">
+                        <div class="dropdown-menu" aria-labelledby="category_{{ category|attr }}" style="z-index:9999;">
                             {% for item in details.children %}
                                 {% set display = (item.menu_name is defined) ? item.menu_name : item.displayText %}
                                 {% if item.onclick is defined %}

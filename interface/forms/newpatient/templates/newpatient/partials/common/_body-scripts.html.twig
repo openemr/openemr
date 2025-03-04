@@ -1,0 +1,27 @@
+{# Module Theme writers can override this file to add their own fields #}
+<script>
+    (function() {
+        window.document.addEventListener("DOMContentLoaded", function() {
+            if (window.NewPatientForm) {
+                let config = {
+                    webroot: {{ webroot|js_escape }},
+                    pid: {{ pid|js_escape }},
+                    viewmode: {{ viewmode|js_escape }},
+                    encounter: {{ encounter|js_escape }},
+                    validationConstraints: {{ validationConstraints|json_encode }},
+                    isPosEnabled: {{ isPosEnabled ? "true" : "false" }},
+                    csrfToken: {{CSRF_TOKEN_FORM|js_escape}},
+                    enableGroupTherapy: {{ enableGroupTherapy ? "true" : "false" }},
+                    therapyGroupCategories: {{ therapyGroupCategories|json_encode }},
+                    duplicate: {{ duplicate|json_encode }},
+                };
+                window.NewPatientForm.init(config);
+            }
+        });
+    })(window);
+</script>
+{# TODO: It seems like this should be put in a module for this form #}
+{% if textTemplatesEnabled %}
+    {# NOTE this is the Nation Notes integration / implementation to launch the templates when double clicking on the encounter reason textfield #}
+    <script src="{{ webroot }}/library/js/CustomTemplateLoader.js"></script>
+{% endif %}
