@@ -20,5 +20,5 @@
 // of the License, or (at your option) any later version.
 
 $spreadsheet_form_name = 'treatment_protocols';
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/spreadsheet.inc.php");

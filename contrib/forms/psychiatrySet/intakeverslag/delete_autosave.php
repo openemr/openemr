@@ -8,11 +8,11 @@
 ////////////////////////////////////////////////////////////////////
 
 //local includes
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save - hack!
-$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_intakeverslag 
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_intakeverslag
                             WHERE pid = ?
                             AND groupname= ?
                             AND user=? AND
@@ -21,7 +21,7 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
                             ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized));
 
 if ($vectAutosave['autosave_flag'] == 1) {
-    $strSql = "DELETE from  form_intakeverslag 
+    $strSql = "DELETE from  form_intakeverslag
                   WHERE id = ?";
     sqlQuery($strSql, [$vectAutosave['id']]);
 }
