@@ -149,6 +149,14 @@ class RealWorldTesting
     private function metric6(): string
     {
         $result = "";
+
+        // First check if the ehi_export_job_tasks table exists, since is only installed via Electronic Health Information Exporter module
+        //  if it does not exist, then return no EHI exports
+        $row = sqlQuery("SHOW TABLES LIKE 'ehi_export_job_tasks'");
+        if (empty($row)) {
+            return xl('No Electronic Health Information (EHI) Exports.');
+        }
+
         $check = sqlQuery("SELECT count(`ehi_task_id`) AS `count` FROM `ehi_export_job_tasks` WHERE `status` = 'completed' AND `completion_date` >= ? AND `completion_date` <= ?", [$this->beginDate, $this->endDate]);
         if (!empty($check['count']) && $check['count'] > 0) {
             $result .= xl('Number of Electronic Health Information (EHI) Exports') . ': ' . $check['count'];
