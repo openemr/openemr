@@ -1,0 +1,2 @@
+click "Patient"
+click "New/Search" below "Patient"
