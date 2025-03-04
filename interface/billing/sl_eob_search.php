@@ -1236,7 +1236,7 @@ if (
                                 // Determine if customer is in collections.
                                 //
                                 $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false
+                                $in_collections = stristr($billnote ?? '', 'IN COLLECTIONS') !== false
                                     || $row['in_collection'] == 1;
 
                                 // $duncount was originally supposed to be the number of times that
