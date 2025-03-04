@@ -2,6 +2,7 @@
 docker/gheit-local/docker_data
 docker/gheit-dev/docker_data
 docker/gheit-prod/docker_data
+docker/development-easy/docker_data
 
 # logs
 /logs
