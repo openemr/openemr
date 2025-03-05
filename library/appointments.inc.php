@@ -377,15 +377,21 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
     $where = "";
 
  //RM multiple providers
-    if ($provider_id) {
-        $quantity = sizeof($provider_id) ;
-        $where .= " AND ( e.pc_aid = ?" ;
-        for ($i = 1; $i < $quantity; $i++) {
-            $where .=  " OR e.pc_aid = ? ";
-        }
-        $where .= ")";
-        foreach ($provider_id as $x) {
-            array_push($sqlBindArray, $x);
+    if (!empty($provider_id)) {
+        // provider_id can be a string or an array
+        if (is_array($provider_id)) {
+            $quantity = sizeof($provider_id);
+            $where .= " AND ( e.pc_aid = ?";
+            for ($i = 1; $i < $quantity; $i++) {
+                $where .= " OR e.pc_aid = ? ";
+            }
+            $where .= ")";
+            foreach ($provider_id as $x) {
+                array_push($sqlBindArray, $x);
+            }
+        } else {
+            $where .= " AND e.pc_aid = ?";
+            array_push($sqlBindArray, $provider_id);
         }
     }
 
