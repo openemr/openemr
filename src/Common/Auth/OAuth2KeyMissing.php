@@ -2,6 +2,7 @@
 
 /**
  * OAuth2KeyMissing.php is responsible for tracking missing OAuth2 keys.
+ *
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -59,5 +60,13 @@ class OAuth2KeyMissing
             $missing .= 'private key, ';
         }
         return rtrim($missing, ', ');
+    }
+
+    public function reset(): void
+    {
+        $this->encryptionKeyMissing = false;
+        $this->passphraseMissing = false;
+        $this->publicKeyMissing = false;
+        $this->privateKeyMissing = false;
     }
 }

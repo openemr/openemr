@@ -41,7 +41,10 @@ class OAuth2KeyConfig
      * @var string File location of the oauth2 public key
      */
     private $publicKey;
+
     private CryptoGen $cryptoGen;
+
+    private OAuth2KeyMissing $oauth2KeyMissing;
 
     public function __construct($siteDir = null)
     {
@@ -57,10 +60,10 @@ class OAuth2KeyConfig
         $this->publicKey = $siteDir . '/documents/certificates/oapublic.key';
 
         // Create a Oauth2KeyMissing object that will track missing elements and used in below verifyKeys method and createOrRecreateKeys method
-        $oauth2KeyMissing = new OAuth2KeyMissing();
-        if ($this->verifyKeys($oauth2KeyMissing) === false) {
+        $this->oauth2KeyMissing = new OAuth2KeyMissing();
+        if ($this->verifyKeys() === false) {
             try {
-                $this->createOrRecreateKeys($oauth2KeyMissing);
+                $this->createOrRecreateKeys();
             } catch (OAuth2KeyException $e) {
                 // if unable to recreate keys, then force exit
                 throw new OAuth2KeyException("Unable to create/recreate oauth2 keys" . $e->getMessage());
@@ -103,13 +106,7 @@ class OAuth2KeyConfig
             $this->oaEncryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
             if (empty($this->oaEncryptionKey)) {
                 // if decrypted key is empty, then critical error and must log and exit
-                if (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') {
-                    // Special case for developers. Delete all the oauth2 keys, which will force the keys to be recreated at next attempt.
-                    // TODO: see if this mechanism is still required
-                    $devModeLog = " (in development mode, so will delete all oauth2 keys, and should all be recreated at next attempt)";
-                    $this->deleteKeys();
-                }
-                EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 encryption key was blank after it was decrypted" . ($devModeLog ?? ''));
+                EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 encryption key was blank after it was decrypted");
                 throw new OAuth2KeyException("oauth2 encryption key was blank after it was decrypted");
             }
         } else {
@@ -139,24 +136,24 @@ class OAuth2KeyConfig
         }
     }
 
-    private function verifyKeys(OAuth2KeyMissing &$oauth2KeyMissing): bool
+    private function verifyKeys(): bool
     {
         $eKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2key'");
         $pKey = sqlQueryNoLog("SELECT `name`, `value` FROM `keys` WHERE `name` = 'oauth2passphrase'");
 
         if (!$eKey || !$pKey || !file_exists($this->privateKey) || !file_exists($this->publicKey)) {
-            // $oauth2KeyMissing will be used in the createOrRecreateKeys method to determine what is missing
+            // $this->oauth2KeyMissing will be used in the createOrRecreateKeys method to determine what is missing for logging purposes
             if (!$eKey) {
-                $oauth2KeyMissing->setEncryptionKeyMissing();
+                $this->oauth2KeyMissing->setEncryptionKeyMissing();
             }
             if (!$pKey) {
-                $oauth2KeyMissing->setPassphraseMissing();
+                $this->oauth2KeyMissing->setPassphraseMissing();
             }
             if (!file_exists($this->privateKey)) {
-                $oauth2KeyMissing->setPrivateKeyMissing();
+                $this->oauth2KeyMissing->setPrivateKeyMissing();
             }
             if (!file_exists($this->publicKey)) {
-                $oauth2KeyMissing->setPublicKeyMissing();
+                $this->oauth2KeyMissing->setPublicKeyMissing();
             }
             return false;
         }
@@ -177,14 +174,16 @@ class OAuth2KeyConfig
         }
     }
 
-    private function createOrRecreateKeys(OAuth2KeyMissing &$oauth2KeyMissing): void
+    private function createOrRecreateKeys(): void
     {
-        $createNew = $oauth2KeyMissing->isMissingAll();
+        // Collect info from $this->oauth2KeyMissing to determine what is missing for logging purposes and then reset it
+        $createNew = $this->oauth2KeyMissing->isMissingAll();
         if ($createNew) {
             $logLabel = "Attempt create the first oauth2 keys: ";
         } else {
-            $logLabel = "Missing oauth2 keys (" . $oauth2KeyMissing->isMissingToString() . "), so attempt remove and recreate all the oauth2 keys: ";
+            $logLabel = "Missing oauth2 keys (" . $this->oauth2KeyMissing->isMissingToString() . "), so attempt remove and recreate all the oauth2 keys: ";
         }
+        $this->oauth2KeyMissing->reset();
 
         $this->deleteKeys();
 
