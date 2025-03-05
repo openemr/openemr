@@ -107,9 +107,10 @@ class OAuth2KeyConfig
                 if (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') {
                     // Special case for developers. Delete all the oauth2 keys, which will force the keys to be recreated at next attempt.
                     // TODO: see if this mechanism is still required
+                    $devModeLog = " (in development mode, so will delete all oauth2 keys, and should all be recreated at next attempt)";
                     $this->deleteKeys();
                 }
-                EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 encryption key was blank after it was decrypted");
+                EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, "oauth2 ConfigKeyPairs: oauth2 encryption key was blank after it was decrypted" . ($devModeLog ?? ''));
                 throw new OAuth2KeyException("oauth2 encryption key was blank after it was decrypted");
             }
         } else {
