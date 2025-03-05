@@ -185,8 +185,10 @@ class OAuth2KeyConfig
         }
         $this->oauth2KeyMissing->reset();
 
+        // Delete keys if they exist
         $this->deleteKeys();
 
+        // Generate encryption key
         $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
         if (empty($this->oaEncryptionKey)) {
             // if empty, then log and force exit
@@ -199,7 +201,8 @@ class OAuth2KeyConfig
             EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "base64 encoding broken during oauth2 encryption key generation");
             throw new OAuth2KeyException("base64 encoding broken during oauth2 encryption key generation");
         }
-        sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->oaEncryptionKey)]);
+
+        // Generate passphrase and public/private keys
         $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
         if (empty($this->passphrase)) {
             // if empty, then log and force exit
@@ -220,7 +223,7 @@ class OAuth2KeyConfig
                 $msg_error .= $msg . "\n";
             }
             error_log($msg_error);
-            // if unable to create keys, then force exit
+            // if unable to create keys, then log and force exit
             EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "key generation broken OPEN_SSL: $msgEnv" . $msg_error);
             throw new OAuth2KeyException("key generation broken OPEN_SSL: $msgEnv" . $msg_error);
         }
@@ -229,15 +232,17 @@ class OAuth2KeyConfig
         $pubkey = openssl_pkey_get_details($keys);
         $pubkey = $pubkey["key"];
         if (empty($privkey) || empty($pubkey)) {
-            // if unable to construct keys, then force exit
+            // if unable to construct keys, then log and force exit
             EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "key construction broken during oauth2");
             throw new OAuth2KeyException("key construction broken during oauth2");
         }
 
+        // Successfully created encryption/public/private keys and passphrase, so store them and log success
         file_put_contents($this->privateKey, $privkey);
         chmod($this->privateKey, 0640);
         file_put_contents($this->publicKey, $pubkey);
         chmod($this->publicKey, 0660);
+        sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2key', ?)", [$this->cryptoGen->encryptStandard($this->oaEncryptionKey)]);
         sqlStatementNoLog("INSERT INTO `keys` (`name`, `value`) VALUES ('oauth2passphrase', ?)", [$this->cryptoGen->encryptStandard($this->passphrase)]);
         EventAuditLogger::instance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 1, $logLabel . "Successful");
     }
