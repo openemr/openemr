@@ -27,7 +27,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
  */
 
 /* for $GLOBALS[], ?? */
-require_once('../../globals.php');
+require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS['srcdir'].'/api.inc.php');
 /* for ??? */
 require_once($GLOBALS['srcdir'].'/forms.inc.php');

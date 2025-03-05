@@ -26,6 +26,9 @@ class FormReportRenderer
 
     public function renderReport(string $formDir, string $page, $attendant_id, $encounter, $columns, $formId, $noWrap = true)
     {
+        global $srcdir; // make sure we provide any form globals that are used for path references here.
+        global $webroot;
+        global $rootdir;
         $isLBF = str_starts_with($formDir, 'LBF');
         $formLocator = new FormLocator();
         $formPath = $formLocator->findFile($formDir, 'report.php', $page);

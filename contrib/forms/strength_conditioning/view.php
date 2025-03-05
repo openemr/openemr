@@ -21,5 +21,5 @@
 
 $spreadsheet_form_name = 'strength_conditioning';
 $spreadsheet_title = 'Strength and Conditioning';
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/spreadsheet.inc.php");
