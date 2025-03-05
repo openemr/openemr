@@ -182,10 +182,6 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         "LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
         "WHERE $where " .
         "ORDER BY $order_by";
-    // RM - this would add provider paramaters in the wrong place
-     //   if ($bind_param) {
-    ////     $sqlBindArray = array_merge($sqlBindArray, $bind_param);
-    //  }
     }
 
 

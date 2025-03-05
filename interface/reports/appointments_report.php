@@ -254,7 +254,6 @@ if (empty($_POST['form_csvexport'])) {
                 $ures = sqlStatement($query);
                 //RM select multiple providers - rather than one or all
                 echo "   <select name='form_provider[]' class='form-control'  multiple >\n";
-        //               echo "   <select name='form_provider' class='form-control' >\n";
                 echo "    <option value='' ";
                 if (!empty($_POST['form_provider']) && (in_array('', $_POST['form_provider']))) { //RM
                         echo " selected";
