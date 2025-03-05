@@ -10,7 +10,7 @@
  */
 
 /* include globals.php, required. */
-require_once('../../globals.php');
+require_once(__DIR__ . "/../../globals.php");
 
 /* include api.inc.php. also required. */
 require_once($GLOBALS['srcdir'] . '/api.inc.php');
