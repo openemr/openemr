@@ -2870,7 +2870,7 @@ $GLOBALS_METADATA = array(
         'audit_events_http-request' => array(
             xl('Audit Logging user page history.'),
             'bool',                           // data type
-            '0',                              // default = false for backwards compatibility
+            '1',                              // turn it on by default for better traceability in the logs
             xl('Enable logging of HTTP page requests as the user utilizes the web interface.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ),
         'gbl_force_log_breakglass' => array(

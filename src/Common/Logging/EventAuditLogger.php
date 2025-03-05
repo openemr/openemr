@@ -854,13 +854,6 @@ MSG;
             return;
         }
 
-        // Rest of the existing method code remains the same...
-        // Skip certain paths we don't want to log
-        // TODO: @adunsulag do we want to skip the log page? I think that's useful auditing information
-//        if (strpos($_SERVER['SCRIPT_NAME'], 'logview.php') !== false) {
-//            return; // Don't log requests to logging pages
-//        }
-
         // Map HTTP methods to event action types
         $methodMap = [
             'GET' => 'select',
@@ -886,10 +879,7 @@ MSG;
             $_SESSION['authProvider'] ?? null, // groupname
             1, // success
             $comment, // comments
-            $_SESSION['pid'] ?? null, // patient_id
-            'http-request', // log_from
-            null, // menu_item
-            0 // ccda_doc_id
+            $_SESSION['pid'] ?? null // patient_id
         );
     }
 
