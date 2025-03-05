@@ -20,7 +20,6 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
-
 class OAuth2KeyConfig
 {
     /**
