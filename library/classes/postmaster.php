@@ -148,15 +148,13 @@ class MyMailer extends PHPMailer
                         $mail->isHTML(true);
                         if (!$mail->send()) {
                             $mail->smtpClose();
-                            error_log("Failed to send email: " . errorLogEscape($mail->ErrorInfo));
-                            throw new \Exception("Email sending failed" . errorLogEscape($mail->ErrorInfo));
+                            error_log("Failed to send email" . ': ' . errorLogEscape($mail->ErrorInfo));
+                            throw new \Exception("Email sending failed" . ': ' . errorLogEscape($mail->ErrorInfo));
                         } else {
                             $mail->smtpClose();
                         }
                     } catch (\Exception $e) {
                         (new SystemLogger())->errorLogCaller("Failed to generate email contents: " . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'id' => $ret['id']]);
-                        // reset previously set sent flag since failed to send email
-                        sqlStatement("UPDATE `email_queue` SET `sent` = 0, `datetime_sent` = null WHERE `id` = ?", [$ret['id']]);
                         throw $e; // Ensure rollback in case of failure
                     }
                 } else {
@@ -169,7 +167,9 @@ class MyMailer extends PHPMailer
         } catch (\Exception $e) {
             // Failed so Rollback transaction.
             QueryUtils::rollbackTransaction();
-            (new SystemLogger())->errorLogCaller("Failed to send email: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            (new SystemLogger())->errorLogCaller("Failed to send email" . ': ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            // So we can still send, reset previously set sent flag since failed to send email
+            sqlStatement("UPDATE `email_queue` SET `sent` = 0, `datetime_sent` = null WHERE `id` = ?", [$ret['id']]);
             // set the error flag and message
             sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$e->getMessage(), $ret['id']]);
         }
