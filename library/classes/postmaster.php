@@ -6,8 +6,10 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2010 Open Support LLC
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -144,19 +146,20 @@ class MyMailer extends PHPMailer
                         $mail->msgHTML($htmlBody);
                         $mail->AltBody = $textBody;
                         $mail->isHTML(true);
-
                         if (!$mail->send()) {
-                            sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$mail->ErrorInfo, $ret['id']]);
+                            $mail->smtpClose();
                             error_log("Failed to send email: " . errorLogEscape($mail->ErrorInfo));
-                            throw new \Exception("Email sending failed");
+                            throw new \Exception("Email sending failed" . errorLogEscape($mail->ErrorInfo));
+                        } else {
+                            $mail->smtpClose();
                         }
                     } catch (\Exception $e) {
                         (new SystemLogger())->errorLogCaller("Failed to generate email contents: " . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'id' => $ret['id']]);
-                        sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$e->getMessage(), $ret['id']]);
+                        // reset previously set sent flag since failed to send email
+                        sqlStatement("UPDATE `email_queue` SET `sent` = 0, `datetime_sent` = null WHERE `id` = ?", [$ret['id']]);
                         throw $e; // Ensure rollback in case of failure
                     }
                 } else {
-                    sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= 'Email method not configured', `datetime_error` = NOW() WHERE `id` = ?", [$ret['id']]);
                     error_log("Email method not configured");
                     throw new \Exception("Email method not configured");
                 }
@@ -166,6 +169,9 @@ class MyMailer extends PHPMailer
         } catch (\Exception $e) {
             // Failed so Rollback transaction.
             QueryUtils::rollbackTransaction();
+            (new SystemLogger())->errorLogCaller("Failed to send email: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            // set the error flag and message
+            sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$e->getMessage(), $ret['id']]);
         }
     }
 
