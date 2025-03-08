@@ -627,7 +627,7 @@ class C_EncounterVisitForm
 
         $MBOOrderingProviders = $MBO->getOrderingProviders();
         $orderingProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
-            $provider['selected'] = $provider['id'] == ($encouter['ordering_provider_id'] ?? 0);
+            $provider['selected'] = $provider['id'] == ($encounter['ordering_provider_id'] ?? 0);
             return $provider;
         }, $MBOOrderingProviders);
 
