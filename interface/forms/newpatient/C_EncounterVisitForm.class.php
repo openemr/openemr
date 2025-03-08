@@ -569,7 +569,7 @@ class C_EncounterVisitForm
          * @global $userauthorized
          * @global $pid
          */
-        $provider_id = $userauthorized ? $_SESSION['authUserID'] : null;
+        $provider_id = ($userauthorized ?? '') ? $_SESSION['authUserID'] : null;
         $default_fac_override = $encounter['facility_id'] ?? $this->getCareTeamFacilityForPatient($pid);
         if (!$viewmode) {
             $now = date('Y-m-d');
@@ -609,6 +609,7 @@ class C_EncounterVisitForm
 
 
         $MBO = new MiscBillingOptions();
+        $MBOReferringProviders = $MBO->getReferringProviders();
         $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
             if (!$viewmode || empty($encounter['referring_provider_id'])) {
                 $refProviderId = QueryUtils::fetchSingleValue(
@@ -618,11 +619,11 @@ class C_EncounterVisitForm
                 );
                 $encounter["referring_provider_id"] = $refProviderId ?? 0;
             }
-            if ($viewmode && !empty($encouter["referring_provider_id"])) {
-                $provider['selected'] = $provider['id'] == $encouter['referring_provider_id'];
+            if ($viewmode && !empty($encounter["referring_provider_id"])) {
+                $provider['selected'] = $provider['id'] == $encounter['referring_provider_id'];
             }
             return $provider;
-        }, $MBO->getReferringProviders());
+        }, $MBOReferringProviders);
 
         $orderingProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
             $provider['selected'] = $provider['id'] == ($encouter['ordering_provider_id'] ?? 0);
