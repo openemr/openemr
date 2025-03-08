@@ -58,6 +58,17 @@ $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add second
 // this value should already be url encoded.
 $redirectUrl = $_REQUEST['redirect'] ?? '';
 
+//unset the whereto session variable in case it is wrongly used.
+unset($_REQUEST['whereto']);
+unset($_GET['whereto']);
+// set the where to session variable to the current page from previous session.
+$whereto = $_SESSION['whereto'] ?? null;
+// set the landOn session variable to the current page.
+$_SESSION['landOn'] = $_GET['landOn'] ?? null;
+// unset the landOn variable.
+unset($_REQUEST['landOn']);
+unset($_GET['landOn']);
+
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');

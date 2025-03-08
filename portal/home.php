@@ -45,12 +45,35 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
-$logoService = new LogoService();
+// menu to href redirect.
+// https://opensourcedemr.us/portal/index.php?site=default&landOn=BillingSummary
+$landOnHref = [
+    'ClinicalDocuments' => '#onsitedocuments',
+    'Appointments' => '#appointmentcard',
+    'MakePayment' => '#paymentcard',
+    'SecureMessaging' => '#secure-msgs-card',
+    'HealthSnapshot' => '#lists',
+    'Profile' => '#profilecard',
+    'BillingSummary' => '#ledgercard',
+    'MedicalReports' => '#reports-list-card',
+    'PROAssessment' => '#procard',
+    'Settings' => '#settings-card',
+    'Help' => '#help-card',
+    'Logout' => '#logout.php'
+];
+// redirect using the interface query landOn or last page visited
+$landWhere = $_SESSION['landOn'] ?? null;
+// Set the landOn href query lookup.
+$whereto = $landOnHref[$landWhere] ?? null;
+if (!empty($whereto)) {
+    $_SESSION['whereto'] = $whereto;
+}
+$_SESSION['whereto'] = $_SESSION['whereto'] ? $_SESSION['whereto'] : null;
 
+$logoService = new LogoService();
 
 // Get language definitions for js
 $language_defs = TranslationService::getLanguageDefinitionsForSession();
-$whereto = $_SESSION['whereto'] ?? null;
 
 $user = $_SESSION['sessionUser'] ?? 'portal user';
 $result = getPatientData($pid);
@@ -323,7 +346,7 @@ try {
     $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
     $data = [
         'user' => $user,
-        'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
+        'whereto' => ($_SESSION['whereto'] ?? null) ?: ($whereto ?? '#quickstart-card'),
         'result' => $result,
         'msgs' => $msgs,
         'msgcnt' => $msgcnt,
