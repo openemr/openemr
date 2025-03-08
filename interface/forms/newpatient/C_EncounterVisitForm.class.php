@@ -625,10 +625,11 @@ class C_EncounterVisitForm
             return $provider;
         }, $MBOReferringProviders);
 
+        $MBOOrderingProviders = $MBO->getOrderingProviders();
         $orderingProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
             $provider['selected'] = $provider['id'] == ($encouter['ordering_provider_id'] ?? 0);
             return $provider;
-        }, $MBO->getOrderingProviders());
+        }, $MBOOrderingProviders);
 
         $facilityService = new FacilityService();
         $facilities = $this->getFacilitiesForTemplate($facilityService, $default_fac_override);
