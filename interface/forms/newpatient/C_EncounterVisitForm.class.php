@@ -609,27 +609,25 @@ class C_EncounterVisitForm
 
 
         $MBO = new MiscBillingOptions();
-        $MBOReferringProviders = $MBO->getReferringProviders();
-        $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
+        $refProviderId = QueryUtils::fetchSingleValue(
+            "SELECT ref_providerID FROM patient_data WHERE pid = ?",
+            'ref_ProviderID',
+            [$pid]
+        );
+        $referringProviders = array_map(function ($provider) use ($viewmode, $encounter, $refProviderId) {
             if (!$viewmode || empty($encounter['referring_provider_id'])) {
-                $refProviderId = QueryUtils::fetchSingleValue(
-                    "SELECT ref_providerID FROM patient_data WHERE pid = ?",
-                    'ref_ProviderID',
-                    [$pid]
-                );
                 $encounter["referring_provider_id"] = $refProviderId ?? 0;
             }
             if ($viewmode && !empty($encounter["referring_provider_id"])) {
                 $provider['selected'] = $provider['id'] == $encounter['referring_provider_id'];
             }
             return $provider;
-        }, $MBOReferringProviders);
+        }, $MBO->getReferringProviders());
 
-        $MBOOrderingProviders = $MBO->getOrderingProviders();
         $orderingProviders = array_map(function ($provider) use ($viewmode, $encounter, $pid) {
             $provider['selected'] = $provider['id'] == ($encounter['ordering_provider_id'] ?? 0);
             return $provider;
-        }, $MBOOrderingProviders);
+        }, $MBO->getOrderingProviders());
 
         $facilityService = new FacilityService();
         $facilities = $this->getFacilitiesForTemplate($facilityService, $default_fac_override);
@@ -671,7 +669,7 @@ class C_EncounterVisitForm
             'viewmode' => $viewmode,
             'mode' => $mode,
             'saveMode' => $viewmode && $mode !== "followup" ? "update" : "new",
-            'rootdir' => $rootdir,
+            'rootdir' => $rootdir ?? '',
             'encounter' => $encounter,
             'encounter_followup' => $encounter_followup,
             'followup_date' => $followup_date,
