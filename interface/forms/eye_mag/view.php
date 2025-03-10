@@ -920,7 +920,7 @@ if ($refresh and $refresh != 'fullscreen') {
                               <div>
                                     <?php
                                     if (($IOPTIME == '00:00:00') || (!$IOPTIME)) {
-                                        $IOPTIME =  date('G:i A');
+                                        $IOPTIME =  date('H:i:s');
                                     }
 
                                     $show_IOPTIME = date('g:i A', strtotime($IOPTIME));
