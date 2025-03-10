@@ -863,7 +863,7 @@ MSG;
             'PATCH' => 'update'
         ];
 
-        $method = $_SERVER['REQUEST_METHOD'];
+        $method = $_SERVER['REQUEST_METHOD'] ?? '';
         $event = $methodMap[$method] ?? 'select';
 
         // Build the comment with path and query params
