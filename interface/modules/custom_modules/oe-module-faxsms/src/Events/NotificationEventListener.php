@@ -137,7 +137,21 @@ class NotificationEventListener implements EventSubscriberInterface
     }
 
     /**
-     * Send a token for universal onetime.
+     * Send a token for universal onetime/token.
+     * Example: Payment link.
+     * $data = [
+     *   'pid' => $e_pid,
+     *   'expiry_interval' => "P2D", // valid for 2 days.
+     *   'text_message' => "Please make a payment for your appointment.",
+     *   'html_message' => "",
+     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($_SESSION['site_id']) . "&landOn=MakePayment",
+     *   'actions' => [
+     *      'enforce_onetime_use' => true,
+     *      'enforce_auth_pin' => true,
+     *     ]
+     * ];
+     * // Dispatch the event. In this case, the onetime is created and emailed to the recipient.
+     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data, $to_where), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
      *
      * @param SendNotificationEvent $event
      * @return string
@@ -149,43 +163,44 @@ class NotificationEventListener implements EventSubscriberInterface
         $status = 'Starting request.' . ' ';
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = $GLOBALS['web_root'] . "/portal/home.php";
-        $defaultQuery = "?site=" . urlencode($site_id) . "&pid=" . urlencode($pid) . "&landOn=MakePayment";
-        $notificationURL = $event->getSendNotificationURL() ?? $GLOBALS['web_root'] . $defaultUrl;
-        $notificationQuery = $event->getSendNotificationQuery() ?? $defaultQuery;
+        $defaultUrl = $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($site_id) . "&landOn=MakePayment";
+        $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
-
-        $text_message = $data['text_message'] ?? xl("Click link to run application.");
-        $html_message = $data['html_message'] ?? '';
 
         $recipientEmail = $patient['email'];
         $recipientPhone = $patient['phone'];
         $sendMethod = $event->getSendNotificationMethod();
         $includeSMS = ($sendMethod == 'sms' || $sendMethod == 'both') && $this->isSmsEnabled;
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
-        $actions = [
-            'enforce_onetime_use' => true, // Enforces the onetime token to be used only once.
+        // default actions.
+        $actionDefaults = [
+            'enforce_onetime_use' => false, // Enforces the onetime token to be used only once.
             'extend_portal_visit' => false, // Extends the portal visit by not forcing logout redirect.
             'enforce_auth_pin' => false, // Requires the pin to be entered.
             'max_access_count' => 0, // 0 = unlimited.
         ];
+        $actions = array_merge($actionDefaults, $data['actions'] ?? []); // from event data.
+
+        $text_message = $data['text_message'] ?? xl("Click link to run application.");
+        $html_message = $data['html_message'] ?? '';
+
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => $notificationURL . $notificationQuery,
+            'redirect_link' => $redirectURL,
             'email' => '',
             'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
             'actions' => $actions,
         ];
         $service = new OneTimeAuth();
-        $oneTime = $service->createPortalOneTime($parameters);
+        $oneTime = $service->createPortalOneTime($parameters); // create the token.
         if (!isset($oneTime['encoded_link'])) {
             (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 
         $status .= "Send Method: $sendMethod\n";
-        $text_message = $text_message . "\n" . $oneTime['encoded_link'];
+        $text_message = $text_message . "\nAuthorization PIN: " . $oneTime['pin'] . "\n" . $oneTime['encoded_link'];
         if (empty($html_message)) {
             $html_message = "<html><body><div class='wrapper'>" . nl2br($text_message) . "</div></body></html>";
         }
@@ -212,7 +227,7 @@ class NotificationEventListener implements EventSubscriberInterface
             && ($patient['hipaa_allowemail'] == 'YES')
         ) {
             $status .= "Sending email to " . text($recipientEmail) . ': ';
-            $status .= text($this->emailNotification($recipientEmail, $html_message));
+            $status .= text($this->emailNotification($recipientEmail, $html_message)); // TODO use mail client
         }
         $status .= "\n";
         echo(nl2br($status)); //preserve html for alert status

@@ -31,14 +31,16 @@ class OneTimeAuth
 {
     private $scope;
     private $context;
+    private $profile;
     private $cryptoGen;
     private $systemLogger;
 
-    public function __construct($context = 'portal', $scope = 'redirect')
+    public function __construct($context = 'portal', $scope = 'redirect', $profile = 'default')
     {
         // scope = portal/service tasks (reset, register). context = portal, patient etc.
-        $this->scope = $scope;
         $this->context = $context;
+        $this->scope = $scope;
+        $this->profile = $profile;
         $this->cryptoGen = new CryptoGen();
         $this->systemLogger = new SystemLogger();
     }
@@ -105,7 +107,7 @@ class OneTimeAuth
             throw new RuntimeException($err);
         }
 
-        $actions = json_encode($p['actions'] ?? []);
+        $actions = ($p['actions'] ?? []);
         // Create the encoded link and return the onetime token data set
         $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
         $rtn['onetime_token'] = $token_encrypt;
@@ -114,7 +116,7 @@ class OneTimeAuth
         $rtn['email'] = $email;
 
         // Save the onetime token to the database
-        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $expiry->format('U'), $actions);
+        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $expiry->format('U'), $this->scope, $this->profile, $actions);
         if (empty($save)) {
             $err = xlt("Onetime save failed!");
             $this->systemLogger->error($err);
@@ -185,10 +187,7 @@ class OneTimeAuth
                 $this->systemLogger->debug("Redirect token decrypted: pid = " . $redirect_array['pid'] . " redirect = " . $redirect);
             }
         }
-        $actions = [];
-        if (!empty($t_info['onetime_actions'] ?? [])) {
-            $actions = json_decode($t_info['onetime_actions'], true);
-        }
+
         $rtn['pid'] = $auth['pid'];
         $rtn['pin'] = $t_info['onetime_pin'];
         $rtn['redirect'] = $redirect;
@@ -263,11 +262,11 @@ class OneTimeAuth
      * @param $expires
      * @return int
      */
-    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $expires, $actions = []): int
+    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $expires, $scope = '', $profile = '', $actions = []): int
     {
-        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires, $actions];
-
-        $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `expires`, `date_created`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
+        $actions = json_encode($actions);
+        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires, $scope, $profile, $actions];
+        $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `expires`, `date_created`, `scope`, `profile`, `onetime_actions`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, current_timestamp(), ?, ?, ?)";
 
         return sqlInsert($sql, $bind);
     }
@@ -299,8 +298,9 @@ class OneTimeAuth
             $bind = [$pid, $token];
             $sql = "SELECT * FROM `onetime_auth` WHERE `pid` = ? AND `onetime_token` = ? LIMIT 1";
         }
-
-        return sqlQuery($sql, $bind);
+        $data = sqlQuery($sql, $bind);
+        $data['onetime_actions'] = json_decode($data['onetime_actions'] ?? [], true);
+        return $data;
     }
 
     /**
@@ -351,8 +351,7 @@ class OneTimeAuth
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
         CsrfUtils::setupCsrfKey();
-        // $auth['redirect'] .= "&me=" . session_id();
-        header('Location: ' . $auth['redirect']);
+        header('Location: ' . $auth['redirect']); // TODO hook here for Pin auth
         // allows logging and any other processing to be handled on the return
         return $auth;
     }

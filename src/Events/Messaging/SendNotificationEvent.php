@@ -40,15 +40,11 @@ class SendNotificationEvent extends Event
     private array|bool $patientDetails;
     private mixed $pid;
     private string|null $sendNotificationMethod;
-    private string|null $sendNotificationQuery;
-    private string|null $sendNotificationURL;
 
-    public function __construct($pid, $data = [], $url = null, $urlQuery = null, $sendMethod = 'email')
+    public function __construct($pid, $data = [], $sendMethod = 'both') // 'both', 'sms', 'email'
     {
         $this->pid = $pid ?? 0;
         $this->setEventData($data);
-        $this->setSendNotificationURL($url);
-        $this->setSendNotificationQuery($urlQuery);
         $this->setSendNotificationMethod($sendMethod);
         $this->setPatientDetails($this->pid);
     }
@@ -114,40 +110,6 @@ class SendNotificationEvent extends Event
     public function getEncodedPatientDetails()
     {
         return json_encode($this->patientDetails);
-    }
-
-    /**
-     * @param mixed $sendNotificationURL
-     * @return SendNotificationEvent
-     */
-    public function setSendNotificationURL(mixed $sendNotificationURL)
-    {
-        $this->sendNotificationURL = $sendNotificationURL;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSendNotificationURL(): mixed
-    {
-        return $this->sendNotificationURL;
-    }
-
-    /**
-     * @param mixed $sendNotificationQuery
-     * @return string|null
-     */
-    public function setSendNotificationQuery(mixed $sendNotificationQuery)
-    {
-        $this->sendNotificationQuery = $sendNotificationQuery;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSendNotificationQuery(): mixed
-    {
-        return $this->sendNotificationQuery;
     }
 
     /**
