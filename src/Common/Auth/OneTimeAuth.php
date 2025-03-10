@@ -51,12 +51,20 @@ class OneTimeAuth
      *
      *   $p[
      *   'pid' => '', // required for most onetime auth
-     *   'target_link' => '', // Onetime endpoint
-     *   'redirect_link' => '', // Where to redirect the user after auth
+     *   'target_link' => '', // Onetime endpoint.
+     *   'redirect_link' => '', // Where to redirect the user after auth.
      *   'enabled_datetime' => 'NOW', // Use a datetime if wish to enable for a future date.
-     *   'expiry_interval' => 'PT15M', // Always PTxx{Sec,Min,Day} PeriodTime
-     *   'email' => '']
+     *   'expiry_interval' => 'PT15M', // Always PTxx{Sec,Min,Day} PeriodTime.
+     *   'email' => '', // Email to send the onetime pin to.
+     *   // Array of actions to be stored within encrypted token and retrieved in decodePortalOneTime() then passed to authorization.
+     *   'actions' => [
+     *        'enforce_onetime_use' => true, // Enforces the onetime token to be used only once.
+     *        'extend_portal_visit' => false, // Extends the portal visit by not forcing logout redirect.
+     *        'enforce_auth_pin' => false, // Requires the pin to be entered.
+     *        'max_access_count' => 0, // 0 = unlimited.
+     *     ]
      */
+
     public function createPortalOneTime(array $p, bool $encrypt_redirect = false): array|bool
     {
         $redirect_token = null;
@@ -97,13 +105,16 @@ class OneTimeAuth
             throw new RuntimeException($err);
         }
 
+        $actions = json_encode($p['actions'] ?? []);
+        // Create the encoded link and return the onetime token data set
         $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
         $rtn['onetime_token'] = $token_encrypt;
         $rtn['redirect_token'] = $redirect_token;
         $rtn['pin'] = $pin;
         $rtn['email'] = $email;
 
-        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $expiry->format('U'));
+        // Save the onetime token to the database
+        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $expiry->format('U'), $actions);
         if (empty($save)) {
             $err = xlt("Onetime save failed!");
             $this->systemLogger->error($err);
@@ -131,6 +142,7 @@ class OneTimeAuth
         $rtn['error'] = null;
         $one_time = '';
         $t_info = [];
+        $actions = [];
 
         if (strlen($onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
@@ -173,6 +185,10 @@ class OneTimeAuth
                 $this->systemLogger->debug("Redirect token decrypted: pid = " . $redirect_array['pid'] . " redirect = " . $redirect);
             }
         }
+        $actions = [];
+        if (!empty($t_info['onetime_actions'] ?? [])) {
+            $actions = json_decode($t_info['onetime_actions'], true);
+        }
         $rtn['pid'] = $auth['pid'];
         $rtn['pin'] = $t_info['onetime_pin'];
         $rtn['redirect'] = $redirect;
@@ -180,6 +196,7 @@ class OneTimeAuth
         $rtn['login_username'] = $auth['portal_login_username'];
         $rtn['portal_pwd'] = $auth['portal_pwd'];
         $rtn['onetime_decrypted'] = $one_time;
+        $rtn['actions'] = $t_info['onetime_actions'] ?? [];
 
         $this->updateOnetime($auth['pid'], $one_time);
         $this->systemLogger->debug("Onetime successfully decoded. $one_time");
@@ -246,9 +263,9 @@ class OneTimeAuth
      * @param $expires
      * @return int
      */
-    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $expires): int
+    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $expires, $actions = []): int
     {
-        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires];
+        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires, $actions];
 
         $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `expires`, `date_created`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
 
@@ -293,7 +310,13 @@ class OneTimeAuth
      */
     public function processOnetime($token, $redirect_token): array
     {
-        $auth = $this->decodePortalOneTime($token, $redirect_token);
+        try {
+            $auth = $this->decodePortalOneTime($token, $redirect_token);
+        } catch (OneTimeAuthExpiredException $e) {
+            $this->systemLogger->error("Failed " . $e->getMessage());
+            unset($auth);
+            throw new OneTimeAuthException(xlt("Decode Authentication Failed! Contact administrator."));
+        }
         if (!empty($auth['error'] ?? null)) {
             $this->systemLogger->error("Failed " . $auth['error']);
             unset($auth);
@@ -309,6 +332,7 @@ class OneTimeAuth
         $_SESSION['redirect_target'] = $auth['redirect'];
         $_SESSION['onetime'] = $auth['portal_pwd'];
         $_SESSION['patient_portal_onsite_two'] = 1;
+        $_SESSION['onetime_actions'] = $auth['onetime_actions'];
 
         // set up the other variables needed for the session interaction
         // this was taken from portal/get_patient_info.php
