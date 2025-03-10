@@ -45,8 +45,8 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
-// menu to href redirect.
-// https://opensourcedemr.us/portal/index.php?site=default&landOn=BillingSummary
+// Example https://localhost/openemr/portal/index.php?site=default&landOn=BillingSummary
+// landOn query is used to redirect to a specific section of the portal.
 $landOnHref = [
     'ClinicalDocuments' => '#onsitedocuments',
     'Appointments' => '#appointmentcard',
@@ -62,13 +62,15 @@ $landOnHref = [
     'Logout' => '#logout.php'
 ];
 // redirect using the interface query landOn or last page visited
-$landWhere = $_SESSION['landOn'] ?? null;
-// Set the landOn href query lookup.
-$whereto = $landOnHref[$landWhere] ?? null;
-if (!empty($whereto)) {
-    $_SESSION['whereto'] = $whereto;
+// TODO sjp - qualify if redirect feature is enabled!
+$whereto = $_SESSION['whereto'] ?? null;
+// set the landOn session variable to the redirected card.
+$landWhere = $_SESSION['landOn'] = $_REQUEST['landOn'] ?? null;
+// Set the landOn href query from lookup.
+$where = $landOnHref[$landWhere] ?? null;
+if (!empty($where)) {
+    $_SESSION['whereto'] = $where;
 }
-$_SESSION['whereto'] = $_SESSION['whereto'] ? $_SESSION['whereto'] : null;
 
 $logoService = new LogoService();
 

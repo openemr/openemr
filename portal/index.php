@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -48,26 +48,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode($_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
-
-// allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
-// actually do anything with the redirect
-// this value should already be url encoded.
-$redirectUrl = $_REQUEST['redirect'] ?? '';
-
-//unset the whereto session variable in case it is wrongly used.
-unset($_REQUEST['whereto']);
-unset($_GET['whereto']);
-// set the where to session variable to the current page from previous session.
-$whereto = $_SESSION['whereto'] ?? null;
-// set the landOn session variable to the current page.
-$_SESSION['landOn'] = $_GET['landOn'] ?? null;
-// unset the landOn variable.
-unset($_REQUEST['landOn']);
-unset($_GET['landOn']);
 
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -79,6 +63,25 @@ if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
 }
+/*
+    The below will test and set the where to session variable when redirecting from the login page.
+    First unset the where to session variable in case it is wrongly used.
+*/
+unset($_REQUEST['whereto']);
+unset($_GET['whereto']);
+// set the where to session variable to the page from previous session.
+$whereto = $_SESSION['whereto'] ?? null;
+// set the landOn session variable to the redirect page after successfully login.
+$_SESSION['landOn'] = $_GET['landOn'] ?? null;
+// unset the landOn super.
+unset($_REQUEST['landOn']);
+unset($_GET['landOn']);
+/*
+ allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
+ actually do anything with the redirect
+ this value should already be url encoded.
+*/
+$redirectUrl = $_REQUEST['redirect'] ?? '';
 
 /*
  * Patient for onetime is verified when token redirect is decoded.

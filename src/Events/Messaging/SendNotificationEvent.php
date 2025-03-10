@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,16 +34,57 @@ class SendNotificationEvent extends Event
     const JAVASCRIPT_READY_NOTIFICATION_POST = 'sendNotification.javascript.load.post';
     const SEND_NOTIFICATION_BY_SERVICE = 'sendNotification.send';
     const SEND_NOTIFICATION_SERVICE_ONETIME = 'sendNotification.service.onetime';
+    const SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME = 'sendNotification.service.universal.onetime';
 
-    private mixed $pid;
-    private array|bool $patientDetails;
     private mixed $eventData;
+    private array|bool $patientDetails;
+    private mixed $pid;
+    private string|null $sendNotificationMethod;
+    private string|null $sendNotificationQuery;
+    private string|null $sendNotificationURL;
 
-    public function __construct($pid, $data = [])
+    public function __construct($pid, $data = [], $url = null, $urlQuery = null, $sendMethod = 'email')
     {
         $this->pid = $pid ?? 0;
-        $this->eventData = $data;
+        $this->setEventData($data);
+        $this->setSendNotificationURL($url);
+        $this->setSendNotificationQuery($urlQuery);
+        $this->setSendNotificationMethod($sendMethod);
+        $this->setPatientDetails($this->pid);
+    }
+
+    /**
+     * @param string $sendNotificationMethod
+     * @return SendNotificationEvent
+     */
+    public function setSendNotificationMethod(string $sendNotificationMethod)
+    {
+        $this->sendNotificationMethod = $sendNotificationMethod;
+    }
+
+    /**
+     * @param array|bool $pid
+     * @return void
+     */
+    public function setPatientDetails($pid): void
+    {
         $this->patientDetails = $this->fetchPatientDetails($pid);
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function getPatientDetails(): bool|array
+    {
+        return $this->patientDetails;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSendNotificationMethod(): string
+    {
+        return $this->sendNotificationMethod;
     }
 
     /**
@@ -62,12 +103,51 @@ class SendNotificationEvent extends Event
         return $this->eventData ?? [];
     }
 
+    public function setEventData($data)
+    {
+        $this->eventData = $data;
+    }
+
     /**
      * @return bool|string
      */
-    public function getEncodedPatientDetails(): bool|string
+    public function getEncodedPatientDetails()
     {
         return json_encode($this->patientDetails);
+    }
+
+    /**
+     * @param mixed $sendNotificationURL
+     * @return SendNotificationEvent
+     */
+    public function setSendNotificationURL(mixed $sendNotificationURL)
+    {
+        $this->sendNotificationURL = $sendNotificationURL;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSendNotificationURL(): mixed
+    {
+        return $this->sendNotificationURL;
+    }
+
+    /**
+     * @param mixed $sendNotificationQuery
+     * @return string|null
+     */
+    public function setSendNotificationQuery(mixed $sendNotificationQuery)
+    {
+        $this->sendNotificationQuery = $sendNotificationQuery;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSendNotificationQuery(): mixed
+    {
+        return $this->sendNotificationQuery;
     }
 
     /**
@@ -79,12 +159,12 @@ class SendNotificationEvent extends Event
     }
 
     /**
-     * @param $sect
-     * @param $v
-     * @param $u
+     * @param string $sect
+     * @param string $v
+     * @param string $u
      * @return bool
      */
-    public function verifyAcl($sect = 'patients', $v = 'docs', $u = ''): bool
+    public function verifyAcl(string $sect = 'patients', string $v = 'docs', string $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
     }
