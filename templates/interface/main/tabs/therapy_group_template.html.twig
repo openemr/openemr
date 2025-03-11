@@ -45,7 +45,7 @@
                 <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
-                <span>{{ "Open Encounter"|text  }}:</span>
+                <span>{{ "Open Encounter"|xlt  }}:</span>
                 <!-- ko if:selectedEncounter() -->
                     <a data-bind="click: refreshEncounter" href="#">
                         <span data-bind="text:selectedEncounter().date()"></span>
@@ -86,7 +86,7 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
         <span class="messagesColumn">
-                <a class="btn btn-secondary" href="#" data-bind="click: viewMessages" title="{{ "View Messages"|xlt }}">
+                <a class="btn btn-secondary" href="#" data-bind="click: viewMessages" title="{{ "View Messages"|xla }}">
                     <i class="fa fa-envelope"></i>&nbsp;<span class="d-inline" data-bind="text: messages()"></span>
             </a>
             </span>
