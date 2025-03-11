@@ -474,6 +474,7 @@ class ClientAdminController
                     ,'tokenObj' => $tokenObject
                 ];
             }
+            $user['accessTokens'] = $accessTokenList;
             $user['refreshTokens'] = $refreshTokenList;
             $trustedUsersList[] = [
                 'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_TRUSTED_USER, $user['user_id']])
@@ -809,7 +810,7 @@ class ClientAdminController
     private function parseTokenAction(Request $request)
     {
         $parts = null;
-        $token = $request->query->get('token', null);
+        $token = $request->request->get('token', null);
         $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
         $textSetting = [
                 'value' => $token
