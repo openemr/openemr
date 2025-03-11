@@ -845,6 +845,45 @@ MSG;
     }
 
     /**
+     * Log HTTP request details
+     */
+    public function logHttpRequest()
+    {
+        // Skip if audit logging or http request logging is disabled
+        if (empty($GLOBALS['enable_auditlog']) || empty($GLOBALS['audit_events_http-request'])) {
+            return;
+        }
+
+        // Map HTTP methods to event action types
+        $methodMap = [
+            'GET' => 'select',
+            'POST' => 'update',
+            'PUT' => 'update',
+            'DELETE' => 'delete',
+            'PATCH' => 'update'
+        ];
+
+        $method = $_SERVER['REQUEST_METHOD'] ?? '';
+        $event = $methodMap[$method] ?? 'select';
+
+        // Build the comment with path and query params
+        $comment = $_SERVER['SCRIPT_NAME'];
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            $comment .= '?' . $_SERVER['QUERY_STRING'];
+        }
+
+        // Record the log entry
+        $this->newEvent(
+            "http-request-$event",  // event
+            $_SESSION['authUser'] ?? null, // user
+            $_SESSION['authProvider'] ?? null, // groupname
+            1, // success
+            $comment, // comments
+            $_SESSION['pid'] ?? null // patient_id
+        );
+    }
+
+    /**
      * Function used to determine category of the event
      *
      * @param  $sql
