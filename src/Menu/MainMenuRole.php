@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MainMenuRole class.
+ * MainMenuRole class. is fired in the main.php file to load the main menu.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
