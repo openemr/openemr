@@ -3321,7 +3321,7 @@ $GLOBALS_METADATA = array(
         'oauth_ehr_launch_authorization_flow_skip' => array(
             xl('OAuth2 EHR-Launch Authorization Flow Skip Enable App Setting'),
             'bool',
-            '0',
+            '1',
             xl('Enable an OAuth2 Client application to be configured to skip the login screen and the scope authorization screen if the user is already logged into the EHR.')
         ),
 
