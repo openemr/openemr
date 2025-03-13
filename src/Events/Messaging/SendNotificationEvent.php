@@ -30,10 +30,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class SendNotificationEvent extends Event
 {
-    const ACTIONS_RENDER_NOTIFICATION_POST = 'sendNotification.actions.render.post';
-    const JAVASCRIPT_READY_NOTIFICATION_POST = 'sendNotification.javascript.load.post';
+    const ACTIONS_RENDER_NOTIFICATION_POST = 'sendNotification.actions.render.post'; // button
+    const JAVASCRIPT_READY_NOTIFICATION_POST = 'sendNotification.javascript.load.post'; // javascript load
     const SEND_NOTIFICATION_BY_SERVICE = 'sendNotification.send';
     const SEND_NOTIFICATION_SERVICE_ONETIME = 'sendNotification.service.onetime';
+    const ACTIONS_RENDER_NOTIFICATION_UNIVERSAL = 'sendNotification.actions.render.universal'; // button
+    const JAVASCRIPT_LOAD_NOTIFICATION_UNIVERSAL = 'sendNotification.javascript.load.universal';
     const SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME = 'sendNotification.service.universal.onetime';
 
     private mixed $eventData;

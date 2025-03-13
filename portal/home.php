@@ -391,6 +391,7 @@ try {
         'dateDisplayFormat' => $GLOBALS['date_display_format'],
         'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
         'assetVersion' => $GLOBALS['v_js_includes'],
+        'extendVisit' => $_SESSION['portal_visit_extended'] ?? 1,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,

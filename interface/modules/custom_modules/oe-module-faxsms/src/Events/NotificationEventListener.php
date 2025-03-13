@@ -151,7 +151,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *     ]
      * ];
      * // Dispatch the event. In this case, the onetime is created and emailed to the recipient.
-     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data, $to_where), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
+     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
      *
      * @param SendNotificationEvent $event
      * @return string
@@ -168,7 +168,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
 
-        $recipientEmail = $patient['email'];
+        $recipientEmail = $data['email'] ?? $patient['email'];
         $recipientPhone = $patient['phone'];
         $sendMethod = $event->getSendNotificationMethod();
         $includeSMS = ($sendMethod == 'sms' || $sendMethod == 'both') && $this->isSmsEnabled;
@@ -176,7 +176,7 @@ class NotificationEventListener implements EventSubscriberInterface
         // default actions.
         $actionDefaults = [
             'enforce_onetime_use' => false, // Enforces the onetime token to be used only once.
-            'extend_portal_visit' => false, // Extends the portal visit by not forcing logout redirect.
+            'extend_portal_visit' => true, // Extends the portal visit by not forcing logout redirect.
             'enforce_auth_pin' => false, // Requires the pin to be entered.
             'max_access_count' => 0, // 0 = unlimited.
         ];
@@ -192,17 +192,23 @@ class NotificationEventListener implements EventSubscriberInterface
             'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
             'actions' => $actions,
         ];
+        // get token.
         $service = new OneTimeAuth();
         $oneTime = $service->createPortalOneTime($parameters); // create the token.
+
         if (!isset($oneTime['encoded_link'])) {
             (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 
         $status .= "Send Method: $sendMethod\n";
-        $text_message = $text_message . "\nAuthorization PIN: " . $oneTime['pin'] . "\n" . $oneTime['encoded_link'];
+        $canned = "\n" . xlt("If you are not automatically redirected after clicking, please copy and then paste the link into your browser's address bar.");
+        $canned .= "\n" . xlt("Thank you for your attention to this matter.") . "\n" . "Administrator.";
+        $text_message = str_replace('#includePin#', $oneTime['pin'], $text_message);
+        $text_message = str_replace('#includeToken#', $oneTime['encoded_link'], $text_message);
+        $text_message .= $canned;
         if (empty($html_message)) {
-            $html_message = "<html><body><div class='wrapper'>" . nl2br($text_message) . "</div></body></html>";
+            $html_message = "<html><body><div class='wrapper'><p>" . nl2br($text_message) . "</p></div></body></html>";
         }
 
         if ($patient['hipaa_allowsms'] == 'YES' && $includeSMS) {
@@ -230,8 +236,7 @@ class NotificationEventListener implements EventSubscriberInterface
             $status .= text($this->emailNotification($recipientEmail, $html_message)); // TODO use mail client
         }
         $status .= "\n";
-        echo(nl2br($status)); //preserve html for alert status
-        return 'okay';
+        return (nl2br($status)); //preserve html for alert status
     }
 
     /**
@@ -379,9 +384,8 @@ class NotificationEventListener implements EventSubscriberInterface
         function sendNotification(pid, docName, docId, details) {
         let btnClose = <?php echo xlj("Cancel"); ?>;
         let title = <?php echo xlj("Send Message"); ?>;
-        let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) +
-        '&title=' + encodeURIComponent(docName) + '&template_id=' + encodeURIComponent(docId) +
-        '&details=' + encodeURIComponent(details);
+        let url = top.webroot_url + '<?php echo $url_part; ?>' + encodeURIComponent(pid) + '&title=' + encodeURIComponent(docName) +
+        '&template_id=' + encodeURIComponent(docId) + '&details=' + encodeURIComponent(details);
         dlgopen(url, '', '<?php echo attr($modal); ?>', '<?php echo attr($modal_height); ?>', '', title, {
         buttons: [{text: btnClose, close: true, style: 'secondary'}],
         sizeHeight: '<?php echo attr($modal_size_height); ?>',

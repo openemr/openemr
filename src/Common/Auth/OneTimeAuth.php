@@ -109,7 +109,7 @@ class OneTimeAuth
 
         $actions = ($p['actions'] ?? []);
         // Create the encoded link and return the onetime token data set
-        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
+        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token, $actions['enforce_auth_pin'] ?? false);
         $rtn['onetime_token'] = $token_encrypt;
         $rtn['redirect_token'] = $redirect_token;
         $rtn['pin'] = $pin;
@@ -209,9 +209,10 @@ class OneTimeAuth
      * @param $encrypted_redirect
      * @return string
      */
-    private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
+    private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null, $pin_required = false): string
     {
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $pin_required = $pin_required ? 1 : 0;
         if (stripos($site_addr, "portal") !== false) {
             $site_addr = strtok($site_addr, '?');
             if (stripos($site_addr, "index.php") !== false) {
@@ -240,11 +241,13 @@ class OneTimeAuth
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
                     'target' => $encrypted_redirect,
+                    'pin_required' => $pin_required,
                     'site' => $site_id
                 ]));
             } else {
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
+                    'pin_required' => $pin_required,
                     'site' => $site_id
                 ]));
             }
@@ -312,6 +315,13 @@ class OneTimeAuth
     {
         try {
             $auth = $this->decodePortalOneTime($token, $redirect_token);
+            if ($auth["actions"]["enforce_auth_pin"]) {
+                $this->systemLogger->debug("Pin auth required");
+                if ($auth['pin'] != $_POST['login_pin'] ?? null) {
+                    $this->systemLogger->error("Failed Pin auth");
+                    throw new OneTimeAuthException(xlt("Pin Authentication Failed! Contact administrator."));
+                }
+            }
         } catch (OneTimeAuthExpiredException $e) {
             $this->systemLogger->error("Failed " . $e->getMessage());
             unset($auth);
@@ -332,7 +342,7 @@ class OneTimeAuth
         $_SESSION['redirect_target'] = $auth['redirect'];
         $_SESSION['onetime'] = $auth['portal_pwd'];
         $_SESSION['patient_portal_onsite_two'] = 1;
-        $_SESSION['onetime_actions'] = $auth['onetime_actions'];
+        $_SESSION['onetime_actions'] = $auth['actions'];
 
         // set up the other variables needed for the session interaction
         // this was taken from portal/get_patient_info.php
@@ -350,6 +360,10 @@ class OneTimeAuth
         // Set up the csrf private_key (for the patient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
+
+        $extend = $auth['actions']['extend_portal_visit'] ? 1 : 0;
+        $_SESSION['portal_visit_extended'] = $extend;
+
         CsrfUtils::setupCsrfKey();
         header('Location: ' . $auth['redirect']); // TODO hook here for Pin auth
         // allows logging and any other processing to be handled on the return

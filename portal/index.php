@@ -103,7 +103,8 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             'target' => $_GET['target'] ?? null,
             'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
             'pagetitle' => xl("OpenEMR Patient Portal"),
-            'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
+            'images_static_relative' => $GLOBALS['images_static_relative'] ?? '',
+            'pin_required' => (int)$_GET['pin_required'] ?? false,
         ]);
         exit;
     } elseif (!empty($_POST['service_auth'] ?? null)) {
