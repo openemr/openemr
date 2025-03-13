@@ -741,7 +741,7 @@ if ($preselect_category_override != '') {
     $preselect_category = $preselect_category_override;
 }
 ?>
-  if (select_word("<?php echo fixquotes($temp_preselect_mode) . "\", \"" . fixquotes($preselect_category); ?>" ,f2.select_category)) {
+  if (select_word(<?php echo js_escape($temp_preselect_mode) . ", " . js_escape($preselect_category); ?> ,f2.select_category)) {
     click_category();
   }
 <?php
@@ -783,7 +783,7 @@ if ($preselect_subcategory_override != '') {
     $preselect_subcategory = $preselect_subcategory_override;
 }
 ?>
-  if (select_word("<?php echo fixquotes($temp_preselect_mode) . "\", \"" . fixquotes($preselect_subcategory); ?>" ,f2.select_subcategory)) {
+  if (select_word(<?php echo js_escape($temp_preselect_mode) . ", " . js_escape($preselect_subcategory); ?> ,f2.select_subcategory)) {
     click_subcategory();
   }
 }
@@ -811,7 +811,7 @@ if ($preselect_item_override != '') {
     $preselect_item = $preselect_item_override;
 }
 ?>
-  if (select_word("<?php echo fixquotes($temp_preselect_mode) . "\", \"" . fixquotes($preselect_item); ?>" ,f2["select_item[]"])) {
+  if (select_word(<?php echo js_escape($temp_preselect_mode) . ", " . js_escape($preselect_item); ?> ,f2["select_item[]"])) {
     click_item();
     preselect_off = true;
   }
