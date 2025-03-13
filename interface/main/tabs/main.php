@@ -24,8 +24,10 @@ require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 use Esign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\Filesystem\Path;
 
@@ -50,6 +52,8 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
+$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -331,14 +335,24 @@ $esignApi = new Api();
     // prepare Issues popup link global that is used in creating the menu
     $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
         AclMain::aclCheckCore('patients', 'med', '', 'write'));
-    ?>
 
-    <?php require_once("templates/tabs_template.php"); ?>
-    <?php require_once("templates/menu_template.php"); ?>
+    // we use twig templates here so modules can customize some of these files
+    // at some point we will twigify all of main.php so we can extend it.
+    echo $twig->render("interface/main/tabs/tabs_template.html.twig", []);
+    echo $twig->render("interface/main/tabs/menu_template.html.twig", []);
+    // TODO: patient_data_template.php is a more extensive refactor that could be done in a future feature request but to not jeopardize 7.0.3 release we will hold off.
+    ?>
     <?php require_once("templates/patient_data_template.php"); ?>
-    <?php require_once("templates/therapy_group_template.php"); ?>
-    <?php require_once("templates/user_data_template.php"); ?>
-    <?php require_once("menu/menu_json.php"); ?>
+    <?php
+    echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
+    echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
+        'openemr_name' => $GLOBALS['openemr_name']
+    ]);
+    // Collect the menu then build it
+    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menu_restrictions = $menuMain->getMenu();
+    echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
+    ?>
     <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 
     <script>

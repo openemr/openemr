@@ -35,7 +35,7 @@ function effectiveUser($user)
  */
 function getUserSetting($label, $user = null, $defaultUser = 0)
 {
-    return UserSettingsService::effectiveUser($label, $user, $defaultUser);
+    return UserSettingsService::getUserSetting($label, $user, $defaultUser);
 }
 
 /**

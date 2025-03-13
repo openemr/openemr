@@ -81,7 +81,7 @@
                         </div>
                     </div>
                     {% endif %}
-                    {% for trustedUser in trustedUsersList %}
+                    {% for trustedUser in trustedUsers %}
                     <div class="card m-3">
                         <div class="card-header">
                             <h4 class="text-center">{{ trustedUser.user.display_name|text }}
@@ -150,7 +150,7 @@
                                             {{ "Action"|xlt }}
                                         </div>
                                     </div>
-                                    {% if trustedUser.accessTokens|length <= 0 %}
+                                    {% if trustedUser.user.accessTokens|length <= 0 %}
                                     <div class="row">
                                         <div class="col">
                                             <div class="alert alert-info text-center">
@@ -159,8 +159,8 @@
                                         </div>
                                     </div>
                                     {% endif %}
-                                    {% if trustedUser.accessTokens|length > 0 %}
-                                    {% for accessToken in trustedUser.accessTokens %}
+                                    {% if trustedUser.user.accessTokens|length > 0 %}
+                                    {% for accessToken in trustedUser.user.accessTokens %}
                                     <div class="row">
                                         <div class="col-3">
                                             {{ accessToken.tokenObj.token|text }}
@@ -202,7 +202,7 @@
                                             {{ "Action"|xlt }}
                                         </div>
                                     </div>
-                                    {% if trustedUser.refreshTokens|length <= 0 %}
+                                    {% if trustedUser.user.refreshTokens|length <= 0 %}
                                     <div class="row">
                                         <div class="col">
                                             <div class="alert alert-info text-center">
@@ -211,8 +211,8 @@
                                         </div>
                                     </div>
                                     {% endif %}
-                                    {% if trustedUser.refreshTokens|length > 0 %}
-                                    {% for refreshToken in trustedUser.refreshTokens %}
+                                    {% if trustedUser.user.refreshTokens|length > 0 %}
+                                    {% for refreshToken in trustedUser.user.refreshTokens %}
                                     <div class="row">
                                         <div class="col-7">
                                             {{ refreshToken.tokenObj.token|text }}

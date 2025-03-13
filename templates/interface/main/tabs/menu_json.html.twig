@@ -1,23 +1,19 @@
 <?php
 
-/**
- * Menu loader.
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Kevin Yeh <kevin.y@integralemr.com>
- * @author    Robert Down <robertdown@live.com>
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+{#
+ # Menu loader.
+ #
+ # @package   OpenEMR
+ # @link      http://www.open-emr.org
+ # @author    Kevin Yeh <kevin.y@integralemr.com>
+# @author    Robert Down <robertdown@live.com>
+# @author    Brady Miller <brady.g.miller@gmail.com>
+# @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
+# @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 
-use OpenEMR\Menu\MainMenuRole;
 
-// Collect the menu then build it
-$menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
-$menu_restrictions = $menuMain->getMenu();
 ?>
 <script>
 
@@ -68,7 +64,7 @@ $menu_restrictions = $menuMain->getMenu();
             self.enabled=ko.computed(function()
             {
                 return (app_view_model.application_data.patient()!==null
-                        && app_view_model.application_data.patient().selectedEncounter()!=null);
+                    && app_view_model.application_data.patient().selectedEncounter()!=null);
             });
 
         }
@@ -84,7 +80,7 @@ $menu_restrictions = $menuMain->getMenu();
             self.enabled=ko.computed(function()
             {
                 return (app_view_model.application_data.therapy_group()!==null
-                && app_view_model.application_data.therapy_group().selectedEncounter()!=null);
+                    && app_view_model.application_data.therapy_group().selectedEncounter()!=null);
             });
         }
         if(self.header)
@@ -103,7 +99,7 @@ $menu_restrictions = $menuMain->getMenu();
         var newEntry=new menu_entry(object);
         target.push(newEntry);
     }
-    var menu_objects=<?php echo json_encode($menu_restrictions); ?>;
+    var menu_objects={{ menu_restrictions|json_encode }};
     app_view_model.application_data.menu=ko.observableArray();
     for(var menuIdx=0;menuIdx<menu_objects.length;menuIdx++)
     {
