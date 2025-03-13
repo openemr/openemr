@@ -985,7 +985,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $porow = false;
             $pcrow = false;
             if ($direction != 'R' && $a[2]) {
-                $in_orderid = intval($a[2]);
+                $in_orderid = $a[2];
+                $in_orderid = explode("-", $in_orderid);
+                $in_orderid = intval($in_orderid[1]);
             }
         } elseif ('TXA' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
@@ -997,7 +999,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $context = $a[0];
             $arep = [];
             if ($direction != 'R' && $a[2]) {
-                $in_orderid = intval($a[2]);
+                $in_orderid = $a[2];
+                $in_orderid = explode("-", $in_orderid);
+                $in_orderid = intval($in_orderid[1]);
                 $porow = false;
                 $pcrow = false;
             }
