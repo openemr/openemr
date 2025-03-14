@@ -8,9 +8,11 @@
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024-2025 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -267,7 +269,6 @@ class InsuranceService extends BaseService
         $data = $serviceSaveEvent->getSaveData();
         $uuid = UuidRegistry::uuidToBytes($data['uuid']);
 
-
         $results = sqlStatement(
             $sql,
             array(
@@ -414,30 +415,41 @@ class InsuranceService extends BaseService
     /**
      * Return an array of encounters within a date range
      *
-     * @param  $start_date  Any encounter starting on this date
-     * @param  $end_date  Any encounter ending on this date
-     * @return Array Encounter data payload.
+     * @param  $provider   Insurance company id
+     * @param  $startDate  Any encounter starting on this date
+     * @param  $endDate    Any encounter ending on this date
+     * @return Array       Insurance data payload.
      */
-    public function getPidsForPayerByEffectiveDate($provider, $type, $startDate, $endDate)
+    public function getPoliciesByPayerByEffectiveDate($provider, $type, $startDate, $endDate)
     {
         // most common case of null in 'date' field aka effective date which signifies is only insurance of that type
         // TBD: add another token for 'date_end' field
         $dateMissing = new TokenSearchField('date', [new TokenSearchValue(null)]);
         $dateMissing->setModifier(SearchModifier::MISSING);
 
+        $dateEndMissing = new TokenSearchField('date_end', [new TokenSearchValue(null)]);
+        $dateEndMissing->setModifier(SearchModifier::MISSING);
+
         // search for encounters by passed in start and end dates
         $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE);
+        $dateEndField = new DateSearchField('date_end', ['ge' . $endDate], DateSearchField::DATE_TYPE_DATE);
 
         // set up composite search with false signifying an OR condition for the effective date
-        $composite = new CompositeSearchField('date', [], false);
-        $composite->addChild($dateMissing);
-        $composite->addChild($dateField);
+        $compositeDate = new CompositeSearchField('date', [], false);
+        $compositeDate->addChild($dateMissing);
+        $compositeDate->addChild($dateField);
+
+        // set up composite search with false signifying an OR condition for the date end
+        $compositeDateEnd = new CompositeSearchField('date_end', [], false);
+        $compositeDateEnd->addChild($dateEndMissing);
+        $compositeDateEnd->addChild($dateEndField);
 
         $insuranceDataResult = $this->search(
             [
                 'provider' => $provider,
                 'type' => $type,
-                'date' => $composite,
+                'date' => $compositeDate,
+                'date_end' => $compositeDateEnd
             ]
         );
         if ($insuranceDataResult->hasData()) {

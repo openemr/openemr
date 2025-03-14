@@ -346,7 +346,7 @@ class PatientService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, SearchQueryConfig $config = null)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -395,7 +395,7 @@ SQL;
         return $processingResult;
     }
 
-    public function search($search, $isAndCondition = true, SearchQueryConfig $config = null)
+    public function search($search, $isAndCondition = true, ?SearchQueryConfig $config = null)
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
@@ -501,7 +501,7 @@ SQL;
         }
     }
 
-    private function hydrateSearchResultsFromQueryResource($queryResource, QueryPagination $pagination = null)
+    private function hydrateSearchResultsFromQueryResource($queryResource, ?QueryPagination $pagination = null)
     {
         $processingResult = new ProcessingResult();
         if (!empty($pagination)) {

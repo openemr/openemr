@@ -52,12 +52,12 @@ class Form_Button implements ButtonIF
         return $GLOBALS['srcdir'] . '/ESign/views/form/esign_button.php';
     }
 
-    public function render(SignableIF $signable = null)
+    public function render(?SignableIF $signable = null)
     {
         return $this->_viewer->render($this);
     }
 
-    public function getHtml(SignableIF $signable = null)
+    public function getHtml(?SignableIF $signable = null)
     {
         return $this->_viewer->getHtml($this);
     }

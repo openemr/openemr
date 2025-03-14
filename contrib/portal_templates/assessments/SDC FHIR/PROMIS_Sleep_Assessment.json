@@ -1,0 +1,627 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "PROMIS SLEEP Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/PS",
+            "prefix": "PROMIS SLEEP",
+            "text": "The next few questions help measure the level of your sleep habits.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "Sleep116",
+                            "display": "My sleep was refreshing.",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PS/Sleep116",
+                    "text": "My sleep was refreshing.",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "NAA_1",
+                                "display": "Not at all"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_2",
+                                "display": "A little bit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_3",
+                                "display": "Somewhat"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_4",
+                                "display": "Quite a bit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_5",
+                                "display": "Very much"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Pain Interference score.",
+                            "type": "display",
+                            "linkId": "/PS/Sleep116-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "Sleep20",
+                            "display": "I had a problem with my sleep.",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PS/Sleep20",
+                    "text": "I had a problem with my sleep.",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "NAA_1",
+                                "display": "Not at all"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_2",
+                                "display": "A little bit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_3",
+                                "display": "Somewhat"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_4",
+                                "display": "Quite a bit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_5",
+                                "display": "Very much"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Sleep Disturbance score.",
+                            "type": "display",
+                            "linkId": "/PS/Sleep20-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "Sleep44",
+                            "display": "I had difficulty falling asleep.",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PS/Sleep44",
+                    "text": "I had difficulty falling asleep.",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "NAA_1",
+                                "display": "Not at all"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_2",
+                                "display": "A little bit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_3",
+                                "display": "Somewhat"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_4",
+                                "display": "Quite a bit"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "NAA_5",
+                                "display": "Very much"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Sleep Disturbance score.",
+                            "type": "display",
+                            "linkId": "/PS/Sleep44-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "Sleep109",
+                            "display": "My sleep quality was...",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PS/Sleep109",
+                    "text": "My sleep quality was...",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "SLP_1",
+                                "display": "Very Good"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLP_2",
+                                "display": "Good"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLP_3",
+                                "display": "Fair"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLP_4",
+                                "display": "Poor"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "SLP_5",
+                                "display": "Very poor"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "In the past 7 days",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Sleep Disturbance score.",
+                            "type": "display",
+                            "linkId": "/PS/Sleep109-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "PS-score",
+                            "display": "PROMIS SLEEP Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "ps9_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep116').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep116').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "ps10_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep20').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep20').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "ps11_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep44').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep44').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "ps12_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep109').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PS').item.where(linkId = '/PS/Sleep109').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%ps9_value.exists() or %ps10_value.exists() or %ps11_value.exists() or %ps12_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%ps9_value.exists(), %ps9_value, 0) + iif(%ps10_value.exists(), %ps10_value, 0) + iif(%ps11_value.exists(), %ps11_value, 0) + iif(%ps12_value.exists(), %ps12_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/PS/PS-score",
+                    "text": "PROMIS SLEEP Score"
+                }
+            ]
+        }
+    ],
+    "name": "PROMIS_SLEEP_Assessment"
+}

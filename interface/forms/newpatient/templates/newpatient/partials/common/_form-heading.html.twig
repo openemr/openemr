@@ -1,0 +1,8 @@
+<legend>
+    {{ "Visit Details"|xlt }}
+    <small>
+        {% if encounter_followup %}
+            {{ "Follow up for"|xlt }}: {{ encounter_followup }} {{ "Dated"|xlt }}: {{ followup_date }}
+        {% endif %}
+    </small>
+</legend>

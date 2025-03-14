@@ -1,0 +1,16 @@
+{# Sensitivity #}
+<div class="col-sm {{ displayOptionClass('enc_sensitivity_visibility') }}">
+    <div class="form-group">
+        <label for="form_sensitivity" class="text-right">
+            {{ "Sensitivity:"|xlt }}
+            <i id="sensitivity-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+        </label>
+        <select name="form_sensitivity" id="form_sensitivity" class="form-control">
+            {% for sensitivity in sensitivities %}
+                <option value="{{ sensitivity.value|attr }}" {{ sensitivity.selected ? 'selected' : '' }}>
+                    {{ sensitivity.display|xlt }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

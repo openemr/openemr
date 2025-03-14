@@ -19,7 +19,7 @@
 ?>
 <!-- Form created by Andres paglayan -->
 <?php
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Core\Header;
 

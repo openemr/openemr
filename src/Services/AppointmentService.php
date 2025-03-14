@@ -404,7 +404,7 @@ class AppointmentService extends BaseService
                         // update the provider's original event
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
-                            " WHERE " . $whereClause, array($selected_date), $whereBind);
+                            " WHERE " . $whereClause, array($selected_date, $whereBind));
                     } else { // In case of a change in the event head
                         // as we need to notify events that we are deleting this record we need to grab all of the pc_eid
                         // so we can process the events

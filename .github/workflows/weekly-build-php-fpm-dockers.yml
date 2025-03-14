@@ -1,0 +1,287 @@
+name: Weekly Build php-fpm Dockers
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 0' # (weekly) run at 2 AM UTC on Sundays
+
+permissions:
+  contents: read
+
+jobs:
+
+  build_8_0:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.0 docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-0"
+          tags: openemr/dev-php-fpm:8.0
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_0_redis:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.0-redis docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-0-redis"
+          tags: openemr/dev-php-fpm:8.0-redis
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_1:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.1 docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-1"
+          tags: openemr/dev-php-fpm:8.1
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_1_redis:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.1-redis docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-1-redis"
+          tags: openemr/dev-php-fpm:8.1-redis
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_2:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.2 docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-2"
+          tags: openemr/dev-php-fpm:8.2
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_2_redis:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.2-redis docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-2-redis"
+          tags: openemr/dev-php-fpm:8.2-redis
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_3:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.3 docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-3"
+          tags: openemr/dev-php-fpm:8.3
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_3_redis:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.3-redis docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-3-redis"
+          tags: openemr/dev-php-fpm:8.3-redis
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_4:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.4 docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-4"
+          tags: openemr/dev-php-fpm:8.4
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_4_redis:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.4-redis docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-4-redis"
+          tags: openemr/dev-php-fpm:8.4-redis
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_5:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.5 docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-5"
+          tags: openemr/dev-php-fpm:8.5
+          platforms: linux/amd64
+          push: true
+          no-cache: true
+
+  build_8_5_redis:
+    # Only run from master branch on the main repository
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push dev-php-fpm:8.5-redis docker
+        uses: docker/build-push-action@v5
+        with:
+          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-5-redis"
+          tags: openemr/dev-php-fpm:8.5-redis
+          platforms: linux/amd64
+          push: true
+          no-cache: true

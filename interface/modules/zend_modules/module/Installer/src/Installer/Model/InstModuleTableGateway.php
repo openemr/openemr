@@ -25,8 +25,8 @@ class InstModuleTableGateway extends TableGateway
         $table,
         AdapterInterface $adapter,
         $features = null,
-        ResultSetInterface $resultSetPrototype = null,
-        Sql $sql = null
+        ?ResultSetInterface $resultSetPrototype = null,
+        ?Sql $sql = null
     ) {
         parent::__construct($table, $adapter, $features, $resultSetPrototype, $sql);
     }

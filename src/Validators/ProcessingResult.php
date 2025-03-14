@@ -136,7 +136,7 @@ class ProcessingResult
     public function addData(array $newData)
     {
         $count = count($this->data);
-        $limit = min(0, $this->getPagination()->getLimit());
+        $limit = max(0, $this->getPagination()->getLimit());
         if ($limit === 0 || $count < $this->getPagination()->getLimit()) {
             array_push($this->data, $newData);
         } else {
