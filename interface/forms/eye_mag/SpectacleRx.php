@@ -796,7 +796,7 @@ if ($_REQUEST['dispensed']) {
                 .no-print {
                     display: none;
                 }
-            }
+        }
 
     </style>
     <!-- jQuery library -->
