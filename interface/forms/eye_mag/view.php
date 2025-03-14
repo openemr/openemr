@@ -1385,7 +1385,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         </tr>
                         <tr>
                           <td colspan="6">
-                            <textarea id="COMMENTS_1" name="COMMENTS_W" tabindex="111"><?php echo text($COMMENTS_1 ?? ''); ?></textarea>
+                            <textarea id="COMMENTS_1" name="COMMENTS_1" tabindex="111"><?php echo text($COMMENTS_1 ?? ''); ?></textarea>
                           </td>
                           <td colspan="8">
                           </td>
@@ -4331,7 +4331,7 @@ if ($refresh and $refresh != 'fullscreen') {
             <?php endif; ?>
         }
         function doscript(type,id,encounter,rx_number) {
-             dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + encodeURIComponent(type) + '&id=' + encodeURIComponent(id) + '&encounter=' + encodeURIComponent(encounter) + '&form_id=' + <?php echo js_url($form_id); ?> + '&rx_number=' + encodeURIComponent(rx_number), '_blank', 660, 590,'', <?php echo xlj('Dispense Rx'); ?>);
+             dlgopen('../../forms/eye_mag/SpectacleRx.php?REFTYPE=' + encodeURIComponent(type) + '&id=' + encodeURIComponent(id) + '&encounter=' + encodeURIComponent(encounter) + '&form_id=' + <?php echo js_url($form_id); ?> + '&rx_number=' + encodeURIComponent(rx_number), '_blank', 660, 700,'', <?php echo xlj('Dispense Rx'); ?>);
         }
 
         function dispensed(pid) {

@@ -791,6 +791,13 @@ if ($_REQUEST['dispensed']) {
             font-size:12px;
         }
 
+        /* specifically include & exclude from printing */
+        @media print {
+                .no-print {
+                    display: none;
+                }
+            }
+
     </style>
     <!-- jQuery library -->
 
@@ -895,6 +902,10 @@ if ($_REQUEST['dispensed']) {
                 $('#OSCYL').trigger('blur');
             }
         }
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+        });
     </script>
 </head>
 <body>
@@ -941,7 +952,7 @@ if ($REFTYPE == "CTL") {
                                         <br/><br/>
                                         <span id="SingleVision_span" name="SingleVision_span">
                                             <label for="RXTYPE_Single"><?php echo xlt('Single'); ?></label>
-                                            <input type="radio"
+                                            <input type="radio" disabled
                                                    onclick="pick_rxType('Single',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Single" id="RXTYPE_Single" name="RXTYPE"
                                                    <?php echo attr($Single); ?> />
@@ -949,14 +960,14 @@ if ($REFTYPE == "CTL") {
                                         <br/>
                                         <span id="Bifocal_span" name="Bifocal_span">
                                             <label for="RXTYPE_Bifocal"><?php echo xlt('Bifocal'); ?></label>
-                                            <input type="radio"
+                                            <input type="radio" disabled
                                                    onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?> />
                                         </span>
                                         <br/>
                                         <span id="Trifocal_span" name="Trifocal_span">
                                             <label for="RXTYPE_Trifocal"><?php echo xlt('Trifocal'); ?></label>
-                                            <input type="radio"
+                                            <input type="radio" disabled
                                                    onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Trifocal" id="RXTYPE_Trifocal"
                                                    name="RXTYPE" <?php echo attr($Trifocal); ?>>
@@ -966,7 +977,7 @@ if ($REFTYPE == "CTL") {
                                             <label for="RXTYPE_Progressive">
                                                 <?php echo xlt('Prog.{{Progressive lenses}}'); ?>
                                             </label>
-                                            <input type="radio"
+                                            <input type="radio" disabled
                                                    onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Progressive" id="RXTYPE_Progressive"
                                                    name="RXTYPE" <?php echo attr($Progressive); ?>>
@@ -978,16 +989,16 @@ if ($REFTYPE == "CTL") {
                                 <tr class="center">
                                     <td rowspan="2" colspan="1" class="text-right align-middle font-weight-bold"><?php echo xlt('Distance'); ?>: </td>
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td><input type="text" id="ODSPH" name="ODSPH" value="<?php echo attr($ODSPH); ?>"></td>
-                                    <td><input type="text" id="ODCYL" name="ODCYL" value="<?php echo attr($ODCYL); ?>"></td>
-                                    <td><input type="text" id="ODAXIS" name="ODAXIS" value="<?php echo attr($ODAXIS); ?>">
+                                    <td><input type="text" id="ODSPH" name="ODSPH" disabled value="<?php echo attr($ODSPH); ?>"></td>
+                                    <td><input type="text" id="ODCYL" name="ODCYL" disabled value="<?php echo attr($ODCYL); ?>"></td>
+                                    <td><input type="text" id="ODAXIS" name="ODAXIS" disabled value="<?php echo attr($ODAXIS); ?>">
                                     </td>
                                 </tr>
                                 <tr class="center">
                                     <td name="W_wide" class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                                    <td><input type="text" id="OSSPH" name="OSSPH" value="<?php echo attr($OSSPH); ?>"></td>
-                                    <td><input type="text" id="OSCYL" name="OSCYL" value="<?php echo attr($OSCYL); ?>"></td>
-                                    <td><input type="text" id="OSAXIS" name="OSAXIS" value="<?php echo attr($OSAXIS); ?>">
+                                    <td><input type="text" id="OSSPH" name="OSSPH" disabled value="<?php echo attr($OSSPH); ?>"></td>
+                                    <td><input type="text" id="OSCYL" name="OSCYL" disabled value="<?php echo attr($OSCYL); ?>"></td>
+                                    <td><input type="text" id="OSAXIS" name="OSAXIS" disabled value="<?php echo attr($OSAXIS); ?>">
                                     </td>
                                 </tr>
                                 <tr class="NEAR center">
@@ -995,22 +1006,22 @@ if ($REFTYPE == "CTL") {
                                         <?php echo xlt("Mid{{Middle segment in a trifocal glasses prescription}}"); ?>
                                         /<?php echo xlt("Near"); ?></td>
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td name="COLADD1"><input type="text" id="ODMIDADD" name="ODMIDADD"
+                                    <td name="COLADD1"><input type="text" id="ODMIDADD" name="ODMIDADD" disabled
                                                               value="<?php echo attr($ODMIDADD); ?>"></td>
-                                    <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2"
+                                    <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2" disabled
                                                              value="<?php echo attr($ODADD2); ?>"></td>
                                 </tr>
                                 <tr class="NEAR center">
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                                     <td name="COLADD1">
-                                        <input type="text" id="OSMIDADD" name="OSMIDADD" value="<?php echo attr($OSMIDADD); ?>"></td>
+                                        <input type="text" id="OSMIDADD" name="OSMIDADD" disabled value="<?php echo attr($OSMIDADD); ?>"></td>
                                     <td class="WAdd2">
-                                        <input type="text" id="OSADD2" name="OSADD2" value="<?php echo attr($OSADD2); ?>"></td>
+                                        <input type="text" id="OSADD2" name="OSADD2" disabled value="<?php echo attr($OSADD2); ?>"></td>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="center font-weight-bold"><?php echo xlt('Comments'); ?>: </td>
                                     <td colspan="4">
-                                    <textarea class="w-100" style="height:3em;" id="CRCOMMENTS"
+                                    <textarea class="w-100" style="height:3em;" id="CRCOMMENTS" disabled
                                               name="CRCOMMENTS"><?php echo text($COMMENTS); ?></textarea>
                                     </td>
                                 </tr>
@@ -1287,11 +1298,20 @@ if ($REFTYPE == "CTL") {
                     if ($prov_data['suffix']) {
                         echo ", " . $prov_data['suffix'];
                     } ?><br/>
-                    <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
+                    <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled></small>
                 </td>
             </tr>
-
-
+            <tr class="no-print">
+                <td>
+                    <div class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href='#' class='btn btn-secondary btn-print mt-3' id='printbutton'>
+                                <?php echo xlt('Print'); ?>
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         </table>
     </div>
 </form>
