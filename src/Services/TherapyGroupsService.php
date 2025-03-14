@@ -146,8 +146,9 @@ SQL;
     {
         $processingResult = new ProcessingResult();
 
+        $pid = $this->getIdByUuid(UuidRegistry::uuidToBytes($puuid), 'patient_data', "pid");
         $data = [
-            'pid' => $this->getIdByUuid(UuidRegistry::uuidToBytes($puuid), 'patient_data', "pid"),
+            'pid' => $pid,
             'group_id' => $id,
         ];
 
@@ -163,7 +164,7 @@ SQL;
 
         if ($results) {
             $processingResult->addData([
-                'id' => $results,
+                'id' => $pid,
             ]);
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
