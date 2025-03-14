@@ -64,7 +64,9 @@ class SearchQueryConfig
     public static function createConfigFromQueryParams($queryParams)
     {
         $config = new SearchQueryConfig();
-        $config->pagination = new QueryPagination(intval($queryParams['_limit'] ?? 0), intval($queryParams['_offset'] ?? 0));
+        // some clients use _limit, but currently FHIR TU uses _maxresults for the same purpose, so we will handle both
+        $limit = $queryParams['_maxresults'] ?? $queryParams['_limit'] ?? 0;
+        $config->pagination = new QueryPagination(intval($limit), intval($queryParams['_offset'] ?? 0));
 
         if (!empty($queryParams['_sort'])) {
             $fields = explode(",", $queryParams['_sort']);
