@@ -47,7 +47,7 @@
             {% endif %}
         </form>
         {% if pin_required %}
-            <p>{{ "You are Required to confirm access by entering your personal PIN."|xlt }} {{ target|text }}</p>
+        <p>{{ "You are Required to confirm access by entering the companion PIN."|xlt }} {{ target|text }}</p>
         {% else %}
         <p>{{ "If you have not been redirected in a few seconds click the button above"|xlt }}</p>
         <p>{{ "You will be sent to the following web page"|xlt }} {{ target|text }}</p>

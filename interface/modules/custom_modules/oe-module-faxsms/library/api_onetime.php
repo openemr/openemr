@@ -68,7 +68,7 @@ function doOnetimeInvoiceRequest(): void
         'email' => $patient['email'] ?? '',
         'actions' => [
             'enforce_onetime_use' => true,
-            'enforce_auth_pin' => true,
+            'enforce_auth_pin' => false,
             'extend_portal_visit' => false,
         ]
     ];

@@ -90,11 +90,15 @@ $redirectUrl = $_REQUEST['redirect'] ?? '';
  * and compared to portal credential account id lookup.
  * */
 if (!empty($_REQUEST['service_auth'] ?? null)) {
+    $oneTime = new OneTimeAuth();
     if (!empty($_GET['service_auth'] ?? null)) {
         // we have to setup the csrf key to prevent CSRF Login attacks
         // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
+        $token = $_GET['service_auth'];
+        $ot = $oneTime->decodePortalOneTime($token, null, false);
+        $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey();
         $twig = new TwigContainer(null, $GLOBALS['kernel']);
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
@@ -104,7 +108,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $GLOBALS['images_static_relative'] ?? '',
-            'pin_required' => (int)$_GET['pin_required'] ?? false,
+            'pin_required' => $pin_required,
         ]);
         exit;
     } elseif (!empty($_POST['service_auth'] ?? null)) {
@@ -115,7 +119,6 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
-            $oneTime = new OneTimeAuth();
             $auth = $oneTime->processOnetime($token, $redirect_token);
             $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
             exit();

@@ -134,7 +134,7 @@ class OneTimeAuth
      * @return array
      * @throws OneTimeAuthExpiredException
      */
-    public function decodePortalOneTime($onetime_token, $redirect_token = null): array
+    public function decodePortalOneTime($onetime_token, $redirect_token = null, $logUpdate = true): array
     {
         $auth = false;
         $rtn = [];
@@ -144,7 +144,6 @@ class OneTimeAuth
         $rtn['error'] = null;
         $one_time = '';
         $t_info = [];
-        $actions = [];
 
         if (strlen($onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
@@ -197,8 +196,10 @@ class OneTimeAuth
         $rtn['onetime_decrypted'] = $one_time;
         $rtn['actions'] = $t_info['onetime_actions'] ?? [];
 
-        $this->updateOnetime($auth['pid'], $one_time);
-        $this->systemLogger->debug("Onetime successfully decoded. $one_time");
+        if ($logUpdate) {
+            $this->updateOnetime($auth['pid'], $one_time);
+            $this->systemLogger->debug("Onetime successfully decoded. $one_time");
+        }
 
         return $rtn;
     }
@@ -209,7 +210,7 @@ class OneTimeAuth
      * @param $encrypted_redirect
      * @return string
      */
-    private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null, $pin_required = false): string
+    private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
     {
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $pin_required = $pin_required ? 1 : 0;
@@ -241,13 +242,11 @@ class OneTimeAuth
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
                     'target' => $encrypted_redirect,
-                    'pin_required' => $pin_required,
                     'site' => $site_id
                 ]));
             } else {
                 $encoded_link = sprintf($format, attr($site_addr), http_build_query([
                     'service_auth' => $token_encrypt,
-                    'pin_required' => $pin_required,
                     'site' => $site_id
                 ]));
             }
