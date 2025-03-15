@@ -4372,9 +4372,9 @@ function start_your_engines($FIELDS)
             $term = $amihere['term'];
         }
 
-        $matches=[];
+        $matches = [];
         preg_match("/\b$term\b/", $FIELDS[$amihere['location']], $matches);
-        if (!empty($matches)) {  
+        if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
