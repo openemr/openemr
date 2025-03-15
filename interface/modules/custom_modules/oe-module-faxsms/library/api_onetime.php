@@ -49,15 +49,14 @@ function doOnetimeInvoiceRequest(): void
             throw new Exception(xlt("Error! Not authorised. You must be an authorised portal user or admin."));
         }
     }
-    $ot_pid = $_REQUEST['pid'] ?? $GLOBALS['pid'];
+    $ot_pid = $_REQUEST['pid'] ?? 0;
     if (!empty($ot_pid)) {
         $patient = $service->getPatientDetails($ot_pid);
     } else {
         throw new Exception(xlt("Error! Missing patient id."));
     }
     $message = "Dear " . $patient['fname'] . ' ' . $patient['lname'] . ",\n";
-    $message .= xlt("Please review your current invoice by clinking the link to automatically redirect to your billing account portal. Use this PIN when asked to complete authorization") .
-        ": #includePin#" . "\n" . "#includeToken#";
+    $message .= xlt("Please review your current invoice by clinking the link to automatically redirect to your billing account portal. Use this PIN to complete authorization");
     $data = [
         'pid' => $ot_pid,
         'expiry_interval' => "P14D",
@@ -68,7 +67,7 @@ function doOnetimeInvoiceRequest(): void
         'email' => $patient['email'] ?? '',
         'actions' => [
             'enforce_onetime_use' => true,
-            'enforce_auth_pin' => false,
+            'enforce_auth_pin' => true,
             'extend_portal_visit' => false,
         ]
     ];
@@ -78,7 +77,6 @@ function doOnetimeInvoiceRequest(): void
     } catch (Exception $e) {
         die($e->getMessage());
     }
-    //echo js_escape($rtn);
 }
 
 /**

@@ -109,7 +109,7 @@ class OneTimeAuth
 
         $actions = ($p['actions'] ?? []);
         // Create the encoded link and return the onetime token data set
-        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token, $actions['enforce_auth_pin'] ?? false);
+        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
         $rtn['onetime_token'] = $token_encrypt;
         $rtn['redirect_token'] = $redirect_token;
         $rtn['pin'] = $pin;
@@ -213,7 +213,6 @@ class OneTimeAuth
     private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
     {
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
-        $pin_required = $pin_required ? 1 : 0;
         if (stripos($site_addr, "portal") !== false) {
             $site_addr = strtok($site_addr, '?');
             if (stripos($site_addr, "index.php") !== false) {
@@ -364,7 +363,7 @@ class OneTimeAuth
         $_SESSION['portal_visit_extended'] = $extend;
 
         CsrfUtils::setupCsrfKey();
-        header('Location: ' . $auth['redirect']); // TODO hook here for Pin auth
+        header('Location: ' . $auth['redirect']);
         // allows logging and any other processing to be handled on the return
         return $auth;
     }

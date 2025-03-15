@@ -202,10 +202,11 @@ class NotificationEventListener implements EventSubscriberInterface
         }
 
         $status .= "Send Method: $sendMethod\n";
-        $canned = "\n" . xlt("If you are not automatically redirected after clicking, please copy and then paste the link into your browser's address bar.");
-        $canned .= "\n" . xlt("Thank you for your attention to this matter.") . "\n" . "Administrator.";
-        $text_message = str_replace('#includePin#', $oneTime['pin'], $text_message);
-        $text_message = str_replace('#includeToken#', $oneTime['encoded_link'], $text_message);
+
+        $canned = "\n\n" . xlt("PIN") . ": " . $oneTime['pin'] ?? '';
+        $canned .= "\n" . xlt("Link") . ": " . $oneTime['encoded_link'];
+        $canned .= "\n" . xlt("If you are not automatically redirected after clicking, please copy and then paste the link into your browser's address bar.");
+        $canned .= "\n" . xlt("Thank you for your attention.");
         $text_message .= $canned;
         if (empty($html_message)) {
             $html_message = "<html><body><div class='wrapper'><p>" . nl2br($text_message) . "</p></div></body></html>";
@@ -236,7 +237,8 @@ class NotificationEventListener implements EventSubscriberInterface
             $status .= text($this->emailNotification($recipientEmail, $html_message)); // TODO use mail client
         }
         $status .= "\n";
-        return (nl2br($status)); //preserve html for alert status
+        echo (nl2br($status)); //preserve html for alert status
+        return 'okay';
     }
 
     /**
@@ -348,6 +350,21 @@ class NotificationEventListener implements EventSubscriberInterface
             <?php echo attr_js($template); ?>,
             <?php echo attr_js(json_encode($details)); ?>
                 );" value="true"><?php echo $buttonName; ?></button>
+    <?php }
+
+    /**
+     * Available button to use.
+     * @param SendNotificationEvent $notificationEvent
+     * @return void
+     */
+    public function universalSubmitButton(SendNotificationEvent $notificationEvent): void
+    {
+        $e_pid = $notificationEvent->getPid();
+        $p_data = $notificationEvent->fetchPatientDetails($e_pid);
+        $eData = $notificationEvent->getEventData();
+        $buttonName = $eData['button_name'] ?? xlt('Submit');
+        ?>
+        <button type="button" class="btn btn-success btn-sm btn-send-msg" onclick="sendUniversalNotification(<?php echo attr_js($e_pid) ?>)"><?php echo $buttonName; ?></button>
     <?php }
 
     /**
