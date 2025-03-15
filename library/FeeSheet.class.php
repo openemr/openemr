@@ -968,8 +968,8 @@ class FeeSheet
                 $units     = empty($iter['units']) ? 1 : intval($iter['units']);
                 $pricelevel = empty($iter['pricelevel']) ? '' : $iter['pricelevel'];
                 $revenue_code  = empty($iter['revenue_code']) ? '' : trim($iter['revenue_code']);
-                $modifier  = empty($iter['mod']) ? trim($j) : trim($iter['mod']);
-                $justify   = empty($iter['justify'  ]) ? trim($this) : trim($iter['justify']);
+                $modifier  = empty($iter['mod']) ? '' : trim($iter['mod']);
+                $justify   = empty($iter['justify'  ]) ? trim($j) : trim($iter['justify']);
                 $notecodes = empty($iter['notecodes']) ? '' : trim($iter['notecodes']);
                 $provid    = empty($iter['provid'   ]) ? 0 : intval($iter['provid']);
 
