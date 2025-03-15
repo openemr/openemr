@@ -4300,10 +4300,10 @@ function report_header($pid, $direction = 'shell')
 
 /**
  *  This function mines the clinical fields for potential diagnostic codes.
- *  The clinical fields are found in table list_options with list_id = Eye_Coding_Fields_
+ *  The clinical fields are found in table list_options with list_id = Eye_Coding_Fields
  *  The clinical terms to mine for are in table list_options with list_id = Eye_Coding_Terms
  *  Both can be directly extended by the user the via Administration -> Lists interface.
- *  The Coding_Eye_Form_Terms list includes the following important fields:
+ *  The Eye_Coding_Terms list includes the following important fields:
  *       Title (the term),
  *       Notes (the form_field to search for the term)
  *       Code(s) (the optional user-defined code).
@@ -4311,10 +4311,10 @@ function report_header($pid, $direction = 'shell')
  *  Terms found in a form_field (Notes) without a predefined Code(s) are concated with
  *      the text value for the form_field (Notes) (found in the list Coding_Eye_Form_Fields: Notes)
  *      and the codebase is searched for a match.
- *  For example: the term "ptosis" is found in the RUL clinical field, and there is no Code value in the
- *      Coding_Eye_Form_Terms Code(s) field.  Thus openEMR Eye Form searches the active codebases for a match.
- *      The codebases are determined in Administration->Lists->Code Types and include those Codesets flagged
- *      as active and as Diagnostic codes.  The terms "ptosis right upper eyelid" are sent to the
+ *  For example: the term "ptosis" is entered in the RUL clinical field of The Eye Form, and there is no Code value in the
+ *      Eye_Coding_Terms list's Code(s) field.  Thus openEMR Eye Form searches the active codebases for a match.
+ *      The codebases are determined in Admin->Forms->Lists->Code Types and include those Codesets flagged
+ *      as active and as Diagnostic codes.  The terms "ptosis right eyelid" are sent to the
  *      standard openEMR code search engine.
  *  @param string $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
  *  @return outputs directly to screen
@@ -4336,13 +4336,13 @@ function start_your_engines($FIELDS)
     }
 
     //get the clinical terms to search for (title) and what field/where to look for it (notes)
-    $query = "SELECT * FROM list_options WHERE list_id = 'Eye_Coding_Terms' order by seq";
+    $query = "SELECT * FROM list_options WHERE list_id = 'Eye_Coding_Terms' and activity='1' order by seq";
     $result = sqlStatement($query);
     while ($term_sheet = sqlFetchArray($result)) {
         if ($term_sheet['title'] > '') {
             $newdata =  array (
-              'term'        => $term_sheet['title'], //the term =/- possible option_values eg. CSME:DM|IOL|RVO
-              'location'    => $term_sheet['notes'], //the form field to search for the term
+              'term'        => $term_sheet['title'], //the term to search for + possible option_values eg. CSME:DM|IOL|RVO
+              'location'    => $term_sheet['notes'], //the Eye Form field to search for the term
               'codes'       => $term_sheet['codes']  //the specific code for this term/location, may be blank
               );
             $clinical_terms[] = $newdata;
@@ -4372,14 +4372,16 @@ function start_your_engines($FIELDS)
             $term = $amihere['term'];
         }
 
-        if (stripos(($FIELDS[$amihere['location']] ?? ''), $term) !== false) {
+        $matches = [];
+        preg_match("/\b$term\b/", $FIELDS[$amihere['location']], $matches);
+        if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
                 foreach ($positives[$amihere['location']] as $k => $v) {
-                    if (preg_match("/$term/", $v)) {
+                    if (preg_match("/\b$term\b/", $v)) {
                         $within_array = 'yes';
                         break;
                     }
