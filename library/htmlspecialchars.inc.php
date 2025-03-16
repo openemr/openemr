@@ -21,6 +21,18 @@ function js_escape($text)
 }
 
 /**
+ * Escape a javascript literal with a protected string
+ */
+function js_escape_protected($text, string $protected = '\r\n')
+{
+    if (empty($text)) {
+        return '""';
+    }
+    $bookmark = '___PROTECTED_STRING___';
+    return str_replace($bookmark, $protected, json_encode(str_replace($protected, $bookmark, $text)));
+}
+
+/**
  * Escape a javascript literal within html onclick attribute.
  */
 function attr_js($text)
