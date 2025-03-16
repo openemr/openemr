@@ -334,3 +334,15 @@ ALTER TABLE sct2_description
     ADD INDEX idx_active_term (active, term),
     ADD FULLTEXT INDEX ft_term (term);
 #EndIf
+
+#IfMissingColumn onetime_auth scope
+ALTER TABLE `onetime_auth` ADD `scope` tinytext COMMENT 'context scope for this token';
+#EndIf
+
+#IfMissingColumn onetime_auth profile
+ALTER TABLE `onetime_auth` ADD `profile` tinytext COMMENT 'scopes profile for this token';
+#EndIf
+
+#IfMissingColumn onetime_auth onetime_actions
+ALTER TABLE `onetime_auth` ADD `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token';
+#EndIf

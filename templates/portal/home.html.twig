@@ -8,7 +8,7 @@
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Ben Marte <benmarte@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
@@ -56,6 +56,27 @@
 
       .navbar-nav .dropdown:hover .dropdown-menu {
         display: block;
+      }
+
+      @media (max-width: 768px) {
+        .jumbotron {
+          padding: 1rem;
+        }
+        .card {
+          margin-bottom: 1rem;
+        }
+        .navbar-nav .dropdown-menu {
+          position: static;
+          float: none;
+          width: 100%;
+          text-align: center;
+        }
+        .navbar-nav .dropdown-menu a {
+          padding: 10px;
+        }
+        .card-body {
+          padding: 10px;
+        }
       }
     </style>
     <script>
