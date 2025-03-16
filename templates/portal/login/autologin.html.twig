@@ -54,7 +54,7 @@
         {% endif %}
     </div>
     <script>
-        const pinRequired = {{ pin_required|attr }};
+        const pinRequired = {{ pin_required|js_escape }};
         (function() {
             window.addEventListener("DOMContentLoaded", function() {
                 let form = window.document.getElementById("autologinform");
