@@ -893,6 +893,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['DIL_RISKS'] = '0';
     }
 
+    if ($_POST['DIL_MEDS']) {
+        $_POST['IOPPOSTTIME'] =  date('H:i:s', strtotime($_POST['DIL_MEDS']));
+    }
+
     if (!($_POST['ATROPINE'] ?? '')) {
         $_POST['ATROPINE'] = '0';
     }

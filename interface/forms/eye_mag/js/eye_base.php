@@ -2178,7 +2178,10 @@ function showpnotes(docid) {
 function getTimeStamp() {
     var now = new Date();
     var AMPM = now.getHours() >= 12 ? 'PM' : 'AM';
-    return now.getHours() + ':' + ((now.getMinutes() < 10) ? ("0" + now.getMinutes()) : (now.getMinutes())) + AMPM;
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    return hours + ':' + minutes + " " + AMPM;
 }
 
 /**
