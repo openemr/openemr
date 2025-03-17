@@ -107,7 +107,15 @@ class OneTimeAuth
             throw new RuntimeException($err);
         }
 
-        $actions = ($p['actions'] ?? []);
+        // default actions.
+        $actionDefaults = [
+            'enforce_onetime_use' => false, // Enforces the onetime token to be used only once.
+            'extend_portal_visit' => true, // Extends the portal visit by not forcing logout redirect.
+            'enforce_auth_pin' => false, // Requires the pin to be entered.
+            'max_access_count' => 0, // 0 = unlimited.
+        ];
+        $actions = array_merge($actionDefaults, $p['actions'] ?? []); // from event data.
+
         // Create the encoded link and return the onetime token data set
         $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
         $rtn['onetime_token'] = $token_encrypt;
@@ -359,7 +367,7 @@ class OneTimeAuth
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
 
-        $extend = $auth['actions']['extend_portal_visit'] ? 1 : 0;
+        $extend = ($auth['actions']['extend_portal_visit'] ?? 1) ? 1 : 0;
         $_SESSION['portal_visit_extended'] = $extend;
 
         CsrfUtils::setupCsrfKey();
