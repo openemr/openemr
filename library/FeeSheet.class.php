@@ -91,6 +91,8 @@ class FeeSheet
 
     public $ALLOW_COPAYS = false;
 
+    public $justifyCpt = '';
+
     function __construct($pid = 0, $encounter = 0)
     {
         if (empty($pid)) {
@@ -443,7 +445,7 @@ class FeeSheet
         $id          = isset($args['id']) ? intval($args['id']) : 0;
         $ndc_info    = isset($args['ndc_info']) ? $args['ndc_info'] : '';
         $provider_id = isset($args['provider_id']) ? intval($args['provider_id']) : 0;
-        $justify     = isset($args['justify']) ? $args['justify'] : '';
+        $justify     = isset($args['justify']) ? $args['justify'] : trim($justify);
         $notecodes   = isset($args['notecodes']) ? $args['notecodes'] : '';
         $fee         = isset($args['fee']) ? (0 + $args['fee']) : 0;
         // Price level should be unset only if adding a new line item.
@@ -925,11 +927,28 @@ class FeeSheet
             $main_supid = 0;
         }
 
+        function formatICD10Codes($inputArray): string
+        {
+            $result = [];
+
+            foreach ($inputArray as $item) {
+                // Check if the code_type is ICD10 and the code is set
+                if (isset($item['code_type'], $item['code']) && $item['code_type'] === 'ICD10') {
+                    $result[] = 'ICD10|' . $item['code'];
+                }
+            }
+
+            // Join the formatted codes with a comma
+            return implode(',', $result);
+        }
+
         $copay_update = false;
         $update_session_id = '';
         $ct0  = ''; // takes the code type of the first fee type code type entry from the fee sheet, against which the copay is posted
         $cod0 = ''; // takes the code of the first fee type code type entry from the fee sheet, against which the copay is posted
         $mod0 = ''; // takes the modifier of the first fee type code type entry from the fee sheet, against which the copay is posted
+
+        $justifyCpt = formatICD10Codes($bill);
 
         if (is_array($bill)) {
             foreach ($bill as $iter) {
@@ -937,7 +956,11 @@ class FeeSheet
                 if (!empty($iter['billed'])) {
                     continue;
                 }
-
+                if ($iter['code_type'] === 'CPT4' && empty($iter['justify'])) {
+                    $j = $justifyCpt;
+                } else {
+                    unset($j);
+                }
                 $id        = $iter['id'] ?? null;
                 $code_type = $iter['code_type'];
                 $code      = $iter['code'];
@@ -946,7 +969,7 @@ class FeeSheet
                 $pricelevel = empty($iter['pricelevel']) ? '' : $iter['pricelevel'];
                 $revenue_code  = empty($iter['revenue_code']) ? '' : trim($iter['revenue_code']);
                 $modifier  = empty($iter['mod']) ? '' : trim($iter['mod']);
-                $justify   = empty($iter['justify'  ]) ? '' : trim($iter['justify']);
+                $justify   = empty($iter['justify'  ]) ? trim($j) : trim($iter['justify']);
                 $notecodes = empty($iter['notecodes']) ? '' : trim($iter['notecodes']);
                 $provid    = empty($iter['provid'   ]) ? 0 : intval($iter['provid']);
 
