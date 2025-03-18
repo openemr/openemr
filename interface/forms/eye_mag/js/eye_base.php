@@ -2178,7 +2178,10 @@ function showpnotes(docid) {
 function getTimeStamp() {
     var now = new Date();
     var AMPM = now.getHours() >= 12 ? 'PM' : 'AM';
-    return now.getHours() + ':' + ((now.getMinutes() < 10) ? ("0" + now.getMinutes()) : (now.getMinutes())) + AMPM;
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    return hours + ':' + minutes + " " + AMPM;
 }
 
 /**
@@ -2864,7 +2867,7 @@ $(function () {
 
                   // set display functions for Draw panel appearance
                   // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                  var zones = ["PMH","HPI","EXT","ANTSEG","POSTSEG","NEURO","IMPPLAN"];
+                  var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
                   for (index = '0'; index < zones.length; ++index) {
                     if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
                         show_DRAW_section(zones[index]);
