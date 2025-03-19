@@ -15,8 +15,8 @@ Render the username row
 {% block username %}
 <div id="standard-auth-username" class="{{ username_container_class_list|default(['form-group', 'row'])|join(' ') }}">
     <label for="authUser" class="{{ srOnly }} {{ username_label_class_list|default(['col-form-label', 'col-sm-4'])|join(' ') }}">{{ "Username"|xlt }}</label>
-    <div class="{{ username_input_container_class_list|default(['col'])|join(' ') }}">
-        <input type="text" class="form-control" id="authUser" name="authUser" placeholder="{{ "Username"|xla }}">
+    <div class="{{ username_input_container_class_list|default(['col'])|join(' ') }}" style="margin-left: -32px !important;margin-right: 65px;">
+        <input type="text" class="form-control" id="authUser" name="authUser" placeholder="{{ ""|xla }}">
     </div>
 </div>
 {% endblock %}

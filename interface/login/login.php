@@ -253,6 +253,7 @@ $viewArgs = [
 $ed = $GLOBALS['kernel']->getEventDispatcher();
 
 $templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $viewArgs);
+// print_r($templatePageEvent);
 $event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 
 try {

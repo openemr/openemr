@@ -419,34 +419,35 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
 }
 ?>
-<!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
-<iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
-<?php // mdsupport - app settings
-$disp_mainBox = '';
-if (isset($_SESSION['app1'])) {
-    $rs = sqlquery(
-        "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-        array('apps', $_SESSION['app1'])
-    );
-    if ($rs['app_url'] != "main/main_screen.php") {
-        echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
-            style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
-        $disp_mainBox = 'style="display: none;"';
+    <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
+    <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
+    <?php // mdsupport - app settings
+    $disp_mainBox = '';
+    if (isset($_SESSION['app1'])) {
+        $rs = sqlquery(
+            "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+            array('apps', $_SESSION['app1'])
+        );
+        if ($rs['app_url'] != "main/main_screen.php") {
+            echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
+    			style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
+            $disp_mainBox = 'style="display: none;"';
+        }
     }
-}
-?>
-<div id="mainBox" <?php echo $disp_mainBox ?>>
-    <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-        <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
-            <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                <img src="<?php echo $menuLogo; ?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo'); ?>">
-            </a>
-        <?php endif; ?>
-        <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
-        <?php if ($GLOBALS['search_any_patient'] != 'none') : ?>
+    ?>
+    <div id="mainBox" <?php echo $disp_mainBox ?>>
+        <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
+            <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
+                <!-- <?php echo xla("CareX"); ?> -->
+                <a class="navbar-brand" href="https://www.open-emr.org" title="NeoCareX" rel="noopener" target="_blank">
+                    <img src="<?php echo $menuLogo;?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo');?>">
+                </a>
+            <?php endif; ?>
+            <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
+            <?php if ($GLOBALS['search_any_patient'] != 'none') : ?>
             <form name="frm_search_globals" class="form-inline">
                 <div class="input-group">
                     <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
