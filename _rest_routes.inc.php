@@ -20,7 +20,7 @@
  */
 
 /**
- *  @OA\Info(title="OpenEMR API", version="7.0.3")
+ *  @OA\Info(title="OpenEMR API", version="7.0.4")
  *  @OA\Server(url="/apis/default/")
  *  @OA\SecurityScheme(
  *      securityScheme="openemr_auth",
