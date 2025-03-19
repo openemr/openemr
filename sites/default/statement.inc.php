@@ -26,6 +26,7 @@
  */
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Twig\TwigContainer;
 
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
@@ -67,64 +68,35 @@ function make_statement($stmt)
 function report_header_2($stmt, $providerID = '1')
 {
     $titleres = getPatientData($stmt['pid'], "fname,lname,DOB");
-    //Author Daniel Pflieger - daniel@growlingflea.com
-    //We get the service facility from the encounter.  In cases with multiple service facilities
-    //OpenEMR sends the correct facility
-
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.facility_id = f.id where fe.id = ?", array($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe JOIN facility f ON fe.facility_id = f.id WHERE fe.id = ?", array($stmt['fid']));
     $facility = sqlFetchArray($service_query);
 
-    $DOB = oeFormatShortDate($titleres['DOB']);
-    /******************************************************************/
-    ob_start();
-    // Use logo if it exists as 'practice_logo.gif' in the site dir
-    // old code used the global custom dir which is no longer a valid
-    ?>
-    <table style="width:100%;">
-        <tr>
-            <?php
-                $haveLogo = false;
-            if (empty(!$GLOBALS['statement_logo'])) {
-                $practice_logo = $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo']);
-            } else { // 'ya never know.
-                    $practice_logo = $GLOBALS['OE_SITE_DIR'] . "/images/practice_logo.gif"; // can see is safe...
-            }
+    $practice_logo = !empty($GLOBALS['statement_logo'])
+        ? $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo'])
+        : $GLOBALS['OE_SITE_DIR'] . "/images/practice_logo.gif";
 
-                //Author Daniel Pflieger - daniel@growlingflea.com
-                //We only put space for a logo if it exists.
-                //if it does we put the patient name and the service facility on a separate line.
-                //Patients with long names cause formatting issues and it makes the statement look
-                //unprofessional. Additionally, the end user should be able to choose the
-                //statement logo from Administration -> statement.
-                //
-            if (is_file($practice_logo)) { // note: file_exist() will return true if path exist but not file. a truly function name misnomer.
-                echo "<td style='width:15%; height: auto; text-align:center;'>\n";
-                // restrain logo proportionally
-                echo "<img src='" . attr($practice_logo) . "' align='left' style='width:100%; height: auto; margin:0px;'><br />\n";
-                echo "</td>\n";
-                $haveLogo = true;
-            }
-            ?>
-            <td align='center' style='<?php echo ($haveLogo ? text("width:40%;max-width:50%;") : text("width:50%;") ) ?>'> <!--adds some growing room-->
-                <em style="font-weight:bold;font-size:1.4em;"><?php echo text($facility['name']); ?></em><br />
-                <?php echo text($facility['street']); ?><br />
-                <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br />
-                <?php echo xlt('Phone') . ': ' . text($facility['phone']); ?><br />
-                <?php echo xlt('Fax') . ': ' . text($facility['fax']); ?><br />
-                <br clear='all' />
-            </td>
-            <td align='center'>
-                <em style="font-weight:bold;font-size:1.4em;"><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></em><br />
-                <b style="font-weight:bold;"><?php echo xlt('Chart Number'); ?>:</b> <?php echo text($stmt['pid']); ?><br />
-                <b style="font-weight:bold;"><?php echo xlt('Generated on'); ?>:</b> <?php echo text(oeFormatShortDate()); ?><br />
-                <b><?php echo xlt('Provider') . ':</b>  '; ?><?php echo text(getProviderName($providerID)); ?> <br />
-            </td>
-        </tr>
-    </table>
-    <?php
-    $output = ob_get_contents();
-    ob_end_clean();
-    return $output;
+    $data = [
+        'facility' => [
+            'name' => text($facility['name']),
+            'street' => text($facility['street']),
+            'city' => text($facility['city']),
+            'state' => text($facility['state']),
+            'postal_code' => text($facility['postal_code']),
+            'phone' => text($facility['phone']),
+            'fax' => text($facility['fax']),
+        ],
+        'patient' => [
+            'fname' => text($titleres['fname']),
+            'lname' => text($titleres['lname']),
+            'pid' => text($stmt['pid']),
+        ],
+        'generated_on' => text(oeFormatShortDate()),
+        'provider_name' => text(getProviderName($providerID)),
+        'practice_logo' => is_file($practice_logo) ? attr($practice_logo) : null,
+        'have_logo' => is_file($practice_logo),
+    ];
+
+    return (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('statements/statement_header.html.twig', $data);
 }
 
 function create_HTML_statement($stmt)
