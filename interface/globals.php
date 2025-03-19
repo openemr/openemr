@@ -444,7 +444,7 @@ if (!empty($glrow)) {
 
     // Language cleanup stuff.
     $GLOBALS['language_menu_login'] = false;
-    if (!empty($GLOBALS['language_menu_show']) && ((count($GLOBALS['language_menu_show']) > 1) || $GLOBALS['language_menu_showall'])) {
+    if ((!empty($GLOBALS['language_menu_show']) && count($GLOBALS['language_menu_show']) > 1) || $GLOBALS['language_menu_showall']) {
         $GLOBALS['language_menu_login'] = true;
     }
 
