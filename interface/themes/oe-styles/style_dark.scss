@@ -132,5 +132,13 @@ input.list-group-item {
   fill: $black;
 }
 
+.select2-container--default .select2-selection--multiple {
+    background-color: $white !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: $gray-300 !important;
+}
+
 /*search any*/
 @import "../oe-bootstrap";
