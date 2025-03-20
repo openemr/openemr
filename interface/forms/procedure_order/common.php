@@ -28,6 +28,7 @@ use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Modules\Dorn\DornGenHl7Order;//wanting to keep everything in the module for easy updating. I hope this works, from what I've read it should.
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -369,8 +370,20 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         formFooter();
         exit;
     }
-
+ 
     $alertmsg = '';
+    $isDorn = false;
+    $dornConnector = null;
+    try {
+        $isDorn = DornGenHl7Order::isDornLab($ppid);
+        if ($isDorn) {
+            $dornConnector = new DornGenHl7Order();
+        }
+    } catch (Exception $e) {
+        $isDorn = false;
+        $dornConnector = null;
+    }
+    
     if (!empty($_POST['bn_xmit'])) {
         // Validate, log and send order. Sets up documents and requisition buttons
         $gbl_lab = get_lab_name($ppid);
@@ -407,23 +420,36 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             }
             file_put_contents($log_file, $order_log);
         } else { // drop through if no errors..
-            if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
-                require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
-                $alertmsg = gen_hl7_order($formid, $hl7);
-            } elseif ($gbl_lab === 'labcorp') {
-                require_once(__DIR__ . "/../../procedure_tools/labcorp/ereq_form.php");
-                require_once(__DIR__ . "/../../procedure_tools/labcorp/gen_hl7_order.inc.php");
-                $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
-            } elseif ($gbl_lab === 'quest') {
-                require_once(__DIR__ . "/../../procedure_tools/quest/gen_hl7_order.inc.php");
-                $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
-            } else { // Default lab. Add more labs here.
-                require_once(__DIR__ . "/../../orders/gen_hl7_order.inc.php");
-                $alertmsg = gen_hl7_order($formid, $hl7);
+            if ($isDorn) {
+                $alertmsg .= $dornConnector->genHl7Order($formid, $hl7);
+                $alertmsg .= $dornConnector->genHl7OrderBarCode($formid, $reqStr);
+            } else {
+                if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
+                    require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
+                    $alertmsg = gen_hl7_order($formid, $hl7);
+                } elseif ($gbl_lab === 'labcorp') {
+                    error_log("in the labcorp");
+                    require_once(__DIR__ . "/../../procedure_tools/labcorp/ereq_form.php");
+                    require_once(__DIR__ . "/../../procedure_tools/labcorp/gen_hl7_order.inc.php");
+                    $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
+                } elseif ($gbl_lab === 'quest') {
+                    error_log("in the quest");
+                    require_once(__DIR__ . "/../../procedure_tools/quest/gen_hl7_order.inc.php");
+                    $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
+                } else {
+                    // Default lab. Add more labs here.
+                    require_once(__DIR__ . "/../../orders/gen_hl7_order.inc.php");
+                    $alertmsg = gen_hl7_order($formid, $hl7);
+                }
             }
+
             if (empty($alertmsg)) {
                 if (empty($_POST['bn_save_ereq'])) {
-                    $alertmsg = send_hl7_order($ppid, $hl7);
+                    if ($isDorn == false) {
+                        $alertmsg = send_hl7_order($ppid, $hl7);
+                    } else {
+                        $alertmsg = $dornConnector->sendHl7Order($ppid, $formid, $hl7);
+                    }
                 }
             } else {
                 $order_data .= $alertmsg;
@@ -436,14 +462,19 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         xlt("Order Successfully Sent") . "...\n" .
                         xlt("Order HL7 Content") .
                         ":\n" . $hl7 . "\n";
-                    if ($gbl_lab === 'quest') {
+                    //using labname here isn't a good idea, the lab name could be the same at dorn vs another lab quest for instance
+                    //so I'm checking this flag, isDorn
+                    if ($isDorn) {
+                        $order_log .= xlt("Transmitting order to DORN");
+                    }
+                    if ($gbl_lab === 'quest' && $isDorn === false) {
                         $order_log .= xlt("Transmitting order to Quest");
                         $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT, 10);
                         $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD, 10);
                     }
 
                     if ($_POST['form_order_psc']) {
-                        if ($gbl_lab === 'labcorp') {
+                        if ($gbl_lab === 'labcorp' && $isDorn === false) {
                             $order_log .= "\n" . date('Y-m-d H:i') . " " .
                                 xlt("Generating and charting requisition for PSC Hold Order") . "...\n";
                             ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
@@ -453,7 +484,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     if (isset($_POST['bn_save_ereq'])) {
                         $savereq = false;
                     }
-                    if ($gbl_lab === 'labcorp') {
+                    if ($gbl_lab === 'labcorp' && $isDorn === false) {
                         // Manual requisition
                         $order_log .= "\n" . date('Y-m-d H:i') . " " .
                             xlt("Generating requisition based on order HL7 content") . "...\n" . $hl7 . "\n";
