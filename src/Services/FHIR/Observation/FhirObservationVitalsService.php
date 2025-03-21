@@ -482,6 +482,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         $basic_codes = [
             "9279-1" => 'respiration', "8867-4" => 'pulse', '2708-6' => 'oxygen_saturation'
             , '3150-0' => 'inhaled_oxygen_concentration'
+            , '3151-8' => 'oxygen_flow_rate'
             , '8310-5' => 'temperature'
             ,'8302-2' => 'height', '9843-4' => 'head_circ', '29463-7' => 'weight', '39156-5' => 'BMI'
             ,'59576-9' => 'ped_bmi', '8289-1' => 'ped_head_circ', '77606-2' => 'ped_weight_height'
