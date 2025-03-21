@@ -177,6 +177,7 @@ class AuthorizationService
             FROM `patient_data` pd " . "
             LEFT JOIN  `module_prior_authorizations` mpa ON pd.pid = mpa.pid " . "
             LEFT JOIN `insurance_data` ins ON  `ins`.`pid` = `pd`.`pid` " . "
+            GROUP BY pd.pid " . "
             ORDER BY pd.lname";
         return sqlStatement($sql);
     }
