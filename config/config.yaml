@@ -50,9 +50,11 @@ assets:
     i18next-browser-languagedetector:
         basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
         script: i18nextBrowserLanguageDetector.min.js
-    i18formatting:
+    # we want this in the DOM all the time
+    il8formatting:
         basePath: '%webroot%/library/js/xl/'
         script: formatting.js
+        autoload: true
     utility:
         basePath: '%webroot%/library/js/'
         script: utility.js

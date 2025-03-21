@@ -1,0 +1,9 @@
+<div class="form-group">
+    <div class="col-sm-12">
+        <div class="btn-group" role="group">
+            <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save">{{ 'Save'|xlt }}</button>
+            <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); parent.closeTab(window.name, false);">{{ 'Cancel'|xlt }}</button>
+        </div>
+        <input type="hidden" id="clickId" value="" />
+    </div>
+</div>

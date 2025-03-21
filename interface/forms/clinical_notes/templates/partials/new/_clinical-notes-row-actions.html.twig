@@ -1,0 +1,10 @@
+<div class="col-12 text-sm-center text-md-left mt-1">
+    {# class names for btn-add and the ids have to match for the changeids function to work #}
+    <button id="btn-add_{{ index|attr }}" type="button" class="btn btn-primary btn-add btn-sm" title='{{ 'Click here to duplicate the row'|xla }}'>
+        {{ 'Add'|xlt }}
+    </button>
+    <button id="btn-delete_{{ index|attr }}" class="btn btn-danger btn-sm btn-delete" title='{{ 'Click here to delete the row'|xla }}'>
+        {{ 'Delete'|xlt }}
+    </button>
+    <input type="hidden" name="count[]" id="count_{{ index|attr }}" class="count" value="{{ index|attr }}" />
+</div>

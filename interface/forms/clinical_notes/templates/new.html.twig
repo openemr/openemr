@@ -1,0 +1,30 @@
+{% extends "core/base.html.twig" %}
+{% block head %}
+    {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker','datetime-picker-translated']) }}
+    <script src="{{ webroot }}/interface/forms/clinical_notes/clinical-notes.js?v={{ assetVersion|url_encode }}"></script>
+    <script>
+        if (window.oeFormsClinicalNotes) {
+            window.oeFormsClinicalNotes.init({
+                codeArray: {{ clinical_notes_type|json_encode }}
+                ,alertMessage: {{ alertMessage|js_escape }}
+            });
+        } else {
+            console.error("Failed to find oeFormsClinicalNotes object. Please check the JavaScript file.");
+        }
+    </script>
+{% endblock %}
+{% block pagetitle %}{{ oemrUiSettings.heading_title }}{% endblock %}
+{% block content %}
+    <form method='post' name='my_form' action='{{ rootdir }}/forms/clinical_notes/save.php?id={{ formid|attr_url }}'>
+        {{ csrfToken('default', 'csrf_token_form') }}
+        <legend>{{ 'Note Details'|xlt}}</legend>
+        <div class="container-fluid">
+            {% for key,obj in check_res %}
+            {% set index = key+1 %}
+            {% set context = '' %}
+            {% include "clinical_notes/templates/partials/new/_clinical-notes-row.html.twig" %}
+            {% endfor %}
+            {% include "clinical_notes/templates/partials/new/_clinical-notes-form-actions.html.twig" %}
+        </div>
+    </form>
+{% endblock %}

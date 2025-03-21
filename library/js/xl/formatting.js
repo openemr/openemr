@@ -71,6 +71,8 @@
     }
 
     function TimeFormatRead(seconds = false) {
+        debugger;
+        console.log(window.top);
         let jsGlobals = window.top.jsGlobals || {};
         let date_display_format = jsGlobals['time_display_format'];
         const format = typeof date_display_format !== 'undefined' ? date_display_format : 0;

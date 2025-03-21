@@ -1,0 +1,69 @@
+<div class="tb_row" id="tb_row_{{ index|attr }}">
+    <fieldset>
+        <div class="form-row">
+            <input type="hidden" id="id_{{ index|attr }}" name="id[]" class="id" value="{{ obj.id|attr }}" />
+            <input type="hidden" id="code_{{ index|attr }}" name="code[]" class="code" value="{{ obj.code|attr }}" />
+            <input type="hidden" id="codetext_{{ index|attr }}" name="codetext[]" class="codetext" value="{{ obj.codetext|attr }}" />
+            <div class="forms col-lg-4">
+                <div class="row pl-2">
+                    <div class="col-12">
+                        <label for="code_date_{{ index|attr }}" class="h5">{{"Date"|xlt}}:</label>
+                        <input type='text' id="code_date_{{ index|attr }}" name='code_date[]' class="form-control code_date datepicker" value='{{ obj.date|default('')|attr }}' title='{{ 'yyyy-mm-dd Date of service'|xla }}' />
+                    </div>
+                    {% if clinical_notes_type|length > 0 %}
+                    <div class="col-12">
+                        <label for="clinical_notes_type_{{ index|attr }}" class="h5">{{ 'Type'|xlt }}:</label>
+                        <select name="clinical_notes_type[]" id="clinical_notes_type_{{ index|attr }}" class="form-control clinical_notes_type">
+                            <option value="">{{ 'Select Note Type'|xlt }}</option>
+                            {% for type in clinical_notes_type %}
+                                {% set selected = false %}
+                                {% if type.value is not empty and type.value == obj.clinical_notes_type %}
+                                    {% set selected = true %}
+                                {% elseif type.selected %}
+                                    {% set selected = true %}
+                                {% endif %}
+                                {% if selected %}
+                                    {% set context = type.title %}
+                                {% endif %}
+                                <option value="{{ type.value|attr }}" {{ selected ? "selected='selected'" : "" }}>
+                                    {{ type.xlTitle|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    {% if clinical_notes_category|length > 0 %}
+                    <div class="col-12">
+                        <label for="clinical_notes_category_{{ index|attr }}" class="h5">{{ 'Category'|xlt  }}:</label>
+                        <select name="clinical_notes_category[]" id="clinical_notes_category_{{ index|attr }}" class="form-control clinical_notes_category">
+                            <option value="">{{ 'Select Note Category'|xlt }}</option>
+                            {% for type in clinical_notes_category %}
+                                {% set selected = false %}
+                                {% if type.value is not empty and type.value == obj.clinical_notes_category %}
+                                    {% set selected = true %}
+                                {% elseif type.selected %}
+                                    {% set selected = true %}
+                                {% endif %}
+                                {% if selected %}
+                                    {% set context = type.title %}
+                                {% endif %}
+                                <option value="{{ type.value|attr }}" {{ selected ? "selected='selected'" : "" }}>
+                                    {{ type.xlTitle|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="forms col-lg-8">
+                <div class="row pl-2 pr-2">
+                    <div class="col-12">
+                        <label for="description_{{ index|attr }}" class="h5">{{ "Narrative"|xlt }}:</label>
+                        <textarea name="description[]" id="description_{{ index|attr }}" data-textcontext="{{ context|attr }}" class="form-control description" rows="14">{{ obj.description|text }}</textarea>
+                    </div>
+                    {% include "clinical_notes/templates/partials/new/_clinical-notes-row-actions.html.twig" %}
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <hr />
+</div>
