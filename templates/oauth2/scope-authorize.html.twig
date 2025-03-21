@@ -1,13 +1,13 @@
 {#
- # Handles the display of the scope authorization for the oauth2 form.
- #
- # @package   OpenEMR
- # @link      http://www.open-emr.org
- # @author    Jerry Padgett <sjpadgett@gmail.com>
- # @author    Stephen Nielson <snielson@discoverandchange.com>
- # @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
- # @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
- # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+# Handles the display of the scope authorization for the oauth2 form.
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+# @author    Jerry Padgett <sjpadgett@gmail.com>
+# @author    Stephen Nielson <snielson@discoverandchange.com>
+# @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+# @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 {% extends "oauth2/oauth2-base.html.twig" %}
     {% block title %}{{ "OpenEMR Authorization"|xlt }}{% endblock %}
@@ -126,7 +126,10 @@
                             <div class="col-md-12">
                                 <div class="btn-group">
                                     {% block form_buttons %}{% endblock %}
-                                    <button type="submit" name="proceed" value="1" class="btn btn-primary">{{ "Authorize"|xlt }}</button>
+                                    <button type="submit" name="proceed" value="1" class="btn btn-primary d-flex align-items-center" id="authorize-btn">
+                                        {{ "Authorize"|xlt }}
+                                        <span class="spinner-border spinner-border-sm ml-2 d-none" role="status" aria-hidden="true" id="spinner"></span>
+                                    </button>
                                 </div>
                                 <div class="form-check-inline float-right">
                                     <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
@@ -139,4 +142,36 @@
                 </div>
             </div>
         </form>
+        <!-- Add JavaScript -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const button = document.getElementById('authorize-btn');
+                const spinner = document.getElementById('spinner');
+                const form = document.getElementById('userLogin');
+
+                button.addEventListener('click', function (event) {
+                    if (!button.disabled) {
+                        event.preventDefault(); // Prevent default form submission for now
+
+                        // Add the "proceed=1" parameter if it doesn't already exist
+                        if (!form.querySelector('input[name="proceed"]')) {
+                            const proceedInput = document.createElement('input');
+                            proceedInput.type = 'hidden';
+                            proceedInput.name = 'proceed';
+                            proceedInput.value = '1';
+                            form.appendChild(proceedInput);
+                        }
+
+                        // Show spinner and disable the button
+                        button.disabled = true;
+                        spinner.classList.remove('d-none');
+
+                        // Submit the form
+                        form.submit();
+                    }
+                });
+            });
+
+        </script>
+
     {% endblock %}
