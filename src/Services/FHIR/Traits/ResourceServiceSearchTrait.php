@@ -54,7 +54,8 @@ trait ResourceServiceSearchTrait
                         $hasSort = true;
                     }
                     $config[$fhirSearchField] = $searchValue;
-                    $oeSearchParameters['config'] = $config;
+                    $oeSearchParameters['_config'] = $config;
+                    continue;
                 }
                 // format: <field>{:modifier1|:modifier2}={comparator1|comparator2}[value1{,value2}]
                 // field is the FHIR search field
@@ -75,7 +76,7 @@ trait ResourceServiceSearchTrait
 
         // now that we've created all of our fields, let's go through and create our sort
         if ($hasSort) {
-            $oeSearchParameters['config']['_sort'] = $this->createSortParameter($fhirSearchParameters['_sort']);
+            $oeSearchParameters['_config']['_sort'] = $this->createSortParameter($fhirSearchParameters['_sort']);
         }
 
         // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
@@ -97,7 +98,7 @@ trait ResourceServiceSearchTrait
         $sortFields = explode(',', $sort);
         $searchFactory = $this->getSearchFieldFactory();
         foreach ($sortFields as $key => $sortField) {
-            $isDescending = $sortField[0] ?? '' === '-';
+            $isDescending = ($sortField[0] ?? '') === '-';
             if ($isDescending) {
                 $sortField = substr($sortField, 1);
             }

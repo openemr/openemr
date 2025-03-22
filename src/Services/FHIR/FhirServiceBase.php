@@ -219,6 +219,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
             if (isset($oeSearchParameters['_config'])) {
                 $searchConfig = SearchQueryConfig::createFhirConfigFromSearchParams($oeSearchParameters['_config']);
                 $fhirSearchResult->setPagination($searchConfig->getPagination());
+                unset($oeSearchParameters['_config']); // clear out the config so we don't break the search
                 $oeSearchResult = $this->searchForOpenEMRRecordsWithConfig($oeSearchParameters, $searchConfig);
             } else {
                 $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);

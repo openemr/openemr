@@ -474,6 +474,7 @@ class ClientAdminController
                     ,'tokenObj' => $tokenObject
                 ];
             }
+            $user['accessTokens'] = $accessTokenList;
             $user['refreshTokens'] = $refreshTokenList;
             $trustedUsersList[] = [
                 'link' => $this->getActionUrl(['edit', $client->getIdentifier(), self::REVOKE_TRUSTED_USER, $user['user_id']])
@@ -648,7 +649,6 @@ class ClientAdminController
                             <?php echo text($title); ?>
                             <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
                             <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
-                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo attr($this->getActionUrl([RouteController::EXTERNAL_CDR_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("External CDR"); ?></a>
                         </h2>
                     </div>
                 </div>
@@ -809,7 +809,7 @@ class ClientAdminController
     private function parseTokenAction(Request $request)
     {
         $parts = null;
-        $token = $request->query->get('token', null);
+        $token = $request->request->get('token', null);
         $actionUrl = $this->getActionUrl([self::TOKEN_TOOLS_ACTION, self::PARSE_TOKEN_ACTION]);
         $textSetting = [
                 'value' => $token

@@ -108,3 +108,15 @@
 --  #IfVitalsDatesNeeded
 --    desc: Change date from zeroes to date of vitals form creation.
 --    arguments: none
+
+#IfMissingColumn onetime_auth scope
+ALTER TABLE `onetime_auth` ADD `scope` tinytext COMMENT 'context scope for this token';
+#EndIf
+
+#IfMissingColumn onetime_auth profile
+ALTER TABLE `onetime_auth` ADD `profile` tinytext COMMENT 'profile of scope for this token';
+#EndIf
+
+#IfMissingColumn onetime_auth onetime_actions
+ALTER TABLE `onetime_auth` ADD `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token';
+#EndIf

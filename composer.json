@@ -1,6 +1,6 @@
 {
     "name": "openemr/openemr",
-    "version": "7.0.3",
+    "version": "7.0.4",
     "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application",
     "license": "GPL",
     "support": {
@@ -59,6 +59,7 @@
         "php-http/discovery": "1.20.0",
         "psr/log": "3.0.2",
         "ramsey/uuid": "4.7.6",
+        "ringcentral/ringcentral-php": "3.0.4",
         "robthree/twofactorauth": "2.1.0",
         "rospdf/pdf-php": "0.12.67",
         "smarty/smarty": "4.5.5",
@@ -77,8 +78,7 @@
         "vlucas/phpdotenv": "5.6.1",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
-        "twilio/sdk": "8.3.9",
-        "ringcentral/ringcentral-php": "3.0.3"
+        "twilio/sdk": "8.3.9"
     },
     "config": {
         "platform": {

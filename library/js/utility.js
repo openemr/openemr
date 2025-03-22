@@ -577,7 +577,8 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 };
                 window.top.addEventListener('message', windowMessageHandler);
 
-                let url = webroot + '/interface/smart/admin-client.php?action=external-cdr/cdr-info&serviceId=' + encodeURIComponent(dsi)
+                let url = webroot + '/interface/smart/admin-client.php?action=' + encodeURIComponent("external-cdr/cdr-info")
+                    + '&serviceId=' + encodeURIComponent(dsi)
                     + "&csrf_token=" + encodeURIComponent(csrfToken);
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is

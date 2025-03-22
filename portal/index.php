@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -48,15 +48,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$landingpage = $GLOBALS['web_root'] . "/portal/index.php?site=" . urlencode($_SESSION['site_id']);
 $logoService = new LogoService();
 $logoSrc = $logoService->getLogo("portal/login/primary");
 $logo2ndSrc = $logoService->getLogo("portal/login/secondary"); /*rm - add secondary logo */
-
-// allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
-// actually do anything with the redirect
-// this value should already be url encoded.
-$redirectUrl = $_REQUEST['redirect'] ?? '';
 
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -68,6 +63,25 @@ if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
 }
+/*
+    The below will test and set the where to session variable when redirecting from the login page.
+    First unset the where to session variable in case it is wrongly used.
+*/
+unset($_REQUEST['whereto']);
+unset($_GET['whereto']);
+// set the where to session variable to the page from previous session.
+$whereto = $_SESSION['whereto'] ?? null;
+// set the landOn session variable to the redirect page after successfully login.
+$_SESSION['landOn'] = $_GET['landOn'] ?? null;
+// unset the landOn super.
+unset($_REQUEST['landOn']);
+unset($_GET['landOn']);
+/*
+ allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
+ actually do anything with the redirect
+ this value should already be url encoded.
+*/
+$redirectUrl = $_REQUEST['redirect'] ?? '';
 
 /*
  * Patient for onetime is verified when token redirect is decoded.
@@ -76,11 +90,15 @@ if (isset($_GET['woops'])) {
  * and compared to portal credential account id lookup.
  * */
 if (!empty($_REQUEST['service_auth'] ?? null)) {
+    $oneTime = new OneTimeAuth();
     if (!empty($_GET['service_auth'] ?? null)) {
         // we have to setup the csrf key to prevent CSRF Login attacks
         // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
+        $token = $_GET['service_auth'];
+        $ot = $oneTime->decodePortalOneTime($token, null, false);
+        $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey();
         $twig = new TwigContainer(null, $GLOBALS['kernel']);
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
@@ -89,7 +107,8 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             'target' => $_GET['target'] ?? null,
             'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
             'pagetitle' => xl("OpenEMR Patient Portal"),
-            'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
+            'images_static_relative' => $GLOBALS['images_static_relative'] ?? '',
+            'pin_required' => $pin_required,
         ]);
         exit;
     } elseif (!empty($_POST['service_auth'] ?? null)) {
@@ -100,7 +119,6 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
-            $oneTime = new OneTimeAuth();
             $auth = $oneTime->processOnetime($token, $redirect_token);
             $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
             exit();

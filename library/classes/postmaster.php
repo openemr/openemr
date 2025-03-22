@@ -6,8 +6,10 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2010 Open Support LLC
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,13 +21,13 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class MyMailer extends PHPMailer
 {
-    var $Mailer;
-    var $SMTPAuth;
-    var $Host;
-    var $Username;
-    var $Password;
-    var $Port;
-    var $CharSet;
+    public $Mailer;
+    public $SMTPAuth;
+    public $Host;
+    public $Username;
+    public $Password;
+    public $Port;
+    public $CharSet;
 
     function __construct($throwExceptions = false)
     {
@@ -37,21 +39,18 @@ class MyMailer extends PHPMailer
 
     /**
      * Checks if the MyMailer service is configured for mail with all of the host parameters defined
+     *
      * @return bool
      */
-    public static function isConfigured()
+    public static function isConfigured(): bool
     {
-        switch ($GLOBALS['EMAIL_METHOD']) {
-            case "SMTP":
-                $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
-                if ($GLOBALS['SMTP_Auth']) {
-                    $requiredKeys[] = 'SMTP_USER';
-                    $requiredKeys[] = 'SMTP_PASS';
-                }
-                break;
-            default:
-                $requiredKeys = [];
-                break;
+        $requiredKeys = [];
+        if ($GLOBALS['EMAIL_METHOD'] === "SMTP") {
+            $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
+            if (!empty($GLOBALS['SMTP_Auth'])) {
+                $requiredKeys[] = 'SMTP_USER';
+                $requiredKeys[] = 'SMTP_PASS';
+            }
         }
 
         foreach ($requiredKeys as $key) {
@@ -64,13 +63,14 @@ class MyMailer extends PHPMailer
 
     /**
      * Adds an email to the email queue
+     *
      * @param string $sender
      * @param string $recipient
      * @param string $template
-     * @param array $templateData
+     * @param array  $templateData
      * @return bool
      */
-    public static function emailServiceQueueTemplatedEmail(string $sender, string $recipient, string $subject, string $template, array $templateData)
+    public static function emailServiceQueueTemplatedEmail(string $sender, string $recipient, string $subject, string $template, array $templateData): bool
     {
         if (empty($sender) || empty($recipient) || empty($subject) || empty($template) || empty($templateData)) {
             return false;
@@ -86,6 +86,13 @@ class MyMailer extends PHPMailer
     }
 
 
+    /**
+     * @param string $sender
+     * @param string $recipient
+     * @param string $subject
+     * @param string $body
+     * @return bool
+     */
     public static function emailServiceQueue(string $sender, string $recipient, string $subject, string $body): bool
     {
         if (empty($sender) || empty($recipient) || empty($subject) || empty($body)) {
@@ -96,20 +103,23 @@ class MyMailer extends PHPMailer
         return true;
     }
 
+    /**
+     * @return void
+     */
     public static function emailServiceRun(): void
     {
-        // collect the queue
-        // TODO: @adunsulag is there a reason we don't use a transaction here to prevent race conditions?
-        $res = sqlStatement("SELECT `id`, `sender`, `recipient`, `subject`, `body`, `template_name` FROM `email_queue` WHERE `sent` = 0");
+        QueryUtils::startTransaction();
+        try {
+            $res = sqlStatement("SELECT `id`, `sender`, `recipient`, `subject`, `body`, `template_name` FROM `email_queue` WHERE `sent` = 0");
 
-        // send emails in the queue (to avoid race conditions, sent flag is rechecked before sending the email and then quickly set before proceeding to send the email)
-        //  (first ensure the email method is properly configured)
-        $emailMethodConfigured = self::isConfigured();
-        while ($ret = sqlFetchArray($res)) {
-            $sql = sqlQuery("SELECT `sent` FROM `email_queue` WHERE `id` = ?", [$ret['id']]);
-            if ($sql['sent'] == 1) {
-                // Sent, so skip
-            } else {
+            // send emails in the queue (to avoid race conditions, sent flag is rechecked before sending the email and then quickly set before proceeding to send the email)
+            //  (first ensure the email method is properly configured)
+            $emailMethodConfigured = self::isConfigured();
+            while ($ret = sqlFetchArray($res)) {
+                $sql = sqlQuery("SELECT `sent` FROM `email_queue` WHERE `id` = ?", [$ret['id']]);
+                if ($sql['sent'] == 1) {
+                    continue;
+                }
                 // Not sent, so set the sent flag, and then send the email
                 sqlStatement("UPDATE `email_queue` SET `sent` = 1, `datetime_sent` = NOW() WHERE `id` = ?", [$ret['id']]);
 
@@ -127,34 +137,48 @@ class MyMailer extends PHPMailer
                             $textBody = $twig->render("emails/system/system-notification.text.twig", ['message' => $ret['body']]);
                         }
 
+                        // send the email. sjp fixed deprecated usage 03/05/2025
                         $mail = new MyMailer();
-                        $email_subject = $ret['subject'];
-                        $email_sender = $ret['sender'];
-                        $email_address = $ret['recipient'];
-                        $mail->AddReplyTo($email_sender, $email_sender);
-                        $mail->SetFrom($email_sender, $email_sender);
-                        $mail->AddAddress($email_address);
-                        $mail->Subject = $email_subject;
-                        $mail->MsgHTML($htmlBody);
+                        $mail->addReplyTo($ret['sender']);
+                        $mail->setFrom($ret['sender']);
+                        $mail->addAddress($ret['recipient']);
+                        $mail->Subject = $ret['subject'];
+                        $mail->msgHTML($htmlBody);
                         $mail->AltBody = $textBody;
-                        $mail->IsHTML(true);
-                        if (!$mail->Send()) {
-                            sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, , `datetime_error` = NOW() WHERE `id` = ?", [$mail->ErrorInfo, $ret['id']]);
-                            error_log("Failed to send email notification through Mymailer emailServiceRun with error " . errorLogEscape($mail->ErrorInfo));
+                        $mail->isHTML(true);
+                        if (!$mail->send()) {
+                            $mail->smtpClose();
+                            error_log("Failed to send email" . ': ' . errorLogEscape($mail->ErrorInfo));
+                            throw new \Exception("Email sending failed" . ': ' . errorLogEscape($mail->ErrorInfo));
+                        } else {
+                            $mail->smtpClose();
                         }
                     } catch (\Exception $e) {
-                        (new SystemLogger())->errorLogCaller("Failed to generate email contents for queued email" . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'id' => $ret['id']]);
-                        sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$e->getMessage(), $ret['id']]);
+                        (new SystemLogger())->errorLogCaller("Failed to generate email contents: " . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'id' => $ret['id']]);
+                        throw $e; // Ensure rollback in case of failure
                     }
                 } else {
-                    sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= 'email method is not configured correctly', `datetime_error` = NOW() WHERE `id` = ?", [$ret['id']]);
-                    error_log("Failed to send email notification through Mymailer since email method is not configured correctly");
+                    error_log("Email method not configured");
+                    throw new \Exception("Email method not configured");
                 }
             }
+            // Success so Commit transaction.
+            QueryUtils::commitTransaction();
+        } catch (\Exception $e) {
+            // Failed so Rollback transaction.
+            QueryUtils::rollbackTransaction();
+            (new SystemLogger())->errorLogCaller("Failed to send email" . ': ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            // So we can still send, reset previously set sent flag since failed to send email
+            sqlStatement("UPDATE `email_queue` SET `sent` = 0, `datetime_sent` = null WHERE `id` = ?", [$ret['id']]);
+            // set the error flag and message
+            sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$e->getMessage(), $ret['id']]);
         }
     }
 
-    function emailMethod()
+    /**
+     * @return void
+     */
+    function emailMethod(): void
     {
         global $HTML_CHARSET;
         $this->CharSet = $HTML_CHARSET;
