@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-# [7.0.3](https://github.com/openemr/openemr/milestone/16?closed=1) - 2025-03-23
+## [7.0.3](https://github.com/openemr/openemr/milestone/16?closed=1) - 2025-03-23
 
 ### Added
 -  Add fax number to the patient / encounter report ([#7879](https://github.com/openemr/openemr/issues/7879))
