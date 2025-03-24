@@ -447,7 +447,7 @@ function osp_create_HTML_statement($stmt)
         "select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
         " left join users u on f.id=u.facility_id " .
         " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-        " where  service_location=1",
+    " where service_location=1",
         array (
                 $stmt['pid']
         )
