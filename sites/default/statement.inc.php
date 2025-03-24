@@ -224,7 +224,7 @@ function create_HTML_statement($stmt)
 
     // Aging Line
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
-    for ($age_index = 1; $age_index < ($num_ages - 1); ++ $age_index) {
+    for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' . sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
     }
     if ($GLOBALS['show_aging_on_custom_statement']) {
@@ -384,13 +384,14 @@ function create_statement($stmt)
     // Dunning messages based on invoice age
     $dun_message = "";
     if ($GLOBALS['use_dunning_message'] && ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)) {
-        foreach ([
-                     'first' => 'first_dun_msg_set',
-                     'second' => 'second_dun_msg_set',
-                     'third' => 'third_dun_msg_set',
-                     'fourth' => 'fourth_dun_msg_set',
-                     'fifth' => 'fifth_dun_msg_set'
-                 ] as $key => $globalVar) {
+        foreach (
+            [
+                'first' => 'first_dun_msg_set',
+                'second' => 'second_dun_msg_set',
+                'third' => 'third_dun_msg_set',
+                'fourth' => 'fourth_dun_msg_set',
+                'fifth' => 'fifth_dun_msg_set'
+            ] as $key => $globalVar) {
             if ($stmt['age'] <= $GLOBALS[$globalVar]) {
                 $dun_message = $GLOBALS["{$key}_dun_msg_text"];
                 break;
@@ -442,7 +443,8 @@ function osp_create_HTML_statement($stmt)
     }
 
     // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
+    $atres = sqlStatement(
+        "select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
         " left join users u on f.id=u.facility_id " .
         " left join  billing b on b.provider_id=u.id and b.pid = ? " .
         " where  service_location=1", array ($stmt['pid']));
@@ -462,7 +464,8 @@ function osp_create_HTML_statement($stmt)
     ?>
     <div style="padding-left:25px;">
     <?php
-    $find_provider = sqlQuery("SELECT * FROM form_encounter " .
+    $find_provider = sqlQuery(
+        "SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", array ($stmt['pid'], $stmt['encounter']));
     $providerID = $find_provider['provider_id'];
@@ -536,7 +539,7 @@ function osp_create_HTML_statement($stmt)
     $count = 6;
     $num_ages = 4;
     $aging = array ();
-    for ($age_index = 0; $age_index < $num_ages; ++ $age_index) {
+    for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
 
@@ -593,7 +596,7 @@ function osp_create_HTML_statement($stmt)
 
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
             $dos = '';
-            ++ $count;
+            ++$count;
         }
     }
 
@@ -606,7 +609,7 @@ function osp_create_HTML_statement($stmt)
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
     #
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
-    for ($age_index = 1; $age_index < ($num_ages - 1); ++ $age_index) {
+    for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
             sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
     }
@@ -626,12 +629,12 @@ function osp_create_HTML_statement($stmt)
     $out .= "\n";
     if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
-        $count ++;
+        $count++;
     }
 
     if ($GLOBALS['use_dunning_message']) {
         $out .= sprintf("%-46s\n", $dun_message);
-        $count ++;
+        $count++;
     }
 
     $out .= "\n";
@@ -655,7 +658,7 @@ function osp_create_HTML_statement($stmt)
         $out .= "\n";
         $statement_message = $GLOBALS['statement_msg_text'];
         $out .= sprintf("%-40s\n", $statement_message);
-        $count ++;
+        $count++;
     }
 
     if ($GLOBALS['show_aging_on_custom_statement']) {
@@ -663,7 +666,7 @@ function osp_create_HTML_statement($stmt)
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
             sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
-        $count ++;
+        $count++;
     }
 
     if ($GLOBALS['number_appointments_on_statement'] != 0) {
@@ -676,7 +679,7 @@ function osp_create_HTML_statement($stmt)
         $j = 0;
         $out .= sprintf("%-s\n", $label_appointments);
         #loop to add the appointments
-        for ($x = 1; $x <= $num_appts; $x ++) {
+        for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
             $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
             if (strlen(umname) != 0) {
@@ -690,8 +693,8 @@ function osp_create_HTML_statement($stmt)
                 $out .= sprintf("%-s\n", $label_plsnote[$j]);
             }
 
-            $j ++;
-            $count ++;
+            $j++;
+            $count++;
         }
     }
 
