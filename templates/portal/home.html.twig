@@ -75,6 +75,7 @@
         var jsGlobals = {
             languageDirection: jsLanguageDirection,
             date_display_format: {{ dateDisplayFormat | js_escape }},
+            time_display_format: {{ timeDisplayFormat | js_escape }},
             timezone: {{ timezone | js_escape }},
             assetVersion: {{ assetVersion | js_escape }}
         };
