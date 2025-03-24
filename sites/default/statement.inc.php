@@ -447,7 +447,11 @@ function osp_create_HTML_statement($stmt)
         "select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
         " left join users u on f.id=u.facility_id " .
         " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-        " where  service_location=1", array ($stmt['pid']));
+        " where  service_location=1",
+        array (
+                $stmt['pid']
+        )
+    );
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -467,7 +471,12 @@ function osp_create_HTML_statement($stmt)
     $find_provider = sqlQuery(
         "SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array ($stmt['pid'], $stmt['encounter']));
+        "ORDER BY id DESC LIMIT 1",
+        array (
+                $stmt['pid'],
+            $stmt['encounter']
+        )
+    );
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
 
