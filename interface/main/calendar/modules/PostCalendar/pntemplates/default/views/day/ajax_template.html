@@ -658,10 +658,10 @@ foreach ($providers as $provider) {
             $eEndInterval = $eMinDiff / $interval;
             // times the interval height
             $eHeight = $eEndInterval * $timeslotHeightVal;
-            if($event['catid']==3)
+            // For all categories: ensure minimum height for zero-duration events
+            if($eEndInterval <= 15 / $interval)
             {
-                // An "OUT" that is "zero duration" still needs height so we can click it.
-                $eHeight = $eEndInterval==0 ? $timeslotHeightVal : $eHeight ;
+                $eHeight = $timeslotHeightVal;
             }
             $evtHeight = $eHeight.$timeslotHeightUnit;
 
