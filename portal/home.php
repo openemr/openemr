@@ -389,6 +389,7 @@ try {
         'healthSnapshot' => $filteredEvent->getDataElement('healthSnapshot'),
         'languageDirection' => $_SESSION['language_direction'] ?? 'ltr',
         'dateDisplayFormat' => $GLOBALS['date_display_format'],
+        'timeDisplayFormat' => $GLOBALS['time_display_format'],
         'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
         'assetVersion' => $GLOBALS['v_js_includes'],
         'extendVisit' => $_SESSION['portal_visit_extended'] ?? 1,
