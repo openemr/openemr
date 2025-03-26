@@ -1065,11 +1065,14 @@ function set_display() {
             style_prefcat.display = '';
             f.form_apptstatus.style.display = 'none';
             f.form_prefcat.style.display = '';
+            f.form_duration.disabled = true;
+            f.form_duration.value = '';
         } else {
             style_prefcat.display = 'none';
             style_apptstatus.display = '';
             f.form_prefcat.style.display = 'none';
             f.form_apptstatus.style.display = '';
+            f.form_duration.disabled = false;
         }
     }
 }
@@ -1832,6 +1835,8 @@ $(function () {
     $("#form_apptstatus").addClass('form-control-sm');
     $("#form_room").addClass('form-control-sm');
     $(".current a").addClass('active');
+
+    set_display();
 });
 
 function are_days_checked(){
