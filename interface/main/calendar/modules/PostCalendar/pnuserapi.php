@@ -633,7 +633,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
     $cattable   =  $pntable['postcalendar_categories'];
-//RM add address as just the street part
+//RM add address
     $sql = "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, a.pc_title, " .
     "a.pc_time, a.pc_hometext, a.pc_eventDate, a.pc_duration, a.pc_endDate, " .
     "a.pc_startTime, a.pc_recurrtype, a.pc_recurrfreq, a.pc_recurrspec, " .
@@ -643,7 +643,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.fname,' ',pd.lname) as patient_name, " .
-    "concat(u2.fname, ' ', u2.lname) as owner_name,  " ."pd.street as patient_address," . "pd.DOB as patient_dob, " .
+    "concat(u2.fname, ' ', u2.lname) as owner_name,  " .
+    "concat (pd.street, ',', pd.street_line_2) as patient_address,"  . "pd.DOB as patient_dob, " .
     "a.pc_facility" .
     "FROM  $table AS a " .
     "LEFT JOIN $cattable AS b ON b.pc_catid = a.pc_catid " .
@@ -913,7 +914,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name, " .
-    "pd.street as patient_address, " .
+    "concat (pd.street, ',', pd.street_line_2) as patient_address," .
     "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
     "tg.group_name, tg.group_type, tg.group_status " .
     "FROM $table AS a " .
@@ -1055,7 +1056,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
          $tmp['sharing'],      $tmp['prefcatid'],   $tmp['catcolor'],
          $tmp['catname'],      $tmp['catdesc'],     $tmp['pid'],
          $tmp['apptstatus'],   $tmp['aid'],         $tmp['provider_name'],
-         $tmp['patient_name'], $tmp['owner_name'],  $tmp['patient_address'],   $tmp['patient_dob'], //RM
+         $tmp['patient_name'],
+         $tmp['owner_name'],  $tmp['patient_address'],   $tmp['patient_dob'], //RM
          $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],
          $tmp['group_name'],   $tmp['group_type'],  $tmp['group_status']) = $result->fields;
 
