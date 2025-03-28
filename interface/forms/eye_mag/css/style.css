@@ -275,7 +275,7 @@ textarea.HPI_text {
 }
 
 .QP_class textarea {
-  height: 3em;
+  height: 2.9em;
   margin-bottom: 2px;
   margin-left: 5px;
   max-width: 200px;
@@ -754,7 +754,7 @@ textarea.ANTSEGTEXT {
 }
 
 .canvas {
-
+display: block;
   /* background:#29c7c4;*/
   background-image: url('../../../forms/eye_mag/images/beige013.jpg');
   background-repeat: repeat;
@@ -2373,24 +2373,24 @@ View.php
 }
 
 .VF_1 {
-  border-bottom: 1px solid var(--black);
-  border-right: 1px solid var(--black);
+  border-bottom: 1px solid var(--orange);
+  border-right: 1px solid var(--orange);
   width: 0.2in;
 }
 
 .VF_2 {
-  border-bottom: 1px solid var(--black);
-  border-left: 1px solid var(--black);
+  border-bottom: 1px solid var(--orange);
+  border-left: 1px solid var(--orange);
   width: 0.2in;
 }
 
 .VF_3 {
-  border-right: 1px solid var(--black);
+  border-right: 1px solid var(--orange);
   width: 0.2in;
 }
 
 .VF_4 {
-  border-left: 1px solid var(--black);
+  border-left: 1px solid var(--orange);
   width: 0.2in;
 }
 
@@ -2810,6 +2810,7 @@ div[name=prior_selector] {
 .PRIORS_class {
   height: 2.5in;
   text-align: left;
+  height:100%;
 }
 
 .QP_class {
