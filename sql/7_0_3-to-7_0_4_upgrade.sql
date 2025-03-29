@@ -120,3 +120,19 @@ ALTER TABLE `onetime_auth` ADD `profile` tinytext COMMENT 'profile of scope for 
 #IfMissingColumn onetime_auth onetime_actions
 ALTER TABLE `onetime_auth` ADD `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token';
 #EndIf
+
+#ifNotTable track_events
+CREATE TABLE `track_events`
+(
+    `id`           BIGINT(12) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `event_type`   VARCHAR(50)  NOT NULL,
+    `event_label`  VARCHAR(255) NOT NULL,
+    `event_url`    VARCHAR(255) DEFAULT NULL,
+    `event_target` VARCHAR(50)  DEFAULT NULL,
+    `first_event`   DATETIME   NOT NULL,
+    `last_event`   DATETIME     NOT NULL,
+    `count`        INT UNSIGNED NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_event_label` (`event_label`)
+) ENGINE = InnoDB;
+#endIf
