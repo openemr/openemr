@@ -478,7 +478,6 @@ export class EditPolicyScreenController
         }
     }
 
-
     #setupInsuranceTypeNavigation() {
         // grab nav-link-insurance-type elements and setup click handlers for them
         // when the user clicks on one of them we need to hide all the tabs and show the one they clicked on
@@ -490,6 +489,17 @@ export class EditPolicyScreenController
                     // cancel the evt so we don't navigate to a new page
                     evt.preventDefault();
                     evt.stopPropagation();
+
+                    // Check if there are unsaved changes
+                    if (this.hasDataToSave()) {
+                        // If there are unsaved changes, show a confirmation dialog
+                        if (!confirm(window.top.xl("You have unsaved changes. Do you want to proceed without saving?"))) {
+                            // User clicked cancel, so don't change tabs
+                            return;
+                        }
+                        // If user confirmed, continue with tab change but reset any changes
+                        this.resetSaveData();
+                    }
 
                     this.__selectedInsuranceTypeTab = evt.target.dataset.type;
                     // need to default to the top insurance in the list
