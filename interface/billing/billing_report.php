@@ -1171,7 +1171,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             continue;
                                         }
                                         $lhtml .= '<option label="' . attr($xname) . '" value="' . attr($xid) . '"';
-                                        if (isset($default_x12_partner) && $xid == $default_x12_partner) {
+                                        if ($xid == $default_x12_partner ?? null) {
                                             $lhtml .= "selected";
                                         }
                                         $lhtml .= '>' . text($xname) . '</option>';
