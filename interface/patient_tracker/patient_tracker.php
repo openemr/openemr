@@ -592,14 +592,13 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             }
                         }
 
-                        echo '<tr data-apptstatus="' . attr($appointment['pc_apptstatus']) . '"
-                            data-apptcat="' . attr($appointment['pc_catid']) . '"
-                            data-facility="' . attr($appointment['pc_facility']) . '"
-                            data-provider="' . attr($appointment['uprovider_id']) . '"
-                            data-pid="' . attr($appointment['pc_pid']) . '"
-                            data-pname="' . attr($ptname) . '"
-                            class="text-small"
-                            style="background-color:' . attr($bgcolor) . ';" >';
+                        echo "<tr style='background-color: " . attr($bgcolor) . ";'
+                            data-apptcat=" . attr($appointment['pc_catid']) . "
+                            data-facility=" . attr($appointment['pc_facility']) . "
+                            data-provider=" . attr($appointment['uprovider_id']) . "
+                            data-pid=" . attr($appointment['pc_pid']) . "
+                            data-pname=" . attr($ptname) . "
+                            class='text-small'>";
 
                         if ($GLOBALS['ptkr_show_pid']) {
                             ?>
