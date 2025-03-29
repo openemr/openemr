@@ -363,7 +363,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 }
                 await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
                 await parent.activateTabByName('pat', true);
-                
+
             } catch (error) {
                 console.error('Failed to process patient:', error);
             }
@@ -983,7 +983,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     // This test handles the case where we are only listing encounters
                                     // that appear to have a missing "25" modifier.
                                     if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
-                                        if ($DivPut == 'yes') {
+                                        if (isset($DivPut) && $DivPut == 'yes') {
                                             $lhtml .= '</div>';
                                             $DivPut = 'no';
                                         }
@@ -1072,6 +1072,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>] = new Array;
                                 <?php
                                 while ($rowresult4 = sqlFetchArray($result4)) {
+                                    if (is_array($rowresult4)) {
                                     ?>
                                     EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
                                     EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
@@ -1080,6 +1081,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     Count++;
                                     <?php
                                     $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
+                                    }
                                 } ?>
                     </script>
                                 <?php
@@ -1142,14 +1144,15 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $last_level_closed = sqlQuery("SELECT `last_level_closed` FROM `form_encounter` WHERE `encounter` = ?", array($iter['enc_encounter']))['last_level_closed'];
                                     $effective_insurances = getEffectiveInsurances($iter['pid'], $iter['enc_date']);
                                     $insuranceCount = count($effective_insurances ?? []);
-
+                                    $default_x12_partner = null;
                                     foreach ($effective_insurances as $key => $row) {
                                         $insuranceName = sqlQuery("SELECT `name` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['name'];
                                         $x12Partner = sqlQuery("SELECT `x12_default_partner_id` FROM `insurance_companies` WHERE `id` = ?", array($row['provider']))['x12_default_partner_id'];
                                         $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1) . $row['provider']) . "\"";
                                         if (
-                                            $key == $last_level_closed
-                                            || $insuranceCount == 1
+                                            is_array($effective_insurances) &&
+                                            !empty($effective_insurances) &&
+                                            ($key == $last_level_closed || $insuranceCount == 1)
                                         ) {
                                             $lhtml .= " selected";
                                             $default_x12_partner = $x12Partner;
@@ -1168,7 +1171,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             continue;
                                         }
                                         $lhtml .= '<option label="' . attr($xname) . '" value="' . attr($xid) . '"';
-                                        if ($xid == $default_x12_partner) {
+                                        if (isset($default_x12_partner) && $xid == $default_x12_partner) {
                                             $lhtml .= "selected";
                                         }
                                         $lhtml .= '>' . text($xname) . '</option>';

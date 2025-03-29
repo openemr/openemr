@@ -222,7 +222,7 @@ class InsuranceCompany extends ORDataObject
     }
     public function get_ins_claim_type()
     {
-        return $this->ins_claim_type_array[$this->ins_type_code];
+        return isset($this->ins_claim_type_array[$this->ins_type_code]) ? $this->ins_claim_type_array[$this->ins_type_code] : null;
     }
 
     public function set_cqm_sop($code)
