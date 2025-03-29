@@ -1073,14 +1073,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 <?php
                                 while ($rowresult4 = sqlFetchArray($result4)) {
                                     ?>
-                                    EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
+                                        EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
                                     EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
                                     CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape(xl_appt_category($rowresult4['pc_catname'])); ?>;
                                     EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['billing_note']); ?>;
                                     Count++;
                                     <?php
-                                    $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
-                                } ?>
+                                        $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
+                                    } ?>
                     </script>
                                 <?php
                                 $lhtml .= "<div class='button-group'>";
