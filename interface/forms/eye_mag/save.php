@@ -1186,7 +1186,7 @@ if ($_REQUEST['canvas'] ?? '') {
     // we receive a canvas: adding or replacing this image
     // Does it exist already? If so delete it. Yep.
     //      We should not need to keep each progressive stroke on a canvas, just the last one...
-    //      We are attaching it ot this encounter so when the encounter is locked
+    //      We are attaching it to this encounter so when the encounter is locked
     //      this file should also be locked.  Right?
     // Then add this.
 

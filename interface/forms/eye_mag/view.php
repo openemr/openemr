@@ -2551,10 +2551,11 @@ if ($refresh and $refresh != 'fullscreen') {
                                     list($imaging,$episode) = display($pid, $encounter, "NEURO");
                                     echo $episode;
                                 ?>
+                            </table>
+                            <table>
                                 <tr>
-                                    <td class="bold right"><?php echo xlt('Scleral Depression'); ?>:</td>
-                                    <td colspan="3" class="text-center">
-                                        <span class="fa fa-paint-brush" id="BUTTON_DRAW_SDRETINA" name="BUTTON_DRAW_SDRETINA"></span>
+                                    <td>
+                                        <span class="ui-button ui-corner-all" id="BUTTON_DRAW_SDRETINA" name="BUTTON_DRAW_SDRETINA"><?php echo xlt('Scleral Depression'); ?></span>
                                     </td>
                                 </tr>
                             </table>
@@ -2971,7 +2972,6 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 </td>
                                             </tr>
                                         </table>
-                                        <br />
                                     </div>
                                 </td>
                             </tr>
@@ -3689,8 +3689,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                    *  We present the active coding system codes found in the Imp/Plan.
                                    *  Perhaps a minor procedure/test was performed?
                                    *  Select options drawn from Eye_todo_done_".$provider_id list with a CODE
-                                   *  TODO: Finally we have the "Prior Visit" functionality of the form.
-                                   *  We should be able to look past codes and perhaps carry this forward?
+                                   *  Finally we have the "Prior Visit" functionality of the form.
+                                   *  We can carry forward past codes.
                                    */
                                 ?>
                               <script>
