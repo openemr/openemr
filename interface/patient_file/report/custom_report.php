@@ -579,6 +579,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
                             if ($extension != (".pdf" || ".txt")) {
                                 $tempCDoc = new C_Document();
+                                $tempCDoc->onReturnRetrieveKey();
                                 $tempFile = $tempCDoc->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                 // tmp file in temporary_files_dir
                                 $tempFileName = tempnam($GLOBALS['temporary_files_dir'], "oer");
@@ -593,6 +594,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     // OK to link to the image file because it will be accessed by the
                                     // mPDF parser and not the browser.
                                     $tempDocC = new C_Document();
+                                    $tempDocC->onReturnRetrieveKey();
                                     $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                     // tmp file in ../documents/temp since need to be available via webroot
                                     $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
@@ -622,6 +624,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                         // below header isn't being used. missed maybe!
                                         $pg_header = "<span>" . xlt('Document') . " " . text($fname) . "-" . text($d->get_id()) . "</span>";
                                         $tempDocC = new C_Document();
+                                        $tempDocC->onReturnRetrieveKey();
                                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                         // tmp file in temporary_files_dir
                                         $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
@@ -657,6 +660,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 } elseif ($extension == ".txt") {
                                     echo "<pre>";
                                     $tempDocC = new C_Document();
+                                    $tempDocC->onReturnRetrieveKey();
                                     $textTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                     echo text($textTemp);
                                     echo "</pre>";
@@ -664,6 +668,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     if ($PDF_OUTPUT) {
                                         // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
                                         $tempDocC = new C_Document();
+                                        $tempDocC->onReturnRetrieveKey();
                                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                                         // tmp file in ../documents/temp since need to be available via webroot
                                         $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
