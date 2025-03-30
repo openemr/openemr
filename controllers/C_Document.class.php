@@ -563,15 +563,18 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
-    public function onReturnRetrieveKey() {
+    public function onReturnRetrieveKey()
+    {
         $this->returnRetrieveKey = true;
     }
 
-    public function offReturnRetrieveKey() {
+    public function offReturnRetrieveKey()
+    {
         $this->returnRetrieveKey = false;
     }
 
-    public function isReturnRetrieveKey() {
+    public function isReturnRetrieveKey()
+    {
         return $this->returnRetrieveKey;
     }
 
