@@ -166,6 +166,7 @@ class DocumentService extends BaseService
         }
 
         $obj = new \C_Document();
+        $obj->onReturnRetrieveKey();
         $document = $obj->retrieve_action($pid, $did, true, true, true);
         if (empty($document)) {
             error_log("OpenEMR API Error: Requested patient document was empty, so declined request");
