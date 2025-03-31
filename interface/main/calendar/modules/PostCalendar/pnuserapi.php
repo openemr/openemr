@@ -914,7 +914,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name, " .
-    "concat (pd.street, ',', pd.street_line_2) as patient_address," .
+    "concat (pd.street, ', ', pd.street_line_2) as patient_address," .
     "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
     "tg.group_name, tg.group_type, tg.group_status " .
     "FROM $table AS a " .
