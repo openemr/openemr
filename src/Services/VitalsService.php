@@ -154,7 +154,7 @@ class VitalsService extends BaseService
                         ,`date` AS date_created
                     FROM
                         forms
-                ) forms ON vitals.id = forms.form_id
+                ) forms ON vitals.id = forms.form_id AND forms.formdir='vitals'
                 LEFT JOIN (
                     select
                         encounter AS eid
