@@ -19,7 +19,7 @@ if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
 }
 if ($data['action'] === 'reportMenuClickData') {
     reportClicks();
-    // $result = reportUsageData(); // todo: remove this line. for testing until background task is implemented.
+    //$result = reportUsageData(); // todo: remove this line. for testing until background task is implemented.
 } elseif ($data['action'] === 'reportUsageData') {
     $result = reportUsageData();
     echo json_encode($result);
@@ -88,7 +88,8 @@ function reportUsageData()
 
     $versionService = new VersionService();
     $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
-
+    $interval = date("Ym", strtotime("-30 Days"));
+    $time_zone = sqlQuery("SELECT `gl_value` as zone FROM `globals` WHERE `gl_name` = 'gbl_time_zone' LIMIT 1")['zone'] ?? null;
     // Query the track_events table for usage data.
     $sql = "SELECT event_type, event_label, event_url, event_target, first_event, last_event, count FROM track_events";
     $result = sqlStatement($sql);
@@ -99,28 +100,31 @@ function reportUsageData()
     // Collect instance data.
     $localeData = array(
         'site_uuid' => $site_uuid,
-        'location_ip' => $_SERVER['REMOTE_ADDR'] ?? '',
-        'location_name' => $_SERVER['SERVER_NAME'] ?? '',
-        'time_zone' => $GLOBALS['gbl_time_zone'] ?? '',
+        'reporting_interval' => $interval,
+        'location' => '',
+        'time_zone' => $time_zone ?? $GLOBALS['gbl_time_zone'] ?? '',
         'locale' => locale_get_default(),
         'version' => $versionService->asString(),
+        'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG', true) ?? $versionService->asString(),
     );
 
     $payload_data = array(
         'usageRecords' => $usageRecords,
-        'localeData' => $localeData
+        'localeData' => $localeData,
     );
 
     $payload = json_encode($payload_data);
+
     $ch = curl_init($endpoint);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         "Content-Type: application/json",
         "Content-Length: " . strlen($payload)
     ));
-
     $response = curl_exec($ch);
     $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     if (curl_errno($ch)) {
