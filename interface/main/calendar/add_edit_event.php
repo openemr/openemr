@@ -1336,7 +1336,15 @@ function find_available(extra) {
         <?php endif ?>
     </ul>
 </nav> <!-- nav-group -->
-<form role="form" method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>'>
+<?php
+$form_id = 'theform';
+if (!empty($_GET['prov']) && ($_GET['prov'] == true)) {
+    $form_id = 'theform_prov';
+} elseif ($_GET['group'] == true) {
+    $form_id = 'theform_groups';
+}
+?>
+<form role="form" method='post' name='<?php echo $form_id; ?>' id='<?php echo $form_id; ?>' action='add_edit_event.php?eid=<?php echo attr($eid) ?>'>
 
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type='hidden' size='2' name='resname' value='empty' />
@@ -1904,7 +1912,7 @@ function validateform(event,valu){
     }
     ?>
 
-    var submit = submitme(1, event, 'theform', collectvalidation);
+    var submit = submitme(1, event, '<?php echo $form_id; ?>', collectvalidation);
     if(!submit)return $('#form_save').attr('disabled', false);
 
     $('#form_action').val(valu);
@@ -1925,11 +1933,11 @@ function validateform(event,valu){
 
 // disable all the form elements outside the recurr_popup
 function DisableForm() {
-    $("#theform").children().attr("disabled", "true");
+    $("#<?php echo $form_id; ?>").children().attr("disabled", "true");
 }
 
 function EnableForm() {
-    $("#theform").children().removeAttr("disabled");
+    $("#<?php echo $form_id; ?>").children().removeAttr("disabled");
 }
 
 // hide the recurring popup DIV
