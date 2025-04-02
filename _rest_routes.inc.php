@@ -6227,9 +6227,13 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient/:puuid/employer" => function ($puuid, HttpRestRequest $request) {
         $searchParams = $request->getQueryParams();
-        $searchParams['puuid'] = $puuid;
         if ($request->isPatientRequest()) {
+            // For patient portal users, force the UUID to match the authenticated patient
             $searchParams['puuid'] = $request->getPatientUUIDString();
+        } else {
+            // For staff users, verify they have permission to view demographic data
+            RestConfig::authorization_check("patients", "demo");
+            $searchParams['puuid'] = $puuid;
         }
         $return = (new EmployerRestController())->getAll($searchParams);
         RestConfig::apiLog($return);
