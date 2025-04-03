@@ -120,3 +120,14 @@ ALTER TABLE `onetime_auth` ADD `profile` tinytext COMMENT 'profile of scope for 
 #IfMissingColumn onetime_auth onetime_actions
 ALTER TABLE `onetime_auth` ADD `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token';
 #EndIf
+
+#IfNotRow3D list_options list_id page_validation option_id add_edit_event#theform_prov title /interface/main/calendar/add_edit_event.php?prov=true
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`)
+VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{"form_title":{"presence": {"message": "Title Required"}}}', 1);
+#EndIf
+
+#IfRow3D list_options list_id page_validation option_id add_edit_event#theform_prov title /interface/main/calendar/add_edit_event.php?prov=true
+UPDATE `list_options`
+SET `notes` = '{"form_title":{"presence": {"message": "Title Required"}}}'
+WHERE `list_id` = 'page_validation' AND `option_id` = 'add_edit_event#theform_prov' AND `title` = '/interface/main/calendar/add_edit_event.php?prov=true';
+#EndIf
