@@ -33,6 +33,7 @@ use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 use Symfony\Component\Console\Style\SymfonyStyle;
+
 use function PHPUnit\Framework\throwException;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -2329,7 +2330,7 @@ class CarecoordinationTable extends AbstractTableGateway
         if ($replaceBr) {
             $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '', $xmlContent);
         } else {
-           $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '\n', $xmlContent); // Replace <br/> with newline
+            $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '\n', $xmlContent); // Replace <br/> with newline
         }
         $xmlContent = preg_replace('/\xC2\xA0/', '', $xmlContent);
         $xmlContent = str_replace('Â', '', $xmlContent);
