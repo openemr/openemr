@@ -307,6 +307,7 @@
 //
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
@@ -6222,19 +6223,29 @@ RestConfig::$ROUTE_MAP = array(
      *          response="401",
      *          ref="#/components/responses/unauthorized"
      *      ),
-     *      security={{"openemr_auth":{}}}
+     *      security={{"openemr_auth":{"user/employer.read", "patient/employer.read"}}}
      *  )
      */
     "GET /api/patient/:puuid/employer" => function ($puuid, HttpRestRequest $request) {
+        if (!UuidRegistry::isValidStringUUID($puuid)) {
+            $errorReturn = [
+                'validationErrors' => [ 'uuid' => ['Invalid UUID format']]
+            ];
+            RestConfig::apiLog($errorReturn);
+            return RestControllerHelper::responseHandler($errorReturn, null, 400);
+        }
+
         $searchParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
-            // For patient portal users, force the UUID to match the authenticated patient
+            // For patient portal users, force the UUID to match the authenticated patient.
             $searchParams['puuid'] = $request->getPatientUUIDString();
         } else {
-            // For staff users, verify they have permission to view demographic data
+            // For staff users, verify they have permission to view demographic data.
             RestConfig::authorization_check("patients", "demo");
             $searchParams['puuid'] = $puuid;
         }
+
+        // Try to get the data. The service layer will handle non-existent UUIDs.
         $return = (new EmployerRestController())->getAll($searchParams);
         RestConfig::apiLog($return);
         return $return;
