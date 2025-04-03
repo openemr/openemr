@@ -33,6 +33,7 @@ use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function PHPUnit\Framework\throwException;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
@@ -228,7 +229,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $xml_to_array = new XmlExtended();
             $xml = $xml_to_array->fromString($this->conditionedXmlContent);
         } catch (Exception $e) {
-            die($e->getMessage());
+            throw new Exception($e->getMessage());
         }
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
@@ -2322,13 +2323,13 @@ class CarecoordinationTable extends AbstractTableGateway
      * @return string Cleaned XML content.
      * @throws Exception If the input XML is invalid or cannot be parsed.
      */
-    function cleanCcdaXmlContent(string $xmlContent, bool $removeBr = false): string
+    function cleanCcdaXmlContent(string $xmlContent, bool $replaceBr = false): string
     {
         // Handle <br/> tags if required
-        if ($removeBr) {
-            $xmlContent = preg_replace('/<br\s*\/?>/', '', $xmlContent); // Remove <br/>
+        if ($replaceBr) {
+            $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '', $xmlContent);
         } else {
-            $xmlContent = preg_replace('/<br\s*\/?>/', "\n", $xmlContent); // Replace <br/> with newline
+           $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '\n', $xmlContent); // Replace <br/> with newline
         }
         $xmlContent = preg_replace('/\xC2\xA0/', '', $xmlContent);
         $xmlContent = str_replace('Â', '', $xmlContent);
