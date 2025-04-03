@@ -123,6 +123,7 @@
  *              "user/document.read": "Read documents the user has access to (api:oemr)",
  *              "user/document.write": "Write documents the user has access to (api:oemr)",
  *              "user/drug.read": "Read drugs the user has access to (api:oemr)",
+ *              "user/employer.read": "Read patient employer demographics the user has access to (api:oemr)",
  *              "user/encounter.read": "Read encounters the user has access to (api:oemr)",
  *              "user/encounter.write": "Write encounters the user has access to (api:oemr)",
  *              "user/facility.read": "Read facilities the user has access to (api:oemr)",
