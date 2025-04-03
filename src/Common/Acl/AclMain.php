@@ -364,6 +364,6 @@ class AclMain
             "SELECT aco_spec FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1",
             array($pc_catid)
         );
-        return $aco['aco_spec'];
+        return $aco['aco_spec'] ?? null;
     }
 }
