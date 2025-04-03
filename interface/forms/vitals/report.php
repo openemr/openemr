@@ -46,13 +46,23 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 $key == "id" || $key == "pid" ||
                 $key == "user" || $key == "groupname" ||
                 $key == "authorized" || $key == "activity" ||
-                $key == "date" || $value == "" ||
+                $key == "last_updated" || $value == "" ||
                 $value == "0000-00-00 00:00:00" || $value == "0.0"
             ) {
                 // skip certain data
                 continue;
             }
 
+    if ($key == "date") {
+    $formatted_date = date("m/d/Y g:i A", strtotime($value));
+    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt("Date") . ": </div></td><td><div class='text' style='display:inline-block'>" . text($formatted_date) . "</div></td>";
+    $count++;
+    if ($count == $cols) {
+        $count = 0;
+        $vitals .= "</tr><tr>\n";
+    }
+    continue;
+}
             if ($value == "on") {
                 $value = "yes";
             }
