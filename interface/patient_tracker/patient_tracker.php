@@ -133,6 +133,22 @@ if ($GLOBALS['medex_enable'] == '1') {
     $current_events = !empty($logged_in['token']) ? xlt("On-line") : xlt("Currently off-line");
 }
 
+/**
+ * Checks if an encounter of form is signed
+* @param mixed $appt_enc
+* @return bool
+*/
+function is_signed(mixed$appt_enc){
+    $signed = sqlQuery(
+        "SELECT is_lock FROM esign_signatures
+               WHERE tid IN
+                     (SELECT id FROM `forms` WHERE `encounter` = ?) OR
+               tid IN (SELECT id  FROM `form_encounter` WHERE `encounter` = ?)",
+         array($appt_enc, $appt_enc)
+         );
+    return $signed['is_lock'] == 1 ? true : false;
+}
+
 if (!($_REQUEST['flb_table'] ?? null)) {
     ?>
 <!DOCTYPE html>
@@ -622,8 +638,13 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
+                                $signed = false;
                                 if ($appt_enc != 0) {
+                                    $signed = is_signed($appt_enc);
                                     echo text($appt_enc);
+                                }
+                                if ($signed) {
+                                    echo "<span class='text-success' title=''>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
                                 }
                                 ?>
                             </td>
