@@ -29,19 +29,6 @@ $t = $twig->getTwig();
 
 $versionService = new VersionService();
 
-$registrationTranslation = json_encode(array(
-    'title' => xla('OpenEMR Product Registration'),
-    'pleaseProvideValidEmail' => xla('Please provide a valid email address'),
-    'success' => xla('Success'),
-    'registeredSuccess' => xla('Your installation of OpenEMR has been registered'),
-    'submit' => xla('Submit'),
-    'noThanks' => xla('No Thanks'),
-    'registeredEmail' => xla('Registered email'),
-    'registeredId' => xla('Registered id'),
-    'genericError' => xla('Error. Try again later'),
-    'closeTooltip' => ''
-));
-
 // Auto-generate the link if no override is specified. This is tied directly to the OpenEMR Wiki
 $userManual = ($GLOBALS['user_manual_link'] === '')
     ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->asString(false, false) . "_Users_Guide"
@@ -50,7 +37,6 @@ $userManual = ($GLOBALS['user_manual_link'] === '')
 $viewArgs = [
     'onlineSupportHref' => $GLOBALS["online_support_link"],
     'ackHref' => "../../acknowledge_license_cert.html",
-    'registrationTranslations' => $registrationTranslation,
     'applicationTitle' => $openemr_name,
     'versionNumber' => $versionService->asString(),
     'supportPhoneNumber' => $GLOBALS['support_phone_number'] ?? false,
