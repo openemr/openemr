@@ -63,6 +63,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
                 continue;
             }
+            }
             if ($value == "on") {
                 $value = "yes";
             }
