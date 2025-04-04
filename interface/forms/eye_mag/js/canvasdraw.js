@@ -73,7 +73,7 @@ function drawImage(zone) {
         // and stores it in this id-->
     image[zone].src = $("#url_"+zone).val();
     $(image[zone]).on('load',function () {
-                        ctx[zone].drawImage(image[zone], 0, 0, 450, 225);
+                        ctx[zone].drawImage(image[zone], 0, 0,);// width, height);
                         // using variable size canvas? -> adjust size for canvas
     cPush(zone);
     });
@@ -144,5 +144,6 @@ InitThis('PMH');
 InitThis('EXT');
 InitThis('ANTSEG');
 InitThis('RETINA');
+InitThis('SDRETINA');
 InitThis('NEURO');
 InitThis('IMPPLAN');
