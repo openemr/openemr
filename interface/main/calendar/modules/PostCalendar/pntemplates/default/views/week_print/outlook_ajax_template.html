@@ -482,8 +482,8 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             // the divTitle is what appears when the user hovers the mouse over the DIV
-            $divTitle = date("D, d M Y", strtotime($date ?? null));
-
+            //RM null instead of string parameter to strtotime deprecated
+            $divTitle = date("D, d M Y", strtotime($date ?? ""));
             $eventdatetime = strtotime(($date ?? '')." ".$starth.":".$startm);
 
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
