@@ -529,6 +529,7 @@ foreach ($providers as $provider) {
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
 	        $fname = substr($event['patient_name'], $commapos + 2);
+	        $address = $event['patient_address']; //RM
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -565,7 +566,7 @@ foreach ($providers as $provider) {
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         $content .= "," . text($fname);
-                          if (  $GLOBALS['calendar_appt_style'] == 5) {
+                          if ($event['title'] &&  $GLOBALS['calendar_appt_style'] == 5) { //RM
                             $content .= "," . text($address);
                           }
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
