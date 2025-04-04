@@ -7,6 +7,7 @@
 [-* as published by the Free Software Foundation; either version 2            *-]
 [-* of the License, or (at your option) any later version.                    *-]
 [-*****************************************************************************-]
+[-* RM add address if configured to month print- first two lines *-]
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
@@ -388,7 +389,8 @@ foreach ($providers as $provider) {
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
-	    $fname = substr($event['patient_name'], $commapos + 2);
+            $fname = substr($event['patient_name'], $commapos + 2);
+            $address = $event['patient_address'];
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -408,6 +410,7 @@ foreach ($providers as $provider) {
             $content = "";
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
+
             if ($catid == 4 || $catid == 8 || $catid == 11) {
                 if ($catid ==  4) $catname = xl("VACATION");
                 else if ($catid ==  8) $catname = xl("LUNCH");
@@ -424,6 +427,8 @@ foreach ($providers as $provider) {
                 if ($catid == 1) $content .= "<s>";
                 $content .= text($lname);
                 if ($catid == 1) $content .= "</s>";
+                if ($GLOBALS['calendar_appt_style'] == 5 )
+                        $content .= ", " . $fname .  " , " .  $address . $comment; //RM
             }
 
             echo "<div data-eid='" . attr($eventid) . "' class='" . attr($evtClass) . "' style='background-color:" . attr($event['catcolor']) . ";'>";
