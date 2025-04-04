@@ -187,7 +187,7 @@ if (isset($_POST["mode"])) {
                 //==============================================================================================================================
 
                 $where = "$where1 AND adj_amount != 0";
-                if (isset($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
+                if (!empty($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
                         $AccountCode = "IA";
