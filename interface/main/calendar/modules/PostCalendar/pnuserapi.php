@@ -1106,7 +1106,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['patient_name'] = $tmp['patient_name'];
         $events[$i]['provider_name'] = $tmp['provider_name'];
         $events[$i]['owner_name']  = $tmp['owner_name'];
-       $events[$i]['patient_address'] = $tmp['patient_address']; //RM
+        $events[$i]['patient_address'] = $tmp['patient_address']; //RM
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
         $events[$i]['patient_age'] = getPatientAge($tmp['patient_dob']);
         $events[$i]['facility']    = getFacility($tmp['facility']);
