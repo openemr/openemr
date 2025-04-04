@@ -77,9 +77,8 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 
     foreach ($data as $key => $value) {
         // Skip metadata or empty values
-        if (in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "last_updated"])
-            || $value === "" || $value === "0000-00-00 00:00:00" || $value === "0.0"
-        ) {
+        if (in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "last_updated"]) ||
+            $value === "" || $value === "0000-00-00 00:00:00" || $value === "0.0") {
             continue;
         }
 
@@ -115,7 +114,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
         // Handle translatable text values
         if ($displayKey == "Temp Method" || $displayKey == "BMI Status") {
             if ($displayKey == "BMI Status" && $is_pediatric_patient) {
-                 // For pediatric patients, BMI Status might link to growth charts
+                // For pediatric patients, BMI Status might link to growth charts
                 $value = "See Growth-Chart";
             }
             $vitals .= '<td><div class="bold" style="display:inline-block">'
@@ -128,7 +127,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             if (!empty($bpd)) {
                 $vitals .= "<td><div class='font-weight-bold d-inline-block'>"
                     . xlt('Blood Pressure') . ": </div></td><td><div class='text' style='display:inline-block'>"
-                    . text($bps) . "/" . text($bpd)  . "</div></td>";
+                    . text($bps) . "/" . text($bpd) . "</div></td>";
                 $bps = $bpd = null; // Reset after printing pair
             } else {
                 // BPS found, but BPD not yet, skip output for now
@@ -141,7 +140,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             if (!empty($bps)) {
                 $vitals .= "<td><div class='font-weight-bold d-inline-block'>"
                     . xlt('Blood Pressure') . ": </div></td><td><div class='text' style='display:inline-block'>"
-                    . text($bps) . "/" . text($bpd)  . "</div></td>";
+                    . text($bps) . "/" . text($bpd) . "</div></td>";
                 $bps = $bpd = null; // Reset after printing pair
             } else {
                  // BPD found, but BPS not yet, skip output for now
@@ -157,15 +156,15 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($displayKey)
                 . ": </div></td><td><div class='text' style='display:inline-block'>";
             if ($units_pref == 2) { // Metric primary, US secondary
-                $vitals .=  text($convValue) . " " . xlt('kg')
+                $vitals .= text($convValue) . " " . xlt('kg')
                     . " (" . text(US_weight($value, $mode)) . ")";
             } elseif ($units_pref == 3) { // US only
-                $vitals .=  text(US_weight($value, $mode));
+                $vitals .= text(US_weight($value, $mode));
             } elseif ($units_pref == 4) { // Metric only
                 $vitals .= text($convValue) . " " . xlt('kg');
             } else { // Default: US primary, Metric secondary
                 $vitals .= text(US_weight($value, $mode)) . " (" . text($convValue) . " "
-                    . xlt('kg')  . ")";
+                    . xlt('kg') . ")";
             }
             $vitals .= "</div></td>";
         // Handle Height, Waist, Head Circumference with unit conversion
@@ -178,14 +177,14 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 . ": </div></td><td><div class='text' style='display:inline-block'>";
             if ($units_pref == 2) { // Metric primary, US secondary
                 $vitals .= text($convValue) . " " . xlt('cm') . " (" . text($value) . " "
-                    . xlt('in')  . ")";
+                    . xlt('in') . ")";
             } elseif ($units_pref == 3) { // US only
                 $vitals .= text($value) . " " . xlt('in');
             } elseif ($units_pref == 4) { // Metric only
                 $vitals .= text($convValue) . " " . xlt('cm');
             } else { // Default: US primary, Metric secondary
                 $vitals .= text($value) . " " . xlt('in') . " (" . text($convValue) . " "
-                    . xlt('cm')  . ")";
+                    . xlt('cm') . ")";
             }
             $vitals .= "</div></td>";
         // Handle Temperature with unit conversion
@@ -198,14 +197,14 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 . ": </div></td><td><div class='text' style='display:inline-block'>";
             if ($units_pref == 2) { // Metric primary, US secondary
                 $vitals .= text($convValue) . " " . xlt('C') . " (" . text($value) . " "
-                    . xlt('F')  . ")";
+                    . xlt('F') . ")";
             } elseif ($units_pref == 3) { // US only
                 $vitals .= text($value) . " " . xlt('F');
             } elseif ($units_pref == 4) { // Metric only
                 $vitals .= text($convValue) . " " . xlt('C');
             } else { // Default: US primary, Metric secondary
                 $vitals .= text($value) . " " . xlt('F') . " (" . text($convValue) . " "
-                    . xlt('C')  . ")";
+                    . xlt('C') . ")";
             }
             $vitals .= "</div></td>";
         // Handle Pulse, Respiration, O2 Sat, BMI, O2 Flow
@@ -231,7 +230,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 . text($c_value) . ($unit ? " " . $unit : "") . "</div></td>";
         // Handle Pediatric Percentiles
         } elseif (in_array($key, ['ped_weight_height_percentile', 'ped_bmi_percentile', 'ped_head_circ_percentile'])) {
-             // Use original key here for mapping
+            // Use original key here for mapping
             if ($is_pediatric_patient) {
                 $value = floatval($value);
                 $c_value = number_format($value, 0);
@@ -249,7 +248,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                         . ": </div></td><td><div class='text' style='display:inline-block'>"
                         . text($c_value) . " " . xlt('%') . "</div></td>";
                 } else {
-                     // Don't output if label couldn't be determined (shouldn't happen with in_array)
+                    // Don't output if label couldn't be determined (shouldn't happen with in_array)
                     continue;
                 }
             } else {
