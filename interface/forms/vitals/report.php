@@ -52,17 +52,17 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 // skip certain data
                 continue;
             }
-    // Date display with formatting
-    if ($key == "date") {
-    $formatted_date = date("m/d/Y g:i A", strtotime($value));
-    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt("Date") . ": </div></td><td><div class='text' style='display:inline-block'>" . text($formatted_date) . "</div></td>";
-    $count++;
-    if ($count == $cols) {
-        $count = 0;
-        $vitals .= "</tr><tr>\n";
-    }
-    continue;
-}
+            // Date display with formatting
+            if ($key == "date") {
+                $formatted_date = date("m/d/Y g:i A", strtotime($value));
+                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt("Date") . ": </div></td><td><div class='text' style='display:inline-block'>" . text($formatted_date) . "</div></td>";
+                $count++;
+                if ($count == $cols) {
+                    $count = 0;
+                    $vitals .= "</tr><tr>\n";
+                }
+                continue;
+            }
             if ($value == "on") {
                 $value = "yes";
             }
