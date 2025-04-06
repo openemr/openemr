@@ -236,28 +236,19 @@ class Pharmacy extends ORDataObject
         return ($pharmacy_array);
     }
 
-    function pharmacies_factory($city = "", $sort = "ORDER BY name")
+    function pharmacies_factory()
     {
-        if (empty($city)) {
-             $city = "";
-        } else {
-            $city = " WHERE city = '" . add_escape_custom($foreign_id) . "'";
-        }
-
         $p = new Pharmacy();
         $pharmacies = array();
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " ";
+            "INNER JOIN addresses AS a ON p.id = a.foreign_id ";
         if (!empty($GLOBALS['weno_rx_enable'])) {
             $sql .= "WHERE state = '" . add_escape_custom($this->state) . "' ";
         }
-        $sql .= add_escape_custom($sort);
+        $sql .= "ORDER BY name";
 
-        //echo $sql . "<bR />";
-        $results = sqlQ($sql);
-        //echo "sql: $sql";
-        //print_r($results);
+        $results = sqlStatement($sql);
         while ($row = sqlFetchArray($results)) {
                 $pharmacies[] = new Pharmacy($row['id']);
         }
