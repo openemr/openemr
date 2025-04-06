@@ -194,7 +194,7 @@ if ($refresh and $refresh != 'fullscreen') {
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
 
-  <div id="tabs_left" class="tabs ui-tabs ui-widget ui-widget-content ui-corner-all nodisplay">
+  <div id="tabs_left" class="tabs ui-tabs ui-widget-content ui-corner-all nodisplay">
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
 
           <li id="tabs-left-HPI" class="btn-primary">
@@ -272,6 +272,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="PREFS_CR" id="PREFS_CR" value="<?php echo attr($CR ?? ''); ?>">
               <input type="hidden" name="PREFS_CTL" id="PREFS_CTL" value="<?php echo attr($CTL ?? ''); ?>">
               <input type="hidden" name="PREFS_VAX" id="PREFS_VAX" value="<?php echo attr($VAX ?? ''); ?>">
+              <input type="hidden" name="PREFS_VAHx" id="PREFS_VAHx" value="<?php echo attr($VAHx ?? '0'); ?>">
               <input type="hidden" name="PREFS_RXHX" id="PREFS_RXHX" value="<?php echo attr($RXHX ?? ''); ?>">
               <input type="hidden" name="PREFS_ADDITIONAL" id="PREFS_ADDITIONAL" value="<?php echo attr($ADDITIONAL ?? ''); ?>">
               <input type="hidden" name="PREFS_CLINICAL" id="PREFS_CLINICAL" value="<?php echo attr($CLINICAL ?? ''); ?>">
@@ -343,13 +344,19 @@ if ($refresh and $refresh != 'fullscreen') {
                             <div id="tabs_container">
                               <ul id="tabs">
                                 <li id="tab0_CC" class="inactive"></li>
-                                <li id="tab1_CC" class="active" ><a class="fa fa-check" href="#tab1"> <?php echo xlt('CC{{Chief Complaint}}'); ?> 1</a></li>
-                                <li id="tab2_CC"><a <?php if ($CC2 > '') {
-                                    echo 'class="fa fa-check"';
-                                                    } ?> href="#tab2"><?php echo xlt('CC{{Chief Complaint}}'); ?> 2</a></li>
-                                <li id="tab3_CC"><a <?php if ($CC3 > '') {
-                                    echo 'class="fa fa-check"';
-                                                    } ?> href="#tab3"><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
+                                <li id="tab1_CC" class="active" >
+                                    <a href="#tab1">
+                                        <span class='fa fa-check'></span>
+                                        <?php echo xlt('CC{{Chief Complaint}}'); ?> 1</a>
+                                </li>
+                                <li id="tab2_CC"><a href="#tab2">
+                                        <?php if ($CC2 > '') {
+                                            echo "<span class='fa fa-check'></span>";
+                                        } ?><?php echo xlt('CC{{Chief Complaint}}'); ?> 2</a></li>
+                                <li id="tab3_CC">
+                                    <a href="#tab3"><?php if ($CC3 > '') {
+                                            echo "<span class='fa fa-check'></span>";
+                                        } ?><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -454,15 +461,21 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
                               <ul id="tabs">
-                                <li id="tab1_HPI_tab" class="active" ><a type="button" <?php if ($CC1 > '') {
-                                    echo 'class="fa fa-check" ';
-                                                                                       } ?> href="#tab1"> <?php echo xlt('HPI'); ?> 1</a></li>
-                                <li id="tab2_HPI_tab" ><a <?php if ($CC2 > '') {
-                                    echo 'class="fa fa-check"';
-                                                          } ?> href="#tab2"><?php echo xlt('HPI'); ?> 2</a></li>
-                                <li id="tab3_HPI_tab" ><a <?php if ($CC3 > '') {
-                                    echo 'class="fa fa-check"';
-                                                          } ?> href="#tab3"><?php echo xlt('HPI'); ?> 3</a></li>
+                                <li id="tab1_HPI_tab" class="active">
+                                    <a href="#tab1"><?php if ($CC1 > '') {
+                                            echo "<span class='fa fa-check'></span>";
+                                        } ?><?php echo xlt('HPI'); ?> 1</a>
+                                </li>
+                                <li id="tab2_HPI_tab">
+                                    <a href="#tab2"><?php if ($CC2 > '') {
+                                            echo "<span class='fa fa-check'></span>";
+                                        } ?><?php echo xlt('HPI'); ?> 2</a>
+                                </li>
+                                <li id="tab3_HPI_tab">
+                                    <a href="#tab3"><?php if ($CC3 > '') {
+                                            echo "<span class='fa fa-check'></span>";
+                                        } ?><?php echo xlt('HPI'); ?> 3</a>
+                                </li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -862,8 +875,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         }
                         ?>
                   <div class="top_right">
-                          <span id="tabs">
-                              <ul>
+                          <span >
+                              <ul id="tabs_vision">
                                   <li id="LayerVision_RXHX_lightswitch" class="<?php echo attr($button_RXHX ?? ''); ?>" value="Prior Refractions" title="<?php echo xla("Show the last three Refractions"); ?>"><?php echo xlt('R{{History of Refraction}}'); ?></li> |
                                   <li id="LayerVision_W_lightswitch" class="<?php echo attr($button_W ?? ''); ?>" value="Current" title="<?php echo xla("Display the patient's current glasses"); ?>"><?php echo xlt('W{{Current Rx - wearing}}'); ?></li> |
                                   <li id="LayerVision_MR_lightswitch" class="<?php echo attr($button_MR ?? ''); ?>" value="Auto" title="<?php echo xla("Display the Manifest Refraction panel"); ?>"><?php echo xlt('MR{{Manifest Refraction}}'); ?></li> |
@@ -871,13 +884,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <li id="LayerVision_CTL_lightswitch" class="<?php echo attr($button_CTL ?? ''); ?>" value="Contact Lens" title="<?php echo xla("Display the Contact Lens Panel"); ?>"><?php echo xlt('CTL{{Contact Lens}}'); ?></li> |
                                   <li id="LayerVision_ADDITIONAL_lightswitch" class="<?php echo attr($button_ADDITIONAL ?? ''); ?>" value="Additional" title="<?php echo xla("Display Additional measurements (Ks, IOL cals, etc)"); ?>"><?php echo xlt('Add.{{Additional Measurements}}'); ?></li> |
                                   <li id="LayerVision_VAX_lightswitch" class="<?php echo attr($button_VAX ?? ''); ?>" value="Visual Acuities" title="<?php echo xla("Summary of Acuities for this patient"); ?>"><?php echo xlt('Va{{Visual Acuities}}'); ?></li>
-                              </ul>
+                             </ul>
                           </span>
                   </div>
 
-                  <div id="Lyr31">
-                    <?php echo xlt('V{{One letter abbrevation for Vision}}'); ?>
-                    </div>
+                  <div id="Lyr31" id="HxAcuities">
+                      <span title="Display the Visual Acuity History" id="LayerVision_VAHx_lightswitch" name="LayerVision_VAHx_lightswitch">
+                      <?php echo xlt('V{{One letter abbrevation for Vision}}'); ?></span>
+                  </div>
                   <div id="Visions_A" name="Visions_A">
                       <b>OD</b>
                       <input type="TEXT" tabindex="40" id="SCODVA" name="SCODVA" value="<?php echo attr($SCODVA); ?>">
@@ -916,7 +930,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <!-- START OF THE PRESSURE BOX -->
                 <div id="LayerTension" class="vitals">
 
-                      <span title="Display the Glaucoma Flow Sheet" id="LayerVision_IOP_lightswitch" name="LayerVision_IOP_lightswitch" class="closeButton fa fa-chart-line" id="IOP_Graph" name="IOP_Graph"></span>
+                      <span title="Display the Glaucoma Flow Sheet" id="LayerVision_IOP_lightswitch" name="LayerVision_IOP_lightswitch" class="closeButton fa fa-chart-line"></span>
                       <!-- -->
                       <div id="Lyr40">
                           <span class="top_left">
@@ -1202,13 +1216,19 @@ if ($refresh and $refresh != 'fullscreen') {
                 <!-- end of slide down pupils_panel -->
               </div>
               <!-- end of the CLINICAL BOX -->
-
                 <!-- start IOP chart section -->
                 <?php (($IOP ?? null) == 1) ? ($display_IOP = "") : ($display_IOP = "nodisplay"); ?>
-              <div id="LayerVision_IOP" class="borderShadow <?php echo $display_IOP; ?>">
+
+                <div id="LayerVision_IOP" class="borderShadow <?php echo $display_IOP; ?>">
                     <?php echo display_GlaucomaFlowSheet($pid); ?>
-              </div>
-              <!-- end IOP chart section -->
+                </div>
+                <!-- end IOP chart section -->
+
+                <!-- start Visual Acuity chart section -->
+                <div id="LayerVision_VAHx" class="borderShadow nodisplay">
+                    <?php echo display_VisualAcuities($pid); ?>
+                </div>
+                <!-- end Visual Acuity chart section -->
 
               <!-- start of the refraction box -->
               <span class="anchor" id="REFRACTION_anchor"></span>

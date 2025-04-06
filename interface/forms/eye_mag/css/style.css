@@ -815,7 +815,6 @@ display: block;
   border-top-right-radius: 5px;
   box-shadow: 0 5px 9px #888;
   color: var(--dark);
-  font-size: 1.7em;
   outline: none;
   padding: 4px 6px;
   text-decoration: none;
@@ -877,8 +876,8 @@ display: block;
 }
 
 .buttonRefraction_selected {
-  background-color: var(--warning) !important;
-  border: var(--dark);
+  background-color: #fffe06;
+  border: var(--red);
 }
 
 .tools input[type="button"] {
@@ -945,7 +944,6 @@ display: block;
 }
 
 #tabs {
-  font-size: 0.55rem;
   line-height: normal;
   margin: 0 auto;
   width: 95%;
@@ -2181,7 +2179,31 @@ View.php
 }
 
 #tabs {
-  font-size: 0.5em;
+  font-size: 1.0em;
+}
+
+#tabs_vision {
+    font-size: 0.5em;
+    line-height: normal;
+    margin: 3px auto 0px;
+    list-style: none;
+}
+#tabs_vision li {
+    display: inline;
+}
+
+#tabs_vision li a {
+    background-color: #cc9;
+    border: 2px solid #ccc;
+    border-bottom: 0;
+    border-radius: 5px 5px 0 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    box-shadow: 0 5px 9px #888;
+    color: var(--dark);
+    outline: none;
+    padding: 4px 6px;
+    text-decoration: none;
 }
 
 #Lyr31 {
@@ -2256,6 +2278,7 @@ View.php
   height: 16px;
   left: 0.02in;
   top: 0.7in;
+  width: 60px;
 }
 
 #Lyr40 div {
@@ -2503,6 +2526,24 @@ View.php
   max-width: 1000px;
   text-align: left;
   width: 83%;
+}
+
+#LayerVision_VAHx {
+    display: inline-block;
+    max-width: 1000px;
+    width: 83%;
+}
+
+#LayerVision_VAHx table{
+    width: 90%;
+    margin: 30px auto;
+}
+
+#LayerVision_VAHx tr:nth-child(even) {
+    background-color: #D6EEEE;
+}
+#LayerVision_VAHx  td {
+    border: 1px dotted #999;
 }
 
 #LayerVision2 {

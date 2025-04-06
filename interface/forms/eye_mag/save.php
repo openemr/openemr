@@ -75,6 +75,11 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
 
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
+                ('PREFS','VAHx','Vision History',?,'VAHx','1001',?,'1')";
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_VAHx']));
+
+    $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
+                VALUES
                 ('PREFS','W','Current Rx',?,'W','52',?,'2')";
     sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_W']));
 

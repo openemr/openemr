@@ -91,6 +91,8 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
    * openEMR note:  eye_mag Index is id,
    * linked to encounter in form_encounter
    * whose encounter is linked to id in forms.
+   * Note that without encounter in each table,
+   * custom clinical reminders that wish to access Eye Form data do not work.
    */
 
     $query = "  select  *,form_encounter.date as encounter_date
@@ -181,6 +183,9 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
         <?php display_draw_section("RETINA", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
+        <?php display_draw_section("SDRETINA", $encounter, $pid); ?>
+    </div>
+    <div class="borderShadow">
         <?php display_draw_section("IMPPLAN", $encounter, $pid); ?>
     </div>
         <?php
@@ -217,6 +222,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     global $form_folder;
     global $PDF_OUTPUT;
     global $facilityService;
+
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
      $query = "  select  *,form_encounter.date as encounter_date
@@ -290,7 +296,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     }
 
     ?><br /><br />
-    <table style="font-size:1.2em;">
+    <table class="report_exam_group" Xstyle="font-size:1.2em;">
         <tr>
             <td style="text-align:left;padding:1px;vertical-align:top;max-width:720px;">
                 <table style="padding:5px;width:700px;">
@@ -303,44 +309,44 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             <br/>
                             <div style="padding-left:20px;">
                                 <?php
-                                if ($TIMING1) {
-                                    echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1) . "<br />";
-                                }
+                                    if ($TIMING1) {
+                                        echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1) . "<br />";
+                                    }
 
-                                if ($CONTEXT1) {
-                                    echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1) . "<br />";
-                                }
+                                    if ($CONTEXT1) {
+                                        echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1) . "<br />";
+                                    }
 
-                                if ($SEVERITY1) {
-                                    echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1) . "<br />";
-                                }
+                                    if ($SEVERITY1) {
+                                        echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1) . "<br />";
+                                    }
 
-                                if ($MODIFY1) {
-                                    echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY1) . "<br />";
-                                }
+                                    if ($MODIFY1) {
+                                        echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY1) . "<br />";
+                                    }
 
-                                if ($ASSOCIATED1) {
-                                    echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1) . "<br />";
-                                }
+                                    if ($ASSOCIATED1) {
+                                        echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1) . "<br />";
+                                    }
 
-                                if ($LOCATION1) {
-                                    echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION1) . "<br />";
-                                }
+                                    if ($LOCATION1) {
+                                        echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION1) . "<br />";
+                                    }
 
-                                if ($QUALITY1) {
-                                    echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY1) . "<br />";
-                                }
+                                    if ($QUALITY1) {
+                                        echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY1) . "<br />";
+                                    }
 
-                                if ($DURATION1) {
-                                    echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION1) . "<br />";
-                                }
+                                    if ($DURATION1) {
+                                        echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION1) . "<br />";
+                                    }
                                 ?>
 
                                 <?php
-                                if ($CC2) {
-                                    echo "
+                                    if ($CC2) {
+                                        echo "
                     ";
-                                    echo "<b>" . xlt('Chief Complaint 2'); ?>:</b> &nbsp;<?php echo text($CC2); ?>
+                                        echo "<b>" . xlt('Chief Complaint 2'); ?>:</b> &nbsp;<?php echo text($CC2); ?>
                                         <br/>
                                         <b><?php echo xlt('HPI'); ?>:</b>
                                         &nbsp;<?php echo text($HPI2); ?>
@@ -348,92 +354,92 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
                                         <div style="padding-left:10px;">
                                             <?php
-                                            if ($TIMING2) {
-                                                echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2) . "<br />";
-                                            }
+                                                if ($TIMING2) {
+                                                    echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2) . "<br />";
+                                                }
 
-                                            if ($CONTEXT2) {
-                                                echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2) . "<br />";
-                                            }
+                                                if ($CONTEXT2) {
+                                                    echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2) . "<br />";
+                                                }
 
-                                            if ($SEVERITY2) {
-                                                echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2) . "<br />";
-                                            }
+                                                if ($SEVERITY2) {
+                                                    echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2) . "<br />";
+                                                }
 
-                                            if ($MODIFY2) {
-                                                echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY2) . "<br />";
-                                            }
+                                                if ($MODIFY2) {
+                                                    echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY2) . "<br />";
+                                                }
 
-                                            if ($ASSOCIATED2) {
-                                                echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2) . "<br />";
-                                            }
+                                                if ($ASSOCIATED2) {
+                                                    echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2) . "<br />";
+                                                }
 
-                                            if ($LOCATION2) {
-                                                echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION2) . "<br />";
-                                            }
+                                                if ($LOCATION2) {
+                                                    echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION2) . "<br />";
+                                                }
 
-                                            if ($QUALITY2) {
-                                                echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY2) . "<br />";
-                                            }
+                                                if ($QUALITY2) {
+                                                    echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY2) . "<br />";
+                                                }
 
-                                            if ($DURATION2) {
-                                                echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION2) . "<br />";
-                                            }
+                                                if ($DURATION2) {
+                                                    echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION2) . "<br />";
+                                                }
                                             ?>
                                         </div>
                                         <?php
-                                }
+                                    }
 
-                                if ($CC3) {
-                                    ?>
+                                    if ($CC3) {
+                                        ?>
 
 
-                                    <?php echo "<b>" . xlt('Chief Complaint 3'); ?>:</b> &nbsp;<?php echo text($CC3); ?>
+                                        <?php echo "<b>" . xlt('Chief Complaint 3'); ?>:</b> &nbsp;<?php echo text($CC3); ?>
                                         <br/>
                                         <?php echo xlt('HPI'); ?>&nbsp; <?php echo text($HPI3); ?>
                                         <br/>
                                         <div style="padding-left:10px;">
-                                        <?php
-                                        if ($TIMING3) {
-                                            echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3) . "<br />";
-                                        }
+                                            <?php
+                                                if ($TIMING3) {
+                                                    echo "<i>" . xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3) . "<br />";
+                                                }
 
-                                        if ($CONTEXT3) {
-                                            echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3) . "<br />";
-                                        }
+                                                if ($CONTEXT3) {
+                                                    echo "<i>" . xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3) . "<br />";
+                                                }
 
-                                        if ($SEVERITY3) {
-                                            echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3) . "<br />";
-                                        }
+                                                if ($SEVERITY3) {
+                                                    echo "<i>" . xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3) . "<br />";
+                                                }
 
-                                        if ($MODIFY3) {
-                                            echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY3) . "<br />";
-                                        }
+                                                if ($MODIFY3) {
+                                                    echo "<i>" . xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY3) . "<br />";
+                                                }
 
-                                        if ($ASSOCIATED3) {
-                                            echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3) . "<br />";
-                                        }
+                                                if ($ASSOCIATED3) {
+                                                    echo "<i>" . xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3) . "<br />";
+                                                }
 
-                                        if ($LOCATION3) {
-                                            echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION3) . "<br />";
-                                        }
+                                                if ($LOCATION3) {
+                                                    echo "<i>" . xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION3) . "<br />";
+                                                }
 
-                                        if ($QUALITY3) {
-                                            echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY3) . "<br />";
-                                        }
+                                                if ($QUALITY3) {
+                                                    echo "<i>" . xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY3) . "<br />";
+                                                }
 
-                                        if ($DURATION3) {
-                                            echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION3) . "<br />";
-                                        }
-                                        ?>
+                                                if ($DURATION3) {
+                                                    echo "<i>" . xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION3) . "<br />";
+                                                }
+                                            ?>
                                         </div>
 
                                         <?php
-                                }
+                                    }
                                 ?>
 
                                 <?php
-                                if (($CHRONIC1) && ($cols != 'Fax')) { ?>
+                                    if (($CHRONIC1) && ($cols != 'Fax')) { ?>
                                         <br />
                                         <span style="font-weight:bold;"><?php echo xlt('Chronic or Inactive Problems'); ?>:</span> <br/>
                                         &nbsp;<?php echo text($CHRONIC1) . "<br />";
@@ -444,29 +450,57 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         if ($CHRONIC3) {
                                             echo "&nbsp;" . $CHRONIC3 . "<br />";
                                         }
-                                } ?>
+                                    } ?>
                             </div>
                         </td>
                     </tr>
                 </table>
             </td>
             <td style="width:220px;padding:1px;vertical-align:top;">
+
                 <?php
-                    //get patient photo
-                    $tempDocC = new C_Document();
-                    $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
-                if (!empty($fileTemp)) {
-                    if ($PDF_OUTPUT) {
-                        // tmp file in ../documents/temp since need to be available via webroot
-                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
-                        file_put_contents($from_file_tmp_web_name, $fileTemp);
-                        echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
-                        $tmp_files_remove[] = $from_file_tmp_web_name;
+                    /**
+                     * Display the patient Photo, if there is one.
+                     * Using document Class does not work since if there is no patient photo,
+                     * it spits back an error message saying document could not be found.
+                     * Not what we want and it is above my pay grade to change a Service...
+                     * Instead, we will check manually here for a patient_photograph
+                     * and if it exists, display it via the Document class.
+                     */
+                    $sql = "SELECT doc.id AS id
+                 FROM documents doc
+                 JOIN categories_to_documents cate_to_doc
+                   ON doc.id = cate_to_doc.document_id
+                 JOIN categories cate
+                   ON cate.id = cate_to_doc.category_id
+                WHERE cate.name LIKE ? and doc.foreign_id = ?";
+
+                    $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
+
+                    if (empty($result) || empty($result['id'])) {
+                        //echo "no photo";
                     } else {
-                        $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
-                        echo "<img src='" . $filetoshow . "' style='width:220px;'>";
+                        //get patient photo
+                        $tempDocC = new C_Document();
+                        try {
+                            $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
+                            if (!empty($fileTemp)) {
+                                if ($PDF_OUTPUT) {
+                                    // tmp file in ../documents/temp since need to be available via webroot
+                                    $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                                    file_put_contents($from_file_tmp_web_name, $fileTemp);
+                                    echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
+                                    $tmp_files_remove[] = $from_file_tmp_web_name;
+                                } else {
+                                    $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                                    echo "<img src='" . $filetoshow . "' style='width:220px;'>";
+                                }
+                            }
+                        }catch (Exception $ex) {
+
+                            echo "No patient photo ".$ex;
+                        }
                     }
-                }
                 ?>
             </td>
         </tr>
@@ -1544,14 +1578,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                         <td style="text-align:right;
                                         flex-wrap: wrap;
                                         padding: 2px 10px;
-                                        width: 200px;"
-                                            style="width:100px;"><?php echo text($ODGONIO); ?></td>
+                                        width: 200px;"><?php echo text($ODGONIO); ?></td>
                                         <td style="text-align:center;font-weight:bold;"><?php echo xlt('Gonioscopy'); ?></td>
                                         <td style="text-align:left;
                                         flex-wrap: wrap;
                                         padding: 2px 10px;
-                                        width: 200px;"
-                                            style="width:100px;"><?php echo text($OSGONIO); ?></td>
+                                        width: 200px;"><?php echo text($OSGONIO); ?></td>
                                     </tr>
                                 <?php }
                             if ($ODKTHICKNESS || $OSKTHICKNESS) { ?>
@@ -1665,7 +1697,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             <td style="text-align:left;
                                         flex-wrap: wrap;
                                         padding: 2px 10px;
-                                        width: 200px;" style=""><?php echo text($LLF); ?></td>
+                                        width: 200px;"><?php echo text($LLF); ?></td>
                                         </tr>
                                         <?php
                             }
@@ -1874,7 +1906,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                                             <?php
                                         }
 
-                                        if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR or $VERTFUSAMPS) { ?>
+                                        if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR) { ?>
                                             <tr style="text-decoration:underline;">
                                                 <td></td>
                                                 <td style="text-align:center;font-weight:bold;"><?php echo xlt('Distance'); ?> </td>

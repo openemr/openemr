@@ -568,8 +568,9 @@ function refresh_GFS() {
     }
 
     config_byday.data.datasets[0].data[indexToUpdate] = $('#ODIOPTARGET').val();
-    config_byday.data.datasets[1].data[indexToUpdate] = ODIOP;
-    config_byday.data.datasets[2].data[indexToUpdate] = OSIOP;
+    config_byday.data.datasets[1].data[indexToUpdate] = $('#OSIOPTARGET').val();
+    config_byday.data.datasets[2].data[indexToUpdate] = ODIOP;
+    config_byday.data.datasets[3].data[indexToUpdate] = OSIOP;
     myLine.update();
 
     var time = $('#IOPTIME').val();
@@ -2331,7 +2332,6 @@ $(function () {
                                     $('#GFS_accordion .hide').slideUp();
                                     });
                   $('#ODIOPTARGET').on('change', function() {
-                                           $('#OSIOPTARGET').val($('#ODIOPTARGET').val());
                                            refresh_GFS();
                                            });
                   $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').on('change', function() {
@@ -2886,16 +2886,6 @@ $(function () {
                                             }
                     });
 
-                  // set display functions for Draw panel appearance
-                  // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                  var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
-                  for (index = '0'; index < zones.length; ++index) {
-                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-                        show_DRAW_section(zones[index]);
-                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
-                        show_QP_section(zones[index],'1');
-                    }
-                  }
                   $("body").on("click","[name$='_text_view']" , function() {
                                var header = this.id.match(/(.*)_text_view$/)[1];
                                $("#"+header+"_text_list").toggleClass('wide_textarea');
@@ -3318,15 +3308,21 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   var section2 = this.id.match(/(.*)_(.*)_lightswitch$/)[2];
                                                   var elem = document.getElementById("PREFS_"+section2);
                                                   $("#PREFS_VA").val('0');
-                                                  if (section2 != "IOP")$("#REFRACTION_sections").removeClass('nodisplay');
+                                                  if ((section2 != "IOP") && (section2 != "VAHx")) {
+                                                        $("#REFRACTION_sections").removeClass('nodisplay');
+                                                  }
                                                   if (elem.value == "0" || elem.value =='') {
                                                   elem.value='1';
                                                   if (section2 =="ADDITIONAL") {
                                                   $("#LayerVision_ADDITIONAL").removeClass('nodisplay');
                                                   }
                                                   if (section2 =="IOP") {
-                                                  $("#LayerVision_IOP").removeClass('nodisplay');
-                                                  //plot_IOPs();
+                                                    $("#LayerVision_IOP").removeClass('nodisplay');
+                                                    //plot_IOPs();
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").removeClass('nodisplay');
+                                                    //plot_VAHxs();
                                                   }
                                                   $(section).removeClass('nodisplay');
                                                   $(this).addClass("buttonRefraction_selected");
@@ -3338,6 +3334,9 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                   }
                                                   if (section2 =="IOP") {
                                                   $("#LayerVision_IOP").addClass('nodisplay');
+                                                  }
+                                                  if (section2 =="VAHx") {
+                                                    $("#LayerVision_VAHx").addClass('nodisplay');
                                                   }
                                                   $(this).removeClass("buttonRefraction_selected");
                                                   }
@@ -4433,6 +4432,16 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  $(this).css("background-color","#ffff99");
                                                  });
                 $( document ).ready(function() {
+                    // set display functions for Draw panel appearance
+                    // for each DRAW area, if the value AREA_DRAW = 1, show it.
+                    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+                    for (index = '0'; index < zones.length; ++index) {
+                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
+                    show_DRAW_section(zones[index]);
+                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+                    show_QP_section(zones[index],'1');
+                    }
+                    }
                     show_by_setting();
                     build_IMPPLAN(obj.IMPPLAN_items);
                 });
