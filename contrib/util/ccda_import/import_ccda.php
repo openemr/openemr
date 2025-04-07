@@ -129,22 +129,24 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 // show parameters (need to do after globals)
-outputMessage("openemr path: " . $openemrPath);
-outputMessage("ccda imports directory: " . $argv[1]);
-outputMessage("site: " . $_SESSION['site_id']);
+outputMessage("OpenEMR path: " . $openemrPath);
+outputMessage("CCDA imports directory: " . $argv[2]);
+outputMessage("Authority: " . $argv[1]);
+outputMessage("Site: " . $_SESSION['site_id']);
 
 if ($seriousOptimize) {
-    outputMessage("development mode is on");
+    outputMessage("Development Mode is ON (performance mode)\n");
     // temporarily disable the audit log
     $auditLogSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'enable_auditlog'")['gl_value'] ?? 0;
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'enable_auditlog'");
     $auditLogBreakglassSetting = sqlQueryNoLog("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_force_log_breakglass'")['gl_value'] ?? 0;
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = 'gbl_force_log_breakglass'");
 } else {
-    outputMessage("development mode is off");
+    outputMessage("Development Mode is OFF (audit log will be used)\n");
 }
 
-outputMessage("Starting patients import\n");
+outputMessage("Starting patients import.\n");
+
 sqlQueryNoLog("truncate audit_master");
 sqlQueryNoLog("truncate audit_details");
 $counter = 0;
