@@ -86,6 +86,8 @@ function showHelp(): void
     exit;
 }
 
+// clear the log so we only keep last session. Saves cleanup time.
+unlink($GLOBALS['OE_SITE_DIR'] . "/documents/temp/log.txt");
 function outputMessage($message): void
 {
     echo("\n");
@@ -130,7 +132,7 @@ use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 // show parameters (need to do after globals)
 outputMessage("OpenEMR path: " . $openemrPath);
-outputMessage("CCDA imports directory: " . $argv[2]);
+outputMessage("CCDA Imports Location: " . $argv[2]);
 outputMessage("Authority: " . $argv[1]);
 outputMessage("Site: " . $_SESSION['site_id']);
 
@@ -147,8 +149,6 @@ if ($seriousOptimize) {
 
 outputMessage("Starting patients import.\n");
 
-sqlQueryNoLog("truncate audit_master");
-sqlQueryNoLog("truncate audit_details");
 $counter = 0;
 $millisecondsStart = round(microtime(true) * 1000);
 // iterate through all the files in the directory
@@ -171,7 +171,8 @@ foreach (glob($dir) as $file) {
                 if ($enableMoves) {
                     CdaComponentParseHelpers::moveToDuplicateDir($file, $duplicateDir);
                 }
-                echo outputMessage("Duplicate patient found and skipped: " . json_encode($duplicates) . "\n");
+                $dups = count(($duplicates ?? []));
+                echo outputMessage("Patient is duplicated " . text($dups) . " times. Patient skipped: " . json_encode($duplicates[0]) . "\n");
                 continue;
             }
         }
@@ -205,7 +206,8 @@ foreach (glob($dir) as $file) {
     } catch (Exception $e) {
         outputMessage("Error moving file: " . $e->getMessage() . "\n");
     }
-    echo('.');
+    // Keep alive the notifications
+    echo("System has successfully imported CCDA number: " . text($counter + 1) . "\n"); // don't log it
     flush();
     ob_flush();
     $counter++;

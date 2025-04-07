@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Webpage wrapper for batch import of ccda documents.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../../../interface/globals.php");
 
 use OpenEMR\Core\Header;
@@ -12,7 +22,7 @@ $isDev_default = 'false';
 $enableMoves_default = 'false';
 $dedup_default = 'true';
 
-// Set form value variables: use submitted values if available; otherwise, use defaults.
+// Set form value variables.
 $sourcePath_val = isset($_POST['sourcePath']) ? trim($_POST['sourcePath']) : $sourcePath_default;
 $openemrPath_val = isset($_POST['openemrPath']) ? trim($_POST['openemrPath']) : $openemrPath_default;
 $site_val = isset($_POST['site']) ? trim($_POST['site']) : $site_default;
@@ -31,20 +41,11 @@ ob_implicit_flush(true);
     <title><?php echo xlt('CCDA Batch Import'); ?></title>
     <script>
         function scrollToBottom() {
-            // Allow form submission to continue, then scroll
             setTimeout(() => {
                 window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
             }, 0);
         }
     </script>
-    <script>
-        $('#importForm').on('submit', function () {
-            setTimeout(function () {
-                $('html, body').animate({scrollTop: $(document).height()}, 'slow');
-            }, 0);
-        });
-    </script>
-
 </head>
 <body>
     <div class="container mt-5">
@@ -109,13 +110,20 @@ ob_implicit_flush(true);
                         <option value="true" <?php echo ($dedup_val === 'true') ? 'selected' : ''; ?>>True</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary mb-4" name="submit" value="start">Start Import</button>
+                <button type="submit" class="btn btn-primary mb-4" id="submit-form" name="submit" value="start">
+                    <?php echo xlt('Start Import'); ?>
+                </button>
+                <button type="button" class="btn btn-warning mb-4" id="reload-form" value="start" onclick="location.replace('batchImport.php');">
+                    <?php echo xlt('Reload Form'); ?>
+                </button>
+
             </form>
         </div>
     </div>
     <div class="container">
         <?php
         if (isset($_POST['submit'])) {
+            echo "<script>document.getElementById('submit-form').disabled = true;</script>";
             // Build the command.
             $sourcePath = escapeshellarg($sourcePath_val);
             $processedPath = text(rtrim($sourcePath_val, '/') . "/processed");
@@ -136,32 +144,45 @@ ob_implicit_flush(true);
                 " --dedup=$dedup";
 
             echo "<div class='card mb-4'>";
-            echo "  <div class='card-header'>" . xlt('Command') . "</div>";
-            echo "  <div class='card-body'><pre class='py-4 px-2'>" . text($cmd) . "\n\nMove Files Directory = " . $processedPath . "</pre></div>";
+            echo "    <div class='card-header'>" . xlt('Command') . "</div>";
+            echo "    <div class='card-body'><pre class='py-4 px-2'>" . text($cmd) . "\n\n" . text("Move Files Directory = ") . $processedPath . "</pre></div>";
             echo "</div>";
             echo "<div class='card mt-4'>";
-            echo "  <div class='card-header'>" . xlt('Import Output') . "</div>";
-            echo "  <div class='card-body'><pre class='py-4' id='output'>";
-            // Open the process for reading.
-            $handle = popen($cmd, 'r');
-            // Read and output each line as it is generated.
-            if (is_resource($handle)) {
-                while (!feof($handle)) {
-                    $line = fgets($handle);
+            echo "   <div class='card-header'>" . xlt('Import Output') . "</div>";
+            echo "   <div class='card-body'><pre class='py-4' id='output'>";
+
+            // Use proc_open instead of popen.
+            $descriptor = [
+                0 => ["pipe", "r"],  // stdin is a pipe that the child will read from
+                1 => ["pipe", "w"],  // stdout is a pipe that the child will write to
+                2 => ["pipe", "w"]   // stderr is a pipe that the child will write to
+            ];
+
+            $process = proc_open($cmd, $descriptor, $pipes);
+
+            if (is_resource($process)) {
+                // Get process status and store the PID in session.
+                $status = proc_get_status($process);
+                $_SESSION['import_pid'] = $status['pid'];
+                echo "<script>console.log('Import process started with PID: " . $status['pid'] . "');</script>";
+                // Read output continuously.
+                while (!feof($pipes[1])) {
+                    $line = fgets($pipes[1]);
                     if ($line !== false) {
                         echo text($line);
-                        // Flush output to the browser.
                         flush();
                         ob_flush();
+                        echo "<script>scrollToBottom();</script>";
                     }
                 }
-                pclose($handle);
+                proc_close($process);
+                unset($_SESSION['import_pid']);
             }
             echo "</pre></div>";
             echo "</div>";
         }
         ?>
     </div>
-    <script>scrollToBottom()</script>
+    <script>scrollToBottom();</script>
 </body>
 </html>
