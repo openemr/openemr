@@ -1,5 +1,11 @@
 # CHANGELOG.md
 
+## [7.0.3.3](https://github.com/openemr/openemr/milestone/20?closed=1) - 2025-04-07
+
+### Fixed
+- Security fixes for 7.0.3.3 ([#8235](https://github.com/openemr/openemr/issues/8235))
+
+
 ## [7.0.3.2](https://github.com/openemr/openemr/milestone/19?closed=1) - 2025-04-02
 
 ### Fixed
