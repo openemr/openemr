@@ -86,8 +86,6 @@ function showHelp(): void
     exit;
 }
 
-// clear the log so we only keep last session. Saves cleanup time.
-unlink($GLOBALS['OE_SITE_DIR'] . "/documents/temp/log.txt");
 function outputMessage($message): void
 {
     echo("\n");
@@ -129,6 +127,10 @@ require_once($openemrPath . "/interface/globals.php");
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
+
+
+// clear the log so we only keep last session. Saves cleanup time.
+unlink($GLOBALS['OE_SITE_DIR'] . "/documents/temp/log.txt");
 
 // show parameters (need to do after globals)
 outputMessage("OpenEMR path: " . $openemrPath);
