@@ -37,7 +37,7 @@
  */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-exit;
+//exit;
 
 // only allow use from command line
 if (php_sapi_name() !== 'cli') {
@@ -65,6 +65,7 @@ function showHelp(): void
     echo "Usage: php import_ccda.php [OPTIONS]\n";
     echo "\n";
     echo "Options:\n";
+    echo "  --authName      Required if isDev=false. userAuth so Documents can be saved/moved.\n";
     echo "  --sourcePath     Required. Path to the directory containing CCDA files to import.\n";
     echo "  --site           Required. OpenEMR site ID.\n";
     echo "  --openemrPath    Required. Path to OpenEMR web root.\n";
@@ -75,6 +76,7 @@ function showHelp(): void
     echo "\n";
     echo "Example:\n";
     echo "  php import_ccda.php --sourcePath=/path/to/import/documents \\\n";
+    echo "                      --authName=admin \\\n";
     echo "                      --site=default \\\n";
     echo "                      --openemrPath=/var/www/openemr \\\n";
     echo "                      --isDev=true \\\n";
@@ -88,7 +90,8 @@ function outputMessage($message): void
 {
     echo("\n");
     echo $message;
-    file_put_contents("log.txt", $message, FILE_APPEND);
+    $file = $GLOBALS['OE_SITE_DIR'] . "/documents/temp/log.txt";
+    file_put_contents($file, $message, FILE_APPEND);
 }
 
 // collect parameters (need to do before globals)
@@ -111,7 +114,9 @@ $openemrPath = $args['openemrPath'] ?? '';
 $seriousOptimizeFlag = filter_var($args['isDev'] ?? true, FILTER_VALIDATE_BOOLEAN); // default to true/on
 $enableMoves = filter_var($args['enableMoves'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
 $dedup = filter_var($args['dedup'] ?? false, FILTER_VALIDATE_BOOLEAN); // default to false/off
-
+$authName = $args['authName'] ?? '';
+$processedDir = rtrim($args['sourcePath'], '/') . "/processed";
+$duplicateDir = rtrim($args['sourcePath'], '/') . "/duplicates";
 $seriousOptimize = false;
 if ($seriousOptimizeFlag == "true") {
     $seriousOptimize = true;
@@ -124,9 +129,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 // show parameters (need to do after globals)
-outputMessage("ccda directory: " . $argv[1]);
-outputMessage("site: " . $_SESSION['site_id']);
 outputMessage("openemr path: " . $openemrPath);
+outputMessage("ccda imports directory: " . $argv[1]);
+outputMessage("site: " . $_SESSION['site_id']);
 
 if ($seriousOptimize) {
     outputMessage("development mode is on");
@@ -140,15 +145,19 @@ if ($seriousOptimize) {
 }
 
 outputMessage("Starting patients import\n");
+sqlQueryNoLog("truncate audit_master");
+sqlQueryNoLog("truncate audit_details");
 $counter = 0;
 $millisecondsStart = round(microtime(true) * 1000);
+// iterate through all the files in the directory
 foreach (glob($dir) as $file) {
     if (!is_file($file)) {
         continue;
     }
+    sqlQueryNoLog("truncate audit_master");
+    sqlQueryNoLog("truncate audit_details");
     $patientData = [];
     try {
-        $file = str_replace("'", "\'", $file);
         if ($dedup) {
             $patientData = CdaComponentParseHelpers::parseCcdaPatientRole($file);
             if (empty($patientData)) {
@@ -158,7 +167,7 @@ foreach (glob($dir) as $file) {
             $duplicates = CdaComponentParseHelpers::checkDuplicatePatient($patientData);
             if (!empty($duplicates)) {
                 if ($enableMoves) {
-                    CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/duplicates");
+                    CdaComponentParseHelpers::moveToDuplicateDir($file, $duplicateDir);
                 }
                 echo outputMessage("Duplicate patient found and skipped: " . json_encode($duplicates) . "\n");
                 continue;
@@ -181,22 +190,24 @@ foreach (glob($dir) as $file) {
         $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
         $documentId = $document->get_id();
         //  2. import to ccda table
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId . " --auth_name=" . $authName);
         $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
         //  3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId . " --auth_name=" . $authName);
     }
     try {
         if ($enableMoves) {
             // move the C-CDA XML to the processed directory
-            CdaComponentParseHelpers::moveToDuplicateDir($file, $openemrPath . "/contrib/import_ccdas/processed");
+            CdaComponentParseHelpers::moveToDuplicateDir($file, $processedDir);
         }
     } catch (Exception $e) {
         outputMessage("Error moving file: " . $e->getMessage() . "\n");
     }
     echo('.');
+    flush();
+    ob_flush();
     $counter++;
-    $incrementCounter = 50; // echo every 50 records imported
+    $incrementCounter = 10; // echo every 10 records imported
     if (($counter % $incrementCounter) == 0) {
         $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
         outputMessage($counter . " patients imported (" . $timeSec . " total seconds) (" . ((isset($lasttimeSec) ? ($timeSec - $lasttimeSec) : $timeSec) / $incrementCounter) . " average seconds per patient for last " . $incrementCounter . " patients)\n");
@@ -212,6 +223,8 @@ if ($counter > 0) {
     $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
     echo outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
 }
+
+outputMessage("Finished patients import" . " $counter\n");
 
 if ($seriousOptimize) {
     // reset the audit log to the original value
