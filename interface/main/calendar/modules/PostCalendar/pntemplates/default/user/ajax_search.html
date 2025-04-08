@@ -184,6 +184,19 @@
 </div>
 
 <script>
+
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .calsearch_event {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .calsearch_event:hover {
+        background-color: #f0f0f5;
+    }
+</style>
+`);
+
 // jQuery stuff to make the page a little easier to use
 
 $(function () {
