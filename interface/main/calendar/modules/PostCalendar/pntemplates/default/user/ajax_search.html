@@ -27,10 +27,15 @@
                 <div class="form-group">
                     <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
                     <div class="form-row">
-                        <div class="col">
-                            <select class="form-control" name="pc_keywords_andor">
-                                <option value="AND">[-xlt t='AND'-]</option>
-                                <option value="OR">[-xlt t='OR'-]</option>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="pc_keywords" id="pc_keywords"
+                                placeholder="Search patients, providers, appointments, or comments"
+                                value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" name="pc_keywords_andor" id="pc_keywords_andor" disabled>
+                                <option value="AND" [-php-] echo ($_POST['pc_keywords_andor'] == 'AND' || empty($_POST['pc_keywords_andor'])) ? 'selected' : ''; [-/php-]>[-xlt t='AND'-]</option>
+                                <option value="OR" [-php-] echo ($_POST['pc_keywords_andor'] == 'OR') ? 'selected' : ''; [-/php-]>[-xlt t='OR'-]</option>
                             </select>
                         </div>
                         <div class="col-1">
@@ -189,6 +194,32 @@ $(function () {
         [-php-] require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); [-/php-]
         [-php-] // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma [-/php-]
         ,format: 'm/d/Y'
+    });
+
+    // function to check keywords and toggle AND/OR selector
+    function toggleAndOrSelector() {
+        const keywords = $("#pc_keywords").val().trim();
+        const hasMultipleWords = keywords.includes(' ');
+
+        if (hasMultipleWords) {
+            $("#pc_keywords_andor").prop('disabled', false);
+        } else {
+            $("#pc_keywords_andor").prop('disabled', true);
+        }
+    }
+
+    // runs when the page loads
+    toggleAndOrSelector();
+
+    // runs when the user input gets changed
+    $("#pc_keywords").on('input', toggleAndOrSelector);
+
+    // pressing the enter key will search
+    $('#theform input, #theform select').keypress(function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#submit').click();
+        }
     });
 });
 
