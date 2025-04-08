@@ -2501,9 +2501,9 @@ if ($refresh and $refresh != 'fullscreen') {
                         </span>
                         <span class="TEXT_class">
                             <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php
-                                if ($DIL_RISKS == 'on') {
-                                    echo "checked='checked'";
-                                } ?>>
+                            if ($DIL_RISKS == 'on') {
+                                echo "checked='checked'";
+                            } ?>>
                             <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php echo xlt('Dilation orders/risks reviewed'); ?></label>
                         </span>
 

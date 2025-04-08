@@ -235,7 +235,8 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
     $setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
     $setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
     $setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
-    echo "Prefs set"; die();
+    echo "Prefs set";
+    die();
 }
 
 /**
