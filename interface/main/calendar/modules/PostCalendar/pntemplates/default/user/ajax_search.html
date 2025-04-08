@@ -12,23 +12,20 @@
 
 <div class="container mt-3">
     <div class="row">
+        <div class="col-12 mb-3">
+            [-php-]
+                echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='btn btn-secondary btn-lg' onclick='top.restoreSession()'>";
+            [-/php-]
+            <i class="fa fa-arrow-left mr-1"></i> [-xlt t='Return to Calendar'-]</a>
+        </div>
         <div class="col-12">
             <h2>[-xlt t='Searching for appointments'-]</h2>
         </div>
         <div class="col-12">
-            <!-- search parameters -->
-            &nbsp;
-            [-php-]
-                echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu text-decoration-none' onclick='top.restoreSession()'>";
-            [-/php-]
-            [-xlt t='Return to calendar'-]</a>
-                <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
-                    <!-- Keywords -->
-                    <div class="form-group">
-                        <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
-                        <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
-                    </div>
-                    <!-- Condition -->
+            <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
+                <!-- Keywords -->
+                <div class="form-group">
+                    <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
                     <div class="form-row">
                         <div class="col">
                             <select class="form-control" name="pc_keywords_andor">
