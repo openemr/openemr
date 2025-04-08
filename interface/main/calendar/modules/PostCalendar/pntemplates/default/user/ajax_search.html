@@ -38,59 +38,63 @@
                                 <option value="OR" [-php-] echo ($_POST['pc_keywords_andor'] == 'OR') ? 'selected' : ''; [-/php-]>[-xlt t='OR'-]</option>
                             </select>
                         </div>
-                        <div class="col-1">
-                            [-xlt t='In'-]:
-                        </div>
-                        <div class="col">
-                            <select class="form-control" name="pc_category">
-                                <option value="">[-xlt t='Any Category'-]</option>
-                                [-$CATEGORY_OPTIONS-]
-                            </select>
-                        </div>
                     </div>
-                    <!-- Topic -->
-                    [-if $USE_TOPICS-]
-                    <div class="form-group">
-                        <select name="pc_topic">
-                            <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
-                            [-$TOPIC_OPTIONS-]
+                    <small class="form-text text-muted">[-xlt t='For multiple words, separate with spaces and select AND/OR'-]</small>
+                </div>
+                <!-- In Category -->
+                <div class="form-group">
+                    <label for="pc_category">[-xlt t='In'-]:</label>
+                    <select class="form-control" name="pc_category" id="pc_category">
+                        <option value="">[-xlt t='Any Category'-]</option>
+                        [-$CATEGORY_OPTIONS-]
+                    </select>
+                </div>
+                <!-- Topic -->
+                [-if $USE_TOPICS-]
+                <div class="form-group">
+                    <select name="pc_topic">
+                        <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
+                        [-$TOPIC_OPTIONS-]
+                    </select>
+                </div>
+                [-/if-]
+                <br />
+                <!-- Between -->
+                <div class="form-row">
+                    <div class="col">
+                        <label for="start">[-xlt t='Between'-]:</label>
+                        <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
+                    </div>
+                    <div class="col">
+                        <label for="end">&nbsp;</label>
+                        <input type="text" class='form-control datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
+                    </div>
+                </div>
+                <br />
+                <!-- For At -->
+                <div class="form-row">
+                    <div class="col">
+                        <label for="provider_id">[-xlt t='For'-]</label>
+                        <select class="form-control" name="provider_id" id="provider_id">
+                            [-$PROVIDER_OPTIONS-]
                         </select>
                     </div>
-                    [-/if-]
-                    <br />
-                    <!-- Between -->
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="start">[-xlt t='Between'-]:</label>
-                            <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
-                        </div>
-                        <div class="col">
-                            <label for="end">&nbsp;</label>
-                            <input type="text" class='form-control datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
-                        </div>
+                    <div class="col">
+                        <label for="pc_facility">[-xlt t='At'-]</label>
+                        <select class="form-control" name="pc_facility" id="pc_facility">
+                            [-$FACILITY_OPTIONS-]
+                        </select>
                     </div>
-                    <br />
-                    <!-- For At -->
-                    <div class="form-row">
-                        <div class="col">
-                            <label for="provider_id">[-xlt t='For'-]</label>
-                            <select class="form-control" name="provider_id" id="provider_id">
-                                [-$PROVIDER_OPTIONS-]
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="pc_facility">[-xlt t='At'-]</label>
-                            <select class="form-control" name="pc_facility" id="pc_facility">
-                                [-$FACILITY_OPTIONS-]
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Submit -->
-                    <button class="btn btn-primary mt-2 btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
-                    <div class="d-none" id="calsearch_status">
-                        <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
-                    </div>
-                </form>
+                </div>
+                <!-- Submit and Reset -->
+                <div class="btn-group mt-2">
+                    <button class="btn btn-primary btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
+                    <button class="btn btn-secondary" type="reset" id="clear_form">[-xlt t='Clear'-]</button>
+                </div>
+                <div class="d-none" id="calsearch_status">
+                    <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
+                </div>
+            </form>
             <!-- end of search parameters -->
 
             [-if isset($SEARCH_PERFORMED)-]
