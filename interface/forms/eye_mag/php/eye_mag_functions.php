@@ -3186,14 +3186,14 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     ?>
     <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" class="Draw_class canvas">
         <?php
-            if ($zone != "SDRETINA") {
-        ?>
+        if ($zone != "SDRETINA") {
+            ?>
         <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
         <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
         <i class="closeButton_3 fas fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
-                <?php
-            } ?>
+            <?php
+        } ?>
         <?php
             $output = canvas_select($zone, $encounter, $pid);
             echo $output;
@@ -3254,13 +3254,13 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <canvas id="myCanvas_<?php echo attr($zone); ?>"
                         name="myCanvas_<?php echo attr($zone); ?>"
                     <?php
-                        if ($zone == "SDRETINA") {
-                            $height_canvas="500";
-                            $width_canvas = "1000";
-                        } else {
-                            $height_canvas="250";
-                            $width_canvas = "450";
-                        }
+                    if ($zone == "SDRETINA") {
+                        $height_canvas = "500";
+                        $width_canvas = "1000";
+                    } else {
+                        $height_canvas = "250";
+                        $width_canvas = "450";
+                    }
                     ?>
                         width="<?php echo attr($width_canvas); ?>"
                         height="<?php echo attr($height_canvas); ?>"></canvas>
