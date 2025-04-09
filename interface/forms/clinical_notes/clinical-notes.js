@@ -59,8 +59,13 @@
         let codeEl = document.getElementById("code_" + rowid1[1]);
         let codeTextEl = document.getElementById("codetext_" + rowid1[1]);
         let codeContext = document.getElementById("description_" + rowid1[1]);
-        typeEl.value = defaultType;
-        categoryEl.value = defaultCategory;
+        // note these two elements could be missing if there are no active list ids enabled for type and category
+        if (typeEl) {
+            typeEl.value = defaultType;
+        }
+        if (categoryEl) {
+            categoryEl.value = defaultCategory;
+        }
         codeEl.value = '';
         codeTextEl.value = '';
         codeContext.dataset.textcontext = '';
@@ -68,13 +73,14 @@
 
     function removeVal(rowid) {
         rowid1 = rowid.split('tb_row_');
-        document.getElementById("description_" + rowid1[1]).value = '';
-        document.getElementById("code_" + rowid1[1]).value = '';
-        document.getElementById("codetext_" + rowid1[1]).value = '';
-        document.getElementById("code_date_" + rowid1[1]).value = '';
-        document.getElementById("clinical_notes_type_" + rowid1[1]).value = '';
-        document.getElementById("clinical_notes_category_" + rowid1[1]).value = '';
-        document.getElementById("id_" + rowid1[1]).value = '';
+        let elements = ['description', 'code', 'codetext', 'code_date', 'clinical_notes_type', 'clinical_notes_category', 'id'];
+        for (let i = 0; i < elements.length; i++) {
+            let el = document.getElementById(elements[i] + "_" + rowid1[1]);
+            if (el) {
+                el.value = '';
+            }
+        }
+        // this is an external function defined in CustomTemplateApi.js
         if (typeof doTemplateEditor !== 'undefined') {
             document.getElementById("description_" + rowid1[1]).addEventListener('dblclick', event => {
                 doTemplateEditor(this, event, event.target.dataset.textcontext);

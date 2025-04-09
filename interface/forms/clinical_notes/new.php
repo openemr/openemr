@@ -51,7 +51,7 @@ $getDefaultValue = function ($items) {
         return $val['selected'];
     });
     if (empty($selectedItem)) {
-        return ($items[0] ?? [])['value'] ?? '';
+        return ''; // default to an empty value if there is no default option
     } else {
         return array_pop($selectedItem)['value'] ?? '';
     }
