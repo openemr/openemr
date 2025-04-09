@@ -229,7 +229,6 @@ $GLOBALS['images_static_absolute'] = "$webserver_root/public/images";
 
 //Composer vendor directory, absolute to the webserver root.
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
-$GLOBALS['fonts_dir'] = "{$web_root}/public/fonts";
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file

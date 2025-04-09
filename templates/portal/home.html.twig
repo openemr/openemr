@@ -96,6 +96,7 @@
         var jsGlobals = {
             languageDirection: jsLanguageDirection,
             date_display_format: {{ dateDisplayFormat | js_escape }},
+            time_display_format: {{ timeDisplayFormat | js_escape }},
             timezone: {{ timezone | js_escape }},
             assetVersion: {{ assetVersion | js_escape }}
         };
@@ -603,7 +604,7 @@
                                     } %}
                                 {% endif %}
                                 <!-- Reports -->
-                                {% if ccdaOk or 'allow_custom_report' or portal_onsite_document_download %}
+                                {% if ccdaOk or allow_custom_report or portal_onsite_document_download %}
                                     {% include "portal/partial/_nav_icon.html.twig"
                                         with {
                                         url: "reports-list-card"|attr_url
@@ -708,7 +709,7 @@
                     title: "Medical Reports"|xl
                     ,icon: "gear"
                     ,description: "Setup your digital signature for signing your clinical documents, update your login credentials, or change application settings in the portal."|xl
-                    ,enabled: ccdaOk or 'allow_custom_report' or portal_onsite_document_download
+                    ,enabled: ccdaOk or allow_custom_report or portal_onsite_document_download
                 }
                 ,{
                     title: "PRO Assessment"|xl
@@ -783,7 +784,7 @@
                         , localLink: false
                     } %}
                 {% endif %}
-                {% if 'allow_custom_report' %}
+                {% if allow_custom_report %}
                     {% include "portal/partial/_nav_icon.html.twig"
                         with {
                         url: "reportcard"|attr_url
