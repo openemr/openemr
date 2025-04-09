@@ -29,7 +29,7 @@
                     <div class="form-row">
                         <div class="col-md-8">
                             <input type="text" class="form-control" name="pc_keywords" id="pc_keywords"
-                                placeholder="Search patients, providers, appointments, or comments"
+                                placeholder= "[-xla t='Search patients, providers, appointments, or comments'-]"
                                 value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
                         </div>
                         <div class="col-md-4">
@@ -86,10 +86,9 @@
                         </select>
                     </div>
                 </div>
-                <!-- Submit and Reset -->
+                <!-- Submit -->
                 <div class="btn-group mt-2">
                     <button class="btn btn-primary btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
-                    <button class="btn btn-secondary" type="reset" id="clear_form">[-xlt t='Clear'-]</button>
                 </div>
                 <div class="d-none" id="calsearch_status">
                     <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
