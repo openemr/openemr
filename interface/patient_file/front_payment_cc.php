@@ -66,7 +66,7 @@ if ($_POST['mode'] == 'Stripe') {
         "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
 
     $facilityData = sqlQuery("SELECT " .
-        "f.name, f.federal_ein, u.fname AS d_fname, u.lname AS d_lname, u.mname AS d_mname, u.npi AS d_npi  " .
+        "f.name, f.federal_ein, u.fname AS d_fname, u.lname AS d_lname, u.mname AS d_mname, u.npi AS d_npi " .
         "FROM facility AS f " .
         "LEFT OUTER JOIN form_encounter AS fe ON f.id = fe.facility_id " .
         "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id " .
