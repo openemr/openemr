@@ -66,9 +66,10 @@ if ($_POST['mode'] == 'Stripe') {
         "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
 
     $facilityData = sqlQuery("SELECT " .
-        "f.name, f.federal_ein " .
+        "f.name, f.federal_ein, u.fname AS d_fname, u.lname AS d_lname, u.mname AS d_mname, u.npi AS d_npi  " .
         "FROM facility AS f " .
         "LEFT OUTER JOIN form_encounter AS fe ON f.id = fe.facility_id " .
+        "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id " .
         "WHERE fe.encounter = ? LIMIT 1", array($encounter));
 
     $userData = sqlQuery("SELECT " .
@@ -83,15 +84,15 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['token'] = $_POST['stripeToken'];
     $transaction['description'] = $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'];
     $transaction['metadata'] = [
-        'Patient' => $pd['lname'] . ' ' . $pd['fname'] . ' ' . $pd['mname'],
-        'Patient Id' => $pd['pubpid'],
-        'Doctor Name' => $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'],
-        'Doctor Tax Id' => $userData['federaltaxid'],
         'Facility Name' => $facilityData['name'],
-        'Facility Tax Id' => $facilityData['federal_ein'],
-        //'MRN' => $pd['pubpid'],
-        'Invoice Items (date encounter)' => $_POST['encs'],
-        'Invoice Total' => $transaction['amount']
+        'Facility Id' => $facilityData['federal_ein'],
+        'Doctor Name' => $facilityData['d_lname'] ? ($facilityData['d_lname'] . ' ' . $facilityData['d_fname'] . ' ' . $facilityData['d_mname']) : null,
+        'Doctor NPI' => $facilityData['d_npi'],
+        'Chart Id' => $pd['pubpid'],
+        'Invoice Number' => $pd['pubpid'] . '.' . $encounter,
+        'Invoice Total' => $transaction['amount'],
+        'User Id' => $_SESSION['authUserID'],
+        'User Name' => $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname']
     ];
     try {
         $response = $pay->submitPaymentToken($transaction);
