@@ -43,6 +43,21 @@ if (empty($formid)) {
         $alertMessage = xl("Already a Clinical Notes form for this encounter. Using existing Clinical Notes form.");
     }
 }
+
+$clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
+$clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
+$getDefaultValue = function ($items) {
+    $selectedItem = array_filter($items, function ($val) {
+        return $val['selected'];
+    });
+    if (empty($selectedItem)) {
+        return ($items[0] ?? [])['value'] ?? '';
+    } else {
+        return array_pop($selectedItem)['value'] ?? '';
+    }
+};
+$defaultType = $getDefaultValue($clinical_notes_type);
+$defaultCategory = $getDefaultValue($clinical_notes_category);
 if ($formid) {
     $records = $clinicalNotesService->getClinicalNotesForPatientForm($formid, $_SESSION['pid'], $_SESSION['encounter']) ?? [];
     $check_res = [];
@@ -53,6 +68,13 @@ if ($formid) {
             $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
             $check_res[] = $record;
         }
+        // if we don't have a type_title or type_category, we are going to set them to the default values as we don't have a matching list option type / category
+        if (empty($record['type_title'])) {
+            $record['clinical_notes_type'] = $defaultType;
+        }
+        if (empty($record['type_category'])) {
+            $record['clinical_notes_category'] = $defaultCategory;
+        }
     }
 } else {
     $check_res = [
@@ -60,15 +82,14 @@ if ($formid) {
             'id' => 0
             ,'code' => ''
             ,'codetext' => ''
-            ,'clinical_notes_type' => ''
+            ,'clinical_notes_type' => $defaultType
+            ,'clinical_notes_category' => $defaultCategory
             ,'description' => ''
             ,'date' => oeFormatShortDate(date('Y-m-d'))
         ]
     ];
 }
 
-$clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
-$clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
 $twig = new TwigContainer(dirname(__DIR__), $GLOBALS['kernel']);
 $t = $twig->getTwig();
 $viewArgs = [
@@ -89,9 +110,15 @@ $viewArgs = [
     ,'alertMessage' => $alertMessage
     ,'rootdir' => $GLOBALS['rootdir']
     ,'formid' => $formid
+    ,'defaultType' => $defaultType
+    ,'defaultCategory' => $defaultCategory
 ];
-$templatePageEvent = new TemplatePageEvent('clinical_notes/new.php', [],
-    'clinical_notes/templates/new.html.twig', $viewArgs);
+$templatePageEvent = new TemplatePageEvent(
+    'clinical_notes/new.php',
+    [],
+    'clinical_notes/templates/new.html.twig',
+    $viewArgs
+);
 $event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 if (!$event instanceof TemplatePageEvent) {
     throw new \RuntimeException('Invalid event returned from template page event');

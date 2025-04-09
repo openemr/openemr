@@ -13,13 +13,13 @@
                     {% if clinical_notes_type|length > 0 %}
                     <div class="col-12">
                         <label for="clinical_notes_type_{{ index|attr }}" class="h5">{{ 'Type'|xlt }}:</label>
+                        {# We can't use the selectList twig extension right now as the select name and id are different values here #}
                         <select name="clinical_notes_type[]" id="clinical_notes_type_{{ index|attr }}" class="form-control clinical_notes_type">
                             <option value="">{{ 'Select Note Type'|xlt }}</option>
                             {% for type in clinical_notes_type %}
                                 {% set selected = false %}
+                                {# if obj.clinical_notes_type is empty it gets set to the default value for the list #}
                                 {% if type.value is not empty and type.value == obj.clinical_notes_type %}
-                                    {% set selected = true %}
-                                {% elseif type.selected %}
                                     {% set selected = true %}
                                 {% endif %}
                                 {% if selected %}
@@ -38,9 +38,8 @@
                             <option value="">{{ 'Select Note Category'|xlt }}</option>
                             {% for type in clinical_notes_category %}
                                 {% set selected = false %}
+                                {# if obj.clinical_notes_category is empty it gets set to the default value for the list #}
                                 {% if type.value is not empty and type.value == obj.clinical_notes_category %}
-                                    {% set selected = true %}
-                                {% elseif type.selected %}
                                     {% set selected = true %}
                                 {% endif %}
                                 {% if selected %}

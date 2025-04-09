@@ -1,3 +1,21 @@
+{#
+The Edit/Create template of the clinical note form.
+
+@package OpenEMR
+@subpackage Forms
+@link   http://www.open-emr.org
+@author Jacob T Paul <jacob@zhservices.com>
+@author Vinish K <vinish@zhservices.com>
+@author Brady Miller <brady.g.miller@gmail.com>
+@author Jerry Padgett <sjpadgett@gmail.com>
+@author Stephen Nielson <snielson@discoverandchange.com>
+@copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+@copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+@copyright Copyright (c) 2021 <sjpadgett@gmail.com>
+@copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+@copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 {% extends "core/base.html.twig" %}
 {% block head %}
     {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker','datetime-picker-translated']) }}
@@ -7,6 +25,8 @@
             window.oeFormsClinicalNotes.init({
                 codeArray: {{ clinical_notes_type|json_encode }}
                 ,alertMessage: {{ alertMessage|js_escape }}
+                ,defaultType: {{ defaultType|json_encode }}
+                ,defaultCategory: {{ defaultCategory|json_encode }}
             });
         } else {
             console.error("Failed to find oeFormsClinicalNotes object. Please check the JavaScript file.");

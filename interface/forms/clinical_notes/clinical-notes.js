@@ -1,5 +1,25 @@
+/**
+ * Javascript library for the clinical note form.
+ *
+ * @package OpenEMR
+ * @subpackage Forms
+ * @link   http://www.open-emr.org
+ * @author Jacob T Paul <jacob@zhservices.com>
+ * @author Vinish K <vinish@zhservices.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @author Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
 (function() {
     let codeArray = [];
+    let defaultType = '';
+    let defaultCategory = '';
     function duplicateRow(event) {
         event.preventDefault();
         let btn = event.currentTarget;
@@ -29,6 +49,21 @@
         changeIds('btn-delete');
         changeIds('id');
         removeVal(newRow.id);
+        updateDefaults(newRow.id);
+    }
+
+    function updateDefaults(rowid) {
+        let rowid1 = rowid.split('tb_row_');
+        let typeEl = document.getElementById("clinical_notes_type_" + rowid1[1]);
+        let categoryEl = document.getElementById("clinical_notes_category_" + rowid1[1]);
+        let codeEl = document.getElementById("code_" + rowid1[1]);
+        let codeTextEl = document.getElementById("codetext_" + rowid1[1]);
+        let codeContext = document.getElementById("description_" + rowid1[1]);
+        typeEl.value = defaultType;
+        categoryEl.value = defaultCategory;
+        codeEl.value = '';
+        codeTextEl.value = '';
+        codeContext.dataset.textcontext = '';
     }
 
     function removeVal(rowid) {
@@ -111,6 +146,8 @@
     }
     function init(config) {
         codeArray = config.codeArray;
+        defaultType = config.defaultType || '';
+        defaultCategory = config.defaultCategory || '';
         // Initialize other components if needed
         $(function () {
             // special case to deal with static and dynamic datepicker items
