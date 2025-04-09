@@ -40,6 +40,7 @@ class C_Document extends Controller
     private $cryptoGen;
     private bool $skip_acl_check = false;
     private DocumentTemplateService $templateService;
+    private bool $returnRetrieveKey = false;
 
     public function __construct($template_mod = "general")
     {
@@ -562,6 +563,21 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
+    public function onReturnRetrieveKey()
+    {
+        $this->returnRetrieveKey = true;
+    }
+
+    public function offReturnRetrieveKey()
+    {
+        $this->returnRetrieveKey = false;
+    }
+
+    public function isReturnRetrieveKey()
+    {
+        return $this->returnRetrieveKey;
+    }
+
     /**
      * Retrieve file from hard disk / CouchDB.
      * In case that file isn't download this public function will return thumbnail image (if exist).
@@ -601,6 +617,15 @@ class C_Document extends Controller
             $show_original = true;
         } elseif ($show_original == "false") {
             $show_original = false;
+        }
+
+        // Note this is necessary to not allow the controller the ability to return the raw file
+        //  which could introduce xss vulnerabilities.
+        if ($disable_exit == true) {
+            if (!$this->isReturnRetrieveKey()) {
+                // Access to return the raw file has not been granted. Very likely bad actor, so die.
+                die(xlt("Not authorized to return raw file."));
+            }
         }
 
         switch ($context) {

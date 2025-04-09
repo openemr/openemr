@@ -63,6 +63,7 @@ foreach ($documentIds as $documentId) {
 
     // Copy the document
     $obj = new C_Document();
+    $obj->onReturnRetrieveKey();
     $document = $obj->retrieve_action("", $documentId, true, true, true);
     if ($document) {
         $pos = strpos(substr($file['name'], -5), '.');

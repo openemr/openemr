@@ -1,5 +1,29 @@
 # CHANGELOG.md
 
+## [7.0.3.3](https://github.com/openemr/openemr/milestone/20?closed=1) - 2025-04-06
+
+### Fixed
+- Security fixes for 7.0.3.3 ([#8235](https://github.com/openemr/openemr/issues/8235))
+
+
+## [7.0.3.2](https://github.com/openemr/openemr/milestone/19?closed=1) - 2025-04-02
+
+### Fixed
+-  Calendar: user created appointment is invisible due to duration of zero minutes ([#8146](https://github.com/openemr/openemr/issues/8146))
+-  e-sign does not show amendment information ([#8205](https://github.com/openemr/openemr/issues/8205))
+-  lose insurance data entry when switch from primary to secondary ([#8116](https://github.com/openemr/openemr/issues/8116))
+-  patient ledger missing insurance company name in credit detail ([#8180](https://github.com/openemr/openemr/issues/8180))
+-  rel-703 fix for missing ckeditor 5 in package.json ([#8203](https://github.com/openemr/openemr/pull/8203))
+
+
+## [7.0.3.1](https://github.com/openemr/openemr/milestone/18?closed=1) - 2025-03-30
+
+### Fixed
+-  Encounter Date Of Service saves as empty date when server 'Date Display Format' is not YYYY-MM-DD ([#8173](https://github.com/openemr/openemr/issues/8173))
+-  Format the billing tracker dates with js in datatables display ([#7955](https://github.com/openemr/openemr/pull/7955))
+-  Security fixes for 7.0.3.1 ([#8200](https://github.com/openemr/openemr/issues/8200))
+
+
 ## [7.0.3](https://github.com/openemr/openemr/milestone/16?closed=1) - 2025-03-23
 
 ### Added
