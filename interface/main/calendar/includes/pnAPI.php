@@ -410,42 +410,6 @@ function pnVarCleanFromInput()
 }
 
 /**
- * clean user input, but just for strings
- * <br />
- * Gets a global variable, cleaning it up to try to ensure that
- * hack attacks don't work
- * @param $string - the string to clean
- * @returns string
- * @return $cleaned - $string after being cleaned
- */
-function pnStringCleanFromInput($string)
-{
-    // If string is empty, return empty string
-    if (empty($string)) {
-        return '';
-    }
-
-    // Define patterns to remove potentially harmful HTML/script elements
-    $search = array(
-        '|</?\s*SCRIPT.*?>|si',
-        '|</?\s*FRAME.*?>|si',
-        '|</?\s*OBJECT.*?>|si',
-        '|</?\s*META.*?>|si',
-        '|</?\s*APPLET.*?>|si',
-        '|</?\s*LINK.*?>|si',
-        '|</?\s*IFRAME.*?>|si',
-        '|STYLE\s*=\s*"[^"]*"|si'
-    );
-
-    // Replace harmful patterns with empty string
-    $cleaned = preg_replace($search, '', $string);
-    $cleaned = strip_tags($cleaned);
-    $cleaned = htmlspecialchars($cleaned, ENT_QUOTES, 'UTF-8');
-
-    return $cleaned;
-}
-
-/**
  * ready user output
  * <br />
  * Gets a variable, cleaning it up such that the text is
