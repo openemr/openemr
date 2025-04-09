@@ -98,6 +98,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
         jsGlobals.languageDirection = jsLanguageDirection;
         jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
+        jsGlobals.time_display_format = <?php echo js_escape($GLOBALS['time_display_format']); ?>;
         jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone'] ?? ''); ?>;
         jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
         var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
@@ -261,7 +262,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         }
     </script>
 
-    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys']); ?>
+    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys', 'i18formatting']); ?>
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {

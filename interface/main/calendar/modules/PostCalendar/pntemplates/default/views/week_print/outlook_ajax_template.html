@@ -7,6 +7,7 @@
 [-* as published by the Free Software Foundation; either version 2            *-]
 [-* of the License, or (at your option) any later version.                    *-]
 [-*****************************************************************************-]
+[-* RM add address if configured - first two lines *-]
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
@@ -467,7 +468,8 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
             $lname = substr($event['patient_name'], 0, $commapos);
-	    $fname = substr($event['patient_name'], $commapos + 2);
+            $fname = substr($event['patient_name'], $commapos + 2);
+            $address = $event['patient_address']; //RM
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -480,8 +482,8 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             // the divTitle is what appears when the user hovers the mouse over the DIV
-            $divTitle = date("D, d M Y", strtotime($date ?? null));
-
+            //RM null instead of string parameter to strtotime deprecated
+            $divTitle = date("D, d M Y", strtotime($date ?? ""));
             $eventdatetime = strtotime(($date ?? '')." ".$starth.":".$startm);
 
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
@@ -506,6 +508,9 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         $content .= "," . text($fname);
+                           if ($event['title'] &&  $GLOBALS['calendar_appt_style'] == 5) { //RM
+                            $content .= "," . text($address);
+                          }
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)

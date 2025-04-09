@@ -31,8 +31,7 @@ function startApp() {
 
     // initialise the application
     const loaderList = [
-        "File",
-        "Url"
+        "File"
     ];
 
     const filterList = [

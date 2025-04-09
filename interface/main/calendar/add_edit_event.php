@@ -1706,7 +1706,10 @@ function isRegularRepeat($repeat)
 <div class="form-row mx-2">
     <div class="col-sm form-group">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
-        <label id='title_prefcat' class='font-weight-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
+        <label id='title_prefcat' class='font-weight-bold' style='display:none'>
+            <?php echo xlt('Exclusive Category'); ?>:
+            <i class="text-muted font-weight-normal ml-1"><?php echo xlt('(If selected, you will only be shown as available for this category)'); ?></i>
+        </label>
         <?php
         if ($_GET['group'] != true) {
             generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));

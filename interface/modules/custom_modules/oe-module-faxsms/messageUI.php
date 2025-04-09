@@ -90,7 +90,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             'modal_height' => 775,
             'modal_size_height' => 'full',
             'type' => 'email'
-            );
+        );
         $GLOBALS['kernel']->
         getEventDispatcher()->
         dispatch(
@@ -174,16 +174,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             });
             return false;
         };
-
-        function base64ToArrayBuffer(_base64Str) {
-            let binaryString = window.atob(_base64Str);
-            let binaryLen = binaryString.length;
-            let bytes = new Uint8Array(binaryLen);
-            for (let i = 0; i < binaryLen; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes;
-        }
 
         function showPrint(base64, _contentType = 'image/tiff') {
             const binary = atob(base64.replace(/\s/g, ''));
@@ -316,24 +306,83 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             }
         }
 
-        // Function to convert TIFF to PNG/JPEG images
+        // Helper: Convert base64 to ArrayBuffer.
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
         async function convertTiffToImages(tiffData, mime = 'image/jpeg') {
             try {
-                let tiff = new Tiff({buffer: tiffData});
-                const directories = tiff.countDirectory();
-                const promises = [];
-
-                for (let i = 0; i < directories; i++) {
-                    promises.push(new Promise((resolve, reject) => {
-                        tiff.setDirectory(i);
-                        let canvas = tiff.toCanvas();
-                        let imageData = canvas.toDataURL(mime);
-                        resolve(imageData);
-                    }));
+                // Convert base64 string to ArrayBuffer if necessary.
+                if (typeof tiffData === 'string') {
+                    if (tiffData.indexOf('base64,') > -1) {
+                        tiffData = tiffData.split('base64,')[1];
+                    }
+                    tiffData = base64ToArrayBuffer(tiffData);
                 }
-                return Promise.all(promises);
+
+                console.log("TIFF ArrayBuffer byteLength:", tiffData.byteLength);
+
+                // Create a copy of the buffer to avoid issues if UTIF.js detaches the original.
+                const bufferCopy = tiffData.slice(0);
+
+                // Decode the TIFF file to get IFDs (pages).
+                const ifds = UTIF.decode(bufferCopy);
+                if (!ifds || ifds.length === 0) {
+                    throw new Error("No IFDs found in TIFF data.");
+                }
+                console.log("Decoded IFDs:", ifds);
+
+                // Attempt to decode images for all IFDs.
+                UTIF.decodeImage(bufferCopy, ifds);
+
+                const imagePromises = ifds.map((ifd, index) => {
+                    return new Promise((resolve, reject) => {
+                        try {
+                            // If the IFD's data is empty, force decode this IFD.
+                            if (!ifd.data || ifd.data.length === 0) {
+                                UTIF.decodeImage(bufferCopy, ifd);
+                            }
+
+                            // Get RGBA pixel data.
+                            const rgba = UTIF.toRGBA8(ifd);
+                            if (!rgba || rgba.length === 0) {
+                                return reject(new Error(`No pixel data for IFD index ${index}.`));
+                            }
+
+                            const width = ifd.t256 || ifd.width;
+                            const height = ifd.t257 || ifd.height;
+                            if (!width || !height) {
+                                return reject(new Error(`Missing dimensions for IFD index ${index}.`));
+                            }
+
+                            // Create a canvas and draw the image.
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            const imageData = new ImageData(new Uint8ClampedArray(rgba), width, height);
+                            ctx.putImageData(imageData, 0, 0);
+
+                            // Convert the canvas to a data URL.
+                            const dataURL = canvas.toDataURL(mime);
+                            resolve(dataURL);
+                        } catch (error) {
+                            console.error(`Error processing IFD index ${index}:`, error);
+                            reject(error);
+                        }
+                    });
+                });
+
+                return Promise.all(imagePromises);
             } catch (error) {
-                console.error('Failed to convert TIFF to images:', error);
+                console.error("Failed to convert TIFF to images using UTIF.js:", error);
                 return [];
             }
         }

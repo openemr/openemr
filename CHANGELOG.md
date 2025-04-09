@@ -1,5 +1,136 @@
 # CHANGELOG.md
 
+## [7.0.3.3](https://github.com/openemr/openemr/milestone/20?closed=1) - 2025-04-06
+
+### Fixed
+- Security fixes for 7.0.3.3 ([#8235](https://github.com/openemr/openemr/issues/8235))
+
+
+## [7.0.3.2](https://github.com/openemr/openemr/milestone/19?closed=1) - 2025-04-02
+
+### Fixed
+-  Calendar: user created appointment is invisible due to duration of zero minutes ([#8146](https://github.com/openemr/openemr/issues/8146))
+-  e-sign does not show amendment information ([#8205](https://github.com/openemr/openemr/issues/8205))
+-  lose insurance data entry when switch from primary to secondary ([#8116](https://github.com/openemr/openemr/issues/8116))
+-  patient ledger missing insurance company name in credit detail ([#8180](https://github.com/openemr/openemr/issues/8180))
+-  rel-703 fix for missing ckeditor 5 in package.json ([#8203](https://github.com/openemr/openemr/pull/8203))
+
+
+## [7.0.3.1](https://github.com/openemr/openemr/milestone/18?closed=1) - 2025-03-30
+
+### Fixed
+-  Encounter Date Of Service saves as empty date when server 'Date Display Format' is not YYYY-MM-DD ([#8173](https://github.com/openemr/openemr/issues/8173))
+-  Format the billing tracker dates with js in datatables display ([#7955](https://github.com/openemr/openemr/pull/7955))
+-  Security fixes for 7.0.3.1 ([#8200](https://github.com/openemr/openemr/issues/8200))
+
+
+## [7.0.3](https://github.com/openemr/openemr/milestone/16?closed=1) - 2025-03-23
+
+### Added
+-  Add fax number to the patient / encounter report ([#7879](https://github.com/openemr/openemr/issues/7879))
+-  Adding a form to the Encounter form menu list from a module ([#7905](https://github.com/openemr/openemr/issues/7905))
+-  Appointment reminder notifications Clickatell Integration ([#7822](https://github.com/openemr/openemr/issues/7822))
+-  Enable module writers to extend the New Encounter save operation (newpatient/save.php) ([#7982](https://github.com/openemr/openemr/issues/7982))
+-  Filter FHIR Appointments to events with a patient. ([#7142](https://github.com/openemr/openemr/pull/7142))
+-  Importing CCDA work - improve care plan display and import infrastructure ([#7930](https://github.com/openemr/openemr/issues/7930))
+-  Improve CCDA import command line tool import_ccda.php ([#7988](https://github.com/openemr/openemr/issues/7988))
+-  Improve duplicate weighting and patient merge. ([#7966](https://github.com/openemr/openemr/issues/7966))
+-  Improve newpatient common.php file to use twig so module writers can extend it ([#7952](https://github.com/openemr/openemr/issues/7952))
+-  Notify users for password issues ([#8082](https://github.com/openemr/openemr/issues/8082))
+-  Relax permissions for faxsms notifications ([#7876](https://github.com/openemr/openemr/issues/7876))
+-  SDC FHIR Pain Management Questionnaires. ([#7971](https://github.com/openemr/openemr/issues/7971))
+-  Support SNOMED-CT US Edition file format changed ([#7976](https://github.com/openemr/openemr/issues/7976))
+-  Twigify user profile dropdown menu to allow module customizations ([#8104](https://github.com/openemr/openemr/issues/8104))
+-  Updating coding look and feel ([#7946](https://github.com/openemr/openemr/issues/7946))
+-  View sent email notifications in the FaxSMS module ([#7845](https://github.com/openemr/openemr/issues/7845))
+-  add entry date option to cash receipts ([#8080](https://github.com/openemr/openemr/pull/8080))
+-  add entry date to cash receipts report ([#8044](https://github.com/openemr/openemr/issues/8044))
+-  add real world testing 2025 report ([#7909](https://github.com/openemr/openemr/issues/7909))
+-  appointments report: display patients address; select multiple providers ([#8061](https://github.com/openemr/openemr/issues/8061))
+-  ckeditor5 upgrade ([#7961](https://github.com/openemr/openemr/issues/7961))
+-  provide print button for dispense rx in eye form spectacle pop up ([#8126](https://github.com/openemr/openemr/issues/8126))
+-  refines eye form Imp/Plan Builder search ([#8140](https://github.com/openemr/openemr/issues/8140))
+-  remove non-recommended abbreviations when entering prescription ([#7862](https://github.com/openemr/openemr/issues/7862))
+-  upgrade php spreadsheet package ([#7920](https://github.com/openemr/openemr/issues/7920))
+
+
+### Fixed
+- #7914 - Fix for contacts being empty or string ([#7915](https://github.com/openemr/openemr/pull/7915))
+- Multiple provider feature appointment delete issue ([#7900](https://github.com/openemr/openemr/pull/7900))
+- Update eye/style.css ([#8046](https://github.com/openemr/openemr/pull/8046))
+- Update onetime_auth table ([#8097](https://github.com/openemr/openemr/issues/8097))
+-  API token revocation broken ([#8110](https://github.com/openemr/openemr/issues/8110))
+-  Api Clients Trusted User List empty ([#8111](https://github.com/openemr/openemr/issues/8111))
+-  Contrib form scanned_notes need to be fixed ([#7888](https://github.com/openemr/openemr/issues/7888))
+-  Core Advanced Prior Auth module custom patient menu broken due to absolute urls ([#7871](https://github.com/openemr/openemr/issues/7871))
+-  Creating Prescription is using current user instead of selected provider for prescription. ([#7916](https://github.com/openemr/openemr/issues/7916))
+-  CustomTemplateAPI in encounter form is breaking with error ([#8050](https://github.com/openemr/openemr/issues/8050))
+-  Dicom Viewer is not loading when OpenEMR installed in subfolder such as /openemr/ ([#8054](https://github.com/openemr/openemr/issues/8054))
+-  Dicom view image load fails ([#8065](https://github.com/openemr/openemr/issues/8065))
+-  Double event triggered from encounter save. ([#8013](https://github.com/openemr/openemr/issues/8013))
+-  Encounter form does not link new issues added to patient at time of encounter form ([#7984](https://github.com/openemr/openemr/issues/7984))
+-  Encounter form does not remove linked issues if all issues are de-selected ([#7983](https://github.com/openemr/openemr/issues/7983))
+-  Encounter load issue ([#7929](https://github.com/openemr/openemr/issues/7929))
+-  Expand/Collapse buttons in demographics home dashboard do not remember saved settings ([#8105](https://github.com/openemr/openemr/issues/8105))
+-  External CDR see DSI Source Attributes link broken on windows ([#8103](https://github.com/openemr/openemr/issues/8103))
+-  IOPDATE IOPPOSTIME handling ([#8139](https://github.com/openemr/openemr/issues/8139))
+-  Immunization Date of VIS Statement Help Link Broken ([#7844](https://github.com/openemr/openemr/issues/7844))
+-  Language selector not showing up on login screen ([#8158](https://github.com/openemr/openemr/issues/8158))
+-  New Encounter Form does not change facility dropdown when provider is changed. ([#7960](https://github.com/openemr/openemr/issues/7960))
+-  OemrUI usage of expandable_files setting breaks if user.inc.php has not been included in calling script ([#7990](https://github.com/openemr/openemr/issues/7990))
+-  SNOMED lookup is slow in some places ([#7276](https://github.com/openemr/openemr/issues/7276))
+-  Spelling mistake for "Subscribter Phone" ([#7937](https://github.com/openemr/openemr/issues/7937))
+-  Unable to select message to delete Message Center due to it opening the message instead ([#7867](https://github.com/openemr/openemr/issues/7867))
+-  Vitals Form weight / height when validating data blanks screen after confirming validation prompt ([#7857](https://github.com/openemr/openemr/issues/7857))
+-  Vitals save new form fails after batch ccda import due to vitals save insertion order ([#8051](https://github.com/openemr/openemr/issues/8051))
+-  When an api client is created without any contact information the edit form fails ([#7914](https://github.com/openemr/openemr/issues/7914))
+-  api _sort always defaults to descending ([#8127](https://github.com/openemr/openemr/issues/8127))
+-  appointments report csv file header row does not match report headers ([#8010](https://github.com/openemr/openemr/issues/8010))
+-  billing tracker date sorting ([#7954](https://github.com/openemr/openemr/issues/7954))
+-  calendar provider out of office php math error ([#7847](https://github.com/openemr/openemr/issues/7847))
+-  drop down menu appears behind clinical notes, in an encounter ([#7897](https://github.com/openemr/openemr/issues/7897))
+-  edi count off due to additional address segments with ordering provider ([#7921](https://github.com/openemr/openemr/issues/7921))
+-  encounter load failure when clicking on encounter link from billing manager ([#7874](https://github.com/openemr/openemr/issues/7874))
+-  eye form RETINA section was not honoring preferences, because it was mis-labelled as POSTSEG ([#8151](https://github.com/openemr/openemr/issues/8151))
+-  eye form labels for visual acuity and intraocular pressure boxes ([#8026](https://github.com/openemr/openemr/issues/8026))
+-  find_group_popup.php fails to load due to broken script tag ([#7956](https://github.com/openemr/openemr/issues/7956))
+-  jquery-datetimepicker-translated is not handling localized time properly ([#7953](https://github.com/openemr/openemr/issues/7953))
+-  multiple instances of the same form trigger duplicate function fatal error ([#8007](https://github.com/openemr/openemr/issues/8007))
+-  newpatient/common.php throws javascript error due to encounter not serializing with binary uuid ([#8005](https://github.com/openemr/openemr/issues/8005))
+-  out of date packages in composer.json ([#7851](https://github.com/openemr/openemr/issues/7851))
+-  pagination _limit does not actually limit the results so results come back with +1 records ([#8128](https://github.com/openemr/openemr/issues/8128))
+-  php8 eye form fixes ([#7923](https://github.com/openemr/openemr/issues/7923))
+-  physicians and clinicians can't start a new questionnaire form from an encounter ([#7942](https://github.com/openemr/openemr/issues/7942))
+-  prior auth module patient menu dashboard broken ([#7848](https://github.com/openemr/openemr/issues/7848))
+-  provider not included in csv from appointments report ([#7977](https://github.com/openemr/openemr/issues/7977))
+-  reports with relative globals.php include do not render in encounter summary screen. ([#8075](https://github.com/openemr/openemr/issues/8075))
+-  sales by item report qty ([#7964](https://github.com/openemr/openemr/issues/7964))
+-  slow loading of edit form inside an encounter if referring provider is empty ([#8090](https://github.com/openemr/openemr/issues/8090))
+-  statement count interferes with insurance pending in get_patient_balance() ([#7958](https://github.com/openemr/openemr/issues/7958))
+-  various eye form issues noted by author ([#8003](https://github.com/openemr/openemr/issues/8003))
+-  webroot missing for new encounter save ([#8027](https://github.com/openemr/openemr/issues/8027))
+- updated US CDC website link to current immunization VIS page ([#7855](https://github.com/openemr/openemr/pull/7855))
+
+
+### Changed
+-  Tracker for broken dependency upgrades ([#7778](https://github.com/openemr/openemr/issues/7778))
+-  fixes for php 8.4 ([#7892](https://github.com/openemr/openemr/issues/7892))
+
+
+### OpenEMR Developer Changes
+
+### Added
+-  Ability to send emails for practice via module, address book & finder, portal documents & secure messaging ([#7865](https://github.com/openemr/openemr/issues/7865))
+
+
+### Fixed
+-  oauth2 keys generation fix ([#8069](https://github.com/openemr/openemr/issues/8069))
+
+
+### Changed
+-  Refactor oe-module-faxsms abstract base class and clients ([#7859](https://github.com/openemr/openemr/issues/7859))
+
+
 ## [7.0.2.3](https://github.com/openemr/openemr/milestone/15?closed=1) - 2024-11-24
 
 ### Fixed
