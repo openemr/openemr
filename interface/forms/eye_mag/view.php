@@ -356,7 +356,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <li id="tab3_CC">
                                     <a href="#tab3"><?php if ($CC3 > '') {
                                             echo "<span class='fa fa-check'></span>";
-                                        } ?><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
+                                                    } ?><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -464,17 +464,17 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <li id="tab1_HPI_tab" class="active">
                                     <a href="#tab1"><?php if ($CC1 > '') {
                                             echo "<span class='fa fa-check'></span>";
-                                        } ?><?php echo xlt('HPI'); ?> 1</a>
+                                                    } ?><?php echo xlt('HPI'); ?> 1</a>
                                 </li>
                                 <li id="tab2_HPI_tab">
                                     <a href="#tab2"><?php if ($CC2 > '') {
                                             echo "<span class='fa fa-check'></span>";
-                                        } ?><?php echo xlt('HPI'); ?> 2</a>
+                                                    } ?><?php echo xlt('HPI'); ?> 2</a>
                                 </li>
                                 <li id="tab3_HPI_tab">
                                     <a href="#tab3"><?php if ($CC3 > '') {
                                             echo "<span class='fa fa-check'></span>";
-                                        } ?><?php echo xlt('HPI'); ?> 3</a>
+                                                    } ?><?php echo xlt('HPI'); ?> 3</a>
                                 </li>
                               </ul>
                             </div>

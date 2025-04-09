@@ -4811,7 +4811,8 @@ function cmp($a, $b)
  * @param        $pid
  * @param string $bywhat == byday or byhour
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
+{
     global $PMSFH;
     global $form_folder;
     global $priors;
@@ -4913,61 +4914,61 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
             }
             $i++;
         }
-   } else { //there are no priors, get info from this visit
+    } else { //there are no priors, get info from this visit
             $VISITS_date[0] = $dated;
-            if ($encounter_data['IOPTIME']) {
-                $time_here = explode(":", $encounter_data['IOPTIME']);
-                $time = $time_here[0] . ":" . $time_here[1];
-                $time_OU[] = $time;
-            }
+        if ($encounter_data['IOPTIME']) {
+            $time_here = explode(":", $encounter_data['IOPTIME']);
+            $time = $time_here[0] . ":" . $time_here[1];
+            $time_OU[] = $time;
+        }
 
-            if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
-                $GONIO_date[$i] = $dated;
-            }
+        if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
+            $GONIO_date[$i] = $dated;
+        }
 
             $ODIOP[$i]['time'] = $time;
             $OSIOP[$i]['time'] = $time;
 
-            if ($encounter_data['ODIOPAP'] > '') {
-                if (!is_int($encounter_data['ODIOPAP'])) {
-                    $ODIOP[$k]['IOP'] = '';
-                } else {
-                    $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
-                $ODIOP[$i]['method'] = "AP";
-            } elseif ($encounter_data['ODIOPTPN'] > '') {
-                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
-                $ODIOP[$i]['method'] = "TPN";
-            }
-
-            if ($encounter_data['OSIOPAP'] > '') {
-                if (!is_int($encounter_data['OSIOPAP'])) {
-                    $OSIOP[$k]['IOP'] = '';
-                } else {
-                    $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
-                $OSIOP[$i]['method'] = "AP";
-            } elseif ($encounter_data['OSIOPTPN'] > '') {
-                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
-                $OSIOP[$i]['method'] = "TPN";
+        if ($encounter_data['ODIOPAP'] > '') {
+            if (!is_int($encounter_data['ODIOPAP'])) {
+                $ODIOP[$k]['IOP'] = '';
             } else {
-                //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
-                //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
-            }
+                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
+            $ODIOP[$i]['method'] = "AP";
+        } elseif ($encounter_data['ODIOPTPN'] > '') {
+            $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
+            $ODIOP[$i]['method'] = "TPN";
+        }
 
-            if ($encounter_data['ODIOPTARGET'] > '0') {
-                $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
+        if ($encounter_data['OSIOPAP'] > '') {
+            if (!is_int($encounter_data['OSIOPAP'])) {
+                $OSIOP[$k]['IOP'] = '';
             } else {
-                list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
-                $ODIOPTARGETS[$i] = $ODIOPTARGET;
-                //$encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
-            }
+                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
+            $OSIOP[$i]['method'] = "AP";
+        } elseif ($encounter_data['OSIOPTPN'] > '') {
+            $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
+            $OSIOP[$i]['method'] = "TPN";
+        } else {
+            //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
+            //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
+        }
 
-            if ($encounter_data['OSIOPTARGET']) {
-                $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
-            } else {
-                list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
-                $OSIOPTARGETS[$i] = $OSIOPTARGET;
-                $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
-            }
+        if ($encounter_data['ODIOPTARGET'] > '0') {
+            $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
+        } else {
+            list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+            $ODIOPTARGETS[$i] = $ODIOPTARGET;
+            //$encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
+        }
+
+        if ($encounter_data['OSIOPTARGET']) {
+            $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
+        } else {
+            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+            $OSIOPTARGETS[$i] = $OSIOPTARGET;
+            $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
+        }
     }
 
     //There are visits for testing only, no IOP, or old tests have been imported, like VF or OCTs...
@@ -5083,14 +5084,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
         }
     }
 
-    $dates_OU = "'" .implode("','", $date_OU) . "'";
+    $dates_OU = "'" . implode("','", $date_OU) . "'";
     $OD_values = implode(",", $OD_values);
     $OS_values = implode(",", $OS_values);
     $OCT_values = "'" . implode("','", $OCT_values) . "'";
     $VF_values = "'" . implode("','", $VF_values) . "'";
     $GONIO_values =  "'" . implode("','", $GONIO_values) . "'";
     $ODIOPTARGET_values = implode(",", $ODIOPTARGET_values);
-    $OSIOPTARGET_values = implode(",",$OSIOPTARGET_values);
+    $OSIOPTARGET_values = implode(",", $OSIOPTARGET_values);
     $times_OU = "'" . implode("','", $times_OU) . "'";
     $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
     $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
@@ -5325,15 +5326,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
         </div>
         <div class="right" style="position:relative;float:right; margin: 0px 5px 10px;text-align:center;width:60%;">
             <?php
-                if ($priors) {
-                    if ($bywhat == 'byday') { //$bywhat='byday'
-                        $class_1 = "nodisplay";
-                        $class_2 = "";
-                    } else {
-                        $class_2 = "nodisplay";
-                        $class_1 = "";
-                    }
-                    ?>
+            if ($priors) {
+                if ($bywhat == 'byday') { //$bywhat='byday'
+                    $class_1 = "nodisplay";
+                    $class_2 = "";
+                } else {
+                    $class_2 = "nodisplay";
+                    $class_1 = "";
+                }
+                ?>
                     <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
                     <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
                     <hr />
@@ -5443,7 +5444,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                         type: 'line',
                         data: {
                             labels: [
-                                <?php echo $dates_OU; ?>
+                            <?php echo $dates_OU; ?>
                             ],
                             datasets: [
                                 {
@@ -5626,7 +5627,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
  *
  * @return mixed|string
 */
-function display_VisualAcuities($pid=0) {
+function display_VisualAcuities($pid = 0)
+{
         global $priors;
     ?>
 <div>
@@ -5657,41 +5659,41 @@ function display_VisualAcuities($pid=0) {
         </tr>
         <?php
             $flip_priors = new ArrayIterator(array_reverse($priors));
-            foreach ($flip_priors as $prior) {
-                $old_date_timestamp = strtotime($prior['visit_date']);
-                $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
+        foreach ($flip_priors as $prior) {
+            $old_date_timestamp = strtotime($prior['visit_date']);
+            $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
 
-                $va_dates[]   = $visit['exam_date'];
-                // Some people write Va as 20/20, or 6/6.
-                // We need to remove the prefix
-                // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
-                $prior['SCODVA'] = preg_replace("/\d+\//", "", $prior['SCODVA']);
-                $prior['SCOSVA'] = preg_replace("/\d+\//", "", $prior['SCOSVA']);
-                $prior['CCODVA'] = preg_replace("/\d+\//", "", $prior['CCODVA']);
-                $prior['CCOSVA'] = preg_replace("/\d+\//", "", $prior['CCOSVA']);
-                $prior['ARODVA'] = preg_replace("/\d+\//", "", $prior['ARODVA']);
-                $prior['AROSVA'] = preg_replace("/\d+\//", "", $prior['AROSVA']);
-                $prior['CRODVA'] = preg_replace("/\d+\//", "", $prior['CRODVA']);
-                $prior['CROSVA'] = preg_replace("/\d+\//", "", $prior['CROSVA']);
-                $prior['MRODVA'] = preg_replace("/\d+\//", "", $prior['MRODVA']);
-                $prior['MROSVA'] = preg_replace("/\d+\//", "", $prior['MROSVA']);
-                $prior['CTLODVA'] = preg_replace("/\d+\//", "", $prior['CTLODVA']);
-                $prior['CTLOSVA'] = preg_replace("/\d+\//", "", $prior['CTLOSVA']);
-                $va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
-                $va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
-                $va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
-                $va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
-                $va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
-                $va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
-                $va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
-                $va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
-                $va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
-                $va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
-                $va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
-                $va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
-                $va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
-                $va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
-                ?>
+            $va_dates[]   = $visit['exam_date'];
+            // Some people write Va as 20/20, or 6/6.
+            // We need to remove the prefix
+            // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
+            $prior['SCODVA'] = preg_replace("/\d+\//", "", $prior['SCODVA']);
+            $prior['SCOSVA'] = preg_replace("/\d+\//", "", $prior['SCOSVA']);
+            $prior['CCODVA'] = preg_replace("/\d+\//", "", $prior['CCODVA']);
+            $prior['CCOSVA'] = preg_replace("/\d+\//", "", $prior['CCOSVA']);
+            $prior['ARODVA'] = preg_replace("/\d+\//", "", $prior['ARODVA']);
+            $prior['AROSVA'] = preg_replace("/\d+\//", "", $prior['AROSVA']);
+            $prior['CRODVA'] = preg_replace("/\d+\//", "", $prior['CRODVA']);
+            $prior['CROSVA'] = preg_replace("/\d+\//", "", $prior['CROSVA']);
+            $prior['MRODVA'] = preg_replace("/\d+\//", "", $prior['MRODVA']);
+            $prior['MROSVA'] = preg_replace("/\d+\//", "", $prior['MROSVA']);
+            $prior['CTLODVA'] = preg_replace("/\d+\//", "", $prior['CTLODVA']);
+            $prior['CTLOSVA'] = preg_replace("/\d+\//", "", $prior['CTLOSVA']);
+            $va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
+            $va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
+            $va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
+            $va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
+            $va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
+            $va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
+            $va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
+            $va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
+            $va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
+            $va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
+            $va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
+            $va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
+            $va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
+            $va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
+            ?>
         <tr>
             <td><?php echo $prior['visit_date']; ?></td>
             <td><?php echo $prior['SCODVA']; ?></td><td><?php echo $prior['SCOSVA']; ?></td>
@@ -5703,21 +5705,23 @@ function display_VisualAcuities($pid=0) {
             <td><?php echo $prior['CTLODVA']; ?></td><td><?php echo $prior['CTLOSVA']; ?></td>
             <td colsan="3"></td>
         </tr>
-        <?php
-            }
+            <?php
+        }
         ?>
     </table>
     <table class="top_right" style="width:40%;">
         <?php if ($priors) {
             $VA_dates   = implode("','", $va_dates);
-            If ($va_SCODVA) $VA_SCODVA  = implode(',',$va_SCODVA);
-            $VA_SCOSVA  = implode(',',$va_SCOSVA);
-            $VA_CCODVA  = implode(',',$va_CCODVA);
-            $VA_CCOSVA  = implode(',',$va_CCOSVA);
-            $VA_MRODVA  = implode(',',$va_MRODVA);
-            $VA_MROSVA  = implode(',',$va_MROSVA);
+            if ($va_SCODVA) {
+                $VA_SCODVA  = implode(',', $va_SCODVA);
+            }
+            $VA_SCOSVA  = implode(',', $va_SCOSVA);
+            $VA_CCODVA  = implode(',', $va_CCODVA);
+            $VA_CCOSVA  = implode(',', $va_CCOSVA);
+            $VA_MRODVA  = implode(',', $va_MRODVA);
+            $VA_MROSVA  = implode(',', $va_MROSVA);
             $VA_CTLODVA = implode(',', $va_CTLODVA);
-            $VA_CTLOSVA = implode(',',$va_CTLOSVA);
+            $VA_CTLOSVA = implode(',', $va_CTLOSVA);
 
             ?>
                 <canvas id="canvas_VA"></canvas>
@@ -5736,7 +5740,7 @@ function display_VisualAcuities($pid=0) {
                         labels: ['<?php echo $VA_dates; ?>'],
                         datasets: [
                             <?php
-                            if ( !empty($VA_SCODVA) || !empty($VA_SCOSVA) ) { ?>
+                            if (!empty($VA_SCODVA) || !empty($VA_SCOSVA)) { ?>
                             {
                                 axis: 'y',
                                 type: 'line',
@@ -5778,7 +5782,7 @@ function display_VisualAcuities($pid=0) {
                                 pointHitRadius: 3
                             },
                             <?php  }
-                            if ( !empty($VA_CCODVA) || !empty($VA_CCOSVA) ) {
+                            if (!empty($VA_CCODVA) || !empty($VA_CCOSVA)) {
                                 ?>
                             {
                                 axis: 'y',
@@ -5821,8 +5825,8 @@ function display_VisualAcuities($pid=0) {
                                 pointHitRadius: 3
                             },
                             <?php  }
-                            if ( !empty($VA_MRODVA) || !empty($VA_MROSVA) ) {
-                                 ?>
+                            if (!empty($VA_MRODVA) || !empty($VA_MROSVA)) {
+                                ?>
                             {
                                 axis: 'y',
                                 type: 'line',
@@ -5864,7 +5868,7 @@ function display_VisualAcuities($pid=0) {
                                 pointHitRadius: 3
                             },
                             <?php  }
-                            if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA) ) {
+                            if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA)) {
                                 ?>
                             {
                                 axis: 'y',
@@ -5906,7 +5910,7 @@ function display_VisualAcuities($pid=0) {
                                 pointRadius: 1,
                                 pointHitRadius: 3
                             }
-                            <?php
+                                <?php
                             }
                             ?>
                         ]
@@ -5948,20 +5952,18 @@ function display_VisualAcuities($pid=0) {
 
             </script>
                 <?php
-            } else {
-                echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
+        } else {
+            echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
                 <ul>
                 <li> Va measurements</li>
 
                 </ul>
                 Visual Acuity graphs are not generated on the initial visit...</span></div>";
-            } ?>
+        } ?>
             </table>
         </div>
     <?php
-
-
-    }
+}
 
 
 # gets the provider from the encounter file , or from the logged on user or from the patient file
