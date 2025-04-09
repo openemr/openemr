@@ -1344,7 +1344,7 @@ if (!empty($_GET['prov']) && ($_GET['prov'] == true)) {
     $form_id = 'theform_groups';
 }
 ?>
-<form role="form" method='post' name='<?php echo $form_id; ?>' id='<?php echo $form_id; ?>' action='add_edit_event.php?eid=<?php echo attr_url($eid) ?>'>
+<form role="form" method='post' name='<?php echo attr($form_id); ?>' id='<?php echo attr($form_id); ?>' action='add_edit_event.php?eid=<?php echo attr_url($eid) ?>'>
 
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type='hidden' size='2' name='resname' value='empty' />

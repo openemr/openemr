@@ -126,8 +126,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 VALUES ('page_validation', 'add_edit_event#theform_prov', '/interface/main/calendar/add_edit_event.php?prov=true', 170, '{"form_title":{"presence": {"message": "Title Required"}}}', 1);
 #EndIf
 
-#IfRow3D list_options list_id page_validation option_id add_edit_event#theform_prov title /interface/main/calendar/add_edit_event.php?prov=true
 UPDATE `list_options`
 SET `notes` = '{"form_title":{"presence": {"message": "Title Required"}}}'
-WHERE `list_id` = 'page_validation' AND `option_id` = 'add_edit_event#theform_prov' AND `title` = '/interface/main/calendar/add_edit_event.php?prov=true';
-#EndIf
+WHERE `list_id` = 'page_validation' AND `option_id` = 'add_edit_event#theform_prov' AND `title` = '/interface/main/calendar/add_edit_event.php?prov=true' AND `note` = '';
