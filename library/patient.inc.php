@@ -1563,7 +1563,7 @@ function getEffectiveInsurances($patient_id, $encdate)
         $insarr[] = $tmp;
     }
 
-    return $insarr ?? array();
+    return $insarr;
 }
 
 /**
