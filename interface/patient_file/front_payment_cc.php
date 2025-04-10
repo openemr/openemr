@@ -83,7 +83,7 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['currency'] = "USD";
     $transaction['token'] = $_POST['stripeToken'];
     $description = ($facilityData['d_lname'] ? ($facilityData['d_lname'] . ' ' . $facilityData['d_fname'] . ' ' . $facilityData['d_mname']) :
-        $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname']) . ' - Chart Id: ' .$pd['pubpid'];
+        $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname']) . ' - Chart Id:' .$pd['pubpid'];
     $transaction['description'] = $description;
     $transaction['metadata'] = [
         'Facility Name' => $facilityData['name'],
