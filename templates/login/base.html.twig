@@ -59,10 +59,6 @@ and semantic choices
 
 </body>
 
-{% block post_body %}
-    {# @todo Product Reg should be its own module and injected in a better way #}
-    {% include "login/partials/html/product_registration_modal.html.twig" %}
-{% endblock %}
 </html>
 {% if displayGoogleSignin %}
     {# @todo Google signing should be its own module and injected in a better way #}
