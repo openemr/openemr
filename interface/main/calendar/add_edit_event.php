@@ -1873,7 +1873,7 @@ function validateform(event,valu){
             onlyInteger: true,
             greaterThanOrEqualTo: 0,
             lessThanOrEqualTo: 23,
-            message: "must be a valid hour (0-23)"
+            message: "must have a valid hour (0-23)"
         },
         presence: {
             allowEmpty: false,
@@ -1886,7 +1886,7 @@ function validateform(event,valu){
             onlyInteger: true,
             greaterThanOrEqualTo: 0,
             lessThanOrEqualTo: 59,
-            message: "must be a valid minute (0-59)"
+            message: "must have a valid minute (0-59)"
         },
         presence: {
             allowEmpty: false,
@@ -1898,7 +1898,7 @@ function validateform(event,valu){
         numericality: {
             onlyInteger: true,
             greaterThan: 0,
-            message: "must be a positive number"
+            message: "Must be a positive number"
         },
         presence: {
             allowEmpty: false,

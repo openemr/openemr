@@ -247,6 +247,18 @@ function submitme(new_validate,e,form_id, constraints) {
                         return <?php echo xlj('Must be future date');?>;
                     case 'Recipient required unless status is Done':
                         return <?php echo xlj('Recipient required unless status is Done');?>;
+                    case 'must have a valid hour (0-23)':
+                        return <?php echo xlj('must have a valid hour (0-23)');?>;
+                    case 'Hour is required':
+                        return <?php echo xlj('Hour is required');?>;
+                    case 'must have a valid minute (0-59)':
+                        return <?php echo xlj('must have a valid minute (0-59)');?>;
+                    case 'Minute is required':
+                        return <?php echo xlj('Minute is required');?>;
+                    case 'Must be a positive number':
+                        return <?php echo xlj('Must be a positive number');?>;
+                    case 'Duration is required':
+                        return <?php echo xlj('Duration is required');?>;
                     default:
                        return <?php echo xlj('is not valid');?>;
                 }
