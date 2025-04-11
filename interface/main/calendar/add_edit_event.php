@@ -944,6 +944,8 @@ if ($groupid) {
  var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
  var durations = new Array();
+
+ const IN_OFFICE_CAT_ID = '2';
 <?php
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
@@ -1060,7 +1062,7 @@ function set_display() {
         var catid = s.options[s.selectedIndex].value;
         var style_apptstatus = document.getElementById('title_apptstatus').style;
         var style_prefcat = document.getElementById('title_prefcat').style;
-        if (catid == '2') { // In Office
+        if (catid == IN_OFFICE_CAT_ID) { // In Office
             style_apptstatus.display = 'none';
             style_prefcat.display = '';
             f.form_apptstatus.style.display = 'none';
