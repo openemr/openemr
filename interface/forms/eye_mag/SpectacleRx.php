@@ -532,12 +532,12 @@ if ($_REQUEST['dispensed']) {
                                                                 /<?php echo xlt("Near"); ?></span></td>
                                                         <td class="font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
                                                         <td class="WMid"><?php echo text($row['ODMIDADD']); ?></td>
-                                                        <td class="WAdd2"><?php echo text($row['ODADD2']); ?></td>
+                                                        <td class="WAdd2"><?php echo text($row['ODADD']); ?></td>
                                                     </tr>
                                                     <tr class="NEAR">
                                                         <td class="font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                                                         <td class="WMid"><?php echo text($row['OSMIDADD']); ?></td>
-                                                        <td class="WAdd2"><?php echo text($row['OSADD2']); ?></td>
+                                                        <td class="WAdd2"><?php echo text($row['OSADD']); ?></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2" class="up" class="font-weight-bold text-right align-top"
