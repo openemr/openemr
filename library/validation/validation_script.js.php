@@ -33,6 +33,22 @@ if ($use_validate_js) {
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/moment/moment.js"></script>
     <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_modified.js"></script>
     <script src="<?php echo $GLOBALS['rootdir'] ?>/../library/js/vendors/validate/validate_extend.js"></script>
+
+    <style type="text/css">
+    .error-message {
+        position: absolute;
+        z-index: 1000;
+        background-color: #fff;
+        border: 1px solid var(--danger);
+        border-radius: 4px;
+        padding: 6px 12px;
+        max-width: 250px;
+        white-space: normal;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        color: var(--danger);
+        margin-top: 5px;
+    }
+    </style>
     <?php
 }
 ?>
@@ -147,16 +163,12 @@ function submitme(new_validate,e,form_id, constraints) {
             function appendError(input, id, message){
 
                 //append 'span' tag for error massages if not exist
-                if($("#error_" + id).length == 0) {
-                    //If have another element after the input
-                    if($(input).next().length > 0) {
+                if ($("#error_" + id).length == 0) {
+                    // Create hidden error message
+                    var errorHtml = '<span class="error-message" id="error_' + id + '"></span>';
 
-                        $(input).next().after("<span id='error_" + id +"' class='error-message' '></span>");
-
-                    } else {
-                        $(input).after("<span id='error_" + id +"' class='error-message'></span>");
-
-                    }
+                    // Position after the input
+                    $(input).after(errorHtml);
                 }
                 //show error message
                 //Validate.js enables to overwrite the error messages by adding 'message' to constraints json. if you want to use your custom message instead
@@ -190,6 +202,15 @@ function submitme(new_validate,e,form_id, constraints) {
                     }
                 }
 
+                $(input).hover(
+                    function() {
+                        var $errorMsg = $("#error_" + id);
+                        $errorMsg.show();
+                    },
+                    function() {
+                        $("#error_" + id).hide();
+                    }
+                );
 
                 //bind hide function on focus/select again
                 $(input).on('click focus select', function(){
@@ -203,6 +224,7 @@ function submitme(new_validate,e,form_id, constraints) {
                     });
                 }
 
+                $("#error_" + id).hide();
             }
             /*
             * hide error message
@@ -210,7 +232,7 @@ function submitme(new_validate,e,form_id, constraints) {
             **/
             function hideErrors(input, id){
                 $(input).removeClass('error-border');
-                $("#error_" + id).text('');
+                $("#error_" + id).remove();
 
                 var parent_div = $(input).parents('div.tab');
                 if($(parent_div).is('div')) {
