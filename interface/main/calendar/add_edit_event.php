@@ -1067,11 +1067,16 @@ function set_display() {
             style_prefcat.display = '';
             f.form_apptstatus.style.display = 'none';
             f.form_prefcat.style.display = '';
+            f.form_duration.disabled = true;
+            f.form_duration.value = '';
+            document.getElementById('tdallday4').style.color = 'var(--gray)';
         } else {
             style_prefcat.display = 'none';
             style_apptstatus.display = '';
             f.form_prefcat.style.display = 'none';
             f.form_apptstatus.style.display = '';
+            f.form_duration.disabled = false;
+            document.getElementById('tdallday4').style.color = '';
         }
     }
 }
@@ -1092,28 +1097,36 @@ function set_category() {
 // Modify some visual attributes when the all-day or timed-event
 // radio buttons are clicked.
 function set_allday() {
-    var f = document.forms[0];
-    var color1 = 'var(--gray)';
-    var color2 = 'var(--gray)';
-    var disabled2 = true;
+    const f = document.forms[0];
+    const s = f.form_category;
+    let color1 = 'var(--gray)';
+    let color2 = 'var(--gray)';
+    let timeDisabled = true;
+    let durationDisabled = true;
     if (document.getElementById('rballday1').checked) {
         color1 = '';
     }
     if (document.getElementById('rballday2').checked) {
         color2 = '';
-        disabled2 = false;
+        timeDisabled = false;
+        if (s.selectedIndex >= 0) {
+            var catid = s.options[s.selectedIndex].value;
+            if (catid != IN_OFFICE_CAT_ID) {
+                durationDisabled = false;
+            }
+        } else {
+            durationDisabled = false;
+        }
     }
     document.getElementById('tdallday1').style.color = color1;
     document.getElementById('tdallday2').style.color = color2;
-    //document.getElementById('tdallday3').style.color = color2;
-    document.getElementById('tdallday4').style.color = color2;
     document.getElementById('tdallday5').style.color = color2;
-    f.form_hour.disabled = disabled2;
-    f.form_minute.disabled = disabled2;
+    f.form_hour.disabled = timeDisabled;
+    f.form_minute.disabled = timeDisabled;
     <?php if ($GLOBALS['time_display_format'] == 1) { ?>
-        f.form_ampm.disabled = disabled2;
+        f.form_ampm.disabled = durationDisabled;
     <?php } ?>
-    f.form_duration.disabled = disabled2;
+    f.form_duration.disabled = durationDisabled;
 }
 
 // Modify some visual attributes when the Repeat checkbox is clicked.
@@ -1778,12 +1791,6 @@ if (empty($_GET['prov'])) { ?>
 
 <!-- form support functions-->
 <script>
-/* Form init functions */
-<?php if ($eid) { ?>
-    set_display();
-<?php } else { ?>
-    set_category();
-<?php } ?>
 set_allday();
 set_repeat();
 set_days_every_week();
@@ -1837,6 +1844,13 @@ $(function () {
     $("#form_apptstatus").addClass('form-control-sm');
     $("#form_room").addClass('form-control-sm');
     $(".current a").addClass('active');
+
+    /* Form init functions */
+    <?php if ($eid) { ?>
+        set_display();
+    <?php } else { ?>
+        set_category();
+    <?php } ?>
 });
 
 function are_days_checked(){
