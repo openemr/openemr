@@ -1870,6 +1870,44 @@ function are_days_checked(){
 * */
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,valu){
+    collectvalidation.form_hour = {
+        numericality: {
+            onlyInteger: true,
+            greaterThanOrEqualTo: 0,
+            lessThanOrEqualTo: 23,
+            message: "must have a valid hour (0-23)"
+        },
+        presence: {
+            allowEmpty: false,
+            message: "Hour is required"
+        }
+    };
+
+    collectvalidation.form_minute = {
+        numericality: {
+            onlyInteger: true,
+            greaterThanOrEqualTo: 0,
+            lessThanOrEqualTo: 59,
+            message: "must have a valid minute (0-59)"
+        },
+        presence: {
+            allowEmpty: false,
+            message: "Minute is required"
+        }
+    };
+
+    collectvalidation.form_duration = {
+        numericality: {
+            onlyInteger: true,
+            greaterThan: 0,
+            message: "Must be a positive number"
+        },
+        presence: {
+            allowEmpty: false,
+            message: "Duration is required"
+        }
+    };
+
     $('#form_save').attr('disabled', true);
     //Make sure if days_every_week is checked that at least one weekday is checked.
     if($('#days_every_week').is(':checked') && !are_days_checked()){
