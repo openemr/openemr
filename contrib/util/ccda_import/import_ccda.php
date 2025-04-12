@@ -37,7 +37,7 @@
  */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-//exit;
+exit;
 
 // only allow use from command line
 if (php_sapi_name() !== 'cli') {
@@ -90,8 +90,7 @@ function outputMessage($message): void
 {
     echo("\n");
     echo $message;
-    $file = $GLOBALS['OE_SITE_DIR'] . "/documents/temp/log.txt";
-    file_put_contents($file, $message, FILE_APPEND);
+    file_put_contents("log.txt", $message, FILE_APPEND);
 }
 
 // collect parameters (need to do before globals)
@@ -128,14 +127,9 @@ require_once($openemrPath . "/interface/globals.php");
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
-
-// clear the log so we only keep last session. Saves cleanup time.
-unlink($GLOBALS['OE_SITE_DIR'] . "/documents/temp/log.txt");
-
 // show parameters (need to do after globals)
 outputMessage("OpenEMR path: " . $openemrPath);
-outputMessage("CCDA Imports Location: " . $argv[2]);
-outputMessage("Authority: " . $argv[1]);
+outputMessage("CCDA Imports Location: " . $args['sourcePath']);
 outputMessage("Site: " . $_SESSION['site_id']);
 
 if ($seriousOptimize) {
