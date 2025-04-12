@@ -254,56 +254,56 @@ class ClinicalNoteParser
     public function extractNoteFromTextSection(string $textXML, string $itemId = ''): string|array
     {
         libxml_use_internal_errors(true);
-        $textXML = str_replace("  ", "", (preg_replace('/>\s+</', '><', $textXML)));
+        // Remove extraneous whitespace between tags
+        $textXML = trim(preg_replace('/>\s+</', '><', $textXML));
         $dom = new DOMDocument();
         if (!$dom->loadXML($textXML)) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
             return "Error loading XML: " . implode("; ", array_map(function ($err) {
                     return trim($err->message);
-                }, $errors));
+            }, $errors));
         }
-
         $xpath = new DOMXPath($dom);
+        // Look up the default namespace and register it (if needed).
         $ns = $dom->documentElement->lookupNamespaceURI(null);
         if ($ns) {
             $xpath->registerNamespace('ns', $ns);
         }
 
+        // Instead of a static path can search for all <item> elements with ID or id attributes.
+        // TODO: narrow the search to handle those text sections that don't use item to id but parts of a table.
         if ($itemId) {
-            $items = $xpath->query("//ns:text/ns:list/ns:item[@ID='$itemId']");
+            $items = $xpath->query("//*[local-name()='item' and (@ID='$itemId' or @id='$itemId')]");
         } else {
-            // get all items/notes
-            $items = $xpath->query("//ns:text/ns:list/ns:item[@ID]");
+            $items = $xpath->query("//*[local-name()='item' and (@ID or @id)]");
         }
+
         if ($items->length === 0) {
-            $items = $xpath->query("/ns:text/ns:list/ns:item[@id='$itemId']");
-            if ($items->length === 0) {
-                return "Item with ID '$itemId' not found.";
-            }
+            return "Item with ID '$itemId' not found.";
         }
 
         $fullNarrative = [];
         foreach ($items as $item) {
-            $id = $item->getAttribute("ID") ?? $item->getAttribute("id");
+            // Use uppercase or lowercase attribute
+            $id = $item->getAttribute("ID") ?: $item->getAttribute("id");
             // Get the introductory paragraph (if present)
             $paraText = "";
             $paragraphNodes = $xpath->query("ns:paragraph", $item);
             if ($paragraphNodes->length > 0) {
                 $paraText = trim($paragraphNodes->item(0)->nodeValue);
             }
-            // Find the first <table> element within this item
+            // First table in the item
             $tableNodes = $xpath->query(".//ns:table", $item);
             if ($tableNodes->length === 0) {
                 continue;
             }
             $table = $tableNodes->item(0);
 
-            $headers = array();
+            $headers = [];
             $theadRows = $xpath->query("ns:thead/ns:tr", $table);
             if ($theadRows->length > 0) {
-                $thNodes = $xpath->query("ns:th", $theadRows->item(0));
-                foreach ($thNodes as $th) {
+                foreach ($xpath->query("ns:th", $theadRows->item(0)) as $th) {
                     $headers[] = trim($th->nodeValue);
                 }
             }
@@ -315,32 +315,28 @@ class ClinicalNoteParser
                 }
             }
 
-            $narrativeRows = array();
-            $tbodyRows = $xpath->query("ns:tbody/ns:tr", $table);
-            foreach ($tbodyRows as $tr) {
-                $cells = $xpath->query("*", $tr); // select all child cells (<td> or <th>)
-                $cellParts = array();
+            $narrativeRows = [];
+            foreach ($xpath->query("ns:tbody/ns:tr", $table) as $tr) {
+                $cellParts = [];
                 $colIndex = 0;
-                foreach ($cells as $cell) {
-                    $header = trim($headers[$colIndex] ?? "Column " . ($colIndex + 1));
+                foreach ($xpath->query("*", $tr) as $cell) {
+                    $header = $headers[$colIndex] ?? "Column " . ($colIndex + 1);
                     $cellValue = trim(str_replace("\n", "", $cell->nodeValue));
-                    // Only add if the cell value is not empty
                     if ($cellValue !== "") {
                         $cellParts[] = "$cellValue";
                     }
                     $colIndex++;
                 }
                 if (!empty($cellParts)) {
-                    // Create one sentence for this row
                     $narrativeRows[] = implode(";\n", $cellParts) . ".\n";
                 }
             }
 
             $note = trim($paraText . " " . implode(" ", $narrativeRows));
-            if ($itemId) {
-                return $fullNarrative["#" . $itemId] = $note;
-            }
+            // match syntax of other narrative notes
+            $fullNarrative["#" . $id] = $note;
         }
-        return $fullNarrative;
+
+        return $itemId ? ($fullNarrative["#" . $itemId] ?? "Item with ID '$itemId' not found.") : $fullNarrative;
     }
 }

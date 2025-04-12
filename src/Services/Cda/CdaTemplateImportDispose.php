@@ -34,6 +34,7 @@ class CdaTemplateImportDispose
     protected $codeService;
     protected $userauthorized;
     private int $currentEncounter;
+    private array $encounterList = [];
 
     public function __construct()
     {
@@ -333,10 +334,12 @@ class CdaTemplateImportDispose
         }
         foreach ($clinical_note_array as $key => $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
-            // encounters already created or should be created
+            // encounters already created or should have been created
+            // all newly created encounters get stored to a static array
+            $encounter_for_forms = $this->encounterList[$value['encounter_extension']] ?? null;
             if (empty($encounter_for_forms)) {
                 $encounter_for_forms = $this->findClosestEncounterWithForm(trim($plan_date_value), $pid, 'form_clinical_notes');
-                if (empty($encounter_for_forms && empty($this->currentEncounter))) {
+                if (empty($encounter_for_forms && empty($static_encounter))) {
                     $query_sel_enc = "SELECT encounter FROM form_encounter WHERE date=? AND pid=?";
                     $res_query_sel_enc = $appTable->zQuery($query_sel_enc, array(date('Y-m-d H:i:s'), $pid));
                     if ($res_query_sel_enc->count() == 0) {
@@ -344,10 +347,7 @@ class CdaTemplateImportDispose
                         $res_enc_cur = $res_enc->current();
                         $encounter_for_forms = $res_enc_cur['encounter'];
                     } else {
-                        $encounter_for_forms = $this->currentEncounter;
-                        /*foreach ($res_query_sel_enc as $value2) {
-                            $encounter_for_forms = $value2['encounter'];
-                        }*/
+                        $encounter_for_forms = $encounter_for_forms;
                     }
                 }
             }
@@ -807,6 +807,8 @@ class CdaTemplateImportDispose
                     }
                 }
             }
+
+            $this->encounterList[$value["extension"]] = $encounter_id;
             //to external_encounters
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
             $appTable->zQuery($insertEX, array($encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)));

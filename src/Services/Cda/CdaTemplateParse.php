@@ -68,7 +68,7 @@ class CdaTemplateParse
             '1.3.6.1.4.1.19376.1.5.3.1.3.1' => 'referral',
             '2.16.840.1.113883.10.20.22.2.11.1' => 'dischargeMedications',
             '2.16.840.1.113883.10.20.22.2.41' => 'dischargeSummary',
-            '2.16.840.1.113883.10.20.22.2.65' => 'fetchClinicalNoteData',
+            '2.16.840.1.113883.10.20.22.2.65' => 'clinicalNotes',
         );
 
         $preParseEvent = new CDAPreParseEvent($components);
@@ -1591,27 +1591,30 @@ class CdaTemplateParse
 
     public function clinicalNotes($component)
     {
-        if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
-                $this->fetchClinicalNoteData($value);
-            }
-        } else {
-            $this->fetchClinicalNoteData($component['section']['entry'] ?? null);
-        }
+        // section level parse. All entries will belong to the same encounter
+        $type_code = $component['section']["code"]["code"];
+        $this->fetchClinicalNoteData($component, $type_code);
     }
 
-    public function fetchClinicalNoteData(): void
+    public function fetchClinicalNoteData($entry, $note_type_code): void
     {
-        $parser = new ProgressNoteParser();
-        $progressNotes = $parser->parseProgressNotes($this->conditionedXmlContent);
+        $parser = new ClinicalNoteParser();
+        $progressNotes = $parser->parseClinicalNotesByCode($this->conditionedXmlContent, $note_type_code);
+
         $i = 1;
-        if (isset($progressNotes['progress_notes']) && is_array($progressNotes['progress_notes'])) {
-            foreach ($progressNotes['progress_notes'] as $i => $note) {
+        if (!empty($this->templateData['field_name_value_array']['clinical_notes'])) {
+            $i += count($this->templateData['field_name_value_array']['clinical_notes']);
+        }
+
+        if (isset($progressNotes['clinical_notes']) && is_array($progressNotes['clinical_notes'])) {
+            foreach ($progressNotes['clinical_notes'] as $key => $note) {
+                $this->templateData['field_name_value_array']['clinical_notes'][$i]['encounter_root'] = $note['encounter_root'] ?? '';
+                $this->templateData['field_name_value_array']['clinical_notes'][$i]['encounter_extension'] = $note['encounter_extension'] ?? ''; // reference to the encounter
                 $this->templateData['field_name_value_array']['clinical_notes'][$i]['plan_type'] = $note['plan_type'] ?? '';
                 $this->templateData['field_name_value_array']['clinical_notes'][$i]['date'] = $note['effective_time'] ?? '';
-                $this->templateData['field_name_value_array']['clinical_notes'][$i]['code'] = ($progressNotes['section_metadata']['codeSystemName'] ?? '') . ':' . $progressNotes['section_metadata']['code'] ?? '';
-                $this->templateData['field_name_value_array']['clinical_notes'][$i]['code_text'] = $progressNotes['section_metadata']['displayName'] ?? '';
-                $this->templateData['field_name_value_array']['clinical_notes'][$i]['code_system'] = $progressNotes['section_metadata']['codeSystemName'] ?? '';
+                $this->templateData['field_name_value_array']['clinical_notes'][$i]['code'] = ($note['plan_code_system_name'] ?? 'LOINC') . ':' . $note['plan_code'] ?? '';
+                $this->templateData['field_name_value_array']['clinical_notes'][$i]['code_text'] = $note['plan_display_name'] ?? $progressNotes['section_metadata']['displayName'] ?? '';
+                $this->templateData['field_name_value_array']['clinical_notes'][$i]['code_system'] = $note['plan_code_system_name'] ?? $progressNotes['section_metadata']['codeSystemName'] ?? '';
                 if (isset($note['author_details'])) {
                     $author = $note['author_details'];
                     $this->templateData['field_name_value_array']['clinical_notes'][$i]['author_name'] = $author['name'] ?? '';
@@ -1634,6 +1637,7 @@ class CdaTemplateParse
                     $addAuthor = "AUTHOR: {$author['name']} {$this->templateData['field_name_value_array']['clinical_notes'][$i]['author_address']}\nPHONE: {$author['wp_phone']}\n\n";
                     $this->templateData['field_name_value_array']['clinical_notes'][$i]['description'] = $addAuthor . $note['content'] ?? '';
                 }
+                // track the entry id
                 $this->templateData['entry_identification_array']['clinical_notes'][$i] = $i;
                 $i++;
             }
