@@ -30,6 +30,7 @@ use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 use OpenEMR\Services\Cda\CdaTextParser;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
+use OpenEMR\Services\Cda\ClinicalNoteParser;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -224,6 +225,7 @@ class CarecoordinationTable extends AbstractTableGateway
         // @see https://php.net/xmlreader
         // 10/27/2022 sjp Extended base reader Laminas XML class using provided interface class
         // Needed to add LIBXML_COMPACT | LIBXML_PARSEHUGE flags because large text node(>10MB) will fail.
+        // @see https://www.php.net/manual/en/libxml.constants.php
         try {
             $this->conditionedXmlContent = $this->cleanCcdaXmlContent($xml_content, true);
             $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
@@ -916,6 +918,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'clinical_notes') {
+                $arr_clinical_note['clinical_notes'][$cn]['encounter_root'] = $newdata['clinical_notes']['encounter_root'] ?? null;
+                $arr_clinical_note['clinical_notes'][$cn]['encounter_extension'] = $newdata['clinical_notes']['encounter_extension'] ?? null;
                 $arr_clinical_note['clinical_notes'][$cn]['date'] = $newdata['clinical_notes']['date'] ?? null;
                 $arr_clinical_note['clinical_notes'][$cn]['code'] = $newdata['clinical_notes']['code'] ?? null;
                 $arr_clinical_note['clinical_notes'][$cn]['text'] = $newdata['clinical_notes']['code_text'] ?? null;
@@ -1003,7 +1007,7 @@ class CarecoordinationTable extends AbstractTableGateway
                        WHERE id =? ", array($pid,
                 $document_id));
         }
-    }
+    } // insert_patient
 
     /**
      * @param $unformatted_date
