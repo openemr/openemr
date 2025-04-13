@@ -2203,6 +2203,16 @@ function getTimeStamp() {
  * as a previous setting and the next eye form opened will appear the same way.
  */
 function show_by_setting() {
+    // set display functions for Draw panel appearance
+    // for each DRAW area, if the value AREA_DRAW = 1, show it.
+    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
+    for (index = '0'; index < zones.length; ++index) {
+        if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
+            show_DRAW_section(zones[index]);
+        } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
+            show_QP_section(zones[index],'1');
+        }
+    }
     var tabs_left = $("#setting_tabs_left").val();
     if (typeof tabs_left ==undefined) exit;
     var arrSet = ["HPI","PMH","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
@@ -2331,11 +2341,7 @@ $(function () {
                   $('.close').on('click', function(){
                                     $('#GFS_accordion .hide').slideUp();
                                     });
-                  $('#ODIOPTARGET').on('change', function() {
-                                           refresh_GFS();
-                                           });
                   $('#ODIOPAP,#OSIOPAP,#ODIOPTARGET,#ODIOPTPN,#OSIOPTPN,#OSIOPTARGET').on('change', function() {
-                                                             //this is failing if there is no config_by_day variable.
                                                              refresh_GFS();
                                                              });
                   if ($("#PREFS_KB").val() =='1') {
@@ -3973,7 +3979,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("[id^='Blank_']").on("click", function() {
 
                                            var zone = this.id.match(/Blank_Canvas_(.*)/)[1];
-                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.png");
+                                           $("#url_"+zone).val("../../forms/eye_mag/images/BLANK_BASE.jpg");
                                            //canvas.renderAll();
                                            drawImage(zone);
                                            });
@@ -4432,16 +4438,6 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                  $(this).css("background-color","#ffff99");
                                                  });
                 $( document ).ready(function() {
-                    // set display functions for Draw panel appearance
-                    // for each DRAW area, if the value AREA_DRAW = 1, show it.
-                    var zones = ["PMH","HPI","EXT","ANTSEG","RETINA","NEURO","IMPPLAN"];
-                    for (index = '0'; index < zones.length; ++index) {
-                    if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='DRAW') {
-                    show_DRAW_section(zones[index]);
-                    } else if ($("#PREFS_"+zones[index]+"_RIGHT").val() =='QP') {
-                    show_QP_section(zones[index],'1');
-                    }
-                    }
                     show_by_setting();
                     build_IMPPLAN(obj.IMPPLAN_items);
                 });

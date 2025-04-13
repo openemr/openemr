@@ -3273,7 +3273,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <button id="Blank_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Blank"); ?></button>
             </div>
         </div>
-        <div id="<?php echo attr($zone); ?>_olddrawing"></div>
+        <div id="<?php echo attr($zone); ?>_olddrawing" name="<?php echo attr($zone); ?>_olddrawing"></div>
     </div>
 
     <?php
@@ -5406,13 +5406,19 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                                 x: {
                                     title: {
                                         display: true,
-                                        text: '<?php echo xla("Time of Day"); ?>'
+                                        text: '<?php echo xla("Time of Day"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     },
                                 },
                                 y: {
                                     title: {
                                         display: true,
-                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>'
+                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     },
                                     beginAtZero: true,
                                     Min: 0,
@@ -5572,13 +5578,19 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                                 x: {
                                     title: {
                                         display: true,
-                                        text: '<?php echo xla("Visit Dates"); ?>'
+                                        text: '<?php echo xla("Visit Dates"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     }
                                 },
                                 y: {
                                     title: {
                                         display: true,
-                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>'
+                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
                                     },
                                     beginAtZero: true,
                                     Min: 0,
@@ -5627,335 +5639,451 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
  * @return mixed|string
 */
 function display_VisualAcuities($pid=0) {
-        global $priors;
-    ?>
-<div>
-    <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
-    <h5><?php echo xlt('Visual Acuity History'); ?></h5>
-    <table class="text-center">
-        <tr class="bold text-center">
-            <th></th>
-            <th colspan="2"><?php echo xlt('SC{{abbr without correction}}'); ?></th>
-            <th colspan="2"><?php echo xlt('CC{{abbr Acuity with current Correction}}'); ?></th>
-            <th colspan="2"><?php echo xlt('Ph{{abbr Pinhole acuity}}'); ?></th>
-            <th colspan="2"><?php echo xlt('AR{{abbr Autorefraction acuity}}'); ?></th>
-            <th colspan="2"><?php echo xlt('MR{{abbr Manifest Refraction acuity}}'); ?></th>
-            <th colspan="2"><?php echo xlt('CR{{abbr Cycloplegic Refraction acuity}}'); ?></th>
-            <th colspan="2"><?php echo xlt('CTL{{abbr Contact Lens Refraction acuity}}'); ?></th>
-            <th><?php echo xlt('Comments'); ?></th>
-        </tr>
-        <tr class="bold underline text-center">
-            <td><?php echo xlt('Date'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
-            <td></td>
-        </tr>
-        <?php
-            $flip_priors = new ArrayIterator(array_reverse($priors));
-            foreach ($flip_priors as $prior) {
-                $old_date_timestamp = strtotime($prior['visit_date']);
-                $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
+    global $priors;
+    global $visit_date;
 
-                $va_dates[]   = $visit['exam_date'];
-                // Some people write Va as 20/20, or 6/6.
-                // We need to remove the prefix
-                // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
-                $prior['SCODVA'] = preg_replace("/\d+\//", "", $prior['SCODVA']);
-                $prior['SCOSVA'] = preg_replace("/\d+\//", "", $prior['SCOSVA']);
-                $prior['CCODVA'] = preg_replace("/\d+\//", "", $prior['CCODVA']);
-                $prior['CCOSVA'] = preg_replace("/\d+\//", "", $prior['CCOSVA']);
-                $prior['ARODVA'] = preg_replace("/\d+\//", "", $prior['ARODVA']);
-                $prior['AROSVA'] = preg_replace("/\d+\//", "", $prior['AROSVA']);
-                $prior['CRODVA'] = preg_replace("/\d+\//", "", $prior['CRODVA']);
-                $prior['CROSVA'] = preg_replace("/\d+\//", "", $prior['CROSVA']);
-                $prior['MRODVA'] = preg_replace("/\d+\//", "", $prior['MRODVA']);
-                $prior['MROSVA'] = preg_replace("/\d+\//", "", $prior['MROSVA']);
-                $prior['CTLODVA'] = preg_replace("/\d+\//", "", $prior['CTLODVA']);
-                $prior['CTLOSVA'] = preg_replace("/\d+\//", "", $prior['CTLOSVA']);
-                $va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
-                $va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
-                $va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
-                $va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
-                $va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
-                $va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
-                $va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
-                $va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
-                $va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
-                $va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
-                $va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
-                $va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
-                $va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
-                $va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
-                ?>
-        <tr>
-            <td><?php echo $prior['visit_date']; ?></td>
-            <td><?php echo $prior['SCODVA']; ?></td><td><?php echo $prior['SCOSVA']; ?></td>
-            <td><?php echo $prior['CCODVA']; ?></td><td><?php echo $prior['CCOSVA']; ?></td>
-            <td><?php echo $prior['PHODVA']; ?></td><td><?php echo $prior['PHOSVA']; ?></td>
-            <td><?php echo $prior['ARODVA']; ?></td><td><?php echo $prior['AROSVA']; ?></td>
-            <td><?php echo $prior['MRODVA']; ?></td><td><?php echo $prior['MROSVA']; ?></td>
-            <td><?php echo $prior['CRODVA']; ?></td><td><?php echo $prior['CROSVA']; ?></td>
-            <td><?php echo $prior['CTLODVA']; ?></td><td><?php echo $prior['CTLOSVA']; ?></td>
-            <td colsan="3"></td>
-        </tr>
-        <?php
+    if ($priors) {
+        // We have to get this data if it exists for each prior visit.
+        // if it is a resource hog, then maybe show just the last 10
+        //  Have to test that but for now show it all.
+        usort($priors, function ($a, $b) {
+            $dateA = strtotime($a['visit_date']);
+            $dateB = strtotime($b['visit_date']);
+
+            return $dateB - $dateA; // Sort in descending order
+            //return $b['visit_date'] <=> $a['visit_date'];
+        });
+        $flip_priors = new ArrayIterator(array_reverse($priors));
+        foreach ($flip_priors as $prior) {
+            if ($prior['visit_date'] > $visit_date) {
+                continue;
             }
+            $old_date_timestamp = strtotime($prior['visit_date']);
+            $visit_timestamp = strtotime($visit_date);
+
+            if ($old_date_timestamp > $visit_timestamp) {
+                continue;
+            }
+            // Current Correction or CC refers to the VA with current glasses.
+            $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and RX_NUMBER =1";
+            $wear   = sqlQuery($query, array($pid,$prior['form_id']));
+            $prior['CCODVA'] = $wear['ODVA'];
+            $prior['CCOSVA'] = $wear['OSVA'];
+
+            $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
+            $va_dates[]   = $visit['exam_date'];
+            // Some people write Va as 20/20, or 6/6.
+            // We need to remove the prefix + the "/"
+            // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
+            // Just take digits, even ignore + and - notations
+            $prior['SCODVA'] = preg_replace("/\d+\//", "", $prior['SCODVA']);
+            $prior['SCOSVA'] = preg_replace("/\d+\//", "", $prior['SCOSVA']);
+            $prior['CCODVA'] = preg_replace("/\d+\//", "", $prior['CCODVA']);
+            $prior['CCOSVA'] = preg_replace("/\d+\//", "", $prior['CCOSVA']);
+            $prior['ARODVA'] = preg_replace("/\d+\//", "", $prior['ARODVA']);
+            $prior['AROSVA'] = preg_replace("/\d+\//", "", $prior['AROSVA']);
+            $prior['CRODVA'] = preg_replace("/\d+\//", "", $prior['CRODVA']);
+            $prior['CROSVA'] = preg_replace("/\d+\//", "", $prior['CROSVA']);
+            $prior['MRODVA'] = preg_replace("/\d+\//", "", $prior['MRODVA']);
+            $prior['MROSVA'] = preg_replace("/\d+\//", "", $prior['MROSVA']);
+            $prior['CTLODVA'] = preg_replace("/\d+\//", "", $prior['CTLODVA']);
+            $prior['CTLOSVA'] = preg_replace("/\d+\//", "", $prior['CTLOSVA']);
+            $va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
+            $va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
+            $va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CCODVA']);
+            $va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CCOSVA']);
+            $va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
+            $va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
+            $va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
+            $va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
+            $va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
+            $va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
+            $va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
+            $va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
+            $va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
+            $va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
+            $flip_priors_CC[] = $prior;
+        }
+
+        $VA_dates = implode("','", $va_dates);
+        if (strlen(implode($va_SCODVA)) !== 0) {
+            $VA_SCODVA = implode(',', $va_SCODVA);
+        }
+        if (strlen(implode($va_SCOSVA)) !== 0) {
+            $VA_SCOSVA = implode(',', $va_SCOSVA);
+        }
+        if (strlen(implode($va_CCODVA)) !== 0) {
+            $VA_CCODVA = implode(',', $va_CCODVA);
+        }
+        if (strlen(implode($va_CCOSVA)) !== 0) {
+            $VA_CCOSVA = implode(',', $va_CCOSVA);
+        }
+        if (strlen(implode($va_MRODVA)) !== 0) {
+            $VA_MRODVA = implode(',', $va_MRODVA);
+        }
+        if (strlen(implode($va_MROSVA)) !== 0) {
+            $VA_MROSVA = implode(',', $va_MROSVA);
+        }
+        if (strlen(implode($va_CTLODVA)) !== 0) {
+            $VA_CTLODVA = implode(',', $va_CTLODVA);
+        }
+        if (strlen(implode($va_CTLOSVA)) !== 0) {
+            $VA_CTLOSVA = implode(',', $va_CTLOSVA);
+        }
         ?>
-    </table>
-    <table class="top_right" style="width:40%;">
-        <?php if ($priors) {
-            $VA_dates   = implode("','", $va_dates);
-            If ($va_SCODVA) $VA_SCODVA  = implode(',',$va_SCODVA);
-            If ($va_SCOSVA) $VA_SCOSVA  = implode(',',$va_SCOSVA);
-            If ($va_CCODVA) $VA_CCODVA  = implode(',',$va_CCODVA);
-            If ($va_CCOSVA) $VA_CCOSVA  = implode(',',$va_CCOSVA);
-            If ($va_MRODVA) $VA_MRODVA  = implode(',',$va_MRODVA);
-            If ($va_MROSVA) $VA_MROSVA  = implode(',',$va_MROSVA);
-            If ($va_CTLODVA) $VA_CTLODVA = implode(',',$va_CTLODVA);
-            If ($va_CTLOSVA) $VA_CTLOSVA = implode(',',$va_CTLOSVA);
-
-            ?>
-                <canvas id="canvas_VA"></canvas>
-
-            <script>
-                /**
-                 *  Below is the Chart.js code to render Va for each refraction type
-                 *
-                 */
-                var visit_date = '<?php echo attr($dated); ?>';
-                var dateFormat = 'YYYY-MM-DD';
-
-                var config_byVA = {
-                    type: 'line',
-                    data: {
-                        labels: ['<?php echo $VA_dates; ?>'],
-                        datasets: [
+        <div>
+            <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
+            <h5><?php echo xlt('Visual Acuity History'); ?></h5>
+        </div>
+        <div id="VAHX_table" name="VAHX_table" class="borderShadow table-responsive"
+             style="position:relative;display:inline-block;float:left;vertical-align: middle;width:40%;">
+            <table class="table d-inline">
+                    <tr class="bold text-center">
+                        <th></th>
+                        <?php if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                            <th colspan="2" class="vasc_class"><?php echo xlt('SC{{abbr without correction}}'); ?></th>
                             <?php
-                            if ( !empty($VA_SCODVA) || !empty($VA_SCOSVA) ) { ?>
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OD sc{{Visual Acuity without correction right eye}}"); ?>",
-                                data: [<?php echo $VA_SCODVA; ?>],
-                                fill: false,
-                                borderColor : "#f28282",
-                                backgroundColor : "#f28282",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OS sc{{Visual Acuity without correction left eye}}"); ?>",
-                                data: [<?php echo $VA_SCOSVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "#AA8282",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            <?php  }
-                            if ( !empty($VA_CCODVA) || !empty($VA_CCOSVA) ) {
-                                ?>
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OD CC{{Visual Acuity with correction right eye}}"); ?>",
-                                data: [<?php echo $VA_CCODVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "red",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OS CC{{Visual Acuity with correction left eye}}"); ?>",
-                                data: [<?php echo $VA_CCOSVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "blue",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            <?php  }
-                            if ( !empty($VA_MRODVA) || !empty($VA_MROSVA) ) {
-                                 ?>
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OD MR{{Visual Acuity with Manifest refraction right eye}}"); ?>",
-                                data: [<?php echo $VA_MRODVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "navy",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OS MR{{Visual Acuity with Manifest refraction left eye}}"); ?>",
-                                data: [<?php echo $VA_MROSVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "yellow",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            <?php  }
-                            if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA) ) {
-                                ?>
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OD CTL{{Va with Contact Lens right eye}}"); ?>",
-                                data: [<?php echo $VA_CTLODVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "orange",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "green",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
-                            },
-                            {
-                                axis: 'y',
-                                type: 'line',
-                                label: "<?php echo xla("OS CTL{{Va with Contact Lens left eye}}"); ?>",
-                                data: [<?php echo $VA_CTLOSVA; ?>],
-                                fill: false,
-                                borderColor : "#AA8282",
-                                backgroundColor : "purple",
-                                pointBorderColor : "black",
-                                pointBackgroundColor : "#f28282",
-                                pointBorderWidth : 3,
-                                lineTension: 0.3,
-                                borderCapStyle: 'round',
-                                borderDash: [1,5],
-                                borderJoinStyle: 'miter',
-                                pointHoverRadius: 5,
-                                pointHoverBorderWidth: 2,
-                                pointRadius: 1,
-                                pointHitRadius: 3
+                        }
+                            if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                <th colspan="2" class="vacc_class"><?php echo xlt('CC{{abbr Acuity with current Correction}}'); ?></th>
+                                <?php
                             }
+                            if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                <th colspan="2" class="vaph_class"><?php echo xlt('Ph{{abbr Pinhole acuity}}'); ?></th>
+                                <?php
+                            }
+                            if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                <th colspan="2" class="vaar_class"><?php echo xlt('AR{{abbr Autorefraction acuity}}'); ?></th>
+                                <?php
+                            }
+                            if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                <th colspan="2" class="vamr_class"><?php echo xlt('MR{{abbr Manifest Refraction acuity}}'); ?></th>
+                                <?php
+                            }
+                            if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                <th colspan="2" class="vacr_class"><?php echo xlt('CR{{abbr Cycloplegic Refraction acuity}}'); ?></th>
+                                <?php
+                            }
+                            if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                <th colspan="2" class="vactl_class"><?php echo xlt('CTL{{abbr Contact Lens Refraction acuity}}'); ?></th>
+                            <?php  }  ?>
+                    </tr>
+                    <tr class="bold underline text-center">
+                        <td><?php echo xlt('Date'); ?></td>
+                        <?php if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                            <td class="vasc_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vasc_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
                             <?php
+                        }
+                            if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                <td class="vacc_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacc_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
                             }
+                            if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                <td class="vaph_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vaph_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                            }
+                            if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                <td class="vaar_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vaar_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                            }
+                            if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                <td class="vacr_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacr_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                            }
+                            if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                <td class="vacr_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vacr_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                            }
+                            if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                <td class="vactl_class"><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td class="vactl_class"><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+                                <?php
+                            }
+                        ?>
+                    </tr>
+                    <?php
+                        foreach ($flip_priors_CC as $prior) {
                             ?>
-                        ]
-                    },
-                    options: {
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '<?php echo xla("Visual Acuities by Date"); ?>'
-                            }
+                            <tr>
+                                <td><?php echo $prior['visit_date']; ?></td>
+                                <?php
+                                    if ($VA_SCODVA || $VA_SCOSVA) { ?>
+                                        <td class="vasc_class"><?php echo $prior['SCODVA']; ?></td><td class="vasc_class"><?php echo $prior['SCOSVA']; ?></td>
+                                        <?php
+                                    }
+                                    if ($VA_CCODVA || $VA_CCOSVA) { ?>
+                                        <td class="vacc_class"><?php echo $prior['CCODVA']; ?></td><td class="vacc_class"><?php echo $prior['CCOSVA']; ?></td>
+                                        <?php
+                                    }
+                                    if ($VA_PHODVA || $VA_PHOSVA) { ?>
+                                        <td class="vaph_class"><?php echo $prior['PHODVA']; ?></td><td class="vaph_class"><?php echo $prior['PHOSVA']; ?></td>
+                                        <?php
+                                    }
+                                    if ($VA_ARODVA || $VA_AROSVA) { ?>
+                                        <td class="vaar_class"><?php echo $prior['ARODVA']; ?></td><td class="vaar_class"><?php echo $prior['AROSVA']; ?></td>
+                                        <?php
+                                    }
+                                    if ($VA_MRODVA || $VA_MROSVA) { ?>
+                                        <td class="vamr_class"><?php echo $prior['MRODVA']; ?></td><td class="vamr_class"><?php echo $prior['MROSVA']; ?></td>
+                                        <?php
+                                    }
+                                    if ($VA_CRODVA || $VA_CROSVA) { ?>
+                                        <td class="vacr_class"><?php echo $prior['CRODVA']; ?></td><td class="vacr_class"><?php echo $prior['CROSVA']; ?></td>
+                                        <?php
+                                    }
+                                    if ($VA_CTLODVA || $VA_CTLOSVA) { ?>
+                                        <td class="vactl_class"><?php echo $prior['CTLODVA']; ?></td><td class="vactl_class"><?php echo $prior['CTLOSVA']; ?></td>
+                                    <?php } ?>
+                            </tr>
+
+                            <?php
+
+                        }
+                    ?>
+                </table>
+        </div>
+        <div class="right" style="position:relative;float:right;margin: 0px 5px 10px;text-align:center;width:55%;">
+            <table class="top_right" style="width:40%;">
+                <canvas id="canvas_VA"></canvas>
+                <script>
+                    /**
+                     *  Below is the Chart.js code to render Va for each refraction type
+                     *
+                     */
+                    var visit_date = '<?php echo attr($dated); ?>';
+                    var dateFormat = 'YYYY-MM-DD';
+
+                    var config_byVA = {
+                        type: 'line',
+                        data: {
+                            labels: ['<?php echo $VA_dates; ?>'],
+                            datasets: [
+                                <?php
+                                if ( !empty($VA_SCODVA) || !empty($VA_SCOSVA) ) { ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD sc{{Visual Acuity without correction right eye}}"); ?>",
+                                    data: [<?php echo $VA_SCODVA; ?>],
+                                    fill: false,
+                                    borderColor : "#f28282",
+                                    backgroundColor : "#f28282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS sc{{Visual Acuity without correction left eye}}"); ?>",
+                                    data: [<?php echo $VA_SCOSVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "#AA8282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                <?php  }
+                                if ( !empty($VA_CCODVA) || !empty($VA_CCOSVA) ) {
+                                ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD CC{{Visual Acuity with correction right eye}}"); ?>",
+                                    data: [<?php echo $VA_CCODVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "red",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS CC{{Visual Acuity with correction left eye}}"); ?>",
+                                    data: [<?php echo $VA_CCOSVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "blue",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                <?php  }
+                                if ( !empty($VA_MRODVA) || !empty($VA_MROSVA) ) {
+                                ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD MR{{Visual Acuity with Manifest refraction right eye}}"); ?>",
+                                    data: [<?php echo $VA_MRODVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "navy",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS MR{{Visual Acuity with Manifest refraction left eye}}"); ?>",
+                                    data: [<?php echo $VA_MROSVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "yellow",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                <?php  }
+                                if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA) ) {
+                                ?>
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OD CTL{{Va with Contact Lens right eye}}"); ?>",
+                                    data: [<?php echo $VA_CTLODVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "orange",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "green",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "<?php echo xla("OS CTL{{Va with Contact Lens left eye}}"); ?>",
+                                    data: [<?php echo $VA_CTLOSVA; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "purple",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                }
+                                <?php
+                                }
+                                ?>
+                            ]
                         },
-                        responsive: true,
-                        tooltips: {
-                            enabled: true
-                        },
-                        scales: {
-                            x: {
+                        options: {
+                            plugins: {
                                 title: {
                                     display: true,
-                                    text: '<?php echo xla("Visit Dates"); ?>'
+                                    text: '<?php echo xla("Visual Acuities by Date"); ?>'
                                 }
                             },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: '<?php echo xla("Visual Acuity"); ?>'
+                            responsive: true,
+                            tooltips: {
+                                enabled: true
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '<?php echo xla("Visit Dates"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
+                                    }
                                 },
-                                beginAtZero: true,
-                                Min: 0,
-                                suggestedMax: 50
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '<?php echo xla("Visual Acuity"); ?>',
+                                        font: {
+                                            weight: 'bold' // Set the font weight to bold
+                                        }
+                                    },
+                                    beginAtZero: true,
+                                    Min: 0,
+                                    suggestedMax: 50
+                                }
                             }
                         }
-                    }
-                };
+                    };
 
-                var ctx3 = document.getElementById("canvas_VA").getContext("2d");
+                    var ctx3 = document.getElementById("canvas_VA").getContext("2d");
 
-                var myLine = new Chart(ctx3, config_byVA);
+                    var myLine = new Chart(ctx3, config_byVA);
 
-            </script>
+                </script>
                 <?php
-            } else {
-                echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
-                <ul>
-                <li> Va measurements</li>
+                } else {
+                    echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
+                            <ul>
+                            <li> Va measurements</li>
 
-                </ul>
-                Visual Acuity graphs are not generated on the initial visit...</span></div>";
-            } ?>
+                            </ul>
+                            Visual Acuity graphs are not generated on the initial visit...</span></div>";
+                } ?>
             </table>
         </div>
     <?php
@@ -6231,7 +6359,7 @@ function display_refractive_data($encounter_data)
         ${"RX_TYPE_$count_rx"} = $wearing['RX_TYPE'];
     }
 
-    if (!$ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
+    if ($ODVA || $OSVA || $ARODSPH || $AROSSPH || $MRODSPH || $MROSSPH || $CRODSPH || $CROSSPH || $CTLODSPH || $CTLOSSPH) { ?>
         <table class="refraction_tables">
            <tr class="text-center bold underline" style="background-color: #F3EEC7;">
                 <td ><?php echo oeFormatShortDate($date); ?></td>

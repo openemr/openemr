@@ -1216,13 +1216,6 @@ if ($refresh and $refresh != 'fullscreen') {
                 <!-- end of slide down pupils_panel -->
               </div>
               <!-- end of the CLINICAL BOX -->
-                <!-- start IOP chart section -->
-                <?php (($IOP ?? null) == 1) ? ($display_IOP = "") : ($display_IOP = "nodisplay"); ?>
-
-                <div id="LayerVision_IOP" class="borderShadow <?php echo $display_IOP; ?>">
-                    <?php echo display_GlaucomaFlowSheet($pid); ?>
-                </div>
-                <!-- end IOP chart section -->
 
                 <!-- start Visual Acuity chart section -->
                 <div id="LayerVision_VAHx" class="borderShadow nodisplay">
@@ -1230,7 +1223,14 @@ if ($refresh and $refresh != 'fullscreen') {
                 </div>
                 <!-- end Visual Acuity chart section -->
 
-              <!-- start of the refraction box -->
+                <!-- start IOP chart section -->
+                <?php (($IOP ?? null) == 1) ? ($display_IOP = "") : ($display_IOP = "nodisplay"); ?>
+                <div id="LayerVision_IOP" class="borderShadow <?php echo $display_IOP; ?>">
+                    <?php echo display_GlaucomaFlowSheet($pid); ?>
+                </div>
+                <!-- end IOP chart section -->
+
+                <!-- start of the refraction box -->
               <span class="anchor" id="REFRACTION_anchor"></span>
               <div class="loading" id="EXAM_sections_loading" name="REFRACTION_sections_loading"><i class="fa fa-spinner fa-spin"></i></div>
               <div id="REFRACTION_sections" name="REFRACTION_sections" class="row nodisplay clear_both">

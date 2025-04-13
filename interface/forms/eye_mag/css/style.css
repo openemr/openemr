@@ -2530,7 +2530,7 @@ View.php
 
 #LayerVision_VAHx {
     display: inline-block;
-    max-width: 1000px;
+    max-width: 1200px;
     width: 83%;
 }
 
@@ -3025,4 +3025,9 @@ input[type="checkbox"] {
 
 #BUTTON_DRAW_SDRETINA {
     margin:8px 0px;
+}
+
+#SDRETINA_olddrawing .borderShadow {
+    min-width: 1040px;
+    min-height: 500px;
 }
