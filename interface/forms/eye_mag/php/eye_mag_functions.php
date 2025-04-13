@@ -916,7 +916,7 @@ margin: 2px 0 2px 2px;">
                 </table>
                 <br />
                 <div id="PRIOR_NPCNPA" name="PRIOR_NPCNPA">
-                    <table style="position:relative;float:left;text-align:center;margin: 4 2;width:100%;font-size:1.0em;padding:4px;">
+                    <table style="position:relative;float:left;text-align:center;margin: 4px 2px;width:100%;font-size:1.0em;padding:4px;">
                         <tr style="">
                             <td style="width:50%;"></td>
                             <td style="font-weight:bold;"><?php echo xlt('OD{{right eye}}'); ?></td>
@@ -3091,9 +3091,9 @@ function canvas_select($zone, $encounter, $pid)
     $side = "OU";
     $type_name = $side . "_" . $zone . "_VIEW";
     $canvi = [];
-    if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
+    if (!empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
-            if (!preg_match("/" . $zone . "_VIEW/", $doc['name'])) {
+            if (!preg_match("/_" . $zone . "_VIEW/", $doc['name'])) {
                 continue;
             }
             if (!$doc['encounter_id']) {
@@ -3181,13 +3181,19 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
 
     $file_history =  $filepath . $base_name;
-    $file_store = $file_history . ".jpg";
+    //$file_store = $file_history . ".jpg";
+
     ?>
-    <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
+    <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" class="Draw_class canvas">
+        <?php
+            if ($zone != "SDRETINA") {
+        ?>
         <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
         <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
         <i class="closeButton_3 fas fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
+                <?php
+            } ?>
         <?php
             $output = canvas_select($zone, $encounter, $pid);
             echo $output;
@@ -3244,8 +3250,20 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
 
-            <div align="center" class="borderShadow">
-                <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
+            <div class="borderShadow">
+                <canvas id="myCanvas_<?php echo attr($zone); ?>"
+                        name="myCanvas_<?php echo attr($zone); ?>"
+                    <?php
+                        if ($zone == "SDRETINA") {
+                            $height_canvas="500";
+                            $width_canvas = "1000";
+                        } else {
+                            $height_canvas="250";
+                            $width_canvas = "450";
+                        }
+                    ?>
+                        width="<?php echo attr($width_canvas); ?>"
+                        height="<?php echo attr($height_canvas); ?>"></canvas>
             </div>
             <div style="margin-top: 7px;">
                 <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
@@ -3826,7 +3844,7 @@ function document_engine($pid)
  *
  *  @param string $pid value = patient id
  *  @param string $encounter is the encounter_id
- *  @param string $category_value options EXT,ANTSEG,POSTSEG,NEURO,OTHER
+ *  @param string $category_value options EXT,ANTSEG,RETINA,NEURO,OTHER
  *                These values are taken from the "value" field in the Documents' table "categories".
  *                They allow us to regroup the categories how we like them.
  *  @return array($imaging,$episode)
@@ -3849,7 +3867,7 @@ function display($pid, $encounter, $category_value)
         *   The categories table does have an unused field - "value".
         *   This is where we link document categories to a clinical zone.  We add the clinical section name
         *   on install but the end user can change or add others as the devices evolve.
-        *   Currently the base install has EXT,ANTSEG,POSTSEG,NEURO
+        *   Currently the base install has EXT,ANTSEG,RETINA,NEURO
         *   New names new categories.  OCT would not have been a category 5 years ago.
         *   Who knows what is next?  Gene-lab construction?
         *   So the name is user assigned as is the location.
@@ -3991,7 +4009,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             <li id="menu_PMH" name="menu_PMH"><a class="nav-link black" href="#"><?php echo xlt("PMH{{Past Medical History}}"); ?></a></li>
                             <li id="menu_EXT" name="menu_EXT" ><a class="nav-link black" href="#"><?php echo xlt("External"); ?></a></li>
                             <li id="menu_ANTSEG" name="menu_ANTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Anterior Segment"); ?></a></li>
-                            <li id="menu_POSTSEG" name="menu_POSTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
+                            <li id="menu_RETINA" name="menu_RETINA" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
                             <li id="menu_NEURO" name="menu_NEURO" ><a class="nav-link black" href="#"><?php echo xlt("Neuro"); ?></a></li>
                             <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a class="nav-link black" href="#"><?php echo xlt("Imp Plan"); ?></a></li>
                             <li class="divider"></li>
@@ -4016,7 +4034,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 <a class="nav-link black" href="#"  tabindex="-1" id="tooltips_toggle" name="tooltips_toggle">
                                 <i class="fa fa-help"></i>  <?php echo xlt("Tooltips"); ?>
                                 <span id="tooltips_status" name="tooltips_status"></span>
-                                <span class="menu_icon"><i title="<?php echo xla('Turn the Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-check fa-1"></i></span></a>
+                                <span class="menu_icon"><i title="<?php echo xla('Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                             <li>
                                 <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
@@ -4787,22 +4805,19 @@ function cmp($a, $b)
 }
 
 /**
- *  This function returns the TARGET IOP values for a given ($pid) if ever set, otherwise returns the DEFAULT IOP.
- *  when a value is found for a given field in the Eye Form for a given patient ($pid)
- *  @param $name is in the name of the field
+ * This function returns the Glaucoma Flow Sheet.
+ * Default is to display IOP measurements 'byday'.
  *
- *  @return $ranges.  A mysqlArray(max_FIELD,max_date,min_date)
+ * @param        $pid
+ * @param string $bywhat == byday or byhour
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
-{
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
     global $PMSFH;
     global $form_folder;
     global $priors;
     global $provider_id;
     global $documents;
     global $encounter_data;
-    global $ODIOPTARGET;
-    global $OSIOPTARGET;
     global $dated;
     global $visit_date;
 
@@ -4823,9 +4838,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             $VF_date[] = $VF['docdate'];
         }
     }
-
+    if (empty($encounter_data['ODIOPTARGET']) || empty($encounter_data['OSIOPTARGET'])) {
+        list($ODIOPTARGET, $OSIOPTARGET) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+    } else {
+        $ODIOPTARGET = $encounter_data['ODIOPTARGET'];
+        $OSIOPTARGET = $encounter_data['OSIOPTARGET'];
+    }
     $i = 0;
-        //if there are no priors, this is the first visit, display a generic splash screen.
+    //if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
@@ -4836,8 +4856,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             $old_date_timestamp = strtotime($visit['visit_date']);
             $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
             $VISITS_date[$i] = $visit['exam_date'];
-
-            //$date_OU[$i] = $visit['exam_date'];
 
             $time_here = explode(":", $visit['IOPTIME']);
             $time = $time_here[0] . ":" . $time_here[1];
@@ -4874,86 +4892,85 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             //build the Target line values for each date.
             $j =  $i - 1;
-
             if ($visit['ODIOPTARGET'] > '') {
                 $ODIOPTARGETS[$i] = $visit['ODIOPTARGET'];
             } elseif ($i == 0) { //this should be set on in view/page load.  Keep for reports though...
-                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+                $ODIOPTARGETS[$i] = $ODIOPTARGET;
             } elseif (!$ODIOPTARGETS[$j]) {
-                list($ODIOPTARGETS[$i], ) = getIOPTARGETS($pid, $id, $provider_id);
+                $ODIOPTARGETS[$i] = $ODIOPTARGET;
             } else {
                 $ODIOPTARGETS[$i] = $ODIOPTARGETS[$j];
             }
 
             if ($visit['OSIOPTARGET'] > '') {
-                 $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
+                $OSIOPTARGETS[$i] = $visit['OSIOPTARGET'];
             } elseif ($i == 0) {
-                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+                $OSIOPTARGETS[$i] = $OSIOPTARGET;
             } elseif (!$OSIOPTARGETS[$j]) {
-                list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
+                $OSIOPTARGETS[$i] = $OSIOPTARGET;
             } else {
                 $OSIOPTARGETS[$i] = $OSIOPTARGETS[$j];
             }
             $i++;
         }
-    } else { //there are no priors, get info for this visit
-        $VISITS_date[0] = $dated;
-        if ($encounter_data['IOPTIME']) {
-            $time_here = explode(":", $encounter_data['IOPTIME']);
-            $time = $time_here[0] . ":" . $time_here[1];
-            $time_OU[] = $time;
-        }
+   } else { //there are no priors, get info from this visit
+            $VISITS_date[0] = $dated;
+            if ($encounter_data['IOPTIME']) {
+                $time_here = explode(":", $encounter_data['IOPTIME']);
+                $time = $time_here[0] . ":" . $time_here[1];
+                $time_OU[] = $time;
+            }
 
-        if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
-            $GONIO_date[$i] = $dated;
-        }
+            if ($encounter_data['ODGONIO'] || $encounter_data['OSGONIO']) {
+                $GONIO_date[$i] = $dated;
+            }
 
-        $ODIOP[$i]['time'] = $time;
-        $OSIOP[$i]['time'] = $time;
-        //$IOPTARGET['visit_date'] = $encounter_data['exam_date'];
-        if ($encounter_data['ODIOPAP'] > '') {
-            if (!is_int($encounter_data['ODIOPAP'])) {
-                $ODIOP[$k]['IOP'] = '';
+            $ODIOP[$i]['time'] = $time;
+            $OSIOP[$i]['time'] = $time;
+
+            if ($encounter_data['ODIOPAP'] > '') {
+                if (!is_int($encounter_data['ODIOPAP'])) {
+                    $ODIOP[$k]['IOP'] = '';
+                } else {
+                    $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
+                $ODIOP[$i]['method'] = "AP";
+            } elseif ($encounter_data['ODIOPTPN'] > '') {
+                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
+                $ODIOP[$i]['method'] = "TPN";
+            }
+
+            if ($encounter_data['OSIOPAP'] > '') {
+                if (!is_int($encounter_data['OSIOPAP'])) {
+                    $OSIOP[$k]['IOP'] = '';
+                } else {
+                    $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
+                $OSIOP[$i]['method'] = "AP";
+            } elseif ($encounter_data['OSIOPTPN'] > '') {
+                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
+                $OSIOP[$i]['method'] = "TPN";
             } else {
-                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
-            $ODIOP[$i]['method'] = "AP";
-        } elseif ($encounter_data['ODIOPTPN'] > '') {
-            $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
-            $ODIOP[$i]['method'] = "TPN";
-        }
+                //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
+                //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
+            }
 
-        if ($encounter_data['OSIOPAP'] > '') {
-            if (!is_int($encounter_data['OSIOPAP'])) {
-                $OSIOP[$k]['IOP'] = '';
+            if ($encounter_data['ODIOPTARGET'] > '0') {
+                $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
             } else {
-                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
-            $OSIOP[$i]['method'] = "AP";
-        } elseif ($encounter_data['OSIOPTPN'] > '') {
-            $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
-            $OSIOP[$i]['method'] = "TPN";
-        } else {
-            //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
-            //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
-        }
+                list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+                $ODIOPTARGETS[$i] = $ODIOPTARGET;
+                $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
+            }
 
-        if ($encounter_data['ODIOPTARGET'] > '0') {
-            $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
-        } else {
-            list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
-            $ODIOPTARGETS[$i] = $ODIOPTARGET;
-            $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
-        }
-
-        if ($encounter_data['OSIOPTARGET']) {
-            $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
-        } else {
-            list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
-            $OSIOPTARGETS[$i] = $OSIOPTARGET;
-            $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
-        }
+            if ($encounter_data['OSIOPTARGET']) {
+                $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
+            } else {
+                list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
+                $OSIOPTARGETS[$i] = $OSIOPTARGET;
+                $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
+            }
     }
 
-    //There are visits for testing only, no IOP.
+    //There are visits for testing only, no IOP, or old tests have been imported, like VF or OCTs...
     //We need to insert these dates into the arrays created above.
     //recreate them to include the testing only dates, placing null values for those dates if not done.
 
@@ -4979,7 +4996,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if (!empty($GONIO_date)) {
             foreach ($GONIO_date as $GONIO) {
                 if ($date_OU[$a] == $GONIO) {
-                    $GONIO_values[$a] = "1";
+                    $GONIO_values[$a] = "4";
                     break;
                 }
             }
@@ -4992,7 +5009,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($count_OCT > 0) {
             foreach ($OCT_date as $OCT) {
                 if ($date_OU[$a] == $OCT) {
-                    $OCT_values[$a] = "1";
+                    $OCT_values[$a] = "Completed";
                     break;
                 }
             }
@@ -5005,7 +5022,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         if ($count_VF > 0) {
             foreach ($VF_date as $VF) {
                 if ($date_OU[$a] == $VF) {
-                    $VF_values[$a] = "1";
+                    $VF_values[$a] = "4";
                     break;
                 }
             }
@@ -5025,7 +5042,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 $OD_methods[$a] = $ODIOP[$k]['method'] ?? '';
                 $OS_values[$a] = $OSIOP[$k]['IOP'] ?? '';
                 $OS_methods[$a] = $OSIOP[$k]['method'] ?? '';
-                $ODIOPTARGET_values[$a] = $ODIOPTARGETS[$k];
+                $ODIOPTARGET_values[$a] = $ODIOPTARGETS[$k] ?? '';
                 $OSIOPTARGET_values[$a] = $OSIOPTARGETS[$k] ?? '';
                 break;
             }
@@ -5066,31 +5083,29 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
     }
 
-    $dates_OU = "'" . implode("','", $date_OU) . "'";
+    $dates_OU = "'" .implode("','", $date_OU) . "'";
     $OD_values = implode(",", $OD_values);
     $OS_values = implode(",", $OS_values);
     $OCT_values = "'" . implode("','", $OCT_values) . "'";
     $VF_values = "'" . implode("','", $VF_values) . "'";
     $GONIO_values =  "'" . implode("','", $GONIO_values) . "'";
-    $IOPTARGET_values =  implode(",", $ODIOPTARGET_values);
+    $ODIOPTARGET_values = implode(",", $ODIOPTARGET_values);
+    $OSIOPTARGET_values = implode(",",$OSIOPTARGET_values);
     $times_OU = "'" . implode("','", $times_OU) . "'";
     $OD_time_values = "'" . implode("','", $OD_time_values) . "'";
     $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
 
     ?> <p style="font-weight:bold;"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
        <span class="closeButton fas fa-times" id="Close_IOP" name="Close_IOP"></span>
-        <div id="GFS_table" name="GFS_table" class="table-responsive borderShadow" style="position:relative;display:table;float:left;margin-top:10px;padding:15px;text-align:left;vertical-align:center;width:30%;">
-            <table class="GFS_table">
+        <div id="GFS_table" name="GFS_table"
+             style="position:relative;display:table;float:left;margin-top:10px;padding:15px;text-align:left;vertical-align:center;width:30%;">
+            <table class="GFS_table table-responsive borderShadow">
                 <tr >
-                    <td colspan="1" class="GFS_title_1" style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('Current Target'); ?>:
-                        <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OD{{right eye}}'); ?>: <input type="text" style="width: 20px;" name="ODIOPTARGET" id="ODIOPTARGET" value="<?php echo attr($ODIOPTARGET); ?>" /></td>
+                    <td colspan="1" class="GFS_title_1" style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('Current Targets'); ?>:
+                        <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OD{{right eye}}'); ?>: <input type="text" style="width: 20px;" name="ODIOPTARGET" id="ODIOPTARGET" value="<?php echo attr($encounter_data['ODIOPTARGET']); ?>" /></td>
                         <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OS{{left eye}}'); ?>: <input type="text" style="width: 20px;" name="OSIOPTARGET" id="OSIOPTARGET"  value="<?php echo attr($encounter_data['OSIOPTARGET']); ?>"  /></td>
                 </tr>
-                <tr>
-                    <td colspan="3" class="hideme nodisplay">
-                        TARGET IOP HISTORY
-                    </td>
-                </tr>
+
                 <?php
                     //what active meds have a subtype eye?
                     $i = 0;
@@ -5308,25 +5323,25 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
+        <div class="right" style="position:relative;float:right; margin: 0px 5px 10px;text-align:center;width:60%;">
             <?php
-            if ($priors) {
-                if ($bywhat == 'byday') { //$bywhat='byday'
+                if ($priors) {
+                    if ($bywhat == 'byday') { //$bywhat='byday'
                         $class_1 = "nodisplay";
                         $class_2 = "";
-                } else {
-                    $class_2 = "nodisplay";
-                    $class_1 = "";
-                }
+                    } else {
+                        $class_2 = "nodisplay";
+                        $class_1 = "";
+                    }
+                    ?>
+                    <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
+                    <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
+                    <hr />
+                    <button id="dailyData" class="<?php echo $class_1; ?>"><?php echo xlt('Show IOP by Date'); ?></button>
+                    <button id="hourlyData" class="<?php echo $class_2; ?>"><?php echo xlt('Show IOP by Time'); ?></button>
 
 
-                ?>
-                <canvas id="canvas_byday" class="<?php echo $class_2; ?>"></canvas>
-                <canvas id="canvas_byhour" class="<?php echo $class_1; ?>"></canvas>
-
-                <button id="dailyData" class="<?php echo $class_1; ?>"><?php echo xlt('Show IOP by Date'); ?></button>
-                <button id="hourlyData" class="<?php echo $class_2; ?>"><?php echo xlt('Show IOP by Time'); ?></button>
-                <script>
+                    <script>
                     /**
                      *  Below is the Chart.js code to render IOP by day and IOP by time
                      *
@@ -5334,75 +5349,16 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     var visit_date = '<?php echo attr($dated); ?>';
                     var dateFormat = 'YYYY-MM-DD';
                     var timeFormat = 'HH tt';
-                    var customTooltips = function(tooltip) {
-                        // Tooltip Element
-                        var tooltipEl = $('#chartjs-tooltip');
-                        if (!tooltipEl[0]) {
-                            $('body').append('<div id="chartjs-tooltip"></div>');
-                            tooltipEl = $('#chartjs-tooltip');
-                        }
-                            // Hide if no tooltip
-                        if (!tooltip.opacity) {
-                            tooltipEl.css({
-                                          opacity: 0.3
-                                          });
-                            $('.chartjs-wrap canvas')
-                            .each(function(index, el) {
-                                  $(el).css('cursor', 'default');
-                                  });
-                            return;
-                        }
-                        $(this._chart.canvas).css('cursor', 'pointer');
-                            // Set caret Position
-                        tooltipEl.removeClass('above below no-transform');
-                        if (tooltip.yAlign) {
-                            tooltipEl.addClass(tooltip.yAlign);
-                        } else {
-                            tooltipEl.addClass('no-transform');
-                        }
-
-                            // Set Text
-                        if (tooltip.body) {
-                            var innerHtml = [
-                                             (tooltip.beforeTitle || []).join('\n'), (tooltip.title || []).join('\n'), (tooltip.afterTitle || []).join('\n'), (tooltip.beforeBody || []).join('\n'), (tooltip.body || []).join('\n'), (tooltip.afterBody || []).join('\n'), (tooltip.beforeFooter || [])
-                                             .join('\n'), (tooltip.footer || []).join('\n'), (tooltip.afterFooter || []).join('\n')
-                                             ];
-                            tooltipEl.html(innerHtml.join('\n'));
-                        }
-
-                            // Find Y Location on page
-                        var top = 0;
-                        if (tooltip.yAlign) {
-                            if (tooltip.yAlign == 'above') {
-                                top = tooltip.y - tooltip.caretHeight - tooltip.caretPadding;
-                            } else {
-                                top = tooltip.y + tooltip.caretHeight + tooltip.caretPadding;
-                            }
-                        }
-                        var position = $(this._chart.canvas)[0].getBoundingClientRect();
-                            // Display, position, and set styles for font
-                        tooltipEl.css({
-                                      opacity: 0.5,
-                                      width: tooltip.width ? (tooltip.width + 'px') : 'auto',
-                                      left: position.left + tooltip.x + 'px',
-                                      top: position.top + top + 'px',
-                                      fontFamily: tooltip._fontFamily,
-                                      fontSize: tooltip.fontSize,
-                                      fontStyle: tooltip._fontStyle,
-                                      padding: tooltip.yPadding + 'px ' + tooltip.xPadding + 'px',
-                                      });
-                    };
 
                     var config_byhour = {
+                        type: 'line',
                         data: {
                             labels: [<?php echo $times_OU; ?>],
                             datasets: [
                                 {
                                     type: 'line',
                                     label: "OD",
-                                    data: [
-                                        <?php echo $OD_time_values; ?>
-                                    ],
+                                    data: [<?php echo $OD_time_values; ?>],
                                     fill: false,
                                     borderColor : "#44a3a7",
                                     backgroundColor : "#44a3a7",
@@ -5417,15 +5373,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
                                     pointHitRadius: 3
-                                }, 
+                                },
                                 {
                                     type: 'line',
                                     label: 'OS',
-                                    data: [
-                                        <?php echo $OS_time_values; ?>
-                                    ],
+                                    data: [ <?php echo $OS_time_values; ?> ],
                                     fill: false,
-                                    lineTension: 3,
                                     borderColor : "#000099",
                                     backgroundColor : "#000099",
                                     pointBorderColor : "black",
@@ -5437,84 +5390,33 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverRadius: 5,
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
-                                    pointHitRadius: 3,
+                                    pointHitRadius: 3
                                 }
                             ]
                         },
                         options: {
-                            responsive: true,
-                            animation: false,
-                            onAnimationComplete: function () {
-                                // prevents the update from triggering an infinite loop
-                                if (!this.clearCycle) {
-                                    this.clearCycle = true;
-
-                                    this.datasets.forEach(function (dataset) {
-                                        dataset.points.forEach(function (point) {
-                                            if (point.value === 0) {
-                                                point.display = false;
-                                                point.hasValue = function () {
-                                                    return false;
-                                                }
-                                            }
-                                        })
-                                    })
-                                    this.update();
-                                } else
-                                    delete this.clearCycle;
-                                },
-                            scaleShowHorizontalLines: true,
-                            title:{
-                                display: true,
-                                text:'<?php echo xla("Intraocular Pressures") . " (" . xla("mmHg") . ") by Hour"; ?>'
-                            },
-                            tooltips: {
-                                mode: 'label'
-                            },
-                            hover: {
-                                mode: 'dataset'
-                            },
-                            scales: {
-                                xAxes:  {
-                                    type: "time",
-                                    time: {
-                                       format: "HH:mm",
-                                       unit: 'hour',
-                                       unitStepSize: 2,
-                                       displayFormats: {
-                                           'minute': 'h:mm a',
-                                           'hour': 'h:mm a'
-                                       },
-                                       tooltipFormat: 'h:mm a'
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Time'
-                                    },
-                                    ticks: {
-                                        suggestedMin: 4,
-                                        suggestedMax: 24,
-                                    }
-                                },
-                                yAxes: {
-                                    type: "linear",
+                            plugins: {
+                                title: {
                                     display: true,
-                                    position: "left",
-                                    id: "y-axis-2",
-                                    gridLines:{
-                                        display: false
-                                    },
-                                    labels: {
-                                        show:true,
-                                    },
-                                    scaleLabel: {
+                                    text: '<?php echo xla("Intraocular Pressures by Time of Day"); ?>'
+                                }
+                            },
+
+                            scales: {
+                                x: {
+                                    title: {
                                         display: true,
-                                        labelString: 'IOP (mmHg)'
+                                        text: '<?php echo xla("Time of Day"); ?>'
                                     },
-                                    ticks: {
-                                        suggestedMin: 0,
-                                        suggestedMax: 24,
-                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>'
+                                    },
+                                    beginAtZero: true,
+                                    Min: 0,
+                                    suggestedMax: 35
                                 }
                             }
                         }
@@ -5538,7 +5440,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                            $('#showTesting').removeClass('nodisplay');
                                            });
                     var config_byday = {
-                        type: 'bar',
+                        type: 'line',
                         data: {
                             labels: [
                                 <?php echo $dates_OU; ?>
@@ -5547,16 +5449,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 {
                                     axis: 'y',
                                     type: 'line',
-                                    label: "Target",
-                                    data: [<?php echo $IOPTARGET_values; ?>],
+                                    label: "Target OD",
+                                    data: [<?php echo $ODIOPTARGET_values; ?>],
                                     fill: false,
                                     borderColor : "#f28282",
                                     backgroundColor : "#f28282",
                                     pointBorderColor : "black",
                                     pointBackgroundColor : "#f28282",
                                     pointBorderWidth : 3,
-                                    drugs: ["test1\ntimoptic","test2","test3"],
-                                    yAxisID: 'y-axis-1',
                                     lineTension: 0.3,
                                     borderCapStyle: 'round',
                                     borderDash: [1,5],
@@ -5566,7 +5466,28 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointRadius: 1,
                                     pointHitRadius: 3
                                 },
-                                { 
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "Target OS",
+                                    data: [<?php echo $OSIOPTARGET_values; ?>],
+                                    fill: false,
+                                    borderColor : "#AA8282",
+                                    backgroundColor : "#AA8282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+
+                                {
                                     axis: 'y',
                                     type: 'line',
                                     label: "OD",
@@ -5577,7 +5498,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointBorderColor : "#055d2b",
                                     pointBackgroundColor : "#44a3a7",
                                     pointBorderWidth : 3,
-                                    yAxisID: 'y-axis-1',
                                     lineTension: 0.3,
                                     borderCapStyle: 'butt',
                                     borderDashOffset: 0.0,
@@ -5586,7 +5506,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
                                     pointHitRadius: 3
-                                }, 
+                                },
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -5599,14 +5519,13 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointBorderColor : "black",
                                     pointBackgroundColor : "#000099",
                                     pointBorderWidth : 3,
-                                    yAxisID: 'y-axis-1',
                                     lineTension: 0.3,
                                     borderCapStyle: 'butt',
                                     borderJoinStyle: 'miter',
                                     pointHoverRadius: 5,
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
-                                    pointHitRadius: 3,
+                                    pointHitRadius: 3
                                 },
                                 {
                                     axis: 'y',
@@ -5615,10 +5534,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     strokeColor: '#5CABFA',
                                     fillColor:"#5CABFA",
                                     data: [<?php echo $VF_values; ?>],
-                                    fill: false,
-                                    backgroundColor: '#5CABFA',
-                                    borderColor: 'var(--black)',
-                                    yAxisID: 'y-axis-2'
+                                    fill: true,
+                                    backgroundColor: '#5CABFA'
                                 },
                                 {
                                     axis: 'y',
@@ -5626,9 +5543,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     label: "OCT",
                                     data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
                                     fill: true,
-                                    backgroundColor: '#71B37C',
-                                    borderColor: 'var(--black)',
-                                    yAxisID: 'y-axis-2'
+                                    backgroundColor: '#71B37C'
                                 },
                                 {
                                     axis: 'y',
@@ -5638,108 +5553,36 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     fill: false,
                                     strokeColor: 'rgba(209, 30, 93, 0.3)',
                                     fillColor:'rgba(209, 30, 93, 0.3)',
-                                    backgroundColor: 'red',
-                                    borderColor: 'var(--black)',
-                                    yAxisID: 'y-axis-2'
+                                    backgroundColor: 'red'
                                 }
                             ]
                         },
                         options: {
-                            responsive: true,
-                            scaleShowHorizontalLines: true,
-                            title: {
-                                display: true,
-                                text:'<?php echo xla("Intraocular Pressures (mmHg) by Date"); ?>'
-                            },
-                            tooltips: {
-                                enabled: true,
-                                    //id: "tooltip-1",
-                                    //backgroundColor: '#FCFFC5',
-                                    //mode: 'label',
-                                enabled: true,
-                                shared: false,
-
-                                callbacks: {
-                                label: function(tooltipItem, data) {
-                                    if (tooltipItem.yLabel =='0') {
-                                        return data.datasets[tooltipItem.datasetIndex].label + "  ---  "; ;
-                                    } else if (tooltipItem.yLabel =='1') {
-                                        return data.datasets[tooltipItem.datasetIndex].label + " <?php echo xlt('performed'); ?>";
-                                    } else if (tooltipItem.yLabel > '1') {
-                                        return data.datasets[tooltipItem.datasetIndex].label + ": "+tooltipItem.yLabel;
-                                    }
-                                },
-                                afterBody: function(tooltipItems, data) {
-                                        //console.log(tooltipItems);
-                                        //return data.datasets[2].drugs[tagme];
-                                    }
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '<?php echo xla("Intraocular Pressures by Date"); ?>'
                                 }
                             },
-                            hover: {
-                                mode: 'label'
+                            responsive: true,
+                            tooltips: {
+                                enabled: true
                             },
                             scales: {
-                                xAxes:  {
-                                    type: "time",
-                                    stacked:false,
-                                    id: "x-axis-1",
-                                    time: {
-                                        format: dateFormat,
-                                        round: 'day',
-                                        tooltipFormat: 'h:mm a'
-                                    },
-                                    categoryPercentage: 0.5,
-                                    barPercentage:1.0,
-                                    //categoryPercentage:0.3,
-                                    scaleLabel: {
+                                x: {
+                                    title: {
                                         display: true,
-                                        labelString: 'Date'
-                                    },
-                                    ticks: {
-                                        suggestedMin: 3,
-                                        suggestedMax: 6
-                                    }
-                                }, 
-                                'y-Axis-1': {
-                                    type: "linear",
-                                    display: false,
-                                    position: "right",
-                                    id: "y-axis-1",
-                                    stacked: false,
-                                    gridLines:{
-                                        display: false
-                                    },
-                                    labels: {
-                                        show:true,
-                                    },
-                                    scaleLabel: {
-                                        display: false,
-                                        labelString: 'Testing'
-                                    },
-                                    ticks: {
-                                        suggestedMin: 4,
-                                        suggestedMax: 4
+                                        text: '<?php echo xla("Visit Dates"); ?>'
                                     }
                                 },
-                                'y-Axis-2': {
-                                    type: "linear",
-                                    display: true,
-                                    position: "left",
-                                    id: "y-axis-2",
-                                    gridLines:{
-                                        display: true
-                                    },
-                                    labels: {
-                                        show:true,
-                                    },
-                                    scaleLabel: {
+                                y: {
+                                    title: {
                                         display: true,
-                                        labelString: 'IOP (mmHg)'
+                                        text: '<?php echo xla("Intraocular Pressures (mmHg)"); ?>'
                                     },
-                                    ticks: {
-                                        suggestedMin: 4,
-                                        suggestedMax: 24,
-                                    }
+                                    beginAtZero: true,
+                                    Min: 0,
+                                    suggestedMax: 35
                                 }
                             }
                         }
@@ -5750,11 +5593,11 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
                     var myLine = new Chart(ctx1, config_byday);
                     var myLine2 = new Chart(ctx2, config_byhour);
-                    
+
                 </script>
                 <?php
             } else {
-                echo "<div style='text-align:left;padding-left:20px;'><span>The Glaucoma Flow Sheet graphically displays:
+                echo "<div style='text-align:left;padding-left:20px;margin:40px;font-size:1.3em;'><span>The Glaucoma Flow Sheet graphically displays:
                 <ul>
                 <li> IOP measurements</li>
                 <li> Target IOPs </li>
@@ -5767,6 +5610,359 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     </div>
             <?php
 }
+
+
+/**
+ *
+ * This function displays today + historical visual acuity measurements
+ * I imagined this as a condensed table with top row = types of acuities
+ *   Date | sc | CC | Ph | AR | MR | CR | CTL | comments
+ * second row OD/OS
+ * OD - OS|OD - OS|OD - OS|OD - OS|OD - OS|OD - OS|
+ *
+ * and 3rd row on: the leftmost/first column containing Date of visit, then the actual measurements obtained
+ *
+ * @param $pid
+ *
+ * @return mixed|string
+*/
+function display_VisualAcuities($pid=0) {
+        global $priors;
+    ?>
+<div>
+    <span class="closeButton fas fa-times" id="Close_VAHx" name="Close_VAHx"></span>
+    <h5><?php echo xlt('Visual Acuity History'); ?></h5>
+    <table class="text-center">
+        <tr class="bold text-center">
+            <th></th>
+            <th colspan="2"><?php echo xlt('SC{{abbr without correction}}'); ?></th>
+            <th colspan="2"><?php echo xlt('CC{{abbr Acuity with current Correction}}'); ?></th>
+            <th colspan="2"><?php echo xlt('Ph{{abbr Pinhole acuity}}'); ?></th>
+            <th colspan="2"><?php echo xlt('AR{{abbr Autorefraction acuity}}'); ?></th>
+            <th colspan="2"><?php echo xlt('MR{{abbr Manifest Refraction acuity}}'); ?></th>
+            <th colspan="2"><?php echo xlt('CR{{abbr Cycloplegic Refraction acuity}}'); ?></th>
+            <th colspan="2"><?php echo xlt('CTL{{abbr Contact Lens Refraction acuity}}'); ?></th>
+            <th><?php echo xlt('Comments'); ?></th>
+        </tr>
+        <tr class="bold underline text-center">
+            <td><?php echo xlt('Date'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td><?php echo xlt('OD{{abbr Right Eye}}'); ?></td><td><?php echo xlt('OS{{abbr Left Eye}}'); ?></td>
+            <td></td>
+        </tr>
+        <?php
+            $flip_priors = new ArrayIterator(array_reverse($priors));
+            foreach ($flip_priors as $prior) {
+                $old_date_timestamp = strtotime($prior['visit_date']);
+                $visit['exam_date'] = date('Y-m-d', $old_date_timestamp);
+
+                $va_dates[]   = $visit['exam_date'];
+                // Some people write Va as 20/20, or 6/6.
+                // We need to remove the prefix
+                // We are also ignoring HM,LP,NLP,CF etc for graphing purposes.
+                $prior['SCODVA'] = preg_replace("/\d+\//", "", $prior['SCODVA']);
+                $prior['SCOSVA'] = preg_replace("/\d+\//", "", $prior['SCOSVA']);
+                $prior['CCODVA'] = preg_replace("/\d+\//", "", $prior['CCODVA']);
+                $prior['CCOSVA'] = preg_replace("/\d+\//", "", $prior['CCOSVA']);
+                $prior['ARODVA'] = preg_replace("/\d+\//", "", $prior['ARODVA']);
+                $prior['AROSVA'] = preg_replace("/\d+\//", "", $prior['AROSVA']);
+                $prior['CRODVA'] = preg_replace("/\d+\//", "", $prior['CRODVA']);
+                $prior['CROSVA'] = preg_replace("/\d+\//", "", $prior['CROSVA']);
+                $prior['MRODVA'] = preg_replace("/\d+\//", "", $prior['MRODVA']);
+                $prior['MROSVA'] = preg_replace("/\d+\//", "", $prior['MROSVA']);
+                $prior['CTLODVA'] = preg_replace("/\d+\//", "", $prior['CTLODVA']);
+                $prior['CTLOSVA'] = preg_replace("/\d+\//", "", $prior['CTLOSVA']);
+                $va_SCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
+                $va_SCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
+                $va_CCODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCODVA']);
+                $va_CCOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['SCOSVA']);
+                $va_PHODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHODVA']);
+                $va_PHOSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['PHOSVA']);
+                $va_ARODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['ARODVA']);
+                $va_AROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['AROSVA']);
+                $va_MRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MRODVA']);
+                $va_MROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['MROSVA']);
+                $va_CRODVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CRODVA']);
+                $va_CROSVA[]  = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CROSVA']);
+                $va_CTLODVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLODVA']);
+                $va_CTLOSVA[] = preg_replace("/(.*)[^\d](.*)/", "$1", $prior['CTLOSVA']);
+                ?>
+        <tr>
+            <td><?php echo $prior['visit_date']; ?></td>
+            <td><?php echo $prior['SCODVA']; ?></td><td><?php echo $prior['SCOSVA']; ?></td>
+            <td><?php echo $prior['CCODVA']; ?></td><td><?php echo $prior['CCOSVA']; ?></td>
+            <td><?php echo $prior['PHODVA']; ?></td><td><?php echo $prior['PHOSVA']; ?></td>
+            <td><?php echo $prior['ARODVA']; ?></td><td><?php echo $prior['AROSVA']; ?></td>
+            <td><?php echo $prior['MRODVA']; ?></td><td><?php echo $prior['MROSVA']; ?></td>
+            <td><?php echo $prior['CRODVA']; ?></td><td><?php echo $prior['CROSVA']; ?></td>
+            <td><?php echo $prior['CTLODVA']; ?></td><td><?php echo $prior['CTLOSVA']; ?></td>
+            <td colsan="3"></td>
+        </tr>
+        <?php
+            }
+        ?>
+    </table>
+    <table class="top_right" style="width:40%;">
+        <?php if ($priors) {
+            $VA_dates   = implode("','", $va_dates);
+            If ($va_SCODVA) $VA_SCODVA  = implode(',',$va_SCODVA);
+            If ($va_SCOSVA) $VA_SCOSVA  = implode(',',$va_SCOSVA);
+            If ($va_CCODVA) $VA_CCODVA  = implode(',',$va_CCODVA);
+            If ($va_CCOSVA) $VA_CCOSVA  = implode(',',$va_CCOSVA);
+            If ($va_MRODVA) $VA_MRODVA  = implode(',',$va_MRODVA);
+            If ($va_MROSVA) $VA_MROSVA  = implode(',',$va_MROSVA);
+            If ($va_CTLODVA) $VA_CTLODVA = implode(',',$va_CTLODVA);
+            If ($va_CTLOSVA) $VA_CTLOSVA = implode(',',$va_CTLOSVA);
+
+            ?>
+                <canvas id="canvas_VA"></canvas>
+
+            <script>
+                /**
+                 *  Below is the Chart.js code to render Va for each refraction type
+                 *
+                 */
+                var visit_date = '<?php echo attr($dated); ?>';
+                var dateFormat = 'YYYY-MM-DD';
+
+                var config_byVA = {
+                    type: 'line',
+                    data: {
+                        labels: ['<?php echo $VA_dates; ?>'],
+                        datasets: [
+                            <?php
+                            if ( !empty($VA_SCODVA) || !empty($VA_SCOSVA) ) { ?>
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OD sc{{Visual Acuity without correction right eye}}"); ?>",
+                                data: [<?php echo $VA_SCODVA; ?>],
+                                fill: false,
+                                borderColor : "#f28282",
+                                backgroundColor : "#f28282",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OS sc{{Visual Acuity without correction left eye}}"); ?>",
+                                data: [<?php echo $VA_SCOSVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "#AA8282",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            <?php  }
+                            if ( !empty($VA_CCODVA) || !empty($VA_CCOSVA) ) {
+                                ?>
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OD CC{{Visual Acuity with correction right eye}}"); ?>",
+                                data: [<?php echo $VA_CCODVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "red",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OS CC{{Visual Acuity with correction left eye}}"); ?>",
+                                data: [<?php echo $VA_CCOSVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "blue",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            <?php  }
+                            if ( !empty($VA_MRODVA) || !empty($VA_MROSVA) ) {
+                                 ?>
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OD MR{{Visual Acuity with Manifest refraction right eye}}"); ?>",
+                                data: [<?php echo $VA_MRODVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "navy",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OS MR{{Visual Acuity with Manifest refraction left eye}}"); ?>",
+                                data: [<?php echo $VA_MROSVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "yellow",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            <?php  }
+                            if (!empty($VA_CTLODVA) || !empty($VA_CTLOSVA) ) {
+                                ?>
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OD CTL{{Va with Contact Lens right eye}}"); ?>",
+                                data: [<?php echo $VA_CTLODVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "orange",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "green",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            },
+                            {
+                                axis: 'y',
+                                type: 'line',
+                                label: "<?php echo xla("OS CTL{{Va with Contact Lens left eye}}"); ?>",
+                                data: [<?php echo $VA_CTLOSVA; ?>],
+                                fill: false,
+                                borderColor : "#AA8282",
+                                backgroundColor : "purple",
+                                pointBorderColor : "black",
+                                pointBackgroundColor : "#f28282",
+                                pointBorderWidth : 3,
+                                lineTension: 0.3,
+                                borderCapStyle: 'round',
+                                borderDash: [1,5],
+                                borderJoinStyle: 'miter',
+                                pointHoverRadius: 5,
+                                pointHoverBorderWidth: 2,
+                                pointRadius: 1,
+                                pointHitRadius: 3
+                            }
+                            <?php
+                            }
+                            ?>
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '<?php echo xla("Visual Acuities by Date"); ?>'
+                            }
+                        },
+                        responsive: true,
+                        tooltips: {
+                            enabled: true
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '<?php echo xla("Visit Dates"); ?>'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '<?php echo xla("Visual Acuity"); ?>'
+                                },
+                                beginAtZero: true,
+                                Min: 0,
+                                suggestedMax: 50
+                            }
+                        }
+                    }
+                };
+
+                var ctx3 = document.getElementById("canvas_VA").getContext("2d");
+
+                var myLine = new Chart(ctx3, config_byVA);
+
+            </script>
+                <?php
+            } else {
+                echo "<div style='text-align:left;padding-left:20px;'><span>The Visual Acuity graphically displays:
+                <ul>
+                <li> Va measurements</li>
+
+                </ul>
+                Visual Acuity graphs are not generated on the initial visit...</span></div>";
+            } ?>
+            </table>
+        </div>
+    <?php
+
+
+    }
+
 
 # gets the provider from the encounter file , or from the logged on user or from the patient file
 function findProvider($pid, $encounter)
@@ -6382,12 +6578,18 @@ function getIOPTARGETS($pid, $id, $provider_id)
 {
     //iterate through this patient's encounters to find IOPTARGETS.
     //if none use provider's default value, or 21.
+    //If a practice is loading old visits into OpenEMR, the visit date and id will not correlate linearly.
+    //We cannot rely on visit id to represent visit order.  We need to use visit dates to make this work.
 
-    $query = "SELECT ODIOPTARGET, OSIOPTARGET from form_eye_vitals where pid=? and id < ? ORDER BY id DESC";
+    $query = "SELECT ODIOPTARGET, OSIOPTARGET from form_eye_vitals join form_encounter on form_encounter.id=form_eye_vitals.id
+                where form_eye_vitals.pid=? and form_encounter.date <= (
+                    SELECT date from form_encounter where id = ?
+                    )
+                ORDER BY form_encounter.date DESC";
     $result = sqlStatement($query, array($pid, $id));
 
     while ($row = sqlFetchArray($result)) {
-        if (($row['ODIOPTARGET'] > '0') || ($row['OSIOPTARGET'] > '0')) {
+        if (($row['ODIOPTARGET'] > '0') && ($row['OSIOPTARGET'] > '0')) {
             return array($row['ODIOPTARGET'], $row['OSIOPTARGET']);
         }
     }
