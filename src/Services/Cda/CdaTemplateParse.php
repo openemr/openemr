@@ -377,6 +377,7 @@ class CdaTemplateParse
             $note_text = '';
         }
 
+        // TODO: ensure all entryRelationships are handled. These describe the various actions or codes.
         if (!empty($entry['encounter']['effectiveTime']['value']) || !empty($entry['encounter']['effectiveTime']['low']['value'])) {
             $i = 1;
             if (!empty($this->templateData['field_name_value_array']['encounter'])) {
@@ -391,6 +392,14 @@ class CdaTemplateParse
             $code_type = $entry['encounter']['code']['codeSystemName'] ?? '' ?: $entry['encounter']['code']['codeSystem'] ?? '';
             $code_text = $entry['encounter']['code']['displayName'] ?? '';
             $code = $this->codeService->resolveCode($entry['encounter']['code']['code'], $code_type, $code_text);
+            if (empty($code['code'])) {
+                $code['codeSystemName'] = $entry['encounter']['code']['translation']['codeSystemName'] ?? '';
+                $code['code'] = $entry['encounter']['code']['translation']['code'] ?? '';
+                $code['formatted_code'] = $code['codeSystemName'] . ':' . $entry['encounter']['code']['translation']['code'];
+                $code['code_text'] = $entry['encounter']['code']['translation']['displayName'] ?? '';
+            } elseif (empty($code['code'])) {
+                $code['code_text'] = xlt("Encounter code was not provided. Encounter reason is unknown.");
+            }
             if ($code == '99211') {
                 $code['code_text'] = 'Office or other outpatient visit for evaluation.';
             }
