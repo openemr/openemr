@@ -3091,9 +3091,9 @@ function canvas_select($zone, $encounter, $pid)
     $side = "OU";
     $type_name = $side . "_" . $zone . "_VIEW";
     $canvi = [];
-    if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
+    if (!empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
-            if (!preg_match("/" . $zone . "_VIEW/", $doc['name'])) {
+            if (!preg_match("/_" . $zone . "_VIEW/", $doc['name'])) {
                 continue;
             }
             if (!$doc['encounter_id']) {
@@ -3181,13 +3181,19 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
 
     $file_history =  $filepath . $base_name;
-    $file_store = $file_history . ".jpg";
+    //$file_store = $file_history . ".jpg";
+
     ?>
-    <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
+    <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" class="Draw_class canvas">
+        <?php
+        if ($zone != "SDRETINA") {
+            ?>
         <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
         <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
         <i class="closeButton_3 fas fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
+            <?php
+        } ?>
         <?php
             $output = canvas_select($zone, $encounter, $pid);
             echo $output;
@@ -3244,8 +3250,20 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
 
-            <div align="center" class="borderShadow">
-                <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
+            <div class="borderShadow">
+                <canvas id="myCanvas_<?php echo attr($zone); ?>"
+                        name="myCanvas_<?php echo attr($zone); ?>"
+                    <?php
+                    if ($zone == "SDRETINA") {
+                        $height_canvas = "500";
+                        $width_canvas = "1000";
+                    } else {
+                        $height_canvas = "250";
+                        $width_canvas = "450";
+                    }
+                    ?>
+                        width="<?php echo attr($width_canvas); ?>"
+                        height="<?php echo attr($height_canvas); ?>"></canvas>
             </div>
             <div style="margin-top: 7px;">
                 <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
@@ -3826,7 +3844,7 @@ function document_engine($pid)
  *
  *  @param string $pid value = patient id
  *  @param string $encounter is the encounter_id
- *  @param string $category_value options EXT,ANTSEG,POSTSEG,NEURO,OTHER
+ *  @param string $category_value options EXT,ANTSEG,RETINA,NEURO,OTHER
  *                These values are taken from the "value" field in the Documents' table "categories".
  *                They allow us to regroup the categories how we like them.
  *  @return array($imaging,$episode)
@@ -3849,7 +3867,7 @@ function display($pid, $encounter, $category_value)
         *   The categories table does have an unused field - "value".
         *   This is where we link document categories to a clinical zone.  We add the clinical section name
         *   on install but the end user can change or add others as the devices evolve.
-        *   Currently the base install has EXT,ANTSEG,POSTSEG,NEURO
+        *   Currently the base install has EXT,ANTSEG,RETINA,NEURO
         *   New names new categories.  OCT would not have been a category 5 years ago.
         *   Who knows what is next?  Gene-lab construction?
         *   So the name is user assigned as is the location.
@@ -3991,7 +4009,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             <li id="menu_PMH" name="menu_PMH"><a class="nav-link black" href="#"><?php echo xlt("PMH{{Past Medical History}}"); ?></a></li>
                             <li id="menu_EXT" name="menu_EXT" ><a class="nav-link black" href="#"><?php echo xlt("External"); ?></a></li>
                             <li id="menu_ANTSEG" name="menu_ANTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Anterior Segment"); ?></a></li>
-                            <li id="menu_POSTSEG" name="menu_POSTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
+                            <li id="menu_RETINA" name="menu_RETINA" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
                             <li id="menu_NEURO" name="menu_NEURO" ><a class="nav-link black" href="#"><?php echo xlt("Neuro"); ?></a></li>
                             <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a class="nav-link black" href="#"><?php echo xlt("Imp Plan"); ?></a></li>
                             <li class="divider"></li>
@@ -4016,7 +4034,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 <a class="nav-link black" href="#"  tabindex="-1" id="tooltips_toggle" name="tooltips_toggle">
                                 <i class="fa fa-help"></i>  <?php echo xlt("Tooltips"); ?>
                                 <span id="tooltips_status" name="tooltips_status"></span>
-                                <span class="menu_icon"><i title="<?php echo xla('Turn the Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-check fa-1"></i></span></a>
+                                <span class="menu_icon"><i title="<?php echo xla('Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                             <li>
                                 <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
@@ -5417,7 +5435,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
                                     pointHitRadius: 3
-                                }, 
+                                },
                                 {
                                     type: 'line',
                                     label: 'OS',
@@ -5566,7 +5584,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointRadius: 1,
                                     pointHitRadius: 3
                                 },
-                                { 
+                                {
                                     axis: 'y',
                                     type: 'line',
                                     label: "OD",
@@ -5586,7 +5604,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
                                     pointHitRadius: 3
-                                }, 
+                                },
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -5699,7 +5717,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                         suggestedMin: 3,
                                         suggestedMax: 6
                                     }
-                                }, 
+                                },
                                 'y-Axis-1': {
                                     type: "linear",
                                     display: false,
@@ -5750,7 +5768,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
                     var myLine = new Chart(ctx1, config_byday);
                     var myLine2 = new Chart(ctx2, config_byhour);
-                    
+
                 </script>
                 <?php
             } else {

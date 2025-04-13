@@ -44,8 +44,8 @@ $viewArgs = [
     'userManualHref' => $userManual,
     'onlineSupportLink' => $GLOBALS['online_support_link'] ?? false,
     'displayAcknowledgements' => $GLOBALS['display_acknowledgements'],
-    'displayDonations' => $GLOBALS['display_review_link'],
-    'displayReview' => $GLOBALS['display_donations_link'],
+    'displayReview' => $GLOBALS['display_review_link'],
+    'displayDonations' => $GLOBALS['display_donations_link'],
 ];
 
 echo $t->render('core/about.html.twig', $viewArgs);
