@@ -94,14 +94,15 @@ class ClinicalNoteParser
         if (!$section) {
             return [];
         }
-
         // Extract section metadata.
         $sectionMetadata = $this->extractSectionMetadata($xpath, $section);
 
         $textNode = $xpath->query(".//ns:text", $section)->item(0);
         if ($textNode) {
             $textXML = $textNode->C14N();
-            //$textXML = $this->innerXML($textNode); // todo explore why can't recover namespace with this method!
+            // todo: explore why can't recover namespace with this method!
+            // todo: this method ensures all nested content is included. Generally, this is not needed.
+            //$textXML = $this->innerXML($textNode);
         } else {
             $narrativeNotes = [];
         }
@@ -116,7 +117,9 @@ class ClinicalNoteParser
                 }
             }
         }
-
+        // If batchFlag is set, extract all narrative notes from the <text> section.
+        // This is used for the batch export of clinical notes. Currently not used but available.
+        // Method called without item id is flag to batch
         if ($batchFlag) {
             $narrativeNotes = $this->extractNoteFromTextSection($textXML);
         }
@@ -167,9 +170,9 @@ class ClinicalNoteParser
     {
         $codeNode = $xpath->query(".//ns:code", $section)->item(0);
         return [
-            'code' => $codeNode ? $codeNode->getAttribute("code") : null,
-            'codeSystemName' => $codeNode ? $codeNode->getAttribute("codeSystemName") : null,
-            'displayName' => $codeNode ? $codeNode->getAttribute("displayName") : null,
+            'code' => $codeNode?->getAttribute("code"),
+            'codeSystemName' => $codeNode?->getAttribute("codeSystemName"),
+            'displayName' => $codeNode?->getAttribute("displayName"),
         ];
     }
 
@@ -189,7 +192,6 @@ class ClinicalNoteParser
                 $contentLines[] = $text;
             }
         }
-
         return implode("\n", $contentLines);
     }
 
@@ -290,12 +292,20 @@ class ClinicalNoteParser
             // Get the introductory paragraph (if present)
             $paraText = "";
             $paragraphNodes = $xpath->query("ns:paragraph", $item);
+            $captionNodes = $xpath->query("ns:caption", $item);
+            if ($captionNodes->length > 0) {
+                $paraText = trim($captionNodes->item(0)->nodeValue) . "\n";
+            }
             if ($paragraphNodes->length > 0) {
-                $paraText = trim($paragraphNodes->item(0)->nodeValue);
+                $paraText .= trim($paragraphNodes->item(0)->nodeValue);
             }
             // First table in the item
             $tableNodes = $xpath->query(".//ns:table", $item);
             if ($tableNodes->length === 0) {
+                // No table found, so just extract the text content.
+                // Most likely a narrative note enclosed with in content and/or paragraph tags.
+                $note = $this->extractItemContent($item);
+                $fullNarrative["#" . $id] = trim($note);
                 continue;
             }
             $table = $tableNodes->item(0);

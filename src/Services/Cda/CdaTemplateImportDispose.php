@@ -2237,7 +2237,8 @@ class CdaTemplateImportDispose
 
     /**
      * Find the closest encounter (by date) for a given item date and patient ID.
-     *
+     * The original code was refactored by ChatGPT to improve readability and maintainability.
+     *  The refactor request was to expand the encounter search to separate both before and after the item date.
      * @param string $item_date The form item's date (any format parsable by strtotime).
      * @param int    $item_pid  The patient ID.
      * @return int              The encounter id (or 0 if none found).
