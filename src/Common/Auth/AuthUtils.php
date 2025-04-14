@@ -517,7 +517,7 @@ class AuthUtils
             $this->errorMessage = xl("Password update error!");
             $this->clearFromMemory($currentPwd);
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password error");
+            EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "update password error");
             return false;
         }
 
@@ -534,14 +534,14 @@ class AuthUtils
                 $this->errorMessage = xl("Trying to create user with existing username!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "Trying to create user with existing username!");
+                EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "Trying to create user with existing username!");
                 return false;
             }
             if (empty($userInfo['password'])) {
                 $this->errorMessage = xl("Password update error!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);
-                EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password error");
+                EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "update password error");
                 return false;
             }
             // If this user is changing his own password, then confirm that they have the current password correct
@@ -566,7 +566,7 @@ class AuthUtils
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password error");
+                    EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "update password error");
                     return false;
                 }
                 if (!$this->activeDirectoryValidation($_SESSION['authUser'], $currentPwd)) {
@@ -584,14 +584,14 @@ class AuthUtils
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password error");
+                    EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "update password error");
                     return false;
                 }
                 if (!AuthHash::passwordVerify($currentPwd, $adminInfo['password'])) {
                     $this->errorMessage = xl("Incorrect password!");
                     $this->clearFromMemory($currentPwd);
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password error");
+                    EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "update password error");
                     return false;
                 }
             }
@@ -620,7 +620,7 @@ class AuthUtils
         if (empty($newPwd)) {
             $this->errorMessage = xl("Empty Password Not Allowed");
             $this->clearFromMemory($newPwd);
-            EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password error, empty password");
+            EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 0, "update password error, empty password");
 
             return false;
         }
@@ -758,7 +758,7 @@ class AuthUtils
 
         // Done with $newPwd, so can clear it now
         $this->clearFromMemory($newPwd);
-        EventAuditLogger::instance()->newEvent('update events', $username, $authGroup, 1, "update password successfully");
+        EventAuditLogger::instance()->newEvent('password', $username, $authGroup, 1, "update password successfully");
         return true;
     }
 
