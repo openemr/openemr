@@ -30,9 +30,12 @@ use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 use OpenEMR\Services\Cda\CdaTextParser;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
+use OpenEMR\Services\Cda\ClinicalNoteParser;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 use Symfony\Component\Console\Style\SymfonyStyle;
+
+use function PHPUnit\Framework\throwException;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
@@ -222,13 +225,14 @@ class CarecoordinationTable extends AbstractTableGateway
         // @see https://php.net/xmlreader
         // 10/27/2022 sjp Extended base reader Laminas XML class using provided interface class
         // Needed to add LIBXML_COMPACT | LIBXML_PARSEHUGE flags because large text node(>10MB) will fail.
+        // @see https://www.php.net/manual/en/libxml.constants.php
         try {
             $this->conditionedXmlContent = $this->cleanCcdaXmlContent($xml_content, true);
             $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
             $xml_to_array = new XmlExtended();
             $xml = $xml_to_array->fromString($this->conditionedXmlContent);
         } catch (Exception $e) {
-            die($e->getMessage());
+            throw new Exception($e->getMessage());
         }
         // Document various sectional components
         $components = $xml['component']['structuredBody']['component'];
@@ -914,6 +918,8 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_care_plan['care_plan'][$e]['reason_status'] = $newdata['care_plan']['reason_status'] ?? null;
                 $e++;
             } elseif ($table == 'clinical_notes') {
+                $arr_clinical_note['clinical_notes'][$cn]['encounter_root'] = $newdata['clinical_notes']['encounter_root'] ?? null;
+                $arr_clinical_note['clinical_notes'][$cn]['encounter_extension'] = $newdata['clinical_notes']['encounter_extension'] ?? null;
                 $arr_clinical_note['clinical_notes'][$cn]['date'] = $newdata['clinical_notes']['date'] ?? null;
                 $arr_clinical_note['clinical_notes'][$cn]['code'] = $newdata['clinical_notes']['code'] ?? null;
                 $arr_clinical_note['clinical_notes'][$cn]['text'] = $newdata['clinical_notes']['code_text'] ?? null;
@@ -1001,7 +1007,7 @@ class CarecoordinationTable extends AbstractTableGateway
                        WHERE id =? ", array($pid,
                 $document_id));
         }
-    }
+    } // insert_patient
 
     /**
      * @param $unformatted_date
@@ -2322,13 +2328,13 @@ class CarecoordinationTable extends AbstractTableGateway
      * @return string Cleaned XML content.
      * @throws Exception If the input XML is invalid or cannot be parsed.
      */
-    function cleanCcdaXmlContent(string $xmlContent, bool $removeBr = false): string
+    function cleanCcdaXmlContent(string $xmlContent, bool $replaceBr = false): string
     {
         // Handle <br/> tags if required
-        if ($removeBr) {
-            $xmlContent = preg_replace('/<br\s*\/?>/', '', $xmlContent); // Remove <br/>
+        if ($replaceBr) {
+            $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '', $xmlContent);
         } else {
-            $xmlContent = preg_replace('/<br\s*\/?>/', "\n", $xmlContent); // Replace <br/> with newline
+            $xmlContent = preg_replace('/<\/?br\s*\/?>/i', '\n', $xmlContent); // Replace <br/> with newline
         }
         $xmlContent = preg_replace('/\xC2\xA0/', '', $xmlContent);
         $xmlContent = str_replace('Â', '', $xmlContent);

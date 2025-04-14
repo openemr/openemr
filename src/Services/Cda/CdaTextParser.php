@@ -53,8 +53,8 @@ class CdaTextParser
             $list = $xpath->query(".//ns:list | .//list", $section)->item(0);
             if ($list) {
                 foreach ($list->getElementsByTagName("item") as $item) {
-                    $id = $item->getAttribute("ID") ?: "No ID";
-                    $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "No Caption";
+                    $id = $item->getAttribute("ID") ?: "";
+                    $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "";
                     $content = $this->extractItemContent($item);
 
                     $notes[] = [
