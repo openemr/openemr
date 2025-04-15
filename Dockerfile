@@ -60,6 +60,7 @@ RUN composer dump-autoload -o
 
 # Configure Apache
 RUN a2enmod rewrite
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN { \
     echo '<Directory "/var/www/html">'; \
@@ -75,8 +76,31 @@ RUN { \
 } > /etc/apache2/conf-available/openemr.conf && \
     a2enconf openemr
 
+# Create a startup script to check database connection before starting Apache
+RUN echo '#!/bin/bash\n\
+echo "Waiting for database connection..."\n\
+timeout=60\n\
+counter=0\n\
+while ! mysqladmin ping -h "$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASS" --silent 2>/dev/null && [ $counter -lt $timeout ]; do\n\
+    sleep 1\n\
+    counter=$((counter+1))\n\
+    echo "Waiting for database connection... ($counter/$timeout)"\n\
+done\n\
+\n\
+if [ $counter -eq $timeout ]; then\n\
+    echo "Failed to connect to database within timeout period"\n\
+    echo "MYSQL_HOST: $MYSQL_HOST"\n\
+    echo "MYSQL_USER: $MYSQL_USER"\n\
+    # Dont print password\n\
+    exit 1\n\
+fi\n\
+\n\
+echo "Database connection established"\n\
+exec apache2-foreground\n\
+' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+
 # Expose port 80
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Use the startup script as the entrypoint
+CMD ["/usr/local/bin/start.sh"]
