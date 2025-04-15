@@ -16,5 +16,7 @@ RUN echo "Directory structure:" && \
     ls -la /var/www/localhost/htdocs/openemr/sites && \
     echo "\nDetailed recursive listing with permissions:" && \
     find /var/www/localhost/htdocs/openemr/sites -type d -exec ls -ld {} \; && \
+    echo "\nAll files with permissions:" && \
+    find /var/www/localhost/htdocs/openemr/sites -type f -exec ls -la {} \; && \
     echo "\nFile count by type:" && \
     find /var/www/localhost/htdocs/openemr/sites -type f | grep -o "\.[^.]*$" | sort | uniq -c
