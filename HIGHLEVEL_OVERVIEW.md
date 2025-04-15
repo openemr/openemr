@@ -1,4 +1,4 @@
-# OpenEMR: A Comprehensive Overview
+# OpenEMR: A Comprehensive Overview 
 
 ## Introduction
 
