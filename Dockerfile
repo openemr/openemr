@@ -1,11 +1,10 @@
 FROM openemr/openemr:7.0.3
 
-# Add your custom files or modifications here
-# For example:
-# COPY ./custom-files/ /var/www/localhost/htdocs/openemr/
+# Copy our custom entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-# If you need to install additional PHP extensions:
-# RUN apk add --no-cache php8-some-extension
+# Make it executable
+RUN chmod +x /docker-entrypoint.sh
 
-# Apply any custom configurations
-# COPY ./custom-configs/ /etc/
+# Set as the entrypoint
+ENTRYPOINT ["/docker-entrypoint.sh"]
