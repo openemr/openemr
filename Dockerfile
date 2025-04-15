@@ -14,6 +14,10 @@ RUN mkdir -p /etc/ssl/certs/ /etc/ssl/private/ && \
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+# Set proper permissions for the entire OpenEMR directory
+RUN chown -R apache:apache /var/www/localhost/htdocs/openemr && \
+    chmod -R 755 /var/www/localhost/htdocs/openemr
+
 # Use custom entrypoint
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["sh", "-c", "httpd -D FOREGROUND"]
