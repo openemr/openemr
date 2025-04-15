@@ -106,15 +106,53 @@ mkdir -p /var/www/html/sites/default\n\
 mkdir -p /var/www/html/sites/default/documents\n\
 mkdir -p /var/www/html/sites/default/edi\n\
 mkdir -p /var/www/html/sites/default/era\n\
+mkdir -p /var/www/html/sites/default/documents/smarty/main\n\
+mkdir -p /var/www/html/sites/default/documents/smarty/gacl\n\
+mkdir -p /var/www/html/sites/default/documents/smarty/compile\n\
+\n\
+# Check if this appears to be a fresh container with a mounted persistent volume\n\
+if [ -f /var/www/html/sites/default/config.php ] && [ ! -d /var/www/html/sites/default/documents/smarty/main ]; then\n\
+    echo "Detected a persistent volume with config but missing directories - fixing structure..."\n\
+    # Recreate potentially missing directories in a persistent volume\n\
+    mkdir -p /var/www/html/sites/default/documents/smarty/main\n\
+    mkdir -p /var/www/html/sites/default/documents/smarty/gacl\n\
+    mkdir -p /var/www/html/sites/default/documents/smarty/compile\n\
+fi\n\
+\n\
+# Set proper permissions for Smarty and other directories\n\
+chmod -R 777 /var/www/html/sites/default/documents/smarty\n\
+chmod -R 777 /var/www/html/sites/default/documents\n\
+chmod -R 777 /var/www/html/sites/default/edi\n\
+chmod -R 777 /var/www/html/sites/default/era\n\
 \n\
 # Set permissions for OpenEMR\n\
-chmod 666 /var/www/html/library/acl.inc\n\
-chmod 666 /var/www/html/interface/modules/zend_modules/config/application.config.php\n\
-chmod -R 777 /var/www/html/sites\n\
+if [ -f /var/www/html/library/acl.inc ]; then\n\
+    chmod 666 /var/www/html/library/acl.inc\n\
+fi\n\
+\n\
+if [ -f /var/www/html/interface/modules/zend_modules/config/application.config.php ]; then\n\
+    chmod 666 /var/www/html/interface/modules/zend_modules/config/application.config.php\n\
+fi\n\
+\n\
+# Set ownership for all files\n\
+chown -R www-data:www-data /var/www/html/sites\n\
+\n\
+# Create required OpenEMR directories for file uploads and patient documents\n\
+mkdir -p /var/www/html/sites/default/documents/categories\n\
+mkdir -p /var/www/html/sites/default/documents/encounters\n\
+mkdir -p /var/www/html/sites/default/documents/patient_id\n\
+mkdir -p /var/www/html/sites/default/documents/procedures\n\
+chmod -R 777 /var/www/html/sites/default/documents/categories\n\
+chmod -R 777 /var/www/html/sites/default/documents/encounters\n\
+chmod -R 777 /var/www/html/sites/default/documents/patient_id\n\
+chmod -R 777 /var/www/html/sites/default/documents/procedures\n\
 \n\
 echo "OpenEMR is ready for setup. Visit the site to complete configuration."\n\
+echo "Directory structure and permissions have been prepared."\n\
 exec apache2-foreground\n\
 ' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+
+VOLUME ["/var/www/html/sites"]
 
 # Expose port 80
 EXPOSE 80
