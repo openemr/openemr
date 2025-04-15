@@ -354,6 +354,13 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
                 $thisins = 0;
             }
 
+            // Fix: Prevent negative payment amounts
+            if ((float)$thispay < 0) {
+                echo "<script>alert('Error: Negative payment amounts are not allowed.');</script>";
+                return false;
+            }
+
+
             if (0.0 + $thispay) {
                 SLEOB::arPostPayment($patient_id, $encounter_id, $session_id, $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
                 $paytotal += $thispay;
