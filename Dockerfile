@@ -1,9 +1,11 @@
-FROM openemr/openemr:7.0.3
+FROM openemr/openemr:7.0.2
 
-# Create a script to copy the sites
-COPY copy-sites.sh /copy-sites.sh
-RUN chmod +x /copy-sites.sh
+# Add your custom files or modifications here
+# For example:
+# COPY ./custom-files/ /var/www/localhost/htdocs/openemr/
 
-# Add a command to run our script when the container starts up
-# This will add it to the end of /etc/profile so it runs on container start
-RUN echo "/copy-sites.sh" >> /etc/profile.d/copy-sites.sh && chmod +x /etc/profile.d/copy-sites.sh
+# If you need to install additional PHP extensions:
+# RUN apk add --no-cache php8-some-extension
+
+# Apply any custom configurations
+# COPY ./custom-configs/ /etc/
