@@ -12,16 +12,18 @@ RUN chown -R apache:apache /var/www/localhost/htdocs/openemr/sites && \
     chmod -R 755 /var/www/localhost/htdocs/openemr/sites && \
     chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
 
-# Add a script to check for mounted volumes and file existence at runtime
-RUN echo '#!/bin/sh' > /check-files.sh && \
-    echo 'echo "=== RUNTIME FILE CHECK ===" >> /tmp/file-check.log' >> /check-files.sh && \
-    echo 'ls -la /var/www/localhost/htdocs/openemr/sites/default >> /tmp/file-check.log' >> /check-files.sh && \
-    echo 'echo "\nFile exists check:" >> /tmp/file-check.log' >> /check-files.sh && \
-    echo 'if [ -f /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php ]; then echo "sqlconf.php exists" >> /tmp/file-check.log; else echo "sqlconf.php MISSING" >> /tmp/file-check.log; fi' >> /check-files.sh && \
-    echo 'echo "\nMounted volumes:" >> /tmp/file-check.log' >> /check-files.sh && \
-    echo 'mount | grep -i openemr >> /tmp/file-check.log' >> /check-files.sh && \
-    echo 'cat /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php >> /tmp/file-check.log' >> /check-files.sh && \
-    chmod +x /check-files.sh
+# Create a script to check for file existence at runtime
+RUN echo '#!/bin/sh' > /docker-entrypoint-initdb.d/check-files.sh && \
+    echo 'echo "=== RUNTIME FILE CHECK ===" > /tmp/file-check.log' >> /docker-entrypoint-initdb.d/check-files.sh && \
+    echo 'ls -la /var/www/localhost/htdocs/openemr/sites/default >> /tmp/file-check.log' >> /docker-entrypoint-initdb.d/check-files.sh && \
+    echo 'echo "\nFile exists check:" >> /tmp/file-check.log' >> /docker-entrypoint-initdb.d/check-files.sh && \
+    echo 'if [ -f /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php ]; then echo "sqlconf.php exists" >> /tmp/file-check.log; else echo "sqlconf.php MISSING" >> /tmp/file-check.log; fi' >> /docker-entrypoint-initdb.d/check-files.sh && \
+    echo 'echo "\nMounted volumes:" >> /tmp/file-check.log' >> /docker-entrypoint-initdb.d/check-files.sh && \
+    echo 'mount | grep -i railwayapp >> /tmp/file-check.log' >> /docker-entrypoint-initdb.d/check-files.sh && \
+    chmod +x /docker-entrypoint-initdb.d/check-files.sh
+
+# Make a backup copy of the sites directory in another location
+RUN cp -r /var/www/localhost/htdocs/openemr/sites /sites-backup
 
 # Print out for build logs
 RUN echo "Directory structure:" && \
@@ -35,6 +37,14 @@ RUN echo "Directory structure:" && \
     echo "\nFile count by type:" && \
     find /var/www/localhost/htdocs/openemr/sites -type f | grep -o "\.[^.]*$" | sort | uniq -c
 
-# Modify the entrypoint to run our check script
-COPY --from=busybox:1.36 /bin/sh /bin/busybox_sh
-RUN sed -i '1s/^/\/check-files.sh \&\n/' /etc/docker-entrypoint.d/20-openemr-env-init.sh
+# Create an entrypoint script to restore sites directory if it gets overwritten by a volume mount
+RUN mkdir -p /docker-entrypoint-initdb.d && \
+    echo '#!/bin/sh' > /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo 'if [ ! -f /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php ]; then' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo '  echo "Restoring sites directory from backup..." >> /tmp/file-check.log' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo '  cp -r /sites-backup/* /var/www/localhost/htdocs/openemr/sites/' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo '  chown -R apache:apache /var/www/localhost/htdocs/openemr/sites' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo '  chmod -R 755 /var/www/localhost/htdocs/openemr/sites' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo '  chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    echo 'fi' >> /docker-entrypoint-initdb.d/restore-sites.sh && \
+    chmod +x /docker-entrypoint-initdb.d/restore-sites.sh
