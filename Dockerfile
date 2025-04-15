@@ -1,23 +1,11 @@
 FROM openemr/openemr:7.0.3
 
-# Install OpenSSL if not already installed
-RUN apk add --no-cache openssl
+# Add your custom files or modifications here
+# For example:
+# COPY ./custom-files/ /var/www/localhost/htdocs/openemr/
 
-# Generate self-signed SSL certificates
-RUN mkdir -p /etc/ssl/certs/ /etc/ssl/private/ && \
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/ssl/private/webserver.key.pem \
-    -out /etc/ssl/certs/webserver.cert.pem \
-    -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+# If you need to install additional PHP extensions:
+# RUN apk add --no-cache php8-some-extension
 
-# Create entrypoint script to handle permissions
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-# Set proper permissions for the entire OpenEMR directory
-RUN chown -R apache:apache /var/www/localhost/htdocs/openemr && \
-    chmod -R 755 /var/www/localhost/htdocs/openemr
-
-# Use custom entrypoint
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["sh", "-c", "httpd -D FOREGROUND"]
+# Apply any custom configurations
+# COPY ./custom-configs/ /etc/
