@@ -1,8 +1,9 @@
 FROM openemr/openemr:7.0.3
 
-# Add a script to initialize the sites directory
-COPY init-openemr.sh /root/
-RUN chmod +x /root/init-openemr.sh
+# Create entrypoint script to handle permissions
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
-# Override the default entrypoint to run our custom script
-ENTRYPOINT ["/root/init-openemr.sh"]
+# Use custom entrypoint
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["sh", "-c", "httpd -D FOREGROUND"]
