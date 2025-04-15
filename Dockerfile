@@ -47,7 +47,7 @@ RUN { \
 # Copy the OpenEMR files (from your forked repo)
 COPY . /var/www/html/
 
-# Set permissions (very important for OpenEMR setup)
+# Set permissions
 RUN chown -R www-data:www-data /var/www/html/
 
 # Install Composer
@@ -151,8 +151,6 @@ echo "OpenEMR is ready for setup. Visit the site to complete configuration."\n\
 echo "Directory structure and permissions have been prepared."\n\
 exec apache2-foreground\n\
 ' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
-
-VOLUME ["/var/www/html/sites"]
 
 # Expose port 80
 EXPOSE 80
