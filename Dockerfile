@@ -29,7 +29,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Configure PHP
 RUN { \
     echo 'short_open_tag = Off'; \
-    echo 'display_errors = Off'; \
+    echo 'display_errors = On'; \
+    echo 'log_errors = On'; \
+    echo 'error_log = /dev/stderr'; \
     echo 'register_globals = Off'; \
     echo 'max_input_vars = 3000'; \
     echo 'max_execution_time = 60'; \
@@ -45,7 +47,7 @@ RUN { \
 # Copy the OpenEMR files (from your forked repo)
 COPY . /var/www/html/
 
-# Set permissions
+# Set permissions (very important for OpenEMR setup)
 RUN chown -R www-data:www-data /var/www/html/
 
 # Install Composer
@@ -63,11 +65,12 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN { \
     echo '<Directory "/var/www/html">'; \
-    echo '    AllowOverride FileInfo'; \
+    echo '    AllowOverride All'; \
     echo '    Require all granted'; \
     echo '</Directory>'; \
     echo '<Directory "/var/www/html/sites">'; \
-    echo '    AllowOverride None'; \
+    echo '    AllowOverride All'; \
+    echo '    Require all granted'; \
     echo '</Directory>'; \
     echo '<Directory "/var/www/html/sites/*/documents">'; \
     echo '    Require all denied'; \
@@ -75,12 +78,17 @@ RUN { \
 } > /etc/apache2/conf-available/openemr.conf && \
     a2enconf openemr
 
+# Create a dedicated health check endpoint
+RUN echo "<?php\nheader('HTTP/1.1 200 OK');\necho 'OK';\n?>" > /var/www/html/health-check.php && \
+    chown www-data:www-data /var/www/html/health-check.php
+
 # Create startup script
 RUN echo '#!/bin/bash\n\
+# Wait for database to be ready\n\
 echo "Waiting for database connection..."\n\
 timeout=60\n\
 counter=0\n\
-while ! mysqladmin ping -h "$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --silent 2>/dev/null && [ $counter -lt $timeout ]; do\n\
+while ! mysqladmin ping -h "${MYSQL_HOST}" --user="${MYSQL_USER}" --password="${MYSQL_PASSWORD}" --silent 2>/dev/null && [ $counter -lt $timeout ]; do\n\
     sleep 1\n\
     counter=$((counter+1))\n\
     echo "Waiting for database connection... ($counter/$timeout)"\n\
@@ -93,9 +101,18 @@ fi\n\
 \n\
 echo "Database connection established"\n\
 \n\
-# Ensure proper permissions for the sites directory\n\
-chown -R www-data:www-data /var/www/html/sites\n\
+# Ensure sites directory exists and has proper permissions\n\
+mkdir -p /var/www/html/sites/default\n\
+mkdir -p /var/www/html/sites/default/documents\n\
+mkdir -p /var/www/html/sites/default/edi\n\
+mkdir -p /var/www/html/sites/default/era\n\
 \n\
+# Set permissions for OpenEMR\n\
+chmod 666 /var/www/html/library/acl.inc\n\
+chmod 666 /var/www/html/interface/modules/zend_modules/config/application.config.php\n\
+chmod -R 777 /var/www/html/sites\n\
+\n\
+echo "OpenEMR is ready for setup. Visit the site to complete configuration."\n\
 exec apache2-foreground\n\
 ' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 
