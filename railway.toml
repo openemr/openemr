@@ -1,0 +1,7 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+healthcheckPath = "/interface/login/login.php"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
