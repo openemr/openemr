@@ -5,3 +5,7 @@ builder = "dockerfile"
 healthcheckPath = "/interface/login/login.php"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
+
+[[volume]]
+source = "openemr-sites"
+destination = "/var/www/html/sites"

@@ -19,8 +19,6 @@ RUN apt-get update && apt-get install -y \
     rsync \
     libldap2-dev \
     libgd-dev \
-    libtiff-tools \
-    nano \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
@@ -28,9 +26,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo_mysql mysqli soap zip xml curl ldap calendar intl
 
+# Configure PHP
 RUN { \
     echo 'short_open_tag = Off'; \
-    echo 'display_errors = On'; \
+    echo 'display_errors = Off'; \
     echo 'register_globals = Off'; \
     echo 'max_input_vars = 3000'; \
     echo 'max_execution_time = 60'; \
@@ -43,7 +42,7 @@ RUN { \
     echo 'upload_tmp_dir = /tmp'; \
 } > /usr/local/etc/php/conf.d/openemr-php.ini
 
-# Copy OpenEMR files
+# Copy the OpenEMR files (from your forked repo)
 COPY . /var/www/html/
 
 # Set permissions
@@ -76,12 +75,12 @@ RUN { \
 } > /etc/apache2/conf-available/openemr.conf && \
     a2enconf openemr
 
-# Create a startup script to check database connection before starting Apache
+# Create startup script
 RUN echo '#!/bin/bash\n\
 echo "Waiting for database connection..."\n\
 timeout=60\n\
 counter=0\n\
-while ! mysqladmin ping -h "$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASS" --silent 2>/dev/null && [ $counter -lt $timeout ]; do\n\
+while ! mysqladmin ping -h "$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" --silent 2>/dev/null && [ $counter -lt $timeout ]; do\n\
     sleep 1\n\
     counter=$((counter+1))\n\
     echo "Waiting for database connection... ($counter/$timeout)"\n\
@@ -89,18 +88,19 @@ done\n\
 \n\
 if [ $counter -eq $timeout ]; then\n\
     echo "Failed to connect to database within timeout period"\n\
-    echo "MYSQL_HOST: $MYSQL_HOST"\n\
-    echo "MYSQL_USER: $MYSQL_USER"\n\
-    # Dont print password\n\
     exit 1\n\
 fi\n\
 \n\
 echo "Database connection established"\n\
+\n\
+# Ensure proper permissions for the sites directory\n\
+chown -R www-data:www-data /var/www/html/sites\n\
+\n\
 exec apache2-foreground\n\
 ' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 
 # Expose port 80
 EXPOSE 80
 
-# Use the startup script as the entrypoint
+# Start using the custom startup script
 CMD ["/usr/local/bin/start.sh"]
