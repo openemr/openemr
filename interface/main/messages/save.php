@@ -202,6 +202,35 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
 }
 
 if (($_REQUEST['action'] == 'addRecall') || ($_REQUEST['add_new'])) {
+    // Input validation for home phone, mobile phone, and email.
+    $validInput = true;
+    $errMsg = "";
+    $new_email = trim($_REQUEST['new_email']);
+    $new_phone_home = trim($_REQUEST['new_phone_home']);
+    $new_phone_cell = trim($_REQUEST['new_phone_cell']);
+    
+    if(!empty($new_phone_home) && !preg_match('/^\+?[0-9\s\-]+$/', $new_phone_home)) {
+        $validInput = false;
+        $errMsg = "Invalid home phone number";
+    }
+
+    if($validInput && !empty($new_phone_cell) && !preg_match('/^\+?[0-9\s\-]+$/', $new_phone_cell)) {
+        $validInput = false;
+        $errMsg = "Invalid mobile phone number";
+    }
+
+    if ($validInput && !empty($new_email) && !filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+        $validInput = false;
+        $errMsg = "Invalid E-Mail Address";
+    }
+
+    if(!$validInput) {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => $errMsg]);
+        exit;
+    }
+
     $result = $MedEx->events->save_recall($_REQUEST);
     echo json_encode('saved');
     exit;
