@@ -1,21 +1,25 @@
 #!/bin/sh
 set -e
 
-# Create the default directory structure if it doesn't exist already
+# Create the sites directory structure if it doesn't exist yet
 if [ ! -d /var/www/localhost/htdocs/openemr/sites/default ]; then
-    echo "Initializing OpenEMR sites directory structure..."
+    echo "Creating initial directory structure..."
+    mkdir -p /var/www/localhost/htdocs/openemr/sites/default
     mkdir -p /var/www/localhost/htdocs/openemr/sites/default/documents
     mkdir -p /var/www/localhost/htdocs/openemr/sites/default/edi
     mkdir -p /var/www/localhost/htdocs/openemr/sites/default/era
     mkdir -p /var/www/localhost/htdocs/openemr/sites/default/letter_templates
-    
-    # Set proper permissions
-    chown -R apache:apache /var/www/localhost/htdocs/openemr/sites
 fi
 
-# Skip upgrade check by setting a flag
-echo "Skipping upgrade check..."
-touch /var/www/localhost/htdocs/openemr/sites/default/no_upgrade_check
+# Make sure core OpenEMR files have the right permissions
+chown -R apache:apache /var/www/localhost/htdocs/openemr
 
-# Start original entrypoint - use the default command from the openemr image
-exec /usr/local/bin/docker-entrypoint.sh apache2-foreground
+# Create run directory for Apache
+mkdir -p /run/apache2
+
+# Tell OpenEMR to skip the upgrade check that's causing the crashes
+export SKIP_UPGRADE_CHECK=1
+
+# Start Apache
+echo "Starting OpenEMR - access the setup page to complete configuration"
+exec /usr/sbin/httpd -D FOREGROUND
