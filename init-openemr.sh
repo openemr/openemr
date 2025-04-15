@@ -2,11 +2,7 @@
 set -e
 
 # Make sure directories exist
-mkdir -p /var/www/localhost/htdocs/openemr/sites/default
-mkdir -p /var/www/localhost/htdocs/openemr/sites/default/documents
-mkdir -p /var/www/localhost/htdocs/openemr/sites/default/edi
-mkdir -p /var/www/localhost/htdocs/openemr/sites/default/era
-mkdir -p /var/www/localhost/htdocs/openemr/sites/default/letter_templates
+mkdir -p /var/www/localhost/htdocs/openemr/sites
 
 # Set proper permissions
 chown -R apache:apache /var/www/localhost/htdocs/openemr/sites
