@@ -30,7 +30,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 
 RUN { \
     echo 'short_open_tag = Off'; \
-    echo 'display_errors = Off'; \
+    echo 'display_errors = On'; \
     echo 'register_globals = Off'; \
     echo 'max_input_vars = 3000'; \
     echo 'max_execution_time = 60'; \
