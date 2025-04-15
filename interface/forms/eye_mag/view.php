@@ -52,7 +52,8 @@ $setting_HPI        = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
 $setting_PMH        = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
 $setting_EXT        = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
 $setting_ANTSEG     = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
-$setting_POSTSEG    = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
+$setting_RETINA     = prevSetting($uspfx, 'setting_RETINA', 'setting_RETINA', '1');
+$setting_SDRETINA   = prevSetting($uspfx, 'setting_SDRETINA', 'setting_SDRETINA', '1');
 $setting_NEURO      = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
 $setting_IMPPLAN    = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
 
@@ -208,7 +209,7 @@ if ($refresh and $refresh != 'fullscreen') {
           <li id="tabs-left-ANTSEG" class="btn-primary">
               <span><?php echo xlt('Ant'); ?></span>
           </li>
-          <li id="tabs-left-POSTSEG" class="btn-primary">
+          <li id="tabs-left-RETINA" class="btn-primary">
               <span><?php echo xlt('Retina'); ?></span>
           </li>
           <li id="tabs-left-NEURO" class="btn-primary">
@@ -281,6 +282,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="PREFS_EXT_VIEW" id="PREFS_EXT_VIEW" value="<?php echo attr($EXT_VIEW ?? ''); ?>">
               <input type="hidden" name="PREFS_ANTSEG_VIEW" id="PREFS_ANTSEG_VIEW" value="<?php echo attr($ANTSEG_VIEW ?? ''); ?>">
               <input type="hidden" name="PREFS_RETINA_VIEW" id="PREFS_RETINA_VIEW" value="<?php echo attr($RETINA_VIEW ?? ''); ?>">
+              <input type="hidden" name="PREFS_SDRETINA_VIEW" id="PREFS_SDRETINA_VIEW" value="<?php echo attr($SDRETINA_VIEW ?? '1'); ?>">
               <input type="hidden" name="PREFS_NEURO_VIEW" id="PREFS_NEURO_VIEW" value="<?php echo attr($NEURO_VIEW ?? ''); ?>">
               <input type="hidden" name="PREFS_ACT_VIEW" id="PREFS_ACT_VIEW" value="<?php echo attr($ACT_VIEW ?? ''); ?>">
               <input type="hidden" name="PREFS_PMH_RIGHT" id="PREFS_PMH_RIGHT" value="<?php echo attr($PMH_RIGHT ?? ''); ?>">
@@ -288,6 +290,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <input type="hidden" name="PREFS_EXT_RIGHT" id="PREFS_EXT_RIGHT" value="<?php echo attr($EXT_RIGHT ?? ''); ?>">
               <input type="hidden" name="PREFS_ANTSEG_RIGHT" id="PREFS_ANTSEG_RIGHT" value="<?php echo attr($ANTSEG_RIGHT ?? ''); ?>">
               <input type="hidden" name="PREFS_RETINA_RIGHT" id="PREFS_RETINA_RIGHT" value="<?php echo attr($RETINA_RIGHT ?? ''); ?>">
+              <input type="hidden" name="PREFS_SDRETINA_RIGHT" id="PREFS_SDRETINA_RIGHT" value="<?php echo attr($SDRETINA_RIGHT ?? ''); ?>">
               <input type="hidden" name="PREFS_NEURO_RIGHT" id="PREFS_NEURO_RIGHT" value="<?php echo attr($NEURO_RIGHT ?? ''); ?>">
               <input type="hidden" name="PREFS_IMPPLAN_RIGHT" id="PREFS_IMPPLAN_RIGHT" value="<?php echo attr($IMPPLAN_RIGHT ?? ''); ?>">
               <input type="hidden" name="PREFS_PANEL_RIGHT" id="PREFS_PANEL_RIGHT" value="<?php echo attr($PANEL_RIGHT ?? ''); ?>">
@@ -308,12 +311,13 @@ if ($refresh and $refresh != 'fullscreen') {
                 <input type='hidden' name='setting_PMH' id='setting_PMH' value='<?php echo attr($setting_PMH); ?>'>
                 <input type='hidden' name='setting_EXT' id='setting_EXT' value='<?php echo attr($setting_EXT); ?>'>
                 <input type='hidden' name='setting_ANTSEG' id='setting_ANTSEG' value='<?php echo attr($setting_ANTSEG); ?>'>
-                <input type='hidden' name='setting_POSTSEG' id='setting_POSTSEG' value='<?php echo attr($setting_POSTSEG); ?>'>
+                <input type='hidden' name='setting_RETINA' id='setting_RETINA' value='<?php echo attr($setting_RETINA); ?>'>
+                <input type='hidden' name='setting_SDRETINA' id='setting_SDRETINA' value='<?php echo attr($setting_SDRETINA ?? '1'); ?>'>
                 <input type='hidden' name='setting_NEURO' id='setting_NEURO' value='<?php echo attr($setting_NEURO); ?>'>
                 <input type='hidden' name='setting_IMPPLAN' id='setting_IMPPLAN' value='<?php echo attr($setting_IMPPLAN); ?>'>
 
                 <!-- start first div -->
-              <div id="first" name="first" class="text_clinical">
+              <div id="first" name="first" class="text_clinical" style="margin-bottom:20px;">
                 <!-- start    HPI spinner -->
                 <div class="loading" id="HPI_sections_loading" name="HPI_sections_loading"><i class="fa fa-spinner fa-spin"></i>
                 </div>
@@ -712,7 +716,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="Enter_PMH" name="Enter_PMH" class="PMH_class">
                               <iframe id="iframe" name="iframe"
                                 src="../../forms/eye_mag/a_issue.php?uniqueID=<?php echo attr_url($uniqueID); ?>&form_type=POH&pid=<?php echo attr_url($pid); ?>&encounter=<?php echo attr_url($encounter); ?>&form_id=<?php echo attr_url($form_id); ?>"
-                                width="510" height="363" scrolling= "yes" frameBorder= "0" >
+                                width="510" height="380" scrolling= "yes" frameBorder= "0" >
                               </iframe>
                           </div>
                         </div>
@@ -1975,7 +1979,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   <i class="fa fa-spinner fa-spin"></i>
               </div>
 
-                  <div class="nodisplay" id="DA_EXAM_sections" name="DA_EXAM_sections">
+              <div class="nodisplay" id="DA_EXAM_sections" name="DA_EXAM_sections">
                   <!-- start External Exam -->
                   <div id="EXT_1" name="EXT_1" class="clear_both">
                       <span class="anchor" id="EXT_anchor"></span>
@@ -2483,67 +2487,79 @@ if ($refresh and $refresh != 'fullscreen') {
                 </div>
                 <!-- end Ant Seg -->
 
-                <!-- start POSTSEG -->
-                <div id="POSTSEG_1" class="clear_both" >
+                <!-- start RETINA -->
+                <div id="RETINA_1" class="clear_both" >
                   <div id="RETINA_left" name="RETINA_left" class="exam_section_left borderShadow">
                     <span class="anchor" id="RETINA_anchor"></span>
                     <div class="TEXT_class" id="RETINA_left_text" name="RETINA_left_text">
-                      <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the Retina drawing panel'); ?>" id="BUTTON_DRAW_RETINA" name="BUTTON_DRAW_RETINA"></span>
-                      <i class="closeButton_3 fa fa-database"title="<?php echo xla('Open/Close the Retinal Exam Quick Picks panel'); ?>" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
-                      <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
-                        <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Post Seg panels'); ?>" id="BUTTON_TAB_POSTSEG" name="BUTTON_TAB_POSTSEG"></i>
-                        <b><?php echo xlt('Retina'); ?>:</b><div class="kb kb_left" title="<?php echo xla("Retina Default Values"); ?>"><?php echo text('DRET'); ?></div>
-                        <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS == 'on') {
-                            echo "checked='checked'";
-                                                                                          } ?>>
-                        <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php echo xlt('Dilation orders/risks reviewed'); ?></label>
-                      <br />
-                      <div id="RETINA_left_1" class="text_clinical">
-                        <table>
-                            <?php
-                              list($imaging,$episode) = display($pid, $encounter, "POSTSEG");
-                              echo $episode;
-                            ?>
-                        </table>
+                        <span class="closeButton_2 fa fa-paint-brush" title="<?php echo xla('Open/Close the Retina drawing panel'); ?>" id="BUTTON_DRAW_RETINA" name="BUTTON_DRAW_RETINA"></span>
+                        <i class="closeButton_3 fa fa-database"title="<?php echo xla('Open/Close the Retinal Exam Quick Picks panel'); ?>" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
+                        <i class="closeButton_4 fa fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
+                        <i class="closeButton fa fa-minus-circle" title="<?php echo xla('Open/Close Post Seg panels'); ?>" id="BUTTON_TAB_RETINA" name="BUTTON_TAB_RETINA"></i>
+                        <span class="bold"><?php echo xlt('Retina'); ?>:</b>
+                            <div class="kb kb_left" title="<?php echo xla("Retina Default Values"); ?>"><?php echo text('DRET'); ?></div>&nbsp;
+                        </span>
+                        <span class="TEXT_class">
+                            <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php
+                            if ($DIL_RISKS == 'on') {
+                                echo "checked='checked'";
+                            } ?>>
+                            <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php echo xlt('Dilation orders/risks reviewed'); ?></label>
+                        </span>
 
-                        <table>
-                            <tr class="bold">
-                                <td></td>
-                                <td><?php echo xlt('OD{{right eye}}'); ?> </td><td><?php echo xlt('OS{{left eye}}'); ?> </td>
-                            </tr>
-                            <tr>
-
-                                <td class="bold right">
-                                    <div class="kb kb_left"><?php echo 'CUP'; ?></div>
-                                    <?php echo xlt('C/D Ratio{{cup to disc ration}}'); ?>:</td>
-                                <td>
-                                    <input type="text" class="RETINA" name="ODCUP" size="4" id="ODCUP" value="<?php echo attr($ODCUP); ?>">
-                                </td>
-                                <td>
-                                    <input type="text" class="RETINA" name="OSCUP" size="4" id="OSCUP" value="<?php echo attr($OSCUP); ?>">
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="bold right">
-                                    <div class="kb kb_left"><?php echo 'CMT'; ?></div>
-                                    <?php echo xlt('CMT{{Central Macular Thickness}}'); ?>:</td>
-                                <td>
-                                    <input class="RETINA" type="text" name="ODCMT" size="4" id="ODCMT" value="<?php echo attr($ODCMT); ?>">
-                                </td>
-                                <td>
-                                    <input class="RETINA" type="text" name="OSCMT" size="4" id="OSCMT" value="<?php echo attr($OSCMT); ?>">
-                                </td>
-                            </tr>
-                        </table>
                         <br />
-                        <table>
-                            <?php
-                            list($imaging,$episode) = display($pid, $encounter, "NEURO");
-                            echo $episode;
-                            ?>
-                        </table>
-                      </div>
+                        <div id="RETINA_left_1" class="text_clinical">
+                            <table>
+                                <?php
+                                    list($imaging,$episode) = display($pid, $encounter, "POSTSEG");
+                                    echo $episode;
+                                ?>
+                            </table>
+                            <table>
+                                <tr class="bold">
+                                    <td></td>
+                                    <td><?php echo xlt('OD{{right eye}}'); ?> </td><td><?php echo xlt('OS{{left eye}}'); ?> </td>
+                                </tr>
+                                <tr>
+
+                                    <td class="bold right">
+                                        <div class="kb kb_left"><?php echo 'CUP'; ?></div>
+                                        <?php echo xlt('C/D Ratio{{cup to disc ration}}'); ?>:</td>
+                                    <td>
+                                        <input type="text" class="RETINA" name="ODCUP" size="4" id="ODCUP" value="<?php echo attr($ODCUP); ?>">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="RETINA" name="OSCUP" size="4" id="OSCUP" value="<?php echo attr($OSCUP); ?>">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="bold right">
+                                        <div class="kb kb_left"><?php echo 'CMT'; ?></div>
+                                        <?php echo xlt('CMT{{Central Macular Thickness}}'); ?>:</td>
+                                    <td>
+                                        <input class="RETINA" type="text" name="ODCMT" size="4" id="ODCMT" value="<?php echo attr($ODCMT); ?>">
+                                    </td>
+                                    <td>
+                                        <input class="RETINA" type="text" name="OSCMT" size="4" id="OSCMT" value="<?php echo attr($OSCMT); ?>">
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                            <table>
+                                <?php
+                                    list($imaging,$episode) = display($pid, $encounter, "NEURO");
+                                    echo $episode;
+                                ?>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <span class="ui-button ui-corner-all" id="BUTTON_DRAW_SDRETINA" name="BUTTON_DRAW_SDRETINA"><?php echo xlt('Scleral Depression'); ?></span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
                         <?php (($RETINA_VIEW ?? null) == 1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view = "narrow_textarea");?>
                         <?php ($display_RETINA_view == "wide_textarea") ? ($marker = "fa-minus-square") : ($marker = "fa-plus-square");?>
@@ -2651,7 +2667,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     </div>
                   </div>
 
-                  <div id="RETINA_right" class="exam_section_right borderShadow text_clinical">
+                  <div id="RETINA_right" name="RETINA_right" class="exam_section_right borderShadow text_clinical">
                     <div id="PRIORS_RETINA_left_text"
                          name="PRIORS_RETINA_left_text"
                          class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
@@ -2694,7 +2710,18 @@ if ($refresh and $refresh != 'fullscreen') {
                     </div>
                   </div>
                 </div>
-                <!-- end Retina -->
+                <div id="SDRETINA_1" name="SDRETINA_1" class="clear_both size50">
+                    <span class="anchor" id="SDRETINA_anchor" name="SDRETINA_anchor"></span>
+                    <div id="SDRETINA_right" name="SDRETINA_right" class="borderShadow text_clinical nodisplay">
+                          <H2><?php echo xlt('Scleral Depression Retinal Drawing'); ?></H2>
+
+                          <span class="closeButton fa fa-times float-right z100" id="BUTTON_TEXTD_SDRETINA" name="BUTTON_TEXTD_SDRETINA" value="1"></span>
+
+                          <?php display_draw_section("SDRETINA", $encounter, $pid); ?>
+                      </div>
+                  </div>
+
+                      <!-- end Retina -->
 
                 <!-- start Neuro -->
                 <div id="NEURO_1" class="clear_both">
@@ -2945,7 +2972,6 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 </td>
                                             </tr>
                                         </table>
-                                        <br />
                                     </div>
                                 </td>
                             </tr>
@@ -3663,8 +3689,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                    *  We present the active coding system codes found in the Imp/Plan.
                                    *  Perhaps a minor procedure/test was performed?
                                    *  Select options drawn from Eye_todo_done_".$provider_id list with a CODE
-                                   *  TODO: Finally we have the "Prior Visit" functionality of the form.
-                                   *  We should be able to look past codes and perhaps carry this forward?
+                                   *  Finally we have the "Prior Visit" functionality of the form.
+                                   *  We can carry forward past codes.
                                    */
                                 ?>
                               <script>
