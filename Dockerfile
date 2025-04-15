@@ -1,11 +1,8 @@
 FROM openemr/openemr:7.0.3
 
-# Add your custom files or modifications here
-# For example:
-# COPY ./custom-files/ /var/www/localhost/htdocs/openemr/
+# Add a script to initialize the sites directory
+COPY init-openemr.sh /root/
+RUN chmod +x /root/init-openemr.sh
 
-# If you need to install additional PHP extensions:
-# RUN apk add --no-cache php8-some-extension
-
-# Apply any custom configurations
-# COPY ./custom-configs/ /etc/
+# Override the default entrypoint to run our custom script
+ENTRYPOINT ["/root/init-openemr.sh"]
