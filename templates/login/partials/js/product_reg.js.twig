@@ -16,11 +16,14 @@
     } %}
 
     {% set regConstants = {
-        'webroot': webroot
+        'webroot': webroot,
+        'email': email,
+        'allowTelemetry': allowTelemetry,
+        'optOut': optOut,
     } %}
 
-    const registrationTranslations = {{ regTranslations|json_encode|raw }};
-    const registrationConstants = {{ regConstants|json_encode|raw }};
+    const registrationTranslations = {{ regTranslations|json_encode }};
+    const registrationConstants = {{ regConstants|json_encode }};
 
     $(document).ready(init());
 

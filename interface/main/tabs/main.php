@@ -29,10 +29,18 @@ use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\ProductRegistrationService;
 use Symfony\Component\Filesystem\Path;
 
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
+// Registration status and options.
+$productRegistration = new ProductRegistrationService();
+$product_row = $productRegistration->getProductStatus();
+$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
+$allowTelemetry = $product_row['allowTelemetry'] ?? 0;
+$registeredEmail = $product_row['email'] ?? '';
+$registerOptOut = $product_row['opt_out'] ?? 0;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
@@ -93,7 +101,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
     var webroot_url = <?php echo js_escape($web_root); ?>;
     var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> || 'ltr';
-    var jsGlobals = {}; // this should go away and replace with just global_enable_group_therapy
+    var jsGlobals = {};
     // used in tabs_view_model.js.
     jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
     jsGlobals.languageDirection = jsLanguageDirection;
@@ -106,6 +114,8 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
     const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
     const isServicesOther = (isSms || isFax);
+    const allowTelemetry = <?php echo $allowTelemetry; ?>;
+    const registerOptOut = <?php echo $registerOptOut; ?>;
 
     /**
      * Async function to get session value from the server
@@ -491,8 +501,10 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 }
 
-// Include the product registration js, telemetry and usage data reporting dialog
-echo $twig->render("login/partials/js/product_reg.js.twig", []);
+if (!empty($allowRegisterDialog)) {
+    // Include the product registration js, telemetry and usage data reporting dialog
+    echo $twig->render("login/partials/js/product_reg.js.twig", ['email' => $registeredEmail, 'allowTelemetry' => $allowTelemetry, 'optOut' => $registerOptOut]);
+}
 
 ?>
 </body>

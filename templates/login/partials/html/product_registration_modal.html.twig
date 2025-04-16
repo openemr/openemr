@@ -1,4 +1,3 @@
-
 {#
 Product Registration modal
 
@@ -18,37 +17,30 @@ Product Registration modal
             <div class="modal-header"></div>
             <div class="modal-body">
                 <p class="context">
-                    {{ "Register your installation with OpenEMR Foundation to receive important notifications, such as security fixes and new release announcements."|xlt }}
+                    {{ "We kindly ask you to take a moment to register your installation by providing an email. This ensures you receive timely updates, security alerts, and critical announcements from the OpenEMR Foundation."|xlt }}
                 </p>
-                <input placeholder="{{ "email"|xla }}" type="email" class="email w-100 text-body form-control" />
+                <input placeholder="{{ "email"|xla }}" type="email" id="email" class="email w-100 text-body form-control" value="" />
                 <p class="message font-italic"></p>
-                <p class="context">
-                    {{ "OpenEMR would like to collect usage data to help improve the system. No PHI will be collected. Please select the data points you consent to share:"|xlt }}
-                </p>
+                <span class="font-italic"><small>{{ "Registration is not required for Anonymous Telemetry Opt-In" | xlt }}</small></span>
+                <hr>
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="usage_metrics" id="usageMetrics" name="usage_metrics" checked>
-                        <label class="form-check-label" for="usageMetrics">
-                            {{ "Usage Metrics (feature clicks, session duration, performance data)"|xlt }}
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="user_counts" id="userCounts" name="user_counts" checked>
-                        <label class="form-check-label" for="userCounts">
-                            {{ "Aggregated User Data (total patients, clinicians, etc.)"|xlt }}
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="locale_data" id="localeData" name="locale_data" checked>
-                        <label class="form-check-label" for="localeData">
-                            {{ "Locale Data (country, region/state, city)"|xlt }}
+                        <input class="form-check-input" type="checkbox" value="allow_telemetry" id="allowTelemetry" name="allow_telemetry" checked>
+                        <label class="form-check-label" for="allowTelemetry">
+                            {{ "I consent to share anonymous usage data with the OpenEMR Foundation."|xlt }}
+                            {{ "We are committed to continually improving OpenEMR. By opting in to anonymous telemetry data collection, you help us better understand real-world usage and prioritize new features. No Personal Health Information (PHI) is ever collected. Please consider consenting to share the following data types:"|xlt }}
+                            <div class="m-1">
+                                <li>{{ "Usage Metrics (features used)"|xlt }}</li>
+                                <li>{{ "Aggregated User Data (total patients, clinicians, etc.)"|xlt }}</li>
+                                <li>{{ "Locale Data (restricted to country, region/state, city)"|xlt }}</li>
+                            </div>
                         </label>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary submit">{{ "Submit"|xlt }}</button>
-                <button type="button" class="btn btn-secondary nothanks">{{ "No Thanks"|xlt }}</button>
+                <button type="button" class="btn btn-secondary nothanks">{{ "Ask again later"|xlt }}</button>
             </div>
         </div>
     </div>

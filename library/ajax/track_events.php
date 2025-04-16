@@ -3,134 +3,45 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Telemetry\TelemetryRepository;
+use OpenEMR\Telemetry\TelemetryService;
 
 header("Content-Type: application/json");
 
-// Read and decode the JSON payload.
-$inputJSON = file_get_contents('php://input');
-$data = json_decode($inputJSON, true);
-
-// Verify CSRF token.
-if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-    exit;
-}
-if ($data['action'] === 'reportMenuClickData') {
-    reportClicks();
-    //$result = reportUsageData(); // todo: remove this line. for testing until background task is implemented.
-} elseif ($data['action'] === 'reportUsageData') {
-    $result = reportUsageData();
-    echo json_encode($result);
-} else {
-    http_response_code(400);
-    echo json_encode(array("error" => "Invalid action"));
-}
-
-function reportClicks()
+/**
+ * Main request handler that reads input, verifies the CSRF token, and delegates
+ * to the appropriate telemetry service method.
+ */
+function handleRequest(): void
 {
-    global $data;
-    $eventType = $data['eventType'] ?? '';
-    $eventLabel = $data['eventLabel'] ?? '';
-    $eventUrl = $data['eventUrl'] ?? '';
-    $eventTarget = $data['eventTarget'] ?? '';
-    $currentTime = date("Y-m-d H:i:s");
+    // Read JSON payload.
+    $inputJSON = file_get_contents('php://input');
+    $data = json_decode($inputJSON, true);
 
-    if (empty($eventType) || empty($eventLabel)) {
-        http_response_code(400);
-        echo json_encode(array("error" => "Missing required fields"));
-        exit;
+    // Verify CSRF token.
+    if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
     }
 
-    $sql = "INSERT INTO track_events (event_type, event_label, event_url, event_target, first_event, last_event, count)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-          event_url    = ?,
-          event_target = ?,
-          last_event   = ?,
-          count        = count + 1";
-
-    $params = array(
-        $eventType,
-        $eventLabel,
-        $eventUrl,
-        $eventTarget,
-        $currentTime,
-        $currentTime,
-        1,
-        // Update values:
-        $eventUrl,
-        $eventTarget,
-        $currentTime
-    );
-    $result = sqlStatement($sql, $params);
-
-    if ($result) {
-        echo json_encode(array("success" => true));
-    } else {
-        http_response_code(500);
-        echo json_encode(array("error" => "Database insertion/update failed"));
-    }
-}
-
-// TODO needs work
-// TODO call from a background task.
-function reportUsageData()
-{
-    global $data;
-
-    $site_uuid = UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
-    if (empty($site_uuid)) {
-        error_log("Site UUID not found.");
-        return false;
-    }
-
+    $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
-    $interval = date("Ym", strtotime("-30 Days"));
-    $time_zone = sqlQuery("SELECT `gl_value` as zone FROM `globals` WHERE `gl_name` = 'gbl_time_zone' LIMIT 1")['zone'] ?? null;
-    // Query the track_events table for usage data.
-    $sql = "SELECT event_type, event_label, event_url, event_target, first_event, last_event, count FROM track_events";
-    $result = sqlStatement($sql);
-    $usageRecords = array();
-    while ($row = sqlFetchArray($result)) {
-        $usageRecords[] = $row;
+    $telemetryService = new TelemetryService($telemetryRepo, $versionService);
+
+    $action = $data['action'] ?? '';
+    switch ($action) {
+        case 'reportMenuClickData':
+            $telemetryService->reportClickEvent($data);
+            break;
+        case 'reportUsageData':
+            $result = $telemetryService->reportUsageData();
+            echo json_encode($result);
+            break;
+        default:
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid action"]);
+            break;
     }
-    // Collect instance data.
-    $localeData = array(
-        'site_uuid' => $site_uuid,
-        'reporting_interval' => $interval,
-        'location' => '',
-        'time_zone' => $time_zone ?? $GLOBALS['gbl_time_zone'] ?? '',
-        'locale' => locale_get_default(),
-        'version' => $versionService->asString(),
-        'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG', true) ?? $versionService->asString(),
-    );
-
-    $payload_data = array(
-        'usageRecords' => $usageRecords,
-        'localeData' => $localeData,
-    );
-
-    $payload = json_encode($payload_data);
-
-    $ch = curl_init($endpoint);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        "Content-Type: application/json",
-        "Content-Length: " . strlen($payload)
-    ));
-    $response = curl_exec($ch);
-    $httpStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    if (curl_errno($ch)) {
-        error_log("cURL error: " . curl_error($ch));
-    }
-    curl_close($ch);
-
-    return array("httpStatus" => $httpStatus, "response" => $response);
 }
+
+handleRequest();

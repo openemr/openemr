@@ -14,58 +14,57 @@
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
+ * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
 
 "use strict";
 function ProductRegistrationService() {
-    var self = this;
+    top.restoreSession();
+    const self = this;
 
-    self.getProductStatus = function(callback) {
+    self.getProductStatus = function (callback) {
         $.ajax({
             url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
             type: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 _genericAjaxSuccessHandler(response, callback);
             },
-            error: function(jqXHR) {
+            error: function (jqXHR) {
                 _genericAjaxFailureHandler(jqXHR, callback);
             }
         });
     };
 
-    self.submitRegistration = function(email, callback) {
+    self.submitRegistration = function (data, callback) {
+        top.restoreSession();
         $.ajax({
             url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
             type: 'POST',
             dataType: 'json',
-            data: {
-                email: email
-            },
-            success: function(response) {
+            data: data,
+            success: function (response) {
                 _genericAjaxSuccessHandler(response, callback);
             },
-            error: function(jqXHR) {
-                _genericAjaxFailureHandler(jqXHR, callback);
+            error: function (jqXHR) {
+                alert(xl("Invalid Email Error. Please try again."));
             }
         });
     };
 
-    var _genericAjaxSuccessHandler = function(response, callback) {
+    const _genericAjaxSuccessHandler = function (response, callback) {
         if (response) {
             return callback(null, response);
         }
-
         return callback(registrationTranslations.genericError, null);
     };
 
-    var _genericAjaxFailureHandler = function(jqXHR, callback) {
+    const _genericAjaxFailureHandler = function (jqXHR, callback) {
         if (jqXHR && Object.prototype.hasOwnProperty.call(jqXHR, 'responseText')) {
             try {
-                var rawErrorObject = jqXHR.responseText;
-                var parsedErrorObject = JSON.parse(rawErrorObject);
-
+                let rawErrorObject = jqXHR.responseText;
+                let parsedErrorObject = JSON.parse(rawErrorObject);
                 if (parsedErrorObject && Object.prototype.hasOwnProperty.call(parsedErrorObject, 'message')) {
                     callback(parsedErrorObject.message, null);
                 }

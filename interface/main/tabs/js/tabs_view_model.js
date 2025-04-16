@@ -347,8 +347,9 @@ function menuActionClick(data,evt)
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
             // Send telemetry event. This is sent after the tab is activated to ensure the tab is visible.
-            // TODO add enable/disable logic.
-            reportMenuClickData(data);
+            if (top.allowTelemetry) {
+                reportMenuClickData(data);
+            }
         },xl("Loading") + " " + dataLabel);
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
