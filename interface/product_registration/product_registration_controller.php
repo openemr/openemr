@@ -35,11 +35,10 @@ if ($method === 'GET') {
     $sql = "SELECT * FROM product_registration LIMIT 1";
     $row = sqlQuery($sql);
     if ($row && $row['telemetry_disabled'] !== null) {
-        echo json_encode($row);
+        echo json_encode($row); // Both registration and telemetry answered
     } else {
         echo json_encode(["statusAsString" => "UNREGISTERED"]);
     }
-    exit;
 } elseif ($method === 'POST') {
     // Process form submission
     // Retrieve email; if empty or "false", treat as opt-out.
@@ -72,14 +71,17 @@ if ($method === 'GET') {
     $sql = "INSERT INTO product_registration (email, opt_out, auth_by_id, telemetry_disabled, last_ask_date, last_ask_version, options)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
-          email = VALUES(email),
-          opt_out = VALUES(opt_out),
-          auth_by_id = VALUES(auth_by_id),
-          telemetry_disabled = VALUES(telemetry_disabled),
-          last_ask_date = VALUES(last_ask_date),
-          last_ask_version = VALUES(last_ask_version),
-          options = VALUES(options)";
-    $params = [$email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options];
+          email = VALUES(?),
+          opt_out = VALUES(?),
+          auth_by_id = VALUES(?),
+          telemetry_disabled = VALUES(?),
+          last_ask_date = VALUES(?),
+          last_ask_version = VALUES(?),
+          options = VALUES(?)";
+    $params = [
+        $email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options,
+        $email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options //duplicate key update
+    ];
     $result = sqlStatementNoLog($sql, $params);
 
     if ($result) {
@@ -88,9 +90,8 @@ if ($method === 'GET') {
         http_response_code(500);
         echo json_encode(["error" => "Failed to update registration"]);
     }
-    exit;
 } else {
     http_response_code(405);
     echo json_encode(["error" => "Method not allowed"]);
-    exit;
 }
+exit;
