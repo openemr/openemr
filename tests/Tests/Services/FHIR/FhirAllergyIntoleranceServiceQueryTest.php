@@ -41,10 +41,14 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
+        $this->apiBaseURL = self::getFhirUrl();
+    }
 
+    private static function getFhirUrl(): string
+    {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $fhirUrl =  $baseUrl . self::FHIR_BASE_URL;
-        $this->apiBaseURL = $fhirUrl;
+        return $fhirUrl;
     }
 
     protected function setUp(): void
@@ -76,16 +80,16 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         }
     }
 
-    private function getReferenceURL($reference)
+    private static function getReferenceURL($reference)
     {
-        $url = $this->apiBaseURL . $reference;
+        $url = self::getFhirUrl() . $reference;
         return $url;
     }
 
     /**
      * PHPUnit Data Provider for FHIR AllergyIntolerance searches
      */
-    public function searchParameterPatientReferenceDataProvider()
+    public static function searchParameterPatientReferenceDataProvider()
     {
         return [
             ['patient', "Patient/:uuid1"],
@@ -95,8 +99,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
             ['patient', ":uuid2"],
 
             // full URL resolution
-            ["patient", $this->getReferenceURL("Patient/:uuid1")],
-            ["patient", $this->getReferenceURL("Patient/:uuid2")],
+            ["patient", self::getReferenceURL("Patient/:uuid1")],
+            ["patient", self::getReferenceURL("Patient/:uuid2")],
 
             // select reference value on multiple voices
             ['patient', "Patient/:uuid1,Patient/:uuid2"],
