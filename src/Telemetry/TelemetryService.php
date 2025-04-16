@@ -1,5 +1,14 @@
 <?php
 
+/**
+ *
+ * @package    OpenEMR
+ * @link           https://www.open-emr.org
+ * @author      Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Telemetry;
 
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
@@ -118,9 +127,8 @@ class TelemetryService
 
         if (in_array($httpStatus, [200, 201, 204])) {
             $responseData = json_decode($response, true);
-            if (($responseData['success'] ?? false) === true) {
-                $this->repository->clearTelemetryData();
-                return true;
+            if ($responseData) {
+                $this->repository->clearTelemetryData(); // clear telemetry data after successful report
             } else {
                 error_log("Error in response: " . json_encode($responseData));
             }

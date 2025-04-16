@@ -1,3 +1,4 @@
+
 /**
  * ProductRegistrationService (JavaScript)
  *
@@ -19,6 +20,7 @@
  */
 
 "use strict";
+
 function ProductRegistrationService() {
     top.restoreSession();
     const self = this;

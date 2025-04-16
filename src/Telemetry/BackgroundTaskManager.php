@@ -1,5 +1,14 @@
 <?php
 
+/**
+ *
+ * @package    OpenEMR
+ * @link           https://www.open-emr.org
+ * @author      Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Telemetry;
 
 /**
@@ -15,6 +24,7 @@ class BackgroundTaskManager
     public static function modifyTelemetryTask(string $period = '33'): void
     {
         $total_minutes = (int)$period * 1440;
+
         $sql = "SELECT COUNT(*) as count FROM `background_services` WHERE `name` = 'Telemetry_Task'";
         $result = sqlQueryNoLog($sql);
         if ($result['count'] > 0) {
@@ -22,10 +32,11 @@ class BackgroundTaskManager
             sqlStatementNoLog($sql, [$total_minutes]);
             return;
         }
+        // If the task does not exist, create it.
         $sql = "INSERT INTO `background_services` 
                 (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
-                VALUES ('Telemetry_Task', 'Report Scheduled Telemetry', '0', '0', current_timestamp(), '43200', 'reportUsageData', '/library/ajax/track_events.php', '100')";
-        sqlStatementNoLog($sql);
+                VALUES ('Telemetry_Task', 'Report Scheduled Telemetry', '0', '0', current_timestamp(), ?, 'reportTelemetryTask', '/library/telemetry_reporting_service.php', '100')";
+        sqlStatementNoLog($sql, [$total_minutes]);
     }
 
     /**

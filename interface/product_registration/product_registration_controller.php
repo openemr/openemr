@@ -22,6 +22,7 @@
  */
 
 use OpenEMR\Services\VersionService;
+use OpenEMR\Telemetry\BackgroundTaskManager;
 
 require_once("../../interface/globals.php");
 
@@ -67,24 +68,39 @@ if ($method === 'GET') {
     $versionService = new VersionService();
     $last_ask_version = $versionService->asString();
 
-    // Insert or update the registration record (assuming single-row record with id = 1)
-    $sql = "INSERT INTO product_registration (email, opt_out, auth_by_id, telemetry_disabled, last_ask_date, last_ask_version, options)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-          email = VALUES(?),
-          opt_out = VALUES(?),
-          auth_by_id = VALUES(?),
-          telemetry_disabled = VALUES(?),
-          last_ask_date = VALUES(?),
-          last_ask_version = VALUES(?),
-          options = VALUES(?)";
-    $params = [
-        $email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options,
-        $email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options //duplicate key update
-    ];
-    $result = sqlStatementNoLog($sql, $params);
+    $sql = "SELECT id FROM `product_registration` WHERE id > 0 LIMIT 1";
+    $res = sqlQueryNoLog($sql);
+    $id = $res['id'] ?? 0;
+    if ($id > 0) {
+        $sql = "UPDATE `product_registration` SET `email` = ?, `opt_out` = ?, `auth_by_id` = ?, `telemetry_disabled` = ?, `last_ask_date` = ?, `last_ask_version` = ?, `options` = ?
+            WHERE `id` = ?";
+        $result = sqlStatementNoLog($sql, [
+            $email,
+            $opt_out,
+            $auth_by_id,
+            $telemetry_disabled,
+            $last_ask_date,
+            $last_ask_version,
+            $options,
+            $id
+        ]);
+    } else {
+        // Insert or update the registration record (assuming single-row record with id = 1)
+        $sql = "INSERT INTO `product_registration` (email, opt_out, auth_by_id, telemetry_disabled, last_ask_date, last_ask_version, options) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $params = [$email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options];
+        $result = sqlStatementNoLog($sql, $params);
+    }
 
     if ($result) {
+        // Update the telemetry task if telemetry is enabled
+        $backgroundTaskManager = new BackgroundTaskManager();
+        if ($telemetry_disabled == 0) {
+            $backgroundTaskManager->modifyTelemetryTask();
+            $backgroundTaskManager->enableTelemetryTask();
+        } else {
+            $backgroundTaskManager->deleteTelemetryTask();
+        }
+
         echo json_encode(["success" => true, "email" => $email]);
     } else {
         http_response_code(500);
