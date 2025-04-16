@@ -11,7 +11,7 @@
         "source": "https://github.com/openemr/openemr"
     },
     "require": {
-        "php": ">=8.1.0",
+        "php": ">=8.2.0",
         "academe/omnipay-authorizenetapi": "3.1.2",
         "adodb/adodb-php": "5.22.8",
         "aranyasen/hl7": "3.2.0",
@@ -41,7 +41,7 @@
         "laminas/laminas-stdlib": "3.20.0",
         "laminas/laminas-xmlrpc": "2.21.0",
         "lcobucci/jwt": "4.2.1",
-        "league/csv": "9.8.0",
+        "league/csv": "9.23.0",
         "league/omnipay": "3.2.1",
         "mobiledetect/mobiledetectlib": "4.8.09",
         "monolog/monolog": "3.9.0",
@@ -60,7 +60,7 @@
         "psr/log": "3.0.2",
         "ramsey/uuid": "4.7.6",
         "ringcentral/ringcentral-php": "3.0.4",
-        "robthree/twofactorauth": "2.1.0",
+        "robthree/twofactorauth": "3.0.2",
         "rospdf/pdf-php": "0.12.67",
         "smarty/smarty": "4.5.5",
         "steverhoades/oauth2-openid-connect-server": "2.6.1",
@@ -82,8 +82,8 @@
     },
     "config": {
         "platform": {
-            "php": "8.1",
-            "ext-intl": "8.1"
+            "php": "8.2",
+            "ext-intl": "8.2"
         },
         "allow-plugins": {
             "openemr/oe-module-installer-plugin": true,
@@ -91,7 +91,7 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "10.*",
+        "phpunit/phpunit": "11.*",
         "symfony/panther": "2.*",
         "zircote/swagger-php": "3.*"
     },
