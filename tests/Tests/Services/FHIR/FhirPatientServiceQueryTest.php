@@ -60,7 +60,7 @@ class FhirPatientServiceQueryTest extends TestCase
     /**
      * PHPUnit Data Provider for FHIR patient searches
      */
-    public function searchParameterDataProvider()
+    public static function searchParameterDataProvider()
     {
 
         return [
@@ -158,7 +158,7 @@ class FhirPatientServiceQueryTest extends TestCase
     /**
      * PHPUnit Data Provider for FHIR patient searches
      */
-    public function searchParameterCompoundDataProvider()
+    public static function searchParameterCompoundDataProvider()
     {
         return [
             ['birthdate', 'le1960-01-01', 'name:contains', 'lias'], // check operators and comparators work combined

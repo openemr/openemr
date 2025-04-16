@@ -85,7 +85,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     /**
      * PHPUnit Data Provider for FHIR AllergyIntolerance searches
      */
-    public function searchParameterPatientReferenceDataProvider()
+    public static function searchParameterPatientReferenceDataProvider()
     {
         return [
             ['patient', "Patient/:uuid1"],
