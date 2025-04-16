@@ -1378,7 +1378,6 @@ STP2TBLBOT;
                     $mfa = $installer->get_initial_user_mfa_totp();
                     if ($mfa !== false) {
                         $qr = $mfa->generateQrCode();
-                        $qr_esc = attr($qr);
                         $sharedSecret = text($mfa->getSecret());
                         $qrDisplay = <<<TOTP
                                     <br />
@@ -1387,7 +1386,7 @@ STP2TBLBOT;
                                             <td>
                                                 <strong class='text-danger'>IMPORTANT!!</strong>
                                                 <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
-                                                <img src='$qr_esc' width="150" />
+                                                <img src='$qr' width="150" />
                                                 <p>Or paste in the following code into your authenticator app</p>
                                                 <p>$sharedSecret</p>
                                             </td>
