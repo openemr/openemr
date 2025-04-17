@@ -3,24 +3,14 @@
 /**
  * ProductRegistrationController
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package   OpenEMR
+ * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- *
- * @link      http://www.open-emr.org
+ * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\BackgroundTaskManager;
 
@@ -40,8 +30,11 @@ if ($method === 'GET') {
     } else {
         echo json_encode(["statusAsString" => "UNREGISTERED"]);
     }
-} elseif ($method === 'POST') {
-    // Process form submission
+    exit;
+}
+
+// Process form submission
+if ($method === 'POST') {
     // Retrieve email; if empty or "false", treat as opt-out.
     $opt_out = 0;
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
@@ -53,15 +46,26 @@ if ($method === 'GET') {
         echo json_encode(["error" => "Invalid email"]);
         exit;
     }
+    if (!empty($email)) {
+        // send to product registration service
+        $response = [];
+        $productRegistrationService = new ProductRegistrationService();
+        $registrationEmail = $productRegistrationService->registerProduct($email);
+        $response['email'] = $registrationEmail;
+        $status = 201;
+    }
+    // Check for telemetry opt-out
     $telemetry_disabled = 1;
     $selected_options = [];
     // Check for each checkbox input; expected values are 1 if checked.
+    // Leaving open the opportunity to add new checkboxes/options.
     if ($_POST['allow_telemetry'] ?? null == 1) {
         $telemetry_disabled = 0;
         $selected_options[] = 'allow_telemetry';
     }
     $options = json_encode($selected_options);
     $auth_by_id = $_SESSION['authUserID'] ?? null;
+
     // Update the last ask date and version
     $last_ask_date = date("Y-m-d H:i:s");
 
@@ -100,7 +104,6 @@ if ($method === 'GET') {
         } else {
             $backgroundTaskManager->deleteTelemetryTask();
         }
-
         echo json_encode(["success" => true, "email" => $email]);
     } else {
         http_response_code(500);
