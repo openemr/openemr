@@ -1,0 +1,94 @@
+<script>
+    /* +-----------------------------------------------------------------------------+
+     * Copyright 2016 matrix israel
+     * LICENSE: This program is free software; you can redistribute it and/or
+     * modify it under the terms of the GNU General Public License
+     * as published by the Free Software Foundation; either version 3
+     * of the License, or (at your option) any later version.
+     * This program is distributed in the hope that it will be useful,
+     * but WITHOUT ANY WARRANTY; without even the implied warranty of
+     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+     * GNU General Public License for more details.
+     * You should have received a copy of the GNU General Public License
+     * along with this program. If not, see
+     * http://www.gnu.org/licenses/licenses.html#GPL
+     *    @author  Oshri Rozmarin <oshri.rozmarin@gmail.com>
+     * +------------------------------------------------------------------------------+
+     *
+     */
+    <?php
+    if ($closeBeforeOpening):
+    ?>
+    opener.document.forms[0].submit();
+    window.close();
+
+    <?php
+    endif;
+    ?>
+</script>
+
+<title><?php echo xlt("Multiple DataBase"); ?></title>
+<a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
+<a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
+<table class="responstable">
+    <?php
+    $html = null;
+    foreach ($getmultipledb as $value) {
+        $date       = date('Y/m/d H:i:s', strtotime($value['date']));
+        $editLang   = $translate->z_xlt('Edit');
+        $removeLang = $translate->z_xlt('Remove');
+        $id = $this->escapeHtml($value['id']);
+        $namespace = $this->escapeHtml($value['namespace']);
+        $username = $this->escapeHtml($value['username']);
+        $dbname = $this->escapeHtml($value['dbname']);
+        $host = $this->escapeHtml($value['host']);
+        $port = $this->escapeHtml($value['port']);
+        $html .= <<<html
+    <tr>
+        <td><a href="{$this->basePath()}/multipledb/edit?id={$id}">{$editLang}</a> | <a href="{$this->basePath()}/multipledb/remove?id={$id}"  onclick="save($(this),'{$namespace}')">{$removeLang}</a></td>
+        <td>{$namespace}</td>
+        <td>{$username}</td>
+        <td>{$dbname}</td>
+        <td>{$host}</td>
+        <td>{$port}</td>
+        <td>{$date}</td>
+
+    </tr>
+html;
+    }
+    if(empty($html)){
+        $lang = $translate->z_xlt('Empty table');
+        $html .= <<<html
+    <tr>
+        <td colspan="7">{$lang}</td>
+    </tr>
+html;
+    }
+    ?>
+    <tr>
+        <th><?php echo $translate->z_xlt('Options') ?></th>
+        <th><?php echo $translate->z_xlt('Namespace') ?></th>
+        <th><span><?php echo $translate->z_xlt('Username') ?></span></th>
+        <th><?php echo $translate->z_xlt('Database name') ?></th>
+        <th><?php echo $translate->z_xlt('Host') ?></th>
+        <th><?php echo $translate->z_xlt('Port') ?></th>
+        <th><?php echo $translate->z_xlt('Date') ?></th>
+    </tr>
+
+    <?php echo $html ?>
+
+</table>
+
+<script>
+    function save(box,table){
+        var href = box.prop('href');
+        event.preventDefault()
+
+        var answer = confirm('<?php echo  $translate->z_xlt('Are you sure you want to remove namespace') ?>' + ' ' + table + '?');
+        if (answer) {
+            window.location = href;
+        }
+    }
+
+</script>
+

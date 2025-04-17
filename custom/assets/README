@@ -1,0 +1,23 @@
+This folder holds custom js and css files.
+
+The files can be loaded into every page in the system using \OpenEMR\Core\Header::setupHeader function.
+
+How to use -
+
+1. Add you custom code into js and css folders
+
+2. create custom.yaml file (Like custom.yaml.example) with configuration of your custom assets,
+you can load it in every page with 'autoload' option or in specific page with loadInFile option.
+More instructions about optional configuration found at custom.yaml.example file.
+
+3. The assets will loaded in the screens after openemr assets.
+If you create custom modules with custom html you can load your assets with setupHeader function.
+for example - `<?php Header::setupHeader('custom-key-name'); ?>`
+
+Important!
+If you plan to upgrade your project with future versions of OpenEMR do not inject major changes
+to the screens.
+
+
+
+

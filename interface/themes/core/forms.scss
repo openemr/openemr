@@ -1,0 +1,58 @@
+/*
+ * Common forms styles
+ */
+
+@if $compact-theme == false {
+  .chart-dygraphs {
+    direction: ltr;
+  }
+
+  /**
+* Drug lookup
+**/
+
+  .drug_lookup {
+    background-color: lighten($gray-200, 10%);
+    border: 2px outset $gray-600;
+    display: block;
+    padding: 5px;
+    position: absolute;
+  }
+
+  /* Form styles */
+
+  .formtable {
+    line-height: 24px;
+
+    tr td {
+      line-height: 24px;
+    }
+  }
+
+  .report_search_bar {
+    background-color: lighten($yellow, 60%);
+  }
+
+  /* flow board filters*/
+
+  #flow_board_parameters {
+    background-color: $gray-200;
+    margin: 25px auto;
+
+    td {
+      padding: 10px;
+    }
+
+    table {
+      border: 1px solid;
+      border-collapse: collapse;
+      width: 100%;
+    }
+  }
+
+  .oe-empty-label {
+    display: inline-block;
+    min-height: 21px;
+    width: 100%;
+  }
+}

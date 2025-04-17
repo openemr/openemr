@@ -1,0 +1,30 @@
+/*=============================================================
+ * Patient Stats
+ * seen in the patient stats screens
+ *============================================================*/
+
+@if $compact-theme == false {
+  #patient_stats {
+    padding: 10px;
+
+    table {
+      border-collapse: collapse;
+    }
+
+    .statrow {
+      cursor: pointer;
+    }
+
+    .detail {
+      vertical-align: top;
+    }
+
+    .bg1 {
+      background-color: $gray-300;
+    }
+
+    .bg2 {
+      background-color: lighten($light, 20%);
+    }
+  }
+}

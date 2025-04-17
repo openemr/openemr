@@ -1,0 +1,121 @@
+[
+  {
+    "label": "File",
+    "menu_id": "filimg",
+    "children": [
+      {
+        "label": "About",
+        "menu_id": "abo0",
+        "target": "msc",
+        "url": "/interface/main/about_page.php",
+        "children": [],
+        "requirement": 0
+      },
+      {
+        "label": "Preferences",
+        "icon": "fa-gears",
+        "menu_id": "prf0",
+        "target": "msc",
+        "url": "/interface/super/edit_globals.php?mode=user",
+        "children": [],
+        "requirement": 0
+      }
+    ],
+    "requirement": 0
+  },
+  {
+    "label": "View",
+    "menu_id": "vieimg",
+    "children": [
+      {
+        "label": "Calendar",
+        "menu_id": "cal0",
+        "target": "cal",
+        "url": "/interface/main/main_info.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "appt"
+        ],
+        "global_req_strict": [
+          "!disable_calendar",
+          "!ippf_specific"
+        ]
+      },
+      {
+        "label": "Flow Board",
+        "menu_id": "pfb0",
+        "target": "flb",
+        "url": "/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "appt"
+        ],
+        "global_req_strict": [
+          "!disable_pat_trkr",
+          "!disable_calendar"
+        ]
+      },
+      {
+        "label": "Address Book",
+        "menu_id": "adb0",
+        "target": "msc",
+        "url": "/interface/usergroup/addrbook_list.php",
+        "children": [],
+        "requirement": 0
+      }
+    ],
+    "requirement": 0
+  },
+  {
+    "label": "Messages",
+    "menu_id": "msg0",
+    "target": "msg",
+    "url": "/interface/main/messages/messages.php?form_active=1",
+    "children": [],
+    "requirement": 0,
+    "acl_req": [
+      "patients",
+      "notes"
+    ]
+  },
+  {
+    "label": "Patient",
+    "menu_id": "patimg",
+    "children": [
+      {
+        "label": "Find Patient",
+        "icon": "fa-search",
+        "menu_id": "fin0",
+        "target": "fin",
+        "url": "/interface/main/finder/dynamic_finder.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "demo"
+        ]
+      },
+      {
+        "label": "Add Patient",
+        "icon": "fa-group",
+        "menu_id": "new0",
+        "target": "pat",
+        "url": "/interface/new/new.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "demo",
+          "write",
+          "addonly"
+        ],
+        "global_req": "full_new_patient_form"
+      }
+    ],
+    "requirement": 0
+  }
+]

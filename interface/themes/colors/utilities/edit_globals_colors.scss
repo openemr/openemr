@@ -1,0 +1,65 @@
+/* vertical menu styling for edit globals - colors */
+/* OpenEMR edit_globals vertical menu Override */
+@if $compact-theme == false {
+  #oe-nav-ul.tabNav {
+    background: rgba($black, 0.05) !important;
+
+    li.current {
+      color: $gray-800;
+    }
+
+    a {
+      background: $palepale;
+      border: 5px solid $paler;
+    }
+
+    .current a {
+      background: $pale;
+      border-color: $dark;
+      color: $gray-800;
+    }
+
+    a:hover {
+      background-color: $pale !important;
+      color: $gray-800;
+    }
+  }
+
+  #globals-div .tabContainer {
+    border-color: $dark;
+  }
+
+  .oe-global-tab-heading {
+    color: $black;
+  }
+
+  /*
+   * TABS A7A7A7
+  */
+
+  ul.tabNav {
+    padding: 0 !important;
+
+    li {
+      margin: 0 !important;
+      padding-top: 6px !important;
+
+      &.current {
+        a {
+          background: $pale !important;
+          padding: 8px !important;
+        }
+      }
+    }
+
+    a {
+      background: $palepale !important;
+      color: $bs-dark !important;
+
+      &:hover {
+        background-color: $dark !important;
+        color: $body-color !important;
+      }
+    }
+  }
+}

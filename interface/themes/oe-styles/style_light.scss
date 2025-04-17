@@ -1,0 +1,91 @@
+/* Bootstrap Code */
+
+$black: #222;
+$close-color: $black;
+$close-text-shadow: 0 1 0 $black;
+$gray: #cdcdcd;
+
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+@import "../core";
+
+@import "../theme-defaults";
+
+@import "../navigation-slide/future-bootstrap";
+
+:root {
+  --tabTopBorderWidth: 0.2em;
+  --gray300: #cdcdcd;
+}
+
+/* Overrides go here */
+@if $compact-theme == false {
+  .btn-secondary {
+    background-color: rgba($black, 0.05) !important;
+    border-color: $gray-500 !important;
+    color: rgba($black, 0.87) !important;
+  }
+
+  .tabSpan {
+    border-top: var(--tabTopBorderWidth) solid var(--primary) !important;
+    font-weight: 600 !important;
+    padding: 0.25em 0.4em !important;
+
+    .fa {
+      color: $gray-500 !important;
+
+      &:hover {
+        color: $gray-700 !important;
+      }
+    }
+  }
+
+  .tabsNoHover {
+    border-top: var(--tabTopBorderWidth) solid transparent !important;
+    font-weight: normal !important;
+  }
+
+  // MAIN NAV
+  // The top level of the menu
+  .menuLabel {
+    font-size: 0.9em !important;
+    font-weight: normal !important;
+    padding: 0.2em 0.35rem !important;
+    transition-duration: 0ms !important;
+  }
+
+  .dropdown .dropdown-menu {
+    top: auto !important;
+  }
+
+  .dropdown ul.dropdown-menu .dropdown ul.dropdown-menu {
+    top: 0 !important;
+  }
+
+  .menuLabel:hover,
+  .menuEntries li .menuLabel:hover,
+  .menuSection:hover {
+    background-color: lighten(theme-color("primary"), 40%) !important;
+  }
+
+  .acck {
+    font-size: 0.9em !important;
+  }
+
+  .tabSpan.tabsNoHover:hover {
+    background-color: $gray-300 !important;
+  }
+}
+
+/* search any */
+@import "../oe-bootstrap";

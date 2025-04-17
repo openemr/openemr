@@ -1,0 +1,6 @@
+<td class='detail text-center'>
+    <b>{{ "Plan"|xlt }}: {{ row.display_field|text }} {% if row.cqm_measure_group %}
+        <span>({{ "Measure Group Code"|xlt }}: {{ row.cqm_measure_group|text }})</span>{% endif %}
+    </b>
+</td>
+<td colspan="{{ columns-1|attr }}">&nbsp;</td>

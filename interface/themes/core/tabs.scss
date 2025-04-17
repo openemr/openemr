@@ -1,0 +1,112 @@
+/*
+ * TABS
+*/
+@if $compact-theme == false {
+  ul.tabNav {
+    float: $left;
+    list-style: none;
+    width: 100%;
+
+    li {
+      float: $left;
+      text-align: $left;
+      vertical-align: bottom;
+    }
+
+    a {
+      display: block;
+    }
+  }
+
+  div.tabContainer {
+    clear: both;
+    float: $left;
+    width: 100%;
+
+    div.tab {
+      border: 1px solid $white;
+      color: $body-color;
+      display: none;
+      padding: 10px;
+    }
+
+    div.current {
+      display: block;
+    }
+  }
+
+  div.tab {
+    background: $white none repeat scroll 0 0;
+    margin-bottom: 10px;
+    min-height: 180px;
+    width: 100%;
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    td,
+    div {
+      padding-bottom: 0;
+
+      &.label_custom {
+        font-size: 0.8rem !important;
+        font-weight: 700;
+        min-width: 80px;
+        text-align: left;
+      }
+
+      &.data {
+        font-size: 0.8rem !important;
+        font-weight: 400;
+        min-width: 80px;
+      }
+
+      padding-#{$right}: 1px;
+    }
+
+    &_long {
+      background: $white none repeat scroll 0 0;
+      margin-bottom: 10px;
+      min-height: 180px;
+      width: 100%;
+    }
+  }
+
+  div.notab {
+    margin-bottom: 10px;
+    width: 100%;
+
+    &-right {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+  }
+
+  .section-header {
+    border-bottom: 1px solid;
+    margin-bottom: 5px;
+    width: 685px;
+
+    &-dynamic {
+      border-bottom: 1px solid;
+      margin-bottom: 5px;
+    }
+  }
+
+  .summary_item {
+    padding: 8px;
+  }
+}
+
+@include if-rtl {
+  @if $compact-theme == false {
+    #sddm li a {
+      padding: 4px 10px;
+    }
+  }
+}

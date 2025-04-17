@@ -1,0 +1,173 @@
+{**
+ * Insurance company edit
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+
+<form name="insurancecompany" method="post" action="{$FORM_ACTION}" class='form-horizontal' onsubmit="return top.restoreSession()">
+    <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
+    if it were called last, the settings from the form would be overwritten with the old information-->
+    <input type="hidden" name="form_id" value="{$insurancecompany->id|attr}">
+    {if $insurancecompany->get_inactive() eq 1}
+    <div class="form-row my-sm-2">
+        <label for="inactive" class="col-form-label col-sm-2">{xlt t='Reactivate'}</label>
+        <div class="col-sm-8">
+            <input type="checkbox" id="inactive" name="inactive" class="checkbox" value="0" />
+        </div>
+    </div>
+    {/if}
+    {if $insurancecompany->get_inactive() eq 0}
+    <div class="form-row my-sm-2">
+        <label for="inactive" class="col-form-label col-sm-2">{xlt t='Deactivate'}</label>
+        <div class="col-sm-8">
+            <input type="checkbox" id="inactive" name="inactive" class="checkbox" value="1" />
+        </div>
+    </div>
+    {/if}
+    <div class="form-row my-sm-2">
+        <label for="name" class="col-form-label col-sm-2">{xlt t='Name'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="name" name="name" class="form-control" aria-describedby="nameHelpBox" value="{$insurancecompany->get_name()|attr}" onKeyDown="PreventIt(event)">
+            <span id="nameHelpBox" class="help-block">({xlt t='Required'})</span>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="attn" class="col-form-label col-sm-2">{xlt t='Attn'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="attn" name="attn" class="form-control" value="{$insurancecompany->get_attn()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="address_line1" class="col-form-label col-sm-2">{xlt t='Address'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="address_line1" name="address_line1" class="form-control" value="{$insurancecompany->address->line1|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="address_line2" class="col-form-label col-sm-2">{xlt t='Address'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="address_line2" name="address_line2" class="form-control" value="{$insurancecompany->address->line2|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="city" class="col-form-label col-sm-2">{xlt t='City'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="city" name="city" class="form-control" value="{$insurancecompany->address->city|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="state" class="col-form-label col-sm-2">{xlt t='State'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="2" id="state" name="state" class="form-control" value="{$insurancecompany->address->state|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="zip" class="col-form-label col-sm-2">{xlt t='Zip Code'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="zip" name="zip" class="form-control" value="{$insurancecompany->address->zip|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="phone" class="col-form-label col-sm-2">{xlt t='Phone'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="phone" name="phone" class="form-control" value="{$insurancecompany->get_phone()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="fax" class="col-form-label col-sm-2">{xlt t='Fax'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="fax" name="fax" class="form-control" value="{$insurancecompany->get_fax()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="cms_id" name="cms_id" class="form-control" value="{$insurancecompany->get_cms_id()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    {if $SUPPORT_ENCOUNTER_CLAIMS}
+        <div class="form-row my-sm-2">
+            <label for="alt_cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID For Encounter Claims'}</label>
+            <div class="col-sm-8">
+                <input type="text" id="alt_cms_id" name="alt_cms_id" class="form-control" value="{$insurancecompany->get_alt_cms_id()|attr}" onKeyDown="PreventIt(event)">
+            </div>
+        </div>
+    {/if}
+    {if $SUPPORT_ELIGIBILITY_REQUESTS}
+    <div class="form-row my-sm-2">
+        <label for="eligibility_id" class="col-form-label col-sm-2">{xlt t='Payer Id For Eligibility'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="eligibility_id" name="eligibility_id" class="form-control" value="{$insurancecompany->get_eligibility_id()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    {/if}
+    <div class="form-row my-sm-2">
+        <label for="ins_type_code" class="col-form-label col-sm-2">{xlt t='Payer Type'}</label>
+        <div class="col-sm-8">
+            <select id="ins_type_code" name="ins_type_code" class="form-control">
+                {html_options options=$insurancecompany->ins_type_code_array selected=$insurancecompany->get_ins_type_code()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_default_partner_id" class="col-form-label col-sm-2">{xlt t='Default X12 Partner'}</label>
+        <div class="col-sm-8">
+            <select id="x12_default_partner_id" name="x12_default_partner_id" class="form-control">
+                {html_options options=$x12_partners selected=$insurancecompany->get_x12_default_partner_id()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="cqm_sop" class="col-form-label col-sm-2">{xlt t='CQM Source of Payment'}</label>
+        <div class="col-sm-8">
+            <select id="cqm_sop" name="cqm_sop" class="form-control">
+                {html_options options=$insurancecompany->cqm_sop_array selected=$insurancecompany->get_cqm_sop()}
+            </select>
+        </div>
+    </div>
+    {if $SUPPORT_ELIGIBILITY_REQUESTS}
+    <div class="form-row my-sm-2">
+        <label for="x12_default_eligibility_id" class="col-form-label col-sm-2">{xlt t='Default Eligibility X12 Partner'}</label>
+        <div class="col-sm-8">
+            <select id="x12_default_eligibility_id" name="x12_default_eligibility_id" class="form-control">
+                {html_options options=$x12_partners selected=$insurancecompany->get_x12_default_eligibility_id()}
+            </select>
+        </div>
+    </div>
+    {/if}
+    <div class="btn-group offset-sm-2">
+        <a href="javascript:submit_insurancecompany();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
+            {xlt t='Save'}
+        </a>
+        <a href="controller.php?practice_settings&insurance_company&action=list" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+            {xlt t='Cancel'}
+        </a>
+    </div>
+    <input type="hidden" name="id" value="{$insurancecompany->id|attr}" />
+    <input type="hidden" name="process" value="{$PROCESS|attr}" />
+</form>
+
+<script>
+    function submit_insurancecompany() {
+        if(document.insurancecompany.name.value.length>0) {
+            top.restoreSession();
+            document.insurancecompany.submit();
+            //Z&H Removed redirection
+        } else{
+            document.insurancecompany.name.style.backgroundColor="red";
+            document.insurancecompany.name.focus();
+        }
+    }
+
+    function jsWaitForDelay(delay) {
+        var startTime = new Date();
+        var endTime = null;
+        do {
+            endTime = new Date();
+        } while ((endTime - startTime) < delay);
+    }
+</script>

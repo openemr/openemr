@@ -1,0 +1,110 @@
+/* Bootstrap Code */
+
+/* Default Colors */
+$blue: $darker;
+$indigo: #6610f2;
+$purple: $palepurple;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
+$black: #000;
+
+/* Default Grays */
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #868e96;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+/* Equivalents to bg-light/dark as well as default for gray */
+$light: $gray-100;
+/* Renamed to bs-dark to accommodate for color variables */
+$bs-dark: $gray-800;
+$gray: $gray-600;
+
+$navbar-text-color: $pale !default;
+
+/* Array of theme colors that can be added to */
+$theme-colors: (
+  primary: $blue,
+  secondary: $dark,
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $gray-100,
+  dark: $gray-800,
+  oe-darkest: $darkest,
+  oe-darker: $darker,
+  oe-dark: $dark,
+  oe-mid: $mid,
+  oe-midpale: $midpale,
+  oe-pale: $pale,
+  oe-midpalepale: $midpalepale,
+  oe-palepale: $palepale,
+  oe-palepurple: $palepurple,
+  oe-paler: $paler,
+  oe-midnightblue: $midnightblue
+);
+/* Above has addition of alternating colors to bootstrap (will come up as new classes) */
+
+
+/* Array of random colors that can be added to */
+$colors: (
+  "blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800,
+  "black": $black,
+  "navbar-text-color": $navbar-text-color,
+  "gray100": $gray-100,
+  "gray200": $gray-200,
+  "gray300": $gray-300,
+  "gray400": $gray-400,
+  "gray500": $gray-500,
+  "gray600": $gray-600,
+  "gray700": $gray-700,
+  "gray800": $gray-800,
+  "gray900": $gray-900
+);
+
+/* Above has overrides to allow regular CSS coloring */
+
+$body-bg: $white;
+$body-color: $black;
+$font-size-base: 1rem;
+$rfs-base-value: 1rem;
+$font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-base: $font-family-sans-serif;
+
+$close-color: $black;
+$close-text-shadow: 0 1 0 $black;
+
+$displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
+
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+
+// Extra stuff related to color themes
+$dropdown-bg: $paler;
+$dropdown-border-color: rgba($paler, 0.15);
+$dropdown-border-radius: 0;
+$dropdown-link-color: $darkest;
+$dropdown-link-hover-color: darken($darkest, 5%);

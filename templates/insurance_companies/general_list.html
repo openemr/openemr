@@ -1,0 +1,54 @@
+{headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
+<a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()" class="btn btn-secondary btn-add">{xlt t='Add a Company'}</a>
+<div class="table-responsive pt-3">
+    <table class="table table-striped" id="insurance">
+      <thead>
+          <tr>
+              <th>{xlt t='Name'}</th>
+              <th>{xlt t='Address'}</th>
+              <th>{xlt t='City, State, ZIP'}</th>
+              <th>{xlt t='Phone'}</th>
+              <th>{xlt t='Fax'}</th>
+              <th>{xlt t='Payer ID'}</th>
+              <th>{xlt t='Default X12 Partner'}</th>
+              <th>{xlt t='Deactivated'}</th>
+          </tr>
+      </thead>
+      <tbody>
+          {foreach from=$icompanies item=insurancecompany}
+          <tr>
+              <td>
+                  <a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id|attr_url}" onclick="top.restoreSession()">
+                      {$insurancecompany->name|text}
+                  </a>
+              </td>
+              <td>{$insurancecompany->address->line1|text} {$insurancecompany->address->line2|text}&nbsp;</td>
+              <td>{$insurancecompany->address->city|text} {$insurancecompany->address->state|upper|text} {$insurancecompany->address->zip|text}&nbsp;</td>
+              <td>{$insurancecompany->get_phone()|text}&nbsp;</td>
+              <td>{$insurancecompany->get_fax()|text}&nbsp;</td>
+              <td>{$insurancecompany->cms_id|text}&nbsp;</td>
+              <td>{$insurancecompany->get_x12_default_partner_name()|text}&nbsp;</td>
+              <td>{if $insurancecompany->get_inactive() eq 1}{xlt t='Yes'}{/if}&nbsp;</td>
+          </tr>
+          {foreachelse}
+          <tr>
+              <td>{xlt t='No Insurance Companies Found'}</td>
+              <!-- DataTables requires the number of cols in the table header match the table body,
+                  https://datatables.net/manual/tech-notes/18 -->
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+          </tr>
+          {/foreach}
+      </tbody>
+  </table>
+</div>
+<script>
+$(document).ready(function () {
+    $('#insurance').DataTable();
+});
+</script>

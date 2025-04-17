@@ -1,0 +1,261 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Carecoordination/view/carecoordination/ccd/upload.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Riju KP <rijukp@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+?>
+<script>
+    $(function () {
+        height_value = parent.window.innerHeight - 100;
+        if (height_value < 600) {
+            height_value = 600
+        }
+        ;
+        if (parent.document.getElementById('ccd_iframe')) {
+            parent.iframeLoaded(height_value, 'ccd_iframe');
+        }
+    });
+
+    $(function () {
+        var obj = $("#dragandrophandler");
+        obj.on('dragenter', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            $(this).css('background', 'url("<?php echo $this->basePath();?>/css/icons/ark.png") no-repeat center');
+        });
+        obj.on('dragover', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        obj.on('drop', function (e) {
+            $(this).css('background', 'url("")');
+            e.preventDefault();
+            var files = e.originalEvent.dataTransfer.files;
+
+            //We need to send dropped files to Server
+            handleFileUpload(files, obj);
+        });
+
+        $('#file_uploader').change(function (e) {
+            var files = e.target.files;
+            handleFileUpload(files, $('#file_uploader'));
+        });
+
+        $('#close_patient_select').click(function () {
+            $('#patient_select').hide('scale', '', 500, '');
+        });
+        var uploadURL = "<?php echo $this->basePath();?>/ccd/upload";
+    });
+
+    function sendFileToServer(formData, status) {
+        var uploadURL = "<?php echo $this->basePath();?>/ccd/upload"; //Upload URL
+        var extraData = {}; //Extra Data.
+        return new Promise(function (resolve, reject) {
+            let jqXHR = $.ajax({
+                xhr: function () {
+                    var xhrobj = $.ajaxSettings.xhr();
+                    if (xhrobj.upload) {
+                        xhrobj.upload.addEventListener('progress', function (event) {
+                            var percent = 0;
+                            var position = event.loaded || event.position;
+                            var total = event.total;
+                            if (event.lengthComputable) {
+                                percent = Math.ceil(position / total * 100);
+                            }
+                            //Set progress
+                            status.setProgress(percent);
+                        }, false);
+                    }
+                    return xhrobj;
+                },
+                url: uploadURL,
+                type: "POST",
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: formData,
+                success: function (data) {
+                    status.setProgress(100);
+                    uploadedSuccessfullCount++;
+                    if (uploadedSuccessfullCount == rowCount) {
+                        $('#status1').hide('clip', '', 500, '');
+                        $('#form_ccda_import').submit();
+                    }
+                    resolve(true);
+                }
+            });
+        });
+        status.setAbort(jqXHR);
+    }
+
+    var rowCount = 0;
+    var uploadedSuccessfullCount = 0;
+
+    function createStatusbar(obj) {
+        rowCount++;
+        var row = "odd";
+        if (rowCount % 2 == 0) row = "even";
+        this.statusbar = $("<div class='statusbar " + row + "'></div>");
+        this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
+        this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
+        this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
+        this.abort = $("<div class='abort'><?php echo $this->listenerObject->z_xlt('Abort'); ?></div>").appendTo(this.statusbar);
+        $('#status1').append(this.statusbar);
+
+        this.setFileNameSize = function (name, size) {
+            var sizeStr = "";
+            var sizeKB = size / 1024;
+            if (parseInt(sizeKB) > 1024) {
+                var sizeMB = sizeKB / 1024;
+                sizeStr = sizeMB.toFixed(2) + " MB";
+            } else {
+                sizeStr = sizeKB.toFixed(2) + " KB";
+            }
+
+            this.filename.html(name);
+            this.size.html(sizeStr);
+        }
+        this.setProgress = function (progress) {
+            var progressBarWidth = progress * this.progressBar.width() / 100;
+            this.progressBar.find('div').animate({width: progressBarWidth}, 10).html(progress + "%&nbsp;");
+            if (parseInt(progress) >= 100) {
+                this.abort.hide();
+            }
+        }
+        this.setAbort = function (jqxhr) {
+            var sb = this.statusbar;
+            this.abort.click(function () {
+                jqxhr.abort();
+                sb.hide();
+                rowCount = rowCount - 1;
+            });
+        }
+    }
+
+    async function handleFileUpload(files, obj) {
+        fnames = '';
+        var uploadURL = "<?php echo $this->basePath();?>/ccd/upload";
+        for (let i = 0; i < files.length; i++) {
+            let status = new createStatusbar(obj);
+            status.setFileNameSize(files[i].name, files[i].size);
+            status.setProgress(25);
+            let fd = new FormData();
+            fd.append('file', files[i]);
+            fd.append('document_category', '<?php echo $this->escapeHtml($this->category_id);?>');
+            fd.append('file_location', '<?php echo $this->escapeHtml($this->file_location);?>');
+            fd.append('patient_id', '<?php echo $this->escapeHtml($this->patient_id);?>');
+            fd.append('upload', '1');
+
+            // if we have a file extension and it is not an XML file... then we're going to error out.
+            // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
+            let nameArr = files[i].name.split(".");
+            if (nameArr.length > 1 && nameArr.pop() !== 'xml') {
+                if (fnames == '') {
+                    fnames = files[i].name;
+                } else {
+                    fnames += ',' + files[i].name;
+                }
+                continue;
+            }
+            // replaced ajax call in sendFileToServer().
+            await fetch(uploadURL, {
+                method: "POST",
+                body: fd
+            }).then((response) => {
+                response.text();
+            }).then(function (data) {
+                status.setProgress(100);
+                $('#status1').show('clip', '', 500, '');
+            });
+        }
+        if (fnames != '') {
+            console.error("Could not get file name. Files was of length " + files.length + ". Objects are: ", files);
+            alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> ' + fnames);
+        }
+        $('#form_ccda_import').submit();
+    }
+</script>
+<body id="dragandrophandler" style="min-height: 600px">
+    <form method="post" enctype="multipart/form-data" id="form_ccda_import">
+        <div class="body_inner_wrapper">
+            <div class="header_wrap">
+                <div id="uploader">
+                    <input type="file" id="file_uploader" multiple>
+                </div>
+                <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
+            </div>
+            <div class="clear"></div>
+
+            <!--Display upload status-->
+            <div style="display: none" id="status1"></div>
+            <!---->
+
+            <div class="clear"></div>
+            <div class="se_in_8">
+                <?php
+                if (count($this->records) > 0) {
+                    ?>
+                    <table class="responsive">
+                        <tr class="se_in_9">
+                            <th style="height: 20px;">#</th>
+                            <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
+                            <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        <?php
+                        $slno = 0;
+                        foreach ($this->records as $row) {
+                            ?>
+                            <tr>
+                                <td style="height: 20px;"><?php echo ++$slno; ?></td>
+                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['date'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['lname']); ?></td>
+                                <td><?php echo $this->escapeHtml($row['pat_name']); ?></td>
+                                <td><?php echo \Application\Model\ApplicationTable::fixDate($row['dob'], 'dd/mm/yyyy', 'yyyy-mm-dd'); ?></td>
+                                <td>
+                                    <?php
+                                    if ($row['imported'] == 1) {
+                                        if ($row['pid'] > 0) {
+                                            echo "<span style='color: red' title='" . $this->escapeHtml($row['matched_patient']) . " [" . $this->escapeHtml($row['pid']) . "]'>" . $this->listenerObject->z_xlt('Yes') . "</span>";
+                                        } else {
+                                            echo $this->listenerObject->z_xlt('No');
+                                        }
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php echo $this->escapeHtml($row['matched_patient']); ?>
+                                </td>
+                                <td nowrap>
+                                    <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath(); ?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']); ?>">
+                                        <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title='<?php echo $this->listenerObject->z_xlt("View details"); ?>'>
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </table>
+                    <?php
+                } else {
+                    ?>
+                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
+                        <?php echo $this->listenerObject->z_xlt('Nothing to display'); ?>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+    </form>
+</body>

@@ -1,0 +1,49 @@
+/**
+ * Core OpenEMR styles.
+ *
+ * These helpers are used regardless of the theme being used
+ *
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2022 Robert Down
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
+ */
+
+// Import Select2 BS4 Theme
+@import "../../public/assets/modified/@ttskch/select2-bootstrap4-theme/src/select2-bootstrap4";
+
+@import "directional";
+@import "core/FontAwesome";
+@import "core/forms";
+@import "core/closeDlgIframe";
+@import "core/cursor";
+@import "core/links";
+@import "core/navmenu";
+@import "core/text";
+@import "core/addressbook";
+@import "core/documents";
+
+@import "core/patient/demographics";
+@import "core/patient/history";
+@import "core/patient/notes";
+@import "core/patient/stats";
+@import "core/patient/stats_summary";
+@import "core/patient/past_encounters";
+@import "core/patient/reports";
+@import "core/patient/report_custom";
+
+@import "core/tabs";
+@import "core/sddm";
+@import "core/reports";
+@import "core/list-table";
+@import "core/therapy-groups";
+@import "core/oe-mobile";
+@import "core/edit_globals";
+@import "login_page"; // Added to theme the login page
+@import "ajax_calendar_sass";
+
+@import "oe-common/acl-common";
+@import "oe-common/help-files-common";
+@import "oe-common/main-common";
+@import "oe-common/messages-common";
+@import "oe-common/oe-sidebar";
+@import "oe-common/procedures-common";

@@ -1,0 +1,13 @@
+{
+    "error": {
+        {% block title %}
+        "location": {{ pageTitle|json_encode }},
+        {% endblock %}
+        {% block statusCode %}
+        "code": {{ statusCode|json_encode }},
+        {% endblock %}
+        {% block message %}
+        "message": {{ errorMessage|default("Please try your request again, check the server logs, or contact the site administrator for support")|xl|json_encode}}
+        {% endblock %}
+    }
+}

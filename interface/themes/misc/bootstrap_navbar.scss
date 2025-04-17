@@ -1,0 +1,123 @@
+/**
+ * bootstrap_navbar.css
+ *
+ * @package MedEx
+ * @author MedEx <support@MedExBank.com>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
+ * @link http://www.MedExBank.com
+ * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/*
+*   TODO: Deprecate most of this
+*/
+
+// RTL required here regardless if it is needed or not
+@import "../directional";
+
+$rfs-base-value: 1rem;
+$enable-responsive-font-sizes: true;
+@import "../../../public/assets/bootstrap/scss/vendor/rfs";
+
+.little_image {
+  width: 20px !important;
+}
+
+.navbar {
+  height: 22px !important;
+  z-index: 1100 !important;
+}
+
+.fixed-top {
+  background-color: var(--gray400) !important;
+  border-bottom: 0.1px solid var(--gray) !important;
+  box-shadow: 0 0 10px var(--gray) !important;
+  padding: 0 !important;
+  z-index: 1000 !important;
+}
+
+.navbar-custom {
+  color: var(--black) !important;
+  padding: 0 !important;
+}
+
+.navbar-nav {
+  > .nav-item > a {
+    color: var(--black) !important;
+    padding-bottom: 5px !important;
+    padding-left: 10px !important;
+    padding-right: 20px !important;
+    /* just changes the base font color */
+    padding-top: 6px !important;
+  }
+
+  > li .open > a {
+    background-color: var(--primary) !important;
+    color: var(--white) !important;
+  }
+
+  > li > a:hover {
+    color: var(--white) !important;
+  }
+}
+
+.nav {
+  .navbar-right:last-child > li {
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+  }
+
+  > li > a:focus,
+  > li:focus {
+    background-color: var(--primary) !important;
+    /* this is the "hover" blue */
+    color: var(--white) !important;
+    text-decoration: none !important;
+  }
+}
+
+.nav > .active > a,
+.navbar-nav > .open > a {
+  background-color: var(--primary) !important;
+  color: var(--white) !important;
+  /* Mac Menu title bar background color */
+}
+
+.dropdown-menu {
+  background-color: var(--gray300) !important;
+  /* Mac Menu dropdown bar background color */
+
+  > li > a:hover,
+  > li > a:focus {
+    background-color: var(--primary) !important;
+    color: var(--white) !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+  }
+
+  .dropdown-divider {
+    background-color: var(--gray400) !important;
+    height: 1px !important;
+    margin: 9px 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+.navbar-brand {
+  color: var(--black) !important;
+  height: 24px !important;
+  margin: 10px 0 2px !important;
+  padding: 10px 5px 0 10px !important;
+}
+
+li.open > a:first {
+  color: var(--white) !important;
+}
+
+.dropdown {
+  list-style: none !important;
+  margin-bottom: 0 !important;
+  padding: 1px !important;
+}

@@ -1,0 +1,69 @@
+/**
+ * Core OpenEMR styles.
+ */
+@if $compact-theme == false {
+  .ui-draggable:hover {
+    cursor: move;
+    cursor: grab;
+  }
+
+  .ui-draggable:active {
+    cursor: move;
+    cursor: grabbing;
+  }
+
+  .ui-icon-gripsmall-diagonal-se {
+    background-position: -64px -224px;
+  }
+
+  .ui-icon,
+  .ui-widget-content .ui-icon {
+    background-image: url("/public/assets/jquery-ui-themes/themes/sunny/images/ui-icons_d19405_256x240.png");
+  }
+
+  .ui-icon {
+    height: 16px;
+    width: 16px;
+  }
+
+  .ui-icon {
+    background-repeat: no-repeat;
+    display: inline-block;
+    margin-top: -0.25em;
+    overflow: hidden;
+    position: relative;
+    text-indent: -99999px;
+    vertical-align: middle;
+  }
+
+  .ui-resizable-handle {
+    display: block;
+    font-size: 0.1px;
+    position: absolute;
+    touch-action: none;
+  }
+
+  .ui-resizable-se {
+    bottom: 1px;
+    cursor: se-resize;
+    height: 12px;
+    width: 12px;
+    #{$right}: 1px;
+  }
+
+  .ui-resizable-s {
+    bottom: -5px;
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    #{$left}: 0;
+  }
+
+  .ui-resizable-e {
+    cursor: e-resize;
+    height: 100%;
+    top: 0;
+    width: 7px;
+    #{$right}: -5px;
+  }
+}

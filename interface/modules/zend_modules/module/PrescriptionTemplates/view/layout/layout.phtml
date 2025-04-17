@@ -1,0 +1,18 @@
+<?php
+use OpenEMR\Core\Header;
+?>
+<!-- Layout -->
+<html>
+    <head>
+        <?php Header::setupHeader(); ?>
+        <title><?php echo xlt($this->title) ?></title>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class='row'>
+                <div class="col-md-12">
+                    <?php echo $this->content; ?>
+                </div>
+            </div>
+        </div>
+    </body>

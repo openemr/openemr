@@ -1,0 +1,35 @@
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================*/
+
+@if $compact-theme == false {
+  #patient_reports {
+    width: 100%;
+
+    .issues {
+      padding-right: 30px;
+
+      table {
+        margin: 10px 0;
+      }
+    }
+
+    .issues td,
+    .encounters td {
+      padding: 2px;
+    }
+
+    .encounter_forms {
+      margin: 5px 15px;
+    }
+
+    td {
+      vertical-align: top;
+    }
+
+    ul {
+      list-style: none;
+    }
+  }
+}

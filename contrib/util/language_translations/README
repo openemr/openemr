@@ -1,0 +1,70 @@
+This directory holds the developer tools to maintain the language translations.
+These were created during development of OpenEMR version 3.0.2
+
+The collectConstants.pl script can be used to collect all of the constants
+from the openemr source code.  This script uses the manuallyAddedConstants.txt and 
+manuallyRemovedConstants.txt list to manually add or remove constants from
+the final output. Note that it also requires a list of old constants
+(this can be over-rided) to ensure no old constants are lost (ie ensure
+previous versions of openemr are still supported) Instructions are included in
+the file.
+  -The manuallyRemovedConstants.txt file includes constants to filter out.
+   This is a good place to place any 'junk' constants that are erroneously
+   found by collectConstants.pl script.
+  -The manuallyAddedConstants.txt file includes constants to add manually to
+   the list of constants. This should be only temporary as we implement
+   a mechanism for developers to include these constants in the source 
+   code where they are called.
+  -The filterDirectories.txt file includes paths to ignore in the searching.
+
+The buildLanguageDatabase.pl performs several functions.
+  -Builds the foreign language SQL tables dumpfile for the lang_languages,
+   lang_constants, and lang_definitions tables from the above
+   current_spreadsheet.tsv file.
+     -Outputs to logfile the database statistics.
+  -Performs data validation on the spreadsheet structure, constants, and
+   constant ID numbers.
+     -Outputs to logfile errors.
+       -The most recent logfile is kept in the log_buildLanguageDatabase.txt file
+         which allows easy debugging (ie. which english constant was modified)
+         via the diff command.
+  -Builds a new spreadsheet that can be used for building an updated spreadsheet
+   via the combineConstantsSpreadsheet.pl script.
+
+The combineConstantsSpreadsheet.pl script will combine a the list of constants
+with the language spreadsheet to create a new spreadsheet that can be uploaded
+to Google Docs.
+
+The sortCleanList.pl script is simply a script to remove blank lines, windows
+end line, repeats, and sort the manuallyRemovedConstants.txt and 
+manuallyAddedConstants.txt files.
+
+The current official list of constants are kept in the currentConstants.txt file,
+which are produced by the collectConstants.pl script.
+
+The most current spreadsheet is kept in the current_spreadsheet.tsv file (this
+file is taken after being processed with buildLanguageDatabase.pl script).
+
+When adding constants or removing constants then run the collectConstants.pl
+script to create the list of constants. Then run the
+combineConstantsSpreadsheet.pl script to re-build an official language spreadsheet
+to export to Google Docs.
+
+The Google Docs spreadsheet after download in tsv format (and processed by
+the buildLanguageDatabase.pl) is kept in the
+current_spreadsheet.tsv file. Downloading of the most current google doc
+spreadsheet is now done via commandline and is described at bottom of
+this README file.
+
+The current_spreadsheet.tsv file is what can be uploaded to Google Docs for
+collaboration (open the current_spreadsheet.tsv in Open Office first,
+and then save in Open Office format; then can upload this file to
+google docs).
+
+The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
+sql tables dumpfile.  Latest releases of this are available at:
+http://open-emr.org/wiki/index.php/Install_Translations
+
+To insert these translation tables into your OpenEMR refer to
+instructions at this page in the wiki:
+http://open-emr.org/wiki/index.php/Install_Translations

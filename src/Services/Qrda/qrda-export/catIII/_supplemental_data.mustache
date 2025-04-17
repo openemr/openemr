@@ -1,0 +1,35 @@
+<entryRelationship typeCode="COMP">
+  <observation classCode="OBS" moodCode="EVN">
+    <!-- {{type}} -->
+    {{#supplemental_template_ids}}
+      <templateId root="{{tid}}" extension="{{extension}}"/>
+    {{/supplemental_template_ids}}
+    <id nullFlavor="NA" />
+    {{#supplemental_data_code}}
+    <code code="{{supplemental_data_code}}" codeSystem="{{supplemental_data_code_system}}"/>
+    {{/supplemental_data_code}}
+    <statusCode code="completed"/>
+    {{#unknown_supplemental_value}}
+    <value xsi:type="CD" nullFlavor="UNK" />
+    {{/unknown_supplemental_value}}
+    {{^unknown_supplemental_value}}
+      {{#payer_code}}
+        <value xsi:type="CD" nullFlavor="OTH">
+          <translation code="{{{cms_payer_code}}}" codeSystem="2.16.840.1.113883.3.249.12" codeSystemName="CMS Clinical Codes"/>
+        </value>
+      {{/payer_code}}
+      {{^payer_code}}
+        <value xsi:type="CD" code="{{code}}" codeSystem="{{supplemental_data_value_code_system}}"/>
+      {{/payer_code}}
+    {{/unknown_supplemental_value}}
+    <entryRelationship typeCode="SUBJ" inversionInd="true">
+      <!-- Aggregate Count template -->
+      <observation classCode="OBS" moodCode="EVN">
+        <templateId root="2.16.840.1.113883.10.20.27.3.3"/>
+        <code code="MSRAGG" displayName="rate aggregation" codeSystem="2.16.840.1.113883.5.4" codeSystemName="ActCode"/>
+        <value xsi:type="INT" value="{{value}}"/>
+        <methodCode code="COUNT" displayName="Count" codeSystem="2.16.840.1.113883.5.84" codeSystemName="ObservationMethod"/>
+      </observation>
+    </entryRelationship>
+  </observation>
+</entryRelationship> 

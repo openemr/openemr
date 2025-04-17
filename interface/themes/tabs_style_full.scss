@@ -1,0 +1,508 @@
+/**
+ * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @link    http://www.open-emr.org
+ */
+
+/* TODO: Fully redesign the navbar to be better supported with BS4 */
+
+@import "directional";
+
+html {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  margin: 0;
+}
+
+#mainBox {
+  align-content: space-between;
+  align-items: stretch;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+
+  .logo {
+    height: 20px;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.1875rem;
+    padding: 0;
+    width: 20px;
+    z-index: 10000;
+  }
+}
+
+#mainBox_vertical {
+  align-content: space-between;
+  align-items: stretch;
+  flex: 1 0 auto;
+  margin: 0;
+  padding: 0;
+
+  .logo {
+    height: 30px;
+    margin-bottom: 0.5rem;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 0 !important;
+    width: 30px;
+    z-index: 10000;
+  }
+}
+
+#mainBox > div {
+  flex: 0 1 auto;
+  margin: 0;
+
+  &.mainFrames {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    z-index: 3;
+  }
+}
+
+#framesDisplay {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: row;
+
+  > div {
+    align-content: stretch;
+    align-items: stretch;
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+
+    > iframe {
+      border: 0 solid var(--black);
+      flex: 1 0 auto;
+      width: 100%;
+    }
+  }
+}
+
+.tabControls {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  overflow: auto;
+  padding: 0;
+  padding-top: 4px;
+}
+
+.tabSpan {
+  border-bottom: 0;
+  border-left: 1px solid var(--primary);
+  border-right: 1px solid var(--primary);
+  border-top: 4px solid var(--primary);
+  cursor: pointer;
+  flex: 0 1 auto;
+  font-size: 0.9rem;
+  margin: 0;
+  overflow: visible;
+  padding: 8px;
+  white-space: nowrap;
+}
+
+.tabSpan .fa,
+.tabHidden {
+  color: var(--gray);
+}
+
+.tabNotchosen {
+  border-bottom: 1px solid var(--primary);
+  border-left: 0;
+  border-right: 0;
+  border-top: 4px solid transparent !important;
+  display: block;
+  opacity: 80%;
+}
+
+.tabsNoHover {
+  background: transparent !important;
+  border-bottom: 1px solid var(--primary);
+  border-left: 0;
+  border-right: 0;
+  border-top: 4px solid transparent;
+  display: block;
+}
+
+#attendantData {
+  background-color: var(--light);
+}
+
+.patientInfo a {
+  color: var(--dark) !important;
+}
+
+.patientPicture {
+  margin-#{$right}: 7px;
+  margin-top: -1px;
+}
+
+.patientPicture img {
+  height: 75px;
+}
+
+.patientCurrentEncounter {
+  display: inline;
+}
+
+.patientCurrentEncounter a {
+  color: var(--dark) !important;
+}
+
+.patientDataColumn {
+  display: block;
+  float: $left;
+  width: 33%;
+}
+
+.messagesColumn {
+  float: $right;
+  padding-#{$right}: 20px;
+}
+
+.patientEncounterList {
+  background: var(--white);
+  border: 1px solid var(--black);
+  cursor: pointer;
+  overflow: hidden;
+  position: fixed;
+  z-index: 1;
+}
+
+.patientEncounterList table.encounters {
+  display: none;
+}
+
+.patientEncounterList:hover table.encounters {
+  display: block;
+}
+
+.patientEncounterList > div {
+  padding: 2px;
+}
+
+.patientEncounterList:hover {
+  height: auto;
+  overflow: visible;
+  z-index: 4;
+}
+
+.patientEncounterList > div:hover,
+.patientEncounterList table.encounters td:hover,
+.patientInfo .clear:hover i {
+  color: var(--danger);
+}
+
+.patientEncounterList .review {
+  background-color: var(--gray);
+  border: 1px solid var(--black);
+  border-radius: 5px;
+  padding: 2px;
+}
+
+#userData {
+  float: $right;
+  position: relative;
+}
+
+.patientInfo {
+  padding: 1px 1px 1px 10px;
+}
+
+/* TODO: Marked this class for removal */
+.top {
+  vertical-align: top;
+}
+
+.appMenu > span {
+  float: $left;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.appMenu_small > span {
+  padding: 0;
+  white-space: nowrap;
+}
+
+.appMenu > span:hover,
+.appMenu .appMenu > span:hover {
+  background-color: var(--primary);
+  color: var(--white);
+  text-decoration: none;
+  text-shadow: none;
+}
+
+.appMenu ul,
+.appMenu_small ul {
+  list-style: none;
+  margin: 0;
+  padding: 1px 5px 2px 1px;
+}
+
+.appMenu li:hover > .menuDisabled {
+  background-color: transparent;
+}
+
+.appMenu_small .menuLabel {
+  padding: 0.625rem;
+}
+
+.appMenu .oe-show {
+  display: none;
+}
+
+.appMenu_small .oe-show {
+  display: block;
+}
+
+.menuSection {
+  position: relative;
+}
+
+.menuSection:hover {
+  background-color: #cce3f8;
+}
+
+.menuSection > .menuEntries {
+  box-shadow: 0 5px 5px var(--gray);
+  display: none;
+  min-width: 175px;
+  padding: 0;
+  position: absolute;
+  top: 40px;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+.menuSection > .menuEntries .menuEntries {
+  display: none;
+  position: absolute;
+  top: -3px;
+  #{$left}: 161px;
+}
+
+.menuSection:hover > .menuEntries {
+  display: block;
+}
+
+/* Needed for things that require it */
+.menu-shadow-ovr {
+  box-shadow: 0 5px 5px var(--gray) !important;
+}
+
+
+/* Need separate styling for top level vs submenu items
+ * This currently controls ALL links in menu, no bueno
+ * --Robert Down */
+.menuLabel {
+  color: var(--dark);
+  font-weight: 700;
+  padding: 0.9375rem 0.625rem;
+  transition: background-color 0.1s ease;
+  width: 100%;
+}
+
+/**
+ * The colors of --light and --dark are flipped. 
+ * Instead of making changes to --dark and --light, which may have unintended consequences,
+ * this localized change was made to ensure the nav bar met contrast requirements when hovering.
+ */
+
+.menuLabel:hover {
+  background-color: var(--dark);
+  color: var(--light);
+}
+
+/** Only apply if not an actual link **/
+div.menuLabel:hover {
+  cursor: default !important;
+}
+
+/** Sub menu **/
+.menuEntries li .menuLabel {
+  display: block;
+  float: none;
+  padding: 10px 20px;
+}
+
+.menuEntries li .menuLabel:hover {
+  background-color: var(--dark);
+  color: var(--light);
+}
+
+.logo {
+  padding: 10px 0;
+}
+
+.menuDisabled {
+  background-color: transparent;
+  color: var(--gray300) !important;
+  pointer-events: none;
+}
+
+#username {
+  cursor: pointer;
+}
+
+.userSection {
+  min-width: 200px;
+  #{$right}: 10px;
+}
+
+/* Main menu bar */
+.body_top {
+  background-color: var(--light);
+  color: var(--dark);
+  margin: 0;
+  padding: 0;
+  z-index: 10;
+}
+
+.body_title {
+  background-color: var(--light);
+  color: var(--black);
+  padding: 10px 0 0;
+}
+
+#username:hover > .userfunctions {
+  display: block;
+  width: 98%;
+}
+
+#username > .userfunctions > div:hover {
+  color: var(--danger);
+}
+
+.menu_arrow {
+  bottom: 0;
+  margin: 7px 7px 2px;
+}
+
+.topToolbarRight {
+  border-top: 0;
+}
+
+.closeButton {
+  display: inline-block;
+  float: $right;
+  position: relative;
+  top: 14px;
+  #{$right}: 5px;
+}
+
+.float-element {
+  float: $left;
+}
+
+#logout_icon {
+  cursor: pointer;
+  margin: 12px 5px 0 10px;
+}
+
+#menu_icon {
+  cursor: pointer;
+  margin: 12px 25px;
+}
+
+#patient_caret {
+  font-size: 1.5rem;
+  margin-top: -5px;
+}
+
+@media (max-width: 768px) {
+  .mainFrames {
+    margin: 0;
+    padding-#{$left}: 1px;
+  }
+
+  #framesDisplay > div {
+    height: 100vh;
+    width: 100%;
+  }
+}
+
+@include if-rtl {
+  #mainBox {
+    padding: 0 5px 0 0 !important;
+  }
+
+  #mainBox .logo {
+    float: right !important;
+    margin: 3px 10px 0 4px !important;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) span {
+    float: right;
+    margin-left: 12px;
+    margin-right: 5px;
+  }
+
+  #attendantData .patientDataColumn {
+    float: right;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
+    float: none;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span:nth-child(2) {
+    margin: 2px;
+  }
+
+  .appMenu {
+    display: flex;
+    flex-direction: row;
+    float: right;
+    margin-right: 0;
+    position: relative;
+  }
+
+  .closeButton {
+    padding-right: 7px;
+    right: 0;
+    top: 12px;
+    transform: scaleX(-1);
+  }
+}

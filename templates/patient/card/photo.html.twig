@@ -1,0 +1,18 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+{% if patientIDCategoryID %}
+
+    {% for p in photos %}
+        {{ imageWidget(p, patientPhotoCategoryName)}}
+    {% endfor %}
+
+{% endif %}
+{% if idCardDocID %}
+
+    {% for p in idCardDocID %}
+        {{ imageWidget(p, patientIDCategoryID)}}
+    {% endfor %}
+
+{% endif %}
+{% endblock %}

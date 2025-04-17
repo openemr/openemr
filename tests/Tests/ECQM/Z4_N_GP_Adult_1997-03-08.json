@@ -1,0 +1,595 @@
+{
+    "_id": {
+        "$oid": "61424f96636239030d2f7861"
+    },
+    "measure_relevance_hash": {
+        "61424eeb636239030d2f4a4a": {
+            "IPP": true,
+            "DENOM": true
+        },
+        "61424ef0636239030d2f4c59": {
+            "IPP": true,
+            "DENOM": true,
+            "DENEXCEP": true
+        },
+        "61424eff636239030d2f4f71": {
+            "IPP": true,
+            "DENOM": true
+        },
+        "61424f07636239030d2f5244": {
+            "IPP": true,
+            "DENOM": true
+        },
+        "61424f1a636239030d2f5a86": {
+            "IPP": true,
+            "DENOM": true
+        },
+        "61424f1f636239030d2f5c26": {
+            "IPP": true,
+            "DENOM": true
+        },
+        "61424f20636239030d2f5c73": {
+            "IPP": true,
+            "DENOM": true
+        },
+        "61424f25636239030d2f5dba": {
+            "IPP": true,
+            "DENOM": true,
+            "NUMER": true
+        },
+        "61424f26636239030d2f5e7a": {
+            "IPP": true
+        }
+    },
+    "code_description_hash": {
+        "135:2_16_840_1_113883_12_292": "influenza, high dose seasonal, preservative-free",
+        "39240-7:2_16_840_1_113883_6_1": "Tobacco use status CPHS",
+        "183932001:2_16_840_1_113883_6_96": "Procedure contraindicated (situation)",
+        "293112000:2_16_840_1_113883_6_96": "Influenza split virion vaccine adverse reaction (disorder)",
+        "A60_00:2_16_840_1_113883_6_90": "Herpesviral infection of urogenital system, unspecified",
+        "33839006:2_16_840_1_113883_6_96": "Genital herpes simplex (disorder)",
+        "37256-5:2_16_840_1_113883_6_1": "XR Pelvis and Spine Lumbar 3 Views",
+        "99395:2_16_840_1_113883_6_12": "Periodic comprehensive preventive medicine reevaluation and management of an individual including an age and gender appropriate history, examination, counseling/anticipatory guidance/risk factor reduction interventions, and the ordering of laboratory/diagnostic procedures, established patient; 18-39 years",
+        "99202:2_16_840_1_113883_6_12": "Office or other outpatient visit for the evaluation and management of a new patient, which requires these 3 key components: An expanded problem focused history; An expanded problem focused examination; Straightforward medical decision making. Counseling and/or coordination of care with other physicians, other qualified health care professionals, or agencies are provided consistent with the nature of the problem(s) and the patient's and/or family's needs. Usually, the presenting problem(s) are of low to moderate severity. Typically, 20 minutes are spent face-to-face with the patient and/or family.",
+        "99213:2_16_840_1_113883_6_12": "Office or other outpatient visit for the evaluation and management of an established patient, which requires at least 2 of these 3 key components: An expanded problem focused history; An expanded problem focused examination; Medical decision making of low complexity. Counseling and coordination of care with other physicians, other qualified health care professionals, or agencies are provided consistent with the nature of the problem(s) and the patient's and/or family's needs. Usually, the presenting problem(s) are of low to moderate severity. Typically, 15 minutes are spent face-to-face with the patient and/or family.",
+        "19080-1:2_16_840_1_113883_6_1": "Choriogonadotropin [Units/volume] in Serum or Plasma",
+        "197844:2_16_840_1_113883_6_88": "Isotretinoin 20 MG Oral Capsule",
+        "396125000:2_16_840_1_113883_6_96": "Every twenty four hours (qualifier value)",
+        "1:2_16_840_1_113883_3_221_5": "MEDICARE",
+        "21112-8:2_16_840_1_113883_6_1": "Birth date",
+        "F:2_16_840_1_113883_5_1": "Female",
+        "1002-5:2_16_840_1_113883_6_238": "American Indian or Alaska Native",
+        "2135-2:2_16_840_1_113883_6_238": "Hispanic or Latino"
+    },
+    "reported_measure_hqmf_ids": [],
+    "_type": "CQM::BundlePatient",
+    "addresses": [{
+        "_id": {
+            "$oid": "61424f96636239030d2f7862"
+        },
+        "street": ["202 Burlington Rd."],
+        "use": "HP",
+        "city": "Bedford",
+        "state": "MA",
+        "zip": "01730",
+        "country": "US"
+    }
+    ],
+    "telecoms": [{
+        "_id": {
+            "$oid": "61424f96636239030d2f7863"
+        },
+        "use": "HP",
+        "value": "555-555-2003"
+    }
+    ],
+    "givenNames": ["Z4 N"],
+    "familyName": "GP Adult",
+    "bundleId": "61424df6636239030d2e39eb",
+    "correlation_id": {
+        "$oid": "61424df6636239030d2e39eb"
+    },
+    "updated_at": {
+        "$date": "2021-09-15T20:17:20.124Z"
+    },
+    "created_at": {
+        "$date": "2021-09-15T19:55:02.513Z"
+    },
+    "qdmPatient": {
+        "_id": {
+            "$oid": "61424f96636239030d2f7864"
+        },
+        "qdmVersion": "5.5",
+        "birthDatetime": {
+            "$date": "1997-03-08T15:30:00.000Z"
+        },
+        "dataElements": [{
+            "_id": {
+                "$oid": "61424f96636239030d2f7854"
+            },
+            "dataElementCodes": [{
+                "code": "135",
+                "system": "2.16.840.1.113883.12.292",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::AllergyIntolerance",
+            "qdmTitle": "Allergy/Intolerance",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.119",
+            "qdmCategory": "allergy",
+            "qdmStatus": "intolerance",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": null,
+            "prevalencePeriod": {
+                "low": {
+                    "$date": "2014-03-03T08:00:00.000Z"
+                },
+                "high": null,
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "severity": null,
+            "type": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7855"
+            },
+            "dataElementCodes": [{
+                "code": "39240-7",
+                "system": "2.16.840.1.113883.6.1",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::AssessmentPerformed",
+            "qdmTitle": "Assessment, Performed",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.117",
+            "qdmCategory": "assessment",
+            "qdmStatus": "performed",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": {
+                "$date": "2019-01-16T08:30:00.000Z"
+            },
+            "relevantDatetime": {
+                "$date": "2019-01-16T08:30:00.000Z"
+            },
+            "result": null,
+            "negationRationale": {
+                "code": "183932001",
+                "system": "2.16.840.1.113883.6.96",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            },
+            "method": null,
+            "components": [],
+            "reason": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7856"
+            },
+            "dataElementCodes": [{
+                "code": "293112000",
+                "system": "2.16.840.1.113883.6.96",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::Diagnosis",
+            "qdmTitle": "Diagnosis",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
+            "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
+            "qdmCategory": "condition",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": null,
+            "prevalencePeriod": {
+                "low": {
+                    "$date": "2014-03-03T08:00:00.000Z"
+                },
+                "high": {
+                    "$date": "2019-03-06T08:30:00.000Z"
+                },
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "anatomicalLocationSite": null,
+            "severity": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7857"
+            },
+            "dataElementCodes": [{
+                "code": "A60.00",
+                "system": "2.16.840.1.113883.6.90",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }, {
+                "code": "33839006",
+                "system": "2.16.840.1.113883.6.96",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::Diagnosis",
+            "qdmTitle": "Diagnosis",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.110",
+            "qrdaOid": "2.16.840.1.113883.10.20.24.3.135",
+            "qdmCategory": "condition",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": null,
+            "prevalencePeriod": {
+                "low": {
+                    "$date": "2018-10-02T08:00:00.000Z"
+                },
+                "high": null,
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "anatomicalLocationSite": null,
+            "severity": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7858"
+            },
+            "dataElementCodes": [{
+                "code": "37256-5",
+                "system": "2.16.840.1.113883.6.1",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::DiagnosticStudyOrder",
+            "qdmTitle": "Diagnostic Study, Order",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.22",
+            "qdmCategory": "diagnostic_study",
+            "qdmStatus": "order",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": {
+                "$date": "2019-03-03T08:30:00.000Z"
+            },
+            "reason": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7859"
+            },
+            "dataElementCodes": [{
+                "code": "99395",
+                "system": "2.16.840.1.113883.6.12",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::EncounterPerformed",
+            "facilityLocations": [],
+            "qdmTitle": "Encounter, Performed",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.5",
+            "qdmCategory": "encounter",
+            "qdmStatus": "performed",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": null,
+            "relevantPeriod": {
+                "low": {
+                    "$date": "2019-01-16T08:00:00.000Z"
+                },
+                "high": {
+                    "$date": "2019-01-16T08:30:00.000Z"
+                },
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "admissionSource": null,
+            "dischargeDisposition": null,
+            "diagnoses": null,
+            "lengthOfStay": {
+                "value": 0,
+                "unit": "d",
+                "_type": "QDM::Quantity"
+            }
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f785a"
+            },
+            "dataElementCodes": [{
+                "code": "99202",
+                "system": "2.16.840.1.113883.6.12",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::EncounterPerformed",
+            "facilityLocations": [],
+            "qdmTitle": "Encounter, Performed",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.5",
+            "qdmCategory": "encounter",
+            "qdmStatus": "performed",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": null,
+            "relevantPeriod": {
+                "low": {
+                    "$date": "2019-03-03T08:00:00.000Z"
+                },
+                "high": {
+                    "$date": "2019-03-03T08:30:00.000Z"
+                },
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "admissionSource": null,
+            "dischargeDisposition": null,
+            "diagnoses": null,
+            "lengthOfStay": {
+                "value": 0,
+                "unit": "d",
+                "_type": "QDM::Quantity"
+            }
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f785b"
+            },
+            "dataElementCodes": [{
+                "code": "99213",
+                "system": "2.16.840.1.113883.6.12",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::EncounterPerformed",
+            "facilityLocations": [],
+            "qdmTitle": "Encounter, Performed",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.5",
+            "qdmCategory": "encounter",
+            "qdmStatus": "performed",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": null,
+            "relevantPeriod": {
+                "low": {
+                    "$date": "2019-03-06T08:00:00.000Z"
+                },
+                "high": {
+                    "$date": "2019-03-06T08:30:00.000Z"
+                },
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "admissionSource": null,
+            "dischargeDisposition": null,
+            "diagnoses": null,
+            "lengthOfStay": {
+                "value": 0,
+                "unit": "d",
+                "_type": "QDM::Quantity"
+            }
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f785c"
+            },
+            "dataElementCodes": [{
+                "code": "135",
+                "system": "2.16.840.1.113883.12.292",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::ImmunizationAdministered",
+            "qdmTitle": "Immunization, Administered",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.112",
+            "qrdaOid": "2.16.840.1.113883.10.20.24.3.140",
+            "qdmCategory": "immunization",
+            "qdmStatus": "administered",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": {
+                "$date": "2019-01-16T08:30:00.000Z"
+            },
+            "relevantDatetime": {
+                "$date": "2019-01-16T08:30:00.000Z"
+            },
+            "dosage": null,
+            "route": null,
+            "reason": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f785d"
+            },
+            "dataElementCodes": [{
+                "code": "19080-1",
+                "system": "2.16.840.1.113883.6.1",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::LaboratoryTestOrder",
+            "qdmTitle": "Laboratory Test, Order",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.41",
+            "qdmCategory": "laboratory_test",
+            "qdmStatus": "order",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": {
+                "$date": "2019-03-03T08:30:00.000Z"
+            },
+            "reason": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f785e"
+            },
+            "dataElementCodes": [{
+                "code": "197844",
+                "system": "2.16.840.1.113883.6.88",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::MedicationOrder",
+            "qdmTitle": "Medication, Order",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.51",
+            "qdmCategory": "medication",
+            "qdmStatus": "order",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "authorDatetime": {
+                "$date": "2019-03-06T08:30:00.000Z"
+            },
+            "relevantPeriod": {
+                "low": {
+                    "$date": "2019-03-06T08:30:00.000Z"
+                },
+                "high": {
+                    "$date": "2019-03-06T08:30:00.000Z"
+                },
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            },
+            "dosage": null,
+            "supply": null,
+            "frequency": {
+                "code": "396125000",
+                "system": "2.16.840.1.113883.6.96",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            },
+            "refills": null,
+            "route": null,
+            "setting": null,
+            "daysSupplied": null,
+            "reason": null
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f785f"
+            },
+            "dataElementCodes": [{
+                "code": "1",
+                "system": "2.16.840.1.113883.3.221.5",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::PatientCharacteristicPayer",
+            "qdmTitle": "Patient Characteristic Payer",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.58",
+            "qdmCategory": "patient_characteristic",
+            "qdmStatus": "payer",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "relevantPeriod": {
+                "low": {
+                    "$date": "1997-03-08T15:30:00.000Z"
+                },
+                "high": null,
+                "lowClosed": true,
+                "highClosed": true,
+                "_type": "QDM::Interval"
+            }
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7865"
+            },
+            "dataElementCodes": [{
+                "code": "21112-8",
+                "system": "2.16.840.1.113883.6.1",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::PatientCharacteristicBirthdate",
+            "qdmTitle": "Patient Characteristic Birthdate",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.54",
+            "qdmCategory": "patient_characteristic",
+            "qdmStatus": "birthdate",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": [],
+            "birthDatetime": {
+                "$date": "1997-03-08T15:30:00.000Z"
+            }
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7866"
+            },
+            "dataElementCodes": [{
+                "code": "F",
+                "system": "2.16.840.1.113883.5.1",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::PatientCharacteristicSex",
+            "qdmTitle": "Patient Characteristic Sex",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.55",
+            "qdmCategory": "patient_characteristic",
+            "qdmStatus": "gender",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": []
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7867"
+            },
+            "dataElementCodes": [{
+                "code": "1002-5",
+                "system": "2.16.840.1.113883.6.238",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::PatientCharacteristicRace",
+            "qdmTitle": "Patient Characteristic Race",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.59",
+            "qdmCategory": "patient_characteristic",
+            "qdmStatus": "race",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": []
+        }, {
+            "_id": {
+                "$oid": "61424f96636239030d2f7868"
+            },
+            "dataElementCodes": [{
+                "code": "2135-2",
+                "system": "2.16.840.1.113883.6.238",
+                "display": null,
+                "version": null,
+                "_type": "QDM::Code"
+            }
+            ],
+            "_type": "QDM::PatientCharacteristicEthnicity",
+            "qdmTitle": "Patient Characteristic Ethnicity",
+            "hqmfOid": "2.16.840.1.113883.10.20.28.4.56",
+            "qdmCategory": "patient_characteristic",
+            "qdmStatus": "ethnicity",
+            "qdmVersion": "5.5",
+            "dataElementAttributes": []
+        }
+        ]
+    }
+}

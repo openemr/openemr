@@ -1,0 +1,11 @@
+<html>
+    <body>
+        <div class='wrapper'>
+            <p>{{ "We received a patient registration email verification request. The link to verify your email is below." }}</p>
+            <p>{{ "Please ignore this email if you did not make this request"|xlt }}</p>
+            <p><strong>{{ "Below link is only valid for one hour."|xlt }}: </strong></p>
+            <a href="{{ encoded_link|attr }}">{{ encoded_link|text }}</a>
+            <p>{{ "Thank You."|xlt }}</p>
+        </div>
+    </body>
+</html>

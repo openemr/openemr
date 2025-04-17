@@ -1,0 +1,64 @@
+/*vertical menu styling for edit globals - common for all themes*/
+/*All individual color options shifted to edit_globals_colors.scss, light.scss and manila.scss as appropriate*/
+
+@if $compact-theme == false {
+  #oe-nav-ul {
+    a {
+      text-decoration: none;
+    }
+
+    &.tabNav {
+      margin: 0;
+      padding: 4px 0 0;
+
+      .current a {
+        border: solid;
+        border-width: 3px 0 0 2px;
+      }
+
+      li {
+        @include font-size("0.8rem");
+        float: $left;
+        padding: 0;
+        vertical-align: bottom;
+
+        &.current {
+          font-weight: 700;
+          margin-top: -4px;
+          padding-top: 0;
+          text-align: $left;
+          vertical-align: bottom;
+        }
+      }
+
+      a {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        color: $gray-800;
+        padding: 4px 4px 5px;
+        text-decoration: none;
+      }
+    }
+  }
+
+  #globals-div .tabContainer {
+    border: solid;
+    border-width: 3px 0 0;
+    clear: none;
+    display: flex !important;
+    float: none;
+    width: auto;
+  }
+
+  .oe-global-tab-heading {
+    display: flex;
+    font-weight: 600;
+    margin-top: -10px;
+    padding-bottom: 10px;
+  }
+
+  .mark,
+  mark {
+    background-color: $yellow;
+  }
+}

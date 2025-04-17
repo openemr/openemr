@@ -1,0 +1,73 @@
+{if !$reportMode}
+    <html>
+    <head>
+    {headerTemplate}
+{/if}
+<script src="{$GLOBALS.webroot}/library/js/clickmap.js"></script>
+<link rel="stylesheet" href="{$form->template_dir}/css/clickmap.css" />
+{if !$reportMode}
+	</head>
+	<body>
+{/if}
+<div class="container">
+    <div class="row">
+        <div class="col-9">
+            <div id="container" class="container graphic-pain-map">
+                <img src="{$form->image}"/>
+            </div>
+        </div>
+        <div class="col-3">
+            <div id="legend" class="legend graphic-pain-map">
+                <div class="body">
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+        {if !$reportMode}
+            <div class="col-12">
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
+                    <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
+                    <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xl t="Cancel"}</button>
+                </div>
+                <p>
+                    {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
+                    {xl t="The 'Clear' button will remove all annotations."}
+                </p>
+            </div>
+        {/if}
+    </div>
+</div>
+
+<div class="marker-template d-none">
+	<span class='count'></span>
+</div>
+
+<script>
+
+    $(function () {
+		var optionsLabel = {$form->optionsLabel};
+		var options = {$form->optionList};
+		var data = {$form->data};
+		var hideNav = {$form->hideNav};
+
+		clickmap({
+            hideNav: hideNav,
+            data: data,
+			dropdownOptions: { label: optionsLabel, options: options },
+			container: $("#container")
+		});
+	});
+
+</script>
+
+{if !$reportMode}
+    <form id="submitForm" name="submitForm" method="post" action="{$form->saveAction}" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="id" value="{$form->get_id()}" />
+        <input type="hidden" name="pid" value="{$form->get_pid()}" />
+        <input type="hidden" name="process" value="true" />
+        <input type="hidden" name="data" id="data" value=""/>
+    </form>
+    </body>
+    </html>
+{/if}

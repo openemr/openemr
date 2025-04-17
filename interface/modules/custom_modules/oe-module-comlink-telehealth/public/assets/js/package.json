@@ -1,0 +1,24 @@
+{
+  "name": "comlink-telehealth-js",
+  "version": "1.0.0",
+  "description": "Comlink Telehealth Javascript Library",
+  "main": "telehealth.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+    ,"clean": "rm -rf ./dist/*"
+    ,"build": "./node_modules/webpack/bin/webpack.js"
+    ,"build-dev": "./node_modules/webpack/bin/webpack.js --config webpack-dev.config.js"
+    ,"watch:build": "./node_modules/webpack/bin/webpack.js --watch --config webpack-dev.config.js"
+  },
+  "keywords": [
+    "telehealth",
+    "openemr"
+  ],
+  "author": "snielson@discoverandchange.com",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "webpack": "^5.76.0",
+    "webpack-cli": "^5.0.1"
+  }
+}

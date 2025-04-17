@@ -1,0 +1,21 @@
+$colorname: "Forest Green";
+
+$darkest: #224301;
+$darker: #2f5d01;
+$dark: #448602;
+$mid: #8eb667;
+$midpale: #b4ce99;
+$pale: #a1c280;
+$midpalepale: #c6dab3;
+$palepale: #d9e6cc;
+$palepurple: #e7e6f9;
+$paler: #eff5ea;
+$midnightblue: #2f2f7d;
+$white: #fff;
+
+@import "utilities/default_variables";
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+@import "../color_base";

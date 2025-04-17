@@ -1,0 +1,130 @@
+.icon-blank{
+	background:url('icons/blank.gif') no-repeat center center;
+}
+.icon-add{
+	background:url('icons/edit_add.png') no-repeat center center;
+}
+.icon-edit{
+	background:url('icons/pencil.png') no-repeat center center;
+}
+.icon-remove{
+	background:url('icons/edit_remove.png') no-repeat center center;
+}
+.icon-save{
+	background:url('icons/filesave.png') no-repeat center center;
+}
+.icon-cut{
+	background:url('icons/cut.png') no-repeat center center;
+}
+.icon-ok{
+	background:url('icons/ok.png') no-repeat center center;
+}
+.icon-no{
+	background:url('icons/no.png') no-repeat center center;
+}
+.icon-cancel{
+	background:url('icons/cancel.png') no-repeat center center;
+}
+.icon-reload{
+	background:url('icons/reload.png') no-repeat center center;
+}
+.icon-search{
+	background:url('icons/search.png') no-repeat center center;
+}
+.icon-print{
+	background:url('icons/print.png') no-repeat center center;
+}
+.icon-help{
+	background:url('icons/help.png') no-repeat center center;
+}
+.icon-undo{
+	background:url('icons/undo.png') no-repeat center center;
+}
+.icon-redo{
+	background:url('icons/redo.png') no-repeat center center;
+}
+.icon-back{
+	background:url('icons/back.png') no-repeat center center;
+}
+.icon-sum{
+	background:url('icons/sum.png') no-repeat center center;
+}
+.icon-tip{
+	background:url('icons/tip.png') no-repeat center center;
+}
+
+.icon-mini-add{
+	background:url('icons/mini_add.png') no-repeat center center;
+}
+.icon-mini-edit{
+	background:url('icons/mini_edit.png') no-repeat center center;
+}
+.icon-mini-refresh{
+	background:url('icons/mini_refresh.png') no-repeat center center;
+}
+/**
+* Laminas Lab Module
+*/
+.icon-single{
+	background:url('icons/single.png') no-repeat center center;
+}
+.icon-multiple{
+	background:url('icons/multiple.png') no-repeat center center;
+}
+.icon-acl{
+	background:url('icons/acl.png') no-repeat center center;
+}
+.icon-acladvanced{
+	background:url('icons/advancedacl.png') no-repeat center center;
+}
+.icon-preference{
+	background:url('icons/preference.png') no-repeat center center;
+}
+.icon-plug{
+	background:url('icons/plug.png') no-repeat center center;
+}
+.icon-more{
+	background:url('icons/more.png') no-repeat center center;
+}
+.icon-HH{
+	background:url('icons/HH.png') no-repeat center center;
+}
+.icon-LL{
+	background:url('icons/LL.png') no-repeat center center;
+}
+.icon-H{
+	background:url('icons/H.png') no-repeat center center;
+}
+.icon-L{
+	background:url('icons/L.png') no-repeat center center;
+}
+.icon-A{
+	background:url('icons/A.png') no-repeat center center;
+}
+.icon-providers{
+	background:url('icons/providers.png') no-repeat center center;
+}
+.icon-labresultsingle{
+	background:url('icons/labsingle.png') no-repeat center center;
+}
+.icon-resultentry{
+	background:url('icons/result_entry.png') no-repeat center center;
+}
+.icon-unassociatedresult{
+	background:url('icons/unassociated_result.png') no-repeat center center;
+}
+.icon-config{
+	background:url('icons/config.png') no-repeat center center;
+}
+.icon-pull{
+	background:url('icons/request.png') no-repeat center center;
+}
+.icon-specimencollection{
+	background:url('icons/specimencollection.png') no-repeat center center;
+}
+.icon-myhealth{
+	background:url('icons/myhealth.png') no-repeat center center;
+}
+.icon-setup{
+	background:url('icons/setup.png') no-repeat center center;
+}

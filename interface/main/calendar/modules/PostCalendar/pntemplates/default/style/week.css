@@ -1,0 +1,70 @@
+td.dayheader {
+  background-color: [-$STYLE.BGCOLOR2-];
+  font-size: 13px;
+  font-weight: bold;
+}
+
+table.dayheader {
+  background-color: [-$STYLE.BGCOLOR2-];
+  border: 1px solid var(--black);
+}
+
+.dayheader a:link {
+  font-size: 13px;
+  font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.dayheader a:active {
+  font-size: 13px;
+  font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.dayheader a:hover {
+  font-size: 13px;
+  font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+.dayheader a:visited {
+  font-size: 13px;
+  font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-decoration: none;
+}
+
+table.eventslist {
+  background-color: [- $STYLE.BGCOLOR1-];
+  padding: 10px;
+}
+
+td.eventslist {
+  background-color: [- $STYLE.BGCOLOR1 -];
+  border-color: var(--white);
+  border-style: ridge;
+  font-size: 13px;
+  padding: 5px;
+}
+
+td.eventsentry {
+  background-color: #eee;
+  border-color: var(--white);
+  border-style: ridge;
+  font-size: 13px;
+}
+
+table.eventsentry {
+  background-color: #eee;
+}
+
+table.calcontainer {
+  border: 1px solid var(--black);
+}

@@ -1,0 +1,111 @@
+/* OpenEMR tabs-Full Override */
+
+@if $compact-theme == false {
+  #mainBox > .body_top,
+  .body_top_tabs {
+    background-color: $dark !important;
+  }
+
+  #mainBox_vertical > .body_top,
+  .body_top_tabs {
+    background-color: $midpale !important;
+  }
+
+  .tabSpan {
+    border-left: 1px solid $dark !important;
+    border-radius: 3px 6px 0 0 !important;
+    border-right: 1px solid $dark !important;
+    border-top: 5px solid $dark !important;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+  }
+
+  .tabSpan_tabs:hover {
+    background: $palepale !important;
+  }
+
+  .tabNotchosen {
+    border-bottom: 2px solid $dark !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+  }
+
+  .tabsNoHover {
+    border-bottom: 2px solid $dark !important;
+  }
+
+  .menuLabel {
+    &:hover {
+      background: $palepale !important;
+    }
+  }
+
+  .patientEncounterList {
+    background: $white;
+    border: 1px solid $darker;
+  }
+
+  .appMenu > span:hover,
+  .menuSection:hover {
+    background-color: $palepale !important;
+  }
+
+  .menuSection > .menuEntries {
+    background-color: $paler !important;
+    box-shadow: 0 2px 2px $midpale !important;
+  }
+
+  .menuEntries li .menuLabel {
+    &:hover {
+      background-color: $palepale !important;
+      color: $bs-dark;
+    }
+  }
+
+  .appMenu li:hover {
+    background-color: $palepale !important;
+  }
+
+  .body_title,
+  .body_title_tabs {
+    background-color: $midpale !important;
+  }
+
+  /* tabs body */
+
+  .tabs_body,
+  #searchCriteria {
+    background-color: $pale;
+  }
+
+  .tabs_body_light {
+    background-color: $palepale;
+  }
+
+  /* tabs calendar */
+
+  #calsearch_params {
+    background-color: $palepale !important;
+  }
+
+  .calsearch_body {
+    background-color: $paler !important;
+  }
+
+  .chevron_color {
+    color: $darker;
+  }
+
+  /* tabs menu, user, and logout icon */
+  #menu_icon,
+  #logout_icon,
+  #user_icon {
+    color: $darker !important;
+  }
+
+  /* Search Globals Button */
+  #search_globals,
+  .oe-expandable-search .any-search-legacy {
+    background: $dark !important;
+  }
+}

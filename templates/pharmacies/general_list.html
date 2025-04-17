@@ -1,0 +1,37 @@
+<a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()" class="btn btn-secondary btn-add" >
+{xlt t='Add a Pharmacy'}</a><br /><br />
+<p>{xlt t='Total pharmacies'} {if !empty($totalpages)}{$totalpages}{/if}</p>
+<div class="table-responsive datatable">
+	<table class="table table-striped" id="pharmacies">
+		<thead>
+	        <tr>
+	            <th>{xlt t='Name'}</th>
+	            <th>{xlt t='Address'}</th>
+	            <th>{xlt t='Default Method'}</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+		{foreach from=$pharmacies item=pharmacy}
+		<tr>
+			<td>
+			    <a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id|attr_url}" onclick="top.restoreSession()">
+			        {$pharmacy->name|text}
+			    </a>
+			</td>
+			<td>
+			{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1|text}, {/if}
+			{if $pharmacy->address->city != ''}{$pharmacy->address->city|text}, {/if}
+				{$pharmacy->address->state|upper|text} {$pharmacy->address->zip|text}&nbsp;</td>
+			<td>{$pharmacy->get_transmit_method_display()|text}&nbsp;
+		{foreachelse}</td>
+		</tr>
+
+		<tr>
+			<td>{xlt t='No Pharmacies Found'}</td>
+            <td></td>
+            <td></td>
+		</tr>
+		{/foreach}
+	    </tbody>
+	</table>
+</div>

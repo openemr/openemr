@@ -1,0 +1,35 @@
+/*=============================================================
+ * Patient Stats Summary
+ * seen in the patient summary screen
+ *============================================================*/
+
+@if $compact-theme == false {
+  #patient_stats_summary {
+    table {
+      border-collapse: collapse;
+    }
+
+    .noend_noreturn {
+      color: $danger;
+    }
+
+    .noend {
+      color: $orange;
+    }
+
+    .noreturn {
+      color: $primary;
+    }
+
+    .title {
+      @include font-size("1.1rem");
+    }
+  }
+
+  #patient_stats_issues,
+  #patient_stats_spreadsheets,
+  #patient_stats_imm,
+  #patient_stats_prescriptions {
+    width: 100%;
+  }
+}

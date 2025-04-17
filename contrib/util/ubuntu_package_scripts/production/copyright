@@ -1,0 +1,16 @@
+This package was debianized by Brady Miller <brady.g.miller@gmail.com> on
+Mon, 29 Jul 2019 12:04:09 -0700.
+
+It was downloaded from github.
+
+Upstream Author:
+    https://www.open-emr.org
+
+Copyright:
+    Copyright (C) 2019 https://www.open-emr.org
+
+License:
+    GPL
+
+The Debian packaging is (C) 2019, Brady Miller <brady.g.miller@gmail.com> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.

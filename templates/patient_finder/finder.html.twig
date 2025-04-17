@@ -1,0 +1,115 @@
+<body>
+    {{ pageHeading }}
+    <div id="container_div" class="{{ oeContainer|attr }} mt-3">
+         <div class="w-100">
+            <div>
+                <ul class="nav nav-tabs mt-3" id="finderTabs" role="tablist">
+                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true">{{ "Recent Patients"|xlt }}</button></li>
+                </ul>
+                <div class="tab-content" id="finderTabs">
+                    <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
+                        <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
+                            <!-- Class "display" is defined in demo_table.css -->
+                            <div class="table-responsive">
+                                <table class="table" class="border-0 display" id="pt_table">
+                                    <thead class="thead-light">
+                                        <tr id="advanced_search" class="hideaway d-none">
+                                            {{ header0 }}
+                                        </tr>
+                                        <tr class="">
+                                            {{ header }}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                                            <td class="dataTables_empty" colspan="{{ colcount|attr }}">...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="recent" role="tabpanel" aria-labelledby="recentTab">
+                        {% if rp|length > 0 %}
+                        <div class="table mt-2">
+                            <table class="w-100">
+                                <thead class="thead-light">
+                                    <tr>
+                                        {% for h in headers %}
+                                            <th scope="col">{{ h.title|xlListLabel }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in rp %}
+                                        <tr class="clickable-row" style="cursor:pointer;" data-pid="{{ p.pid|attr }}">
+                                            {% for h in headers %}
+                                                {% set value = p[h.option_id] %}
+                                                <td>
+                                                    {% if loop.first %}
+                                                        <a href="#">{{ value|text }}</a>
+                                                    {% else %}
+                                                        {{ value|text }}
+                                                    {% endif %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="row">
+                            <div class="col-12">
+                                <p class="text-center bg-light p-5">{{ "No recent patients"|xlt }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <!-- form used to open a new top level window when a patient row is clicked -->
+        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site={{ session.side_id|attr_url }}'>
+            {{ csrfToken('', 'csrf_token_form') }}
+            <input type='hidden' name='patientID' value='0'/>
+        </form>
+    </div> <!--End of Container div-->
+    {{ oeBelowContainerDiv }}
+
+    <script>
+    $(window).on("resize", function() { //portrait vs landscape
+        $("#pt_table").removeAttr("style");
+    });
+
+    $(function() {
+        $("#exp_cont_icon").click(function () {
+            $("#pt_table").removeAttr("style");
+        });
+        $("#pt_table_filter").addClass("d-md-initial");
+        $("#pt_table_length").addClass("d-md-initial");
+        $("#show_hide").addClass("d-md-initial");
+        $("#search_hide").addClass("d-md-initial");
+        $("#pt_table_length").addClass("d-none");
+        $("#show_hide").addClass("d-none");
+        $("#search_hide").addClass("d-none");
+        $('div.dataTables_filter input').focus();
+    });
+
+    let elements = document.querySelectorAll("[data-pid]");
+
+    function ptLinkClick(e)
+    {
+        let pid = this.getAttribute('data-pid');
+        top.RTop.location = "{{ webroot }}/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
+    }
+
+    Array.from(elements).forEach(function(elem) {
+        elem.addEventListener('click', ptLinkClick);
+    });
+
+    document.addEventListener('touchstart', {});
+    </script>

@@ -1,0 +1,45 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Documents/view/layout/layout.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+?>
+<?php echo $this->doctype(); ?>
+
+<html lang="en" ng-app="documentsApp">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle($this->translate()->xl('Welcome to OpenEMR'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <!-- TODO: Remove all of this and replace it !-->
+        
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no') ?>
+        <!-- styles -->
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))->prependStylesheet($this->basePath() . '/css/file_uploader.css')->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/documents.css')->prependStylesheet($this->basePath() . '/css/'.$GLOBALS['zhemr']['default_theme'].'/css_buttons.css')->prependStylesheet($this->basePath() . '/css/layout.css')->prependStylesheet($this->basePath() . '/css/skeleton.css')->prependStylesheet($this->basePath() . '/css/base.css')->prependStylesheet($this->basePath() . '/css/default/datepicker.css')?>
+        <!-- Scripts -->
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/lib/modernizr-2.6.2.min.js') ?>
+    </head>
+    <body class="body_top">
+			<div class="body_container">
+				<div class="row">
+          <div class="fullwidth">
+            <div class="container" ng-controller="documentsController">
+            <?php echo $this->content; ?>
+            </div>
+          </div>
+				</div>
+			<?php echo $this->inlineScript()->prependFile($this->basePath() . '/js/scripts/file_uploader.js')
+                                      ->prependFile($this->basePath() . '/js/controller/documentsController.js')
+																		  ->prependFile($this->basePath() . '/js/scripts/documents.js')
+																			->prependFile($this->basePath() . '/js/lib/angular.min.js')
+                                      ->prependFile($this->basePath() . '/js/lib/jquery-ui.js')
+                                      ->prependFile($this->basePath() . '/js/lib/jquery-1.10.2.min.js') ?>
+		  <?php echo $this->javascriptGlobals(); ?>
+    </body>
+</html>

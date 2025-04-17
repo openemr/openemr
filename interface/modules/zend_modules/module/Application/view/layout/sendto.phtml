@@ -1,0 +1,29 @@
+<?php echo $this->doctype(); ?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle('ZF2 '. $this->translate()->xl('OpenEMR'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- Le styles -->
+        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+                        ->prependStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+                        ->prependStylesheet($this->basePath() . '/css/style.css')
+                        ->prependStylesheet($this->basePath() . '/css/sendTo.css')
+                        ->prependStylesheet($this->basePath() . '/css/bootstrap.min.css') ?>
+        <!-- Scripts -->
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js')
+                                      ->prependFile($this->basePath() . '/js/application/sendTo.js')
+                                      ->prependFile($this->basePath() . '/js/application/addRule.js')
+                                      ->prependFile($this->basePath() . '/js/lib/bootstrap.min.js')
+                                      ->prependFile($this->basePath() . '/js/lib/jquery-1.8.2.min.js') ?>
+    </head>
+    <body>
+        <div class="container">
+            <?php echo $this->content; ?>
+        </div>
+        <?php echo $this->inlineScript() ?>
+    </body>
+</html>

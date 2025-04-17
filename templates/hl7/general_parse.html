@@ -1,0 +1,46 @@
+{**
+ * Hl7 Parser
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+<form name="prescribe" method="post" onsubmit="return top.restoreSession()">
+<!--Example HL7 data<td></tr>
+MSH|^~\&|ADT1|CUH|LABADT|CUH|198808181127|SECURITY|ADT^A01|MSG00001|P|2.3|
+EVN|A01|198808181122||
+PID|||PATID1234^5^M11||RYAN^HENRY^P||19610615|M||C|1200 N ELM STREET^^GREENSBORO^NC^27401-1020|GL|(919)379-1212|(919)271-3434 ||S||PATID12345001^2^M10|123456789|987654^NC|
+NK1|JOHNSON^JOAN^K|WIFE||||||NK^NEXT OF KIN
+PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|-->
+
+    <div class="form-group">
+        <label for="hl7data">{xlt t='Paste HL7 Data'}</label>
+        <textarea class="form-control" rows="10" id="hl7data" name="hl7data"></textarea>
+    </div>
+    <div class="btn-group">
+        <a href="javascript:document.forms[0].submit();" class="btn btn-secondary" onclick="top.restoreSession()">
+            <i class="fa fa-play"></i>&nbsp;&nbsp;{xlt t='Parse HL7'}
+        </a>
+        <a href="javascript:document.forms[0].reset();" class="btn btn-link" onclick="top.restoreSession()">
+            <i class="fa fa-times"></i>&nbsp;&nbsp;{xlt t='Clear HL7 Data'}
+        </a>
+    </div>
+    {if isset($hl7_message_err)}
+        <div class="alert alert-danger">{$hl7_message_err|text}</div>
+    {/if}
+    {if isset($hl7_array)}
+      <div class="table-responsive">
+          <table class="table">
+          {foreach from=$hl7_array item=hl7item key=hl7key}
+              <tr height="25"><td colspan="3">{$hl7key|text}</td></tr>
+              {foreach from=$hl7item item=segment_val key=segment_name}
+                  <tr><td>&nbsp;</td><td>{$segment_name|text}: </td><td>{$segment_val|text}</td></tr>
+              {/foreach}
+          {/foreach}
+          </table>
+      </div>
+    {/if}
+    <input type="hidden" name="process" value="{$PROCESS|attr}" />
+</form>

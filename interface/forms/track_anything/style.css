@@ -1,0 +1,189 @@
+.graph {
+  color: var(--primary);
+}
+
+.graph_button {
+  background-color: #d3d7cf;
+  color: var(--black);
+  cursor: pointer;
+  font: 11px "Arial", "Helvetica", sans-serif;
+}
+
+.ta_button {
+  background-color: #d3d7cf;
+  color: var(--black);
+  cursor: pointer;
+  font: 10px "Arial", "Helvetica", sans-serif;
+}
+
+.delete_button {
+  background-color: var(--danger);
+  color: var(--white);
+  cursor: pointer;
+  font: 10px "Arial", "Helvetica", sans-serif;
+}
+
+.nodelete_button {
+  background-color: #d3d7cf;
+  color: var(--black);
+  cursor: pointer;
+  font: 10px "Arial", "Helvetica", sans-serif;
+}
+
+#track_anything table {
+  border: 1px solid var(--black);
+  padding: 5px;
+}
+
+#track_anything td.menu {
+  font: 11px "Arial", "Helvetica", sans-serif;
+}
+
+#track_anything th.time {
+  background-color: #d3d7cf;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  font-weight: bold;
+  text-align: center;
+}
+
+#track_anything td.time {
+  background-color: #eeeeec;
+  color: var(--black);
+  font: 13px "Arial", "Helvetica", sans-serif;
+}
+
+#track_anything th.item {
+  background-color: #b8cce4;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  font-weight: bold;
+  text-align: center;
+}
+
+#track_anything th.value {
+  background-color: #dee5f1;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  font-weight: bold;
+  text-align: center;
+}
+
+#track_anything td.item {
+  background-color: #dee5f1;
+  color: var(--black);
+  font: 13px "Arial", "Helvetica", sans-serif;
+  text-align: right;
+}
+
+#track_anything td.check {
+  background-color: #d3d7cf;
+  color: var(--black);
+  font: 13px "Arial", "Helvetica", sans-serif;
+}
+
+#ta_type p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#ta_type th {
+  background-color: #b8cce4;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  font-weight: bold;
+  padding: 0;
+}
+
+#ta_type td.parent {
+  background-color: #c6d9f0;
+  color: var(--black);
+  font: 12px "Arial", "Helvetica", sans-serif;
+  font-weight: bold;
+  padding: 0;
+}
+
+#ta_type td.child {
+  background-color: #dee5f1;
+  color: var(--black);
+  font: 11px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+#ta_type td.op {
+  background-color: #eeeeec;
+  color: var(--black);
+  font: 10px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+#ta_type th.add {
+  background-color: #eeeeec;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+#ta_type td.add {
+  background-color: #eeeeec;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+#ta_type th.edit {
+  background-color: #eeeeec;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+#ta_type td.edit {
+  background-color: #eeeeec;
+  color: var(--black);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+
+#ta_type th.deactive {
+  background-color: #a5a5a5;
+  color: var(--black);
+  font: 10px "Arial", "Helvetica", sans-serif;
+  font-style: italic;
+
+}
+
+#ta_type td.deactive {
+  background-color: #bfbfbf;
+  color: var(--black);
+  font: 10px "Arial", "Helvetica", sans-serif;
+  font-style: italic;
+}
+
+#ta_type .failure {
+  background-color: #eeeeec;
+  color: var(--danger);
+  font: 15px "Arial", "Helvetica", sans-serif;
+  padding: 0;
+}
+
+#ta_type table.create {
+  border: 4px solid #b8cce4;
+  padding: 10px;
+}
+
+#ta_type table.add {
+  border: 2px solid var(--success);
+  padding: 5px;
+}
+
+#ta_type table.edit {
+  border: 2px solid var(--primary);
+  padding: 5px;
+}
+
+#ta_type table.del {
+  border: 4px solid var(--danger);
+  padding: 5px;
+}

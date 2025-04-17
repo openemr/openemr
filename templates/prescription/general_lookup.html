@@ -1,0 +1,57 @@
+{**
+ * Prescription General Lookup
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+<!DOCTYPE html>
+<html>
+<head>
+
+{headerTemplate}
+
+<script>
+		function my_process () {
+			// Pass the variable
+	let rxText = document.lookup.drug[document.lookup.drug.selectedIndex].text;
+    let rxcode = (rxText.split('(RxCUI:').pop().split(')')[0]).trim();
+	parent.my_process_lookup(document.lookup.drug.value, rxcode);
+		}
+</script>
+</head>
+<body onload="javascript:document.lookup.drug.focus();">
+<div class="container-responsive">
+<div style="width:100%;height:100%;border:0;" class="drug_lookup" id="newlistitem">
+	<form class="form-inline" NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST" onsubmit="return top.restoreSession()" style="margin:0px">
+
+	{if $drug_options}
+        <div>
+        {html_options name="drug" class="form-control" values=$drug_values options=$drug_options}<br/>
+        </div>
+        <div>
+            <a href="javascript:;" onClick="my_process(); return true;">{xlt t='Select'}</a> |
+            <a href="javascript:;" class="button" onClick="parent.cancelParlookup();">{xlt t='Cancel'}</a> |
+            <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xlt t='New Search'}</a>
+        </div>
+	{else}
+		{$NO_RESULTS|text}
+
+		<input TYPE="HIDDEN" NAME="varname" VALUE=""/>
+		<input TYPE="HIDDEN" NAME="formname" VALUE=""/>
+		<input TYPE="HIDDEN" NAME="submitname" VALUE=""/>
+		<input TYPE="HIDDEN" NAME="action" VALUE="{xla t='Search'}">
+		<div ALIGN="CENTER" CLASS="infobox">
+			<input class="form-control" TYPE="TEXT" NAME="drug" VALUE="{$drug|attr}"/>
+			<input TYPE="SUBMIT" NAME="action" VALUE="{xla t='Search'}" class="button"/>
+			<input TYPE="BUTTON" VALUE="{xla t='Cancel'}" class="button" onClick="parent.cancelParlookup();"/>
+		</div>
+		<input type="hidden" name="process" value="{$PROCESS|attr}" />
+
+	{/if}</form>
+	</div>
+</div>
+</body>
+</html>

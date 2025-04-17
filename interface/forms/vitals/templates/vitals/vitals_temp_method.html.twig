@@ -1,0 +1,20 @@
+<tr><td><span class="vitals-title">{{ "Temp Location"|xlt }}</span> <small>(LOINC:8327-9)</small><td></td>
+    {% if is_edit %}
+    <td class='currentvalues p-2'><select name="temp_method" class="form-control" id='temp_method'><option value=""> </option>
+            <option value="Oral"              {% if vitals.get_temp_method() == "Oral"              or vitals.get_temp_method() == 2 %} selected{% endif %}>{{ "Oral"|xlt }}
+            <option value="Tympanic Membrane" {% if vitals.get_temp_method() == "Tympanic Membrane" or vitals.get_temp_method() == 1 %} selected{% endif %}>{{ "Tympanic Membrane"|xlt }}
+            <option value="Rectal"            {% if vitals.get_temp_method() == "Rectal"            or vitals.get_temp_method() == 3 %} selected{% endif %}>{{ "Rectal"|xlt }}
+            <option value="Axillary"          {% if vitals.get_temp_method() == "Axillary"          or vitals.get_temp_method() == 4 %} selected{% endif %}>{{ "Axillary"|xlt }}
+            <option value="Temporal Artery"   {% if vitals.get_temp_method() == "Temporal Artery" %} selected{% endif %}>{{ "Temporal Artery"|xlt }}
+        </select></td>
+
+    <td class="editonly"></td>
+    <td class="editonly actions">
+        {% include 'vitals_actions.html.twig' %}
+    </td>
+    {% endif %}
+    {% include 'vitals_historical_values.html.twig' with { useMetric:false, vitalsValue:"get_temp_method",results:results, is_edit:is_edit } %}
+</tr>
+{% if is_edit %}
+{% include 'vitals_reason_row.html.twig' with { input:input, title:title, vitalDetails:vitals.get_details_for_column(input),is_edit:is_edit } %}
+{% endif %}

@@ -1,0 +1,77 @@
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mariadb:11.4
+    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    ports:
+    - 8320:3306
+    volumes:
+    - ../library/sql-ssl-certs-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
+    - ../library/sql-ssl-certs-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
+    - ../library/sql-ssl-certs-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
+    - databasevolume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  openemr:
+    restart: always
+    image: openemr/openemr:flex
+    ports:
+    - 8300:80
+    - 9300:443
+    volumes:
+    - ../..:/openemr:ro
+    - ../..:/var/www/localhost/htdocs/openemr:rw
+    - assetvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
+    - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
+    - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
+    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+    - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
+    - logvolume:/var/log
+    environment:
+      DEBUG_COLORS: "true"
+      TERM: xterm-256color
+      COLORTERM: truecolor
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      OE_USER: admin
+      OE_PASS: pass
+      EASY_DEV_MODE: "yes"
+      EASY_DEV_MODE_NEW: "yes"
+      DEVELOPER_TOOLS: "yes"
+      XDEBUG_ON: 1
+      XDEBUG_PROFILER_ON: 1
+      # setting xdebug client host for cases where xdebug.discover_client_host fails
+      XDEBUG_CLIENT_HOST: host.docker.internal
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
+      GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
+      OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
+      OPENEMR_SETTING_oauth_password_grant: 3
+      OPENEMR_SETTING_rest_system_scopes_api: 1
+      OPENEMR_SETTING_rest_api: 1
+      OPENEMR_SETTING_rest_fhir_api: 1
+      OPENEMR_SETTING_rest_portal_api: 1
+      OPENEMR_SETTING_portal_onsite_two_enable: 1
+      OPENEMR_SETTING_ccda_alt_service_enable: 3
+    depends_on:
+    - mysql
+  phpmyadmin:
+    restart: always
+    image: phpmyadmin
+    ports:
+    - 8310:80
+    environment:
+      PMA_HOSTS: mysql
+volumes:
+  databasevolume: {}
+  assetvolume: {}
+  themevolume: {}
+  sitesvolume: {}
+  nodemodules: {}
+  vendordir: {}
+  ccdanodemodules: {}
+  logvolume: {}

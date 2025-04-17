@@ -1,0 +1,17 @@
+<entryRelationship typeCode="COMP">
+  <observation classCode="OBS" moodCode="EVN">
+    <templateId root="2.16.840.1.113883.10.20.27.3.2"/>
+    <code nullFlavor="OTH">
+      <originalText>Other</originalText>
+    </code>
+    <statusCode code="completed"/>
+    <value xsi:type="REAL" value="{{value}}"/>
+    <methodCode code="{{method}}" displayName="{{method}}" codeSystem="2.16.840.1.113883.5.84" codeSystemName="ObservationMethod"/>
+    <reference typeCode="REFR">
+      <!-- reference to the relevant measure observation in the eMeasure -->
+      <externalObservation classCode="OBS" moodCode="EVN">
+        <id root="{{hqmf_id}}"/>
+      </externalObservation>
+    </reference>
+  </observation>
+</entryRelationship>

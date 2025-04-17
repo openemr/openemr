@@ -1,0 +1,100 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% macro appointmentDetail(appointment) %}
+    {% set a = appointment %}
+    <div class="list-group-item p-1" style="background-color: {{ a.bgColor|text }};">
+        <div class="d-flex w-100 justify-content-between">
+            <h6>
+                {% if a.pc_catid not in therapyGroupCategories %}
+                <a href="#" onclick="return oldEvt({{ a.jsEvent }})">
+                    {% endif %}
+                    {{ a.pc_catname|xlt }}
+                    {% if a.pc_hometext %}&nbsp;<i class="far fa-fw fa-comment-dots"></i>{% endif %}
+                    {% if a.pc_recurrtype %}&nbsp;<i class="fa fa-retweet"></i>{% endif %}
+                    {% if a.pc_catid not in therapyGroupCategories %}
+                </a>
+                {% endif %}
+            </h6>
+            <small class="text-right">
+                {{ a.dayName|xlt }},&nbsp;
+                {{ a.pc_eventDate|shortDate|text }}
+                {{ a.pc_eventTime|text }}&nbsp;{{ a.displayMeridiem|xlt }}
+            </small>
+        </div>
+        <div class="m-0 d-flex w-100 justify-content-between text-muted">
+            <span>{{ a.uname|text }}</span>
+            <span>{{ a.pc_status|text }}
+                {% if a.pc_catid in therapyGroupCategories %}
+                {{ "Group name"|xlt }}: {{ a.groupName|text }}
+                {% endif %}
+            </span>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro additionalAppointment(appointmentDate) %}
+    <div class="list-group-item p-1">
+        <div class="m-0 pt-2 d-block w-100 text-muted text-center">
+            {{ appointmentDate|text }}&nbsp;(+)
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro sectionHeader(title, iconClasses) %}
+    <div class="list-group-item pl-0 pb-1 border-bottom-0">
+        <div class="text-dark font-weight-bolder">
+            <i class="fa fa-fw {{ iconClasses }}"></i>&nbsp;{{ title|text }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro noItems(text) %}
+    <div class="list-group-item text-center">
+        {{ text|text }}
+    </div>
+{% endmacro %}
+
+{% block content %}
+<div class="list-group list-group-flush appts">
+
+{% if displayAppts %}
+    {{ _self.sectionHeader("Future Appointments"|xl, "fa-history fa-flip-horizontal")}}
+    {% if appts|length > 0 %}
+        {% for a in appts %}
+            {{ _self.appointmentDetail(a)}}
+        {% endfor %}
+        {% if extraApptDate %}
+            {{ _self.additionalAppointment(extraApptDate) }}
+        {% endif %}
+    {% else %}
+        {{ _self.noItems("No Appointments"|xl)}}
+    {% endif %}
+{% endif %}
+
+{% if displayRecurrAppts %}
+    {{ _self.sectionHeader("Recurring Appointments"|xl, "fa-retweet")}}
+    {% if recurrAppts|length > 0 %}
+        {% for r in recurrAppts %}
+            <div class="list-group-item p-1">
+                <h6>{{ r.pc_title|text }}</h6>
+                <div class="text-muted">{{ r.pc_recurrspec|text }} {{ "until"|xlt }}&nbsp;{{ r.pc_endDate|text }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        {{ _self.noItems("No Recurring Appointments{{Appointments}}"|xl)}}
+    {% endif %}
+{% endif %}
+
+{% if displayPastAppts %}
+    {{ _self.sectionHeader("Past Appointments"|xl, "fa-history")}}
+    {% if pastAppts|length > 0 %}
+        {% for pa in pastAppts %}
+            {{ _self.appointmentDetail(pa) }}
+        {% endfor %}
+    {% else %}
+        {{ _self.noItems("No Past Appointments{{Appointment}}"|xl)}}
+    {% endif %}
+{% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,569 @@
+/**
+ * Message center javascript.
+ *
+ * @package MedEx
+ * @link    http://www.MedExBank.com
+ * @author  MedEx <support@MedExBank.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+/*  TODO: Move to /interface/themes for GSoC so we can have a centralized area for CSS */
+
+h1 {
+  color: var(--success);
+  font-size: 150%;
+  font-weight: normal;
+  line-height: 1.5rem;
+  margin: 0 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.nav-tabs {
+  border-bottom: 0;
+}
+
+.nav-tabs > li {
+  border: 0.5px solid var(--gray400);
+  display: block;
+  float: left;
+  height: 40px;
+  margin-bottom: 0;
+  margin-bottom: -1px;
+  min-width: 80px;
+  position: relative;
+}
+
+.nav-tabs > li > a {
+  border: 0;
+  margin-right: 0;
+}
+
+.nav-tabs > li.active > a {
+  border: 0;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  border: unset;
+}
+
+.main_container {
+  margin: 25px auto;
+  text-align: center;
+}
+
+.sticky {
+  opacity: 1;
+  position: sticky;
+  top: 12px;
+  z-index: 990;
+}
+
+.flow tr:nth-child(even) {
+  background-color: var(--light);
+  overflow: hidden;
+}
+
+.flow tr:nth-child(odd) {
+  background-color: var(--gray300);
+  overflow: hidden;
+}
+
+.flow tr:last-child {
+  background-color: var(--gray400);
+  border-radius: 5px;
+  box-shadow: 0 -4px 6px var(--gray);
+  color: var(--black);
+  overflow: hidden;
+  padding: 5px;
+  text-align: center;
+  text-shadow: 0 1px 0 var(--light);
+  text-transform: uppercase;
+}
+
+.flow th {
+  color: var(--black);
+  overflow: hidden;
+  padding: 5px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.flow tr:first-child {
+  background-color: var(--gray300);
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 4px 6px var(--gray);
+  text-shadow: 0 1px 0 var(--light);
+}
+
+.flow td {
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.flow tr:hover {
+  background-color: var(--light);
+  overflow: hidden;
+}
+
+.flow tr:last-child:hover,
+.flow tr:first-child:hover {
+  background-color: var(--gray300);
+}
+
+.flow {
+  border: 2px ridge var(--gray);
+  border-collapse: unset;
+  border-radius: 8px;
+  box-shadow: 2px 1px 2px var(--gray);
+  margin: 15px;
+  overflow: hidden;
+  text-align: center;
+  width: 98%;
+}
+
+.newRecall {
+  background-color: var(--white);
+  border: 0.5px ridge var(--gray400);
+  border-radius: 8px;
+  box-shadow: 2px 1px 2px var(--gray400);
+  display: inline-table;
+  height: 300px;
+  margin: 15px auto;
+  overflow: hidden;
+  padding: 10px;
+  width: 400px;
+}
+
+.divTable {
+  background: var(--white);
+  border: 0.5px solid var(--gray400);
+  border-radius: 8px;
+  box-shadow: 2px 3px 9px var(--gray400);
+  display: table;
+  float: left;
+  margin: 15px auto;
+  padding: 10px;
+}
+
+.divTable2 {
+  background: var(--white);
+  border: 0.5px solid var(--gray400);
+  border-radius: 8px;
+  box-shadow: 2px 3px 9px var(--gray400);
+  display: inline-block;
+  margin: 15px auto;
+  padding: 10px;
+  position: relative;
+  vertical-align: top;
+}
+
+.divTable3 {
+  background: var(--white);
+  border: 1px solid var(--black);
+  border-radius: 8px;
+  box-shadow: 2px 3px 9px var(--black);
+  display: table;
+  float: left;
+  margin: 15px;
+  padding: 10px;
+  width: 70%;
+}
+
+.divTable4 {
+  display: table;
+  margin: 5px;
+  padding: 10px;
+  width: 90%;
+}
+
+.divTableRow {
+  background-color: var(--white);
+  border-radius: 8px;
+  color: var(--black);
+  display: table-row;
+  text-align: left;
+}
+
+.divTableCell,
+.divTableHead {
+  border: 0.5px solid var(--gray);
+  border-radius: 3px;
+  display: table-cell;
+  min-height: 37px;
+  padding: 5px 10px;
+  vertical-align: middle;
+}
+
+.divTableHeading {
+  background-color: var(--gray200);
+  font-weight: 600;
+  padding: 5px;
+  text-align: right;
+  width: 80px;
+}
+
+.float_left {
+  float: left;
+}
+
+.float_right {
+  float: right;
+}
+
+.float_center {
+  float: unset;
+}
+
+.Wide {
+  width: 100%;
+}
+
+.name {
+  padding-left: 1rem;
+  text-align: left;
+}
+
+.divTableFoot {
+  background-color: var(--gray200);
+  display: table-footer-group;
+  font-weight: bold;
+}
+
+.divTableBody {
+  display: table-row-group;
+}
+
+.reddish {
+  background: rgba(246, 224, 224, 0.5);
+  border-radius: 4px 4px 0 0;
+  margin: 0 5px;
+}
+
+.yellowish {
+  background-color: rgba(245, 248, 152, 0.5);
+  border-radius: 4px 4px 0 0;
+  margin: 0 5px;
+}
+
+.greenish {
+  background-color: rgba(211, 242, 211, 0.5);
+  border-radius: 4px 4px 0 0;
+  margin: 0 5px;
+}
+
+.whitish {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px 4px 0 0;
+  margin: 0 5px;
+}
+
+.bluish {
+  background-color: rgba(134, 212, 233, 0.5);
+  border-radius: 4px 4px 0 0;
+  margin: 0 5px;
+}
+
+.yellow {
+  background-color: #f6f6f6;
+}
+
+.nodisplay {
+  display: none !important;
+}
+
+.right {
+  text-align: right;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.s_pwd {
+  font-size: 0.8rem;
+  font-style: italic;
+  padding-left: 150px;
+  text-align: center;
+}
+
+.top {
+  vertical-align: top;
+}
+
+.top_right_corner {
+  float: right;
+  position: relative;
+  right: 0;
+  top: 0;
+}
+
+input[type="radio"] {
+  padding-left: 15px;
+}
+
+.news {
+  width: unset;
+}
+
+.indent20 {
+  padding-left: 20px;
+}
+
+.btn {
+  border: 1px solid var(--black) !important;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.btn1 {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  font-size: 1.2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.scheduled {
+  background-color: var(--white);
+  color: var(--black);
+}
+
+.no_bot_border {
+  border-bottom: 1px dotted transparent;
+  box-shadow: 3px -2px 4px var(--gray400);
+  text-decoration: underline;
+  top: 1px;
+}
+
+.search {
+  background-color: var(--gray400);
+  border: 1px solid var(--black);
+  border-radius: 3px;
+  padding: 5px;
+  position: absolute;
+  right: 20px;
+  top: 10px;
+}
+
+
+.title {
+  border-bottom: 2px solid var(--black);
+  font-weight: bold;
+  line-height: 1.5rem;
+  margin: 0 auto;
+  padding: 3px 10px;
+  text-transform: uppercase;
+  width: 70%;
+}
+
+.spaced_icon {
+  margin: 0 5px;
+}
+
+.red {
+  color: var(--danger);
+}
+
+#save_prefs {
+  display: inline-block;
+  margin: 0 auto;
+  width: 100%;
+}
+
+#daform {
+  display: inline-block;
+}
+
+.msg_resp {
+  width: 65px;
+}
+
+.msg_manual {
+  width: 100px;
+}
+
+.msg_notes {
+  width: 125px;
+}
+
+#SMS_NOTIFICATION_HOUR {
+  width: 30px;
+}
+
+#phone_notification_hour,
+#postcard_notification_day,
+#EMAIL_NOTIFICATION_HOUR,
+#phone_recall_days {
+  width: 30px;
+}
+
+#reminder_wrap {
+  background-color: var(--white);
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
+.showReminders {
+  display: inline-block;
+  margin: 20px auto 0;
+  text-align: center;
+  width: 100%;
+}
+
+.middle-third {
+  margin: 0 auto;
+  position: relative;
+  text-align: left;
+  width: 33%;
+}
+
+#div_response {
+  color: var(--danger);
+  min-height: 25px;
+  text-align: center;
+}
+
+#addRecall {
+  width: 100%;
+}
+
+#new_recall {
+  margin: 10px auto;
+  width: 70%;
+}
+
+td.right {
+  width: 30%;
+}
+
+.borderShadow {
+  background: var(--white);
+  border: 1px solid var(--black);
+  border-radius: 6px;
+  box-shadow: 5px 5px 9px var(--gray);
+  padding: 6px;
+  width: 80%;
+}
+
+.center-div {
+  background: var(--white);
+  border: 1px solid var(--black);
+  border-radius: 3px;
+  bottom: 0;
+  box-shadow: 5px 5px 9px var(--gray);
+  left: 0;
+  margin: auto;
+  max-height: 85vh;
+  overflow-wrap: normal;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 60%;
+}
+
+.prefs_default {
+  font-weight: 600;
+  margin: 0 0 1rem;
+  text-decoration: underline;
+}
+
+.help {
+  background-color: var(--gray300);
+  border-radius: 10px;
+  color: var(--white);
+  cursor: pointer;
+  display: inline-block;
+  font-size: x-small;
+  height: 10px;
+  margin: 2px;
+  max-width: 10px;
+  text-align: center;
+  vertical-align: super;
+}
+
+.help span {
+  display: none;
+  width: 0;
+}
+
+.messages {
+  font-size: 1rem;
+  margin: 2px auto;
+  padding: 20px;
+}
+
+.messages table td {
+  padding: 15px 5px 15px 0;
+}
+
+.flow_time {
+  text-align: center !important;
+  width: 30px !important;
+}
+
+.color_me {
+  background-color: #fff8dc;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.w_100 {
+  max-width: 100px;
+}
+
+.w_30 {
+  width: 30px !important;
+}
+
+.signup_help {
+  color: var(--danger);
+  padding: 0 15px;
+}
+
+.div_title {
+  display: inline-block;
+  float: left;
+  margin: 30px;
+  position: relative;
+}
+
+#SMS_patients {
+  display: block;
+  position: relative;
+}
+
+.ui-autocomplete {
+  position: relative;
+}
+
+#medex-recall-nav {
+  position: relative;
+  top: 7px;
+}
+
+.tab-content {
+  position: relative;
+  z-index: 2;
+}
+
+#patient_caret {
+  left: 5px;
+  position: fixed;
+  top: 10px;
+  z-index: 1200;
+}
+
+#hide_nav {
+  position: absolute;
+  top: 0;
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{xlt t='Practice Settings'}</title>
+
+    {headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
+
+    <script>
+
+        $(function () {
+            $('.sidebar-expand button').on('click', function () {
+                $(this).toggleClass("flip-y");
+                $('.nav-sidebar, .main-full').toggleClass("active");
+            });
+        });
+    </script>
+</head>
+<body class="body-topnav">
+  <div class="container-fluid pl-0">
+    <nav class="nav navbar-light bg-light fixed-top top-before-sidebar">
+        <div class="container-fluid py-2">
+            <div class="sidebar-expand d-md-none">
+                <button type="button" class="text-dark">
+                    <i class="fa fa-angle-right fa-inverted"></i>
+                </button>
+            </div>
+            <a class="navbar-brand" href="#">{xlt t='Practice Settings'}</a>
+            <div id="practice-setting-nav">
+            </div>
+        </div>
+    </nav>
+      <nav class="nav-sidebar bg-light mt-3 mt-md-5 pt-5 pt-md-3">
+          <div class="sidebar-content">
+              <ul class="nav flex-column">
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}pharmacy&action=list">{xlt t='Pharmacies'}</a></li>
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}insurance_company&action=list">{xlt t='Insurance Companies'}</a></li>
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}insurance_numbers&action=list">{xlt t='Insurance Numbers'}</a></li>
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}x12_partner&action=list">{xlt t='X12 Partners'}</a></li>
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}document_category&action=list">{xlt t='Document Categories'}</a></li>
+                  <li class="nav-item"><a class="nav-link text-body" href="{$TOP_ACTION}hl7&action=default">{xlt t='HL7 Viewer'}</a></li>
+              </ul>
+          </div>
+      </nav>
+      <main class="main-full">
+        <div class="pl-3 pt-5 pt-md-3">
+            <div class="section-header">
+                <h2>{$ACTION_NAME}</h2>
+            </div>
+            <div>
+                {$display}
+            </div>
+        </div>
+      </main>
+  </div>
+</body>
+<script>
+
+    $(document).ready(function(){
+        $('#pharmacies').dataTable({
+
+        });
+    });
+</script>
+</html>

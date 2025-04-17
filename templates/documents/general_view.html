@@ -1,0 +1,268 @@
+{**
+ * general document view
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+
+<script>
+
+ {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
+
+ function popoutcontent(othis) {
+    let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
+    let wname = '_' + Math.random().toString(36).substr(2, 6);
+    let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
+    window.open(popsrc,wname, opt);
+
+    return false;
+}
+
+ // Process click on Delete link.
+ function deleteme(docid) {
+  dlgopen('interface/patient_file/deleter.php?document=' + encodeURIComponent(docid) + '&csrf_token_form=' + {$csrf_token_form|js_url}, '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleter.php window on a successful delete.
+ function imdeleted() {
+  top.restoreSession();
+  window.location.href={$REFRESH_ACTION|js_escape};
+ }
+
+ // Called to show patient notes related to this document in the "other" frame.
+ function showpnotes(docid) {
+     let btnClose = {xlj t="Done"};
+     let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
+     dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
+         buttons: [
+             { text: btnClose, close: true, style: 'default btn-sm' }
+         ]
+     });
+     return false;
+ }
+
+ function submitNonEmpty( e ) {
+	if ( e.elements['passphrase'].value.length == 0 ) {
+		alert( {xlj t='You must enter a pass phrase to encrypt the document'} );
+	} else {
+		e.submit();
+	}
+ }
+
+// For tagging it with an encounter
+function tagUpdate() {
+	var f = document.forms['document_tag'];
+	if (f.encounter_check.checked) {
+		if(f.visit_category_id.value==0) {
+			alert({xlj t='Please select visit category'} );
+			return false;
+		}
+	} else if (f.encounter_id.value == 0 ) {
+		alert({xlj t='Please select encounter'});
+		return false;
+	}
+	//top.restoreSession();
+	document.forms['document_tag'].submit();
+}
+
+// For new or existing encounter
+function set_checkbox() {
+	var f = document.forms['document_tag'];
+	if (f.encounter_check.checked) {
+		f.encounter_id.disabled = true;
+		f.visit_category_id.disabled = false;
+		$('.hide_clear').attr('href','javascript:void(0);');
+	} else {
+		f.encounter_id.disabled = false;
+		f.visit_category_id.disabled = true;
+		f.visit_category_id.value = 0;
+		$('.hide_clear').attr('href','{$clear_encounter_tag}');
+	}
+}
+
+// For tagging it with any procedure
+function tagProcedure() {
+	var f = document.forms['procedure_tag'];
+	if(f.image_procedure_id.value == 0 ) {
+		alert({xlj t='Please select procedure'});
+		return false;
+	}
+	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');
+	document.forms['procedure_tag'].submit();
+}
+</script>
+
+<table class="w-100 align-top">
+    <tr>
+        <td>
+            <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 3px solid var(--gray);">
+            <h4>{$file->get_name()|text}
+              <div class="btn-group btn-toggle">
+                <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
+                <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
+              </div>
+            <span class="float-right">
+            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
+            {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
+            <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
+            <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
+            <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
+            {$delete_string}
+            </span>
+            </h4>
+            </div>
+        </td>
+    </tr>
+    <tr id="DocProperties" style="display: none;">
+		<td class="align-top">
+			{if !$hide_encryption}
+			<div class="mb-2">
+        <form class="form-inline w-100" method="post" name="document_encrypt" action="{$web_path|attr}" onsubmit="return top.restoreSession()">
+          <div class="form-group">
+            <label class="lead font-weight-bold mr-1" for='passphrase'>{xlt t='Encryption Pass Phrase'}:</label>
+            <input class="form-control" title="{xla t='Supports TripleDES encryption/decryption only.'} {xla t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value='' />
+            <input type="hidden" name="encrypted" value="true" />
+          </div>
+          <button type="button" class="btn btn-primary" onclick="submitNonEmpty(document.forms['document_encrypt']);">{xlt t='download encrypted file'}</button>
+        </form>
+      </div>
+      {/if}
+	  <div class="mb-2">
+        <form class="form-inline" method="post" name="document_validate" action="{$VALIDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <label class="font-weight-bolder">{$file->get_hash_algo_title()|text} {xlt t='Hash'}:</label>
+            <p class="d-none"><small>{$file->get_hash()|text}</small></p>
+          <a class="btn btn-primary btn-sm" href="javascript:;" onclick="document.forms['document_validate'].submit();">{xlt t='Validate'}</a>
+        </form>
+      </div>
+      <div class="mb-2">
+        <form method="post" name="document_update" action="{$UPDATE_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <div class="form-group">
+            <label for="docname">{xlt t='Rename'}:</label>
+            <input type='text' class="form-control" size='20' name='docname' id='docname' value='{$file->get_name()|attr}'/>
+          </div>
+          <div class="form-group">
+            <label for="docdate">{xlt t='Date'}:</label>
+            <input type='text' size='10' class='form-control datepicker' name='docdate' id='docdate' value='{$DOCDATE|attr}' title="{xla t='yyyy-mm-dd document date'}" />
+          </div>
+          <div class="form-group">
+            <select name="issue_id" class="form-control">{$ISSUES_LIST}</select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="document.forms['document_update'].submit();">{xlt t='Update'}</button>
+        </form>
+      </div>
+      <div class="mb-2">
+        <form class="form-inline" method="post" name="document_move" action="{$MOVE_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <div class="input-group">
+            <select class="form-control mr-1" name="new_category_id">{$tree_html_listbox}</select>
+              <label>{xlt t='Move to Patient PID'}</label><input class="ml-1" type="text" class="form-control" name="new_patient_id" size="4" />
+            <a class="btn btn-search btn-secondary" href="javascript:{}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');"></a>
+              <input type="hidden" name="new_patient_name" value="" />
+          </div>
+          <button class="btn btn-primary ml-1" onclick="document.forms['document_move'].submit();">{xlt t='Move'}</button>
+        </form>
+      </div>
+		<div class="mb-2">
+        <form class="form-inline" method="post" name="document_tag" id="document_tag" action="{$TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <label class="font-weight-bold mr-1">{xlt t='Tag to Encounter'}</label>
+          <div class="input-group">
+            <select class="form-control" id="encounter_id"  name="encounter_id">{$ENC_LIST}</select>&nbsp;
+            <a href="{$clear_encounter_tag}" class="btn btn-danger hide_clear">{xlt t='clear'}</a>&nbsp;&nbsp;
+            <input type="checkbox" name="encounter_check" id="encounter_check" onclick='set_checkbox(this)'/>
+            <label for="encounter_check" class="font-weight-bold">{xlt t='Create Encounter'}</label>&nbsp;&nbsp;
+              <label class="font-weight-bold mr-1">{xlt t='Visit Category'}</label><select class="form-control" id="visit_category_id" name="visit_category_id"  disabled>{$VISIT_CATEGORY_LIST}</select>&nbsp;
+          </div>
+          <button class="btn btn-primary" onclick="tagUpdate();">{xlt t='submit'}</button>
+        </form>
+      </div>
+      <div class="mb-2">
+        <form class="form-inline" method="post" name="procedure_tag" id="procedure_tag" action="{$PROCEDURE_TAG_ACTION|attr}" onsubmit="return top.restoreSession()">
+          <input type='hidden' name='procedure_code' value='' />
+          <label class="font-weight-bold mr-1">{xlt t='Tag to Procedure'}</label>
+          <div class="input-group w-50">
+              <select class="form-control ml-1" id="image_procedure_id" name="image_procedure_id">{$TAG_PROCEDURE_LIST}</select>
+              <div class="btn-group">
+                <a class="btn btn-primary btn-sm" href="javascript:;" onclick="tagProcedure();">{xlt t='Submit'}</a>
+                <a class="btn btn-danger btn-sm" href="{$clear_procedure_tag|attr}">{xlt t='Clear'}</a>
+              </div>
+          </div>
+        </form>
+      </div>
+      <form name="notes" method="post" action="{$NOTE_ACTION|attr}" onsubmit="return top.restoreSession()">
+        <div class="text">
+          <div>
+            <div class="float-left mt-2 mr-1">
+              <strong>{xlt t='Notes'}</strong>
+            </div>
+            <div class="float-none form-inline">
+              <a class="btn btn-primary btn-sm" href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">{xlt t='Add Note'}</a>
+              &nbsp;&nbsp;&nbsp;<strong>{xlt t='Email'}</strong>&nbsp;
+              <input type="text" class="form-control" size="25" name="provide_email" id="provide_email" />
+              <input type="hidden" name="identifier" id="identifier" />
+              <a class="btn btn-primary btn-sm" href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">{xlt t='Send'}</a>
+            </div>
+            <div>
+              <textarea cols="53" rows="8" wrap="virtual" name="note" class="form-control w-100"></textarea><br />
+              <input type="hidden" name="process" value="{$PROCESS|attr}" />
+              <input type="hidden" name="foreign_id" value="{$file->get_id()|attr}" />
+
+              {if $notes}
+              <div class="mt-1">
+                {foreach name=note_loop from=$notes item=note}
+                <div>
+                  {xlt t='Note'} #{$note->get_id()|text}
+                  {xlt t='Date:'} {$note->get_date()|text}
+                  {$note->get_note()|text}
+                  {if $note->get_owner()}
+                    &nbsp;-{$note->getOwnerName()|text}
+                  {/if}
+                </div>
+                {/foreach}
+              {/if}
+              </div>
+            </div>
+          </div>
+        </form>
+        <h4>{xlt t='Contents'}</h4>
+		</td>
+	</tr>
+	<tr id="DocContents" class="h-100">
+		<td>
+      {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
+			<embed  style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
+			{elseif $file->get_mimetype() eq "image/png" or
+			 $file->get_mimetype() eq "image/jpg" or
+			 $file->get_mimetype() eq "image/jpeg" or
+			 $file->get_mimetype() eq "image/gif" or
+			 $file->get_mimetype() eq "application/pdf" }
+			<iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
+      {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
+      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
+      {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
+      <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
+      {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}
+      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=true"></iframe>
+			{/if}
+		</td>
+	</tr>
+</table>
+<script>
+
+$('.btn-toggle').click(function() {
+    $(this).find('.btn').toggleClass('active');
+
+    if ($(this).find('.btn-primary').length > 0) {
+        $(this).find('.btn').toggleClass('btn-primary');
+    }
+
+    $(this).find('.btn').toggleClass('btn-secondary');
+    var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
+    $("#DocProperties").css('display', show_prop);
+});
+
+</script>

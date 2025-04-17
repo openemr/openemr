@@ -1,0 +1,64 @@
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+@if $compact-theme == false {
+  #patient_pastenc {
+    width: 100%;
+
+    .billing_note {
+      width: 25%;
+    }
+
+    .billing_note_text {
+      background-color: $gray;
+      border: 2px outset $black;
+      padding: 5px;
+    }
+
+    .billing_note_text_highlight {
+      background-color: lighten($yellow, 70%);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    tr {
+      cursor: pointer;
+    }
+
+    td {
+      border-top: 1px solid $black;
+      vertical-align: top;
+    }
+
+    th {
+      text-align: $left;
+    }
+
+    #tooltipdiv {
+      background-color: lighten($yellow, 60%);
+      border: 1px solid $black;
+      padding: 2px;
+      position: absolute;
+      visibility: hidden;
+      width: 500px;
+      z-index: 1000;
+    }
+
+    .highlight {
+      background-color: $white;
+    }
+
+    .tooltip {
+      background: lighten($yellow, 70%);
+      border: 1px solid $dark;
+      color: $dark;
+      display: none;
+      padding: 2px 5px;
+      position: absolute;
+    }
+  }
+}

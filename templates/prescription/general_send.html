@@ -1,0 +1,61 @@
+{**
+ * Prescription General Send
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+<html>
+<head>
+
+
+<link rel="stylesheet" href="{$GLOBALS.css_header}">
+</head>
+<body id="prescription_send" class="body_top">
+
+<span class="title"><b>{xlt t='Send'}</b></span>
+<div style="margin-top:10px;">
+    {if $process_result}
+        {$process_result|text}
+        <br/>
+    {/if}
+
+    <div style="float:left">
+        <form name="genform1" method="post" action="{$TOP_ACTION}send&id={$prescription->id|attr_url}" target="_new" onsubmit="return top.restoreSession()">
+        <input type="submit" name="submit" value="{xla t='Download'} ({xla t='PDF'})" style="width:100;font-size:9pt;"/>
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        </form>
+    </div>
+
+    <div style="float:left">
+        <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id|attr_url}" target="_new" onsubmit="return top.restoreSession()">
+        <input type="submit" name="submit" value="{xla t='View Printable'} ({xla t='HTML'})" style="width:100;font-size:9pt;"/>
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        </form>
+    </div>
+
+    <div style="float:none">
+        <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id|attr_url}&print_to_fax=true" target="_new" onsubmit="return top.restoreSession()">
+        <input type="submit" name="submit" value="{xla t='Download Fax'|attr}" style="width:100;font-size:9pt;"/>
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        </form>
+    </div>
+
+    <div>
+        <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id|attr_url}" onsubmit="return top.restoreSession()">
+        <input type="submit" name="submit" value="{xla t='Email'}" style="width:100;font-size:9pt;" /><input type="text" name="email_to"  size="25" value="{$prescription->pharmacy->get_email()|attr}">
+        <br/>
+        <input type="submit" name="submit" value="{xla t='Fax'}" style="width:100;font-size:9pt;"/><input type="text" name="fax_to"  size="25" value="{$prescription->pharmacy->get_fax()|attr}" >
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        </form>
+        <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id|attr_url}" target="_new" onsubmit="return top.restoreSession()">
+        <input type="submit" name="submit" value="{xla t='Auto Send'}" style="width:100;font-size:9pt;" /> {html_options name="pharmacy_id" options=$prescription->pharmacy->utility_pharmacy_array() selected=$prescription->pharmacy->id}
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

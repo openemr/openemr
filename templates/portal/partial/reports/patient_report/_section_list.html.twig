@@ -1,0 +1,31 @@
+{#
+* _section_list.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+*  @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<table class="table includes">
+    <tr>
+        {% if section_one|length > 0 %}
+        <td class='text'>
+            {% for sectionId in section_one %}
+            {% include 'portal/partial/reports/patient_report/_section_list_item.html.twig'
+                with {sectionId: sectionId, section: sections[sectionId] } %}
+            {% endfor %}
+        </td>
+        {% endif %}
+        {% if section_two|length > 0 %}
+        <td class='text'>
+            {% for sectionId in section_two %}
+                {% include 'portal/partial/reports/patient_report/_section_list_item.html.twig'
+                    with {sectionId: sectionId, section: sections[sectionId] } %}
+            {% endfor %}
+        </td>
+        {% endif %}
+    </tr>
+</table>

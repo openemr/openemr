@@ -1,0 +1,91 @@
+<pre>
+
+OpenEMR Internationalization Documentation
+
+I.    Multi-Language Tool
+II.   Official OpenEMR Language Translations
+III.  Language Translations Setting
+IV.   Developer Instructions
+
+I. Multi Language Tool.
+
+  This is the Language Administration page in OpenEMR. This is where you can
+customize languages and language definitions. You can add new languages,
+,add new English Constants, and modify/add language definitions. (Please note
+you can also enter your translations into the official OpenEMR Language
+Translation GoogleDoc spreadsheet; see section II. for details)
+
+  The following is an explanation of the options in this tool:
+    Add Language: You get a box to enter a new language.
+    Add Constant: You get a box to add a new string to be used in the translation
+                  function, this one should be used only if you know what you are
+                  doing, mostly, if you added some custom programming with new
+                  text output. The "constant" string can be literally what you
+                  want to say or a shorter reference to it.
+    Edit Definitions: English is used as the reference language, if you click
+                      the English label you'll get a set of all constants and
+                      the English definitions at the side. If no definition is
+                      loaded yet for a given constant then a blank box is shown,
+                      by entering a definition and clicking "Load Definition"
+                      you save whatever changes you made. If you select other
+                      language than English, you get a set of all constants,
+                      the English definition at the side, and an input box
+                      to enter/modify the definition in the selected language.
+    Manage Translations: This tool allows you to re-synchronize your
+                         local language modifications after importing
+                         an official released set of OpenEMR translations.
+
+
+II. Official OpenEMR Language Translations
+
+  The OpenEMR language official translation sets are built from a
+collaborative Google Doc. If you would like to add a language or help
+with a current language, please contact us.  You could then enter your
+translations into this spreadsheet, which will then become a permanent
+part of OpenEMR. This process has become very streamlined with a fast
+turnaround time, so we would suggest you enter data on this collaborative
+spreadsheet. Note that the translations sets are built daily; to download
+the most uptodate set of translations, visit our documentation at open-emr.org .
+
+
+III. Language Translations Setting
+
+  These are configured in the Administration->Globals interface.
+Mainly, you can configure the default language and what is
+displayed in the login language selection menu (you
+can also disable this menu). There are also more advanced
+setting to turn off certain parts of the translation
+engine. Please see the section of Administration->Globals for more
+details.
+
+
+IV. Developer Instructions
+
+The translation is done by the xl() custom function, which can be found
+at openemr/library/translation.inc.php.
+Its semantics are very simple.
+
+xl(string)
+
+Which with examples means:
+
+xl('translate this')
+
+By default the function will return the translation.
+
+First it uses the LANGUAGE constant defined to pick the translation.
+
+Second it goes for the translation, if none is found, then the same string entered is used and returned as is.
+
+Another example of use includes:
+
+echo ("this and " . xl('translate this') . " that too");
+
+Further details and rules on use can be found on the wiki here:
+https://open-emr.org/wiki/index.php/Development_Policies#Internationalization
+
+There are also wrappers to the xl() function that are used infrequently in specific situations. Please
+refer to openemr/library/translation.inc.php for more details.
+
+</pre>
+

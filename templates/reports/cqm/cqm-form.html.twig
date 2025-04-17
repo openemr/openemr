@@ -1,0 +1,153 @@
+
+<form method='post' name='theform' id='theform' action='cqm.php?type={{ type_report|attr_url }}' onsubmit='return validateForm()'>
+    <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}" />
+
+    {% if not show_plans %}
+        <input type='hidden' id='form_plan_filter' name='form_plan_filter' value=''>
+    {% endif %}
+
+    <div id="report_parameters">
+        <table>
+            <tr>
+                <td scope="row" width='{{ widthDyn|attr }}'>
+                    <div style='float:left'>
+
+                        <table class='text'>
+
+                            {% if is_amc_report %}
+                            <tr>
+                                <td class='col-form-label'>
+                                    {{ 'Begin Date'|xlt  }}:
+                                </td>
+                                <td>
+                                    <input {{ dis_text }} type='text' name='form_begin_date' id="form_begin_date" size='20' value='{{ begin_date|attr }}' class='datepicker form-control'>
+                                </td>
+                            </tr>
+                            {% endif %}
+
+                            <tr>
+                                <td class='col-form-label'>
+                                   {{ target_date_label|text }}
+                                </td>
+                                <td>
+                                    <input {{ dis_text }} type='text' name='form_target_date' id="form_target_date" size='20' value='{{ target_date|attr }}'
+                                    class='datepicker form-control'>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class='col-form-label'>
+                                    {{ 'Rule Set'|xlt }}
+                                </td>
+                                <td>
+                                    <select {{ dis_text }} id='form_rule_filter' name='form_rule_filter' class='form-control'>
+                                        {% for filter in rule_filters %}
+                                            <option value="{{ filter.value|attr }}" {% if filter.selected %}selected{% endif %}>
+                                                {{ filter.label|text }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% if show_plans %}
+                            <tr>
+                                <td class='col-form-label'>
+                                    {{ 'Plan Set'|xlt  }}
+                                </td>
+                                <td>
+                                    <select {{ dis_text }} id='form_plan_filter' name='form_plan_filter' class='form-control'>
+                                        {% for plan in plans %}
+                                            <option value="{{ plan.value|attr }}" {% if plan.selected %}selected{% endif %}>
+                                                {{ plan.label|text }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td class='col-form-label'>
+                                    {{ 'Provider'|xlt  }}:
+                                </td>
+                                <td>
+                                    <select {{ dis_text }} id='form_provider' name='form_provider' class='form-control'>
+                                        {% for provider in providerReportOptions %}
+                                            <option value="{{ provider.value|attr }}" {% if provider.selected %}selected{% endif %}>
+                                                {{ provider.label|text }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class='col-form-label'>
+                                    {{ 'Provider Relationship'|xlt  }}:
+                                </td>
+                                <td>
+                                    <select {{ dis_text }} id='form_pat_prov_rel' name='form_pat_prov_rel' class='form-control'>
+                                        {% for relationship in providerRelationship %}
+                                            <option value="{{ relationship.value|attr }}" {% if relationship.selected %}selected{% endif %}>
+                                                {{ relationship.label|text }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% if show_manual_labs %}
+                            <tr>
+                                <td>
+                                    {{ 'Number labs'|xlt }}:<br />
+                                    ({{ 'Non-electronic'|xlt }})
+                                </td>
+                                <td>
+                                    <input {{ dis_text|text }} type="text" id="labs_manual_entry" name="labs_manual_entry" class='form-control' value="{{ labs_manual|attr }}">
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </table>
+
+                    </div>
+
+                </td>
+                <td class='h-100' align='left' valign='middle'>
+                    <table class='w-100 h-100' style='border-left:1px solid;'>
+                        <tr>
+                            <td scope="row">
+                                <div class="text-center">
+                                    <div class="btn-group" role="group">
+                                        {% if display_submit %}
+                                            <a href='#' id='submit_button' class='btn btn-secondary btn-save' onclick='runReport();'>{{ 'Submit'|xlt }}</a>
+                                            <span id='status_span'></span>
+                                            <div id='processing' style='margin:10px; display:none;'><img src='../pic/ajax-loader.gif'/></div>
+                                        {% endif %}
+                                        {% if display_pqri_btns %}
+                                        <a href='#' id='xmla_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("false")'>{{ 'Generate PQRI report (Method A) - 2011'|xlt }}</a>
+                                        <a href='#' id='xmlb_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("true")'>{{ 'Generate PQRI report (Method E) - 2011'|xlt}}</a>
+                                        {% endif %}
+                                        {% if display_amc_details %}
+                                        <a class="btn btn-secondary" href="amc_full_report.php?report_id={{ report_id|attr_url }}">{{ 'AMC Detailed Report'|xlt }}</a>
+                                        {% endif %}
+                                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>{{ 'Print'|xlt }}</a>
+                                        {% if display_qrda_btns %}
+                                        <a href='#' id="genQRDA" class='btn btn-secondary btn-transmit' onclick='return downloadQRDA()'>{{ 'Generate QRDA I – 2014'|xlt }}</a>
+                                        <a href='#' id="xmlc_button" class='btn btn-secondary btn-transmit' onclick='return GenXml("QRDA")'>{{ 'Generate QRDA III - 2014'|xlt }}</a>
+                                        {% endif %}
+                                        {% if display_back_link %}
+                                        <a href='report_results.php' class='btn btn-secondary btn-transmit' onclick='top.restoreSession()'>{{ "Return To Report Results"|xlt }}</a>
+                                        {% endif %}
+                                        {% if display_new_report_btn %}
+                                        <a href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'>{{ "Start Another Report"|xlt }}</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+    </div>  <!-- end of search parameters -->
+    <input type='hidden' name='form_new_report_id' id='form_new_report_id' value=''/>
+
+</form>

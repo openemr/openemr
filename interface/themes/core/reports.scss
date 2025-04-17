@@ -1,0 +1,58 @@
+/* styles taken out of templates/report/general_default.html */
+@if $compact-theme == false {
+  #reports_list td,
+  #reports_list a {
+    @include font-size("0.8rem");
+  }
+
+  /*
+* REPORTS
+*/
+
+  #report_parameters {
+    margin-top: 10px;
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+
+      td {
+        padding: 5px;
+      }
+
+      table {
+        @include font-size("0.8rem");
+        border: 0;
+        border-collapse: collapse;
+
+        td.label_custom {
+          text-align: $right;
+        }
+      }
+    }
+  }
+
+  #report_results table {
+    border-collapse: collapse;
+    margin-top: 1px;
+    width: 100%;
+
+    thead {
+      font-weight: bold;
+      text-align: $left;
+    }
+
+    th {
+      padding: 5px;
+    }
+
+    td {
+      padding: 5px;
+    }
+  }
+
+  .report_totals td {
+    background-color: lighten($green, 30%);
+    font-weight: bold;
+  }
+}

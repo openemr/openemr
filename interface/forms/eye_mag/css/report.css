@@ -1,0 +1,1763 @@
+/**
+ * forms/eye_mag/css/report.css
+ *
+ * Style Sheet for reports
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+.pure-form input[type="text"],
+.pure-form input[type="password"],
+.pure-form input[type="email"],
+.pure-form input[type="url"],
+.pure-form input[type="date"],
+.pure-form input[type="month"],
+.pure-form input[type="time"],
+.pure-form input[type="datetime"],
+.pure-form input[type="datetime-local"],
+.pure-form input[type="week"],
+.pure-form input[type="number"],
+.pure-form input[type="search"],
+.pure-form input[type="tel"],
+.pure-form input[type="color"],
+.pure-form select,
+.pure-form textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px #ddd inset;
+  box-sizing: border-box;
+  display: inline-block;
+  padding: 0.2em;
+}
+
+.pure-form label {
+  margin: 0.1em;
+}
+
+.pure-form [disabled] {
+  color: #000 !important;
+}
+
+.pure-form input[type="text"],
+.pure-form input[type="password"],
+.pure-form input[type="email"],
+.pure-form input[type="url"],
+.pure-form input[type="date"],
+.pure-form input[type="month"],
+.pure-form input[type="time"],
+.pure-form input[type="datetime"],
+.pure-form input[type="datetime-local"],
+.pure-form input[type="week"],
+.pure-form input[type="number"],
+.pure-form input[type="search"],
+.pure-form input[type="tel"],
+.pure-form input[type="color"],
+.pure-form select,
+.pure-form textarea {
+  padding: 0.2em !important;
+}
+
+.eye_mag {
+  z-index: 5;
+}
+
+#sddm {
+  z-index: 31;
+}
+
+.fa {
+  cursor: pointer;
+}
+
+.more_visions_1:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.more_visions_2:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.text_clinical {
+  color: #000;
+  font-family: Arial, Arial, sans-serif;
+  text-decoration: none;
+}
+
+.text_clinical a b {
+  color: #000;
+  font-family: Arial, Arial, sans-serif;
+  text-decoration: none;
+}
+
+.text_clinical a:hover {
+  text-decoration: underline;
+}
+
+.text_clinical th {
+  font-size: 1.1em;
+  text-decoration: underline;
+}
+
+.checkbox {
+  height: 15px;
+  width: 15px;
+}
+
+.loading {
+  font-size: 1rem;
+  height: 180px;
+  margin: 0 auto;
+  text-align: center;
+  width: 180px;
+}
+
+.ACT {
+  align-items: center;
+  border: 0;
+  border: 1px solid #000;
+  font-size: 1em;
+  height: 38px;
+  justify-content: center;
+  outline: none;
+  text-align: center;
+  width: 38px;
+}
+
+textarea.ACT {
+  border: 0;
+  font-size: 9px;
+  height: 38px;
+  outline: none;
+  text-align: center;
+  width: 38px;
+}
+
+.input-helper {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+
+.input-helper::before {
+  content: "";
+  display: block;
+  padding-left: 10px;
+  position: relative;
+}
+
+.input-helper--radio {
+  padding-left: 18px;
+}
+
+.input-helper--radio::before {
+  border: 1px solid #222;
+  border-radius: 50%;
+  height: 10px;
+  left: 0;
+  top: 3px;
+  width: 10px;
+}
+
+label {
+  font-size: 1em;
+}
+
+.bigger {
+  font-size: 1.1em;
+}
+
+textarea.HPI_text {
+  height: 40px;
+  max-height: 2in;
+  max-width: 95%;
+  min-width: 95%;
+  overflow: auto;
+}
+
+.HPI2_text {
+  font-size: 0.8em;
+  vertical-align: text-top;
+}
+
+.QP_class textarea {
+  height: 3em;
+  margin-bottom: 2px;
+  margin-left: 5px;
+  max-width: 95%;
+  overflow: auto;
+  width: 95%;
+}
+
+.HPI_text i {
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+textarea.full {
+  height: 20px;
+}
+
+.LayerTechnical {
+  border: 1pt solid #000;
+  height: 1.05in;
+  padding: 0.02in;
+  width: 1.5in;
+}
+
+.input-helper--checkbox.boxed::before {
+  border: 0 solid #808080;
+  height: 18px;
+  left: 0;
+  width: 18px;
+}
+
+input[type="radio"].hidden {
+  display: none;
+}
+
+input[type="checkbox"].hidden {
+  display: none;
+}
+
+input[type="checkbox"].hidden:checked + label::before {
+  background: #222;
+}
+
+input[type="text"] {
+  display: inline-block;
+  height: 20px;
+  padding: 0.2em 0.4em;
+  text-align: center;
+  width: 45px;
+}
+
+/* REFRACTION PANEL */
+.refraction_panel {
+  display: none;
+  height: auto;
+  width: 95%;
+}
+
+.refraction2 {
+  background: #fff;
+  border: 1pt solid;
+  border-radius: 8px;
+  box-shadow: 10px 10px 50px #888;
+  float: left;
+  font-size: 0.6rem;
+  margin-right: 4px;
+  padding: 0.1in;
+}
+
+.refraction2 input[type="text"] {
+  display: inline-block;
+  padding: 0.2rem 0.4rem;
+  width: 20px;
+}
+
+.refraction {
+  border: 1pt solid #000;
+  border-radius: 8px;
+  box-shadow: 10px 10px 5px #888;
+  box-sizing: content-box !important;
+  display: inline-block;
+  font-family: Arial, Arial, sans-serif;
+  font-size: 1.2em;
+  margin: 8px auto;
+  min-height: 2.2in;
+  padding: 0.2in;
+  width: 4.3in;
+}
+
+.refraction td {
+  font-size: 0.9em;
+  padding: 3px;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 0.35in;
+}
+
+.refraction th {
+  color: #000;
+  height: 0.17in;
+  padding: 5px 0 2px;
+  text-align: left;
+}
+
+.refraction ul {
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.refraction li {
+  float: left;
+}
+
+input[type="text"].refraction {
+  display: inline-block;
+  padding: 0.2em 0.4em;
+  text-align: right;
+  width: 150px;
+}
+
+.refraction b {
+  font-weight: 600;
+}
+
+.Guidance {
+  background-color: #c3a0d0;
+  border: 1pt solid;
+}
+
+.up td {
+  vertical-align: text-top;
+}
+
+.title {
+  font-size: 1em;
+  font-weight: 600;
+  padding-right: 5px;
+  text-align: right;
+}
+
+.title_report {
+  position: absolute;
+  right: 10px;
+  top: 20px;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+/*Drop downs stuff */
+
+.dropdowns {
+  background-color: var(--danger);
+  position: relative;
+}
+
+.section {
+  display: table-cell;
+  margin: 0 auto 10px;
+  padding: 0;
+}
+
+.LayerVision2 {
+  background: #c0c0c0;
+  border: 1pt solid #000;
+  float: left;
+  margin-right: 4px;
+}
+
+.refraction td.right {
+  text-align: right;
+  text-decoration: none;
+  vertical-align: text-top;
+  width: 0.7in;
+}
+
+.WSPACER {
+  height: 0.3in;
+}
+
+.WProgShow {
+  display: none;
+}
+
+.vitals {
+  background: #fff;
+  border: 1pt solid #000;
+  border-radius: 8px;
+  box-shadow: 1px 10px 5px #888;
+  float: left;
+  font-family: Arial, Serif;
+  font-size: 1.2em;
+  height: 1.05in;
+  margin-right: 3px;
+  padding: 0.02in;
+  position: relative;
+}
+
+.vitals_right {
+  float: right;
+  margin-right: 3px;
+}
+
+.vitals tr td input {
+  display: inline-block;
+  padding: 0.2em 0.4em;
+}
+
+#divId {
+  background: url('images/Amsler_2.jpg') no-repeat;
+  box-sizing: border-box;
+  display: block;
+  height: 236px; /* Height of new image */
+  padding-left: 180px; /* Equal to width of new image */
+  width: 180px; /* Width of new image */
+}
+/* All in one selector */
+/*
+#AmslerOD {
+ /*
+    value:1;
+}
+*/
+
+.HPI {
+  padding: 40px;
+  text-align: center;
+  width: 85%;
+}
+
+.TEXT_class {
+  text-align: center;
+}
+
+.borderShadow {
+  background: #fff;
+  border: 1pt solid #000;
+  border-radius: 8px;
+  box-shadow: 5px 5px 9px #888;
+  font-family: Arial, Serif;
+  margin-right: 4px;
+  padding: 6px;
+  position: relative;
+  text-align: left;
+  vertical-align: top;
+  width: 720px;
+}
+
+.borderShadow2 {
+  box-shadow: 1px 1px 1px #888;
+}
+
+.current_W {
+  background-color: #e8eef6;
+}
+
+.current_W input,
+.current_W textarea {
+  background-color: #fff !important;
+}
+
+.manifest {
+  background-color: #fff;
+}
+
+.CTL {
+  background-color: #fff;
+}
+
+th {
+  color: #000;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.QP_not {
+  display: none;
+}
+
+/* This CSS is used ONLY by the form defined in this same folder
+ * customize it as you see fit for your specific form
+ */
+
+body {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  /* padding-left:5px; //Or whatever value you would like
+     padding-right:5px; //Same ^
+     */
+  text-align: center;
+  width: 100%;
+}
+
+#form_container {
+  border: 0 solid var(--danger);
+  margin: 20px auto 0;
+  padding: 0;
+  position: relative;
+}
+
+/* Refraction Panel Defaults */
+#Layer1 {
+  border: 0 solid var(--danger);
+  margin: 20px auto 0;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+
+.nodisplay {
+  display: none !important;
+}
+
+.clear_both {
+  clear: both;
+}
+
+.float_left {
+  float: left;
+  padding-left: 5px;
+}
+
+.SideBarTabClass {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 1px 1px 1px #888;
+  height: 0.5in;
+  left: 0;
+  top: 0.01in;
+  width: 2.2in;
+}
+
+.exam_section_left {
+  float: left;
+  margin: 5px auto;
+  min-height: 375px;
+  padding: 10px;
+  top: 0;
+  width: 463px;
+}
+
+.size100 {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.size50 {
+  display: inline-block;
+  min-height: 375px;
+  vertical-align: top;
+}
+
+.exam_section_right {
+  float: left;
+  margin: 5px auto;
+  min-height: 375px;
+  padding: 10px;
+  top: 0;
+  width: 463px;
+}
+
+textarea.EXTTEXT {
+  font-size: 1em;
+  height: 0.4in;
+  max-height: 0.5in;
+  max-width: 1in;
+  /*narrow_textarea*/
+  width: 1in;
+}
+
+textarea.ANTSEGTEXT {
+  height: 40px;
+  max-height: 10em;
+  width: 2in;
+}
+
+.left {
+  text-align: left;
+}
+
+.button {
+  background-color: #e3e1b8;
+  color: #050;
+  font: bold 84% Arial, "trebuchet ms", helvetica, sans-serif;
+  padding: 2px 4px;
+  text-decoration: none;
+}
+
+#tab {
+  width: 800px;
+}
+
+#tabs_container {
+  border-bottom: 0;
+}
+
+#tabs {
+  list-style: none;
+  margin: 0 0 0 10px;
+}
+
+#tabs li {
+  display: inline;
+}
+
+#tabs li a {
+  background-color: #cc9;
+  border: 2px solid #ccc;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  border-top-left-radius: 5px;
+  box-shadow: 0 5px 9px #888;
+  color: #000;
+  font-size: 1.7em;
+  outline: none;
+  padding: 4px 6px;
+  text-decoration: none;
+}
+
+#tabs li a:hover {
+  background-color: #ddd;
+  color: #000080;
+}
+
+#tabs li.active a {
+  background-color: #fff;
+  border-bottom: 0;
+  color: #000080;
+  padding: 4px 6px 5px;
+}
+
+#tabs li.active a:hover {
+  background-color: #eee;
+  border-bottom: 0;
+}
+
+#tabs li a.icon_accept {
+  background-image: url('accept.png');
+  background-position: 5px;
+  background-repeat: no-repeat;
+  padding-left: 24px;
+}
+
+#tabs li a.icon_accept:hover {
+  padding-left: 24px;
+}
+
+#tabs_content_container {
+  border-top: 0.5pt;
+  padding: 10px;
+  width: 99%;
+}
+
+.button-success {
+  background: rgb(240, 240, 0); /* this is a green */
+  border-radius: 45px;
+  box-shadow: 2px 2px 2px #888;
+}
+
+.button_over {
+  background-color: var(--danger);
+}
+
+.buttonRefraction_selected {
+  background-color: var(--warning) !important;
+  border: #000;
+}
+
+.tools input[type="button"] {
+  border: 1px solid #000;
+  color: #000;
+  display: inline-block;
+  font-weight: bold;
+  height: 15px;
+  line-height: 15px;
+  padding: 0 5px;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 10px;
+}
+
+.tools {
+  border: 0 solid #000;
+  color: #000;
+  font-weight: bold;
+  height: 50px;
+  line-height: 30px;
+  margin-bottom: -3px;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 50px;
+}
+
+.transparent {
+  z-index: 10;
+}
+
+/* DEPRECATED */
+.bold {
+  font-weight: bold;
+}
+
+/* DEPRECATED */
+.underline {
+  text-decoration: underline;
+}
+
+#tabs {
+  font-size: 0.55em;
+  line-height: normal;
+  margin: 0 auto;
+  width: 95%;
+}
+
+#tabs ul {
+  float: right;
+  list-style: none;
+  margin: 0;
+  padding: 4px 2px 0 5px;
+}
+
+/* End IE5-Mac hack */
+#tabs li:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* CSS for QP_buttons */
+.eye_button {
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0.6, #f6f9ed), color-stop(0.6, #f6f9ed));
+  background-color: #3d94f6;
+  border: #000;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 0 #97c4fe;
+  color: #000;
+  display: inline-block;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  height: 18px;
+  line-height: 12px;
+  margin: 2px auto;
+  max-height: 18px;
+  min-width: 35px;
+  padding: 0.03in 0.03in 0.04in;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+}
+
+.eye_button_blank {
+  border: #fff;
+  color: #000;
+  display: inline-block;
+  font-weight: 700;
+  height: 12px;
+  line-height: 18px;
+  min-width: 25px;
+  padding: 0.1in;
+  text-decoration: none;
+}
+
+.eye_button:hover {
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
+  background-color: #1e62d0;
+  color: #fff;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
+}
+
+.eye_button:active {
+  background: -webkit-gradient(linear,
+  left top,
+  left bottom,
+  color-stop(0.05, #1e62d0),
+  color-stop(1, #3d94f6));
+  background-color: #1e62d0;
+  color: #fff;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
+  position: relative;
+  top: 1px;
+}
+
+.eye_button_selected {
+  background: -webkit-gradient(linear,
+  left top,
+  left bottom,
+  color-stop(0.05, #000080),
+  color-stop(1, #3d94f6));
+  border: 1px solid #fff;
+  border-radius: 2px;
+  border-top-left-radius: 3px;
+  box-shadow: inset 0 1px 0 0 #97c4fe;
+  color: #fff;
+  display: inline-block;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
+  font-family: Arial, Serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 12px;
+  margin: 2px auto;
+  max-height: 18px;
+  min-width: 35px;
+  padding: 0.03in;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+}
+
+.divTable {
+  border: 0 solid var(--danger);
+  border-spacing: 0;
+  cursor: pointer;
+  float: left;
+  /*background-image: url('../../forms/eye_mag/images/cross.png');
+     */
+  height: 100%;
+  padding: 10px 0 0 5px;
+  position: relative;
+  width: 100%;
+
+  /*cellspacing:poor IE support for  this*/
+  /* border-collapse:separate;*/
+}
+
+.divRow {
+  border-collapse: collapse;
+  display: table;
+  height: 0.75%;
+  width: 0.8in;
+}
+
+.divMiddleRow {
+  border-collapse: collapse;
+  display: table-row;
+  font-weight: 900;
+}
+
+.divMidCell {
+  border-collapse: collapse;
+  border-top: 3px solid;
+  float: left;
+  /* display:table-column; */
+  text-align: center; /*fix for  buggy browsers*/
+}
+
+.divCell {
+  border-collapse: collapse;
+  color: #000;
+  display: table-column;
+  float: left;
+  font-weight: 900;
+  height: 5.1px;
+  padding: 0;
+  text-align: center;
+  width: 5.1px; /*fix for  buggy browsers*/
+}
+
+.top_right {
+  font-size: 1.4em;
+  position: absolute;
+  right: 0.1in;
+  text-align: right;
+  top: 0.05in;
+  vertical-align: top;
+}
+
+.red {
+  text-decoration: underline;
+}
+
+.ident {
+  font-size: 0.8em;
+  padding: 0;
+  text-align: center;
+}
+
+.kb_left {
+  bottom: 0;
+  color: var(--danger);
+  float: left;
+  font-size: 0.7em;
+  left: 0;
+  padding: 0;
+  position: relative;
+  text-align: left;
+  vertical-align: bottom;
+}
+
+.kb_right {
+  bottom: 0;
+  color: var(--danger);
+  float: right;
+  font-size: 0.7em;
+  position: relative;
+  right: 0;
+  text-align: right;
+  vertical-align: bottom;
+}
+
+.kb_center {
+  color: var(--danger);
+  font-size: 0.7em;
+  position: relative;
+  vertical-align: top;
+}
+
+.yellow {
+  background-color: var(--warning);
+}
+
+textarea.EXTTEXT {
+  height: 0.42in;
+  max-height: 0.42in;
+  max-width: 1in;
+  width: 1in;
+}
+
+.wide_textarea {
+  left: 0.1in;
+  margin: auto;
+  padding: 15px;
+  position: absolute;
+  text-align: center;
+  top: 0.4in;
+  width: 96%;
+}
+
+.wide_textarea textarea {
+  font-size: 0.9em;
+  height: 0.44in;
+  max-height: 0.44in;
+  max-width: 1.8in;
+  width: 1.8in;
+}
+
+.wide_textarea th {
+  text-align: center;
+}
+
+.Clinical_header {
+  width: 100%;
+}
+
+.narrow_textarea th {
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.narrow_textarea {
+  left: 0.1in;
+  padding: 15px 10px 15px 5px;
+  position: absolute;
+  top: 0.4in;
+  width: 2.6in;
+}
+
+.narrow_textarea textarea {
+  font-size: 0.8em;
+  height: 0.44in;
+  max-height: 0.44in;
+  max-width: 1in;
+  width: 1in;
+}
+
+.closeButton2 {
+  display: inline-block;
+  position: absolute;
+  right: 24px;
+  top: 8px;
+}
+
+.closeButton3 {
+  display: inline-block;
+  position: absolute;
+  right: 44px;
+  top: 8px;
+}
+
+.closeButton {
+  display: inline-block;
+  float: right;
+  padding-left: 10px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.closeButton:hover {
+  border: 0 solid #808080;
+  color: #808080;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.closeButton:hover a {
+  color: #000;
+  text-decoration: none;
+}
+
+.closeButton a:link {
+  color: #000;
+  outline: none;
+}
+
+.closeButton_2 {
+  display: inline-block;
+  float: right;
+  font-size: 12px;
+  padding-left: 10px;
+  position: absolute;
+  right: 30px;
+  top: 8px;
+}
+
+.closeButton_2:hover {
+  border: 0 solid #808080;
+  color: #808080;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.closeButton_3 {
+  display: inline-block;
+  float: right;
+  font-size: 12px;
+  padding-left: 10px;
+  position: absolute;
+  right: 52px;
+  top: 8px;
+}
+
+.closeButton_3:hover {
+  border: 0 solid #808080;
+  color: #808080;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.closeButton_4 {
+  display: inline-block;
+  float: right;
+  font-size: 12px;
+  padding-left: 10px;
+  position: absolute;
+  right: 74px;
+  top: 8px;
+}
+
+.closeButton_4:hover {
+  border: 0 solid #808080;
+  color: #808080;
+  cursor: pointer;
+  text-decoration: none;
+}
+/* testing out the tabs header stuff for ACT */
+#header ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#header li {
+  background: url('../../forms/eye_mag/images/tabright.gif') top right no-repeat;
+  float: left;
+  margin: 0;
+}
+
+#header a {
+  background: url('../../forms/eye_mag/images/tableft.gif') top left no-repeat;
+  color: #ffc;
+  display: block;
+  padding: 0.6em 1em 0.25em;
+  text-decoration: none;
+}
+
+#header a:hover {
+  color: #fff;
+}
+
+#header #selected {
+  background-image: url('images/tabrightactive.gif');
+  font-weight: bold;
+}
+
+#header #selected a {
+  background-image: url('images/tableftactive.gif');
+  color: #fff;
+}
+
+#content {
+  background: #c60;
+  clear: both;
+  padding: 1em;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+h1 {
+  background: none repeat scroll 0% 0% transparent;
+  border-bottom: 2px solid;
+  border-color: #89a9c7;
+  color: #1775d5;
+  font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif;
+  letter-spacing: 0.1em;
+  margin: 0 0 2px;
+  padding: 6px 0 4px;
+  text-align: right;
+}
+
+/* done testing ACT header tabs */
+/* ACT_TEXT test */
+.ACT_TEXT {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.ACT_selected {
+  background-color: #fff;
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-top: 1px solid #000;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  box-shadow: 1px -1px 1px 0 #888;
+  color: #000;
+  font-size: 1.1rem;
+  height: 25px;
+  margin: 5px 0 0;
+}
+
+.ACT_deselected {
+  background-color: #2d6775;
+  border-bottom: 1px solid #000;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  color: #fff;
+  font-size: 1rem;
+  height: 25px;
+  margin: 5px;
+}
+
+.ACT_box {
+  border-bottom: 1px solid #000;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-top: 0;
+  box-shadow: 1px 5px 5px 0 #888;
+  padding: 10px;
+  position: relative;
+  z-index: 10;
+}
+
+b.ACT_box {
+  font-size: 0.7em;
+}
+
+/* do some full screen playing around */
+.fullscreen {
+  background-color: #fff;
+  bottom: 0;
+  box-sizing: border-box;
+  font-size: 2em;
+  height: 100%;
+  left: 0;
+  margin: 0;
+  object-fit: contain;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+input[type="text"].fullscreen {
+  font-size: 0.8em;
+  height: 150px;
+  text-indent: 0;
+  vertical-align: top;
+  width: 150px;
+}
+
+.top_left {
+  background-color: #fff;
+  border: 0;
+  color: #000;
+  font-family: Arial, sans-serif;
+  font-size: 1em;
+  height: 1.2em;
+  left: 0.05in;
+  padding-bottom: 2px;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  position: absolute;
+  text-align: left;
+  top: 0.05in;
+  vertical-align: bottom;
+}
+
+.QP_block_outer {
+  background-color: #fff;
+  float: left;
+  font-size: 1em;
+  margin: 3px auto;
+  padding: 5px 8px;
+  text-align: left;
+  /*  height:2.5in; */
+  width: 1.97in;
+}
+
+.QP_block {
+  background-color: #fff;
+  float: left;
+  font-size: 1em;
+  margin: 3px auto;
+  padding: 5px 8px;
+  text-align: left;
+  /*   height:2.4in; */
+  width: 1.97in;
+}
+
+.QP {
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.rotate-left {
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  transform: rotate(-90deg);
+}
+
+.rotate-right {
+  transform: rotate(+90deg);
+}
+
+.little_image {
+  height: 20px;
+  width: 20px;
+}
+
+.PRIORS_color {
+  background-color: #ccf;
+}
+
+.PRIORS textarea,
+input {
+  background-color: #ccf;
+  color: #000;
+}
+
+.PRIORS a {
+  text-decoration: none;
+}
+
+.Draw_class {
+  padding: 2px;
+}
+
+.navbar-custom {
+  background-color: #1d62f0;
+  color: #000;
+}
+
+.navbar-custom,
+.navbar-nav > li > li:focus {
+  background-color: #3e76c2;
+  border-radius: 0;
+  color: #fff;
+  top: 0;
+}
+
+.navbar-custom {
+  color: #000; /* just changes the base font color */
+  margin: 0;
+  padding: 6px 10px 4px;
+}
+
+.navbar-nav > li > a {
+  color: #000; /* just changes the base font color */
+  padding: 6px 10px 4px;
+}
+
+.nav > li > a:focus,
+.nav > li:focus {
+  background-color: #1c5ecf; /* this is the "hover" blue */
+  color: #fff; /*#33aa33; <--- this is kelly green */
+  text-decoration: none;
+}
+
+.navbar-custom,
+.navbar-nav,
+.nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
+  background-color: #c9dbf2; /* Mac Menu title bar background color */
+  color: #fff;
+}
+
+.dropdown {
+  list-style: none;
+}
+
+.dropdown-menu {
+  background-color: #dee9f7; /* Mac Menu dropdown bar background color */
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #1c5ecf; /*#3E76C2;*/
+  color: #fff; /*#262626;*/
+  text-decoration: none;
+}
+
+.navbar-brand {
+  color: var(--danger);
+  height: 24px;
+  margin: 10px 0 2px;
+  padding: 10px 5px 0 10px;
+}
+
+.navbar-nav > li > .dropdown-menu {
+  margin-top: 2px;
+}
+
+.dropdown-menu .divider {
+  background-color: #c0c0c0; /*gba(131, 135, 146, 0.61);*/
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+}
+
+a:hover,
+a:focus {
+  text-decoration: none;
+}
+
+.icon-bar {
+  background-color: #c0c0c0; /* this turns the small screen menu "button" 's lines this color */
+}
+
+.anchor {
+  /* This creates anchors for the menu system that are offset for the fixed header.
+     * The fields/anchors are added as blank elements (sorry) in view.php
+     */
+  display: block;
+  height: 20px; /*same height as header*/
+  margin-top: -20px; /*same height as header*/
+  visibility: hidden;
+}
+
+.sketch_tools {
+  height: 65px;
+  width: 20px;
+}
+
+.sketch_tools:active {
+  color: var(--danger);
+  height: 100px;
+}
+
+#sddm div {
+  z-index: 100;
+}
+
+.panel_side {
+  background-color: #f5f5dc;
+  box-shadow: inset 0 0 0 1px #808080;
+  color: #000;
+  display: none;
+  font-size: 1em;
+  overflow: auto;
+  padding: 10px;
+  width: 140px;
+}
+
+.panel_title {
+  font-size: 1.1em;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.bottom_PMSFH_tab {
+  bottom: 0;
+  color: #000;
+  filter: progid:DXImageTransform.Microsoft.Glow(Color=#000, Strength=1); /* IE<10 */
+  position: absolute;
+  right: 10px;
+  text-shadow: 0 0 2px #000; /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
+}
+
+.bottom_PMSFH_tab img {
+  border-radius: 8px 0 0 8px;
+  height: 60px;
+  width: 20px;
+}
+
+.left_PMSFH_tab {
+  border-radius: 0 0 0 8px;
+  position: absolute;
+  right: 0;
+  top: 100px;
+}
+
+.left_PMSFH_tab img {
+  border-radius: 8px 0 0 8px;
+  height: 60px;
+  width: 20px;
+}
+
+.left_menu_tab {
+  background: #000080;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px #ddd inset;
+  display: block;
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  float: left;
+  font-size: 1.2em;
+  padding: 3px;
+  position: absolute;
+  transform: rotate(90deg);
+  z-index: 99;
+}
+
+.left_menu_tab a {
+  color: #fff !important;
+  font-size: 1em;
+}
+
+.QP_shorten {
+  bottom: 0.1in;
+  clear: both;
+  padding-left: 25px;
+  position: absolute;
+  text-align: left;
+}
+
+.QP_lengthen {
+  bottom: 0.1in;
+  clear: both;
+  padding-left: 25px;
+  position: absolute;
+  text-align: left;
+}
+
+.QP_shorten textarea {
+  height: 3em;
+  width: 2in;
+}
+
+.QP_lengthen textarea {
+  height: 3em;
+  width: 4in;
+}
+
+.top-right {
+  position: absolute;
+  right: 4px;
+}
+
+.z100 {
+  z-index: 100;
+}
+
+.z10 {
+  z-index: 10;
+}
+
+#EXAM_KB {
+  display: block;
+  left: 0;
+  position: fixed;
+  text-align: center;
+  top: 35px;
+  z-index: 1000000;
+}
+
+#stickyalias {
+  display: none;
+  height: 10px;
+}
+
+#unstickyheader {
+  margin-bottom: 150px;
+}
+
+.menu_icon {
+  position: absolute;
+  right: 15px;
+}
+
+.ui-draggable-dragging {
+  box-shadow: 5px 5px 9px var(--danger);
+}
+
+.build_PLAN li:hover {
+  background: var(--warning);
+}
+
+.building_blocks {
+  font-size: 1em;
+}
+
+.building_blocks dt,
+dd {
+  font-size: 0.9em;
+}
+
+.building_blocks dt,
+dd:last-of-type {
+  border: 1px solid #000;
+}
+
+.IMPPLAN_class {
+  width: 95%;
+}
+
+.ICD_CODE {
+  min-width: 1in;
+  padding: 5px 5px 5px 10px;
+  text-align: left;
+}
+
+.custom-combobox {
+  display: inline-block;
+  position: relative;
+}
+
+.custom-combobox-toggle {
+  bottom: 0;
+  margin-left: -1px;
+  padding: 0;
+  position: absolute;
+  top: 0;
+}
+
+.custom-combobox-input {
+  margin: 0;
+  padding: 5px 10px;
+}
+
+.build_PLAN ol {
+  margin: 0;
+  padding: 0;
+  width: 300px;
+}
+
+.build_PLAN li {
+  background: #eee;
+  border: 0 solid #808080;
+  margin: 1em;
+  padding: 0.5em;
+  padding-left: 42px;
+  position: relative;
+}
+
+li .handle {
+  display: inline-block;
+  padding: 0.4em;
+}
+
+.ui-selecting {
+  background: var(--warning);
+}
+
+.build_PLAN .ui-selecting .handle {
+  background: var(--danger);
+}
+
+.ui-selected {
+  background: #def;
+  font-size: 0.9em;
+  margin: 5px;
+}
+
+.fake-textarea-disabled-4 {
+  background-color: #eaeded;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px #ddd inset;
+  box-sizing: border-box;
+  color: #000 !important;
+  cursor: not-allowed;
+  display: inline-block;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin-left: 0;
+  min-height: 3em;
+  padding: 0.2em;
+  vertical-align: top;
+  width: 4in;
+}
+
+h2 {
+  font-size: 1.3em;
+}
+
+.title {
+  font-size: 1em;
+  position: absolute;
+  right: 10px;
+  top: 30px;
+}
+
+.refraction_panel {
+  display: none;
+  height: auto;
+  width: 95%;
+}
+
+.refraction_report {
+  border: 1pt solid #000;
+  display: inline-block;
+  float: left;
+  font-size: 1em;
+  margin: 4px;
+  padding: 0.1in;
+}
+
+.refraction td {
+  font-size: 0.9em;
+  padding: 3px;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 0.35in;
+}
+
+.refraction_report th {
+  color: #000;
+  font-size: 1em;
+  padding: 5px 0 2px;
+  text-align: left;
+}
+
+.refraction_report ul {
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.refraction li {
+  float: left;
+}
+
+input[type="text"] {
+  display: inline-block;
+  font-size: 0.7em;
+  padding: 0.2em 0.4em;
+  text-align: center;
+  width: 60px;
+}
+
+.refraction_report b {
+  font-weight: bold;
+}
+
+.report_text {
+  flex-wrap: wrap;
+  padding: 2px 10px;
+  width: 150px;
+}
+
+.right {
+  text-align: right;
+}
+
+.left {
+  text-align: left;
+}
+
+.label {
+  border-radius: 0;
+  color: #000;
+}
+
+.middle {
+  font-weight: bold;
+  text-align: center;
+}
+
+.body2 {
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.text {
+  font-family: Arial;
+}
+
+#report_custom .encounter_form {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.refraction_tables {
+  font-size: 0.9em;
+}
+
+.refraction_tables td {
+  padding-right: 5px;
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+}
+
+.panel_title {
+  font-weight: bold;
+}
+
+.show_report {
+  padding-left: 14px;
+  padding-right: 4px;
+  text-align: left;
+}
+
+.body2 {
+  padding-left: 105px;
+}
+
+.ACT {
+  height: 58px;
+  width: 58px;
+}
+
+.report_vitals {
+  border-right: 1pt #000 solid;
+  float: left;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+  min-height: 0.8in;
+  padding-left: 2px;
+  padding-right: 2px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.report_exam_group {
+  font-size: 11px;
+  max-width: 450px;
+  text-align: center;
+}
+
+.report_section {
+  font-size: 11px;
+  margin: 0 auto;
+  padding: 5px;
+  text-align: center;
+}
+
+form_header span {
+  color: #000;
+  display: unset;
+}

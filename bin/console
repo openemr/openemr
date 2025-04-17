@@ -1,0 +1,33 @@
+#!/usr/bin/php
+<?php
+
+/**
+ * bin/console
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Brady Miller <Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+if (php_sapi_name() !== 'cli') {
+    echo "Only php cli can execute a command\n";
+    die();
+}
+
+$siteDefault = 'default';
+foreach ($argv as $arg) {
+    if (str_contains($arg, "--site=")) {
+        $siteDefault = explode("=", $arg)[1];
+    }
+}
+$_GET['site'] = $siteDefault;
+
+$ignoreAuth = true;
+// Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
+$sessionAllowWrite = true;
+require_once __DIR__ . '/../interface/globals.php';
+
+$commandRunner = new \OpenEMR\Common\Command\SymfonyCommandRunner();
+$commandRunner->run();

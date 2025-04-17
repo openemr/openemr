@@ -1,0 +1,384 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Installer/view/installer/installer/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Vipin Kumar <vipink@zhservices.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// Control access
+if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
+echo $this->headScript()->appendFile(
+    $this->basePath() . '/js/installer/action.js?v=' . $GLOBALS['v_js_includes'],
+    'text/javascript'
+);
+$listener = $this->listenerObject;
+$baseModuleDir = $GLOBALS['baseModDir'];
+$customDir = $GLOBALS['customModDir'];
+$zendModDir = $GLOBALS['zendModDir'];
+
+$depObj = $this->dependencyObject;
+$coreModules = $this->coreModules ?? [];
+
+$help_items = [
+    xlt('') . '<a  class="text-dark" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank">' . xlt("Visit additional modules for OpenEMR developed and listed by third party vendors.") . '</a>',
+    xlt('Laminas Modules are the original modules framework.'),
+    xlt('Custom Modules were added to allow developers more freedom by using other development frameworks.'),
+    xlt('The "Nick Name" is used to identify the module in the menu and not required.'),
+    xlt('The "Type" column indicates the module framework.'),
+    xlt('The "Dependency Modules" column indicates the modules that this module depends on.'),
+    xlt('The "Action" column allows you to install, enable, disable, and unregister modules.'),
+    xlt('The "Configuration" column allows you to configure and unregister modules.'),
+    xlt('The "Install SQL" and "Upgrade SQL" buttons allow you to install and upgrade the SQL for the module. Only appears if needed'),
+    xlt('The "Trash can icon" button allows you to uninstall the module.'),
+    xlt('Clicking the Registered icon will unregister and then register the module. Basically like starting over.'),
+    xlt('The "Configure cog icon" button allows you to configure the module. Clicking will show a configure settings panel if available.'),
+    xlt('The "Install" button allows you to install the module.'),
+    xlt('The "Enable" button allows you to enable the module.'),
+    xlt('The "Disable" button allows you to disable the module.'),
+    xlt('To install, select the module of choice and click the "Install" button. After installation click the config cog icon to check if required settings are needed to enable module.'),
+    xlt('To enable or disable a module, select the module and click the "Enable" or "Disable" button.'),
+];
+?>
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif !important;
+  }
+
+  table {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .fa-1x {
+    font-size: 1.25rem;
+  }
+
+  .fa-2x {
+    font-size: 1.25rem;
+  }
+
+  /* installer log for upgrades maybe? Appears broken! */
+  .show_hide_log {
+    border-radius: 5px;
+    border: 1px solid #c9c6c6;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    margin: 5px 5px 0 0;
+    color: gray;
+    width: 97%;
+  }
+
+  .spoiler {
+    display: none;
+    margin-left: 10px;
+    border: 1px solid #c9c6c6;
+    padding: 5px;
+    width: 95%;
+    border-top: 0;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, .8) url('/interface/modules/zend_modules/public/images/ajax-loader.gif') 50% 50% no-repeat;
+  }
+</style>
+<script>
+    function toggleHelp() {
+        const helpContent = document.getElementById('helpContent');
+        if (helpContent.classList.contains('d-none')) {
+            helpContent.classList.remove('d-none');
+        } else {
+            helpContent.classList.add('d-none');
+        }
+    }
+</script>
+<div class="installer bg-light text-dark">
+    <div class="bg-light text-dark text-center" id="helpPanel">
+        <button class="btn btn-outline-primary btn-sm btn-show my-2" type="button" onclick="toggleHelp()"><?php echo xlt('Modules Help'); ?></button>
+        <a class="btn btn-outline-info btn-sm btn-show bg-light text-dark my-2" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('Visit Third Party Modules Wiki'); ?></a>
+        <div class="help-content bg-light text-dark text-left d-none" id="helpContent">
+            <ul style="font-size: 1.0rem;">
+                <?php
+                echo '';
+                foreach ($help_items as $item) {
+                    echo '<li class="text-dark">' . $item . '</li>' . "\n";
+                }
+                echo '';
+                ?>
+            </ul>
+            <button class="btn btn-sm btn-outline-primary float-right mb-2" type="button" onclick="toggleHelp()"><?php echo xlt('Dismiss'); ?></button>
+        </div>
+    </div>
+    <div class="text-center"><span class="h3"><?php echo $listener->z_xlt('Custom Module Listings'); ?></span></div>
+    <div id='err' class='bold'></div>
+    <div class="imagetable">
+        <div class="modal"></div>
+        <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
+        <div class="imagetable_code notranslate table-responsive">
+            <!-- Start Custom Module Listing -->
+            <table id="table-6" class="table table-light table-hover table-condensed">
+                <thead>
+                <tr style="font-size: 16px;">
+                    <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Release'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
+                    <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Configuration'); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                /* Lamina's and Custom modules directory Unregistered scan
+                 * moved to InstallerController auto register.
+                 * */
+                /******** Custom Module List Creation ********/
+                $count = 0;
+                if (sizeof($InstallersAll) > 0) {
+                    foreach ($InstallersAll as $moduleResult) {
+                        if ($moduleResult->modName == 'Acl') {
+                            continue;
+                        }
+                        if ($moduleResult->type == 1) {
+                            continue;
+                        }
+                        $count++;
+                        ?>
+                        <tr id="<?php echo $this->escapeHtml($moduleResult->modId); ?>">
+                            <td><?php echo $this->escapeHtml($count); ?></td>
+                            <td class="text-success"><strong><?php echo $this->escapeHtml($moduleResult->modName); ?></strong></td>
+                            <td><?php echo $this->escapeHtml($moduleResult->sql_version ?: '0.0.0'); ?></td>
+                            <td>
+                                <?php
+                                if ($moduleResult->sqlRun == 0) {
+                                    ?>
+                                    <?php echo $listener->z_xlt('Registered'); ?>
+                                    <?php
+                                } elseif ($moduleResult->modActive == 1) { ?>
+                                    <?php echo $listener->z_xlt('Active'); ?>
+                                <?php } else {
+                                    ?>
+                                    <?php echo $listener->z_xlt('Inactive'); ?>
+                                    <?php
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml($moduleResult->modUiName); ?>
+                            </td>
+                            <td>
+                                <?php
+                                if ($moduleResult->sqlRun == 0) { ?>
+                                    <input type="text" onchange="validateNickName('<?php echo $this->escapeHtml($moduleResult->modId); ?>');" name="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" id="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" value="">
+                                    <div class="mod_nick_name_message" id="mod_nick_name_message_<?php echo $this->escapeHtml($moduleResult->modId); ?>"></div>
+                                    <?php
+                                } else {
+                                    echo $this->escapeHtml($moduleResult->modnickname);
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml(($moduleResult->type == 1) ? "Laminas" : "Custom"); ?>
+                            </td>
+                            <td>
+                                <?php
+                                $depStr = $depObj->getDependencyModules($moduleResult->modId);
+                                echo ($depStr <> "") ? $listener->z_xlt($depStr) : "--";
+                                ?>
+                            </td>
+                            <td>
+                                <?php if ($moduleResult->sqlRun == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
+                                <?php } elseif ($moduleResult->modActive == 1 && $moduleResult->modUiActive == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
+                                <?php } elseif ($moduleResult->modName != 'Acl') { ?>
+                                    <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
+                                <?php } ?>
+                                <?php if ($moduleResult->sql_action == "install") { ?>
+                                    <a href="javascript:void(0)" class="link_submit install_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_sql');" title="<?php echo $listener->z_xla('Click Here to Install SQL for module'); ?>"><input type='button' value="<?php echo $listener->z_xla('Install SQL'); ?>" /></a>
+                                <?php } elseif ($moduleResult->sql_action == "upgrade") { ?>
+                                    <a href="javascript:void(0)" class="link_submit upgrade_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_sql');" title="<?php echo $listener->z_xla('Click Here to Upgrade SQL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade SQL'); ?>" /></a>
+                                <?php } ?>
+                                <?php if ($moduleResult->acl_action == "install") { ?>
+                                    <a href="javascript:void(0)" class="link_submit install_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_acl');" title="<?php echo $listener->z_xla('Click Here to Install ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Install ACL'); ?>" /></a>
+                                <?php } elseif ($moduleResult->acl_action == "upgrade") { ?>
+                                    <a href="javascript:void(0)" class="link_submit upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL'); ?>" /></a>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','help_requested');" title="<?php echo $listener->z_xla('If module has a help, clicking here will show it.'); ?>"><i class="fa fa-question-circle text-primary fa-1x" aria-hidden="true"></i></a>
+                                <!-- We should be able to unregister even if not installed i.e sql_run = 0 -->
+                                <?php if ($moduleResult->sqlRun == 0 && $moduleResult->modActive == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','reset_module');" title="<?php echo $listener->z_xla('Click Here to Reset this Module to the initial unregistered and uninstalled state.'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
+                                <?php } elseif ($moduleResult->modActive == 1) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
+                                    <?php if ($moduleResult->modUiActive == 1 && $moduleResult->type == 0) { ?>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module. All database information is left intact except this module registration entry is removed from database.'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
+                                    <?php } ?>
+                                <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
+                                    <?php if ($moduleResult->modUiActive == 1) {
+                                        // only allow if module requests by setting the mod_ui_active column
+                                        // because module will have to deal with namespace setting for called config script.
+                                        ?>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x text-dark"></i>
+                                        </a>
+                                    <?php } ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
+                                <?php } else { ?>
+                                    --
+                                <?php } ?>
+                            </td>
+                        </tr>
+                        <tr style="display:none" class="config" id="ConfigRow_<?php echo $this->escapeHtml($moduleResult->modId); ?>">
+                            <td colspan="10" align="center">
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                }
+                ?>
+                </tbody>
+            </table>
+            <!-- End of Custom List -->
+            <div class="text-center"><span class="h3"><?php echo $listener->z_xlt("Lamina's Module Listings"); ?></span></div>
+            <!-- Start Lamina's Module Listing -->
+            <table id="table-6" class="table table-light table-hover table-condensed">
+                <thead>
+                <tr style="font-size: 16px;">
+                    <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Release'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
+                    <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Configuration'); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                $count = 0;
+                if (sizeof($InstallersAll) > 0) {
+                    foreach ($InstallersAll as $moduleResult) {
+                        if ($moduleResult->modName == 'Acl') {
+                            continue;
+                        }
+                        if ($moduleResult->type == 0) {
+                            continue;
+                        }
+                        $count++;
+                        ?>
+                        <tr id="<?php echo $this->escapeHtml($moduleResult->modId); ?>">
+                            <td><?php echo $this->escapeHtml($count); ?></td>
+                            <td class="text-primary"><strong><?php echo $this->escapeHtml($moduleResult->modName); ?></strong></td>
+                            <td><?php echo $this->escapeHtml($moduleResult->sql_version ?: '0.0.0'); ?></td>
+                            <td>
+                                <?php
+                                if ($moduleResult->sqlRun == 0) {
+                                    ?>
+                                    <?php echo $listener->z_xlt('Registered'); ?>
+                                    <?php
+                                } elseif ($moduleResult->modActive == 1) { ?>
+                                    <?php echo $listener->z_xlt('Active'); ?>
+                                <?php } else {
+                                    ?>
+                                    <?php echo $listener->z_xlt('Inactive'); ?>
+                                    <?php
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml($moduleResult->modUiName); ?>
+                            </td>
+                            <td>
+                                <?php
+                                if ($moduleResult->sqlRun == 0) { ?>
+                                    <input type="text" onchange="validateNickName('<?php echo $this->escapeHtml($moduleResult->modId); ?>');" name="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" id="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" value="">
+                                    <div class="mod_nick_name_message" id="mod_nick_name_message_<?php echo $this->escapeHtml($moduleResult->modId); ?>"></div>
+                                    <?php
+                                } else {
+                                    echo $this->escapeHtml($moduleResult->modnickname);
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml(($moduleResult->type == 1) ? "Laminas" : "Custom"); ?>
+                            </td>
+                            <td>
+                                <?php
+                                $depStr = $depObj->getDependencyModules($moduleResult->modId);
+                                echo ($depStr <> "") ? $listener->z_xlt($depStr) : "--";
+                                ?>
+                            </td>
+                            <td>
+                                <?php if ($moduleResult->sqlRun == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
+                                <?php } elseif ($moduleResult->modActive == 1 && $moduleResult->modUiActive == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
+                                <?php } elseif ($moduleResult->modName != 'Acl') { ?>
+                                    <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
+                                <?php } ?>
+                                <?php if ($moduleResult->sql_action == "install") { ?>
+                                    <a href="javascript:void(0)" class="link_submit install_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_sql');" title="<?php echo $listener->z_xla('Click Here to Install SQL for module'); ?>"><input type='button' value="<?php echo $listener->z_xla('Install SQL'); ?>" /></a>
+                                <?php } elseif ($moduleResult->sql_action == "upgrade") { ?>
+                                    <a href="javascript:void(0)" class="link_submit upgrade_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_sql');" title="<?php echo $listener->z_xla('Click Here to Upgrade SQL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade SQL'); ?>" /></a>
+                                <?php } ?>
+                                <?php if ($moduleResult->acl_action == "install") { ?>
+                                    <a href="javascript:void(0)" class="link_submit install_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_acl');" title="<?php echo $listener->z_xla('Click Here to Install ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Install ACL'); ?>" /></a>
+                                <?php } elseif ($moduleResult->acl_action == "upgrade") { ?>
+                                    <a href="javascript:void(0)" class="link_submit upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL'); ?>" /></a>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <?php if ($moduleResult->sqlRun == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
+                                <?php } elseif ($moduleResult->modActive == 1) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
+                                    <?php if ($moduleResult->modUiActive == 1) { ?>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
+                                    <?php } ?>
+                                <?php } elseif ($moduleResult->modActive == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
+                                <?php } else { ?>
+                                    --
+                                <?php } ?>
+                            </td>
+                        </tr>
+                        <tr style="display:none" class="config" id="ConfigRow_<?php echo $this->escapeHtml($moduleResult->modId); ?>">
+                            <td colspan="10" align="center">
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                }
+                //end of laminas if
+                ?>
+                </tbody>
+            </table>
+            <!-- End of Lamina's List -->
+        </div>
+    </div>
+</div>

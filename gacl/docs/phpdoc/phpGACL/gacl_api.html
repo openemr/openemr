@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- template designed by Marco Von Ballmoos -->
+    <title>Docs For Class gacl_api</title>
+    <link rel="stylesheet" href="../media/stylesheet.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+</head>
+
+<body>
+    <div class="page-body">
+        <h2 class="class-name"><img src="../media/images/Class_logo.png" alt=" Class" title=" Class" style="vertical-align: middle"> gacl_api</h2>
+
+        <a name="sec-description"></a>
+        <div class="info-box">
+            <div class="info-box-title">Description</div>
+            <div class="nav-bar">
+                <span class="disabled">Description</span> |
+                <a href="#sec-vars">Vars</a>
+                | <a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+
+            </div>
+            <div class="info-box-body">
+                <!-- ========== Info from phpDoc block ========= -->
+                <p class="short-description">gacl_api Extended API Class</p>
+                <p class="description">
+                <p>Class gacl_api should be used for applications that must interface directly with phpGACL's data structures, objects, and rules.</p>
+                </p>
+                <ul class="tags">
+                    <li><span class="field">author:</span> Mike Benoit &lt;<a href="mailto:ipso@snappymail.ca">ipso@snappymail.ca</a>&gt;</li>
+                </ul>
+                <p class="notes">
+                    Located in <a class="field" href="_gacl_api_class_php.html">/gacl_api.class.php</a> (line <span class="field">50</span>)
+                </p>
+
+
+                <pre><a href="../phpGACL/gacl.html">gacl</a>
+   |
+   --gacl_api</pre>
+
+            </div>
+        </div>
+
+
+
+
+        <a name="sec-method-summary"></a>
+        <div class="info-box">
+            <div class="info-box-title">Method Summary</span></div>
+            <div class="nav-bar">
+                <a href="#sec-description">Description</a> |
+                <a href="#sec-vars">Vars</a>
+
+                |
+                <span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+            </div>
+            <div class="info-box-body">
+                <div class="method-summary">
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#add_acl" title="details" class="method-name">add_acl</a>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$aco_array</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span>, [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$allow</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$enabled</span> = <span class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$return_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$note</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span> = <span
+                          class="var-default">FALSE</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#add_group" title="details" class="method-name">add_group</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">int</span>&nbsp;<span
+                          class="var-name">$parent_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#add_group_object" title="details" class="method-name">add_group_object</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$object_section_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$object_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#add_object" title="details" class="method-name">add_object</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$order</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#add_object_section" title="details" class="method-name">add_object_section</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span
+                          class="var-name">$order</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span
+                          class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#append_acl" title="details" class="method-name">append_acl</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aco_array</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#clear_database" title="details" class="method-name">clear_database</a>
+                        ()
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#consolidated_edit_acl" title="details" class="method-name">consolidated_edit_acl</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$aro_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$return_value</span>)
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#count_all" title="details" class="method-name">count_all</a>
+                        ([<span class="var-type">array</span>&nbsp;<span class="var-name">$arg</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#del_acl" title="details" class="method-name">del_acl</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>)
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#del_group" title="details" class="method-name">del_group</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">bool</span>&nbsp;<span class="var-name">$reparent_children</span> = <span class="var-default">TRUE</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#del_group_object" title="details" class="method-name">del_group_object</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$object_section_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$object_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#del_object" title="details" class="method-name">del_object</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">bool</span>&nbsp;<span class="var-name">$erase</span> = <span class="var-default">FALSE</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#del_object_section" title="details" class="method-name">del_object_section</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_section_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">bool</span>&nbsp;<span class="var-name">$erase</span> = <span class="var-default">FALSE</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#edit_acl" title="details" class="method-name">edit_acl</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$aco_array</span>, <span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aro_array</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$axo_array</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">int</span>&nbsp;<span class="var-name">$allow</span> = <span class="var-default">1</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$enabled</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$return_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$note</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#edit_group" title="details" class="method-name">edit_group</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$parent_id</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#edit_object" title="details" class="method-name">edit_object</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$order</span>, <span
+                          class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#edit_object_section" title="details" class="method-name">edit_object_section</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_section_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$order</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#format_groups" title="details" class="method-name">format_groups</a>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$sorted_groups</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$type</span> = <span class="var-default">'TEXT'</span>], <span
+                          class="var-type">int</span>&nbsp;<span class="var-name">$root_id</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$level</span>, [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$formatted_groups</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#get_acl" title="details" class="method-name">get_acl</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>)
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_group_children" title="details" class="method-name">get_group_children</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">int</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$recurse</span> = <span class="var-default">'NO_RECURSE'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_group_data" title="details" class="method-name">get_group_data</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#get_group_id" title="details" class="method-name">get_group_id</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_group_objects" title="details" class="method-name">get_group_objects</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$option</span> = <span class="var-default">'NO_RECURSE'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#get_group_parent_id" title="details" class="method-name">get_group_parent_id</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">ADORecordSet</span>
+                        <a href="#get_object" title="details" class="method-name">get_object</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">null</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$return_hidden</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_objects" title="details" class="method-name">get_objects</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$return_hidden</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_object_data" title="details" class="method-name">get_object_data</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_object_groups" title="details" class="method-name">get_object_groups</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">'ARO'</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$option</span> = <span class="var-default">'NO_RECURSE'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#get_object_id" title="details" class="method-name">get_object_id</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#get_object_section_section_id" title="details" class="method-name">get_object_section_section_id</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">string</span>
+                        <a href="#get_object_section_value" title="details" class="method-name">get_object_section_value</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#get_root_group_id" title="details" class="method-name">get_root_group_id</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">string</span>
+                        <a href="#get_schema_version" title="details" class="method-name">get_schema_version</a>
+                        ()
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_section_data" title="details" class="method-name">get_section_data</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#get_ungrouped_objects" title="details" class="method-name">get_ungrouped_objects</a>
+                        ([<span class="var-type">int</span>&nbsp;<span class="var-name">$return_hidden</span> = <span class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span
+                          class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">string</span>
+                        <a href="#get_version" title="details" class="method-name">get_version</a>
+                        ()
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#is_conflicting_acl" title="details" class="method-name">is_conflicting_acl</a>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$aco_array</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span>, [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$ignore_acl_ids</span> = <span
+                          class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#rebuild_tree" title="details" class="method-name">rebuild_tree</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$left</span> = <span class="var-default">1</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#search_acl" title="details" class="method-name">search_acl</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$aro_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_group_name</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$axo_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_value</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_group_name</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$return_value</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">bool</span>
+                        <a href="#shift_acl" title="details" class="method-name">shift_acl</a>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aco_array</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">void</span>
+                        <a href="#showarray" title="details" class="method-name">showarray</a>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$array</span>)
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">array</span>
+                        <a href="#sort_groups" title="details" class="method-name">sort_groups</a>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <div class="method-definition">
+                        <img src="../media/images/Method.png" alt=" " />
+                        <span class="method-result">int</span>
+                        <a href="#_rebuild_tree" title="details" class="method-name">_rebuild_tree</a>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$table</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">int</span>&nbsp;<span
+                          class="var-name">$left</span> = <span class="var-default">1</span>])
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a name="sec-vars"></a>
+        <div class="info-box">
+            <div class="info-box-title">Variables</div>
+            <div class="nav-bar">
+                <a href="#sec-description">Description</a> |
+                <a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+
+
+                |
+                <a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+
+            </div>
+            <div class="info-box-body">
+                <h4>Inherited Variables</h4>
+                <A NAME='inherited_vars'>
+                    <!-- --></A>
+                <p>Inherited from <span class="classname"><a href="../phpGACL/gacl.html">gacl</a></span></p>
+                <blockquote>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$config_file">gacl::$config_file</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_cache_dir">gacl::$_cache_dir</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_cache_expire_time">gacl::$_cache_expire_time</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_caching">gacl::$_caching</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db">gacl::$_db</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db_host">gacl::$_db_host</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db_name">gacl::$_db_name</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db_password">gacl::$_db_password</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db_table_prefix">gacl::$_db_table_prefix</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db_type">gacl::$_db_type</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_db_user">gacl::$_db_user</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_debug">gacl::$_debug</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_force_cache_expire">gacl::$_force_cache_expire</a></span><br />
+                    </span>
+                    <img src="../media/images/Variable.png" />
+                    <span class="var-title">
+                        <span class="var-name"><a href="../phpGACL/gacl.html#var$_group_switch">gacl::$_group_switch</a></span><br />
+                    </span>
+                </blockquote>
+
+            </div>
+        </div>
+
+        <a name="sec-methods"></a>
+        <div class="info-box">
+            <div class="info-box-title">Methods</div>
+            <div class="nav-bar">
+                <a href="#sec-description">Description</a> |
+                <a href="#sec-vars">Vars</a>
+                <a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+
+            </div>
+            <div class="info-box-body">
+                <A NAME='method_detail'></A>
+                <a name="methodadd_acl" id="add_acl">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">add_acl</span> (line <span class="line-number">921</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">add_acl()</p>
+                    <p class="description">
+                    <p>Add's an ACL. ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Return ACL ID of new ACL if successful, FALSE otherewise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            add_acl
+                        </span>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$aco_array</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span>, [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$allow</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$enabled</span> = <span class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$return_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$note</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span> = <span
+                          class="var-default">FALSE</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aco_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$allow</span><span class="var-description">: Allow flag</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$enabled</span><span class="var-description">: Enabled flag</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$return_value</span><span class="var-description">: Return Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$note</span><span class="var-description">: Note</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: ACL Section Value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$acl_id</span><span class="var-description">: ACL ID # Specific Request</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodadd_group" id="add_group">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">add_group</span> (line <span class="line-number">1684</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">add_group()</p>
+                    <p class="description">
+                    <p>Inserts a group, defaults to be on the &quot;root&quot; branch.</p>
+                    <p>Since v3.3.x you can only create one group with Parent_ID=0 So, its a good idea to create a &quot;Virtual Root&quot; group with Parent_ID=0 Then assign other groups to that.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> New Group ID # if successful, FALSE if otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            add_group
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">int</span>&nbsp;<span
+                          class="var-name">$parent_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Group Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Group Name</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$parent_id</span><span class="var-description">: Parent Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodadd_group_object" id="add_group_object">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">add_group_object</span> (line <span class="line-number">1878</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">add_group_object()</p>
+                    <p class="description">
+                    <p>Assigns an Object to a group</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            add_group_object
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$object_section_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$object_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_section_value</span><span class="var-description">: Object Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodadd_object" id="add_object">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">add_object</span> (line <span class="line-number">2951</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">add_object()</p>
+                    <p class="description">
+                    <p>Inserts a new object</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns the ID # of the new object if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            add_object
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$order</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: Object Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Object Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$order</span><span class="var-description">: Display Order</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$hidden</span><span class="var-description">: Hidden Flag, either 1 to hide, or 0 to show.</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodadd_object_section" id="add_object_section">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">add_object_section</span> (line <span class="line-number">3429</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">add_object_section()</p>
+                    <p class="description">
+                    <p>Inserts an object Section</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Object Section ID of new section</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            add_object_section
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span
+                          class="var-name">$order</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span
+                          class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Object Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$order</span><span class="var-description">: Display Order</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$hidden</span><span class="var-description">: Hidden flag, hides section if 1, shows section if 0</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodappend_acl" id="append_acl">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">append_acl</span> (line <span class="line-number">413</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">append_acl()</p>
+                    <p class="description">
+                    <p>Appends objects on to a specific ACL.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> TRUE if successful, FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            append_acl
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aco_array</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$acl_id</span><span class="var-description">: ACL ID #</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aco_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodclear_database" id="clear_database">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">clear_database</span> (line <span class="line-number">3782</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">clear_database()</p>
+                    <p class="description">
+                    <p>Deletes all data from the phpGACL tables. USE WITH CAUTION.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            clear_database
+                        </span>
+                        ()
+                    </div>
+
+
+
+                </div>
+                <a name="methodconsolidated_edit_acl" id="consolidated_edit_acl">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">consolidated_edit_acl</span> (line <span class="line-number">156</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">consolidated_edit_acl()</p>
+                    <p class="description">
+                    <p>Add's an ACL but checks to see if it can consolidate it with another one first.</p>
+                    <p>This ONLY works with ACO's and ARO's. Groups, and AXO are excluded. As well this function is designed for handling ACLs with return values, and consolidating on the return_value, in hopes of keeping the ACL count to a minimum.
+                    </p>
+                    <p>A return value of false must _always_ be handled outside this function. As this function will remove AROs from ACLs and return false, in most cases you will need to a create a completely new ACL on a false return.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Special boolean return value. See note.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            consolidated_edit_acl
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$aro_section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$aro_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$return_value</span>)
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aco_section_value</span><span class="var-description">: ACO Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aco_value</span><span class="var-description">: ACO Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aro_section_value</span><span class="var-description">: ARO Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aro_value</span><span class="var-description">: ARO Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$return_value</span><span class="var-description">: Return Value of ACL</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodcount_all" id="count_all">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">count_all</span> (line <span class="line-number">84</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">count_all()</p>
+                    <p class="description">
+                    <p>Recursively counts elements in an array and sub-arrays.</p>
+                    <p>This is different from count($arg, COUNT_RECURSIVE) in PHP &gt;= 4.2.0, which includes sub-arrays in the count.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> The returned count is a count of all scalar elements found.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            count_all
+                        </span>
+                        ([<span class="var-type">array</span>&nbsp;<span class="var-name">$arg</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$arg</span><span class="var-description">: Array to count</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methoddel_acl" id="del_acl">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">del_acl</span> (line <span class="line-number">1189</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">del_acl()</p>
+                    <p class="description">
+                    <p>Deletes a given ACL</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            del_acl
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>)
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$acl_id</span><span class="var-description">: ACL ID # to delete</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methoddel_group" id="del_group">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">del_group</span> (line <span class="line-number">2248</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">del_group()</p>
+                    <p class="description">
+                    <p>deletes a given group</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            del_group
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">bool</span>&nbsp;<span class="var-name">$reparent_children</span> = <span class="var-default">TRUE</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">bool</span>
+                            <span class="var-name">$reparent_children</span><span class="var-description">: If TRUE, child groups of this group will be reparented to the current group's parent.</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methoddel_group_object" id="del_group_object">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">del_group_object</span> (line <span class="line-number">1965</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">del_group_object()</p>
+                    <p class="description">
+                    <p>Removes an Object from a group.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            del_group_object
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$object_section_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$object_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_section_value</span><span class="var-description">: Object Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methoddel_object" id="del_object">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">del_object</span> (line <span class="line-number">3144</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">del_object()</p>
+                    <p class="description">
+                    <p>Deletes a given Object and, if instructed to do so, erase all referencing objects</p>
+                    <p>ERASE feature by: Martino Piccinato</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            del_object
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">bool</span>&nbsp;<span class="var-name">$erase</span> = <span class="var-default">FALSE</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_id</span><span class="var-description">: Object ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', or 'AXO'</span> </li>
+                        <li>
+                            <span class="var-type">bool</span>
+                            <span class="var-name">$erase</span><span class="var-description">: Erases all referencing objects if TRUE, leaves them alone otherwise.</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methoddel_object_section" id="del_object_section">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">del_object_section</span> (line <span class="line-number">3635</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">del_object_section()</p>
+                    <p class="description">
+                    <p>Deletes a given Object Section and, if explicitly asked, all the section objects</p>
+                    <p>ERASE feature by: Martino Piccinato</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            del_object_section
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_section_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">bool</span>&nbsp;<span class="var-name">$erase</span> = <span class="var-default">FALSE</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_section_id</span><span class="var-description">: Object Section ID # to delete</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span> </li>
+                        <li>
+                            <span class="var-type">bool</span>
+                            <span class="var-name">$erase</span><span class="var-description">: Erases all section objects assigned to the section</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodedit_acl" id="edit_acl">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">edit_acl</span> (line <span class="line-number">1145</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">edit_acl()</p>
+                    <p class="description">
+                    <p>Edit's an ACL, ACO_IDS, ARO_IDS, GROUP_IDS must all be arrays.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Return TRUE if successful, FALSE otherewise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            edit_acl
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$aco_array</span>, <span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aro_array</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$axo_array</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">int</span>&nbsp;<span class="var-name">$allow</span> = <span class="var-default">1</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$enabled</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$return_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$note</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$acl_id</span><span class="var-description">: ACL ID # to edit</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aco_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$allow</span><span class="var-description">: Allow flag</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$enabled</span><span class="var-description">: Enabled flag</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$return_value</span><span class="var-description">: Return Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$note</span><span class="var-description">: Note</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: ACL Section Value</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodedit_group" id="edit_group">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">edit_group</span> (line <span class="line-number">2024</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">edit_group()</p>
+                    <p class="description">
+                    <p>Edits a group</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            edit_group
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$parent_id</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Group Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Group Name</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$parent_id</span><span class="var-description">: Parent ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodedit_object" id="edit_object">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">edit_object</span> (line <span class="line-number">3051</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">edit_object()</p>
+                    <p class="description">
+                    <p>Edits a given Object</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            edit_object
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$order</span>, <span
+                          class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_id</span><span class="var-description">: Object ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: Object Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Object Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$order</span><span class="var-description">: Display Order</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$hidden</span><span class="var-description">: Hidden Flag, either 1 to hide, or 0 to show</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodedit_object_section" id="edit_object_section">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">edit_object_section</span> (line <span class="line-number">3498</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">edit_object_section()</p>
+                    <p class="description">
+                    <p>Edits a given Object Section</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            edit_object_section
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_section_id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$value</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$order</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$hidden</span>, [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_section_id</span><span class="var-description">: Object Section ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Object Section Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Object Section Value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$order</span><span class="var-description">: Display Order</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$hidden</span><span class="var-description">: Hidden Flag, hide object section if 1, show if 0</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodformat_groups" id="format_groups">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">format_groups</span> (line <span class="line-number">1300</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">format_groups()</p>
+                    <p class="description">
+                    <p>Takes the array returned by sort_groups() and formats for human consumption. Recursively calls itself to produce the desired output.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Array of formatted text, ordered by group id, formatted according to $type</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            format_groups
+                        </span>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$sorted_groups</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$type</span> = <span class="var-default">'TEXT'</span>], <span
+                          class="var-type">int</span>&nbsp;<span class="var-name">$root_id</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$level</span>, [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$formatted_groups</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$sorted_groups</span><span class="var-description">: Output from gacl_api-&gt;sorted_groups($group_type)</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$type</span><span class="var-description">: Output type desired, either 'TEXT', 'HTML', or 'ARRAY'</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$root_id</span><span class="var-description">: Root of tree to produce</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$level</span><span class="var-description">: Current level of depth</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$formatted_groups</span><span class="var-description">: Pass the current formatted groups object for appending via recursion.</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_acl" id="get_acl">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_acl</span> (line <span class="line-number">690</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_acl()</p>
+                    <p class="description">
+                    <p>Grabs ACL data.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span>
+                            <p>FALSE if not found, or Associative Array with the following items:</p>
+                            <p>
+                            <ul>
+                                <li>'aco' =&gt; Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;, &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value
+                                    3&gt;&quot;], ...]</li>
+                                <li>'aro' =&gt; Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;, &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value
+                                    3&gt;&quot;], ...]</li>
+                                <li>'axo' =&gt; Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;, &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value
+                                    3&gt;&quot;], ...]</li>
+                                <li>'aro_groups' =&gt; Array of Group IDs</li>
+                                <li>'axo_groups' =&gt; Array of Group IDs</li>
+                                <li>'acl_id' =&gt; int ACL ID #</li>
+                                <li>'allow' =&gt; int Allow flag</li>
+                                <li>'enabled' =&gt; int Enabled flag</li>
+                                <li>'return_value' =&gt; string Return Value</li>
+                                <li>'note' =&gt; string Note</li>
+                            </ul>
+                            </p>
+                        </li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            get_acl
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>)
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$acl_id</span><span class="var-description">: ACL ID #</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_group_children" id="get_group_children">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_group_children</span> (line <span class="line-number">1457</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_group_children()</p>
+                    <p class="description">
+                    <p>Gets a groups child IDs</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Array of Child ID's of the referenced group</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_group_children
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">int</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$recurse</span> = <span class="var-default">'NO_RECURSE'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$recurse</span><span class="var-description">: Either 'RECURSE' or 'NO_RECURSE', to recurse while fetching group children.</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_group_data" id="get_group_data">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_group_data</span> (line <span class="line-number">1507</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_group_data()</p>
+                    <p class="description">
+                    <p>Gets the group data given the GROUP_ID.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns numerically indexed array with the following columns: <ul>
+                                <li>array[0] = (int) Group ID #</li>
+                                <li>array[1] = (int) Parent Group ID #</li>
+                                <li>array[2] = (string) Group Value</li>
+                                <li>array[3] = (string) Group Name</li>
+                                <li>array[4] = (int) lft MPTT Value</li>
+                                <li>array[5] = (int) rgt MPTT Value</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_group_data
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_group_id" id="get_group_id">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_group_id</span> (line <span class="line-number">1394</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_group_id()</p>
+                    <p class="description">
+                    <p>Gets the group_id given the name or value.</p>
+                    <p>Will only return one group id, so if there are duplicate names, it will return false.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns Group ID if found and Group ID is unique in database, otherwise, returns FALSE</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            get_group_id
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Group Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Group Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_group_objects" id="get_group_objects">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_group_objects</span> (line <span class="line-number">1812</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_group_objects()</p>
+                    <p class="description">
+                    <p>Gets all objects assigned to a group.</p>
+                    <p>If $option == 'RECURSE' it will get all objects in child groups as well. defaults to omit child groups.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;, &quot;&lt;Value 2&gt;&quot;,
+                            &quot;&lt;Value 3&gt;&quot;], ...]</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_group_objects
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$option</span> = <span class="var-default">'NO_RECURSE'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$option</span><span class="var-description">: Option, either 'RECURSE' or 'NO_RECURSE'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_group_parent_id" id="get_group_parent_id">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_group_parent_id</span> (line <span class="line-number">1549</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_group_parent_id()</p>
+                    <p class="description">
+                    <p>Grabs the parent_id of a given group</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Parent ID of the Group</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            get_group_parent_id
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_object" id="get_object">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_object</span> (line <span class="line-number">2496</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_object()</p>
+                    <p class="description">
+                    <p>Grabs all Objects's in the database, or specific to a section_value</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns recordset directly, with object ID only selected:</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">ADORecordSet</span>
+                        <span class="method-name">
+                            get_object
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">null</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$return_hidden</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: Filter to this section value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$return_hidden</span><span class="var-description">: Returns hidden objects if 1, leaves them out otherwise.</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_objects" id="get_objects">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_objects</span> (line <span class="line-number">2623</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_objects ()</p>
+                    <p class="description">
+                    <p>Grabs all Objects in the database, or specific to a section_value</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns objects in format suitable for add_acl and is_conflicting_acl <ul>
+                                <li>i.e. Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;, &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_objects
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$return_hidden</span> = <span
+                          class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: Filter for section value</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$return_hidden</span><span class="var-description">: Returns hidden objects if 1, does not if 0</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_object_data" id="get_object_data">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_object_data</span> (line <span class="line-number">2687</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_object_data()</p>
+                    <p class="description">
+                    <p>Gets all data pertaining to a specific Object.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns 2-Dimensional array of rows with columns = ( section_value, value, order_value, name, hidden )</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_object_data
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_id</span><span class="var-description">: Object ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_object_groups" id="get_object_groups">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_object_groups</span> (line <span class="line-number">2890</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_object_groups()</p>
+                    <p class="description">
+                    <p>Gets all groups an object is a member of.</p>
+                    <p>If $option == 'RECURSE' it will get all ancestor groups. defaults to only get direct parents.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Array of Group ID #'s, or FALSE if Failed</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_object_groups
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">'ARO'</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$option</span> = <span class="var-default">'NO_RECURSE'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_id</span><span class="var-description">: Object ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ARO' or 'AXO'</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$option</span><span class="var-description">: Option, either 'RECURSE', or 'NO_RECURSE'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_object_id" id="get_object_id">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_object_id</span> (line <span class="line-number">2747</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_object_id()</p>
+                    <p class="description">
+                    <p>Gets the object_id given the section_value AND value of the object.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Object ID #</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            get_object_id
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$value</span>, [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: Object Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_object_section_section_id" id="get_object_section_section_id">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_object_section_section_id</span> (line <span class="line-number">3349</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_object_section_section_id()</p>
+                    <p class="description">
+                    <p>Gets the object_section_id given the name AND/OR value of the section.</p>
+                    <p>Will only return one section id, so if there are duplicate names it will return false.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Object Section ID if the object section is found AND is unique, or FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            get_object_section_section_id
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$value</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$name</span><span class="var-description">: Object Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$value</span><span class="var-description">: Object Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_object_section_value" id="get_object_section_value">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_object_section_value</span> (line <span class="line-number">2818</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_object_section_value()</p>
+                    <p class="description">
+                    <p>Gets the object_section_value given object id</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Object Section Value</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">string</span>
+                        <span class="method-name">
+                            get_object_section_value
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$object_id</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$object_id</span><span class="var-description">: Object ID #</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_root_group_id" id="get_root_group_id">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_root_group_id</span> (line <span class="line-number">1603</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_root_group_id ()</p>
+                    <p class="description">
+                    <p>Grabs the id of the root group for the specified tree</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Root Group ID #</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            get_root_group_id
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_schema_version" id="get_schema_version">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_schema_version</span> (line <span class="line-number">122</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_schema_version()</p>
+                    <p class="description">
+                    <p>Grabs phpGACL schema version from the database.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Schema Version</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">string</span>
+                        <span class="method-name">
+                            get_schema_version
+                        </span>
+                        ()
+                    </div>
+
+
+
+                </div>
+                <a name="methodget_section_data" id="get_section_data">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_section_data</span> (line <span class="line-number">3731</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_section_data()</p>
+                    <p class="description">
+                    <p>Gets the section data given the Section Value</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns numerically indexed array with the following columns: <ul>
+                                <li>array[0] = (int) Section ID #</li>
+                                <li>array[1] = (string) Section Value</li>
+                                <li>array[2] = (int) Section Order</li>
+                                <li>array[3] = (string) Section Name</li>
+                                <li>array[4] = (int) Section Hidden?</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_section_data
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$section_value</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$section_value</span><span class="var-description">: Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ACO', 'ARO', or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_ungrouped_objects" id="get_ungrouped_objects">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_ungrouped_objects</span> (line <span class="line-number">2563</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_ungrouped_objects()</p>
+                    <p class="description">
+                    <p>Grabs ID's of all Objects (ARO's and AXO's only) in the database not assigned to a Group.</p>
+                    <p>This function is useful for applications that synchronize user databases with an outside source. If syncrhonization doesn't automatically place users in an appropriate group, this function can quickly identify them so that they
+                        can be assigned to the correct group.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns an array of object ID's</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            get_ungrouped_objects
+                        </span>
+                        ([<span class="var-type">int</span>&nbsp;<span class="var-name">$return_hidden</span> = <span class="var-default">1</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$object_type</span> = <span
+                          class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$return_hidden</span><span class="var-description">: Returns hidden objects if 1, does not if 0.</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$object_type</span><span class="var-description">: Object Type, either 'ARO' or 'AXO' (groupable types)</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodget_version" id="get_version">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">get_version</span> (line <span class="line-number">108</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">get_version()</p>
+                    <p class="description">
+                    <p>Grabs phpGACL version from the database.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Version of phpGACL</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">string</span>
+                        <span class="method-name">
+                            get_version
+                        </span>
+                        ()
+                    </div>
+
+
+
+                </div>
+                <a name="methodis_conflicting_acl" id="is_conflicting_acl">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">is_conflicting_acl</span> (line <span class="line-number">789</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">is_conflicting_acl()</p>
+                    <p class="description">
+                    <p>Checks for conflicts when adding a specific ACL.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns true if conflict is found.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            is_conflicting_acl
+                        </span>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$aco_array</span>, <span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span>, [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$ignore_acl_ids</span> = <span
+                          class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aco_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$ignore_acl_ids</span><span class="var-description">: Array of ACL IDs to ignore from the result set.</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodrebuild_tree" id="rebuild_tree">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">rebuild_tree</span> (line <span class="line-number">2148</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">rebuild_tree ()</p>
+                    <p class="description">
+                    <p>rebuilds the group tree for the given type</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns TRUE if successful, FALSE otherwise</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            rebuild_tree
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">int</span>&nbsp;<span class="var-name">$left</span> = <span class="var-default">1</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$left</span><span class="var-description">: Left value of Group</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodsearch_acl" id="search_acl">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">search_acl</span> (line <span class="line-number">323</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">search_acl()</p>
+                    <p class="description">
+                    <p>Searches for ACL's with specified objects mapped to them.</p>
+                    <p>NULL values are included in the search, if you want to ignore for instance aro_groups use FALSE instead of NULL.</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> containing ACL IDs if search is successful</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            search_acl
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aco_value</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$aro_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$aro_group_name</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">string</span>&nbsp;<span class="var-name">$axo_section_value</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_value</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$axo_group_name</span> = <span class="var-default">NULL</span>], [<span class="var-type">string</span>&nbsp;<span
+                          class="var-name">$return_value</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aco_section_value</span><span class="var-description">: ACO Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aco_value</span><span class="var-description">: ACO Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aro_section_value</span><span class="var-description">: ARO Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aro_value</span><span class="var-description">: ARO Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$aro_group_name</span><span class="var-description">: ARO Group Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$axo_section_value</span><span class="var-description">: AXO Section Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$axo_value</span><span class="var-description">: AXO Value</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$axo_group_name</span><span class="var-description">: AXO Group Name</span> </li>
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$return_value</span><span class="var-description">: Return Value</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodshift_acl" id="shift_acl">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">shift_acl</span> (line <span class="line-number">533</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">shift_acl()</p>
+                    <p class="description">
+                    <p>Opposite of append_acl(). Removes objects from a specific ACL. (named after PHP's array_shift())</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> TRUE if successful, FALSE otherwise.</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">bool</span>
+                        <span class="method-name">
+                            shift_acl
+                        </span>
+                        (<span class="var-type">int</span>&nbsp;<span class="var-name">$acl_id</span>, [<span class="var-type">array</span>&nbsp;<span class="var-name">$aro_array</span> = <span class="var-default">NULL</span>], [<span
+                          class="var-type">array</span>&nbsp;<span class="var-name">$aro_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_array</span> = <span
+                          class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span class="var-name">$axo_group_ids</span> = <span class="var-default">NULL</span>], [<span class="var-type">array</span>&nbsp;<span
+                          class="var-name">$aco_array</span> = <span class="var-default">NULL</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$acl_id</span><span class="var-description">: ACL ID #</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aro_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$axo_group_ids</span><span class="var-description">: Array of Group IDs</span> </li>
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$aco_array</span><span class="var-description">: Associative array, item={Section Value}, key={Array of Object Values} i.e. [&quot;&lt;Section Value&gt;&quot; =&gt; [&quot;&lt;Value 1&gt;&quot;,
+                                &quot;&lt;Value 2&gt;&quot;, &quot;&lt;Value 3&gt;&quot;], ...]</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodshowarray" id="showarray">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">showarray</span> (line <span class="line-number">66</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">showarray()</p>
+                    <p class="description">
+                    <p>Dump all contents of an array in HTML (kinda)</p>
+                    </p>
+
+                    <div class="method-signature">
+                        <span class="method-result">void</span>
+                        <span class="method-name">
+                            showarray
+                        </span>
+                        (<span class="var-type">array</span>&nbsp;<span class="var-name">$array</span>)
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">array</span>
+                            <span class="var-name">$array</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="methodsort_groups" id="sort_groups">
+                    <!-- --></a>
+                <div class="oddrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">sort_groups</span> (line <span class="line-number">1250</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">sort_groups()</p>
+                    <p class="description">
+                    <p>Grabs all the groups from the database doing preliminary grouping by parent</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns 2-Dimensional array: $array[&lt;parent_id&gt;][&lt;group_id&gt;] = &lt;group_name&gt;</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">array</span>
+                        <span class="method-name">
+                            sort_groups
+                        </span>
+                        ([<span class="var-type">string</span>&nbsp;<span class="var-name">$group_type</span> = <span class="var-default">'ARO'</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$group_type</span><span class="var-description">: Group Type, either 'ARO' or 'AXO'</span> </li>
+                    </ul>
+
+
+                </div>
+                <a name="method_rebuild_tree" id="_rebuild_tree">
+                    <!-- --></a>
+                <div class="evenrow">
+
+                    <div class="method-header">
+                        <img src="../media/images/Method.png" />
+                        <span class="method-title">_rebuild_tree</span> (line <span class="line-number">2196</span>)
+                    </div>
+
+                    <!-- ========== Info from phpDoc block ========= -->
+                    <p class="short-description">_rebuild_tree ()</p>
+                    <p class="description">
+                    <p>Utility recursive function called by rebuild_tree()</p>
+                    </p>
+                    <ul class="tags">
+                        <li><span class="field">return:</span> Returns right value of this node + 1</li>
+                    </ul>
+
+                    <div class="method-signature">
+                        <span class="method-result">int</span>
+                        <span class="method-name">
+                            _rebuild_tree
+                        </span>
+                        (<span class="var-type">string</span>&nbsp;<span class="var-name">$table</span>, <span class="var-type">int</span>&nbsp;<span class="var-name">$group_id</span>, [<span class="var-type">int</span>&nbsp;<span
+                          class="var-name">$left</span> = <span class="var-default">1</span>])
+                    </div>
+
+                    <ul class="parameters">
+                        <li>
+                            <span class="var-type">string</span>
+                            <span class="var-name">$table</span><span class="var-description">: Table name of group type</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$group_id</span><span class="var-description">: Group ID #</span> </li>
+                        <li>
+                            <span class="var-type">int</span>
+                            <span class="var-name">$left</span><span class="var-description">: Left value of Group</span> </li>
+                    </ul>
+
+
+                </div>
+                <h4>Inherited Methods</h4>
+                <a name='inherited_methods'>
+                    <!-- --></a>
+                <!-- =========== Summary =========== -->
+                <p>Inherited From <span class="classname"><a href="../phpGACL/gacl.html">gacl</a></span></p>
+                <blockquote>
+                    <img src="../media/images/Constructor.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodgacl">gacl::gacl()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodacl_check">gacl::acl_check()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodacl_check_array">gacl::acl_check_array()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodacl_get_groups">gacl::acl_get_groups()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodacl_query">gacl::acl_query()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodacl_return_value">gacl::acl_return_value()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methoddebug_db">gacl::debug_db()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methoddebug_text">gacl::debug_text()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodget_cache">gacl::get_cache()</a></span><br />
+                    <img src="../media/images/Method.png" alt=" " />
+                    <span class="method-name"><a href="../phpGACL/gacl.html#methodput_cache">gacl::put_cache()</a></span><br />
+                </blockquote>
+
+            </div>
+        </div>
+
+
+        <p class="notes" id="credit">
+            Documentation generated on Sun, 03 Sep 2006 16:23:44 -0700 by <a href="https://www.phpdoc.org" rel="noopener" target="_blank">phpDocumentor 1.3.0RC3</a>
+        </p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+{**
+* general document view
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
+
+<div class="col-sm-12">
+    <form class="form" method="post" enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
+        <h3>{if !empty($error)}{$error|text|nl2br}{/if}</h3>
+        {if (!($patient_id > 0))}
+        <div class="text text-danger">
+            {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
+            <br />
+        </div>
+        {/if}
+        <div class="text">
+            {xlt t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
+            <br />
+        </div>
+        <div class="font-weight-bold">
+            {xlt t="Upload Document"} {if $category_name} {xlt t="to category"} '{$category_name|text}'{/if}
+        </div>
+        <div class="form-group">
+            <div class="form-group">
+                <p>(<small>{xlt t="Multiple files can be uploaded at one time by selecting them using CTRL+Click or SHIFT+Click."}</small>)</p>
+                <span>{xlt t="Source File Path"}:</span>
+                <input type="file" class="form-control-file" name="file[]" id="source-name" multiple="true" />
+            </div>
+            <div class="form-group">
+                <span>(<small>{xlt t="Click below to Zip a Directory of image slices."}</small>)</span>
+                <input type="file" class="form-control-file" name="dicom_folder[]" id="dicom_folder" multiple directory="" webkitdirectory="" moxdirectory="" />
+                <input type="text" class="form-control" name="destination" placeholder='{xla t="Optional Destination or Dicom Study Name"}' title="{xla t='Leave Blank To Keep Original Filename'}" id="destination-name" />
+            </div>
+            {if !$hide_encryption}
+            <div class="form-group">
+                <label role="button" title="{xla t='Check the box if this is an encrypted file'}">{xlt t="Is The File Encrypted?"}:
+                    <input type="checkbox" class="form-check-inline" name="encrypted" title="{xla t='Check the box if this is an encrypted file'}" id="encrypted" />
+                </label>
+                <input type="text" class="form-control" name="passphrase" placeholder="{xla t='Pass Phrase'}" title="{xla t='Pass phrase to decrypt document'}" id="passphrase" />
+                <p><i>{xlt t='Supports AES-256-CBC encryption/decryption only.'}</i></p>
+            </div>
+            {/if}
+            <div>
+                <input type="submit" class="btn btn-primary" value="{xl t='Upload'|attr}" />
+            </div>
+        </div>
+        <input type="hidden" name="patient_id" value="{$patient_id|attr}" />
+        <input type="hidden" name="category_id" value="{$category_id|attr}" />
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+        {if !empty($file)}
+        <div class="form-group">
+            <label class="font-weight-bold">
+                {xlt t='Uploaded'}
+            </label>
+            {foreach from=$file item=onefile}
+            <p>
+                {if $error}<i>{$error|text|nl2br}</i><br />{/if}
+                {xlt t='Name'}: {$onefile->get_name()|text}<br /><br />
+            </p>
+            {/foreach}
+        </div>
+        {/if}
+    </form>
+    <!-- Drag and drop uploader -->
+    <div class="row">
+        <div class="col-sm mt-1" id="autouploader">
+            <form method="post" enctype="multipart/form-data" action="{$GLOBALS.webroot}/library/ajax/upload.php?patient_id={$patient_id|attr_url}&parent_id={$category_id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" class="dropzone">
+                <div class="dz-message" data-dz-message><span>{xlt t='Drop files here to upload'}</span></div>
+                <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
+            </form>
+        </div>
+    </div>
+    <!-- Section for document template download -->
+    <form class="form-inline" method='post' action='interface/patient_file/download_template.php' onsubmit='return top.restoreSession()'>
+        <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
+        <input type='hidden' name='patient_id' value='{$patient_id|attr}' />
+        <div class='form-group col-sm-4'>
+            <p class='my-1'>{xlt t="Download document template for this patient and visit"}</p>
+            <div class="input-group">
+                <span class="input-group-prepend">
+                    <button type="submit" class="btn btn-primary btn-download">{xlt t="Fetch"}</button>
+                </span>
+                <select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
+            </div>
+        </div>
+        <!-- Section for portal document templates -->
+        <div class='for-group-group col'>
+            <p class='my-1'>{xlt t="Patient Document Template Forms"}</p>
+            <div class='input-group'>
+                <div class="dropdown">
+                    <a class="dropdown-toggle nav-link btn btn-outline-primary" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {xlt t="Open Patient Template"}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                        {$TEMPLATES_LIST_PATIENT}
+                    </div>
+                </div>
+                <span class="input-group-append">
+                    <button type="button" class="btn btn-primary" onclick="callTemplateModule({$patient_id|attr_url}, '-patient-', '', 0, 0)">{xlt t="or Open Module"}</button>
+                </span>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,42 @@
+{**
+ * Prescription General Fragment
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+{if empty($prescriptions)}
+{xlt t='None'}
+{else}
+<div class="table-responsive">
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>{xlt t='Drug'}</th>
+                <th>{xlt t='Details'}</th>
+                <th>{xlt t='Qty'}</th>
+                <th>{xlt t='Refills'}</th>
+                <th>{xlt t='Filled'}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach from=$prescriptions item=prescription}
+            {if $prescription->get_active() > 0}
+            <tr>
+                <td>{$prescription->drug|text}&nbsp;</td>
+                <td>{$prescription->get_size()|text}{$prescription->get_unit_display()|text}&nbsp;
+                    {$prescription->get_dosage_display()|text}</td>
+                <td>{$prescription->get_quantity()|text}</td>
+                <td>{$prescription->get_refills()|text}</td>
+                <td>{$prescription->get_date_added()|text}</td>
+            </tr>
+            {/if}
+            {/foreach}
+        </tbody>
+    </table>
+</div>
+{/if}

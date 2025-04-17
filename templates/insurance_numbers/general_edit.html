@@ -1,0 +1,168 @@
+{**
+ * Pharmacy edit
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+{if isset($ERROR)}
+    <div class="alert alert-danger">{$ERROR|text}</div>
+{else}
+    <form name="provider" method="post" action="{$FORM_ACTION}" class='form-horizontal' onsubmit="return top.restoreSession()">
+        <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
+                    if it were called last, the settings from the form would be overwritten with the old information-->
+        <input type="hidden" name="form_id" value="{$ins->id|attr}" />
+
+        <table class="table table-responsive table-striped">
+
+        <tr><td colspan="5" style="border-style:none;" class="bold">
+            {$provider->get_name_display()|text}
+        </td></tr>
+
+        <tr  class="showborder_head">
+            <th class="small">{xlt t='Company Name'}</th>
+            <th class="small">{xlt t='Provider Number'}</th>
+            <th class="small">{xlt t='Rendering Provider Number'}</th>
+            <th class="small">{xlt t='Group Number'}</th>
+        </tr>
+        {foreach name=inums item=num_set from=$provider->get_insurance_numbers()}
+            <tr>
+                <td valign="middle">
+                    <a href="{$CURRENT_ACTION}action=edit&id={$num_set->get_id()|attr_url}&showform=true" onclick="top.restoreSession()">
+                        {$num_set->get_insurance_company_name()|text}&nbsp;
+                    </a>
+                </td>
+                <td>{$num_set->get_provider_number()|text}&nbsp;</td>
+                <td>{$num_set->get_rendering_provider_number()|text}&nbsp;</td>
+                <td>{$num_set->get_group_number()|text}&nbsp;</td>
+            </tr>
+        {foreachelse}
+        <tr>
+            <td colspan="5">{xlt t='No entries found, use the form below to add an entry.'}</td>
+        </tr>
+        {/foreach}
+
+        <tr>
+          <td style="border-style:none;" colspan="5">
+            <a href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()|attr_url}&showform=true" class="btn btn-secondary btn-add" onclick="top.restoreSession()">{xlt t='Add New'}</a>
+        </td>
+      </tr>
+    </table>
+
+        {if $show_edit_gui}
+            <div class="alert alert-info">
+                {if $ins->get_id() eq ""}
+                    {xlt t='Add Provider Number'}
+                {else}
+                    {xlt t='Update Provider Number'}
+                {/if}
+            </div>
+            <div class="form-row my-sm-2">
+                <label for="insurance_company_id" class="col-form-label col-sm-2">{xlt t='Insurance Company'}</label>
+                <div class="col-sm-8">
+                    {if $ins->get_id() eq ""}
+                        <select id="insurance_company_id" name="insurance_company_id" class="form-control">
+                            {html_options options=$ic_array values=$ic_array selected=$ins->get_insurance_company_id()}
+                        </select>
+                    {else}
+                        <span id="insurance_company_id" class="form-control-static">
+                            {$ins->get_insurance_company_name()|text}
+                        </span>
+                    {/if}
+                </div>
+            </div>
+            <div class="form-row my-sm-2">
+                <label for="provider_number" class="col-form-label col-sm-2">{xlt t='Provider Number'}</label>
+                <div class="col-sm-8">
+                    <input type="text" id="provider_number" name="provider_number" class="form-control" value="{$ins->get_provider_number()|attr}" onKeyDown="PreventIt(event)">
+                </div>
+            </div>
+            <div class="form-row my-sm-2">
+                <label for="provider_number_type" class="col-form-label col-sm-2">{xlt t='Provider Number (Type)'}</label>
+                <div class="col-sm-8">
+                    <select id="provider_number_type" name="provider_number_type" class="form-control">
+                        {html_options options=$ic_type_options_array values=$ins->provider_number_type_array selected=$ins->get_provider_number_type()}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row my-sm-2">
+                <label for="rendering_provider_number" class="col-form-label col-sm-2">{xlt t='Rendering Provider Number'}</label>
+                <div class="col-sm-8">
+                    <input type="text" id="rendering_provider_number" name="rendering_provider_number" class="form-control" value="{$ins->get_rendering_provider_number()|attr}" onKeyDown="PreventIt(event)">
+                </div>
+            </div>
+            <div class="form-row my-sm-2">
+                <label for="rendering_provider_number_type" class="col-form-label col-sm-2">{xlt t='Rendering Provider Number (Type)'}</label>
+                <div class="col-sm-8">
+                    <select id="rendering_provider_number_type" name="rendering_provider_number_type" class="form-control">
+                        {html_options options=$ic_rendering_type_options_array values=$ins->rendering_provider_number_type_array selected=$ins->get_rendering_provider_number_type()}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row my-sm-2">
+                <label for="group_number" class="col-form-label col-sm-2">{xlt t='Group Number'}</label>
+                <div class="col-sm-8">
+                    <input type="text" id="group_number" name="group_number" value="{$ins->get_group_number()|attr}" onKeyDown="PreventIt(event)" />
+                </div>
+            </div>
+            <div class="btn-group offset-sm-2">
+                {if $ins->get_id() eq ""}
+                    <a href="javascript:submit_insurancenumbers_add();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
+                        {xlt t='Save'}
+                    </a>
+                {else}
+                    <a href="javascript:submit_insurancenumbers_update();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
+                        {xlt t='Save'}
+                    </a>
+                {/if}
+                <a href="controller.php?practice_settings&insurance_numbers&action=list" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+                    {xlt t='Cancel'}
+                </a>
+            </div>
+
+        {else}
+            <input type="hidden" name="provider_number" value="{$ins->get_provider_number()|attr}" />
+            <input type="hidden" name="provider_number_type" value="{$ins->get_provider_number_type()|attr}" />
+            <input type="hidden" name="rendering_provider_number" value="{$ins->get_rendering_provider_number()|attr}" />
+            <input type="hidden" name="rendering_provider_number_type" value="{$ins->get_rendering_provider_number_type()|attr}" />
+            <input type="hidden" name="group_number" value="{$ins->get_group_number()|attr}" />
+        {/if}
+
+        <input type="hidden" name="id" value="{$ins->id|attr}" />
+        <input type="hidden" name="provider_id" value="{$ins->get_provider_id()|attr}" />
+        <input type="hidden" name="process" value="{$PROCESS|attr}" />
+    </form>
+{/if}
+
+<script>
+function submit_insurancenumbers_update() {
+    top.restoreSession();
+    document.provider.submit();
+}
+function submit_insurancenumbers_add() {
+    top.restoreSession();
+    document.provider.submit();
+    //Z&H Removed redirection
+}
+
+function Waittoredirect(delaymsec) {
+ var st = new Date();
+ var et = null;
+ do {
+ et = new Date();
+ } while ((et - st) < delaymsec);
+
+ }
+</script>
+
+<style>
+
+text,select {
+
+    font-size:9pt;
+    
+}
+
+</style>

@@ -1,0 +1,461 @@
+Tue Sep 05 2006
+	mikeb - Release version 3.3.7
+Sun Sep 03 2006
+	mikeb - Update documentation to reflect using gacl.ini.php
+	mikeb - Allow ADODB_DIR to be set prior to GACL class being loaded
+	mikeb - Remove ADODB_FETCH_MODE global variable, use just setFetchMode() so we don't conflict with other
+		application code.
+	mikeb - Upgrade Smarty v2.6.14
+	mikeb - Upgrade ADODB v4.92
+	mikeb - Switch from CVS to SVN on sourceforge.net.
+Sat Dec 03 2005
+	mikeb - Release version 3.3.6
+Wed Oct 26 2005
+	mikeb - Added function get_section_data() thanks to Rodrigo Moraes <rodrigo.moraes@gmail.com>
+Mon Oct 17 2005
+	mikeb - Fixed a bunch of warnings/notices thanks to Charles M Hall <cmhall@hawaii.edu>
+Thu Oct 13 2005
+	mikeb - Fixed a few PHP NOTICEs
+Sun Oct 9 2005
+	mikeb - Fixed PHP5 warning/notice of reference in gacl_api.class to do with end() call.
+Thu Sep 22 2005
+	mikeb - added dirname() to the config_file variable in admin/gacl_admin.inc.php
+Wed Sep 21 2005
+	mikeb - Addslashes to JS creation code in assign_group.php.
+Thu Sep 08 2005
+	mikeb - Added support for MS-SQL in setup.php, thanks to François Tissandier <francois.tissandier@tebu-bio.com>
+Sat Sep 03 2005
+	mikeb - Fixed typo in manual
+	mikeb - Fixed comments in gacl.class.php
+	mikeb - released v3.3.5
+Mon Aug 22 2005
+	mikeb - Fixed bug with edit_acl() for cases where a non-existant acl_id is specified. Thanks to Caleb Simonyi-Gindele <caleb@vetstar.com>
+Thu Aug 04 2005
+	mikeb - Fixed bug with config ini file path in setup.php
+Thu Jul 28 2005
+	mikeb - Fixed bug with double/single quotes on line 3526. Jérémy Cohen Solal <jeremy@eiole.com>
+Sun Jul 24 2005
+	mikeb - Removed table prefix comment regarding not using "_". Apparently it works now
+	mikeb - Fixed comments in gacl.class.php regarding group IDs, it now correctly says group values.
+	mikeb - Hashed_Cache_Lite class now checks to see if Cache_Lite class already exists before including it.
+	mikeb - Added Russian manual translation thanks to <kuzma@russofile.ru>
+	mikeb - Added gacl.conf config file for both admin interface and gacl.class.php. Thanks to Richard Plevin <rich@plevin.com>
+	mikeb - Fixed a couple notices with E_ALL enabled in the API. John Mortlock <johnm@hlaustralia.com.au>
+	mikeb - Added a SQL quoting to insert. Eder <lukas.eder@iomedia.ch>
+	mikeb - Added support for custom ACL sections to add_acl(), for instance if someone deletes the 'system' section. Vincent Woo <vwooa@sfu.ca>
+	mikeb - Upgraded ADODB to v4.65
+	mikeb - Upgraded Smarty to v2.6.9
+	mikeb - Release v3.3.5b1
+Wed Dec 8 2004
+	mikeb - Release v3.3.4
+Sun Dec 5 2004
+        mikeb - Added clear_database() API function that truncates all phpGACL tables. Thanks to Ross Lawley <ross.lawley@mediatelgroup.co.uk>
+        mikeb - Modified millennium falcon example.
+        dcech - Updated get_group_objects function with much more efficient SQL.
+Tue Nov 30 2004
+        mikeb - modified query in get_group_objects() to speed it up. It could still be optimized further though.
+Mon Nov 29 2004
+        mikeb - Applied patch to admin/edit_group.php enabling the deletion of all groups. John Mortlock <johnm@hlaustralia.com.au>
+Sun Nov 28 2004
+        mikeb - Removed default table prefix from gacl.class.php.
+        mikeb - Corrected minor mistake in the manual with regards to incorrect argument ordering in acl_check()
+        mikeb - Modified API comments for search_acl() to include return value.
+        mikeb - Fixed admin link at the bottom of several pages in the Millennium Falcon examples.
+Sat Nov 27 2004
+        mikeb - Added Millennium Falcon example written by Ross Lawley <ross.lawley@mediatelgroup.co.uk>
+        mikeb - Added 3-dimensional ACL Test page from Meinhard <meinhard.jahn@karsten-jahnke.de>
+        mikeb - Upgraded ADODB to v4.54
+        mikeb - Upgraded Smarty to v2.6.6
+Sun Nov 7 2004
+        mikeb - Updated Cache Lite class to latest version, including improved Hashed_Cache_Lite class thanks to Dan.
+        mikeb - If caching is not enabled, improved the bypassing of the caching library/overhead thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - Updated manual thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - add_group API function now assigns the value to the insert ID if the value is not specified. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        mikeb - Moved admin interface specific functions/variables from gacl_api.class.php to admin/gacl_admin_api.class.php. thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+Mon Oct 4 2004
+        mikeb - Added phpDoc style comments thanks to Gordon Luk <gordon.luk@dfafunds.com>
+Sat Oct 2 2004
+        mikeb - Added get_ungrouped_objects() function, thanks to Gordon Luk <gordon.luk@dfafunds.com>
+Sun Sep 19 2004
+        mikeb - Added a "isset()" call in Hashed_Cache_Lite
+        mikeb - Applied patch from Gordon Luk <gordon.luk@dfafunds.com> to allow the search_acl() function to proceed without a where clause.
+Thu Sep 09 2004
+        mikeb - gacl.class.php line 532, missing quotes around $root_group. Thanks to Erwan le Gall <erwan.le-gall@education.gouv.fr>
+Sat Aug 28 2004
+        mikeb - Released v3.3.3
+Mon Aug 16 2004
+        mikeb - Quoted group value in acl_get_groups(). Thanks to Christer Lindh <clindh@homenet.se>
+Wed Aug 11 2004
+        mikeb - Add comment to admin/gacl_admin.inc.php to tell people not to use "_" for table prefixes.
+Thu Aug 05 2004
+        mikeb - Fixed acl_test.php ACL Check timings. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
+Tue Jul 27 2004
+        dcech - Fixed missing table prefix in edit_object function.
+                Thanks to Martin Salo <salo@laborint.com>.
+        dcech - Updated to adodb-xmlschema CVS for prefixing.
+Mon Jul 26 2004
+        mikeb - Fixed bug in is_conflicting_acl() where it would detect an incorrect conflict when using certain AXO combinations. Thanks to a patch from Jeff McDonald <jeff@beefstudio.com>
+Sat Jul 17 2004
+        mikeb - Fixed group_admin SQL query to be standard complaint so it works on PostgreSQL.
+        mikeb - Made aro_groups/axo_groups value column unique.
+Sat Jul 10 2004
+        mikeb - Released v3.3.2
+        mikeb - upgraded to ADOdb v4.50
+        mikeb - upgraded to Smarty v2.6.3
+        mikeb - Fixed group_admin.php bug with hardcoded group_type column name.
+Sat Jun 19 2004
+        dcech - cleaned up setup script a little
+        dcech - upgraded to adodb-xmlschema CVS to get fixes for prefix-related problems.
+Fri Jun 18 2004
+        dcech - upgraded to ADOdb v4.23
+Thu Jun 17 2004
+        mikeb - Removed admin/mysql_db_demo_data.sql as it was the old 3.2.x format and useless now.
+        mikeb - Fixed issue with links and group names with spaces in them. Thanks to Gordon Luk <gordon.luk@dfafunds.com>
+        dcech - fixed object count in group admin for groups without objects
+Tue May 24 2004
+        mikeb - Fixed bug in API that stopped you from changing a group name to the same thing as the group value. Hakan Kuecuekyilmaz <hakan@lisas.de>
+Sat May 08 2004
+        mikeb - Released v3.3.1
+Fri May 07 2004
+        dcech - Fixed setup issues with new schema format, and moved to AXMLS prefixing.
+Wed May 05 2004
+        mikeb - Fixed bug in acl_get_groups() where $root_group = '' causes a SQL error. Thanks to Hakan Kuecuekyilmaz <hakan@lisas.de>
+        mikeb - Fixed Unit Tests to work with group_value's. Thanks to the help from Hakan Kuecuekyilmaz <hakan@lisas.de>
+Mon May 03 2004
+        mikeb - Updated comments for add_group() to explain the Root group limitation of our MPTT format.
+Sun May 02 2004
+        mikeb - Added Perl ACL_Check module written by Gordon Luk <gluk@dfafunds.com>
+        mikeb - Upgraded to ADODB v4.22
+        mikeb - Upgraded to Smarty v2.6.2
+        mikeb - Re-enabled JS selected = true when selecting objects to assign to groups.
+        mikeb - Released v3.3.0-final
+
+==> mikeb - Read the CHANGELOG line with "==>" infront of it. Mar 03 2004.
+
+Wed Apr 21 2004
+        mikeb - Fixed index name for value column in AXO group table. Falk <support@fajo.de>
+        mikeb - Updated schema diagrams. Falk <support@fajo.de>
+Tue Apr 06 2004
+        mikeb - applied code documentation patch thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+Mon Apr 05 2004
+        dcech - added index.php to admin directory, fixed bug in format_groups.  Thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+        dcech - Fixed object_search javascript bug, cleaned up admin navigation html.
+Sat Apr 03 2004
+        dcech - Fixed JavaScript bug in IE, minor cleanup of admin_functions.js
+Fri Mar 19 2004
+        dcech - Fixed minor typo in gacl_api.class.php.  Thanks to Andrew Eddie <eddieajau@iprimus.com.au>
+Wed Mar 03 2004
+        dcech - Updated admin interface and gacl class for value patch.
+                acl_* functions now all accept group values rather than IDs.
+        dcech - Minor fixes in gacl_api for group_value patch.
+
+==>     mikeb - *BEWARE* add_group(), edit_group() both require a group_value now! This breaks backwards compatibility.
+
+Sat Feb 28 2004
+        mikeb - Upgraded ADODB to 4.20.
+        mikeb - Applied group value patch from Christer Lindh <clindh@homenet.se>.
+                Admin interface still needs updating. As well as the gacl.class.
+Tue Feb 24 2004
+        dcech - minor fix to display AXO controls when editing ACLs
+Sat Feb 14 2004
+        mikeb - Added DB schema diagram to docs/ directory. Thanks to Falk John <support@fajo.de>
+Fri Feb 13 2004
+        dcech - Changed all JOIN queries to INNER JOIN for MySQL 3.23.x compatibility
+Thu Feb 12 2004
+        dcech - removed final trailing semicolon from schema.xml
+Tue Feb 10 2004
+        mikeb - Fixed get_object() to support ACLs.
+Mon Feb 09 2004
+        mikeb - Fixed del_object_section() to properly delete ACLs if the section is deleted. Thanks to Falk John <support@fajo.de>
+        mikeb - Fixed del_object_section() when using ACL objects.
+        mikeb - Took ";" out of schema.xml, and changed version to b2.
+        mikeb - Added some missing transaction rollbacks to gacl_api. Thanks to Falk John <support@fajo.de>
+Sun Feb 08 2004
+        dcech - Added titles to admin interface
+        mikeb - Removed the last of "is_string()" DB errro checks, replaced with "is_object($rs)"
+        mikeb - Oracle SQL syntax fixes for gacl.class.php and gacl_api.class.php. Thanks to Falk John <support@fajo.de>
+        dcech - SQL syntax fixes for admin system
+Sat Feb 07 2004
+        dcech - New style for admin interface
+Wed Feb 04 2004
+        mikeb - Removed old, out dated examples from gacl_api.class.php
+Sun Feb 01 2004
+        dcech - cleanup of assign_group.php, template updates for assign_group and group_admin
+Sat Jan 31 2004
+        dcech - more interface cleanups
+Fri Jan 30 2004
+        dcech - complete overhaul of acl_admin.php
+        dcech - fix for LIMIT in sql, complete overhaul of object search
+Thu Jan 29 2004
+        dcech - major interface overhaul
+        dcech - acl_list interface improvements, minor css modification
+        mikeb - Upgraded to ADODB 4.11, removed trailing whitespace from adodb-pager.inc.php
+        dcech - major overhaul of acl_list filtering
+Wed Jan 28 2004
+        dcech - major update to acl_list
+        dcech - fix for stress_test to handle existing groups
+        dcech - fixed trailing whitespace in adodb-pager.inc.php
+Sun Jan 25 2004
+        mikeb - Changed acl_list layout.
+        mikeb - Changed setup.php to point to about.php and modified about.php to only display the report section on first run.
+        mikeb - Unleashed v3.3.0b1 upon the world! Wahahahah!
+Sat Jan 24 2004
+        mikeb - Minor updates to CREDITS file, README, and footer.tpl
+        mikeb - Upgraded ADODB to v4.10
+        mikeb - Upgraded Smarty to v2.6.1
+        dcech - del_object: fix for new GetCol behaviour in ADOdb 4.10
+Wed Jan 14 2004
+        mikeb - modified TODO list slightly.
+        mikeb - added Navigation bar submitted by: <eddieajau@iprimus.com.au> on Oct 13/2003.
+        mikeb - Moved the "select all" checkboxes...
+        mikeb - modified include syntax in acl_admin_js.tpl slightly.
+        mikeb - add_object(), edit_object(), edit_object_section(), add_object_section(), fixed issue with hidden being set to a non-int value.
+Thu Jan 08 2004
+        dcech - Added Select/Deselect All to Admin Interface
+Thu Jan 08 2004
+        dcech - applied _group_ patch
+Mon Nov 24 2003
+        mikeb - Fixed PostgreSQL LEFT JOIN issue with is_conflicting_acl(), Can't reference multiple tables, then a LEFT JOIN. ie:
+                        select * from table1, table2 LEFT JOIN table3 LEFT JOIN table4.
+                        Instead:
+                        select * from table1 LEFT JOIN table2 LEFT JOIN table3 LEFT JOIN table4.
+        mikeb - Fixed PosgresSQL LEFT JOIN issue with acl_check()
+        mikeb - Fixed PostgreSQL transaction issue, where generating sequences causes the transaction to abort.
+                        Simply move the transaction start _after_ the GenID() call.
+        dcech - cleaned up get_object_section_section_id - fixed bug if invalid object type specified, and bug if no value specified.
+Wed Nov 19 2003
+        mikeb - Added transactions to edit_object_section()
+        mikeb - Added more API test_suite functions.
+        mikeb - Fixed minor display issue with pager.tpl.
+        dcech - numerous fixes in gacl_api. edit_group, add_group_object, rebuild_tree & _rebuild_tree.
+        dcech - new functions in gacl_api. get_root_group_id & get_object_groups.
+Tue Nov 18 2003
+        mikeb - Added more tests to the test suite. Fixed up a couple SQL syntax errors in del_group().
+Fri Nov 14 2003
+        mikeb - Fixed minor bug in get_group_objects() to do with the SQL query, and table prefixes.
+        dcech - improved count_all function and documentation
+        dcech - updated Stress Test & added script to do random ACL checks
+        dcech - fixed bug where debug_db was called after RollBackTrans
+Wed Nov 12 2003
+        mikeb - More MPTT fixes from Dan
+        mikeb - is_conflicting_acl() patch from Dan also.
+Tue Nov 11 2003
+        mikeb - Applied MPTT (different group tree format) patch from Dan Cech <dcech@phpwerx.net>
+        mikeb - Minor cleanup of the above patch.
+        mikeb - FIxed a couple minor bugs with add_group_object() and del_object() relating to the MPTT patch.
+Wed Nov 05 2003
+        - Fixed issue where ARO and AXO groups use the same sequence. Not really a bug, but shouldn't
+        be the case. Thanks to Dan Cech <dcech@phpwerx.net>
+Wed Oct 29 2003
+        - Fixed bug in schema.xml where group_id was missing from a unique index.
+Tue Oct 21 2003
+        - Group select boxes represent the tree structure much better. Purely cosmetic change.  Thanks to Dan Cech <dcech@phpwerx.net>
+Wed Oct 08 2003
+        - Released 3.2.2
+        - Fixed bug in acl_list.php where the filter wasn't being passed between pages. Thanks to Dan Cech <dcech@phpwerx.net>
+        - Greatly improved the speed of acl_list.php. Thanks to Dan Cech <dcech@phpwerx.net>
+Sun Oct 05 2003
+        - Fix for major bug in AXOs, if you don't specify AXO values in acl_check(), it could
+                still match ACLs that have AXO groups assigned to them. Discovered by Dan Cech <dcech@phpwerx.net>.
+Sun Oct 03 2003
+        - Released 3.2.1
+Mon Sep 29 2003
+        - Fixed possible bug with re-using database connection objects.
+        - Fixed bug in assign_group.tpl where it was hard coded to reference AROs.
+        - Fixed major bug with table prefixes and del_object() function, as well as sequences. Thanks to Ian Eure <ieure@debian.org> for reporting this.
+        - Fixed minor bug in generating javascript arrays with values containing quotes. Bug found by: Martino Piccinato <m.piccinato@nexus.it>
+Sat Sep 20 2003
+        - Released 3.2.0-final.
+        - Upgraded ADODB to 3.90.
+Sat Sep 06 2003
+        - Fixed minor bug when assigning objects to groups. Thanks Jos Vanlanduyt <jos.vanlanduyt@higis.eu.org> for pointing this out.
+Mon Aug 25 2003
+        - Added SOAP server and clients for PHP, Perl, and Python.
+        - Updated README regarding upgrading and PostgreSQL.
+        - Released phpGACL v3.2.0b2
+Thu Aug 21 2003
+        - Added Help / About page.
+        - Fixed up the ACL Sections, to use values instead of IDs for consistency sake
+        - Upgraded to Smarty 2.5.0
+        - Released phpGACL v3.2.0b
+Mon Aug 18 2003
+        - Merged table prefix patch from Ben Margolin (ben@prince.org), did some minor clean-ups/fixes.
+        - Upgraded to ADODB 3.72
+Wed Aug 13 2003
+        - Decreased column lengths to varchar(240) so MySQL can index multiple columns. Thanks to Ben Margolin (ben@prince.org)
+        - Fixed bug in add_object(), it was selecting from a non-existent table. Thanks to Ben Margolin  (ben@prince.org)
+Tue July 08 2003
+        - Create a new setup.php from scratch using ADODB XML-Schema. This should greatly ease table creation on many different databases.
+        - Modified ADODB XML-Schema to support all types of indexes. Submitted patch to Richard Tango-Lowy <richtl@arscognita.com>
+
+Mon July 07 2003
+        - add_object() now returns TRUE if the object is already in the database.
+
+Fri July 04 2003
+        - Updated table schema for the acl table. Added the acl_section table, and the phpgacl table.
+        - Added ACL sections. The purpose of these is like all other sections, to simply classify objects.
+                For example, you may want to differentiate between automatically created ACLs (System ACLs) and
+                manually created ACLs (User ACLs). As some installations may have several thousand automatically created
+                ACLs, its nice to filter these out.
+        - add_group_object() now returns TRUE if the object is already assigned to the group.
+
+Tue July 01 2003
+        - Fixed security bug that could allow someone to see your database password.
+
+Mon June 16 2003
+        - Added acl_query_array() to aid in running an acl_check() over a large amount of AROs, returning section_value, values
+                of those that return true. Especially useful with get_group_objects();
+
+Thu June 12 2003
+        - Added "ACLs" link to the group page, so you easily show all ACLs a specific group is assigned too.
+        - Added "ACLs" link to the group assign page, so you easily show all ACLs a specific ARO/AXO is assigned too.
+        - modified return array format for get_group_objects() and added functionality to return objects in child groups as well.
+
+Wed June 11 2003
+        - Object searching now supports a newline delimited list of names/values.
+
+Sun June 8 2003
+        - Fixed more warnings.
+
+Wed May 28 2003
+        - More minor warning fixes.
+        - Moved the manual to the documentation directory.
+        - Case insensitive object searching when assigning to groups.
+
+Mon May 26 2003
+        - Fixed many more PHP warnings all over.
+        - Added example.php
+        - Upgraded Smarty to v2.5
+        - Upgraded ADODB to v3.5. Added line to set FETCH_MODE on a per connection basis.
+
+Wed May 21 2003
+        - Fixed add_acl() for AXOs, as it was previously completely broken.
+
+Mon May 19 2003
+        - Fixed ACL List filtering so it returns all ACL rows, not just the ones matching the LIKE query.
+
+Fri May 16 2003
+        - Fixed a few PHP warnings gacl.class.php
+        - Removed an else condition from an if statement that didn't do anything anyways.
+
+Sun Mar 09 2003
+        - Fixed small bug in API function get_object_id() where it referenced the $name variable,
+                but $name was never used. If the function was used properly, this shouldn't have affected anything.
+                Thanks to: Harald Fielker <fielker@informatik.fh-augsburg.de> for pointing this out.
+
+Sat Mar 01 2003
+        - Fixed up the layers with AXO show/hide functionality. Usable, but still needs improvement.
+
+Thu Feb 27 2003
+        - Attempted to add javascript show/hide to the AXO section of the acl_admin.
+
+Tue Feb 25 2003
+        - Fixed invalid DB reference in acl_get_groups(); Thanks to Gianluca Faieta <gfaieta@iname.com> for the patch.
+
+Thu Feb 20 2003
+        - Fixed bug in get_group_objects() that caused it to return the query record set, not the data itself. Thanks to Thomas <tstruebi@pentacon.ch> for submitting a patch.
+        - Fixed bug in del_group(), as it neglected to remove the object mapping. Thanks to Thomas <tstruebi@pentacon.ch> for pointing this out.
+
+Tue Feb 18 2003
+        - Added 'force_cache_expire' option, so the cache is automaticalled expired when ACL/Group modifications take place.
+                This should allow the cache_expire_time to be greatly increased (86400?) and still maintain instance updates.
+        - Removed un-needed table joins in search_acl() resulting in a large performance increase.
+
+Mon Feb 17 2003
+        - Added "limit" to ARO select query in group_assign.php
+
+Fri Feb 14 2003
+        - Tweeked consolidate_edit_acl() to better consolidate ACLs in the expected manor.
+        - Fixed cache ID in acl_get_group_path() so it doesn't contain non-alphanumeric characters.
+
+Wed Feb 12 2003
+        - Fixed bug caused by overzealous array_unique in add_acl()
+        - Switched acl_query() to return TRUE/FALSE for the 'allow' return value instead of 1/0
+        - API group functions didn't manipulate the path_to_root mapping when reparenting or deleting occured.
+
+Tue Feb 04 2003
+        - Fixed bug in edit_group(), added more error checking.
+        - Added object searching to the assign group pages.
+        - Moved all templates to $smarty_template_dir/phpgacl/ to better integrate with existing smarty installations.
+        - Fixed recursion in format_groups() so it doesn't use globals anymore.
+        - Greatly improved performance in sort_groups() (50% improvement) and format_groups() (20%) functions.
+
+Thu Jan 31 2003
+        - Added conflict detection to add_acl();
+
+Thu Jan 30 2003
+        - Created search_acl() to search for ACLs mapped to specific objects. This should also work for detecting conflicting ACLs.
+        - Created shift_acl() that basically does the opposite of append_acl(). Remove just the specific objects from the ACL mapping.
+
+Wed Jan 29 2003
+        - Created append_acl() function for simply appending ACO/ARO/ARO Groups/AXO/AXO Groups on to an already existing ACL.
+
+Mon Jan 28 2003
+        - Added ACL searching.
+        - Added ACL debug page.
+        - Added sanity checks to add_acl()/edit_acl() to make sure the objects mapped to ACLs actually exist.
+        - Transactionalized most API functions.
+
+Fri Jan 24 2003
+        - Fixed JS UnSelect button bug for AXO groups.
+        - Added Object searching to help the admin interface handle an unlimited number of objects.
+        - Added "max_select_box_items" config option to set the maximum number of items shown in select boxes.
+
+Tue Jan 14 2003
+        - Upgraded ADODB to v3.00
+        - Added user definable ACL return values, along with the acl_return_value() function.
+        - Added ACL notes which serve no other purpose other than to help the administrator keep track of ACL's
+        - Added paging for large record sets.
+
+Sun Dec 15 2002
+        - Moved to a completely OO structure.
+        - Config options can now be passed during object creation. $gacl = new gacl($options);
+
+Sun Dec 01 2002
+        - Fixed bug that broke allow and enabled from being changed when editing ACLs.
+
+Sat Nov 30 2002
+        - Merged ERASE feature in to API functions, del_object() and del_object_section() thanks to Martino.
+        - Changed the acl list page layout
+        - Changed the acl test page layout
+        - Added assigned object count to the group admin page.
+        - Fixed a JS bug that wouldn't allow you to "select" (>>) any objects at all, if one was already selected.
+
+Sun Nov 17 2002
+        - format_groups() function wasn't recursing as efficiently as it could be. Fixed.
+        - Re-wrote API aro/aco/group specific functions to be generic to help support AXO's.
+        - Re-wrote aro/aco/group specific admin scripts to be generic to help support AXO's.
+        - Added AXO support to acl_admin.php.
+        - Updated gacl.inc.php to support AXO's.
+
+Mon Nov 11 2002
+        - Changed the ordering of the main acl_query() SQL query. It wasn't properly preferring the deepest groups ACLs. - Thanks to Mauro
+                for spotting this one and helping me track it down.
+        - Fixed bug that prevented ACO/ARO's with the same 'value' in different sections from being assigned to an ACL. - Thanks to Martino
+        - Fixed bug that made it seem like assigning a single ARO to a group really added all AROs with the same value to that group. - Thanks to Martino
+        - Fixed bug causing virtual subtree'ing to only traverse 2 levels of the tree. - Thanks to Martino
+        - Used dirname(__FILE__) to remove the need for users to manually set the root path in config.inc.php.
+
+Wed Oct 23 2002
+        - Switched away from ID's in favor of VALUES for most functions, including acl_check(). Broke all backwards compatibility.
+        - Modified DB Schema to reflect above.
+        - When ARO/ACO values are changed, the API will modify said values in all tables.
+        - Added a variable for phpGACL's current path.
+
+Wed Oct 09 2002
+        - Added "hidden" flags to relavent API functions
+        - Added Oracle 8i schema to setup.php
+        - Changed group "level" table column name to "tree_level", as the old name "level" was a reserved word in some db's.
+                MySQL: ALTER TABLE `groups_path` CHANGE `level` `tree_level` INT(12) DEFAULT '0' NOT NULL
+        - Modified a few of the queries to be more portable, specifically for Oracle's sake.
+        - Added a FAQ entry regarding individualized item permissions.
+
+Wed Sep 25 2002
+        - Added multi-layer ACO checking to ACL_QUERY()
+        - Removed multi-layer ACO checking in favor of "dual" acl checking. ie:
+                If you want to set ACL's on a contact list. Create ACO's for each Contact in the list.
+                and create more generic ACO's for things like "View - Contacts", "Edit - Contacts".
+                Then simply create an ACL with ACO's "View - Contacts" AND "Contact ID: 15"
+                Then if ( acl_check("View - Contacts", "John Doe") AND acl_check("Contact ID: 15", "John Doe"))
+                Very simple, and should be just as fast, or faster then adding more bloat to the database.
+        - Added "hidden" flag to ACO, ACO Sections, ARO, and ARO sections.

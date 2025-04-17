@@ -1,0 +1,114 @@
+/**
+ *  Patient Portal
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+html,
+body {
+  touch-action: none;
+}
+
+@media (width >= 1180px) {
+  #openSignModal .modal-xl {
+    min-width: 98vw !important;
+  }
+}
+
+/* stylelint-disable */
+.embed-responsive-21by7 {
+  padding-top: 36% !important;
+}
+/* stylelint-enable */
+
+/* stylelint-disable */
+.signature-pad-body {
+  border: 1px solid #e8e8e8;
+  -webkit-box-direction: normal;
+  -webkit-box-orient: vertical;
+  display: flex;
+  flex-direction: column;
+  padding: 0.1rem;
+  position: relative;
+}
+/* stylelint-enable */
+
+/* stylelint-disable */
+.signature-pad-content {
+  align-items: flex-end;
+  background: #fff;
+  -webkit-box-align: initial;
+  -webkit-box-pack: initial;
+  display: flex;
+  -ms-flex-align: initial;
+  -ms-flex-pack: initial;
+  justify-content: flex-start;
+  margin: 0;
+  user-select: none;
+}
+/* stylelint-enable */
+
+.signature-pad-content canvas {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  touch-action: none;
+  width: 100%;
+}
+
+.signature-pad-footer {
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+  text-align: center;
+  width: 100%;
+}
+
+/* stylelint-disable */
+.signature-pad-actions {
+  -webkit-box-pack: justify;
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  margin: 0.5rem 0 0;
+  padding: 0.5rem;
+}
+/* stylelint-enable */
+
+.sigNav {
+  display: none;
+  height: 2.25em;
+  list-style-type: none;
+  margin: 0;
+  position: relative;
+}
+
+.signature {
+  cursor: pointer;
+  height: 6rem !important;
+  width: auto !important;
+  z-index: 5 !important;
+}
+
+.signature img {
+  color: var(--danger) !important;
+  cursor: pointer;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+#openSignModal .modal-header {
+  padding: 2px;
+}
+
+#openSignModal .modal-open {
+  padding-right: 0;
+}
+
+#openSignModal .modal-header .input-group {
+  margin-left: 5%;
+}

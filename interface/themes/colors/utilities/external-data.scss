@@ -1,0 +1,20 @@
+/* OpenEMR external data Override */
+
+@if $compact-theme == false {
+  .dm-ed-in-1 {
+    background-color: $palepale !important;
+    border-bottom: thin solid $darkest !important;
+  }
+
+  ul.ext-tab-head li.child-active {
+    border-bottom: 2px solid $darker !important;
+  }
+
+  .dm-ed-in-9 {
+    background-color: $mid;
+  }
+
+  .dm-ed-in-6 {
+    padding-left: 5px;
+  }
+}

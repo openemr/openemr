@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="OpenEMR"
+         description="OpenEMR is a Free and Open Source electronic health records and medical practice management application"
+         default="dist" basedir=".">
+
+    <property name="dir.src" value="${project.basedir}"/>
+    <property name="dir.vendor" value="${project.basedir}/vendor"/>
+    <property name="dir.assets" value="${project.basedir}/public/assets"/>
+
+    <target name="vendor-clean">
+        <echo msg="Trying to clean up vendor dir"/>
+        <phingcall target="clean-vendor-dir">
+        </phingcall>
+    </target>
+
+    <target name="assets-clean">
+        <echo msg="Trying to clean up assets dir"/>
+        <phingcall target="clean-assets-dir">
+        </phingcall>
+    </target>
+
+
+    <target name="clean-vendor-dir">
+        <!-- Delete git files from vendor  -->
+        <delete verbose="true">
+            <fileset dir="${dir.vendor}" includes="**/*.git*" defaultexcludes="false"/>
+            <fileset dir="${dir.vendor}" includes="**/*.cvs*" defaultexcludes="false"/>
+        </delete>
+
+        <delete dir="${dir.vendor}/adldap2/adldap2/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/adodb/adodb-php/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/adodb/adodb-php/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/container-interop/container-interop/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/test" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/maintenance" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/plugins" verbose="true"/>
+        <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
+        <delete dir="${dir.vendor}/knplabs/knp-snappy/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/markbaker/complex/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/mobiledetect/mobiledetectlib/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/myclabs/deep-copy/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/phenx/php-font-lib/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phenx/php-svg-lib/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/phpoffice/phpspreadsheet/samples" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/php-code-coverage/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/php-timer/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/php-token-stream/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/phpunit/phpunit-mock-objects/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/rospdf/pdf-php/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sabberworm/php-css-parser/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/code-unit-reverse-lookup/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/comparator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/diff/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/environment/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/exporter/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/global-state/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/object-enumerator/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/sebastian/recursion-context/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/config/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/console/Tester" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/console/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/dependency-injection/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/event-dispatcher/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/filesystem/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/process/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/translation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
+        <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
+        <delete dir="${dir.vendor}/yubico/u2flib-server/examples" verbose="true"/>
+        <delete dir="${dir.vendor}/yubico/u2flib-server/tests" verbose="true"/>
+    </target>
+
+
+    <target name="clean-assets-dir">
+        <delete dir="${dir.assets}/flot/examples" verbose="true"/>
+        <delete dir="${dir.assets}/jquery-datetimepicker/tests" verbose="true"/>
+        <delete dir="${dir.assets}/numeral/tests" verbose="true"/>
+    </target>
+
+
+</project>

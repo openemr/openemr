@@ -1,0 +1,53 @@
+{#
+A vertical band login layout
+
+This layout creates a vertical banded login layout
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "login/base.html.twig" %}
+
+{% block css %}
+{{ parent() }}
+<style type="text/css">
+/* Custom CSS to be moved after the BS5 migration, this helps responsiveness */
+@media (min-width: 768px) {
+    .vertical-band {
+        max-width: 36%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vh-100 p-5 d-flex flex-column justify-content-center mx-auto vertical-band">
+    <div class="align-items-center">
+        {% include "login/partials/html/primary_logo.html.twig" %}
+        {% include "login/partials/html/login_details.html.twig" %}
+        {% include "login/partials/html/acknowledgements.html.twig" %}
+        {{ divApp }}
+    </div>
+    {% if displayGoogleSignin %}
+    <div class="d-none">
+        <div class="form-group">
+            <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+            <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+            <div id="google-signin" onclick="return do_google_signin();">
+                <!-- This message is displayed if the google platform API cannot render the button -->
+                <span id="google-signin-service-unreachable-alert" style="d-none">
+                    {{ "Google Sign-In is enabled but the service is unreachable."|xlt }}
+                </span>
+            </div>
+            <div id="google-signout">
+                <a href="#" onclick="signOut();">{{ "Sign out"|xlt }}</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

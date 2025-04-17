@@ -1,0 +1,36 @@
+/*
+ * closeDlgIframe common styles
+ */
+@if $compact-theme == false {
+  div.closeDlgIframe {
+    background: $danger;
+    cursor: pointer;
+    height: 25px;
+    position: absolute;
+    top: -12px;
+    width: 25px;
+    z-index: 10010;
+    #{$right}: -12px;
+
+    &::before {
+      @extend .fas;
+      color: $white;
+      content: fa-content('#{$fa-var-times}');
+      display: inline-block;
+      font-weight: 900;
+      height: 25px;
+      line-height: 25px;
+      margin: auto;
+      text-align: center;
+      width: 100%;
+    }
+  }
+
+  /* important for drag and resizing */
+  .drag-action,
+  .resize-action,
+  .drag-resize {
+    touch-action: none;
+    user-select: none;
+  }
+}

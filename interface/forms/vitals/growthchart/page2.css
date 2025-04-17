@@ -1,0 +1,10 @@
+/* required for css-html growth chart in chart.php */
+div#page2 {
+  display: inline;
+  visibility: visible;
+}
+
+div#page1 {
+  display: none;
+  visibility: hidden;
+}

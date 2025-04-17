@@ -1,0 +1,157 @@
+/**
+ *  Sidebar
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+@if $compact-theme == false {
+  .body-topnav {
+    -webkit-font-smoothing: antialiased !important;
+    overflow-x: hidden !important;
+    padding-top: 3.125rem !important;
+  }
+
+  /* if not a grid then main available */
+  main,
+  .main-added {
+    margin-left: 15.625rem;
+    transition: all 0.5s ease;
+    width: calc(100% - 15.625rem);
+  }
+
+  main.active,
+  .main-added.active {
+    margin: 0;
+    width: 100%;
+  }
+
+  /*
+ * Topbar
+ */
+
+  .top-before-sidebar {
+    box-shadow: 0 0 5px rgba($dark, 0.2);
+  }
+
+  .navbar-brand i {
+    margin-right: 0.5rem;
+  }
+
+  .navbar-toggler {
+    @include font-size("1.5rem");
+    margin-top: 0.25rem;
+  }
+
+  .navbar-expand-sm .navbar-collapse,
+  .navbar-expand-md .navbar-collapse {
+    padding-left: 0.625rem;
+    width: auto;
+  }
+
+  /*
+ * Sidebar
+ */
+
+  .nav-sidebar {
+    bottom: 0;
+    box-shadow: 3px 3px 10px rgba($black, 0.1);
+    height: 100vh;
+    left: 0;
+    min-width: 15.625rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    transition: all 0.5s ease;
+    white-space: nowrap;
+    width: 15.625rem;
+    z-index: 1000;
+  }
+
+  .nav-sidebar.active {
+    margin-left: -15.625rem;
+  }
+
+  .sidebar-h-40 {
+    max-height: 40% !important;
+  }
+
+  .sidebar-h-60 {
+    max-height: 60% !important;
+  }
+
+  .sidebar-expand {
+    display: inline-flex;
+    margin: 0 0 1rem;
+  }
+
+  .sidebar-expand button {
+    @include font-size("2rem");
+    background: 0 0;
+    border-color: rgba($white, 0.1);
+    border-width: 0;
+    color: $body-color;
+    cursor: pointer;
+    line-height: 0.9;
+    transition: all 0.5s ease;
+  }
+
+
+  @media (min-width: map-get($grid-breakpoints, "md")) {
+    .sidebar-header {
+      padding: 0 1rem;
+    }
+  }
+
+  @media (max-width: map-get($grid-breakpoints, "md")) {
+    .nav-sidebar {
+      margin-left: -15.625rem;
+    }
+
+    .nav-sidebar.active {
+      margin-left: 0;
+    }
+
+    main,
+    .main-added {
+      margin: 0;
+      width: 100%;
+
+    }
+
+    main.active,
+    .main-added.active {
+      margin-left: 15.625rem;
+      width: calc(100% - 15.625rem);
+    }
+  }
+
+  .rotate-90cw {
+    transform: rotate(90deg);
+  }
+
+  .rotate-180cw {
+    transform: rotate(180deg);
+  }
+
+  .rotate-90ccw {
+    transform: rotate(-90deg);
+  }
+
+  .rotate-180ccw {
+    transform: rotate(-180deg);
+  }
+
+  .flip-y {
+    transform: perspective(100px) rotateY(180deg);
+  }
+
+  .flip-x {
+    transform: perspective(100px) rotateX(180deg);
+  }
+}

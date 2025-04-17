@@ -1,0 +1,17 @@
+<tr>
+    <td><span class="vitals-title">{{ "BMI Status"|xlt  }}</span></td>
+    <td>{{ "Type"|xlt  }}</td>
+    {% if is_edit %}
+    <td class='currentvalues p-2'>
+        <input type="text" class="form-control skip-template-editor" size='20'
+            name="BMI_status" id="BMI_status" value="{{ vitals.get_BMI_status()|attr }}"/></td>
+    <td class="editonly"></td>
+    <td class="editonly actions">
+        {% include 'vitals_actions.html.twig' with { input:'BMI_Status' } %}
+    </td>
+    {% endif %}
+    {% include 'vitals_historical_values.html.twig' with { useMetric:false, vitalsValue:'get_BMI_status', vitals:vitals, results:results, is_edit:is_edit } %}
+</tr>
+{% if is_edit %}
+{% include 'vitals_reason_row.html.twig' with { input:'BMI_Status', title:'BMI Status'|xl, vitalDetails:vitals.get_details_for_column('BMI_Status') } %}
+{% endif %}

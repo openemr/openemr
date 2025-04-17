@@ -1,0 +1,161 @@
+{#
+Partial twig file that represents the insurance edit screen for a patient
+
+@package   OpenEMR
+@link      http://www.open-emr.org
+@author    Stephen Nielson <snielson@discoverandchange.com>
+@copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div id="edit-policy-screen" class="insuranceEditContainer d-none">
+    <ul class="tabNav">
+        {% for instype in insuranceTypes %}
+            <li class="{% if instype == activeType %}current{% endif %} nav-link-insurance-type-container"><a href="#" class="nav-link-insurance-type" data-type="{{ instype|attr }}">{{ instype|capitalize|text }}</a></li>
+        {% endfor %}
+    </ul>
+
+    {# TODO: @adunsulag need aria-labels here for screen-readers #}
+    <div class="tabContainer">
+        {% for instype in insuranceTypes %}
+            {# Need a drop down select with each grouped insurance (by type) #}
+            <div data-type="{{ instype|attr }}" class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
+                <div class="form-row mb-2"><!-- start nested row -->
+                    <div class="col-md-6 text-align-right">
+                        <div class="btn-group">
+                            <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary btn-save-policy" />
+                            <button type="button" class="btn btn-primary btn-saving d-none">{{ "Saving..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
+                        </div>
+                        <div class="alert-success alert d-none insurance-save-success p-2 mt-2">
+                            <p>{{ "Policy saved successfully."|xlt }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-row insurance-type-selector-row-{{ instype|attr }}">
+                            <div class="col-md-3 label_custom pb-3">
+                                <span class='required'>{{ "Selected Policy"|xlt }}</span>
+                            </div>
+                            <div class="col-md-9">
+                                <select id="insurance-type-{{ instype|attr }}" class="form-control form-control-sm sel2 mb-1" data-type="{{ instype|attr }}" class="d-none">
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="form-row mb-2 insurance-type-no-policies insurance-type-no-policies-{{ instype|attr }} d-none">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <p>{{ "No insurance policies for this insurance type were found."|xlt }}</p>
+                                    <p>{{ "You can add a new policy to this patient for this insurance type by filling out the form below and pressing the save button."|xlt }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" id="insurance-info-type-{{ instype|attr }}">
+                    <div class="alert alert-info">
+                        <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% if uspsVerifyAddress %}
+    <template id="insurance-verify-address-template">
+        <input type='button' class='btn btn-sm btn-secondary mb-1' value='{{ "Verify Address"|xla }}' />
+    </template>
+{% endif %}
+{% if enableSwapSecondaryInsurance %}
+    <template id="insurance-swap-template">
+        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-primary mb-1 d-none' data-type='secondary' data-target-type="primary">{{ "Swap With Primary"|xla }}<i class="wait fa fa-cog fa-spin ml-2 d-none"></i></button>
+        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-secondary mb-1 d-none' data-type='tertiary' data-target-type="secondary">{{ "Swap With Secondary"|xla }}<i class="wait fa fa-cog fa-spin ml-2 d-none"></i></button>
+    </template>
+{% endif %}
+{% include "patient/insurance/_insurance_validation_errors.html.twig" %}
+{# Insurance Edit Template #}
+<template id="insurance-edit-template">
+    <div class="col-md-6"><!-- start left column -->
+
+        <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 label_custom pb-3">
+                <span class='required' data-validation-field="provider">{{ "Provider"|xlt }}</span>
+            </div>
+            <div class="col-md-9">
+                {# TODO: @adunsulag fix hard coded width here #}
+                <select name="form_provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+                    <option value="">{{ 'Unassigned'|xlt }}</option>
+                </select>
+                <a data-modal-title="{{ "Insurance Search/Add/Edit"|xla }}" class="medium_modal btn btn-primary insurance-search-open-finder" href="../../practice/ins_search.php?ins=" role="button">{{ 'Search/Add/Edit'|xlt  }}</a>
+            </div>
+        </div>
+        {% for fieldRow in fields.left %}
+            {% if fieldRow.skip is not defined or fieldRow.skip %}
+                <div class="form-row"><!-- start nested row -->
+                    <div class="col-md-3 pb-1 label_custom">
+                        <span data-validation-field="{{ fieldRow.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
+                    </div>
+                    <div class="col-md-9">
+                        {% if fieldRow.compound is defined %}
+                            {% for compoundField in fieldRow.compound %}
+                                {{ generateFormField(compoundField, '') }}
+                                <span data-validation-field="{{ compoundField.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %} d-none'>{{ compoundField.name|text }}</span>
+                            {% endfor %}
+                        {% else %}
+                            {{ generateFormField(fieldRow, '') }}
+                        {% endif %}
+                        {% if fieldRow.description %}
+                            <span class='small mb-1'><br />{{ fieldRow.description|text }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div><!-- end left column -->
+    <div class="col-md-6"><!-- start right column -->
+
+        <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom">
+                <span class='required' data-validation-field="subscriber_relationship">{{ 'Relationship'|xlt }}:</span>
+            </div>
+            <div class="col-md-9">
+                {{ generateFormField({data_type: 1, field_id: 'subscriber_relationship', 'list_id': 'sub_relation'
+                    , 'empty_title': ' ', classNames: 'mb-1 sel2', smallform: 'true'}, '') }}
+                <a href="browse.php?browsenum=1" class='text subscriber-relationship-open-finder'>({{ "Browse"|xlt }})</a>
+            </div>
+        </div>
+        {% for fieldRow in fields.right %}
+            {% if fieldRow.skip is not defined or fieldRow.skip %}
+                <div class="form-row"><!-- start nested row -->
+                    <div class="col-md-3 pb-1 label_custom">
+                        <span data-validation-field="{{ fieldRow.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
+                    </div>
+                    <div class="col-md-9">
+                        {% if fieldRow.compound is defined %}
+                            {% for compoundField in fieldRow.compound %}
+                                {{ generateFormField(compoundField, '') }}
+                                <span data-validation-field="{{ compoundField.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %} d-none'>{{ fieldRow.name|text }}</span>
+                            {% endfor %}
+                        {% else %}
+                            {{ generateFormField(fieldRow, '') }}
+                        {% endif %}
+                        {% if fieldRow.description %}
+                            <span class='small mb-1'><br />{{ fieldRow.description|text }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        {# We don't use generate_form_field because there currently isn't a way to generate a select drop down with an already existing static array #}
+        <div class="form-row">
+            <div class="col-md-3 pb-1 label_custom">
+                <span data-validation-field="policy_type">{{ 'Secondary Medicare Type'|xlt }}:</span>
+            </div>
+            <div class="col-md-9">
+                <select class='form-control form-control-sm mb-1 sel2' name='form_policy_type'>
+                    {% for key,value in policy_types %}
+                        <option value="{{ key|attr }}">{{ value|text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div><!-- end right column -->
+</template>

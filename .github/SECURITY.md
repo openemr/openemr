@@ -1,0 +1,4 @@
+# Reporting Security Vulnerabilities
+If you discover a security vulnerability in OpenEMR, there are two options for reporting  the vulnerability to the OpenEMR Security Team.
+  - **Option 1 _(preferred)_**  : [Report the vulnerability at this link](https://github.com/openemr/openemr/security/advisories/new). See [Privately reporting a security vulnerability](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability#privately-reporting-a-security-vulnerability) for instruction on doing this.
+  - **Option 2**: Report the vulnerability by sending an email to the OpenEMR Security Team email at security@open-emr.org . If possible, please encrypt your email via PGP with this [public key](https://www.open-emr.org/files/openemr-security-pgp-key.asc).

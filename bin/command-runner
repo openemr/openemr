@@ -1,0 +1,26 @@
+#!/usr/bin/php
+<?php
+/**
+ * command-runner.php Handles the loading and running of OpenEMR commands that leverage the php namespaces.
+ * Preference would be to use something like Symfony/Console but we are attempting to avoid too many dependencies so
+ * we have written this simplified command runner for dev & openemr administration needs
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+$rootPath = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+require_once $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+
+
+use OpenEMR\Common\Command\Runner\CommandRunner;
+
+if (php_sapi_name() !== 'cli') {
+    echo "Only php cli can execute a command\n";
+    die();
+}
+
+$commandRunner = new CommandRunner($rootPath, pathinfo(__FILE__, PATHINFO_FILENAME));
+$commandRunner->run();
+exit;

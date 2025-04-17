@@ -1,0 +1,196 @@
+{#
+    Presentation layer for the insurance card used in the patient demographics.
+
+    @package   OpenEMR
+    @link      http://www.open-emr.org
+    @author    Stephen Nielson <snielson@discoverandchange.com>
+    @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+    @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<ul class="nav nav-tabs mb-2 insurance-nav-tabs">
+    {% for t in types %}
+    {% if loop.first or ins[t] %}
+    <li class="nav-item" role="presentation">
+        <a data-type="{{ t|attr }}" href="#{{ t|attr }}" id="{{ t|attr }}-tab" data-toggle="tab" role="tab" aria-controls="{{ t|attr }}" aria-selected="{{ loop.first ? "true" : "false" }}" class="nav-link {{ loop.first ? "active" : "" }}">
+            {{ t|capitalize|text }}
+        </a>
+    {% endif %}
+    {% endfor %}
+    <li class="nav-item" role="presentation">
+        <a id='eligibility-tab' class="nav-link" href='#eligibility' data-toggle="tab" aria-controls="eligibility" role="tab" aria-selected="false">{{ "Eligibility"|xlt }}</a>
+    </li>
+</ul>
+<div class="tab-content px-1">
+{% for t,data in ins %}
+<div class="tab-pane {{ loop.first ? "active" }}" id="{{ t|attr }}" role="tabpanel" aria-labelledby="{{ t|attr }}-tab">
+    {% for c in data.policies %}
+        <div class="tab-pagination-pane {{ not loop.first ? "d-none" }}" id="{{ t|attr }}-{{ c.id|attr }}">
+            <div class="text-primary pb-2 pt-1">
+                {{ c.type|capitalize|text }} {{ "Insurance"|xlt }}
+                {% if c.dispFromDate == true %}{{ "from"|xlt}} {{ c.date|shortDate|text }} {% endif %}
+                {{ "until"|xlt }} {{ (c.date_end) ? c.date_end|shortDate|  text : "Present"|xlt }}
+            </div>
+            <div class="d-flex justify-content-between">
+                <div class="insurer">
+                    {% if c.insco is defined %}
+                        <em>{{ "Insurer"|xlt }}</em>
+                        <address>
+                            <strong>{{ c.insco.name|text }}</strong><br>
+                            {{ c.insco.address.line1|text }}<br>
+                            {{ (c.insco.address.line2 != "") ? c.insco.address.line2|text ~ "<br>"|raw }}
+                            {{ c.insco.address.city|text }} {{ c.insco.address.state|text }}, {{ c.insco.address.postal|text }}
+                        </address>
+                    {% else %}
+                        <span class="font-weight-bold text-danger">{{ "Unassigned"|xlt }}</span>
+                    {% endif %}
+                </div>
+                <div class="subscriber">
+                    {% set showState = (c.subscriber_state != "") ? true : false %}
+                    {% set showCountry = (c.subscriber_country != "") ? true : false %}
+                    {% set showPostal = (c.subscriber_postal_code != "") ? true : false %}
+                    <em>{{ "Subscriber"|xlt }}</em>
+                    <address class="mb-1">
+                        <strong>{{ c.subscriber_full_name|text }}{{ c.subscriber_relationship != "" ? " (" ~ c.subscriber_relationship|capitalize|text ~ ")" : "" }}</strong><br>
+                        {{ c.subscriber_street|text }}<br>
+                        {{ c.subscriber_city|text }}{{ showState == true ? " " ~ c.subscriber_state|text : ""}}{{ showPostal == true ? ", " ~ c.subscriber_postal_code|text : "" }}
+                        {{ showCountry == true ? " " ~ c.subscriber_country|text : ""}}
+                    </address>
+                    {% if c.subscriber_ss != "" %}
+                    <strong>{{ "S.S."|xlt }}</strong>
+                    <span class="">{{ c.subscriber_ss|text }}</span><br>
+                    {% endif %}
+                    {% if c.subscriber_DOB %}
+                    <strong>{{ "D.O.B."|xlt }}</strong>
+                    <span class="">{{ c.subscriber_DOB|shortDate|text }}</span><br>
+                    {% endif %}
+                    {% if c.subscriber_phone %}
+                    <strong>{{ "Phone"|xlt }}</strong>
+                    <span class="">{{ c.subscriber_phone|text }}</span><br>
+                    {% endif %}
+                </div>
+                <div class="subscriber-employer">
+                    {% set showState = (c.subscriber_employer_state != "") ? true : false %}
+                    {% set showCountry = (c.subscriber_employer_country != "") ? true : false %}
+                    {% set showPostal = (c.subscriber_employer_postal_code != "") ? true : false %}
+                    <em>{{ "Subscriber Employer"|xlt }}</em>
+                    <address class="mb-1">
+                        <strong>{{ c.subscriber_employer|text }}</strong><br>
+                        {{ c.subscriber_employer_street|text }}<br>
+                        {{ c.subscriber_employer_city|text }}{{ showState == true ? " " ~ c.subscriber_employer_state|text : ""}}{{ showPostal == true ? ", " ~ c.subscriber_employer_postal_code|text : "" }}
+                        {{ showCountry == true ? " " ~ c.subscriber_employer_country|text : ""}}
+                    </address>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between policy-details pt-2">
+                <div class="list-group list-group-flush flex-fill mr-4">
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Plan Name"|xlt }}:</strong> <span class="text-right">{{ c.plan_name|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Policy Number"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.policy_number|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Group Number"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.group_number|text }}</span></div>
+                </div>
+                <div class="list-group list-group-flush flex-fill">
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Copay"|xlt }}:</strong> <span class="text-right">{{ c.copay|text }}</span></div>
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-right">{{ c.accept_assignment == 'TRUE' ? "Yes"|xlt : "No"|xlt }}</span></div>
+                    {% if c.policy_type %}
+                    <div class="list-group-item d-flex justify-content-between p-1"><strong class="flex-fill">{{ "Secondary Medicare Type"|xlt }}:</strong> <span class="text-right flex-fill">{{ c.policy_type|text }}</span></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <nav aria-label="Insurance List Navigation">
+            <ul class="pagination justify-content-left mt-3">
+                <li class="page-item disabled">
+                    <a class="page-link insurance-pagination-link insurance-pagination-prev"
+                       data-type="{{ t|attr }}" href="#{{ t|attr }}">{{ "Previous"|xlt }}</a>
+                </li>
+                {% for p in data.policies %}
+                <li class="page-item insurance-pagination-item {% if loop.first %}active{% endif %}">
+                    <a class="page-link" data-policy-id="{{ p.id|attr }}" data-type="{{ t|attr }}" href="#{{ t|attr }}" >
+                        {{ loop.index }}
+                </a></li>
+                {% endfor %}
+                {% if data.policies|length > 1 %}
+                <li class="page-item">
+                    <a class="page-link insurance-pagination-link insurance-pagination-next"
+                       data-policy-id="{{ data.policies[1].id|attr }}"
+                       data-type="{{ t|attr }}"
+                       href="#{{ t|attr }}">{{ "Next"|xlt }}</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endfor %}
+    <div class="tab-pane" id="eligibility" role="tabpanel" aria-labelledby="eligibility-tab">
+        {% if enable_eligibility_requests %}
+        <form action="./demographics.php" method="post">
+            <div>
+                <button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'>{{ "Update Status"|xlt }}</button>
+            </div>
+            {{ eligibility }}
+        </form>
+        {% else %}
+            {{ eligibility }}
+        {% endif %}
+    </div>
+    <script>
+        function updatePageNavigationButtonsForTarget(type, target) {
+            // update previous and next links
+            let prevLink = document.querySelector('#' + type + ' .pagination .insurance-pagination-prev');
+            let targetPolicyParentNode = target.closest('.page-item');
+            let previousElementSibling = targetPolicyParentNode.previousElementSibling;
+            if (previousElementSibling && previousElementSibling.classList.contains('insurance-pagination-item')) {
+                prevLink.closest('.page-item').classList.remove('disabled');
+                prevLink.dataset['policyId'] = previousElementSibling.querySelector('a').dataset['policyId'];
+            } else {
+                prevLink.closest('.page-item').classList.add('disabled');
+                prevLink.dataset['policyId'] = null;
+            }
+            let nextLink = document.querySelector('#' + type + ' .pagination .insurance-pagination-next');
+            if (nextLink) {
+                let nextElementSibling = targetPolicyParentNode.nextElementSibling;
+                if (nextElementSibling && nextElementSibling.classList.contains('insurance-pagination-item')) {
+                    nextLink.closest('.page-item').classList.remove('disabled');
+                    nextLink.dataset['policyId'] = nextElementSibling.querySelector('a').dataset['policyId'];
+                } else {
+                    nextLink.closest('.page-item').classList.add('disabled');
+                    nextLink.dataset['policyId'] = null;
+                }
+            }
+        }
+        function updateInsurancePaginationPane(e) {
+            e.preventDefault();
+            let policyId = e.target.dataset['policyId'];
+            let type = e.target.dataset['type'];
+            document.querySelectorAll('#' + type + ' .tab-pagination-pane').forEach(pane => {
+                pane.classList.add('d-none');
+            });
+            document.querySelector('#' + type + ' #' + type + '-' + policyId).classList.remove('d-none');
+            document.querySelectorAll('#' + type + ' .pagination .page-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            e.target.parentNode.classList.add('active');
+            updatePageNavigationButtonsForTarget(type, e.target);
+        }
+
+        function triggerInsuranceNavigationAction(e) {
+            e.preventDefault();
+            let policyId = e.target.dataset['policyId'];
+            let type = e.target.dataset['type'];
+            let target = document.querySelector('#' + type + ' .pagination .insurance-pagination-item .page-link[data-policy-id="' + policyId + '"]');
+            if (target) {
+                target.click();
+            }
+        }
+        document.querySelectorAll('.pagination .insurance-pagination-item').forEach(link => {
+            link.addEventListener('click', updateInsurancePaginationPane);
+        });
+        document.querySelectorAll('.pagination .insurance-pagination-link').forEach(link => {
+            link.addEventListener('click', triggerInsuranceNavigationAction);
+        });
+    </script>
+</div>
+{% endblock %}

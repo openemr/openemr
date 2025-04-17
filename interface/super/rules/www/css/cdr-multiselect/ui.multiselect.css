@@ -1,0 +1,138 @@
+/* Multiselect
+----------------------------------*/
+
+/* TODO: To be removed */
+
+.ui-multiselect {
+  border: solid 1px;
+  font-size: 0.8em;
+}
+
+.ui-multiselect ul {
+  user-select: none;
+}
+
+.ui-multiselect li {
+  cursor: default;
+  font-size: 11px;
+  height: 25px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ui-multiselect li a {
+  color: #999;
+  cursor: pointer;
+  display: block;
+  float: left;
+  padding: 0;
+  text-decoration: none;
+}
+
+.ui-multiselect li.ui-draggable-dragging {
+  padding-left: 10px;
+}
+
+.ui-multiselect div.selected {
+  border: 0;
+  float: left;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.ui-multiselect ul.selected {
+  background: #fff;
+  border: 0;
+  list-style: none;
+  margin: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  padding: 0;
+  position: relative;
+  position: relative;
+  width: 100%;
+}
+
+.ui-multiselect div.available {
+  border: 0;
+  border-left: 1px solid;
+  float: left;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.ui-multiselect ul.available {
+  background: #fff;
+  border: 0;
+  list-style: none;
+  margin: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+
+.ui-multiselect ul.available li {
+  padding-left: 10px;
+}
+
+.ui-multiselect .ui-state-default {
+  border: 0;
+  margin-bottom: 1px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.ui-multiselect .ui-state-hover {
+  border: 0;
+}
+
+.ui-multiselect .ui-widget-header {
+  border: 0;
+  font-size: 11px;
+  margin-bottom: 1px;
+}
+
+.ui-multiselect .add-all {
+  float: right;
+  padding: 7px;
+}
+
+.ui-multiselect .remove-all {
+  float: right;
+  padding: 7px;
+}
+
+.ui-multiselect .search {
+  float: left;
+  padding: 4px;
+}
+
+.ui-multiselect .count {
+  float: left;
+  padding: 7px;
+}
+
+.ui-multiselect li span.ui-icon-arrowthick-2-n-s {
+  left: 2px;
+  position: absolute;
+}
+
+.ui-multiselect li a.action {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+}
+
+.ui-multiselect input.search {
+  height: 17px;
+  margin: 4px;
+  opacity: 0.5;
+  padding: 1px;
+  width: 100px;
+}

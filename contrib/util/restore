@@ -1,0 +1,332 @@
+#!/bin/bash
+
+# Copyright (C) 2008-2021 Rod Roark <rod@sunsetsystems.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This is for restoring a backup created by the "Backup" option
+# in OpenEMR's administration menu, which invokes
+# interface/main/backup.php.
+#
+# Xdialog is supported if available... dialog support is also in
+# here but is disabled, as it was found to be ugly and clumsy.
+
+DLGCMD=""
+NOBUTTONS=""
+DEFAULTNO=""
+LEFT=""
+if [ ! -z "$DISPLAY" -a ! -z "`which Xdialog`" ]; then
+  DLGCMD="Xdialog"
+  NOBUTTONS="--no-buttons"
+  DEFAULTNO="--default-no"
+  LEFT="--left"
+fi
+
+dlg_msg() {
+  if [ ! -z "$DLGCMD" ]; then
+    local MSG="$1"
+    shift
+    while [ ! -z "$1" ]; do
+      MSG="$MSG\n$1"
+      shift
+    done
+    $DLGCMD --title 'OpenEMR Restore' $LEFT --msgbox "$MSG" 0 0
+    return 0
+  fi
+  while [ ! -z "$1" ]; do
+    echo "$1"
+    shift
+  done
+}
+
+dlg_info() {
+  if [ ! -z "$DLGCMD" ]; then
+    if [ "$DLGCMD" = "Xdialog" ]; then
+      echo "$1"
+    fi
+    $DLGCMD --title 'OpenEMR Restore' $LEFT --infobox "$1" 0 0
+    return 0
+  fi
+  echo "$1"
+}
+
+dlg_fselect() {
+  if [ ! -z "$DLGCMD" ]; then
+    exec 3>&1
+    RESULT=`$DLGCMD --title 'OpenEMR Restore' --backtitle "$1" $NOBUTTONS --fselect $HOME/ 0 70 2>&1 1>&3`
+    CODE=$?
+    exec 3>&-
+    if [ $CODE -eq 0 ]; then
+      return 0
+    fi
+    echo $RESULT
+    exit 1
+  fi
+  echo " "
+  read -e -p "$1: " RESULT
+}
+
+dlg_yesno() {
+  if [ ! -z "$DLGCMD" ]; then
+    local MSG="$1"
+    shift
+    while [ ! -z "$1" ]; do
+      MSG="$MSG\n$1"
+      shift
+    done
+    $DLGCMD --title 'OpenEMR Restore' $DEFAULTNO $LEFT --yesno "$MSG" 0 0
+    CODE=$?
+    exec 3>&-
+    if [ $CODE -eq 0 ]; then
+      RESULT="1"
+    elif [ $CODE -eq 1 ]; then
+      RESULT="0"
+    else
+      exit 1
+    fi
+    return 0
+  fi
+  echo " "
+  while [ ! -z "$2" ]; do
+    echo "$1"
+    shift
+  done
+  read -e -p "$1 [N/y] " RESULT
+  RESULT=`expr "$RESULT" : "[yY]"`
+  return 0
+}
+
+dlg_input() {
+  if [ ! -z "$DLGCMD" ]; then
+    exec 3>&1
+    RESULT=`$DLGCMD --title 'OpenEMR Restore' $LEFT --inputbox "$1" 0 0 2>&1 1>&3`
+    CODE=$?
+    exec 3>&-
+    if [ $CODE -eq 0 ]; then
+      return 0
+    fi
+    echo $RESULT
+    exit 1
+  fi
+  echo " "
+  read -e -p "$1 " RESULT
+}
+
+dlg_blank_line() {
+  if [ -z "$DLGCMD" ]; then
+    echo " "
+  fi
+}
+
+dlg_msg "WARNING: This script is experimental." "It may have serious bugs or omissions." "Use it at your own risk!"
+
+BAKDIR=/tmp/emr_backup
+
+if [ $UID -ne 0 ]; then
+  dlg_msg "Error: This script must be executed with root privileges."
+  exit 1
+fi
+
+# Create and change to a clean scratch directory.
+rm -rf $BAKDIR
+mkdir  $BAKDIR
+if [ $? -ne 0 ]; then
+  dlg_msg "Error: Cannot create directory '$BAKDIR'."
+  exit 1
+fi
+
+dlg_msg "Now you will be asked for the backup file." "By default this is named emr_backup.tar, although you may have saved it as something else."
+
+LOOKING=1
+while [ $LOOKING -eq 1 ]; do
+  dlg_fselect "Enter path/name of backup file"
+  TARFILE=$RESULT
+  dlg_blank_line
+  if [ ! -f $TARFILE ]; then
+    dlg_msg "Error: '$TARFILE' is not found or is not a file."
+  else
+    # Extract the backup tarball into the scratch directory.
+    dlg_info "Extracting $TARFILE ..."
+    cd $BAKDIR
+    tar -xf $TARFILE
+    if [ $? -ne 0 ]; then
+      dlg_msg "Error: tar could not extract '$TARFILE'."
+    else
+      LOOKING=0
+    fi
+  fi
+done
+
+# Extract the OpenEMR web directory tree.
+dlg_info "Extracting $BAKDIR/openemr.tar.gz ..."
+mkdir openemr
+cd openemr
+tar zxf ../openemr.tar.gz
+if [ $? -ne 0 ]; then
+  dlg_msg "Error: tar could not extract '$BAKDIR/openemr.tar.gz'."
+  exit 1
+fi
+
+OEDIR=/var/www/openemr
+
+# Get the Site ID, it should be the only site backed up.
+SITEID=`ls -1 sites | head -n 1`
+
+# Get various parameters from the extracted files.
+OEDBNAME=`grep '^\$dbase' sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
+OEDBUSER=`grep '^\$login' sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
+OEDBPASS=`grep '^\$pass'  sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
+
+dlg_yesno "Do you want to specify site ID, locations or database names for the restore?"
+
+CHANGES=$RESULT
+OLDSITEID=$SITEID
+
+dlg_blank_line
+
+if [ $CHANGES -gt 0 ]; then
+  dlg_msg "Current values are shown in [brackets]. Just hit Enter to leave them as-is."
+  dlg_input "Site ID [$SITEID]? "
+  if [ ! -z "$RESULT" ]; then SITEID="$RESULT"; fi
+  dlg_input "OpenEMR database name [$OEDBNAME]? "
+  if [ ! -z "$RESULT" ]; then OEDBNAME="$RESULT"; fi
+  dlg_input "OpenEMR database user [$OEDBUSER]? "
+  if [ ! -z "$RESULT" ]; then OEDBUSER="$RESULT"; fi
+  dlg_input "OpenEMR database password [$OEDBPASS]? "
+  if [ ! -z "$RESULT" ]; then OEDBPASS="$RESULT"; fi
+  OLDOEDIR="$OEDIR"
+  dlg_input "New OpenEMR web directory [$OEDIR]? "
+  if [ ! -z "$RESULT" ]; then OEDIR="$RESULT"; fi
+  #
+fi
+
+# The following sanity checks are an attempt to avoid disastrous results
+# from mistakes in entry of directory path names.
+
+TRASH=`expr "$OEDIR" : "[/]"`
+if [ $TRASH -ne 1 ]; then
+  dlg_msg "Error: The OpenEMR directory path '$OEDIR' does not start with '/'."
+  exit 1
+fi
+if [ -e "$OEDIR" -a ! -e "$OEDIR/interface/globals.php" ]; then
+  dlg_msg "Error: $OEDIR already exists but does not look like an OpenEMR directory." "If you are really sure you want to replace it, please remove it first."
+  exit 1
+fi
+
+if [ -e "$OEDIR" -a ! -e "$OEDIR/sites" ]; then
+  dlg_msg "Error: Directory '$OEDIR/sites' is missing - old release needs removal?"
+  exit 1
+fi
+
+if [ -e "$OEDIR/sites/$SITEID" ]; then
+  dlg_msg "Error: Site '$SITEID' already exists in '$OEDIR/sites'."
+  exit 1
+fi
+
+COLLATE="utf8_general_ci"
+dlg_msg "If you have a particular requirement for the UTF-8 collation to use, " \
+  "then please specify it here.  Hit Enter to accept the default '$COLLATE'." \
+  "Enter 'none' if you do not want UTF-8."
+dlg_input "UTF-8 collation [$COLLATE]? "
+if [ ! -z "$RESULT" ]; then COLLATE="$RESULT"; fi
+TRASH=`expr "$COLLATE" : "[uU]"`
+if [ $TRASH -ne 1 ]; then
+  COLLATE=""
+fi
+
+# Ask the user to do final sanity checking.
+#
+MARGS="\"Your Site ID will be '$SITEID'.\""
+if [ -e "$OEDIR" ]; then
+  MARGS="$MARGS \"Only site-specific files will be restored to '$OEDIR/sites/$SITEID' in the existing OpenEMR web directory.\""
+else
+  MARGS="$MARGS \"I will install a new OpenEMR web directory '$OEDIR' from the backup.\""
+fi
+MARGS="$MARGS \"I will restore the OpenEMR database backup to the MySQL database '$OEDBNAME'.\""
+MARGS="$MARGS \"The OpenEMR database user will be '$OEDBUSER' with password '$OEDBPASS'.\""
+if [ -z "$COLLATE" ]; then
+  MARGS="$MARGS \"MySQL will use its default character set and collation.\""
+else
+  MARGS="$MARGS \"MySQL will use character set 'utf8' with collation '$COLLATE'.\""
+fi
+MARGS="$MARGS \" \""
+MARGS="$MARGS \"Please check the above very carefully!\""
+MARGS="$MARGS \"Any existing databases and directories matching these names will be DESTROYED.\""
+MARGS="$MARGS \"Do you wish to continue?\""
+#
+eval "dlg_yesno $MARGS"
+if [ $RESULT -ne 1 ]; then
+  exit 1
+fi
+
+dlg_blank_line
+
+dlg_msg "In order to create MySQL databases and users on this computer, I will need to" \
+        "log into MySQL as its 'root' user.  The next question asks for the MySQL root" \
+        "user's password for this server, the one that you are restoring to.  This is"  \
+        "a MySQL password, not a system login password.  It might be blank."
+dlg_input 'Enter the password, if any, for the MySQL root user:'
+MYROOTPASS="$RESULT"
+
+dlg_blank_line
+
+dlg_info "Dropping old OpenEMR database if it exists ..."
+mysqladmin --password="$MYROOTPASS" --force drop $OEDBNAME 2> /dev/null
+
+dlg_info "Restoring OpenEMR database ..."
+cd $BAKDIR
+gunzip openemr.sql.gz
+if [ $? -ne 0 ]; then
+  dlg_msg "Error: Could not decompress '$BAKDIR/openemr.sql.gz'."
+  exit 1
+fi
+
+if [ -z $COLLATE ]; then
+  TRASH="CREATE DATABASE $OEDBNAME"
+else
+  TRASH="CREATE DATABASE $OEDBNAME CHARACTER SET utf8 COLLATE $COLLATE"
+fi
+mysql --password="$MYROOTPASS" --execute "$TRASH"
+if [ $? -ne 0 ]; then
+  dlg_msg "Error creating MySQL database with '$TRASH'."
+  exit 1
+fi
+
+mysql --password="$MYROOTPASS" --execute "CREATE USER '$OEDBUSER'@'localhost' IDENTIFIED BY '$OEDBPASS'" $OEDBNAME
+mysql --password="$MYROOTPASS" --execute "GRANT ALL PRIVILEGES ON $OEDBNAME.* TO '$OEDBUSER'@'localhost' WITH GRANT OPTION" $OEDBNAME
+
+mysql --user=$OEDBUSER --password="$OEDBPASS" $OEDBNAME < openemr.sql
+if [ $? -ne 0 ]; then
+  dlg_msg "Error: Restore to database '$OEDBNAME' failed."
+  exit 1
+fi
+
+if [ -e "$OEDIR" ]; then
+  dlg_info "Restoring site subdirectory ..."
+  mv $BAKDIR/openemr/sites/$OLDSITEID $OEDIR/sites/$SITEID
+  if [ $? -ne 0 ]; then
+    dlg_msg "Error: Cannot create directory '$OEDIR/sites/$SITEID'."
+    exit 1
+  fi
+else
+  dlg_info "Restoring OpenEMR web directory tree ..."
+  mv $BAKDIR/openemr $OEDIR
+  if [ $? -ne 0 ]; then
+    dlg_msg "Error: Cannot create directory '$OEDIR'."
+    exit 1
+  fi
+fi
+#
+if [ $CHANGES -gt 0 ]; then
+  dlg_info "Modifying $OEDIR/sites/$SITEID/sqlconf.php ..."
+  cd $OEDIR/sites/$SITEID
+  mv sqlconf.php sqlconf.php.old
+  sed "s^dbase\s*=\s*['\"].*['\"]^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
+  sed "s^login\s*=\s*['\"].*['\"]^login\t= '$OEDBUSER'^"                 | \
+  sed "s^pass\s*=\s*['\"].*['\"]^pass\t= '$OEDBPASS'^" > sqlconf.php
+fi
+
+dlg_msg "All done."

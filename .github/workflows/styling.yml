@@ -1,0 +1,96 @@
+name: Styling
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+
+  php_styling:
+    runs-on: ubuntu-22.04
+    name: PHP
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install php_codesniffer
+        run: |
+          failTest=false
+          composer global require "squizlabs/php_codesniffer=3.*" || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: Check PHP Styling
+        run: |
+          failTest=false
+          $HOME/.composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full . || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  css_styling:
+    runs-on: ubuntu-22.04
+    name: CSS
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: npm install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: Check CSS Styling
+        run: |
+          failTest=false
+          npm run stylelint || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  js_linting:
+    runs-on: ubuntu-22.04
+    name: JS
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: npm install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: Check JS Linting
+        run: |
+          failTest=false
+          npm run lint:js || failTest=true
+          if $failTest; then
+            exit 1
+          fi

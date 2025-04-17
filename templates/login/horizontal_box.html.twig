@@ -1,0 +1,38 @@
+{% extends "login/base.html.twig" %}
+
+{% block css %}
+{{ parent() }}
+<style>
+@media screen (min-width: 768px) {
+    .box {
+        width: 100%;
+    }
+}
+.box {
+    width: 75%;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vh-100 w-100 p-lg-5 m-xs-0 p-xs-0 d-flex justify-content-center align-items-center">
+    {# The primary box container #}
+    <div class="shadow-lg box m-0 d-flex flex-column flex-md-row {{ login_box_classes|default([])|join(' ') }}">
+
+        {# The Logo container #}
+        <div class="py-2 px-2 py-md-3 px-md-5 d-flex flex-column justify-content-center align-items-stretch flex-fill">
+            <div class="align-self-center">
+                {% set logo_flex_direction = "flex-column" %}
+                {% include "login/partials/html/primary_logo.html.twig" %}
+            </div>
+        </div>
+
+        {# The Login details container #}
+        <div class="p-xs-0 p-md-5 flex-fill bg-white">
+            {% include "login/partials/html/login_details.html.twig" %}
+
+            {% include "login/partials/html/acknowledgements.html.twig" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

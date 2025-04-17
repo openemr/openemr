@@ -1,0 +1,8 @@
+[Desktop Entry]
+Terminal=false
+Exec=sensible-browser http://localhost/openemr
+Type=Application
+Categories=Application;Office;
+StartupNotify=true
+Name=Electronic Medical Records - OpenEMR
+Comment=Medical Practice Management Application

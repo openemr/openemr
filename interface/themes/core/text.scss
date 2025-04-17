@@ -1,0 +1,114 @@
+@if $compact-theme == false {
+  .text {
+    @include font-size("0.9rem");
+    text-decoration: none;
+  }
+
+  .required {
+    @include font-size("0.9rem");
+    color: $danger;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  /* Deprecated - Please use font-weight-bold class - Will be removed soon */
+  .bold {
+    @include font-size("0.9rem");
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .small {
+    @include font-size("0.8rem");
+    text-decoration: none;
+  }
+
+  .sellistclass {
+    float: $left;
+  }
+
+  .disabled_button,
+  a.disabled_button:hover {
+    color: $gray;
+  }
+
+  /* Password alert styles */
+
+  .pwdalert {
+    display: block;
+    padding: 10px 10px 10px 15px;
+    width: 520px;
+    margin-#{$left}: 100px;
+  }
+
+  .alertmsg1 {
+    background-color: rgba(lighten($orange, 60%), 0.5);
+    border: 3px solid $danger;
+  }
+
+  .alertmsg2 {
+    background-color: lighten($pink, 30%);
+    border: 3px solid lighten($pink, 20%);
+  }
+
+  .alertmsg3 {
+    background-color: lighten($yellow, 60%);
+    border: 3px solid $yellow;
+  }
+
+  /* Password alert styles */
+
+  /* Style for red font */
+
+  .redtext {
+    color: $danger;
+    text-decoration: none;
+  }
+
+  /* Style for red font */
+
+  .de_identification_status_message {
+    border: 1px solid $primary;
+    width: 50%;
+  }
+
+  .de_identification_input_controls_box {
+    border: 1px solid $primary;
+    width: 100%;
+  }
+
+  .de_id_upgrade_login {
+    background-color: $white;
+    border: 1px solid $black;
+    width: 40%;
+  }
+
+  body.admin-layout input[type="button"] {
+    display: inline-block;
+    float: none;
+  }
+
+  /* error message = new validation */
+
+  .error-message {
+    color: $danger;
+    display: block;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+
+  .error-border {
+    border: 1px solid $danger !important;
+  }
+
+  .tinylogocontainer {
+    border: 0;
+    display: inline-block;
+  }
+
+  .tinylogopng {
+    display: inline-block;
+    height: 22px;
+    width: 44px;
+  }
+}

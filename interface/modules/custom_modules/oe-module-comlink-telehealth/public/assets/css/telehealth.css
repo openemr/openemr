@@ -1,0 +1,377 @@
+/**
+ * Contains all of the TeleHealth stylesheet settings
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+:root {
+  /**
+   * We setup this variable as a fallback as we calculate this in Javascript
+   * We have to handle the fact that the browser vh unit includes the browser search bar (unless you are scrolling)
+   * Which messes up all of our calculations for our bottom conference room controls.
+   */
+  --telehealth-full-vh: 100vh;
+}
+
+.event_telehealth .telehealth-launch-btn {
+  content: "\f03d";
+  display: inline-block;
+  font-family: "Font Awesome 5 Free";
+  font-size: 1.5rem;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 900;
+  line-height: 1;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-rendering: auto;
+}
+
+.event_telehealth.event_condensed {
+  font-size: 0.75rem;
+  line-height: 0.75rem;
+}
+
+.event_telehealth .show-appointment {
+  display: none;
+}
+
+.event_telehealth.event_condensed .btn-sm {
+  font-size: 0.5rem;
+  margin-top: 2px;
+  padding-bottom: 0.2rem;
+  padding-top: 0.2rem;
+}
+
+#local-video-container {
+  position: relative;
+}
+
+
+.telehealth-button-bar .telehealth-btn {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.telehealth-user-icon {
+  font-size: 5rem;
+}
+
+#minimized-telehealth-video {
+  background-color: #000;
+  position: absolute;
+  z-index: 1050;
+}
+
+#minimized-telehealth-video.top-left {
+  left: 0;
+  top: 0;
+}
+
+#minimized-telehealth-video.top-right {
+  right: 0;
+  top: 0;
+}
+
+#minimized-telehealth-video.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+#minimized-telehealth-video.bottom-right {
+  bottom: 0;
+  right: 0;
+}
+
+#minimized-telehealth-video #remote-video {
+  width: 100%;
+}
+
+#minimized-telehealth-video .telehealth-button-bar .telehealth-btn {
+  font-size: 1.25rem;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0.25rem;
+}
+
+#minimized-telehealth-video .sidebar-controls {
+  display: none !important;
+}
+
+/** stylesheet tries to shrink this all.
+ */
+#telehealth-container > .modal-dialog {
+  max-width: 100%;
+}
+
+#telehealth-container > .modal-dialog > .modal-content {
+  /** we set our height to be about 98vh **/
+  min-height: calc(var(--telehealth-full-vh, 100vh) - 2vh);
+}
+
+#telehealth-container > .modal-dialog > .modal-content > .modal-body {
+  /** We hide the overflow due to the way the dlgopen dialog window is setup **/
+  overflow-x: hidden !important;
+  padding-bottom: 0;
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
+  padding-top: 0;
+}
+
+
+.conference-room {
+  background-color: #000;
+  flex-grow: 1;
+  position: relative;
+  z-index: 0;
+}
+
+.conference-room .sidebar {
+  background: transparent;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  z-index: 1;
+}
+
+/** sidebar highlight **/
+.conference-room .sidebar .conference-highlight {
+  /** patient portal has var(--black) but OpenEMR theme does not... so we use #000 **/
+  background: #000;
+  position: absolute;
+  transition: opacity 1s;
+}
+
+.conference-room.active .sidebar .conference-highlight
+,
+.conference-room .sidebar .conference-highlight {
+  opacity: 0.4;
+}
+
+.conference-room.idle .sidebar .conference-highlight {
+  opacity: 0;
+}
+
+.conference-room .sidebar .sidebar-highlight {
+  bottom: 0;
+  top: 0;
+  width: 100%;
+}
+
+.conference-room .sidebar .sidebar-controls {
+  bottom: 0;
+  left: calc(100%);
+  position: absolute;
+  top: 0;
+  width: 2rem;
+}
+
+
+.conference-room .sidebar .participant-list-container {
+  height: calc(100% - 3rem);
+  z-index: 2;
+}
+
+.conference-room .sidebar .list-minimize .participant-list-expand {
+  display: none;
+}
+
+/**
+ * Minimized Settings
+ */
+.conference-room .sidebar.minimized {
+  transform: translateX(-100%);
+  transition-duration: 1s;
+  transition-timing-function: ease;
+}
+
+.conference-room .sidebar.maximized {
+  transform: translateX(0);
+  transition-duration: 1s;
+  transition-timing-function: ease;
+}
+
+.conference-room .telehealth-button-bar {
+  bottom: 0;
+}
+
+.conference-room .sidebar.minimized  .list-minimize {
+  display: block;
+}
+
+.conference-room .sidebar.minimized .list-minimize .participant-list-collapse {
+  display: none;
+}
+
+.conference-room .sidebar.minimized .list-minimize .participant-list-expand {
+  display: block;
+}
+
+/**
+ * Inactive Settings
+ */
+.conference-room .sidebar.inactive .conference-highlight {
+  opacity: 0;
+}
+
+
+.telehealth-button-bar {
+  background-color: #000;
+  font-size: 1.25rem;
+  line-height: 2.5rem;
+  max-height: 3rem;
+  position: absolute;
+  text-align: center;
+  transition: opacity 1s;
+  width: 100%;
+  z-index: 40;
+}
+
+.conference-room.active .telehealth-button-bar
+,
+.conference-room.active .sidebar .list-minimize {
+  opacity: 1;
+}
+
+.conference-room.idle .telehealth-button-bar
+,
+.conference-room.idle .sidebar .list-minimize {
+  opacity: 0;
+}
+
+#minimized-telehealth-video .telehealth-button-bar {
+  bottom: 0;
+  position: absolute;
+}
+
+.conference-room #local-video-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.conference-room .remote-video,
+.conference-room .remote-screenshare {
+  max-height: calc(var(--telehealth-full-vh, 100vh) - 10vh);
+}
+
+.conference-room #local-video {
+  width: 100%;
+}
+
+.telehealth-btn-hangup .fa-phone {
+  filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
+  transform: rotate(225deg);
+}
+
+.conference-room .remote-video-container {
+  position: relative;
+}
+
+.conference-room .participant-list-container,
+.waiting-room .participant-container {
+  position: relative;
+}
+
+.conference-room .participant-list-container.minimized {
+  left: calc(100% * -1);
+}
+
+.conference-room .participant-list-container .participant-video {
+  background-color: #000;
+  /** should be 20vh **/
+  max-height: calc(var(--telehealth-full-vh, 100vh) - 80vh);
+}
+
+.conference-room .participant-list-container .participant-container
+,
+#minimized-telehealth-video .participant-list-container .participant-container {
+  border-radius: 0.25rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.conference-room .participant-list-container .participant-container .video-control {
+  display: none;
+  position: absolute;
+}
+
+.conference-room .participant-list-container .participant-container .participant-label-bg
+,
+.waiting-room .local-participant .participant-label-bg
+,
+#minimized-telehealth-video .participant-container .participant-label-bg {
+  bottom: 0;
+  height: 2rem;
+  opacity: 0.3;
+  position: absolute;
+  right: 0;
+  width: 100%;
+}
+
+.conference-room .participant-list-container .participant-container .participant-label
+,
+.waiting-room .local-participant .participant-label
+,
+#minimized-telehealth-video .participant-container .participant-label {
+  bottom: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  z-index: 999;
+}
+
+#minimized-telehealth-video .participant-container .participant-label
+,
+#minimized-telehealth-video  .participant-container .participant-label-bg {
+  bottom: inherit;
+  top: 0;
+}
+
+.conference-room .participant-list-container .participant-container:hover .video-control {
+  display: block;
+}
+
+.waiting-room .participant-container .video-control {
+  display: none;
+}
+
+.conference-room .participant-list-container .participant-container.pinned .video-control.video-control-pin {
+  color: var(--success) !important;
+  display: block;
+}
+
+.conference-room .participant-list-container .participant-container .video-control.video-control-pin {
+  left: 2px;
+  top: 2px;
+}
+
+.conference-room .participant-list-container .participant-container .video-control.video-control-more {
+  right: 2px;
+  top: 2px;
+}
+
+#minimized-telehealth-video {
+  min-height: 200px;
+}
+
+#minimized-telehealth-video .participant-list-container .participant-container .video-control {
+  display: none;
+}
+
+#telehealth-container .search-patient-list .no-email-message {
+  display: none;
+}
+
+#telehealth-container .search-patient-list .missing-email .no-email-message {
+  display: block;
+}
+
+#telehealth-container .search-patient-list .missing-email .btn-select-patient {
+  display: none;
+}

@@ -1,0 +1,609 @@
+#!/bin/bash -e
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# Copyright 2011-2019
+# authors: Amalu Obinna <amaluobinna@aol.com>
+#          Brady Miller <brady.g.miller@gmail.com>
+#
+# Debian package post installation script steps:
+#  1) Collect setting from package configuration file
+#  2) Install or Upgrade
+#    -Install
+#      a) Collect the MySQL root password (if possible)
+#      b) Ensure OpenEMR MySQL database and user do not exist. (if applicable)
+#      c) Configure OpenEMR (if applicable)
+#      d) Configure Apache
+#      e) Configure PHP
+#    -Upgrade
+#      a) Modify new OpenEMR version configuration files
+#      b) Upgrade MySQL database(s)
+#      c) Upgrade Access Controls
+#      d) Copy over old configuration files
+#          (Copy to files with .OLD extension to allow manual comparisons by user)
+#  3) Modify permissions for writable directories
+#  4) Secure the php installation/upgrading scripts (if applicable)
+#  5) Modify the package configuration file
+#  6) Display instructions on starting openemr
+#
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+case "$1" in
+   configure)
+
+      #constants and paths
+      LOGDIR=/var/log/openemr
+      LOG=$LOGDIR/install
+      CONFIGDIR=/etc/openemr
+      CONFIG=$CONFIGDIR/openemr.conf
+      TMPDIR=/tmp/openemr-tmp
+      WEB=/var/www
+      OPENEMR=$WEB/openemr
+      SITEDIR=$OPENEMR/sites
+      #hardcoded mysql user and database for install (not pertinent for upgrading)
+      # upgrading can use whatever is found in openemr/library/sqlconf.php
+      INSTALL_USER=openemr
+      INSTALL_DATABASE=openemr
+      #auto install scripts
+      INST=$OPENEMR/contrib/util/installScripts/InstallerAuto.php
+      INSTTEMP=$OPENEMR/contrib/util/installScripts/InstallerAutoTemp.php
+      #php and apache files
+      PHP=/etc/php5/apache2/php.ini
+      PHP_ALTERNATE=/etc/php/7.0/apache2/php.ini
+      #web user and group
+      WEB_GROUP=www-data
+      WEB_USER=www-data
+
+      #Standardized echo function to send to only log file
+      #  requires one parameter (string)
+      log_only () {
+         echo "`date`: $1" >> $LOG
+      }
+
+      #Standardized exit functions to be used
+      #  requires one parameter (string with reason for exiting)
+      unable_exit () {
+         echo "`date`: $1" >> $LOG
+         echo "`date`: EXITING.........." >> $LOG
+         exit 1
+      }
+
+      #function to check mysql for selected databases
+      # 1st param is password, 2nd param database, 3rd param is host (optional), 4th param is user (optional)
+      check_mysql () {
+         if [ -n "$3" ]; then
+            HOST=$3
+         else
+            HOST=localhost
+         fi
+         if [ -n "$4" ]; then
+            USE=$4
+         else
+            USE=root
+         fi
+
+         if [ "`mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`" == "$2" ]; then
+            return 0
+         else
+            return 1
+         fi
+      }
+
+      #function to collect variables from config files
+      # 1st param is variable name, 2nd param is filename
+      collect_var () {
+         echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
+      }
+
+      #function to insert variables into config files
+      # 1st param is variable name, 2nd param is variable, 3rd param is filename
+      insert_var () {
+         sed -i 's@^[ 	]*'"$1"'[ 	=].*$@'"$1"' = '"$2"'@' "$3"
+      }
+
+      #function to prompt for input
+      # 1st param is name, 2nd param is priority, 3rd param is where result gets sent back in
+      # return the input
+      prompt_input () {
+         db_set "$1" ""
+         db_fset "$1" seen false
+         db_input "$2" "$1" || true
+         db_go || true
+         db_get "$1"
+         local input_value="$RET"
+         db_set "$1" ""
+         db_fset "$1" seen false
+         local __result=$3
+         eval $__result="'$input_value'"
+      }
+
+      #collect scripting information from config file
+      PROCESS=$(collect_var process $CONFIG)
+      PLAN=$(collect_var plan $CONFIG)
+
+      #Don't allow re-configuration
+      if [ "$PROCESS" == "complete" ] ; then
+         unable_exit "OpenEMR has already been configured."
+      elif [ "$PROCESS" == "pending" ] ; then
+         #continue with configuration
+         log_only "Configuring package..."
+      else
+         unable_exit "Error reading process variable in configuration file."
+      fi
+
+      if [ "$PLAN" == "upgrade" ] ; then
+         #continue with upgrade
+         OLD_VERSION=$(collect_var previous_version $CONFIG)
+         log_only "Continuing Upgrade from ($OLD_VERSION)"
+
+         #go to openemr directory
+         cd $OPENEMR
+
+         # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
+         # Activate the OpenEMR conf file for apache
+         log_only "Activate OpenEMR config file for Apache"
+         a2ensite openemr.conf
+         # Ensure the apache rewrite module is turned on
+         a2enmod rewrite
+         # Restart the apache server
+         log_only "Restarting Apache service..."
+         invoke-rc.d apache2 restart >> $LOG 2>&1
+
+         #To support the multisite module, go through each site
+         for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
+            #collect sitename
+            SITENAME=$(basename "$dir")
+            log_only "Configuring Site ($SITENAME)"
+
+            #collect more information from config file
+            SQLLOCATION=$(collect_var ${SITENAME}_sqllocation $CONFIG)
+            SQLUSER=$(collect_var ${SITENAME}_sqluser $CONFIG)
+            SQLPASSWORD=$(collect_var ${SITENAME}_sqlpassword $CONFIG)
+            SQLDATABASE=$(collect_var ${SITENAME}_sqldatabase $CONFIG)
+            SQLUTFFLAG=$(collect_var ${SITENAME}_sqlutfflag $CONFIG)
+            SQLENCODING=$(collect_var ${SITENAME}_sqlencoding $CONFIG)
+
+            #configure database configuration file
+            insert_var "\$host" "\'$SQLLOCATION\';"             $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$login" "\'$SQLUSER\';"                $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$pass" "\'$SQLPASSWORD\';"             $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$dbase" "\'$SQLDATABASE\';"            $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$disable_utf8_flag" "$SQLUTFFLAG;"     $SITEDIR/$SITENAME/sqlconf.php
+            insert_var "\$db_encoding" "$SQLENCODING;"          $SITEDIR/$SITENAME/sqlconf.php
+            sed -i "s/^[   ]*\$config[     =].*0/\$config = 1/" $SITEDIR/$SITENAME/sqlconf.php
+
+            #upgrade the sql database
+            CONC_VERSION=$(echo $OLD_VERSION | cut -d \- -f 1)
+            echo "<?php \$_GET['site'] = '$SITENAME'; ?>" > $OPENEMR/TEMPsql_upgrade.php
+            cat $OPENEMR/sql_upgrade.php >> $OPENEMR/TEMPsql_upgrade.php
+            sed -i "/input type='submit'/d" $OPENEMR/TEMPsql_upgrade.php
+            sed -i "s/!empty(\$_POST\['form_submit'\])/empty(\$_POST\['form_submit'\])/" $OPENEMR/TEMPsql_upgrade.php
+            sed -i "s/^[   ]*\$form_old_version[   =].*$/\$form_old_version = \"$CONC_VERSION\";/" $OPENEMR/TEMPsql_upgrade.php
+            php -f $OPENEMR/TEMPsql_upgrade.php >> $LOG 2>&1
+            rm -f $OPENEMR/TEMPsql_upgrade.php
+
+            #copy the old config file into new with the OLD at end to allow manual configuration of old
+            # optional settings.
+            if [ -d "$TMPDIR/openemr_web_$OLD_VERSION/sites/$SITENAME" ]; then
+              cp -f "$TMPDIR/openemr_web_$OLD_VERSION/sites/$SITENAME/config.php" "$SITEDIR/$SITENAME/config.php.OLD"
+            else
+              #need to move from old location, so sitename will always be default in this case
+              cp -f $TMPDIR/openemr_web_$OLD_VERSION/includes/config.php $SITEDIR/default/config.php.OLD
+            fi
+
+            #log
+            log_only "Upgraded OpenEMR site ($SITENAME) with sql database ($SQLDATABASE) and sql user ($SQLUSER)."
+
+         done
+
+         # if site-specific directories are in the really old locations, move them.
+         if [ -d $OPENEMR/documents ]; then
+           if [ "$(ls $OPENEMR/documents)" ]; then
+             mv -f  $OPENEMR/documents/* $SITEDIR/default/documents/
+           fi
+           rm -rf $OPENEMR/documents
+         fi
+         if [ -d $OPENEMR/era ]; then
+           if [ "$(ls $OPENEMR/era)" ]; then
+             mv -f  $OPENEMR/era/* $SITEDIR/default/era/
+           fi
+           rm -rf $OPENEMR/era
+         fi
+         if [ -d $OPENEMR/edi ]; then
+           if [ "$(ls $OPENEMR/edi)" ]; then
+             mv -f  $OPENEMR/edi/* $SITEDIR/default/edi/
+           fi
+           rm -rf $OPENEMR/edi
+         fi
+         if [ -d $OPENEMR/custom/letter_templates ]; then
+           if [ "$(ls $OPENEMR/custom/letter_templates)" ]; then
+             mv -f  $OPENEMR/custom/letter_templates/* $SITEDIR/default/letter_templates/
+           fi
+           rm -rf $OPENEMR/custom/letter_templates
+         fi
+
+         # if site-specific directories are in the old locations, move them.
+         if [ -d $SITEDIR/$SITENAME/era ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/era)" ]; then
+             mv -f  $SITEDIR/$SITENAME/era/* $SITEDIR/$SITENAME/documents/era/
+           fi
+           rm -rf $SITEDIR/$SITENAME/era
+         fi
+         if [ -d $SITEDIR/$SITENAME/edi ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/edi)" ]; then
+             mv -f  $SITEDIR/$SITENAME/edi/* $SITEDIR/$SITENAME/documents/edi/
+           fi
+           rm -rf $SITEDIR/$SITENAME/edi
+         fi
+         if [ -d $SITEDIR/$SITENAME/letter_templates ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/letter_templates)" ]; then
+             if [ -f $SITEDIR/$SITENAME/letter_templates/custom_pdf.php ]; then
+               mv -f $SITEDIR/$SITENAME/letter_templates/custom_pdf.php $SITEDIR/$SITENAME/
+             fi
+             mv -f  $SITEDIR/$SITENAME/letter_templates/* $SITEDIR/$SITENAME/documents/letter_templates/
+           fi
+           rm -rf $SITEDIR/$SITENAME/letter_templates
+         fi
+         if [ -d $SITEDIR/$SITENAME/procedure_results ]; then
+           if [ "$(ls $SITEDIR/$SITENAME/procedure_results)" ]; then
+             mv -f  $SITEDIR/$SITENAME/procedure_results/* $SITEDIR/$SITENAME/documents/procedure_results/
+           fi
+           rm -rf $SITEDIR/$SITENAME/procedure_results
+         fi
+
+         #secure openemr
+         chown -Rf root:root $OPENEMR
+         chmod 600 $OPENEMR/acl_upgrade.php
+         chmod 600 $OPENEMR/setup.php
+         chmod 600 $OPENEMR/sql_upgrade.php
+         chmod 600 $OPENEMR/ippf_upgrade.php
+
+         #set writable directories (that are within sites directory)
+         # (go through each site)
+         for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
+            #collect sitename
+            SITENAME=$(basename "$dir")
+            #set the writable directory
+            chown -R $WEB_GROUP.$WEB_USER $SITEDIR/$SITENAME/documents
+         done
+
+         #update config file, change process to complete and remove others
+         sed -i "s/^[ 	]*process[ 	=].*$/process=complete/" $CONFIG
+         sed -i "/^[ 	]*plan[ 	=].*$/d" $CONFIG
+         sed -i "/^[ 	]*previous_version[ 	=].*$/d" $CONFIG
+         sed -i "/^[ 	]*.*sqllocation[ 	=].*$/d" $CONFIG
+         sed -i "/^[ 	]*.*sqluser[ 	=].*$/d" $CONFIG
+         sed -i "/^[ 	]*.*sqlpassword[ 	=].*$/d" $CONFIG
+         sed -i "/^[ 	]*.*sqldatabase[ 	=].*$/d" $CONFIG
+         sed -i "/^[ 	]*.*sqlutfflag[ 	=].*$/d" $CONFIG
+
+         #done upgrading
+         prompt_input openemr/success_upgrade critical ret_result
+         log_only "OpenEMR upgrade is complete."
+         log_only "Recommend setting optional configuration settings in:"
+         log_only "$SITEDIR/<sitename>/config.php"
+         log_only "(We have renamed your old configuration files to *.OLD)"
+         log_only "(We recommend you delete the *.OLD files when done)"
+         log_only "We have placed backup of your old OpenEMR in $TMPDIR"
+         log_only "(We recommend you copy this somewhere protected since it"
+         log_only "contains confidential patient information)"
+
+         #stop db
+         db_stop
+
+         exit 0
+
+      elif [ "$PLAN" == "install" ] ; then
+         #continue with installation
+         log_only "Installing OpenEMR"
+      else
+         unable_exit "Error reading plan variable in configuration file."
+      fi
+
+      #This Section edits the php.ini file to accomodate the proper functioning of OpenEMR using php
+      log_only "Configuring PHP for OpenEMR"
+
+      #check if PHP7 config file exists; if it does then use it.
+      if [ -f $PHP_ALTERNATE ]; then
+         PHP=$PHP_ALTERNATE
+      fi
+
+      #check to ensure the php configuration file exists
+      if [ -f $PHP ]; then
+         # First, collect php variables
+         collect_php () {
+            echo `grep -i "^[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[ 	M]//gi'`
+         }
+         collect_php_commented_out () {
+            echo `grep -i "^;[[:space:]]*$1[[:space:]=]" $PHP | cut -d \= -f 2 | cut -d \; -f 1 | sed 's/[       M]//gi'`
+         }
+         EXEC_TEXT="max_execution_time"
+         EXEC=$(collect_php "$EXEC_TEXT")
+         INPUT_TEXT="max_input_time"
+         INPUT=$(collect_php "$INPUT_TEXT")
+         MEM_TEXT="memory_limit"
+         MEM=$(collect_php "$MEM_TEXT")
+         DISP_TEXT="display_errors"
+         DISP=$(collect_php "$DISP_TEXT")
+         LOGG_TEXT="log_errors"
+         LOGG=$(collect_php "$LOGG_TEXT")
+         GLOB_TEXT="register_globals"
+         GLOB=$(collect_php "$GLOB_TEXT")
+         POST_TEXT="post_max_size"
+         POST=$(collect_php "$POST_TEXT")
+         UPLOAD_TEXT="file_uploads"
+         UPLOAD=$(collect_php "$UPLOAD_TEXT")
+         FILESIZE_TEXT="upload_max_filesize"
+         FILESIZE=$(collect_php "$FILESIZE_TEXT")
+         MAXINPUTVARS_TEXT="max_input_vars"
+         MAXINPUTVARS=$(collect_php "$MAXINPUTVARS_TEXT")
+         MAXINPUTVARS_IF_COMMENTED=$(collect_php_commented_out "$MAXINPUTVARS_TEXT")
+         ALLOWLOCALINFILE_TEXT="mysqli.allow_local_infile"
+         ALLOWLOCALINFILE=$(collect_php "$ALLOWLOCALINFILE_TEXT")
+         ALLOWLOCALINFILE_IF_COMMENTED=$(collect_php_commented_out "$ALLOWLOCALINFILE_TEXT")
+
+         # Second, backup the php.ini file before modifying
+         cp $PHP $PHP.BAK
+
+         # Third, edit the required entries
+         #  Do this in a for loop.
+         #   First iteration will discover the recommended changes
+         #   Second iteration will make the changes (if user request this)
+         FLAG_ON=0
+         process_php () {
+            if [ "$3" -eq "1" ]; then
+               # make rec to php.ini
+               if [ "$FLAG_ON" -eq "0" ]; then
+                  log_only "We changed the following setting(s) in your php configuration file at $PHP :"
+               fi
+               FLAG_ON=1
+            else
+               # modify php.ini
+               sed -i "s/^[ 	]*$1[ 	=].*$/$1 = $2/" $PHP
+               log_only "Successfully set $1 = $2"
+            fi
+         }
+         process_php_commented_out () {
+            if [ "$3" -eq "1" ]; then
+               # make rec to php.ini
+               if [ "$FLAG_ON" -eq "0" ]; then
+                  log_only "We changed the following setting(s) in your php configuration file at $PHP :"
+               fi
+               FLAG_ON=1
+            else
+               # modify php.ini
+               sed -i "s/^;[     ]*$1[   =].*$/$1 = $2/" $PHP
+               log_only "Successfully set $1 = $2"
+            fi
+         }
+         for i in `seq 1 2`; do
+            if [ ! -z "$EXEC" ] && [ "$EXEC" -lt "60" ]; then
+               process_php "$EXEC_TEXT" "60" $i
+            fi
+            if [ ! -z "$INPUT" ] && [ "$INPUT" != "-1" ]; then
+               process_php "$INPUT_TEXT" "-1" $i
+            fi
+            if [ ! -z "$MEM" ] && [ "$MEM" -lt "512" ]; then
+               process_php "$MEM_TEXT" "512M" $i
+            fi
+            if [ ! -z "$DISP" ] && [ "$DISP" != "Off" ]; then
+               process_php "$DISP_TEXT" "Off" $i
+            fi
+            if [ ! -z "$LOGG" ] && [ "$LOGG" != "On" ]; then
+               process_php "$LOGG_TEXT" "On" $i
+            fi
+            if [ ! -z "$GLOB" ] && [ "$GLOB" != "Off" ]; then
+               process_php "$GLOB_TEXT" "Off" $i
+            fi
+            if [ ! -z "$POST" ] && [ "$POST" -lt "30" ]; then
+               process_php "$POST_TEXT" "30M" $i
+            fi
+            if [ ! -z "$UPLOAD" ] && [ "$UPLOAD" != "On" ]; then
+               process_php "$UPLOAD_TEXT" "On" $i
+            fi
+            if [ ! -z "$FILESIZE" ] && [ "$FILESIZE" -lt "30" ]; then
+               process_php "$FILESIZE_TEXT" "30M" $i
+            fi
+            if [ ! -z "$MAXINPUTVARS" ] && [ "$MAXINPUTVARS" -lt "3000" ]; then
+               process_php "$MAXINPUTVARS_TEXT" "3000" $i
+            fi
+            if [ ! -z "$MAXINPUTVARS_IF_COMMENTED" ] && [ "$MAXINPUTVARS_IF_COMMENTED" -lt "3000" ]; then
+               process_php_commented_out "$MAXINPUTVARS_TEXT" "3000" $i
+            fi
+            if [ ! -z "$ALLOWLOCALINFILE" ] && [ "$ALLOWLOCALINFILE" != "On" ]; then
+               process_php "$ALLOWLOCALINFILE_TEXT" "On" $i
+            fi
+            if [ ! -z "$ALLOWLOCALINFILE_IF_COMMENTED" ] && [ "$ALLOWLOCALINFILE_IF_COMMENTED" != "On" ]; then
+               process_php_commented_out "$ALLOWLOCALINFILE_TEXT" "On" $i
+            fi
+            if [ "$FLAG_ON" -eq "0" ]; then
+              log_only "Your PHP configuration is perfect for OpenEMR."
+              break
+            else
+              if [ "$i" -eq "1" ]; then
+                prompt_input openemr/php_configure high ret_result
+              fi
+            fi
+            if [ "$i" -eq "1" ]; then
+               log_only "(We have placed a backup of your php configuration at $PHP.BAK)"
+            fi
+         done
+      else
+         #can't find php config file, so just echo instructions
+         log_only "We recommend ensuring you have below settings in your php configuration file:"
+         log_only "max_execution_time = 60"
+         log_only "max_input_time = -1"
+         log_only "memory_limit = 512M"
+         log_only "display_errors = Off"
+         log_only "log_errors = On"
+         log_only "register_globals = Off"
+         log_only "post_max_size = 30M"
+         log_only "file_uploads = On"
+         log_only "upload_max_filesize = 30M"
+         log_only "max_input_vars = 3000"
+         log_only "mysqli.allow_local_infile = On"
+      fi
+
+      log_only "Done configuring PHP"
+
+      # NEED TO CONFIGURE APACHE BEFORE CONFIGURATION SINCE ZEND SUPPORT NEEDS PROPER CONFIGURATION
+      # Activate the OpenEMR conf file for apache
+      log_only "Activate OpenEMR config file for Apache"
+      a2ensite openemr.conf
+      # Ensure the apache rewrite module is turned on
+      a2enmod rewrite
+      # Restart the apache server
+      log_only "Restarting Apache service..."
+      invoke-rc.d apache2 restart >> $LOG 2>&1
+
+      #collect the mysql root password (if applicable)
+      MPASS=""
+      if check_mysql "$MPASS" "mysql"; then
+         log_only "Passed the mysql check loop"
+      else
+         #the blank initial mysql password didn't work, so prompt for password
+         # (will give 3 chances to provide correct password)
+         COUNTDOWN=1
+         while true; do
+            prompt_input openemr/mysql_p_install_${COUNTDOWN} critical ret_result
+            MPASS="$ret_result"
+            if check_mysql "$MPASS" "mysql"; then
+               #the mysql root password works, so can exit loop
+               log_only "Passed the mysql check loop"
+               break
+            else
+               #the mysql root password did not work
+               if [ "$COUNTDOWN" -ge "3" ]; then
+                  prompt_input openemr/no_configure_mysql_root high ret_result
+                  log_only "Will install OpenEMR, however will not configure OpenEMR. (unable to provide root password)"
+                  break
+               fi
+            fi
+            let "COUNTDOWN += 1"
+         done
+      fi
+
+      #decide whether to configure OpenEMR after it is installed
+      configure_flag=true
+      if check_mysql "$MPASS" "mysql"; then
+         #before auto configuration, ensure the openemr user and database do not exist
+         # Check for openemr database in mysql, if exist then will not configure
+         if check_mysql "$MPASS" "$INSTALL_DATABASE"; then
+            prompt_input openemr/no_configure_mysql_database high ret_result
+            log_only "Will install OpenEMR, however will not automatically configure OpenEMR. (MySQL database already exists)"
+            configure_flag=false;
+         fi
+         # Check for OpenEMR user in mysql.user, if exist then will not configure
+         USER=$(mysql -s -u root -h localhost --password="$MPASS" -e "SELECT User from mysql.user where User='$INSTALL_USER'")
+         if [ "$USER" == "$INSTALL_USER" ]; then
+            prompt_input openemr/no_configure_mysql_user high ret_result
+            log_only "Will install OpenEMR, however will not automatically configure OpenEMR. (MySQL user already exists)"
+            configure_flag=false;
+         fi
+      else
+         #the mysql root password didn't work, so do not configure OpenEMR
+         log_only "Will install OpenEMR, however will not automatically configure OpenEMR. (root password did not work)"
+         configure_flag=false;
+      fi
+
+      #go to openemr directory
+      cd $OPENEMR
+
+      #secure openemr
+      chown -Rf root:root $OPENEMR
+
+      #INSTALL/CONFIGURE OPENEMR
+      # Install openemr
+      if $configure_flag; then
+         log_only "Installing/Configuring OpenEMR..."
+      else
+         log_only "Installing OpenEMR ..."
+      fi
+
+      # Set file and directory permissions (note use default site directory for new install)
+      chmod 666 $SITEDIR/default/sqlconf.php
+      chown -R $WEB_GROUP.$WEB_USER $SITEDIR/default/documents
+
+      if $configure_flag; then
+         # Create a random password for the openemr mysql user
+         password=$(makepasswd --char=12)
+
+         # openemr installation VARIABLES
+         if [ "$MPASS" == "" ] ; then
+           rootpass="rootpass=BLANK" #MySQL server root password
+         else
+           rootpass="rootpass=$MPASS" #MySQL server root password
+         fi
+         login="login=$INSTALL_USER" #username to MySQL openemr database
+         pass="pass=$password" #password to MySQL openemr database
+         dbname="dbname=$INSTALL_DATABASE" #MySQL openemr database name
+
+         #
+         # Run Auto Installer
+         #
+         sed -e 's@^exit;@ @' <$INST >$INSTTEMP
+         php -f $INSTTEMP $rootpass $login $pass $dbname >> $LOG 2>&1
+         rm -f $INSTTEMP
+
+         #remove global permission to all setup scripts
+         chmod 600 $OPENEMR/acl_upgrade.php
+         chmod 600 $OPENEMR/setup.php
+         chmod 600 $OPENEMR/sql_upgrade.php
+         chmod 600 $OPENEMR/ippf_upgrade.php
+
+         log_only "Done configuring OpenEMR"
+      fi
+
+      if $configure_flag; then
+         prompt_input openemr/success_install_config high ret_result
+         log_only "You can now use OpenEMR by browsing to:"
+         log_only "http://localhost/openemr"
+         log_only "user is 'admin' and password is 'pass'"
+         log_only "See the openemr man page for further instructions:"
+         log_only "type 'man openemr' at command line"
+      else
+         prompt_input openemr/success_install high ret_result
+         log_only "You can now configure OpenEMR by browsing to:"
+         log_only "http://localhost/openemr"
+         log_only "See the openemr man page for further instructions:"
+         log_only "type 'man openemr' at command line"
+      fi
+
+      #update config file, change process to complete and remove plan and pass
+      sed -i "s/^[ 	]*process[ 	=].*$/process=complete/" $CONFIG
+      sed -i "/^[ 	]*plan[ 	=].*$/d" $CONFIG
+
+      #stop db
+      db_stop
+
+      exit 0
+   ;;
+   abort-upgrade|abort-remove|abort-deconfigure)
+
+      echo "postinst asked to do $1"
+      exit 0
+   ;;
+   *)
+      echo "postinst called with unknown argument \`$1'" >&2
+      exit 1
+   ;;
+esac
+
+sleep 5
+exit 0

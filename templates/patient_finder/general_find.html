@@ -1,0 +1,86 @@
+{**
+* Patient search
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
+<html>
+<head>
+
+
+
+ <style>
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+.small {
+	font-size: 9pt;
+	font-family: "Helvetica", sans-serif;
+	text-decoration: none;
+}
+.small:hover {
+	text-decoration: underline;
+}
+li{
+	font-size:11pt;
+	font-family: "Helvetica", sans-serif;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family: "Helvetica", sans-serif;
+}
+-->
+</style>
+
+<link rel="stylesheet" href="{$GLOBALS.css_header}">
+</head>
+<body class="body_top">
+<form name="patientfinder" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+<table>
+	<tr>
+		<td>{xlt t='Name'}</td>
+		<td>
+			<input type="text" size="40" name="searchstring" value=""/>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input type="submit" value="{xla t='Search'}"/>
+		</td>
+	</tr>
+</table>
+<input type="hidden" name="process" value="{$PROCESS|attr}" />
+<input type="hidden" name="pid" value="{$hidden_ispid|attr}" />
+</form>
+<table>
+{if !empty($result_set) && count($result_set) > 0}
+	<tr>
+		<td>{xlt t='Results Found For Search'} '{$search_string|text}'</td>
+	</tr>
+	<tr>
+		<td>{xlt t='Name'}</td><td>{xlt t='DOB'}</td><td>{xlt t='Patient ID'}</td>
+{/if}
+{foreach  name="search_results" from=$result_set  item=result}
+	<tr>
+		<td>
+			<a href="javascript:{}" onclick="window.opener.document.{$form_id|attr}.value='{if $ispub == true}{$result.pubpid|attr}{else}{$result.pid|attr}{/if}'; window.opener.document.{$form_name|attr}.value='{$result.name|attr}'; window.close();">{$result.name|text}</a>
+		</td>
+		<td>{$result.DOB|text}</td>
+		<td>{$result.pubpid|text}</td>
+	</tr>
+{foreachelse}
+	{if is_array($result_set)}
+	<tr>
+		<td>{xlt t='No Results Found For Search'} '{$search_string|text}'</td>
+	</tr>
+	{/if}
+{/foreach}
+	</table>
+  </body>
+</html>

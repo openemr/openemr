@@ -1,0 +1,431 @@
+/*
+*
+*   OpenEMR Theme Layout
+*   Used for all themes created for OpenEMR.
+*
+*/
+
+.logout {
+  color: $body-color;
+  text-align: $right;
+  text-decoration: none;
+}
+
+.alert-custom {
+  background-color: $danger !important;
+  color: $white !important;
+}
+
+.small span.text,
+span.required,
+span.bold {
+  @include font-size("1rem");
+}
+
+.link,
+.more,
+.back,
+.link_selected,
+.link_selected:visited,
+.items {
+  @include font-size("0.7rem");
+}
+
+.title {
+  @include font-size("1.5rem");
+}
+
+.title_bar {
+  @include font-size("1.13rem");
+}
+
+.bgcolor2 {
+  background-color: $white;
+}
+
+/* $GLOBALS['style']['BGCOLOR2'] */
+
+.body_nav {
+  background-color: $gray-300;
+}
+
+/* $nav_bg_line */
+
+.body_filler {
+  background-color: lighten($yellow, 30%) !important;
+}
+
+/* $login_body_line */
+
+#addressbook_list tr.search,
+#addressbook_list .inputtext {
+  @include font-size("0.9rem");
+}
+
+[href~="deleter"],
+[onclick~="delete"] {
+  background: $danger !important;
+}
+
+.section {
+  background: $gray-300;
+  border-color: $gray-400 !important;
+}
+
+/* styles taken out of templates/documents/general_list.html */
+#documents_list {
+  border-right: dashed 1px;
+  float: $left;
+  height: 95%;
+  overflow: auto;
+  width: 100%;
+}
+
+#documents_list td,
+#documents_list a {
+  @include font-size("0.8rem");
+}
+
+.body_title table tr td {
+  padding: 0 !important;
+}
+
+/* Patient History */
+#HIS .groupname,
+#HIS .label_custom,
+#HIS .data {
+  @include font-size("0.9rem");
+}
+
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+#patient_pastenc #tooltipdiv {
+  @include font-size("0.9rem");
+}
+
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================*/
+#report_custom h1 {
+  @include font-size("1.2rem");
+}
+
+#report_custom .encounter h1 {
+  @include font-size("1.4rem");
+}
+
+#addressbook_list {
+  tr.evenrow {
+    background-color: $light;
+  }
+
+  tr.oddrow {
+    background-color: $white;
+  }
+}
+
+tr.odd,
+td.even {
+  background-color: $white !important;
+}
+
+#logout_link span {
+  display: none;
+}
+
+/*
+ * TABS
+*/
+ul.tabNav {
+  background: $primary;
+  margin: 0;
+  padding: 0;
+  padding-top: 4px;
+
+  li {
+    padding: 0 4px;
+
+    &.current a {
+      background: $white;
+      color: $primary;
+    }
+  }
+
+  a {
+    color: $white;
+    padding: 8px 17px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+/* Override BS4 dropdown toggle */
+.oe-dropdown-toggle::after {
+  content: none !important;
+}
+
+/**
+* List-table formatting
+**/
+
+.showborder td,
+.showborder_head th,
+.shownoborder td,
+.showborder_long tr td {
+  @include font-size("0.9rem");
+}
+
+/**
+* Drug lookup
+**/
+.drug_lookup {
+  @include font-size("0.8rem");
+}
+
+#sddm li {
+  background: $light;
+}
+
+#sddm li a {
+  color: $primary;
+  padding: 12px;
+}
+
+#sddm li a:hover {
+  background: darken($light, 15%);
+}
+
+#sddm div {
+  background: $light;
+  display: none;
+  margin: 0;
+  padding: 0;
+}
+
+#sddm div a {
+  color: darken($primary, 15%);
+}
+
+#sddm div a:hover {
+  background: $primary;
+}
+
+#sddm li.encounter-form-category-li {
+  position: relative;
+  z-index: 1;
+}
+
+.text-area {
+  background-color: $white;
+  border: 1px solid $black;
+  height: 100px;
+  overflow: auto;
+  text-align: $left;
+  width: 100%;
+}
+
+.example_menu {
+  @include font-size("0.7rem");
+
+  ul a:hover {
+    background: darken($light, 15%);
+    text-decoration: underline;
+  }
+}
+
+.error-message {
+  @include font-size("0.8rem");
+}
+
+.attach-input {
+  text-align: $right;
+}
+
+.radio-pos {
+  margin-left: 10px;
+}
+
+.sidebar {
+  @include font-size("0.95rem");
+  background-color: lighten($light, 10%);
+
+  .submenu {
+    @include font-size("0.9rem");
+  }
+}
+
+.alert-danger-custom {
+  background-color: lighten($danger, 20%) !important;
+  color: $white !important;
+}
+
+/* to align feesheet buttons*/
+div.category-display {
+  margin-left: 25px !important;
+}
+
+.chevron_color {
+  color: $primary;
+}
+
+#create_patient_btn {
+  float: $right;
+  margin-top: 25px;
+}
+
+/*~~openemr5 tabs menu, user and logout icon~~*/
+#menu_icon,
+#logout_icon,
+#user_icon {
+  color: $gray-600 !important;
+}
+
+/*~~openemr5 tabs menu , user and logout icon~~*/
+/*openrmr5.0.2 edit_globals vertical menu*/
+#theform input[type="text"] {
+  border: 1px solid $gray-400;
+  margin: 0;
+}
+
+#oe-nav-ul {
+  &.tabNav {
+    background: rgba($black, 0.05) !important;
+
+    li.current {
+      color: $primary;
+    }
+
+    a {
+      background: $light;
+      border-bottom: 1px solid $gray-400;
+      border-left: 2px solid $primary;
+
+      &:hover {
+        background-color: $white !important;
+        color: $primary;
+      }
+    }
+
+    .current a {
+      background: $white;
+      border-color: $primary;
+      color: $primary;
+    }
+  }
+}
+
+#globals-div .tabContainer {
+  border-color: $primary;
+}
+
+.oe-global-tab-heading {
+  color: $primary;
+}
+
+/*openrmr5.0.2 edit_globals vertical menu*/
+/*main.php expandable search*/
+#search_globals {
+  background: lighten($gray-200, 10%) !important;
+}
+
+/*main.php expandable search*/
+/*bootstrap navbar */
+.navbar-collapse.collapse.in {
+  background-color: lighten($light, 20%) !important;
+  color: $body-color !important;
+}
+
+.navbar-light .navbar-nav > li > a:focus,
+.navbar-light .navbar-nav > li > a:hover {
+  background-color: $gray-200 !important;
+  color: $gray-800 !important;
+}
+
+/*bootstrap navbar */
+/*openemr 5 patient-finder*/
+@media screen and (max-width: 750px) {
+  #pt_table {
+    @include font-size("1.2rem");
+  }
+}
+
+/*openemr 5 patient-finder*/
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+  box-shadow: 3px 5px 8px $gray;
+  left: 40px;
+}
+
+/*vertical main menu */
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+  background: $white !important;
+}
+
+/* Fieldset Colors */
+legend {
+  background-color: $gray-300 !important;
+  color: $body-color !important;
+}
+
+fieldset {
+  background-color: $light !important;
+  color: $body-color !important;
+}
+
+/* Select2 Theme Overrides - The BS theme Doesn't cover it all! */
+.select2-close-mask {
+  background-color: $white !important;
+}
+
+.select2-dropdown {
+  background-color: $white !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--single {
+  background-color: $white !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple {
+  background-color: $white !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+  padding: 0.25rem 0.25rem 0.25rem 0;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+  color: $red;
+  font-size: 1.75rem;
+  line-height: 1rem !important;
+}
+
+.login-emr-logo {
+  > #red-color {
+    // Regular color: #a40c04
+    fill: $white;
+  }
+  // Regular color: #2c9cd4
+  > #blue-color {
+    fill: $white;
+  }
+  // Regular color: #5c5c5c
+  > #gray-color {
+    fill: $white;
+  }
+}
+
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
+  fill: #2c9cd4;
+}
+
+.about-review-image > #color {
+  fill: #083c5d;
+}

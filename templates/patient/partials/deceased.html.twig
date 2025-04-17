@@ -1,0 +1,17 @@
+{#
+The Patient Portal card for the Medical Record Dashboard
+
+@author       Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
+@package      OpenEMR
+#}
+
+{% block content %}
+<section class="card bg-danger text-white">
+    <div class="card-body p-1">
+        <div class="card-title mb-0 d-flex p-1 justify-content-between">
+            <strong>{{ deceasedDays|text }}</strong>
+        </div>
+    </div>
+</section>
+{% endblock %}

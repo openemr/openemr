@@ -1,0 +1,3 @@
+The OpenEMR System Architecture Description page can be found here:
+http://open-emr.org/wiki/index.php/OpenEMR_System_Architecture
+

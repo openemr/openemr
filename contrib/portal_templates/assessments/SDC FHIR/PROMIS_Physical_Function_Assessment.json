@@ -1,0 +1,627 @@
+{
+    "resourceType": "Questionnaire",
+    "meta": {
+        "profile": [
+            "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
+        ],
+        "tag": [
+            {
+                "code": "generated: PEER"
+            }
+        ]
+    },
+    "status": "active",
+    "title": "PROMIS Physical Function Assessment",
+    "subjectType": [
+        "Patient",
+        "Person"
+    ],
+    "item": [
+        {
+            "type": "group",
+            "code": [],
+            "required": false,
+            "linkId": "/PP",
+            "prefix": "PROMIS Physical Function",
+            "text": "The following five sections deal with pain. Please read each question and answer as well as you can. There is no right or wrong answer, only what is true for you. The next few questions help measure the level of your physical activity.",
+            "item": [
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "PFA23",
+                            "display": "Are you able to go for a walk of at least 15 minutes?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PP/PFA23",
+                    "text": "Are you able to go for a walk of at least 15 minutes?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "DIF_1",
+                                "display": "Unable to do"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_2",
+                                "display": "With much difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_3",
+                                "display": "With some difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_4",
+                                "display": "With a little difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_5",
+                                "display": "Without any difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Physical Function score.",
+                            "type": "display",
+                            "linkId": "/PP/PFA23-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "PFA21",
+                            "display": "Are you able to go up and down stairs at a normal pace?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PP/PFA21",
+                    "text": "Are you able to go up and down stairs at a normal pace?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "DIF_1",
+                                "display": "Unable to do"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_2",
+                                "display": "With much difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_3",
+                                "display": "With some difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_4",
+                                "display": "With a little difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_5",
+                                "display": "Without any difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Physical Function score.",
+                            "type": "display",
+                            "linkId": "/PP/PFA21-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "PFA11",
+                            "display": "Are you able to do chores such as vacuuming or yard work?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PP/PFA11",
+                    "text": "Are you able to do chores such as vacuuming or yard work?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "DIF_1",
+                                "display": "Unable to do"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_2",
+                                "display": "With much difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_3",
+                                "display": "With some difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_4",
+                                "display": "With a little difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_5",
+                                "display": "Without any difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Physical Function score.",
+                            "type": "display",
+                            "linkId": "/PP/PFA11-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "choice",
+                    "code": [
+                        {
+                            "code": "PFA53",
+                            "display": "Are you able to run errands and shop?",
+                            "system": "http://hl7.org/fhir/StructureDefinition/code"
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                            "valueCodeableConcept": {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/questionnaire-item-control",
+                                        "code": "radio-button",
+                                        "display": "Radio Button"
+                                    }
+                                ],
+                                "text": "Drop down"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        }
+                    ],
+                    "required": true,
+                    "linkId": "/PP/PFA53",
+                    "text": "Are you able to run errands and shop?",
+                    "answerOption": [
+                        {
+                            "valueCoding": {
+                                "code": "DIF_1",
+                                "display": "Unable to do"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 1
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_2",
+                                "display": "With much difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 2
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_3",
+                                "display": "With some difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 3
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_4",
+                                "display": "With a little difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 4
+                                }
+                            ]
+                        },
+                        {
+                            "valueCoding": {
+                                "code": "DIF_5",
+                                "display": "Without any difficulty"
+                            },
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/ordinalValue",
+                                    "valueDecimal": 5
+                                }
+                            ]
+                        }
+                    ],
+                    "prefix": "",
+                    "item": [
+                        {
+                            "text": "These questions were developed by scientists at the National Institutes of Health (NIH). They are part of the NIH Patient Reported Outcomes Measurement Information System (PROMIS) Computer Adaptive Test (CAT). This qiestion is part of  PROMIS Physical Function score.",
+                            "type": "display",
+                            "linkId": "/PP/PFA53-help",
+                            "extension": [
+                                {
+                                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                                    "valueCodeableConcept": {
+                                        "text": "Help-Button",
+                                        "coding": [
+                                            {
+                                                "code": "help",
+                                                "display": "Help-Button",
+                                                "system": "http://hl7.org/fhir/questionnaire-item-control"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "decimal",
+                    "code": [
+                        {
+                            "code": "PP-score",
+                            "display": "PROMIS Physical Function Score"
+                        }
+                    ],
+                    "readOnly": true,
+                    "extension": [
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "scoreExt",
+                                "language": "text/fhirpath",
+                                "expression": "'http://hl7.org/fhir/StructureDefinition/ordinalValue'"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationLinkPeriod",
+                            "valueDuration": {
+                                "value": 100,
+                                "unit": "year",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "a"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                            "valueBoolean": true
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unit",
+                            "valueCoding": {
+                                "display": "{score}"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pp1_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA23').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA23').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pp2_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA21').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA21').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pp3_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA11').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA11').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "pp4_value",
+                                "language": "text/fhirpath",
+                                "expression": "%questionnaire.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA53').answerOption.where(valueCoding.code=%resource.item.where(linkId = '/PP').item.where(linkId = '/PP/PFA53').answer.valueCoding.code).extension.where(url=%scoreExt).valueDecimal"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/StructureDefinition/variable",
+                            "valueExpression": {
+                                "name": "any_questions_answered",
+                                "language": "text/fhirpath",
+                                "expression": "%pp1_value.exists() or %pp2_value.exists() or %pp3_value.exists() or %pp4_value.exists()"
+                            }
+                        },
+                        {
+                            "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                            "valueExpression": {
+                                "description": "Total score calculation",
+                                "language": "text/fhirpath",
+                                "expression": "iif(%any_questions_answered, iif(%pp1_value.exists(), %pp1_value, 0) + iif(%pp2_value.exists(), %pp2_value, 0) + iif(%pp3_value.exists(), %pp3_value, 0) + iif(%pp4_value.exists(), %pp4_value, 0), {})"
+                            }
+                        }
+                    ],
+                    "required": false,
+                    "linkId": "/PP/PP-score",
+                    "text": "PROMIS Physical Function Score"
+                }
+            ]
+        }
+    ],
+    "name": "PROMIS_Physical_Function_Assessment"
+}

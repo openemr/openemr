@@ -1,0 +1,83 @@
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+
+// RTL required here regardless if it is needed or not
+@import "../directional";
+
+$rfs-base-value: 1rem;
+$enable-responsive-font-sizes: true;
+
+@import "../../../public/assets/bootstrap/scss/vendor/rfs";
+
+#encounters {
+  width: 100%;
+
+  .billing_note {
+    width: 25%;
+  }
+
+  .billing_note_text {
+    background-color: var(--gray300);
+    border: 2px outset var(--black);
+    padding: 5px;
+  }
+
+  .billing_note_text_highlight {
+    background-color: #f7f5d1;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  tr {
+    cursor: pointer;
+  }
+
+  th {
+    text-align: $left;
+  }
+
+  #tooltipdiv {
+    @include font-size("0.75rem");
+    background-color: #ffa;
+    border: 1px solid var(--black);
+    padding: 2px;
+    position: absolute;
+    visibility: hidden;
+    width: 500px;
+    z-index: 1000;
+  }
+
+  .highlight {
+    background-color: var(--white);
+  }
+
+  .tooltip {
+    background: #f7f5d1;
+    border: 1px solid var(--gray800);
+    color: var(--gray800);
+    display: none;
+    padding: 2px 5px;
+    position: absolute;
+  }
+
+  > table > * > tr > td {
+    border-top: 1px solid var(--black);
+    vertical-align: top;
+  }
+}
+
+@media print {
+  div.encreport td {
+    font-size: 8pt !important;
+  }
+}
+
+div.encreport td {
+  @include font-size("0.6875rem");
+  vertical-align: top;
+}

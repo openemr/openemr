@@ -1,0 +1,259 @@
+{**
+ * X12 Partner edit
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * Modified by Daniel Pflieger at GrowlingFlea Software to handle submitters
+ *}
+<form name="x12_partner" method="post" action="{$FORM_ACTION}" class='form-horizontal' onsubmit="return top.restoreSession()">
+    <div class="form-row my-sm-2">
+        <label for="name" class="col-form-label col-sm-2">{xlt t='Partner Name'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="name" name="name" class="form-control" value="{$partner->get_name()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_submitter_id" class="col-form-label col-sm-2">{xlt t='Submitter Name (3rd Party Submitter Only)'}</label>
+        <div class="col-sm-8">
+            <select id="x12_submitter_id" name="x12_submitter_id" class="form-control">
+                {html_options options=$partner->get_x12_submitter_array() selected=$partner->get_x12_submitter_id()}
+            </select>    
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="id_number" class="col-form-label col-sm-2">{xlt t='ID Number (ETIN)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="id_number" name="id_number" class="form-control" value="{$partner->get_id_number()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa01" class="col-form-label col-sm-2">{xlt t='User logon Required Indicator (ISA01~ use 00 or 03)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_isa01" name="x12_isa01" class="form-control" value="{$partner->get_x12_isa01()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa02" class="col-form-label col-sm-2">{xlt t='User Logon (If 03 above, else leave spaces) (ISA02)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_isa02" name="x12_isa02" class="form-control" value="{$partner->get_x12_isa02()|attr}" onKeyDown="PreventIt(event)" maxlength="10">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa03" class="col-form-label col-sm-2">{xlt t='User password required Indicator (ISA03~ use 00 or 01)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_isa03" name="x12_isa03" class="form-control" value="{$partner->get_x12_isa03()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa04" class="col-form-label col-sm-2">{xlt t='User Password (ISA04~ if 01 above, else leave spaces)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_isa04" name="x12_isa04" class="form-control" value="{$partner->get_x12_isa04()|attr}" onKeyDown="PreventIt(event)" maxlength="10">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa05" class="col-form-label col-sm-2">{xlt t='Sender ID Qualifier (ISA05)'}</label>
+        <div class="col-sm-8">
+            <select id="x12_isa05" name="x12_isa05" class="form-control">
+                {html_options options=$partner->get_idqual_array() selected=$partner->get_x12_isa05()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sender_id" class="col-form-label col-sm-2">{xlt t='Sender ID (ISA06)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_sender_id" name="x12_sender_id" class="form-control"  value="{$partner->get_x12_sender_id()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa07" class="col-form-label col-sm-2">{xlt t='Receiver ID Qualifier (ISA07)'}</label>
+        <div class="col-sm-8">
+            <select id="x12_isa07" name="x12_isa07" class="form-control">
+                {html_options options=$partner->get_idqual_array() selected=$partner->get_x12_isa07()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_receiver_id" class="col-form-label col-sm-2">{xlt t='Receiver ID (ISA08)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_receiver_id" name="x12_receiver_id" class="form-control" value="{$partner->get_x12_receiver_id()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa14" class="col-form-label col-sm-2">{xlt t='Acknowledgment Requested (ISA14)'}</label>
+        <div class="col-sm-8">
+            <select id="x12_isa14" name="x12_isa14" class="form-control">
+                {html_options options=$partner->get_x12_isa14_array() selected=$partner->get_x12_isa14()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_isa15" class="col-form-label col-sm-2">{xlt t='Usage Indicator (ISA15)'}</label>
+        <div class="col-sm-8">
+            <select id="x12_isa15" name="x12_isa15" class="form-control">
+                {html_options options=$partner->get_x12_isa15_array() selected=$partner->get_x12_isa15()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_gs02" class="col-form-label col-sm-2">{xlt t='Application Sender Code (GS02)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="x12_gs02" name="x12_gs02" class="form-control" value="{$partner->get_x12_gs02()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_dtp03" class="col-form-label col-sm-2">{xlt t='Eligibility Service Date (270 DTP03)'}</label>
+        <div class="col-sm-8">
+            <select id="x12_dtp03" name="x12_dtp03" class="form-control">
+                {html_options options=$partner->get_x12_dtp03_type_array() selected=$partner->get_x12_dtp03()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="12_per06" class="col-form-label col-sm-2">{xlt t='Submitter EDI Access Number (PER06)'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="12_per06" name="x12_per06" class="form-control" value="{$partner->get_x12_per06()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_version" class="col-form-label col-sm-2">{xlt t='Version'}</label>
+        <div class="col-sm-8">
+            <select id="x12_version" name="x12_version" class="form-control">
+                {html_options options=$partner->get_x12_version_array() selected=$partner->get_x12_version()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="processing_format" class="col-form-label col-sm-2">{xlt t='Processing format'}</label>
+        <div class="col-sm-8">
+            <select id="processing_format" name="processing_format" class="form-control">
+                {html_options options=$partner->get_processing_format_array() selected=$partner->get_processing_format()}
+            </select>
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_gs03" class="col-form-label col-sm-2">{xlt t='Application Receiver Code (GS03 - If blank ISA08 will be used)'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="15" id="x12_gs03" name="x12_gs03" class="form-control" value="{$partner->get_x12_gs03()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_login" class="col-form-label col-sm-2">{xlt t='SFTP or Eligibility Login Credentials'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="45" id="x12_sftp_login" name="x12_sftp_login" class="form-control" value="{$partner->get_x12_sftp_login()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_pass" class="col-form-label col-sm-2">{xlt t='SFTP or Eligibility Pass Credentials'}</label>
+        <div class="col-sm-8">
+            <input type="password" maxlength="45" id="x12_sftp_pass" name="x12_sftp_pass" class="form-control" value="{$partner->get_x12_sftp_pass()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_host" class="col-form-label col-sm-2">{xlt t='SFTP Host'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="45" id="x12_sftp_host" name="x12_sftp_host" class="form-control" value="{$partner->get_x12_sftp_host()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_port" class="col-form-label col-sm-2">{xlt t='SFTP Port'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="5" id="x12_sftp_port" name="x12_sftp_port" class="form-control" value="{$partner->get_x12_sftp_port()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_local_dir" class="col-form-label col-sm-2">{xlt t='SFTP Local Directory'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_sftp_local_dir" name="x12_sftp_local_dir" class="form-control" value="{$partner->get_x12_sftp_local_dir()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row my-sm-2">
+        <label for="x12_sftp_remote_dir" class="col-form-label col-sm-2">{xlt t='SFTP Remote Directory'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_sftp_remote_dir" name="x12_sftp_remote_dir" class="form-control" value="{$partner->get_x12_sftp_remote_dir()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_client_id" class="col-form-label col-sm-2">{xlt t='Client ID'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_client_id" name="x12_client_id" class="form-control" value="{$partner->get_x12_client_id()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_client_secret" class="col-form-label col-sm-2">{xlt t='Client Secret'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_client_secret" name="x12_client_secret" class="form-control" value="{$partner->get_x12_client_secret()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_token_endpoint" class="col-form-label col-sm-2">{xlt t='Token Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_token_endpoint" name="x12_token_endpoint" class="form-control" value="{$partner->get_x12_token_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_eligibility_endpoint" class="col-form-label col-sm-2">{xlt t='Eligibility Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_eligibility_endpoint" name="x12_eligibility_endpoint" class="form-control" value="{$partner->get_x12_eligibility_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_claim_status_endpoint" class="col-form-label col-sm-2">{xlt t='Claim Status Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_claim_status_endpoint" name="x12_claim_status_endpoint" class="form-control" value="{$partner->get_x12_claim_status_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_attachment_endpoint" class="col-form-label col-sm-2">{xlt t='Attachment Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_attachment_endpoint" name="x12_attachment_endpoint" class="form-control" value="{$partner->get_x12_attachment_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="btn-group offset-sm-2">
+        <a href="javascript:add_x12();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
+            {xlt t='Save'}
+        </a>
+        <a href="controller.php?practice_settings&x12_partner&action=list"  class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+            {xlt t='Cancel'}
+        </a>
+    </div>
+    <input type="hidden" name="id" value="{$partner->id|attr}" />
+    <input type="hidden" name="process" value="{$PROCESS|attr}" />
+    <input type="hidden" name="sub" value="no" />
+</form>
+
+
+<script>
+function add_x12()
+{
+if (document.x12_partner.name.value.length>0)
+{
+top.restoreSession();
+document.x12_partner.submit();
+}
+else
+{
+document.x12_partner.name.style.backgroundColor="red";
+document.x12_partner.name.focus();
+}
+}
+
+ function Waittoredirect(delaymsec) {
+ var st = new Date();
+ var et = null;
+ do {
+ et = new Date();
+ } while ((et - st) < delaymsec);
+
+   }
+</script>
+

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd" backupGlobals="false" bootstrap="tests/bootstrap.php" colors="false" processIsolation="false" stopOnError="false" stopOnFailure="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerErrors="true" displayDetailsOnTestsThatTriggerWarnings="true" displayDetailsOnTestsThatTriggerNotices="true" testdox="false"> 
+  <coverage cacheDirectory=".phpunit.cache"> </coverage>
+  <php>
+    <ini name="error_reporting" value="-1"/>
+    <server name="PANTHER_WEB_SERVER_DIR" value="interface"/>
+    <!-- ATTENTION use only on local machine you can not activate chrome visual mode on travis. -->
+    <!-- to disable browser's headless mode (will display the testing window, useful to debug) -->
+    <!--<server name="PANTHER_NO_HEADLESS" value="1"/>-->
+  </php>
+  <testsuites>
+    <testsuite name="openemr">
+      <directory>tests/Tests/Unit</directory>
+      <directory>tests/Tests/E2e</directory>
+      <directory>tests/Tests/Api</directory>
+      <directory>tests/Tests/Fixtures</directory>
+      <directory>tests/Tests/Services</directory>
+      <directory>tests/Tests/Validators</directory>
+      <directory>tests/Tests/RestControllers</directory>
+      <directory>tests/Tests/Common</directory>
+    </testsuite>
+    <testsuite name="ECQM">
+      <directory>tests/Tests/ECQM</directory>
+    </testsuite>
+    <testsuite name="unit">
+      <directory>tests/Tests/Unit</directory>
+    </testsuite>
+    <testsuite name="e2e">
+      <directory>tests/Tests/E2e</directory>
+    </testsuite>
+    <testsuite name="api">
+      <directory>tests/Tests/Api</directory>
+    </testsuite>
+    <testsuite name="fixtures">
+      <directory>tests/Tests/Fixtures</directory>
+    </testsuite>
+    <testsuite name="services">
+      <directory>tests/Tests/Services</directory>
+    </testsuite>
+    <testsuite name="validators">
+      <directory>tests/Tests/Validators</directory>
+    </testsuite>
+    <testsuite name="controllers">
+      <directory>tests/Tests/RestControllers</directory>
+    </testsuite>
+    <testsuite name="common">
+      <directory>tests/Tests/Common</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

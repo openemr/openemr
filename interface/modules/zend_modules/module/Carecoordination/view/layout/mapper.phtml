@@ -1,0 +1,42 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Carecoordination/view/layout/mapper.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
+<?php echo $this->doctype(); ?>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+        ->prependStylesheet($this->basePath() . '/css/jquery.treeview.css')
+        ->prependStylesheet($this->basePath() . '/css/ccda.css')
+        ->prependStylesheet($this->basePath() . '/css/demo.css')
+        ->prependStylesheet($this->basePath() . '/css/themes/base/jquery.ui.all.css')
+    ?>
+
+    <?php echo $this->headScript()
+        ->prependFile($this->basePath() . '/js/lib/jquery.treeview-1.4.1/jquery.treeview.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery.treeview-1.4.1/lib/jquery.cookie.js')
+        ->prependFile($this->basePath() . '/js/lib/virtualpaginate.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery.ui.tabs.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery.ui.sortable.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery.ui.mouse.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery.ui.widget.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery.ui.core.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery-1.8.3.js')
+        ->prependFile($this->basePath() . '/js/lib/jquery-1.4.3.js')
+    ?>
+
+</head>
+<body class="body_top">
+    <div class="container" style="width:100%">
+        <?php echo $this->content; ?>
+    </div>
+</body>
+</html>

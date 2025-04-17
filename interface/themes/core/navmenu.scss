@@ -1,0 +1,248 @@
+@if $compact-theme == false {
+  .menu {
+    color: $primary;
+    text-align: $left;
+    text-decoration: none;
+  }
+
+  .menu_selected {
+    color: $body-color;
+    text-align: $left;
+    text-decoration: none;
+  }
+
+  /* see .titlebar below */
+
+  .title_bar {
+    @include font-size("1.0rem");
+    color: $body-color;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .title_bar_top {
+    color: $body-color;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .sidebar {
+    background: darken($light, 10%);
+    font-size: 95%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    .submenu {
+      padding-#{$left}: 0.9375rem;
+    }
+
+    ul.mainmenu {
+      padding-bottom: 3.4375rem;
+    }
+  }
+
+  /*=============================================================
+ * Here we have taken variables from globals.php and turned them into CSS classes
+ * these should be used in place of the GLOBAL variables -- JRM March 2008
+ *=============================================================*/
+
+  body {
+    direction: $dir;
+  }
+
+  .body_top {
+    margin: 0.5rem;
+  }
+
+  /* $top_bg_line */
+
+  .bgcolor2 {
+    background-color: darken($light, 10%);
+  }
+
+  /* $GLOBALS['style']['BGCOLOR2'] */
+
+  .body_bottom {
+    margin: 0.5rem;
+  }
+
+  /* $bottom_bg_line */
+
+  .body_title {
+    background-color: lighten($yellow, 50%);
+  }
+
+  /* $title_bg_line */
+
+  .body_nav {
+    background-color: lighten($yellow, 60%);
+  }
+
+  /* $nav_bg_line */
+
+  .body_filler {
+    background-color: lighten($yellow, 70%);
+  }
+
+  /* $login_filler_line */
+
+  /* $table_bg */
+
+  .table_bg,
+  .bgcolor1 {
+    background-color: $gray-400;
+  }
+
+  /* $GLOBALS['style']['BGCOLOR1'] */
+
+  .textcolor11 {
+    background-color: $dark;
+  }
+
+  /* $GLOBALS['style']['TEXTCOLOR11'] */
+
+  .highlightcolor {
+    background-color: $gray-300;
+  }
+
+  /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
+
+  .logobar {
+    background-color: $dark;
+    height: 6.875rem;
+  }
+
+  /* $GLOBALS['navBarHeight'] */
+
+  .titlebar {
+    height: 1.25rem;
+  }
+
+  /* $GLOBALS['titleBarHeight'] */
+
+  /* The top navigation icon styling*/
+
+  .top-nav-icons {
+    margin-top: 5px;
+    margin-#{$right}: 15px;
+  }
+
+  .text-area {
+    background-color: $white;
+    border: 1px solid $black;
+    height: 6.25rem;
+    overflow: auto;
+    text-align: $left;
+    width: 100%;
+  }
+
+  .example_menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
+    width: 8.5rem;
+
+    ul {
+      display: none;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      a:hover {
+        background: lighten($light, 20%);
+        text-decoration: underline;
+      }
+
+      ul {
+        display: block;
+      }
+
+      li {
+        span {
+          background: lighten($yellow, 60%);
+          color: $body-color;
+          display: block;
+          font-weight: normal;
+          width: 100%;
+        }
+
+        &.active a {
+          background: $white;
+        }
+
+        &.active li a {
+          background: $gray-200;
+        }
+      }
+    }
+
+    a {
+      color: $body-color;
+      cursor: pointer;
+      display: block;
+      font-weight: bold;
+      padding: 0.125rem 0.125rem 0.125rem 1.0625rem;
+
+      &.expanded {
+        background-color: $gray-300;
+
+        &::before {
+          @extend %fa-defaults;
+          @extend .far;
+          content: fa-content('#{$fa-var-caret-square-up + $escape-fa}');
+        }
+      }
+
+      &.collapsed {
+        background-color: $gray-300;
+
+        &::before {
+          @extend %fa-defaults;
+          @extend .far;
+          content: fa-content('#{$fa-var-caret-square-down + $escape-fa}');
+        }
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+      margin-#{$left}: 0;
+    }
+
+    .footer span {
+      display: none;
+    }
+  }
+
+  .expand_all,
+  .collapse_all {
+    cursor: pointer;
+  }
+
+  #menu1 li,
+  #menu2 li,
+  #menu3 li,
+  #menu4 li,
+  #menu5 li,
+  .example_menu li {
+    background-image: none;
+    border-bottom: 1px solid $white;
+    margin: 0;
+    padding: 0;
+  }
+
+  #menu1 li.footer,
+  #menu2 li.footer,
+  #menu3 li.footer,
+  #menu4 li.footer,
+  #menu5 li.footer,
+  .example_menu .footer {
+    background-color: transparent;
+    border-top: 2px solid $white;
+    height: 0.5625rem;
+    line-height: 0.9375rem;
+    margin: 0 0 0.625rem;
+    width: 8.1875rem;
+  }
+}

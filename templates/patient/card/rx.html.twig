@@ -1,0 +1,15 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+
+    {# Display the Edit button for openemr prescriptions#}
+    {% if weno == true %}
+        <div class="card-title mb-0 d-flex p-1 justify-content-between">
+            <span class="font-weight-bolder text-primary">Prescription History</span>
+                <a class="{{ oemrBtnClass|attr }}" href="{{ oemrLinkMethod == "html" ? oemrBtnLink : "#" }}" {{ (oemrLinkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ oemrLinkMethod == "javascript" ? "onclick=\"" ~ oemrBtnLink ~ "\"" : ''}}><i class="fa {{ oemrBtnIcon }} fa-sm">&nbsp;</i></a>
+        </div>    
+    {% endif %}
+
+    {{ content }}
+            
+{% endblock %}

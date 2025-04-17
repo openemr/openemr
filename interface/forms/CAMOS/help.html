@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+
+
+<html>
+<head>
+  <title>CAMOS Help</title>
+  <link rel="stylesheet" href="CAMOS.css">
+</head>
+<body>
+<a name='top'>
+<div id='myheader'>CAMOS Help Page</div>
+<!-- <div id='mypic'><img src='palm.gif'></div> -->
+<br/><br/>
+<div id='mymenu'>
+      <a href="#intro">Introduction</a> |
+      <a href="#basic">Basic Use</a> |
+      <a href="#rx">Prescription and Progress note Printing [New!]</a> |
+      <a href="#advanced">Advanced Use</a> |
+      <a href="#troubleshooting">Trouble Shooting</a>
+      <a href="#admin">Import/Export [<i>Very</i> experimental]</a>
+</div>
+<a name='intro'>
+<hr/>
+<h1>Introduction</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+CAMOS (Computer Aided Medical Ordering System) is, on the surface,
+just a fancy interface for organizing and choosing pieces of text
+to insert into a patient's chart.  It is designed to be intuitive
+and easy to use.
+</p>
+<p>
+<b>
+WARNING: The CAMOS form has been tested, but there is the possibility that bugs exist which may corrupt your data.
+It is also possible that the use of this form may lead to the incorrect entry of data.
+The data provided in the three columns upon initial installation of CAMOS is for demonstration purposes only.
+It is recommended that you delete all of it and start over with your own, carefully planned, structure of categories, subcategories
+ and items.  The included data may be incorrect and should not be used and the author of this software assumes no liability for any
+damage that occurs as a result of the data or as a result of the use of the CAMOS form in general.
+</b>
+</p>
+<a name='basic'>
+<hr/>
+<h1>Basic Use</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+<b>add</b> button - Type something in the text box above the button and it will be added to the column above.
+</p>
+<p>
+<b>alter</b> button - Select text in the column above and type something in the text box above the button and the column text will be altered.
+</p>
+<p>
+<b>del</b> button - Select text in the column above and press the button to delete it.  In the 'Item' column, you can use your 'Ctrl' key (PC) or Apple key (Mac) and click multiple items for deletion.
+</p>
+<p>
+<b>submit all content</b> button - Submit text in content box to patient's chart.
+</p>
+<p>
+<b>submit selected content</b> button - Submit only selected text in content box to patient's chart. <b><u><i>This does not work in Internet Explorer.</i></u></b>
+</p>
+<p>
+<b>add to</b> button - Like the add button for content but instead of replacing existing content with new, it appends the new text to the existing content.
+</p>
+<p>
+<b>lock</b> button - Inserts text: '/*lock::*/' which prevents accidental deletion.  Admittedly a dumb way to do it, but maybe helpful.
+</p>
+<p>
+<b>ICD10</b> button - Inserts ICD10 codes from billing table for this encounter.  You have to remember to enter them first before viewing this form.
+</p>
+<p>
+<b>search</b> button - Searches content from form_CAMOS table based on keywords entered in text box to the left of the button.  Starting the keywords with the word 'codes' or 'billing' will search the codes or billing table for matching ICD10, cpt4 or other codes.  Data is displayed in the content box in camos function format (see advanced section below).
+</p>
+<p>
+<b>search selected</b> button -  Like the search button described above, but searches are limited by what is selected in the columns.
+</p>
+<p>
+<b>Additional features of search box</b> - If you entere a colon (':') in the search box, patient data will be displayed with results.  If you enter a double colon ('::'), patient data and phone number data will be displayed with results.  If you put a first and/or last name in any order before the colon, results for matching names will be displayed.  If you put the word 'this' before the colon, the current selected patient's data will be displayed.  Words after the colon will be used as search terms.  These features work with the 'search' and 'search selected' buttons.
+</p>
+<h3>Top Row of Buttons:</h3>
+<b>clone</b> button - Searches for list of entries in this patient's history under the selected category and returns the most recent of each.  Data is displayed in the content box in camos function format (see advanced section below).
+</p>
+<p>
+<b>clone last visit</b> button - Returns all CAMOS submitted items from last encounter plus billing table data.  Data is displayed in the content box in camos function format (see advanced section below).  By last encounter, we mean the last encounter which has billing entries associated with it.
+</p>
+<p>
+<b>Leave The Form</b> link - Leave the CAMOS form without saving data to patient's chart.
+</p>
+<p>
+<b>help</b> link - Access this help page.
+</p>
+
+</a>
+<a name='rx'>
+<hr/>
+<h1>Prescription and Progress note Printing</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+After leaving the CAMOS form, Your entries will show with a link titled 'rx'.  Click on this link, choose which items to print with checkboxes and submit.  Make sure to set all margins to zero and print in landscape mode.  There are a variety of other links as well.  'sig_rx' generates prescriptions with a signature image.  The user must create a signature image and name it sig.jpg in the CAMOS directory for this to work.  'Print This Encounter' and 'Print Any Encounter' allow for printing of progress notes.  The vitals table data and CAMOS data are integrated.  The format depends on having CAMOS categories 'exam' and 'prescriptions'.  For customization, programmers can edit the file notegen.php.  Forms other than vitals and CAMOS will not appear in these notes.
+
+<a name='advanced'>
+<hr/>
+<h1>Advanced Use</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+For the advanced user
+</p>
+<p>
+<b>Accessing CAMOS from outside of an encounter.</b><br />
+</p>
+<p>
+The CAMOS form has uses that are not related to a patient encounter.  For example, you may maintain a list of referral sources to submit in a patient's chart if you wish to refer the patient, but you may want to look at referral data in CAMOS without going into the chart.  This would be like CAMOS doubling as a phone book.  Another use is to build up content data for future use without having to go into a patient's chart.  To access CAMOS externally, setup a bookmark or link with the following url:
+<br/><br/>
+http://webroot/interface/forms/CAMOS/new.php?mode=external
+<br/><br/>
+This will hide buttons which should not be used if you are not in an encounter.
+</p>
+<p>
+<b>Comments</b><br />
+</p>
+<p>
+CAMOS supports C style comments.  Here is how they work.  A comment opens with /* and closes with */.  You cannot nest comments.  You cannot overlap comments.  Anything in a comment will be seen within CAMOS in the item window, but it will not show when you enter it into the patient's chart.  This is useful for making notes on items that are not appropriate to go in the chart.  You may want, for example, to document which insurance a particular facility accepts.
+
+</p>
+
+<div class='box'>
+<div class='code'>
+<pre>
+/* Accepts BC/BS */   ok
+/* rx list follows */ ok
+/* /*     */ */       not right
+</pre>
+</div>
+</div>
+<p>
+<b>Special Double Clicking</b><br />
+</p>
+<p>
+Double clicking between the comment delimiters /* and */ in the content box will select the delimiters and text between them.  Double clicking again, will remove surrounding text other than what was selected (crop to selection).  Double clicking a third time will return removed text to the content box.  This is useful for managing data formatted as embedded functions as described below and with the submit selected content button.
+</p>
+<p>
+<b>Embedded functions</b><br />
+</p>
+<p>
+Embedded functions are contained within comments.  The first word is the function name.  A '::' follows, and then a list of function arguments, each seperated by '::'.
+</p>
+<p>
+The <b>billing</b> function<br /><br />
+If you want to enter an entry into the billing table to have, for example, a CPT4 or ICD10 code come up after entering a CAMOS form into a patient's chart, do this:
+</p>
+<b>billing function signature</b>
+<div class='box'>
+<div class='code'>
+<pre>
+/*billing::code_type::code::code_text::modifier::units::fee::justify1::justify2*/
+</pre>
+</div>
+</div>
+<b>Examples</b>
+<div class='box'>
+<div class='code'>
+<pre>
+/*billing::CPT4::80054::CMP:: :: ::50.00*/ /*add a cmp for $50*/
+/*billing::CPT4::85024::CBC:: :: ::25.00*/ /*add a cbc*/
+/*billing::CPT4::80061::Lipid Panel:: :: ::50.00*/
+/*billing::ICD10::Z00.00::physical:: :: ::0.00*/ /*this is a diagnosis, not a procedure*/
+</pre>
+</div>
+</div>
+
+<p>
+The <b>camos</b> function, CAMOS calling CAMOS:
+</p>
+<p>
+This function is used by the cloning features.  You may take advantage of it yourself. Obvserve how it is used.  Keyword is 'camos' and arguments are category, subcatory, item, content.
+</p>
+<!-- start new function description -->
+<p>
+The <b>replace</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+Atenolol 50mg
+/*replace::30 tablets qd*/
+</pre>
+</div>
+</div>
+<p>
+In this example, the replace function looks for an 'item' entry called '30 tablets qd' and replaces the function call with the text from the associated content box.  This replace function works recursively, meaning that if the text which is used in the replacement contains a call to 'replace' itself, this will be called as well.  Other function calls will be executed only after all replace calls are completed.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>vitals</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*vitals::wt::ht::bps::bpd::pulse::temp*/
+</pre>
+</div>
+</div>
+<p>
+This function submits vital sign data to the vitals table.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>date_add</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*date_add::x*/
+</pre>
+</div>
+</div>
+<p>
+This function call is replaced by the day of the week and date x days from the encounter date.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>date_sub</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*date_sub::x*/
+</pre>
+</div>
+</div>
+<p>
+Same as date_add but it subtracts x days from the encounter date.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>appt</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*appt::x::time*/
+</pre>
+</div>
+</div>
+<p>
+This function submits an appointment to the calendar x days from the current date at time.  Note: this needs work.  The function may not submit all of the data required for the appointment to actually appear in the regular calendar, so it's probably not too useful to anyone at this point.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+<b>patientname, patientage, patientgender, doctorname</b>.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+patientname is a patientage year-old patientgender patient of doctorname.
+</pre>
+</div>
+</div>
+<p>
+These keywords are substituted with the appropriate information from the patient's demographic data.
+</p>
+<!-- end new function description -->
+<a name='troubleshooting'>
+<hr/>
+<h1>Trouble Shooting</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+<b>Data in the 'category', 'subcategory' and 'item' columns and the 'content' box disappear and the form becomes non-functional (none of the buttons do anything).</b> - This is caused by bugs that corrupt the Javascript code as it is generated by PHP.  We hope that these bugs have been eliminated, but there is the possibility of unforseen use that may cause it to happen again.  First, exit the form and re-enter it.  If everything comes back as normal, remove the most recently entered data into the form.  If not, you will have to go into the database to correct the problem.  Be careful to back up your data first.
+If your most recent entry before the problem was to the 'category' column, remove the last entry to the form_CAMOS_category table.
+If your most recent entry before the problem was to the 'subcategory' column, remove the last entry to the form_CAMOS_subcategory table.
+If your most recent entry before the problem was to the 'item' column, remove the last entry to the form_CAMOS_item table.
+If your most recent entry before the problem was to the 'content' box, remove the last entry to the form_CAMOS_item table.
+Please make a note of the offending data which caused the problem and report it on the <a href='https://community.open-emr.org/'>OpenEMR project forum</a>.
+</p>
+<p>
+<b>Other bugs or unusual behavior</b> - please report to the forum at the above link.
+</p>
+<a name='admin'>
+<hr/>
+<h1>Import/Export</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+NOT FOR PRODUCTION USE YET!  Try on test servers only where lost data will not be important.  <a href="./admin.php" target=_new>admin page</a>
+</p>
+</body>
+</html>

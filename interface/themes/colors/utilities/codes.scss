@@ -1,0 +1,17 @@
+/* OpenEMR codes Override */
+
+@if $compact-theme == false {
+  .code_fieldset {
+    background-color: $palepale !important;
+    border: 1px solid $darkest !important;
+  }
+
+  .code_edit {
+    background-color: $mid !important;
+  }
+
+  .code_legend {
+    background-color: $mid !important;
+    margin-bottom: 0 !important;
+  }
+}

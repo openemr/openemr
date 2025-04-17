@@ -1,0 +1,104 @@
+/* OpenEMR Bootstrap Override */
+@if $compact-theme == false {
+  .table > thead {
+    background: $mid !important;
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: $white !important;
+  }
+
+  .btn-link {
+    background: $paler !important;
+    border-color: $darkest !important;
+    border-radius: 2px !important;
+    color: $gray !important;
+
+    &:focus,
+    &:hover {
+      text-decoration: none !important;
+    }
+  }
+
+  .btn-link.active,
+  .btn-link.focus,
+  .btn-link:active,
+  .btn-link:focus,
+  .btn-link:hover,
+  .open > .dropdown-toggle.btn-link {
+    background: $palepale !important;
+    border-color: $darker !important;
+    box-shadow: 0 0 2px $darker inset;
+    color: $gray !important;
+    transition: border-color ease-in-out 0.3s, box-shadow ease-in-out 0.3s;
+  }
+
+  .btn-group {
+    .btn {
+      margin-right: 2px !important;
+    }
+
+    > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+      border-bottom-left-radius: 3px !important;
+      border-bottom-right-radius: 0 !important;
+      border-top-left-radius: 3px !important;
+      border-top-right-radius: 0 !important;
+    }
+  }
+
+  .position-override {
+    margin-left: 0;
+    text-align: center !important;
+  }
+
+  .oe-custom-line {
+    padding-bottom: 5px;
+  }
+
+  .oe-large {
+    display: inline-block;
+  }
+
+  .oe-small {
+    display: none;
+  }
+
+  .oe-show-hide {
+    display: none;
+  }
+
+  .oe-legend-radio {
+    padding: 5px 5px 0 0;
+  }
+
+  .oe-bold-black {
+    color: $black !important;
+    font-weight: 700 !important;
+  }
+
+  .oe-btn-circle {
+    background: $darker !important;
+    border-color: $darkest !important;
+    border-radius: 15px;
+    color: $white !important;
+    height: 30px;
+    line-height: 1.428571429;
+    padding: 6px 0;
+    text-align: center;
+    width: 30px;
+  }
+
+  .patientInfo a.btn,
+  .patientDataColumn a.btn {
+    background: $darker !important;
+    border-color: $darkest !important;
+    border-radius: 10px !important;
+    color: $white !important;
+    height: 20px;
+    line-height: 1.428571429;
+    margin: 5px;
+    padding: 2px 0;
+    text-align: center;
+    width: 20px;
+  }
+}

@@ -1,0 +1,56 @@
+$Id$
+========================================================================
+PostCalendar::PostNuke Events Calendar Module
+Copyright (C) 2002 The PostCalendar Team
+http://www.postcalendar.tv
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+To read the license please read the docs/license.txt or visit
+http://www.gnu.org/copyleft/gpl.html
+========================================================================
+
+Please see the INSTALL file for installation details.
+
+========================================================================
+Release Notes
+========================================================================
+
+If you find a bug please post it at:
+http://www.asphyxia.com/bugs
+
+For more help and guides please visit the PostCalendarWiki at:
+http://www.postcalendar.tv/wiki
+
+========================================================================
+Thanks
+========================================================================
+Thanks to Mahmood Al-Yousif for Project Management, web hosting
+	resources, and constant nagging :)
+
+Thanks to PostNuke for making a great product for which to work with.
+
+Thanks to all you users out there for using this program, sending in
+	feature request and complaining about the bugs :)  It's been
+	a great help!!!
+	
+========================================================================
+Contact
+========================================================================
+If you need to get in touch with us, please use the forums located at:
+http://www.postcalendar.tv
+
+Or you can email us directly at:
+info@postcalendar.tv

@@ -1,0 +1,93 @@
+{*
+*  @package OpenEMR
+*  @link    http://www.open-emr.org
+*  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+*  @copyright Copyright (c) 2020.  Sherwin Gaddis <sherwingaddis@gmail.com>
+*  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
+<html>
+<head>
+    <title>{xlt t='DAP'}</title>
+    {headerTemplate}
+</head>
+<body>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12">
+            <H2>{xlt t='DAP'}</H2>
+                <form name="dap" method="post" action="{$FORM_ACTION}/interface/forms/dap/save.php">
+                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
+                <fieldset>
+                    <legend>{xlt t='Data'}</legend>
+                        <div class="container">
+                            <div class="form-group" >
+                                <textarea name="data" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_data()|text}</textarea>
+                            </div>
+                        </div>
+                </fieldset>
+                <fieldset>
+                    <legend>{xlt t='Assessment'}</legend>
+                        <div class="container">
+                            <div class="form-group" >
+                                <textarea name="assessment" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_assessment()|text}</textarea>
+                            </div>
+                        </div>
+                </fieldset>
+                    <fieldset>
+                        <legend>{xlt t='Plan'}</legend>
+                            <div class="container">
+                                <div class="form-group" >
+                                    <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{$data->get_plan()|text}</textarea>
+                                </div>
+                            </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-primary btn-save" name="Submit" >{xlt t='Save Form'}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel" id="btnClose">{xlt t="Cancel"}</button>
+                        </div>
+                        <input type="hidden" name="id" value="{$data->get_id()|attr}" />
+                        <input type="hidden" name="activity" value="{$data->get_activity()|attr}">
+                        <input type="hidden" name="pid" value="{$data->get_pid()|attr}">
+                        <input type="hidden" name="process" value="true">
+
+                    </div>
+                </form>
+
+      </div>
+    </div>
+  </div>
+
+    <script>
+        const close = function() {
+            if (top.isSoapEdit === true) {
+                dlgopen('', '', 450, 125, '', '<div class="text-danger">{xla t='Warning'}</div>', {
+                    type: 'Alert',
+                    html: '<p>{xla t='Do you want to close the tabs?'}</p>',
+                    buttons: [
+                        {
+                            text: '{xla t='Cancel'}', close: true, style: 'default btn-sm'
+                        },
+                        {
+                            text: '{xla t='Close'}', close: true, style: 'danger btn-sm', click: closeSoap
+                        },
+                    ],
+                    allowDrag: false,
+                    allowResize: false,
+                });
+            } else {
+                top.restoreSession();
+                location.href = 'javascript:parent.closeTab(window.name, false)';
+            }
+        }
+
+        const closeSoap = function() {
+            top.isSoapEdit = false;
+            top.restoreSession();
+            location.href = 'javascript:parent.closeTab(window.name, false)';
+        }
+        $('#btnClose').click(close);
+    </script>
+
+</body>
+</html>

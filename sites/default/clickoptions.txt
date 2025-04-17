@@ -1,0 +1,51 @@
+# THIS PAGE IS DEPRECATED AND NO LONGER USED AS OF OPENEMR VERSION 4.1.2
+# (It is being kept indefinitely for upgrading purposes)
+# (This file should never be deleted)
+#
+# CLICKOPTIONS by Mark Leeds
+# This is a new addition to OpenEMR written in April of 2005.
+# The purpose is to minimize typing in places where a select box or drop down menu
+# would be helpful.  For now it is implemented in the medical history section that
+# is reached if you are looking at a patient chart and click 'Summary' at the top
+# of the screen and then click 'more' next to 'Medical Problems' below.  You will see
+# five sets of boxes where you can edit medical problems, medications, allergies, surgeries,
+# and immunizations.  If this file that you are reading now is set up properly, you will see
+# below each category heading a select box that allows you to click and select from a few
+# text options that will immediately appear in the box below (javascript must be active of course).
+# The format for this file is that any line starting with a '#' is a comment.
+# Categories and choices for the select boxes are entered with a '::' separating them. see
+# below for example.  You may add more choices, change them or do away with them alltogether.
+# If a category has no choices assigned in this file, the select box will not appear.
+# The files that had to be altered for this feature to work are in openemr/interface/patient_file/summary.
+# Three statements were added to 5 files marked with a clickoptions comment and two files were added
+# to the directory, 'clickoptions1.php' and 'clickoptions2.php'.
+medical_problem::HTN
+medical_problem::asthma
+medical_problem::diabetes
+medical_problem::hyperlipidemia
+medication::Norvasc
+medication::Lipitor
+medication::Metformin
+allergy::penicillin
+allergy::sulfa
+allergy::iodine
+allergy::codeine
+surgery::tonsillectomy
+surgery::appendectomy
+surgery::cholecystectomy
+immunizations::Gardasil #1
+immunizations::Gardasil #2
+immunizations::Gardasil #3
+immunizations::MMR
+immunizations::tetanus
+immunizations::varicella
+immunizations::Zostavax
+general::Osteopathy
+general::Chiropractic
+general::Prevention Rehab
+general::Podiatry
+general::Strength and Conditioning
+general::Nutritional
+general::Fitness Testing
+general::Pre Participation Assessment
+general::Screening / Testing

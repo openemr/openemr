@@ -1,0 +1,178 @@
+
+<?php
+/**
+ * interface/modules/zend_modules/module/Syndromicsurveillance/view/syndromicsurveillance/syndromicsurveillance/index.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+$code_list  = $this->code_list;
+$provider   = $this->provider;
+
+?>
+<script>
+    $(function () {
+        height_value = $('.responsive tr').length * 25 + 220;
+        if(height_value < 300){ height_value = 300 };
+        if (parent.document.getElementById('syndromicsurveillance_iframe')) {
+            parent.iframeLoaded(height_value, 'syndromicsurveillance_iframe');
+        }
+    });
+</script>
+<form method="post" name="theform" id="theform">
+<input type="hidden" name="download_hl7" id="download_hl7">
+<div class="body_inner_wrapper">
+    <div class="header_wrap">
+        <div class="header_wrap_left">
+            <div class="search_button" id="searchbutton" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
+            <?php
+            if(count($this->result) > 0){
+                ?>
+                <div class="search_button" id="hl7button" title="<?php echo $this->listenerObject->z_xlt('Download HL7 file');?>" style="display: none;"><?php echo $this->listenerObject->z_xlt('GET HL7'); ?></div>&nbsp;&nbsp;
+                <?php
+                    // @see Application view_helpers for this functionality.
+                    $this->sendToHie('syndromicsurveillance/layout/layout', ['download'], 'download', ['hl7_format']);
+                ?>
+                <div class="se_in_3" title="reload" onclick="clearCount();document.getElementById('theform').submit();"></div>
+                <?php
+            }
+            ?>
+            <div class="se_in_15 se_in_16">
+                <table>
+                    <tr>
+                        <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Date'); ?></label></td>
+                        <td nowrap>
+                            <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_from" id="form_date_from" class="dateClass_syndrome"/>
+                            <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_to" id="form_date_to" class="dateClass_syndrome"/>
+                            <script>
+                                $(function () {
+                                    $( "#form_date_from" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_from'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
+                                    $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['form_date_to'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                                });
+                            </script>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></label></td>
+                        <td>
+                            <select multiple name="form_icd_codes[]" size="3">
+                                <option></option>
+                                <?php
+                                foreach($code_list as $row_code){
+                                    ?>
+                                    <option <?php if(in_array($row_code['id'], $this->form_data['form_icd_codes'])) echo "selected";?> value="<?php echo $this->escapeHtml($row_code['id']);?>"><?php echo $this->escapeHtml($row_code['name']);?></option>
+                                    <?php
+                                }
+                                ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Provider'); ?></label></td>
+                        <td>
+                            <select name="form_provider_id">
+                                <?php
+                                foreach($provider as $row_provider){
+                                    ?>
+                                    <option <?php if($row_provider['value'] == $this->form_data['form_provider_id']) echo 'selected';?> value="<?php echo $this->escapeHtml($row_provider['value']);?>"><?php echo $this->listenerObject->z_xlt($row_provider['label']);?></option>
+                                    <?php
+                                }
+                                ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" onclick="clearCount();return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" /></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="header_wrap_right" style="">
+            <div class="se_in_4">
+                <?php
+                if(count($this->result) > 0){
+                ?>
+                <label><?php echo $this->listenerObject->z_xlt('Show');?>&nbsp;</label>&nbsp;
+                <input maxlength="3" type="text" onkeypress="return isNumber(event)" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;
+                <label>&nbsp;<?php echo $this->listenerObject->z_xlt('Encounters'); ?></label>
+                <?php
+                }
+                ?>
+            </div>
+            <div class="se_in_6">
+                <?php
+                if(count($this->result) > 0){
+                ?>
+                <div class="se_in_5">
+                    <div class="se_in_5-1" onclick="pagination('first');"></div>
+                    <div class="se_in_5-2" onclick="<?php if($this->form_data['current_page'] > 1) { ?> pagination('previous');<?php } ?>"></div>
+                    <div class="se_in_5-3" onclick="<?php if($this->form_data['current_page'] < $this->form_data['total_pages']) { ?> pagination('next');<?php } ?>"></div>
+                    <div class="se_in_5-4" onclick="pagination('last');"></div>
+                </div>
+                <div class="clear"></div>
+                <div class="se_in_7">
+                    <label><?php echo $this->listenerObject->z_xlt('Page');?> <?php echo $this->escapeHtml($this->form_data['current_page']);?> - <?php echo $this->listenerObject->z_xlt('of'); ?> <?php echo $this->escapeHtml($this->form_data['total_pages']); ?></label>
+                </div><!-- se_in_7 -->
+                <?php
+                }
+                ?>
+            </div><!-- se_in_6 -->
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="se_in_8">
+        <?php
+        if(count($this->result) > 0){
+        ?>
+        <table class="responsive">
+            <tr class="se_in_9">
+                <th width="2%"><?php echo '#';?></th>
+                <th width="10%" nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                <th width="15%"><?php echo $this->listenerObject->z_xlt('Diagnosis'); ?></th>
+                <th width="18%"><?php echo $this->listenerObject->z_xlt('Description'); ?></th>
+                <th><?php echo $this->listenerObject->z_xlt('Issue ID'); ?></th>
+                <th><?php echo $this->listenerObject->z_xlt('Issue Title'); ?></th>
+                <th><?php echo $this->listenerObject->z_xlt('Issue Date'); ?></th>
+            </tr>
+            <?php
+            $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
+            foreach($this->result as $row_records){
+                $slno++;
+                ?>
+                <tr>
+                    <td><?php echo $slno;?>)</td>
+                    <td><?php echo $this->escapeHtml($row_records['patientname']);?></td>
+                    <td><?php echo $this->escapeHtml($row_records['diagnosis']);?></td>
+                    <td><?php echo $this->listenerObject->z_xlt($row_records['code_text']);?></td>
+                    <td><?php echo $this->escapeHtml($row_records['issueid']);?></td>
+                    <td><?php echo $this->listenerObject->z_xlt($row_records['issuetitle']);?></td>
+                    <td><?php echo $this->commonplugin->date_format($row_records['issuedate'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?></td>
+                </tr>
+                <?php
+            }
+            ?>
+        </table>
+        <?php
+        }
+        else{
+        ?>
+            <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->result) > 0){ ?>display: none; <?php } ?>">
+                <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
+            </div>
+        <?php
+        }
+        ?>
+    </div>
+
+    <input type="hidden" name="form_current_page" id="form_current_page" value="<?php echo $this->escapeHtml($this->form_data['current_page']);?>" />
+    <input type="hidden" name="form_total_pages" id="form_total_pages" value="<?php echo $this->escapeHtml($this->form_data['total_pages']);?>" />
+    <input type="hidden" name="form_count" id="form_count" value="<?php echo $this->escapeHtml($this->form_data['res_count']);?>" />
+    <input type="hidden" name="form_sl_no" id="form_sl_no" value="<?php echo $this->escapeHtml($slno ?? '');?>" />
+    <input type="hidden" name="form_new_search" id="form_new_search" value="" />
+</div>
+</form>

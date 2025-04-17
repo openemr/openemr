@@ -1,0 +1,21 @@
+$colorname: "Cobalt Blue";
+
+$darkest: #1c304d;
+$darker: #38619b;
+$dark: #467ac2;
+$mid: #8cacd9;
+$midpale: #bacde8;
+$pale: #d1ddef;
+$midpalepale: #dee7f3;
+$palepale: #e3ecf9;
+$palepurple: #e7e6f9;
+$paler: #f3f7fb;
+$midnightblue: #2f2f7d;
+$white: #fff;
+
+@import "utilities/default_variables";
+
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+@import "../color_base";

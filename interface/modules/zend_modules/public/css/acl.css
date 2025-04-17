@@ -1,0 +1,203 @@
+/**
+ * interface/modules/zend_modules/public/css/acl.css
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+.container_body {
+    background-color: #EFEFFF;
+    font-family: "Bookman Old Style", "Verdana", "Arial", sans-serif;
+    font-size: 14px;
+}
+
+#outer_table {
+    width: 750px;
+}
+
+.container_div {
+    background-color: #FFFFFF;
+
+}
+
+.select_box {
+    background-position: 97% center;
+    background-repeat: no-repeat;
+    border: 1px solid #AAAAAA;
+    color: #555555;
+    font-size: inherit;
+    overflow: hidden;
+    padding: 5px 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 250px;
+}
+
+.group_edit_text_box {
+    border: 1px solid #AAAAAA;
+    color: #555555;
+    font-size: inherit;
+    overflow: hidden;
+    padding: 5px 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 200px;
+}
+
+.image_button {
+    cursor: pointer;
+}
+
+.head {
+    text-align: center;
+    vertical-align: middle;
+    color: #43609C;
+    font-size: 18px;
+
+}
+
+.container {
+    background-color: #E0ECFF;
+    border-radius: 5px;
+    width: 25%;
+    color: #4E84C4;
+    font-size: 16px;
+}
+
+.container_top {
+    background-color: #FFFFFF;
+    height: 40px;
+    border-radius: 5px;
+    text-align: left;
+    padding: 0px 15px;
+}
+
+.container_head {
+    background-color: #FFFFFF;
+    height: 30px;
+    border-radius: 5px;
+    text-align: left;
+    padding: 0px 15px;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    color: #43609C;
+}
+
+.container_div {
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    width: 25%;
+    height: 430px;
+    vertical-align: top;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.selected_componet {
+    color: #B32317;
+}
+
+.delete_droppable {
+
+    height: 50px;
+    border-radius: 5px;
+    /*display:none;*/
+
+}
+
+.deleted {
+    background-color: #FF2A00;
+    background-image: url('../images/delete.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+}
+
+#messages {
+    color: #466837;
+    float: right;
+    margin-right: 10px;
+}
+
+.list {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.ui-draggable {
+    cursor: move;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.red {
+    background-color: #E0ECFF;
+    opacity: 0.7;
+}
+
+#table_acl {
+    margin-top: 5px;
+}
+
+#table_acl td {
+    padding: 1px 5px;
+    /*min-width: 170px;
+	max-width: 170px;*/
+}
+
+.tr_head {
+    background-color: #ABC4C0;
+}
+
+.tr_module {
+    background-color: #87A1BF;
+    color: #FFFFFF;
+}
+
+.tr_section_1 {
+    background-color: #E0ECFF;
+    font-size: 14px;
+}
+
+.tr_section_2 {
+    background-color: #EFF5FF;
+    font-size: 14px;
+}
+
+.align_center {
+    text-align: center;
+}
+
+.div_container {
+    background-color: #F5F5F5;
+    padding: 10px;
+}
+
+.popup_items {
+    background: #EFEFFF;
+    border: 1px solid #ccc;
+    border-color: rgba(0, 0, 0, .2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .2);
+    display: none;
+    overflow: hidden;
+    position: absolute;
+    -webkit-animation: gb__a .2s;
+    animation: gb__a .2s;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    -webkit-user-select: text;
+    width: 400px;
+    height: 300px;
+    z-index: 9999;
+    padding: 10px;
+}

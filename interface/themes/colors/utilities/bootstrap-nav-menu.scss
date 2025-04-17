@@ -1,0 +1,38 @@
+/* OpenEMR Bootstrap Nav Menu Override */
+
+/* TODO: Fix compatibility issue here */
+
+@if $compact-theme == false {
+  .navbar-custom,
+  .navbar-nav,
+  .nav > .active > a,
+  .navbar-nav > .active > a:hover,
+  .navbar-nav > .active > a:focus {
+    background-color: transparent !important;
+    color: $white;
+  }
+
+  .navbar-light {
+    background-color: $dark !important;
+
+    .navbar-nav > .active > a,
+    .navbar-nav > .active > a:focus,
+    .navbar-nav > .active > a:hover {
+      background-color: $palepale !important;
+    }
+
+    .navbar-nav > li > a:focus,
+    .navbar-nav > li > a:hover {
+      background-color: $palepale !important;
+    }
+  }
+
+  .navbar-nav > li > .dropdown-menu {
+    box-shadow: 0 2px 2px $midpale !important;
+  }
+
+  .navbar-collapse.collapse.in {
+    background-color: $dark !important;
+    color: $black !important;
+  }
+}

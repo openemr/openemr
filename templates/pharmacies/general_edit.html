@@ -1,0 +1,124 @@
+{**
+ * Pharmacy edit
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+<form name="pharmacy" method="post" action="{$FORM_ACTION}"  class='form-horizontal' onsubmit="return top.restoreSession()">
+<!-- it is important that the hidden form_id field be listed first, when it is called is populates any old information attached with the id, this allows for partial edits
+        if it were called last, the settings from the form would be overwritten with the old information-->
+    <input type="hidden" name="form_id" value="{$pharmacy->id|attr}" />
+    <div class="form-row py-sm-2">
+        <label for="name" class="col-form-label col-sm-2">{xlt t='Name'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="name" name="name" class="form-control" aria-describedby="nameHelpBox" value="{$pharmacy->name|attr}" onKeyDown="PreventIt(event)" />
+            <span id="nameHelpBox" class="help-block">({xlt t='Required'})</span>
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="address_line1" class="col-form-label col-sm-2">{xlt t='Address'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="address_line1" name="address_line1" class="form-control" value="{$pharmacy->address->line1|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="address_line2" class="col-form-label col-sm-2">{xlt t='Address'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="address_line2" name="address_line2" class="form-control" value="{$pharmacy->address->line2|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="city" class="col-form-label col-sm-2">{xlt t='City'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="city" name="city" class="form-control" value="{$pharmacy->address->city|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="state" class="col-form-label col-sm-2">{xlt t='State'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="2" id="state" name="state" class="form-control" value="{$pharmacy->address->state|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="city" class="col-form-label col-sm-2">{xlt t='Zip Code'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="zip" name="zip" class="form-control" value="{$pharmacy->address->zip|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="email" class="col-form-label col-sm-2">{xlt t='Email'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="email" name="email" class="form-control" value="{$pharmacy->email|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="phone" class="col-form-label col-sm-2">{xlt t='Phone'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="phone" name="phone" class="form-control" value="{$pharmacy->get_phone()|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="fax" class="col-form-label col-sm-2">{xlt t='Fax'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="fax" name="fax" class="form-control" value="{$pharmacy->get_fax()|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="npi" class="col-form-label col-sm-2">{xlt t='NPI'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="npi" name="npi" class="form-control" value="{$pharmacy->get_npi()|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="ncpdp" class="col-form-label col-sm-2">{xlt t='NCPDP'}</label>
+        <div class="col-sm-8">
+            <input type="text" id="ncpdp" name="ncpdp" class="form-control" value="{$pharmacy->get_ncpdp()|attr}" onKeyDown="PreventIt(event)" />
+        </div>
+    </div>
+    <div class="form-row py-sm-2">
+        <label for="transmit_method" class="col-form-label col-sm-2">{xlt t='Default Method'}</label>
+        <div class="col-sm-8">
+            <select id="transmit_method" name="transmit_method" class="form-control">
+                {html_options options=$pharmacy->transmit_method_array selected=$pharmacy->transmit_method}
+            </select>
+        </div>
+    </div>
+    <div class="btn-group offset-sm-2">
+        <a href="javascript:submit_pharmacy();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
+            {xlt t='Save'}
+        </a>
+        <a href="controller.php?practice_settings&pharmacy&action=list" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+            {xlt t='Cancel'}
+        </a>
+    </div>
+    <input type="hidden" name="id" value="{$pharmacy->id|attr}" />
+    <input type="hidden" name="process" value="{$PROCESS|attr}" />
+</form>
+
+<script>
+function submit_pharmacy()
+{
+    if(document.pharmacy.name.value.length>0)
+    {
+        top.restoreSession();
+        document.pharmacy.submit();
+        //Z&H Removed redirection
+    }
+    else
+    {
+        document.pharmacy.name.style.backgroundColor="red";
+        document.pharmacy.name.focus();
+    }
+}
+
+ function Waittoredirect(delaymsec) {
+     var st = new Date();
+     var et = null;
+     do {
+     et = new Date();
+     } while ((et - st) < delaymsec);
+ }
+</script>

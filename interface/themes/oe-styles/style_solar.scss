@@ -1,0 +1,123 @@
+/*
+*
+*   Solar Theme for OpenEMR
+*   @author Tyler Wrenn
+*   Powered and Colored by Bootswatch
+*
+*/
+
+/* Bootstrap Code */
+$gray-100: #002b36;
+$gray-200: #073642;
+$gray-300: #495057;
+$gray-400: #839496;
+$gray-500: #adb5bd;
+$gray-600: #ced4da;
+$gray-700: #dee2e6;
+$gray-800: #e9ecef;
+$gray-900: #f8f9fa;
+$black: #fff;
+$white: #000;
+$ovr-dark: $gray-100;
+$ovr-light: $gray-800;
+$light: $gray-100;
+$dark: $gray-800;
+
+$body-bg: $white;
+/* This is actually dark */
+$body-color: $gray-900;
+/* This is actually light */
+
+$secondary-color: $gray-100;
+
+// Theme-specific Changes
+$input-color: $gray-300;
+$modal-content-bg: $body-bg;
+
+/* All variables are imported by bootswatch */
+@import "../../../public/assets/bootswatch/dist/solar/variables";
+@import "../default-variables";
+
+// Login form bg change
+$login-form-bg-color: $gray-200;
+$login-color-2: $primary;
+$login-color-3: darken($primary, 20%);
+$login-button-primary: true;
+
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+@import "../core";
+
+/* Required bootswatch import */
+@import "../../../public/assets/bootswatch/dist/solar/bootswatch";
+
+@import "../theme-defaults";
+
+@import "../navigation-slide/future-bootstrap";
+
+/* Overrides go here */
+@if $compact-theme == false {
+  .btn-secondary {
+    color: $ovr-light !important;
+
+    &:hover {
+      background: $gray-200 !important;
+    }
+  }
+
+  .dropdown-menu {
+    background-color: $light !important;
+  }
+
+  .menuLabel:hover {
+    color: $ovr-dark !important;
+  }
+
+  .menuDisabled {
+    color: $ovr-dark !important;
+  }
+
+  .menuEntries li .menuLabel:hover {
+    color: $ovr-dark !important;
+  }
+
+  .documents_list a {
+    color: $body-color !important;
+  }
+
+  /* Changes all SVG colors to white to match theme */
+  .about-review-image > #color {
+    fill: $black !important;
+  }
+
+  #mainBox .logo .emr-menu-logo > #blue-color,
+  #mainBox_vertical .logo .emr-menu-logo > #blue-color {
+    fill: $black !important;
+  }
+
+  .login-emr-logo {
+    > #red-color {
+      fill: $black;
+    }
+
+    > #blue-color {
+      fill: $black;
+    }
+
+    > #gray-color {
+      fill: $black;
+    }
+  }
+}
+/* search any */
+@import "../oe-bootstrap";

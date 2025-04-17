@@ -1,0 +1,53 @@
+/**
+ * code_choices.css
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+div.code-choices {
+  font-size: 10pt;
+  position: relative;
+  z-index: 99;
+}
+
+div.category-display {
+  cursor: pointer;
+  float: left;
+  margin: 5px;
+  width: 33%;
+}
+
+div.category-display > button {
+  font-weight: bold;
+  margin: 2px 5px 2px 10px;
+  text-align: left;
+  width: 25em;
+}
+
+div.category-display > button:hover {
+  color: var(--primary);
+}
+
+.active-category {
+  background-color: var(--white);
+  border: 1px solid var(--black);
+  padding: 5px;
+  position: absolute;
+  width: 99%;
+  z-index: 10;
+}
+
+div.code-choice {
+  cursor: pointer;
+  float: left;
+  text-align: left;
+  width: 33%;
+}
+
+div.code-choice:hover {
+  background-color: var(--warning);
+}

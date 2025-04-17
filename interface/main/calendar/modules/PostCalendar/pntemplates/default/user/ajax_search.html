@@ -1,0 +1,266 @@
+[-*Smarty*-]
+[-include file="$TPL_NAME/views/header.html"-]
+
+[-* we want to include our stylesheet for this view*-]
+<link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+
+<script src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12 mb-3">
+            [-php-]
+                echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='btn btn-secondary btn-lg' onclick='top.restoreSession()'>";
+            [-/php-]
+            <i class="fa fa-arrow-left mr-1"></i> [-xlt t='Return to Calendar'-]</a>
+        </div>
+        <div class="col-12">
+            <h2>[-xlt t='Searching for appointments'-]</h2>
+        </div>
+        <div class="col-12">
+            <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
+                <!-- Keywords -->
+                <div class="form-group">
+                    <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
+                    <div class="form-row">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="pc_keywords" id="pc_keywords"
+                                placeholder= "[-xla t='Search patients, providers, appointments, or comments'-]"
+                                value="[-php-]echo attr($_POST['pc_keywords'] ?? '');[-/php-]" />
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" name="pc_keywords_andor" id="pc_keywords_andor" disabled>
+                                <option value="AND" [-php-] echo ($_POST['pc_keywords_andor'] == 'AND' || empty($_POST['pc_keywords_andor'])) ? 'selected' : ''; [-/php-]>[-xlt t='AND'-]</option>
+                                <option value="OR" [-php-] echo ($_POST['pc_keywords_andor'] == 'OR') ? 'selected' : ''; [-/php-]>[-xlt t='OR'-]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">[-xlt t='For multiple words, separate with spaces and select AND/OR'-]</small>
+                </div>
+                <!-- In Category -->
+                <div class="form-group">
+                    <label for="pc_category">[-xlt t='In'-]:</label>
+                    <select class="form-control" name="pc_category" id="pc_category">
+                        <option value="">[-xlt t='Any Category'-]</option>
+                        [-$CATEGORY_OPTIONS-]
+                    </select>
+                </div>
+                <!-- Topic -->
+                [-if $USE_TOPICS-]
+                <div class="form-group">
+                    <select name="pc_topic">
+                        <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
+                        [-$TOPIC_OPTIONS-]
+                    </select>
+                </div>
+                [-/if-]
+                <br />
+                <!-- Between -->
+                <div class="form-row">
+                    <div class="col">
+                        <label for="start">[-xlt t='Between'-]:</label>
+                        <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
+                    </div>
+                    <div class="col">
+                        <label for="end">&nbsp;</label>
+                        <input type="text" class='form-control datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
+                    </div>
+                </div>
+                <br />
+                <!-- For At -->
+                <div class="form-row">
+                    <div class="col">
+                        <label for="provider_id">[-xlt t='For'-]</label>
+                        <select class="form-control" name="provider_id" id="provider_id">
+                            [-$PROVIDER_OPTIONS-]
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label for="pc_facility">[-xlt t='At'-]</label>
+                        <select class="form-control" name="pc_facility" id="pc_facility">
+                            [-$FACILITY_OPTIONS-]
+                        </select>
+                    </div>
+                </div>
+                <!-- Submit -->
+                <div class="btn-group mt-2">
+                    <button class="btn btn-primary btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
+                </div>
+                <div class="d-none" id="calsearch_status">
+                    <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
+                </div>
+            </form>
+            <!-- end of search parameters -->
+
+            [-if isset($SEARCH_PERFORMED)-]
+            <div class="mt-3">
+                <!-- Table Header -->
+                <div class="table-responsive" class="head">
+                    <table class="table">
+                        <tr class="table-active">
+                            <th>[-xlt t='Date'-]-[-xlt t='Time'-]</th>
+                            <th>[-xlt t='Provider'-]</th>
+                            <th>[-xlt t='Category'-]</th>
+                            <th>[-xlt t='Patient'-]</th>
+                        </tr>
+                    </table>
+                </div>
+                <!-- Table Result -->
+                <div class="table-responsive">
+                    <table class="table">
+                    [-php-]
+                    /* I've given up on playing nice with the Smarty tag crap, it's pointlessly used
+                    * in the original search. I mean, there's no clean separation between the code
+                    * and HTML so we may as well just go full-bore PHP here -- JRM March 2008
+                    */
+
+                    $eventCount = 0;
+                    foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
+                        $eventdate = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
+
+                        foreach ($date_events as $event) {
+                            // pick up some demographic info about the provider
+                            $provquery = "SELECT * FROM users WHERE id=?";
+                            $res = sqlStatement($provquery, [$event['aid']]);
+                            $provinfo = sqlFetchArray($res);
+
+                            $eData = $event['eid']."~".$eventdate;
+                            $trTitle = xl('Click to edit this event');
+                            echo "<tr class='calsearch_event' id='" . attr($eData) . "' title='" . attr($trTitle) . "'>";
+
+                            // date and time
+                            $eDatetime = strtotime($eDate." ".$event['startTime']);
+                            echo "<td>";
+                            echo text(date("Y-m-d h:i a", $eDatetime));
+                            echo "</td>";
+
+                            // provider
+                            echo "<td>" . text($event['provider_name']);
+                            $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
+                            $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
+                            echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/info.png' title=\"" . attr($imgtitle) . "\" />";
+                            echo "</td>";
+
+                            // category
+                            echo "<td>";
+                            echo text($event['catname']);
+                            echo " </td>";
+
+                            // patient
+                            echo "<td>";
+                            echo text($event['patient_name']);
+                            echo "</td>";
+                    /*
+                            echo "<td>";
+                            echo text(print_r($event, true));
+                            echo "</td>";
+                    */
+                            echo "</tr>\n";
+
+                            $eventCount++;
+                        }
+                    }
+
+                    /* the A_EVENTS array holds an array of dates, which in turn hold the array of events
+                    * so it will always be non-zero, so we need to count the events as they are
+                    * displayed and if the count is zero, then we have no search results
+                    */
+                    if ($eventCount == 0) {
+                        echo "<tr><td colspan='4' class='text-center'>" . xlt('No Results') . "</td></tr>";
+                    }
+
+                    [-/php-]
+                    </table>
+                </div>  <!-- end results-data DIV -->
+            </div>  <!-- end outer results DIV -->
+            [-/if-]  [-*end of SEARCH_PERFORMED*-]
+        </div>
+    </div>
+</div>
+
+<script>
+
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .calsearch_event {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .calsearch_event:hover {
+        background-color: #f0f0f5;
+    }
+</style>
+`);
+
+// jQuery stuff to make the page a little easier to use
+
+$(function () {
+    $("#pc_keywords").focus();
+    $("#theform").submit(function() { SubmitForm(this); });
+    $(".calsearch_event").click(function() { EditEvent(this); });
+
+    $('.datepicker').datetimepicker({
+        [-php-] $datetimepicker_timepicker = false; [-/php-]
+        [-php-] $datetimepicker_showseconds = false; [-/php-]
+        [-php-] $datetimepicker_formatInput = false; [-/php-]
+        [-php-] require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); [-/php-]
+        [-php-] // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma [-/php-]
+        ,format: 'm/d/Y'
+    });
+
+    // function to check keywords and toggle AND/OR selector
+    function toggleAndOrSelector() {
+        const keywords = $("#pc_keywords").val().trim();
+        const hasMultipleWords = keywords.includes(' ');
+
+        if (hasMultipleWords) {
+            $("#pc_keywords_andor").prop('disabled', false);
+        } else {
+            $("#pc_keywords_andor").prop('disabled', true);
+        }
+    }
+
+    // runs when the page loads
+    toggleAndOrSelector();
+
+    // runs when the user input gets changed
+    $("#pc_keywords").on('input', toggleAndOrSelector);
+
+    // pressing the enter key will search
+    $('#theform input, #theform select').keypress(function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#submit').click();
+        }
+    });
+});
+
+// open a pop up to edit the event
+// parts[] ==>  0=eventID
+const EditEvent = function (eObj) {
+    objID = eObj.id;
+    const parts = objID.split("~");
+    dlgopen('add_edit_event.php?date=' + encodeURIComponent(parts[1]) + '&eid=' + encodeURIComponent(parts[0]), '_blank', 780, 675);
+}
+
+// show the 'searching...' status and submit the form
+const SubmitForm = function(eObj) {
+    $("submit").css("disabled", "true");
+    $("#calsearch_status").removeClass('d-none')
+    return top.restoreSession();
+}
+
+function goPid(pid) {
+    top.restoreSession();
+    [-php-]
+           echo "top.RTop.location = '../../patient_file/summary/demographics.php' " .
+           			 "+ '?set_pid=' + encodeURIComponent(pid);\n";
+    [-/php-]
+ }
+</script>
+
+[-*include file="$TPL_NAME/views/footer.html"*-]

@@ -1,0 +1,40 @@
+/*=============================================================
+ * Patient Notes
+ * seen in the patient summary and notes screens
+ *============================================================*/
+@if $compact-theme == false {
+  #pnotes {
+    .billing {
+      background-color: lighten($success, 70%);
+    }
+
+    .highlight {
+      background-color: $white;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    .noterow td {
+      border-bottom: 1px dashed $black;
+      margin: 5px;
+      padding: 5px;
+      vertical-align: top;
+    }
+
+    #pnotes_title {
+      float: $left;
+      margin-right: 5px;
+    }
+
+    #namecontainer_pnotes {
+      float: $left;
+      margin-right: 10px;
+    }
+
+    &_ps_expand div.tab table td {
+      padding-right: 10px;
+    }
+  }
+}

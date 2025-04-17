@@ -1,0 +1,21 @@
+/* OpenEMR recall and flow board Override */
+
+@if $compact-theme == false {
+  .divTable,
+  .borderShadow {
+    background: $palepale !important;
+    border: 1px solid $pale !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 0 $pale !important;
+  }
+
+  .divTableCell,
+  .divTableHead {
+    border: 1px solid $mid !important;
+    border-radius: 0 !important;
+  }
+
+  .divTableHeading {
+    background-color: $pale !important;
+  }
+}

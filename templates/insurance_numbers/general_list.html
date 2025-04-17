@@ -1,0 +1,32 @@
+<div class="table-responsive">
+  <table class="table table-striped">
+      <thead>
+      <tr>
+          <th>{xlt t='Name'}</th>
+          <th>&nbsp;</th>
+          <th>{xlt t='Provider'} #</th>
+          <th>{xlt t='Rendering'} #</th>
+          <th>{xlt t='Group'} #</th>
+      </tr>
+      </thead>
+      <tbody>
+      {foreach from=$providers item=provider}
+      <tr>
+          <td>
+              <a href="{$CURRENT_ACTION}action=edit&id=default&provider_id={$provider->id|attr_url}" onclick="top.restoreSession()">
+                  {$provider->get_name_display()|text}
+              </a>
+          </td>
+          <td>{xlt t='Default'}&nbsp;</td>
+          <td>{$provider->get_provider_number_default()|text}&nbsp;</td>
+          <td>{$provider->get_rendering_provider_number_default()|text}&nbsp;</td>
+          <td>{$provider->get_group_number_default()|text}&nbsp;</td>
+      </tr>
+      {foreachelse}
+      <tr>
+          <td>{xlt t='No Providers Found'}</td>
+      </tr>
+      {/foreach}
+      </tbody>
+  </table>
+</div>

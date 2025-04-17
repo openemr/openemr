@@ -1,0 +1,73 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Acl/view/acl/acl/acl.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// Control access
+if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
+?>
+<script>
+    ajax_path = "<?php echo $GLOBALS['webroot'];?>/interface/modules/zend_modules/public/acl/ajax";
+    module_id = "<?php echo $this->module_id; ?>";
+</script>
+<?php
+$USER_GROUPS 	= $this->user_groups;
+$MODULE_DATA	= $this->module_data;
+$count				= 1;
+$ACL_DATA			= $this->acl_data;
+$listener			= $this->listenerObject;
+?>
+
+<div style="text-align: left;margin-top: 5px;color: #466837;">&nbsp;<span id="messages_div"></span></div>
+<center>
+		<div class="scrollable default-skin" style="width: 800px;height: 600px;">
+				<table id="table_acl" align="center">
+						<tr class="tr_head">
+								<td><?php echo $listener->z_xlt('Components'); ?></td>
+								<?php foreach($USER_GROUPS as $KEY => $VAL) : ?>
+								<td class="align_center"><?php echo $listener->z_xlt($VAL);?></td>
+								<?php endforeach ?>
+						</tr>
+						<tr class="tr_module">
+								<td><?php echo $listener->z_xlt($MODULE_DATA['module_name']['name']); ?></td>
+								<?php foreach($USER_GROUPS as $KEY => $VAL) : ?>
+								<?php
+							$selected = "";
+							if(is_array($ACL_DATA[$MODULE_DATA['module_name']['id']] ?? null) && in_array($KEY,$ACL_DATA[$MODULE_DATA['module_name']['id']])) $selected = "checked";
+								?>
+								<td class="align_center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
+								<?php endforeach ?>
+						</tr>
+
+						<?php foreach($MODULE_DATA['module_components'] as $KEY => $VAL) : ?>
+								<?php
+							$count++;
+							if($count % 2 == 0) $class ="tr_section_1";
+							else $class ="tr_section_2";
+								?>
+								<tr class="<?php echo $class; ?>">
+								<td><?php echo $listener->z_xlt($VAL); ?></td>
+							<?php foreach($USER_GROUPS as $KEY_GROUP => $VAL_GROUP) : ?>
+									<?php
+								$selected = "";
+								if (!empty($ACL_DATA[$KEY]) && in_array($KEY_GROUP,$ACL_DATA[$KEY])) $selected = "checked";
+									?>
+									<td class="align_center"><input <?php echo $selected; ?> class="component_check group_<?php echo $this->escapeHtml($KEY_GROUP); ?>" type="checkbox" name="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" id="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" ></td>
+							<?php endforeach ?>
+								</tr>
+						<?php endforeach ?>
+
+				</table>
+		</div>
+</center>

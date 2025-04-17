@@ -1,0 +1,301 @@
+<html>
+
+<head>
+
+
+
+ <style>
+
+<!--
+
+td {
+
+	font-size:12pt;
+
+	font-family:helvetica;
+
+}
+
+li{
+
+	font-size:11pt;
+
+	font-family:helvetica;
+
+	margin-left: 15px;
+
+}
+
+a {
+
+	font-size:11pt;
+
+	font-family:helvetica;
+
+}
+
+.title {
+
+	font-family: sans-serif;
+
+	font-size: 12pt;
+
+	font-weight: bold;
+
+	text-decoration: none;
+
+	color: #000000;
+
+}
+
+
+
+.form_text{
+
+	font-family: sans-serif;
+
+	font-size: 9pt;
+
+	text-decoration: none;
+
+	color: #000000;
+
+}
+
+
+
+-->
+
+</style>
+
+
+
+</head>
+
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
+
+<p><span class="title">Review Of Systems</span></p>
+
+<form name="review_of_systems" method="post" action="{$FORM_ACTION}/interface/forms/review_of_systems/save.php"
+
+ onsubmit="return top.restoreSession()">
+
+<table>
+
+<tr>
+
+	<td colspan="6">
+
+		<h3>Review of Systems</h3>
+
+		<p> Enter only positive symptoms patient has had in last 2 weeks.</p>
+
+	</td>
+
+</tr>
+
+<tr>
+
+	<td class="title">Health</td>
+
+</tr>
+
+<tr>
+
+	<td></td>
+
+    <td colspan="3">When was your last tetnus shot?: <input type=text name="date_tetnus_shot" value="{$review_of_systems->get_date_tetnus_shot()|attr}" ></td>
+
+</tr>
+
+<tr>
+
+	<td></td>
+
+    <td colspan="3">When was your last Pneumonia shot?:<input type=text name="date_pneumonia_shot" value="{$review_of_systems->get_date_pneumonia_shot()|attr}" ></td>
+
+</tr>
+
+	<td></td>
+
+    <td colspan="3">When was your last Flu shot?:<input type=text name="date_flu_shot" value="{$review_of_systems->get_date_flu_shot()|attr}" ></td>
+
+</tr>
+
+{foreach name=loops item=headings key=title from=$checks}
+
+<tr>
+
+	<td class="title">
+
+		{if $smarty.foreach.loops.first ne 1}<br />{/if}
+
+		{$title}
+
+	</td>
+
+</tr>
+
+<tr>
+
+	<td>
+
+	  {foreach item=row key=row_title from=$headings}
+
+			<tr>
+
+				{if !is_numeric($row_title)}
+
+					<td>{$row_title}</td>
+
+					<td class="form_text">{html_checkboxes name="checks" options=$row selected=$review_of_systems->checks separator="&nbsp;</td><td class=\"form_text\">"}</td>
+
+					{if $row_title eq "Women"}
+
+						</tr>
+
+						<tr>
+
+    						<td></td>
+
+    						<td colspan="4" class="form_text">Date of last Pap Smear:  <input type=text name="date_pap_smear" value="{$review_of_systems->get_date_pap_smear()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">Date of last Mammogram:  <input type=text name="date_mammogram" value="{$review_of_systems->get_date_mammogram()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">Date of last Bone Density Scan:  <input type=text name="date_bone_density_scan" value="{$review_of_systems->get_date_bone_density_scan()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">Have you ever had an abnormal Pap Smear:  <input type=text name="abnormal_pap_smear" value="{$review_of_systems->get_abnormal_pap_smear()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">Have you ever had an abnormal Mammogram:  <input type=text name="abnormal_mammogram" value="{$review_of_systems->get_abnormal_mammogram()|attr}" ></td>
+
+						</tr>
+
+					{elseif $row_title eq "Men"}
+
+						</tr>
+
+						<tr>
+
+    						<td></td>
+
+    						<td colspan="4" class="form_text">Date of Last PSA: <input type=text name="date_last_psa" value="{$review_of_systems->get_date_last_psa()|attr}" ></td>
+
+					{elseif $row_title eq "When sexually active,<br /> are you active with:"}
+
+						<tr>
+
+							<td></td>
+
+    						<td colspan="4" class="form_text">How many packs of cigarettes do you smoke per day:  <input type=text name="packs_per_day" value="{$review_of_systems->get_packs_per_day()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">How many years have you smoked:  <input type=text name="years_smoked" value="{$review_of_systems->get_years_smoked()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">How much alcohol do you drink a week:  <input type=text name="alcohol_per_week" value="{$review_of_systems->get_alcohol_per_week()|attr}" ></td>
+
+						</tr>
+
+						<tr>
+
+							<td></td>
+
+						    <td colspan="4" class="form_text">If you use recreational drugs, please give us a list:  <input type=text name="recreational_drugs" value="{$review_of_systems->get_recreational_drugs()|attr}" ></td>
+
+					{/if}
+
+				{else}
+
+					<td width="20"></td>
+
+					<td colspan="6"><table><tr><td class="form_text">
+
+					{html_checkboxes name="checks" options=$row selected=$review_of_systems->checks separator="&nbsp;&nbsp;&nbsp;</td><td class=\"form_text\">"}
+
+					{if $title eq "Precipitating Factors" and $row_title eq 2}
+
+						&nbsp;<input type="text" name="precipitating_factors_other_text" size="15" value="{$review_of_systems->get_precipitating_factors_other_text()|attr}">
+
+					{/if}
+
+					</td></tr></table></td>
+
+				{/if}
+
+
+
+			</tr>
+
+	  {/foreach}
+
+
+
+	</td>
+
+</tr>
+
+{/foreach}
+
+
+
+{if $VIEW != true}
+
+<tr>
+
+	<td colspan="3"><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+
+</tr>
+
+{/if}
+
+</table>
+
+<input type="hidden" name="id" value="{$review_of_systems->get_id()}" />
+
+<input type="hidden" name="activity" value="{$review_of_systems->get_activity()}">
+
+<input type="hidden" name="pid" value="{$review_of_systems->get_pid()}">
+
+<input type="hidden" name="process" value="true">
+
+</form>
+
+</body>
+
+</html>

@@ -1,0 +1,207 @@
+$escape-fa: \00a0\00a0;
+
+%fa-defaults {
+  display: inline !important;
+  line-height: inherit !important;
+}
+
+@if $compact-theme == false {
+  /* fix for H2 Tags */
+  .fa-oe-sm {
+    @include font-size("1.3rem !important");
+    color: $gray !important;
+    line-height: 1 !important;
+  }
+
+  .btn-save {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-check + $escape-fa}');
+    }
+  }
+
+  .btn-cancel {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-times + $escape-fa}');
+    }
+  }
+
+  .btn-add {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-plus + $escape-fa}');
+    }
+  }
+
+  .btn-search {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-search + $escape-fa}');
+    }
+  }
+
+  .btn-delete {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-trash-alt + $escape-fa}');
+    }
+  }
+
+  .btn-duplicate {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-copy + $escape-fa}');
+    }
+  }
+
+  .btn-refresh {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-sync + $escape-fa}');
+    }
+  }
+
+  .btn-edit {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-pen + $escape-fa}');
+    }
+  }
+
+  .btn-transmit {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-arrow-right + $escape-fa}');
+    }
+  }
+
+  .btn-receive {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-arrow-left + $escape-fa}');
+    }
+  }
+
+  .btn-print {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-print + $escape-fa}');
+    }
+  }
+
+  .btn-back {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-chevron-left + $escape-fa}');
+    }
+  }
+
+  .btn-show {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-eye + $escape-fa}');
+    }
+  }
+
+  .btn-hide {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-eye-slash + $escape-fa}');
+    }
+  }
+
+  .btn-undo {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-undo + $escape-fa}');
+    }
+  }
+
+  .btn-update {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-redo + $escape-fa}');
+    }
+  }
+
+  .btn-download {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-download + $escape-fa}');
+    }
+  }
+
+  .btn-mail {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-envelope + $escape-fa}');
+    }
+  }
+
+  .btn-calendar {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-calendar-alt + $escape-fa}');
+    }
+  }
+
+  .btn-graph {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-chart-line + $escape-fa}');
+    }
+  }
+
+  .btn-filter {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-filter + $escape-fa}');
+    }
+  }
+
+  .btn-send-msg {
+    &::before {
+      @extend %fa-defaults;
+      @extend .far;
+      content: fa-content('#{$fa-var-paper-plane + $escape-fa}');
+    }
+  }
+
+  .btn-setting {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-cog + $escape-fa}');
+    }
+  }
+
+  .btn-bars {
+    &::before {
+      @extend %fa-defaults;
+      @extend .fas;
+      content: fa-content('#{$fa-var-bars + $escape-fa}');
+    }
+  }
+}

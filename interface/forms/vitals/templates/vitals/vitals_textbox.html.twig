@@ -1,0 +1,33 @@
+{% if field.hide %}
+<tr class="hide">
+    {%else %}
+<tr>
+{% endif %}
+    <td class="graph" id="{{ field.input|attr }}"><span class="vitals-title">{{ field.title|text }}</span> {% if field.codes is not empty %}<small>({{ field.codes|text }})</small>{% endif %}</td>
+    <td>{{ unit|text }}</td>
+
+    {% if is_edit %}
+    <td class='currentvalues p-2'>
+        {% if field.precision is defined %}
+        <input type="text" class="form-control skip-template-editor" size='5' name='{{ field.input|attr }}' id='{{ field.input|attr }}_input'
+               value="{% if attribute(vitals,field.vitalsValue) is numeric %}{{ attribute(vitals,field.vitalsValue)|number_format(field.precision)|attr }}{% endif %}"/>
+        {% else %}
+            {# This seems odd that we still do an is numeric check, copied over from the vitals_textbox.tpl file, but it would seem we'd skip the is_numeric check here#}
+        <input type="text" class="form-control skip-template-editor" size='5' name='{{ field.input|attr }}' id='{{ field.input|attr }}_input'
+               value="{% if attribute(vitals,field.vitalsValue) is numeric %}{{ attribute(vitals, field.vitalsValue)|attr }}{% endif %}"/>
+        {% endif %}
+
+    </td>
+    <td class="editonly">
+        {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}
+    </td>
+    <td class="editonly actions">
+        {% include 'vitals_actions.html.twig' %}
+    </td>
+    {% endif %}
+    {% include 'vitals_historical_values.html.twig' with { useMetric:false, vitalsValue:field.vitalsValue,
+        vitalsValueMetric:field.vitalsValueMetric, results:results, is_edit:is_edit } %}
+</tr>
+{% if is_edit %}
+{% include 'vitals_reason_row.html.twig' with { input:field.input, title:field.title, vitalDetails:vitals.get_details_for_column(field.input), is_edit:is_edit } %}
+{% endif %}

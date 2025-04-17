@@ -1,0 +1,26 @@
+/* Patient History */
+@if $compact-theme == false {
+  #HIS {
+    .groupname {
+      @include font-size("0.75rem");
+      color: $success;
+      font-weight: bold;
+      height: 2em;
+      padding-right: 1px;
+      vertical-align: top;
+    }
+
+    .label_custom {
+      @include font-size("0.75rem");
+      font-weight: bold;
+      vertical-align: top;
+    }
+
+    .data {
+      @include font-size("0.75rem");
+      padding-right: 10px;
+      text-align: $left;
+      vertical-align: top;
+    }
+  }
+}

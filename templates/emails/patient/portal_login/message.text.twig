@@ -1,0 +1,15 @@
+{% if portal_onsite_two_enable is not empty %}
+{{ "Patient Portal Web Address"|xlt }}: {{ portal_onsite_two_address|text }}
+{% endif %}
+{{ "Portal Account Name"|xlt }}: {{ uname|text }}
+{{ "Login User Name"|xlt }}: {{ login_uname|text }}
+{{ "Password"|xlt }}: {{ pwd|text }}
+{% if enforce_signin_email %}{{ "Login Trusted Email"|xlt  }}: {% if email_direct is not empty %}{{  email_direct|text }}{% else %}{{ "Is Required. Contact Provider."|xlt}}{% endif %}{% endif %}
+
+
+{{ "You may be required to change your password during first login."|xlt }}
+{{ "This is required for your security as well as ours."|xlt }}
+{{ "Afterwards however, you may change your portal credentials anytime from portal menu."|xlt }}
+
+{% include 'emails/partials/patient/email-message-fhir-access.text.twig' with {fhir_address: fhir_address, fhir_requirements_address: fhir_requirements_address} %}
+{{ "Thank you for allowing us to serve you."|xlt }}

@@ -1,0 +1,34 @@
+<tbody>
+{% for row in datasheet %}
+    {% if row.is_main or row.is_sub %}
+        {% include 'reports/cqm/_results-table-main-sub.html.twig' with {row: row, report_id: report_id, display_excluded: display_excluded, display_exception: display_exception} %}
+    {% endif %}
+
+    {% if row.is_provider %}
+        {% if collate_outer and not loop.first %}
+            <tr>
+                <td colspan="6">&nbsp;</td>
+            </tr>
+        {% endif %}
+        {% include 'reports/cqm/_results-table-provider.html.twig' with {row: row, columns: columns} %}
+    {% endif %}
+
+    {% if row.is_plan %}
+        {% if not loop.first %}
+            <tr>
+                <td colspan="{{ columns|attr }}">&nbsp;</td>
+            </tr>
+        {% endif %}
+        {% include 'reports/cqm/_results-table-plans.html.twig' with {row: row, columns: columns} %}
+    {% endif %}
+
+    {% if row.is_provider_group %}
+        {% if not loop.first %}
+            <tr>
+                <td colspan="{{ columns|attr }}">&nbsp;</td>
+            </tr>
+        {% endif %}
+        {% include 'reports/cqm/_results-table-provider-group.html.twig' with {row: row, columns: columns} %}
+    {% endif %}
+{% endfor %}
+</tbody>

@@ -1,0 +1,452 @@
+/**
+ * Stylesheet for flat colors
+ * The color palette is used to style the various elements in a consistent manner
+
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author Ranganath Pathak <pathak@scrs1.org>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2018-2020 Ranganath Pathak
+ * @copyright Copyright (c) 2020 Tyler Wrenn
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ * @link http://www.open-emr.org
+*/
+
+/*
+    COLOR PALETTE
+    #{$darkest} - Darkest #{$colorname}*
+    #{$darker} - Darker #{$colorname}*
+    #{$dark} - Dark #{$colorname}
+    #{$mid} - Mid #{$colorname}
+    #{$midpale} - Mid Pale #{$colorname}*
+    #{$pale} - Pale #{$colorname}
+    #{$midpalepale} - Mid Pale Pale #{$colorname}*
+    #{$palepale} - Pale Pale #{$colorname}*
+    #{$palepurple} - Pale Purple~
+    #{$paler} - Paler #{$colorname}
+    #{$midnightblue} - Midnight Blue~
+    #{$white} - White*~
+    * - used in styling buttons and input
+    ~ - common for all flat stylesheets
+*/
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+@import "core";
+
+@import "theme-defaults";
+
+/* Huge list of overrides */
+.menu,
+.menu_selected,
+.logout {
+  @include font-size("0.9375rem");
+  font-style: italic !important;
+}
+
+.text,
+.required,
+.bold,
+.font-weight-bold,
+.link_submit,
+#addressbook_list tr.detail,
+.redtext,
+#patient_stats .head,
+#patient_stats .detail {
+  @include font-size("0.8125rem");
+}
+
+.alert,
+.alert-custom {
+  color: $danger;
+  font-size: 70%;
+  text-decoration: none;
+}
+
+.link,
+.more,
+.back,
+.link_selected,
+.link_selected:visited,
+.example_menu {
+  font-size: 70% !important;
+}
+
+.items {
+  @include font-size("0.5rem");
+}
+
+.title {
+  @include font-size("1rem");
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.title_bar {
+  @include font-size("1rem");
+
+  &_top {
+    @include font-size("0.8125rem");
+  }
+}
+
+.body_main {
+  background-color: $midpale !important;
+  border-top: 8px solid $dark;
+
+  &_widescreen {
+    background-color: $midpale !important;
+    border-top: 14px solid $dark;
+  }
+}
+
+.body_top,
+.bgcolor2,
+.body_nav {
+  background-color: $paler !important;
+}
+
+.body_title {
+  background-color: $dark !important;
+}
+
+.logobar {
+  background-color: $midnightblue;
+}
+
+/* style taken out of the addressbook code and put here instead */
+#addressbook_list {
+  tr {
+    &.search {
+      @include font-size("0.75rem");
+    }
+
+    &.head {
+      @include font-size("0.8125rem");
+      background-color: inherit;
+    }
+  }
+
+  .inputtext {
+    background-color: inherit;
+    border-color: inherit;
+    border-style: inherit;
+    border-width: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  .button {
+    @include font-size("0.6875rem");
+    font-family: sans-serif;
+    font-weight: bold;
+  }
+}
+
+.address_names:hover {
+  background: $darker !important;
+  color: $paler !important;
+}
+
+.highlight {
+  background: $darkest !important;
+  color: $paler !important;
+}
+
+#reports_list td,
+#reports_list a {
+  @include font-size("0.6875rem");
+}
+
+#documents_list {
+  .treeMenuDefault {
+    font-style: italic;
+  }
+
+  .treeMenuBold {
+    font-style: italic;
+    font-weight: bold;
+  }
+}
+
+/*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+#patient_pastenc #tooltipdiv {
+  @include font-size("0.75rem");
+}
+
+#addressbook_list tr.evenrow,
+#searchResults tr:nth-child(even) {
+  background-color: $white;
+}
+
+#addressbook_list tr.oddrow,
+#searchResults tr:nth-child(odd),
+.signout-restore-subheading {
+  background-color: $palepale;
+}
+
+div.tabContainer div.current {
+  background: $pale;
+  border: 1px solid $pale;
+}
+
+/*
+* REPORTS
+*/
+
+#report_parameters {
+  background-color: $palepale;
+  margin: 10px 0 5px;
+
+  table {
+    border: solid 1px $darkest;
+  }
+
+  > table > tbody > tr > td > table {
+    border-left: 1px solid $darkest !important;
+  }
+
+  .form-control {
+    width: auto;
+  }
+}
+
+#report_results {
+  table {
+    margin-top: 1px;
+
+    thead {
+      background-color: inherit;
+      border: solid 1px $darkest;
+    }
+
+    th {
+      background-color: inherit;
+      border-bottom: 2px solid $darkest;
+    }
+
+    td {
+      @include font-size("0.8rem");
+      border-bottom: 1px dashed;
+      padding: 5px;
+    }
+  }
+}
+
+.report_totals td {
+  background-color: $palepale;
+  font-weight: bold;
+}
+
+/**
+* List-table formatting
+**/
+
+.showborder td,
+.showborder_head th,
+.shownoborder td,
+.showborder_long tr td {
+  @include font-size("0.7rem");
+}
+
+/**
+* Drug lookup
+**/
+
+.drug_lookup {
+  @include font-size("0.6875rem");
+  background-color: $paler;
+  border: 2px outset rgb(102, 102, 102);
+}
+
+
+/* Style for red font */
+
+#sddm {
+  li {
+    background: $dark;
+    background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
+    background: linear-gradient(to top, $dark, $dark);
+    border: 1px solid $paler;
+    padding: 0;
+
+    a {
+      @include font-size("0.8rem");
+      color: darken($primary, 15%) !important;
+      font-weight: bold;
+      padding: 4px 10px;
+
+      &:hover {
+        background: $palepale;
+      }
+    }
+  }
+
+  div {
+    background: #c9f1b5;
+    border-bottom: 1px solid $black;
+    border-left: 1px solid $black;
+    border-right: 1px solid $black;
+    display: none;
+    margin: 0;
+    padding: 0;
+
+    a {
+      background: $paler;
+      color: $primary;
+      z-index: 10;
+
+      &:hover {
+        background: $palepale;
+        color: $body-color;
+      }
+    }
+  }
+}
+
+.encounter-form-category-li {
+  background-color: $paler !important;
+  z-index: 100;
+}
+
+.example_menu ul a:hover {
+  background: $gray-100;
+  text-decoration: underline;
+}
+
+.div-message {
+  background-color: $white;
+  border: 1px solid $darker;
+  color: $gray;
+  margin: 5px 0;
+  padding: 5px;
+  width: 648px;
+}
+
+.signout-content {
+  background: $paler !important;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+div.section,
+div.borderbox {
+  background-color: $palepale;
+  border-color: $darkest !important;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/* Form styles */
+
+.formtable {
+  @include font-size("0.8125rem");
+}
+
+.report_search_bar {
+  background-color: $palepale;
+}
+
+.error-message {
+  @include font-size("0.6875rem");
+}
+
+/* flow board filters*/
+
+#flow_board_parameters {
+  background-color: $palepale;
+  width: 1041px;
+
+  table {
+    border: solid 1px $darkest;
+  }
+}
+
+.divider {
+  border-color: $darkest !important;
+}
+
+/* flow board filters*/
+/*openemr 5 patient-finder*/
+@media screen and (max-width: 750px) {
+  #pt_table {
+    @include font-size("0.9rem");
+  }
+}
+
+/*openemr 5 patient-finder*/
+
+/*vertical main menu */
+
+.appMenu_small .menuSection > .menuEntries {
+  box-shadow: 3px 5px 8px $darker !important;
+  left: 40px;
+}
+
+/*vertical main menu */
+
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+  background: $paler !important;
+}
+
+/*search any*/
+th.currentvalues,
+th.historicalvalues {
+  background: $dark !important;
+}
+
+#create_patient_btn {
+  float: right;
+  margin-top: 35px;
+}
+
+/*search any*/
+*.oe-expandable-search .any-search-legacy {
+  background: $paler !important;
+}
+
+/* SVG Color Customization */
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
+  fill: $pale !important;
+}
+
+.about-review-image > #color {
+  fill: $darkest !important;
+}
+
+/* search any */
+@import "navigation-slide/color";
+@import "colors/utilities/login";
+@import "colors/utilities/fee-sheet";
+@import "colors/utilities/tabs-full";
+@import "colors/utilities/external-data";
+@import "colors/utilities/ros";
+@import "colors/utilities/codes";
+@import "colors/utilities/bootstrap-nav-menu";
+@import "colors/utilities/bootstrap";
+@import "colors/utilities/batch-payments";
+@import "colors/utilities/recall-flow-board";
+@import "colors/utilities/help-files";
+@import "colors/utilities/edit_globals_colors";

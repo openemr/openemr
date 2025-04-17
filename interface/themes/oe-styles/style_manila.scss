@@ -1,0 +1,573 @@
+/* Bootstrap Code */
+
+@import "../default-variables";
+
+/* Manilla Theme-Specific Colors */
+$manilla-gray: #c0c0c0;
+
+//$font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$close-color: $black;
+$close-text-shadow: 0 1 0 $black;
+
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+@import "../core";
+
+@import "../theme-defaults";
+
+/* All overrides */
+@if $compact-theme == false {
+  .nav-menu-img {
+    display: none !important;
+  }
+
+  body {
+    content: "\f0c4" !important;
+    margin: 0 0 0 2px !important;
+  }
+
+  .menu,
+  .menu_selected,
+  .logout {
+    @include font-size("0.95rem");
+    font-style: italic !important;
+  }
+
+  .text {
+    color: darken($danger, 40%) !important;
+  }
+
+  .alert-custom,
+  .link {
+    @include font-size("0.8rem");
+    text-decoration: none !important;
+  }
+
+  .more,
+  .back,
+  .link_selected,
+  .link_selected:visited,
+  #addressbook_list tr.search,
+  #addressbook_list tr.detail {
+    @include font-size("0.8rem");
+  }
+
+  .link_submit {
+    @include font-size("0.85rem");
+  }
+
+  .items {
+    @include font-size("0.6rem");
+  }
+
+  .title {
+    @include font-size("1.2rem");
+  }
+
+  .title_bar {
+    @include font-size("1.0rem");
+  }
+
+  .title_bar_top {
+    @include font-size("1.1rem");
+  }
+
+  .sidebar {
+    background: #fffbeb !important;
+    font-size: 95% !important;
+  }
+
+  .sidebar .submenu {
+    font-size: 90% !important;
+  }
+
+  .navbar-custom {
+    padding: 0 !important;
+  }
+
+  #addressbook_list tr.head {
+    @include font-size("0.9rem");
+  }
+
+  #addressbook_list .inputtext {
+    @include font-size("0.8rem");
+  }
+
+  /*=============================================================
+ * Patient Stats
+ * seen in the patient stats screens
+ *============================================================*/
+  #patient_stats table {
+    background-color: $white;
+    border: 1px solid $black;
+    border-radius: 5px;
+    box-shadow: 2px 2px 2px $manilla-gray;
+    padding: 1em;
+    width: 100%;
+  }
+
+  #patient_stats table:first {
+    border: 0;
+  }
+
+  #patient_stats .head,
+  #patient_stats .detail {
+    @include font-size("0.9rem");
+  }
+
+  /*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+  #patient_pastenc #tooltipdiv {
+    @include font-size("0.85rem");
+  }
+
+  tr.odd {
+    background-color: $gray !important;
+  }
+
+  td.even {
+    background-color: $white !important;
+  }
+
+  /*
+ * TABS
+*/
+
+  ul.tabNav {
+    background: inherit !important;
+    padding-top: 0 !important;
+  }
+
+  ul.tabNav li {
+    @include font-size("0.8rem");
+    border-left: 1px solid $black;
+    border-radius: 8px 8px 0 0;
+    border-right: 1px solid $black;
+    border-top: 1px solid $black;
+    float: left;
+    margin: 0 3px 0 0;
+    padding: 0.5px 0 0 !important;
+    position: relative;
+    text-align: left;
+    top: 2px;
+    vertical-align: bottom;
+    z-index: 1;
+  }
+
+  ul.tabNav li.current {
+    @include font-size("0.8rem");
+    border-left: 1px solid $black;
+    font-weight: bold;
+    position: relative;
+    text-align: left;
+    top: 0.0875em;
+    vertical-align: bottom;
+    z-index: 3;
+  }
+
+  ul.tabNav a {
+    background: #f8e6cb;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 2px -1px 1px $manilla-gray;
+    color: $dark !important;
+    padding: 8px !important;
+  }
+
+  div.tabContainer {
+    background-color: $white;
+    border: 1px solid $manilla-gray;
+    border-radius: 0 8px 8px;
+    box-shadow: 0 0 10px #f0f0f0;
+    clear: both;
+    float: left;
+    margin-bottom: 2em;
+    margin-top: -0.1px;
+    padding: 10px;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+  }
+
+  div.tabContainer div.tab {
+    border: 0;
+    color: $body-color;
+    display: none;
+    padding: 10px;
+  }
+
+  div.tabContainer div.current {
+    box-shadow: 0;
+    display: block;
+  }
+
+  div.tab {
+    background: $white none repeat scroll 0 0;
+    border: 1px solid $black;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    min-height: 180px;
+    width: 100%;
+  }
+
+  div.tab_long {
+    background: $white none repeat scroll 0 0;
+    margin-bottom: 10px;
+    min-height: 180px;
+    width: 100%;
+  }
+
+  div.tab p:last-child {
+    margin-bottom: 0;
+  }
+
+  td .div {
+    border-left: 1px solid $black;
+  }
+
+  div.notab {
+    background: $white none repeat scroll 0 0;
+    background-color: $white;
+    border: 1px solid $manilla-gray;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 1px 2px 4px $manilla-gray;
+    margin-bottom: 10px;
+    margin-bottom: 2em;
+    padding-left: 10px;
+    width: initial;
+  }
+
+  div.notab-right {
+    background-color: $white;
+    border: 1px solid $manilla-gray;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 1px 2px 4px $manilla-gray;
+    margin-bottom: 2em;
+    padding-left: 10px;
+    width: initial;
+  }
+
+  .section-header {
+    background-color: #f8e8cb;
+    border: 1px solid $black;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 2px 0 5px $manilla-gray;
+    clear: both;
+    margin: initial;
+    padding: 6px;
+  }
+
+  .section-header-dynamic {
+    background-color: #f8e8cb;
+    border: 1px solid $black;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 2px 0 5px $manilla-gray;
+    clear: both;
+    margin: inherit;
+    padding: 6px;
+  }
+
+  .summary_item {
+    background: $white none repeat scroll 0 0;
+    background-color: $white;
+    border: 1px solid $manilla-gray;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 1px 2px 4px $manilla-gray;
+    margin: 0 auto 10px;
+    margin-bottom: 10px;
+  }
+
+  div.summary_item div {
+    margin: 1em auto;
+  }
+
+  /**
+* List-table formatting
+**/
+
+  .showborder td,
+  .showborder_head th,
+  .shownoborder td,
+  .showborder_long tr td {
+    @include font-size("0.75rem");
+  }
+
+  /**
+* Drug lookup
+**/
+  .drug_lookup {
+    @include font-size("0.6875rem");
+  }
+
+  /* Style for red font */
+  .redtext {
+    @include font-size("0.8125rem");
+  }
+
+  /* Style for red font */
+
+  body dl {
+    background-color: #c9dbf2;
+    border-bottom: 0.1px solid $black;
+    box-shadow: 0 0 10px $black;
+    min-height: 0.5px;
+  }
+
+
+  #sddm li {
+    background: #c9dbf2;
+    /* for non-css3 browsers */
+    color: $black;
+    padding: 0;
+  }
+
+  #sddm li a {
+    @include font-size("0.8rem");
+    color: $body-color;
+    padding: 4px 10px;
+  }
+
+  #sddm li a:hover {
+    background: #16558c;
+    color: $white;
+  }
+
+  #sddm div {
+    background-color: #c9dbf2;
+    border: 0.7px solid $gray;
+    border-radius: 0 5px 5px;
+    box-shadow: 0 6px 12px rgba($black, 0.176);
+    color: $body-color;
+    margin-top: 0;
+    min-width: 175px;
+    padding-bottom: 4px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 3px;
+    z-index: 20;
+  }
+
+  #sddm div a {
+    background: #c9dbf2;
+    color: $body-color;
+  }
+
+  #sddm div a:hover {
+    background: #16558c;
+  }
+
+  #sddm td {
+    border-top: 0 !important;
+  }
+
+  .example_menu {
+    font-size: 70% !important;
+  }
+
+  .example_menu ul a:Subjective {
+    font-weight: normal;
+  }
+
+  .example_menu ul a:hover {
+    background: $light;
+    text-decoration: underline;
+  }
+
+  /* Form styles */
+  .formtable {
+    @include font-size("0.8125rem");
+  }
+
+  .error-message {
+    @include font-size("0.6875rem");
+  }
+
+  /* flow board filters*/
+  #flow_board_parameters {
+    border: 1px solid $black;
+    border-radius: 8px;
+    box-shadow: 2px 2px 2px rgb(192, 192, 192);
+    padding: 8px;
+    text-decoration: none;
+  }
+
+  #flow_board_parameters table {
+    border: 0;
+  }
+
+  #theform table table {
+    background: $white;
+    border-bottom: 0.1px solid $black;
+    box-shadow: 0 0 2px $manilla-gray;
+    color: $dark;
+    display: block;
+    margin: 3px;
+    padding: 0;
+    text-decoration: none;
+  }
+
+  #theform th ul li {
+    top: 0.375em;
+  }
+
+  #pattrk {
+    background: $white;
+    border: 1px solid $black;
+    border-radius: 8px;
+    box-shadow: 2px 2px 2px $manilla-gray;
+    color: $dark;
+    display: block;
+    margin: 0 auto;
+    padding: 8px;
+    text-decoration: none;
+  }
+
+  .calendar {
+    z-index: 2;
+  }
+
+  .chevron_color {
+    color: #063f80;
+  }
+
+  /* main.php*/
+  .body_main {
+    background-color: $light;
+  }
+
+  /*~~openemr5 tabs menu , user and logout icon~~*/
+  #menu_icon,
+  #logout_icon,
+  #user_icon {
+    color: $gray !important;
+  }
+
+  /*~~openemr5 tabs menu , user and logout icon~~*/
+  /*openrmr5.0.2 edit_globals vertical menu*/
+  #oe-nav-ul.tabNav li {
+    border: 0;
+    border-radius: 0;
+  }
+
+  #oe-nav-ul.tabNav li.current {
+    color: #676666;
+  }
+
+  #oe-nav-ul.tabNav a {
+    background: $light;
+    border-bottom: 1px solid $gray-400;
+    border-left: 2px solid $gray;
+  }
+
+  #oe-nav-ul.tabNav a:hover {
+    background-color: $white !important;
+    color: $gray;
+  }
+
+  #oe-nav-ul.tabNav {
+    background: rgba($black, 0.05) !important;
+  }
+
+  #oe-nav-ul.tabNav .current a {
+    background: $white;
+    border-color: $gray;
+    color: #676666;
+  }
+
+  #globals-div .tabContainer {
+    border-color: $gray;
+  }
+
+  .oe-global-tab-heading {
+    color: #676666;
+    margin-top: -20px;
+  }
+
+  .tabNotchosen {
+    background-color: #fffffff0 !important;
+    border-bottom: 1px solid $gray !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-top: 0 !important;
+    box-shadow: 3px 4px 11px $gray;
+    display: block;
+  }
+
+  #patient_caret {
+    font-style: smaller;
+  }
+  /*openemr5.0.2 edit_globals vertical menu*/
+  /*bootstrap navbar */
+  .navbar-collapse.collapse.in {
+    background-color: $light !important;
+    color: $body-color !important;
+  }
+
+  .navbar-light .navbar-nav > li > a:focus,
+  .navbar-light .navbar-nav > li > a:hover {
+    background-color: #eee;
+    color: $dark;
+  }
+}
+
+.navbar-expand-xl {
+  box-shadow: 1px 2px 6px #80808073;
+}
+
+#mainBox > nav {
+  background-color: #c9dbf2 !important;
+  box-shadow: 0 0 5px #939393;
+  padding: 0;
+  z-index: 10;
+}
+
+#mainbox > div {
+  background-color: #c9dbf2 !important;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+#attendantData {
+  background-color: #c9dbf2 !important;
+}
+
+#tabs_div {
+  background-color: #c9dbf2 !important;
+  box-shadow: inset 0 -2px 3px #80808850;
+  z-index: auto;
+}
+
+#tabsControl {
+  background: unset;
+}
+
+.tabSpan {
+  box-shadow: 0 -2px 3px #80808850;
+}
+
+
+/*search any*/
+@import "../navigation-slide/manilla";
+@import "../oe-bootstrap";
+
+.btn-primary {
+  background-color: #c9dbf2;
+  border-color: #00000073;
+  color: #000;
+}
+
+.btn-group {
+  color: #000;
+}

@@ -1,0 +1,51 @@
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <span id="navbarEncounterTitle" class="navbar-brand">
+        {{ encounterDate|text }} {{ (groupEncounter == true) ? "Group Encounter"|xlt : "Encounter"|xlt}} {{ "for"|xlt }} {{ patientName|text }}
+    </span>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mx-auto">
+            {% for category, details in menuArray %}
+                {% if details.children is iterable %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="category_{{ category|attr }}" role="button" data-toggle="dropdown" aria-expanded="false">
+                            {{ category|text }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="category_{{ category|attr }}" style="z-index:9999;">
+                            {% for item in details.children %}
+                                {% set display = (item.menu_name is defined) ? item.menu_name : item.displayText %}
+                                {% if item.onclick is defined %}
+                                    {% set onclick = item.onclick %}
+                                {% else %}
+                                    {% set formURL = (item.href is defined) ? item.href : rootdir ~ "/patient_file/encounter/load_form.php?formname=" ~ item.directory|url_encode %}
+                                    {% set onclick = "openNewForm(" ~ formURL|attr_js ~ "," ~ display|xlFormTitle|attr_js ~ ")" %}
+                                {% endif %}
+                                <a href="#" class="dropdown-item" onclick="{{ onclick }}">{{ display|xlFormTitle|text }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="openNewForm({{ details.formURL|attr_js }}, {{ details.displayText|xlFormTitle|attr_js }})">{{ details.displayText|text }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            {% if enableFollowUpEncounters %}
+            <li class="nav-item"><a href="#" class="nav-link" onclick="return createFollowUpEncounter()">{{ "Create follow-up encounter"|xlt }}</a></li>
+            {% endif %}
+            <li class="nav-item"><a href="#" onClick="$('.formrow .collapse').collapse('hide');" class="nav-link"><i class="fa fa-compress-alt"></i>&nbsp;{{ "Collapse All"|xlt }}</a></li>
+            <li class="nav-item"><a href="#" onClick="$('.formrow .collapse').collapse('show');" class="nav-link"><i class="fa fa-expand-alt"></i>&nbsp;{{ "Expand All"|xlt }}</a></li>
+            {% if isAdminSuper %}
+            <li class="nav-item"><a href="#" class="nav-link text-danger btn-delete" onclick="return deleteme()">{{ "Delete"|xlt }}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+{% endblock %}

@@ -1,0 +1,10 @@
+/* OpenEMR Fee Sheet Override */
+
+@if $compact-theme == false {
+  .feesheet-title {
+    background: $dark !important;
+    font-weight: 900;
+    margin: 0 0 10px;
+    padding: 3px;
+  }
+}

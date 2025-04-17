@@ -1,0 +1,31 @@
+<entry>
+  <observation classCode="OBS" moodCode="RQO" {{{negation_ind}}}>
+  <!-- Consolidated Plan of Care Activity Observation
+       templateId (Implied Template) -->
+  <templateId root="2.16.840.1.113883.10.20.22.4.44" extension="2014-06-09"/>
+  <!-- Diagnostic Study, Order template -->
+  <templateId root="2.16.840.1.113883.10.20.24.3.17" extension="2019-12-01"/>
+  <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+  {{> _codes}}
+  <text>{{description}}</text>
+  <statusCode code="active"/>
+  {{#authorDatetime}}
+    <!-- QDM Attribute: Author dateTime -->
+    {{> qrda_templates/template_partials/_author}}
+  {{/authorDatetime}}
+  {{#requester}}
+    <!-- QDM Attribute: Requester -->
+    <participant typeCode="PRF">
+      {{> qrda_templates/template_partials/_entity}}
+    </participant>
+  {{/requester}}
+  {{#reason}}
+    <!-- QDM Attribute: Reason -->
+    {{> qrda_templates/template_partials/_reason}}
+  {{/reason}}
+  {{#negationRationale}}
+    <!-- QDM Attribute: Negation Rationale -->
+    {{> qrda_templates/template_partials/_reason}}
+  {{/negationRationale}}
+</observation>
+</entry>

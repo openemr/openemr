@@ -1,0 +1,19 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="list-group list-group-flush">
+{% if rxList|length > 0 %}
+
+    {% for rx in rxList %}
+        <div class="list-group-item w-100 p-1 pt-0">
+            {{ rx.drug|text }}<br>
+            <span class="text-muted">{{ rx.dosage|text }} {{ rx.form }}{{ rx.unit }}{{ rx.route }} {{ rx.interval }}</span>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="list-group-item w-100 p-1 pt-0">
+        {{ "None{{Prescriptions}}"|xlt }}
+    </div>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% set controlButtons = {
+    notes: buttons.notes|default(false)
+    , expand: buttons.expand|default(false)
+    , invite: buttons.invite|default(false)
+    , screenshare: buttons.screenshare|default(false)
+    , video: buttons.video|default(false)
+    , microphone:buttons.microphone|default(false)
+    , hangup:buttons.hangup|default(false)}
+%}
+<div class="telehealth-button-bar">
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-notes{% if not controlButtons.notes %} d-none{% endif %}" aria-label="{{ "Toggle Notes"|xla}}" title="{{ "Toggle Notes"|xla}}" >
+        <i class="fa fa-notes-medical fa-lg text-light"></i>
+    </button>
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-expand{% if not controlButtons.expand %} d-none{% endif %}" aria-label="{{ "Expand Window"|xla}}" title="{{ "Expand Window"|xla}}" >
+        <i class="fa fa-expand fa-lg text-light"></i>
+    </button>
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-invite{% if not controlButtons.invite %} d-none{% endif %}" aria-label="{{ "Invite Participant"|xla}}" title="{{ "Invite Participant"|xla}}" >
+        <i class="fa fa-user-plus fa-lg text-light"></i>
+    </button>
+    {# we hide the screenshare capability on small and very small devices as mobile browsers don't support screenshare #}
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-screenshare{% if not controlButtons.screenshare %} d-none{% endif %}" aria-label="{{ "Share Screen"|xla}}" title="{{ "Share Screen"|xla}}" >
+        <i class="fa fa-laptop fa-lg text-light"></i>
+    </button>
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-video{% if not controlButtons.video %} d-none{% endif %}" aria-label="{{ "Toggle Video"|xla}}" title="{{ "Toggle Video"|xla}}">
+        <i class="fa fa-video fa-lg text-light" data-enabled="true"></i>
+    </button>
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-microphone{% if not controlButtons.microphone %} d-none{% endif %}" aria-label="{{ "Toggle Microphone"|xla}}" title="{{ "Toggle Microphone"|xla}}">
+        <i class="fa fa-microphone text-light" data-enabled="true"></i>
+    </button>
+    <button type="button" class="btn btn-lg btn-default telehealth-btn telehealth-btn-hangup{% if not controlButtons.hangup %} d-none{% endif %}" aria-label="{{ "Hangup Call"|xla}}" title="{{ "Hangup Call"|xla}}" >
+        <i class="fa fa-phone fa-lg fa-rotate-90 text-danger"></i>
+    </button>
+</div>

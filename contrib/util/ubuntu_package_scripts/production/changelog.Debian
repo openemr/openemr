@@ -1,0 +1,132 @@
+openemr (5.0.2-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Mon, 29 Jul 2019 12:04:09 -0700
+
+openemr (5.0.1-4) stable; urgency=low
+
+  * New upstream patch
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Mon, 13 Aug 2018 23:01:00 -0700
+
+openemr (5.0.1-3) stable; urgency=low
+
+  * New upstream patch
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Sun, 03 Jun 2018 18:02:26 -0700
+
+openemr (5.0.1-2) stable; urgency=low
+
+  * New upstream patch
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Sat, 28 Apr 2018 01:21:25 -0700
+
+openemr (5.0.1-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Sun, 15 Apr 2018 01:46:53 -0700
+
+openemr (5.0.0-2) stable; urgency=low
+
+  * Security fixes
+
+ -- Brady Miller <brady.g.miller@gmail.com>  Sun, 19 Nov 2017 02:22:50 -0800
+
+openemr (5.0.0-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady@sparmy.com>  Mon, 13 Feb 2017 22:27:00 -0800
+
+openemr (4.2.2-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady@sparmy.com>  Fri, 13 May 2016 22:47:44 -0700
+
+openemr (4.2.1-2) stable; urgency=low
+
+  * Fix to work with new versions of Ubuntu (15.10+).
+
+ -- Brady Miller <brady@sparmy.com>  Tue, 29 Mar 2016 17:38:51 -0700
+
+openemr (4.2.1-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady@sparmy.com>  Tue, 19 Jan 2016 00:28:15 -0800
+
+openemr (4.2.0-2) stable; urgency=low
+
+  * Security fix (patch number 3).
+
+ -- Brady Miller <brady@sparmy.com>  Mon, 25 May 2015 13:09:11 -0700
+
+openemr (4.2.0-1) stable; urgency=low
+
+  * Fixes to work with Zend:
+  * Set permission for application.config.php file.
+  * Configured apache to work with Zend.
+
+ -- Brady Miller <brady@sparmy.com>  Sat, 20 Dec 2014 14:47:31 -0800
+
+openemr (4.1.2-3) stable; urgency=low
+
+  * New upstream patch (patch number 7)
+  * Fixes to work with Ubuntu 12.10, 13.10 and 14.04
+
+ -- Brady Miller <brady@sparmy.com>  Tue, 29 Apr 2014 19:12:02 -0700
+
+openemr (4.1.2-2) stable; urgency=low
+
+  * New upstream patch (patch number 3)
+  * Fix to work with PHP 5.5
+
+ -- Brady Miller <brady@sparmy.com>  Sat, 02 Nov 2013 01:15:32 -0700
+
+openemr (4.1.2-1) stable; urgency=low
+
+  * New upstream version
+  * Added support with the max_input_vars php setting
+
+ -- Brady Miller <brady@sparmy.com>  Sun, 04 Aug 2013 13:29:45 -0700
+
+openemr (4.1.1-1) stable; urgency=low
+
+  * New upstream version
+  * Compatible with multisite module
+
+ -- Brady Miller <brady@sparmy.com>  Wed, 29 Aug 2012 19:34:26 -0700
+
+openemr (4.1.0-1) stable; urgency=low
+
+  * New upstream version
+  * Standardized Package Prompting
+
+ -- Brady Miller <brady@sparmy.com>  Wed, 21 Sep 2011 01:24:46 -0700
+
+openemr (4.0.0-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady@sparmy.com>  Fri, 25 Mar 2011 22:46:08 -0700
+
+openemr (3.2.0-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Brady Miller <brady@sparmy.com>  Tue, 16 Feb 2010 11:35:18 -0800
+
+openemr (3.1.0-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Amalu Obinna <amaluobinna@aol.com>  Fri, 21 Aug 2009 01:28:14 -0700
+
+openemr (3.0.1-1) stable; urgency=low
+
+  * Initial Release.
+
+ -- Amalu Obinna <amaluobinna@aol.com>  Sat, 18 Apr 2009 14:59:24 -0700

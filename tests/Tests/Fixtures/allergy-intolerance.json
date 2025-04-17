@@ -1,0 +1,21 @@
+[{
+  "type": "allergy",
+  "title": "Ampicillin",
+  "pid": "test-fixture-789456",
+  "reaction": "hives",
+  "verification": "unconfirmed",
+  "diagnosis": "RXCUI:7980",
+  "occurrence": 1,
+  "begdate": "1980-05-10"
+}
+  ,{
+  "type": "allergy",
+  "title": "Penicillin G",
+  "pid": "test-fixture-8",
+  "reaction": "hives",
+  "verification": "confirmed",
+  "diagnosis": "RXCUI:733",
+  "occurrence": 1,
+  "begdate": "1980-05-10"
+}
+]

@@ -1,0 +1,89 @@
+[{
+        "resourceType": "Organization",
+        "id": "90d8cd22-3981-4a97-bf34-499ebb1c50cc",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-06-22T20:55:52+00:00"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1063494177"
+        }],
+        "name": "test-fixture-Saint Luke's Hospital of Kansas City",
+        "telecom": [{
+            "system": "phone",
+            "value": "(816)932-2000",
+            "use": "work"
+        }],
+        "address": [{
+            "line": [
+                "4401 Wornall Rd,"
+            ],
+            "city": "Amherst",
+            "state": "MA",
+            "postalCode": "64111"
+        }]
+    },
+    {
+        "resourceType": "Organization",
+        "id": "42fe3345-76cc-4fb7-9750-734b759c872e",
+        "name": "test-fixture-Health Level Seven International",
+        "telecom": [{
+                "system": "phone",
+                "value": "(+1) 734-677-7777",
+                "use": "work"
+            },
+            {
+                "system": "email",
+                "value": "hq@HL7.org",
+                "use": "work"
+            }
+        ],
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1039294177"
+        }],
+        "address": [{
+            "line": [
+                "3300 Washtenaw Avenue, Suite 227"
+            ],
+            "city": "Ann Arbor",
+            "state": "MI",
+            "postalCode": "48104"
+        }]
+    },
+    {
+        "resourceType": "Organization",
+        "id": "30c7ab18-4c5b-4be4-ad1a-eb7188fb086a",
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1939403029"
+        }],
+        "name": "test-fixture-Gastroenterology",
+        "telecom": [{
+            "system": "email",
+            "value": "gastro@acme.org",
+            "use": "work"
+        }]
+    },
+    {
+        "resourceType": "Organization",
+        "id": "1832473e-2fe0-452d-abe9-3cdb9879522f",
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1927402830"
+        }],
+        "name": "test-fixture-Clinical Lab",
+        "telecom": [{
+                "system": "phone",
+                "value": "+1 555 234 1234",
+                "use": "work"
+            },
+            {
+                "system": "email",
+                "value": "contact@labs.acme.org",
+                "use": "work"
+            }
+        ]
+    }
+]

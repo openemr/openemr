@@ -1,0 +1,80 @@
+#dragandrophandler{
+}
+.progressBar{
+    width           : 200px;
+    height          : 22px;
+    border          : 1px solid #ddd;
+    border-radius   : 5px;	
+    overflow        : hidden;
+    display         :inline-block;
+    margin          :0px 10px 5px 5px;
+    vertical-align  :top;
+}  
+.progressBar div {
+    /*height          : 100%;*/
+    color           : #fff;
+    text-align      : right;
+    line-height     : 22px; /* same as #progressBar height if we want text middle aligned */
+    width           : 0;
+    background-color: #0ba1b5; border-radius: 3px; 
+}
+.statusbar{
+    border-top    :1px solid #A9CCD1;
+    min-height    :25px;
+    padding       :10px 10px 0px 10px;
+    vertical-align:top;    
+}
+#status1{
+    -moz-box-shadow     : 1px 4px 4px 1px #8B8B8B;
+    -webkit-box-shadow  : 1px 4px 4px 1px #8B8B8B;
+    box-shadow          : 1px 4px 4px 1px #8B8B8B;
+    position            : relative;
+    right               : 10px;
+    top                 : 0px;
+    background          : #ffffff;
+    font-size           : 12px;
+}
+.statusbar:nth-child(odd){
+    background    :#EBEFF0;
+}
+.filename{
+    display       :inline-block;
+    vertical-align:top;
+}
+.filesize{
+    display       :inline-block;
+    vertical-align:top;
+    color         :#30693D;
+    margin-left   :10px;
+    margin-right  :5px;
+}
+.abort{
+    background-color      : #A8352F;
+    -moz-border-radius    : 4px;
+    -webkit-border-radius : 4px;
+    border-radius         : 4px;
+    display               : inline-block;
+    color                 : #fff;
+    font-family           : arial;
+    font-size             : 13px;
+    font-weight           : normal;
+    padding               : 4px 15px;
+    cursor                : pointer;
+    vertical-align        : top;
+}
+#uploader{
+    background      : url('icons/uploader.png') no-repeat;
+    background-size : 45px 45px;
+    cursor          : pointer;
+    text-align      : center;
+    height          : 45px;
+    width           : 45px;
+    float           : right;
+    margin-right    : 5%
+}
+#file_uploader{
+    opacity : 0;
+    cursor  : pointer;
+    width   :45px;
+    height  : 45px;
+}

@@ -1,0 +1,103 @@
+{#
+# Handles the asynchronous task processing of the EHI Export
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+#
+# @author    Stephen Nielson <snielson@discoverandchange.com
+# @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*
+#}
+<html>
+<head>
+    <title>{{ "Electronic Health Information Export"|xlt }}</title>
+    {{ setupHeader() }}
+{#    <script src="{{ assetPath }}js/{{ "ehi-exporter.js"|addCacheParam()}}"></script>#}
+    <script src="{{ assetPath }}js/{{ "ehi-exporter.js"}}"></script>
+</head>
+    <body class="p-3">
+    <h1>{{ "Electronic Health Information Export"|xlt }} <a href="{{postAction|attr}}" class="btn btn-secondary float-right">{{ "Go Back"|xlt }}</a></h1>
+    <hr />
+    <div class="template template-task-failed d-none">
+        <div class="card-header bg-dark text-light">
+            <h3><b>{{ "Export Task:"|xlt }}</b> <span class="taskId"></span> - {{ "Failed"|xlt }} <i class="fa fa-x text-danger"></i></h3>
+        </div>
+        <div class="card-body">
+            <input type="button" class="btn btn-primary btn-retry-export-task" value="{{ "Retry"|xlt }}" />
+            <div class="alert alert-danger">
+                {{ "Check system logs as export failed to process"|xlt }}
+                <div class="errorMessage"></div>
+            </div>
+        </div>
+    </div>
+    <div class="template template-task-processing d-none card">
+        <div class="card-header bg-dark text-light">
+            <h3><b>{{ "Export Task:"|xlt }}</b> <span class="taskId"></span> - {{ "Processing"|xlt }} <i class="fa fa-spinner fa-spin"></i></h3>
+        </div>
+        <div class="card-body">
+            <p>{{ "Export Task is being processed"|xlt }}</p>
+            <h6><b>{{ "Total Tables Exported:"|xlt }}</b> <span class="total-tables-exported">0</span></h6>
+            <h6><b>{{ "Total Records Exported:"|xlt }}</b> <span class="total-records-exported">0</span></h6>
+            <h6 class="documentsExportedSection d-none"><b>{{ "Total Patient Documents Exported:"|xlt }}</b> <span class="documentsExportedCount">0</span></h6>
+            <details class="mb-5">
+                <summary>
+                    {{ "Expand for Export Zip Details"|xlt }}
+                </summary>
+                <p>{{ "Patient Records Being Exported"|xlt }}</p>
+                <div class="patientPids"></div>
+                <p>{{ "Records Exported"|xlt }}</p>
+                <ol class="exportedTablesList">
+                    <li class="exportedTableListItem d-none"><span class="exportedTableName"></span> : <span class="exportedTableCount"></span></li>
+                </ol>
+            </details>
+        </div>
+    </div>
+    <div class="template template-result-success d-none card">
+        <div class="card-header bg-dark text-light">
+            <h3><b>{{ "Export Task:"|xlt }}</b> <span class="taskId"></span> - {{ "Completed"|xlt }} <i class="fa fa-check text-success"></i></h3>
+        </div>
+        <div class="card-body">
+            <h4><a class="download-link" target="_blank"><span class="download-link-name"></span> - {{ "Download"|xlt }}</a></h4>
+            <h6><span class="hash-algo-title"></span>: <small class="hash-text"></small></h6>
+            <h6><b>{{ "Total Tables Exported:"|xlt }}</b> <span class="total-tables-exported"></span></h6>
+            <h6><b>{{ "Total Records Exported:"|xlt }}</b> <span class="total-records-exported"></span></h6>
+            <h6><b class="documentsExportedSection d-none">{{ "Total Patient Documents Exported:"|xlt }}</b> <span class="documentsExportedCount"></span></h6>
+            <details class="mb-5">
+                <summary>
+                    {{ "Expand for Export Zip Details"|xlt }}
+                </summary>
+                <p>{{ "Records Exported"|xlt }}</p>
+                <ol class="exportedTablesList">
+                    <li class="exportedTableListItem d-none"><span class="exportedTableName"></span> : <span class="exportedTableCount"></span></li>
+                </ol>
+            </details>
+        </div>
+    </div>
+    {% for task in job.getJobTasks() %}
+        <div data-task-id="{{ task.getId()|attr }}" class="template template-task-queued card">
+            <div class="card-header bg-dark text-light">
+                <h3><b>{{ "Export Task:"|xlt }}</b> <span class="taskId">{{ task.getId()|text }}</span> - {{ "Pending"|xlt }}</h3>
+            </div>
+            <div class="card-body">
+                <h4><b>{{ "Patients to be exported:"|xlt }}</b> {{ task.getPatientIds()|length|text }}</h4>
+                <p>{{ "Export Task has been queued and will start shortly"|xlt }}</p>
+                <details class="mb-5">
+                    <summary>
+                        {{ "Expand for Export Zip Details"|xlt }}
+                    </summary>
+                    <p>{{ "Patient Pids To Be Exported"|xlt }}</p>
+                    <div class="patientPids">{{ task.getPatientIds()|json_encode|text }}</div>
+                </details>
+            </div>
+        </div>
+    {% endfor %}
+    <script>
+        window.document.addEventListener("DOMContentLoaded", function() {
+            if (window.oeExporter && window.oeExporter.startTaskExports) {
+                window.oeExporter.startTaskExports({{ postUrl|json_encode }}, {{ csrfTokenRaw()|js_url }});
+            }
+        });
+    </script>
+    </body>
+</html>

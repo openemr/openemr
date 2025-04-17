@@ -1,0 +1,84 @@
+{**
+	* Prior auth form
+	*
+	* @package   OpenEMR
+	* @link      http://www.open-emr.org
+	* @author    Brady Miller <brady.g.miller@gmail.com>
+	* @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
+	* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+	*}
+<html>
+<head>
+<title>{xlt t='Prior Authorization'}</title>
+{headerTemplate assets='datetime-picker'}
+
+
+<style>
+    label {
+        padding: 0px 5px !Important;
+    }
+</style>
+
+<script>
+	$(function () {
+        {datetimepickerSupport input='format'}
+	});
+</script>
+
+</head>
+<body>
+	<div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+				<h2>{xlt t="Prior Authorization"}</h2>
+                <form name="prior_auth" class="form-horizontal" method="post" action="{$FORM_ACTION}/interface/forms/prior_auth/save.php" onsubmit="return top.restoreSession()">
+				<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
+				<fieldset>
+					<legend>{xlt t="Details"}</legend>
+					<div class="form-group mt-3">
+						<div class="row">
+    					    <div class="col-sm-4">
+							    <label for="prior_auth_number" class="col-form-label">{xlt t="Number"}:</label>
+							    <input type="text" class="form-control" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()|attr}">
+						    </div>
+						    <div class="col-sm-4">
+							    <label for="date_from" class="col-form-label">{xlt t="From"}:</label>
+							    <input type='text' size='10' class='form-control datepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|oeFormatShortDate|attr}' />
+						    </div>
+						    <div class="col-sm-4">
+							   <label for="date_to" class="col-form-label">{xlt t="To"}:</label>
+							   <input type='text' size='10' class='form-control datepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|oeFormatShortDate|attr}' />
+						    </div>
+						</div>
+					</div>
+				</fieldset>
+				<fieldset>
+					<legend>{xlt t="Comments"}</legend>
+					<div class="form-group mt-3">
+						<div class="row">
+    					    <div class="col-sm-12">
+								<textarea name="comments" value="{$prior_auth->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()|text}</textarea>
+
+							</div>
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group mt-3">
+					<div class="col-sm-12 position-override">
+						<div class="btn-group" role="group">
+							<button type="submit" class="btn btn-primary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
+							<button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
+						</div>
+                        <input type="hidden" name="id" value="{$prior_auth->get_id()|attr}" />
+                        <input type="hidden" name="activity" value="{$prior_auth->get_activity()|attr}" />
+                        <input type="hidden" name="pid" value="{$prior_auth->get_pid()|attr}" />
+                        <input type="hidden" name="process" value="true" />
+					</div>
+				</div>
+
+</form>
+</div>
+</div>
+</div>
+</body>
+</html>

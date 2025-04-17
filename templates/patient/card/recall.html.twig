@@ -1,0 +1,18 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="list-group list-group-flush">
+{% if recallsAvailable %}
+    {% for r in recalls %}
+        <div class="d-flex w-100 list-group-item p-1 justify-content-between">
+            <a href="#" onclick="top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall')">{{ r.reason|text }}</a>
+            {{ r.date|shortDate|text }}
+        </div>
+    {% endfor %}
+{% else %}
+        <div class="w-100 list-group-item p-1">
+            <a href="#" onclick="top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall')">{{ "No Recalls"|xlt }}</a>
+        </div>
+{% endif %}
+</div>
+{% endblock %}

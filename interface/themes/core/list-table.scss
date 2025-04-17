@@ -1,0 +1,32 @@
+/**
+* List-table formatting
+**/
+
+@if $compact-theme == false {
+  .showborder {
+    width: 650px;
+
+    td {
+      border-bottom: 1px dashed $black;
+      text-align: $left;
+    }
+
+    &_head th {
+      border-bottom: 1px solid $black;
+      text-align: $left;
+    }
+
+    &_long {
+      width: 100%;
+
+      tr td {
+        border-bottom: 1px dashed $black;
+        text-align: $left;
+      }
+    }
+  }
+
+  .shownoborder td {
+    text-align: $left;
+  }
+}

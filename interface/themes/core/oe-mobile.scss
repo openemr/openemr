@@ -1,0 +1,20 @@
+/* customized settings to make OpenEMR mobile friendly*/
+/*for Smartphones*/
+@if $compact-theme == false {
+  @media only screen and (max-width: 400px) {
+    #oe-nav-ul.tabNav li {
+      @include font-size("0.8rem");
+    }
+  }
+
+  /*Dashboard navbar styling for tablets*/
+  @media only screen and (max-width: 1024px) {
+    .navbar-nav {
+      @include font-size("1rem");
+    }
+
+    .nav > li > a {
+      padding: 15px 8px;
+    }
+  }
+}

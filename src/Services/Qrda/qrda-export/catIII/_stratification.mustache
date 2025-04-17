@@ -1,0 +1,27 @@
+<!--  Stratification Reporting Template for <%= population.type %>  <%= population.id %>  Stratification <%= strat.id %>   -->
+<entryRelationship typeCode="COMP">
+  <observation classCode="OBS" moodCode="EVN">
+    <templateId root="2.16.840.1.113883.10.20.27.3.4"/>
+    <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4" displayName="Assertion" codeSystemName="ActCode"/>
+    <statusCode code="completed"/>
+    <value xsi:type="CD" nullFlavor="OTH">
+     <originalText>Stratum</originalText>
+    </value>
+    <entryRelationship typeCode="SUBJ" inversionInd="true">
+      <observation classCode="OBS" moodCode="EVN">
+        <templateId root="2.16.840.1.113883.10.20.27.3.3"/>
+        <code code="MSRAGG" displayName="rate aggregation" codeSystem="2.16.840.1.113883.5.4" codeSystemName="ActCode"/>
+        <value xsi:type="INT" value="{{population_value}}"/>
+        <methodCode code="COUNT" displayName="Count" codeSystem="2.16.840.1.113883.5.84" codeSystemName="ObservationMethod"/>
+      </observation>
+    </entryRelationship>
+    {{#stratification_observation}}
+      {{> _continuous_variable_value}}
+    {{/stratification_observation}}
+    <reference typeCode="REFR">
+      <externalObservation classCode="OBS" moodCode="EVN">
+        <id root="{{id}}"/>
+      </externalObservation>
+    </reference>
+  </observation>
+</entryRelationship>

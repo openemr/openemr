@@ -1,0 +1,50 @@
+openemr for Debian
+------------------------
+
+
+About:
+------
+OpenEMR is a comprehensive Open Source Medical Practice Management
+Application.
+
+
+Instructions for use:
+---------------------
+To use OpenEMR, go to http://localhost/openemr :  user is 'admin' and
+password is 'pass' (recommend changing password after login).
+
+To ensure a consistent look and feel through out the application using
+Firefox is recommended.
+
+
+Documentation:
+--------------
+The OpenEMR project home page and wiki (documentation) can be found at
+https://www.open-emr.org .
+
+
+Support Forums:
+---------------
+The OpenEMR forums can be found at https://www.open-emr.org
+
+
+Reporting Bugs:
+---------------
+Report to the OpenEMR forums at https://www.open-emr.org
+
+
+Send us an email to help support OpenEMR:
+-----------------------------------------
+We pursue grants to help fund the future development of OpenEMR.  To
+apply for these grants, we need to estimate how many times this program
+is installed and how many practices are evaluating or using this software.
+It would be awesome if you would email us at hello@open-emr.org if you
+have installed this software. The more details about your plans with
+this software, the better, but even just sending us an email stating you
+just installed it is very helpful.
+
+
+Authors of debianized OpenEMR:
+------------------------------
+-- Brady Miller <brady.g.miller@gmail.com> Mon, 29 Jul 2019 12:04:09 -0700
+-- Amalu Obinna <amaluobinna@aol.com> Mon, 29 Jul 2019 12:04:09 -0700

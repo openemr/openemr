@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ruleset name="OpenEMR Standard">
+  <description>PSR-12 (permissive)</description>
+  <arg name="tab-width" value="4" />
+  <rule ref="PSR12">
+    <exclude name="PSR1.Classes.ClassDeclaration"/>
+    <exclude name="Squiz.Classes.ValidClassName"/>
+    <exclude name="PSR1.Methods.CamelCapsMethodName"/>
+    <exclude name="Squiz.Scope.MethodScope"/>
+    <exclude name="PEAR.Functions.ValidDefaultValue"/>
+    <exclude name="PSR2.Classes.PropertyDeclaration"/>
+    <exclude name="Generic.NamingConventions.UpperCaseConstantName"/>
+    <exclude name="Squiz.WhiteSpace.ScopeClosingBrace"/> <!-- ~100 files need fixing from this -->
+    <exclude name="PSR12.Classes.ClosingBrace"/> <!-- similar to above comment -->
+    <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/> <!-- added until ~94 methods are cleaned -->
+  </rule>
+
+  <!-- Checks that the opening PHP tag is the first content in a file. -->
+  <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag" />
+
+  <!-- Indenting -->
+  <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="ignoreIndentationTokens" type="array">
+        <element value="T_COMMENT"/>
+        <element value="T_DOC_COMMENT_OPEN_TAG" />
+      </property>
+    </properties>
+  </rule>
+
+  <exclude-pattern>*/sites/default/sqlconf.php</exclude-pattern>
+  <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/public/assets/*</exclude-pattern>
+  <exclude-pattern>*/gacl/*</exclude-pattern>
+  <exclude-pattern>*/library/classes/fpdf/*</exclude-pattern>
+  <exclude-pattern>*/library/classes/smtp/*</exclude-pattern>
+  <exclude-pattern>*/library/classes/PDF_Label.php</exclude-pattern>
+  <exclude-pattern>*/library/smarty_legacy/smarty/*</exclude-pattern>
+  <exclude-pattern>*/src/Cqm/Qdm/*</exclude-pattern>
+</ruleset>

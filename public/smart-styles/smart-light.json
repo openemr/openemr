@@ -1,0 +1,13 @@
+{
+  "color_background": "#f8f9fa",
+  "color_error": "#9e2d2d",
+  "color_highlight": "#69b5ce",
+  "color_modal_backdrop": "",
+  "color_success": "#498e49",
+  "color_text": "#000",
+  "dim_border_radius": "6px",
+  "dim_font_size": "13px",
+  "dim_spacing_size": "20px",
+  "font_family_body": "'Lato','Helvetica',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'",
+  "font_family_heading": "'Lato','Helvetica',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'"
+}

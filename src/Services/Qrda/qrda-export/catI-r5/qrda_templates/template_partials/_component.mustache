@@ -1,0 +1,13 @@
+<entryRelationship typeCode="REFR">
+     <observation classCode="OBS" moodCode="EVN">
+        <!-- Component -->
+        <templateId root="2.16.840.1.113883.10.20.24.3.149" extension="2017-08-01" />
+        <id root="{{random_id}}"/>
+        {{#code}}
+          <!--  QDM Attribute: Code -->
+          <code {{> _code}}/>
+        {{/code}}
+        <!--  QDM Attribute: Result -->
+        {{{result_value}}}
+    </observation>
+</entryRelationship>

@@ -1,0 +1,112 @@
+{#
+ # Patient telehealth launch session page (for both original patient and third party invitations
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+
+{# Note that this is the global core portal template we are extending #}
+{% extends "portal/base.html.twig" %}
+{% block head %}
+    {{ parent() }}
+    {% include "comlink/patient-portal.twig" with {assetPath: assetPath, debug: debug} %}
+    <script>
+        var inactivityTimeOut = {{ portal_timeout | js_escape }};
+
+        function restoreSession() {
+            return true;
+        }
+
+        const activityMonitor = function () {
+            let timeOut, warnTimeOut, time;
+            if (Number(inactivityTimeOut) < 300) {
+                inactivityTimeOut = 900; // 15 minutes. < 5 minutes is too short.
+            }
+            time = inactivityTimeOut * 1000;
+
+            window.onload = resetLogOutTimer;
+            window.onmousemove = resetLogOutTimer;
+            window.onmousedown = resetLogOutTimer;
+            window.ontouchstart = resetLogOutTimer;
+            window.ontouchmove = resetLogOutTimer;
+            window.onclick = resetLogOutTimer;
+            window.onkeydown = resetLogOutTimer;
+            window.addEventListener('scroll', resetLogOutTimer, true);
+
+            function logoutWarn() {
+                const warnMsg = xl('Your current log on session will expire in 30 seconds.') +
+                    '<br />' + xl('Please take action to prevent being logged out!');
+                syncAlertMsg(warnMsg, 28000); // from utility.js
+            }
+
+            function logout() {
+                // TODO: @adunsulag change this to be the portal index page
+                let logoutUrl = "./index.php?site=" + encodeURIComponent(siteId);
+                location.replace(logoutUrl);
+            }
+
+            function resetWarnTimer() {
+                clearTimeout(warnTimeOut);
+                warnTimeOut = setTimeout(logoutWarn, time - 30000);
+            }
+
+            function resetLogOutTimer() {
+                $('#alert_box').remove(); // reset alert if set
+                resetWarnTimer();
+                clearTimeout(timeOut);
+                timeOut = setTimeout(logout, time);
+            }
+        };
+    </script>
+{% endblock %}
+{% block pagetitle %}
+    {{ pagetitle | text }}
+{% endblock %}
+{% block header %}
+<nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+	<a class="navbar-brand" href="{{ portalUrl }}">
+		<img class="img-fluid" width="140" src="{{ images_static_relative | attr }}/logo-full-con.png"/>
+	</a>
+</nav>
+{% endblock %}
+{% block content %}
+    <div class="card overflow-auto text-center {% if activeSession %}d-none{% endif %}">
+        <header class="card-header bg-primary text-light">{{ 'Telehealth Session Expired' | xlt }}</header>
+        <p class="m-3 h5">
+            {{ "We're sorry but this Telehealth Session either does not exist or has ended."|xlt }}
+            {{ "Please contact your provider if you have questions."|xlt }}
+        </p>
+        <a href="{{ portalUrl }}" class="btn btn-lg btn-link">{{ "Back to Portal Dashboard"|xlt  }}</a>
+    </div>
+    <div class="card overflow-auto text-center {% if not activeSession %}d-none{% endif %}">
+        <header class="card-header bg-primary text-light">{{ 'Starting Telehealth Session' | xlt }}</header>
+        <h5 class="m-5">{{ "If your session does not start in a few seconds, use the Launch Session button below"|xlt }}</h5>
+        <input class="btn btn-success btn-lg" type="button" value="{{ "Launch Session"|xlt  }}" />
+
+        <a href="{{ portalUrl }}" class="btn btn-lg btn-link mt-5">{{ "Back to Portal Dashboard"|xlt  }}</a>
+    </div>
+    {% if activeSession %}
+        <script>
+            (function() {
+                window.addEventListener("load", function() {
+                    // start watch for inactivity
+                    activityMonitor();
+
+                    window.comlink.telehealth.launchThirdPartyPortalDialog({{ activeSession.pc_eid|json_encode }})
+                    let buttons = window.document.querySelectorAll(".btn-success");
+                    buttons.forEach(btn => {
+                        btn.addEventListener('click', function(evt) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            window.comlink.telehealth.launchThirdPartyPortalDialog({{ activeSession.pc_eid|json_encode }});
+                            return false;
+                        });
+                    });
+                });
+            })();
+        </script>
+    {% endif %}
+{% endblock %}

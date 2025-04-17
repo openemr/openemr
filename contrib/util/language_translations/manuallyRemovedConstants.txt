@@ -1,0 +1,21 @@
+unction)   $traditionalXL = 1;  }   i
+tring,'r',
+ub
+$1
+$2
+cfirst($instype) . ' Ins
+tring[,'r'[,
+tring)  Which with example
+cfirst($array_his_alcohol[0])); ?>' ></td>                 <td><?php echo $this->listenerObject->z_
+cfirst($this->listenerObject->z_
+elf::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE),                         '
+heda
+rim($i
+rim($row['
+rrorConstants::
+rrorConstants::M
+rrorConstants::R
+cwords($item['row_s
+tring) {     if (typeof top.i18next.t == 'function') {         return top.i18next.t(
+...
+

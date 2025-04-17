@@ -1,0 +1,54 @@
+/* styles taken out of templates/documents/general_list.html */
+
+@if $compact-theme == false {
+  #documents_list {
+    border-#{$right}: dashed 1px;
+    float: $left;
+    height: 95%;
+    overflow: auto;
+    width: 100%;
+
+    td {
+      @include font-size("0.6875rem");
+    }
+
+    a {
+      @include font-size("0.6875rem");
+    }
+
+    .treeMenuDefault {
+      font-style: italic;
+    }
+
+    .treeMenuBold {
+      font-style: italic;
+      font-weight: bold;
+    }
+  }
+
+  #documents_actions {
+    float: $right;
+    height: 95%;
+    overflow: auto;
+    padding-top: 0;
+    width: 100%;
+
+    iframe {
+      border: 0;
+      display: inline;
+      height: 600px;
+      overflow: auto;
+      width: 100%;
+    }
+
+    form {
+      margin: 0;
+      padding: 0;
+    }
+
+    table {
+      height: 95%;
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,19 @@
+This folder holds forms developed by members of the community.
+
+The content of this folder is untested.
+
+Some of the forms under this folder might be broken or may not have full
+working features, but still, they may serve as a template for other forms.
+
+Note by Rod: The following Ob/Gyn forms were contributed on 2006-10-05 for
+release under the GPL by Douglas Crosdale of General Intelegence Co.
+I have not tested them:
+
+  high_risk_screening_record
+  immunization_record
+  medical_decision
+  patient_intake_history
+  physical_examination
+  physician_history
+  plist
+  routine_screening_record

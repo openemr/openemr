@@ -1,0 +1,343 @@
+<html>
+
+<head>
+
+
+
+ <style>
+
+<!--
+
+td {
+
+	font-size:12pt;
+
+	font-family:helvetica;
+
+}
+
+li{
+
+	font-size:11pt;
+
+	font-family:helvetica;
+
+	margin-left: 15px;
+
+}
+
+a {
+
+	font-size:11pt;
+
+	font-family:helvetica;
+
+}
+
+.title {
+
+	font-family: sans-serif;
+
+	font-size: 12pt;
+
+	font-weight: bold;
+
+	text-decoration: none;
+
+	color: #000000;
+
+}
+
+
+
+.form_text{
+
+	font-family: sans-serif;
+
+	font-size: 9pt;
+
+	text-decoration: none;
+
+	color: #000000;
+
+}
+
+
+
+-->
+
+</style>
+
+
+
+</head>
+
+<body bgcolor="{$STYLE.BGCOLOR2|attr}">
+
+<p><span class="title">Head Pain and Temporomandibular Jaw Examination</span></p>
+
+<form name="hptje" method="post" action="{$FORM_ACTION}/interface/forms/hp_tje_primary/save.php"
+
+ onsubmit="return top.restoreSession()">
+
+<table>
+
+<tr>
+
+	<td>REFERRED BY &nbsp&nbsp;<input type="text" name="referred_by" size="39" value="{$hptje_primary->get_referred_by()|attr}"></td>
+
+</tr>
+
+
+
+<tr>
+
+	<td>CHIEF COMPLAINTS</td>
+
+</tr>
+
+<tr>
+
+	<td><p><textarea name="complaints" cols="75" rows="3" wrap="virtual" >{$hptje_primary->get_complaints()|text}</textarea></p><br /></td>
+
+</tr>
+
+<tr>
+
+	<td><p>DATE OF ONSET&nbsp;&nbsp;{html_select_date start_year="1910"  time=$hptje_primary->get_date_of_onset() time=$hptje_primary->date_of_onset prefix="date_of_onset_"}</p><br /></td>
+
+</tr>
+
+<tr>
+
+	<td>PRECIPITATING/AGGRAVATING EVENT: 	<select name="event"><option name="" value="">{html_options selected=$hptje_primary->get_event() options=$hptje_primary->event_array}</select></td>
+
+</tr>
+
+<tr>
+
+<td><p>Other Explain:&nbsp;<input type="text" name="event_description" value="{$hptje_primary->get_event_description()|attr}" maxlength="255" size="39"></p><br /></td>
+
+</tr>
+
+<tr>
+
+<td><p><input type="checkbox" name="prior_symptoms" value="1" {if $hptje_primary->get_prior_symptoms() eq 1}checked{/if}">&nbsp;Denies presence of symptoms prior to accident &nbsp;&nbsp;&nbsp;<input type="checkbox" name="aggravated_symptoms" value="1" {if $hptje_primary->get_aggravated_symptoms() eq 1}checked{/if}>&nbsp;Affirms aggravation of symptoms after accident</p><br /></td>
+
+</tr>
+
+</table>
+
+<table>
+
+
+
+{foreach name=loops item=headings key=title from=$checks}
+
+<tr>
+
+	<td>
+
+		{if $smarty.foreach.loops.first ne 1}<br />{/if}
+
+		{$title}
+
+	</td>
+
+</tr>
+
+<tr>
+
+	<td>
+
+	  {foreach item=row key=row_title from=$headings}
+
+			<tr>
+
+				{if !is_numeric($row_title)}
+
+					<td>{$row_title}</td>
+
+					<td class="form_text">{html_checkboxes name="checks" options=$row selected=$hptje_primary->checks separator="&nbsp;</td><td class=\"form_text\">"}</td>
+
+				{else}
+
+					<td width="20"></td>
+
+					<td colspan="6"><table><tr><td class="form_text">
+
+
+
+					{html_checkboxes name="checks" options=$row selected=$hptje_primary->checks separator="&nbsp;&nbsp;&nbsp;</td><td class=\"form_text\">"}
+
+					{if $title eq "Teeth"}
+
+						&nbsp;&nbsp;Sore#&nbsp;<input type="text" name="teeth_sore_number" size="1" value="{$hptje_primary->get_teeth_sore_number()|attr}">
+
+						&nbsp;&nbsp;Mobile#&nbsp;<input type="text" name="teeth_mobile_number" size="1" value="{$hptje_primary->get_teeth_mobile_number()|attr}">
+
+						&nbsp;&nbsp;Fractured#&nbsp;<input type="text" name="teeth_fractured_number" size="1" value="{$hptje_primary->get_teeth_fractured_number()|attr}">
+
+						&nbsp;&nbsp;Avulsed#&nbsp;<input type="text" name="teeth_avulsed_number" size="1" value="{$hptje_primary->get_teeth_avulsed_number()|attr}">
+
+					{elseif $title eq "Precipitating Factors" and $row_title eq 2}
+
+						&nbsp;<input type="text" name="precipitating_factors_other_text" size="15" value="{$hptje_primary->get_precipitating_factors_other_text()|attr}">
+
+					{/if}
+
+					</td></tr></table></td>
+
+				{/if}
+
+
+
+			</tr>
+
+	  {/foreach}
+
+
+
+	</td>
+
+</tr>
+
+{/foreach}
+
+</table>
+
+<table>
+
+<tr>
+
+	<td colspan="10">HISTORY OF PREVIOUS TREATMENT</td>
+
+</tr>
+
+<tr>
+
+	<td>&nbsp;&nbsp;&nbsp;A.</td><td colspan="10">Specialty<br />
+
+	(A)Anesthesiologist (C) Chiropractor (D) Dentist (E) ENT (F) Family Physician (H) Hospital ER<br />
+
+	(N) Neurologist (O)Orthopedist (P) Physical Therapist (R)Rheumatologist<br /><br /></td>
+
+</tr>
+
+<tr>
+
+	<td>&nbsp;&nbsp;&nbsp;B.</td><td colspan="10">Treatment Modalities<br />
+
+	(1)Chiropractic (2)Equilibration (3) Examination (4) Medication (5) MRI (6) Orthodontic (7) Orhtopedic<br />
+
+	(8) Pallative (soft diet, heat, etc.) (9) Physical Therapy (10)Prolotherapy (11)Reconstruction (12) Referal<br />
+
+	(13) Soft Collar (14) Cervical Immobilization (15) Splint Therapy (16) TMJ Surgery (17) X-rays<br /><br /></td>
+
+</tr>
+
+<tr>
+
+	<td>&nbsp;&nbsp;&nbsp;C.</td><td colspan="10">Effectiveness of Treatment: (N) None&nbsp;&nbsp;(F) Fair&nbsp;&nbsp;(G)Good&nbsp;&nbsp;(E)Excellent<br /><br /></td>
+
+</tr>
+
+<tr>
+
+	<td>Doctor</td><td>Specialty</td><td>TX Rendered</td><td>Effectiveness</td><td>Date</td>
+
+</tr>
+
+{section name="history" loop=8 start="0"}
+
+<tr>
+
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][doctor]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].doctor|attr}"></td>
+
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][specialty]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].specialty|attr}"></td>
+
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][tx_rendered]" size="25" value="{$hptje_primary->history[$smarty.section.history.index].tx_rendered|attr}"></td>
+
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][effectiveness]" size="15" value="{$hptje_primary->history[$smarty.section.history.index].effectiveness|attr}"></td>
+
+	<td><input type="text" name="history[{$smarty.section.history.index|attr}][date]" size="10" value="{$hptje_primary->history[$smarty.section.history.index].date|attr}"></td>
+
+</tr>
+
+{/section}
+
+</table>
+
+<table>
+
+<tr>
+
+	<td colspan="3"><br /><br />HISTORY OF PREVIOUS ACCIDENTS OR INJURIES</td>
+
+</tr>
+
+<tr>
+
+	<td>Nature of Accident</td><td>Injuries</td><td>Date</td>
+
+</tr>
+
+{section name="previous_accidents" loop=8 start="0"}
+
+<tr>
+
+
+
+	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index|attr}][nature_of_accident]" size="35" value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].nature_of_accident|attr}"></td>
+
+	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index|attr}][injuries]" size="25" 	value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].injuries|attr}"></td>
+
+	<td><input type="text" name="previous_accidents[{$smarty.section.previous_accidents.index|attr}][date]" size="10" 		value="{$hptje_primary->previous_accidents[$smarty.section.previous_accidents.index].date|attr}"></td>
+
+</tr>
+
+{/section}
+
+</table>
+
+<table>
+
+<tr>
+
+	<td>COMMENTS</td>
+
+</tr>
+
+<tr>
+
+	<td><textarea name="comments" value="{$hptje_primary->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$hptje_primary->get_comments()|text}</textarea></td>
+
+</tr>
+
+{if $VIEW != true}
+
+<tr>
+
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+
+</tr>
+
+{/if}
+
+</table>
+
+<input type="hidden" name="id" value="{$hptje_primary->get_id()|attr}" />
+
+<input type="hidden" name="activity" value="{$hptje_primary->get_activity()|attr}">
+
+<input type="hidden" name="pid" value="{$hptje_primary->get_pid()|attr}">
+
+<input type="hidden" name="process" value="true">
+
+</form>
+
+</body>
+
+</html>

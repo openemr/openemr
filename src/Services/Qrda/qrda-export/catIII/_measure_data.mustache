@@ -1,0 +1,41 @@
+{{#populations}}
+{{#not_observ}}
+<component>
+  <!--   MEASURE DATA REPORTING FOR    <%= population.type %>  <%= population.id %>  -->
+  <observation classCode="OBS" moodCode="EVN">
+    <!-- Measure Data template -->
+    <templateId root="2.16.840.1.113883.10.20.27.3.5" extension="2016-09-01"/>
+    <!-- Measure Data - CMS (V4) -->
+    <templateId root="2.16.840.1.113883.10.20.27.3.16" extension="2019-05-01"/>
+    <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4" displayName="Assertion" codeSystemName="ActCode"/>
+    <statusCode code="completed"/>
+    <value xsi:type="CD" code="{{population_type}}" codeSystem="2.16.840.1.113883.5.4" codeSystemName="ActCode"/>
+    <!-- Aggregate Count -->
+    <entryRelationship typeCode="SUBJ" inversionInd="true">
+      <observation classCode="OBS" moodCode="EVN">
+        <templateId root="2.16.840.1.113883.10.20.27.3.3"/>
+        <code code="MSRAGG" displayName="rate aggregation" codeSystem="2.16.840.1.113883.5.4" codeSystemName="ActCode"/>
+        <value xsi:type="INT" value="{{population_value}}"/>
+        <methodCode code="COUNT" displayName="Count" codeSystem="2.16.840.1.113883.5.84" codeSystemName="ObservationMethod"/>
+      </observation>
+    </entryRelationship>
+    {{#stratifications}}
+      {{> _stratification}}
+    {{/stratifications}}
+    {{#supplemental_data}}
+      {{#population_supplemental_data}}
+        {{> _supplemental_data}}
+      {{/population_supplemental_data}}
+    {{/supplemental_data}}
+      {{#population_observation}}
+        {{> _continuous_variable_value}}
+      {{/population_observation}}
+    <reference typeCode="REFR">
+       <externalObservation classCode="OBS" moodCode="EVN">
+          <id root="{{id}}"/>
+       </externalObservation>
+    </reference>
+  </observation>
+</component>
+{{/not_observ}}
+{{/populations}}

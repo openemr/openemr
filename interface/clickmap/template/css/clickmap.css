@@ -1,0 +1,65 @@
+.outer-container {
+  margin: 20px;
+}
+
+#container {
+  border: 2px dashed;
+  margin: 20px;
+  position: relative;
+}
+
+.marker {
+  background-color: var(--danger);
+  border: 1px solid;
+  min-height: 12px;
+  min-width: 12px;
+  position: absolute;
+  text-align: center;
+}
+
+.count {
+  color: var(--white);
+  font-size: 12px;
+  font-weight: bold;
+  margin: 2px;
+}
+
+.nav {
+  margin-left: 40px;
+}
+
+.legend {
+  margin-left: 20px;
+}
+
+.legend header {
+  font-weight: bold;
+}
+
+.legend,
+.container {
+  float: left;
+}
+
+p {
+  width: 400px;
+}
+
+.dialog-form .label {
+  width: 60px;
+}
+
+.dialog-form .detail {
+  height: 100px;
+  width: 310px;
+}
+
+label,
+input {
+  display: block;
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+}

@@ -1,0 +1,330 @@
+---
+# Use %KEY-NAME% in this file and it will be replaced with the value of
+# $GLOBALS['KEY-NAME'] if it exists. If the key name does not exist, this script
+# won't work (Need to build in proper error handling @TODO RD 2017-05-16
+#
+# Example usage:
+# assets: Top-level key name (Required)
+#     asset-short-name: Short name
+#         basePath: %assets_static_relative%/full/path/to/deepest/common/file
+#         script: null filename or null or array of filenames or array of objects
+#         link: jquery-ui.min.css filename or null
+#         autoload: true (defaults to false)
+#         loadInFile: relative path to file, load always in specific file (defaults to false) for custom assets.
+
+# Example scripts config can be in the following format
+# script: null
+# script: filename.js
+# script: - filename1.js
+#         - filename2.js
+# script: - src: filename1.js
+#           type: module
+#         - src: filename2.js
+#           type: text/javascript
+assets:
+    jquery:
+        basePath: '%assets_static_relative%/jquery/dist/'
+        script: jquery.min.js
+        autoload: true
+        allowNoLoad: true
+    bootstrap:
+        basePath: '%assets_static_relative%/bootstrap/dist/'
+        script: js/bootstrap.bundle.min.js
+        # Bootstrap is included in main themes via SASS
+        #  So will only use below css link if no_main-theme token is provided.
+        #  TODO - incorporate this mechanism for rtl when rtl bootrap SASS mechanism is up and running
+        link: css/bootstrap.min.css
+        autoload: true
+        allowNoLoad: true
+        # RTL only for no_main-theme which is rare
+        rtl:
+            basePath: '%assets_static_relative%/bootstrap-rtl/dist/'
+            link: css/bootstrap-rtl.min.css
+    # keep utility and javaScript translations near top of load order.
+    i18next:
+        basePath: '%assets_static_relative%/i18next/dist/umd/'
+        script: i18next.min.js
+    i18next-xhr-backend:
+        basePath: '%assets_static_relative%/i18next-xhr-backend/dist/umd/'
+        script: i18nextXHRBackend.min.js
+    i18next-browser-languagedetector:
+        basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
+        script: i18nextBrowserLanguageDetector.min.js
+    i18formatting:
+        basePath: '%webroot%/library/js/xl/'
+        script: formatting.js
+    utility:
+        basePath: '%webroot%/library/js/'
+        script: utility.js
+        autoload: true
+        allowNoLoad: true
+    main-theme:
+        alreadyBuilt: true
+        link: '%css_header%'
+        autoload: true
+        allowNoLoad: true
+    # The compact theme asset follows the allowNoLoad setting of the main-theme asset
+    # ie. no-main-theme token will also skip the compact-theme
+    compact-theme:
+        alreadyBuilt: true
+        link: '%compact_header%'
+        autoload: true
+        allowNoLoad: true
+    tabs-theme:
+        basePath: '%webroot%/public/themes/'
+        link: '%theme_tabs_layout%'
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_%theme_tabs_layout%
+    pdf-style:
+        basePath: '%webroot%/public/themes/'
+        link: style_pdf.css
+    portal-theme:
+      alreadyBuilt: true
+      link: '%portal_css_header%'
+    knockout:
+        basePath: '%assets_static_relative%/knockout/build/output/'
+        script: knockout-latest.js
+    jquery-ui:
+        basePath: '%assets_static_relative%/jquery-ui/'
+        script: jquery-ui.min.js
+    jquery-ui-theme:
+        basePath: '%assets_static_relative%/jquery-ui/'
+        link: jquery-ui.theme.css
+    jquery-ui-base:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/base/'
+        link: jquery-ui.min.css
+    jquery-ui-darkness:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/ui-darkness/'
+        link: jquery-ui.min.css
+    jquery-ui-sunny:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/sunny/'
+        link: jquery-ui.min.css
+    jquery-ui-redmond:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/redmond/'
+        link: jquery-ui.min.css
+    jquery-ui-cupertino:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/cupertino/'
+        link: jquery-ui.min.css
+    jquery-ui-lightness:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/ui-lightness/'
+        link: jquery-ui.min.css
+    jquery-ui-excite-bike:
+        basePath: '%assets_static_relative%/jquery-ui-themes/themes/excite-bike/'
+        link: jquery-ui.min.css
+    datatables:
+        basePath: '%assets_static_relative%/datatables.net/js/'
+        script: jquery.dataTables.min.js
+    datatables-colreorder:
+        basePath: '%assets_static_relative%'
+        link: /datatables.net-colreorder-dt/css/colReorder.dataTables.min.css
+        script: /datatables.net-colreorder/js/dataTables.colReorder.min.js
+    datatables-dt:
+        basePath: '%assets_static_relative%/datatables.net-dt/css/'
+        link: jquery.dataTables.min.css
+    datatables-bs:
+        basePath: '%assets_static_relative%/datatables.net-bs4/'
+        script: js/dataTables.bootstrap4.min.js
+        link: css/dataTables.bootstrap4.min.css
+    datatables-jqui:
+        basePath: '%assets_static_relative%/datatables.net-jqui/js/'
+        script: dataTables.jqueryui.min.js
+    datatables-jqui-theme:
+        basePath: '%assets_static_relative%/datatables.net-jqui/css/'
+        link: dataTables.jqueryui.min.css
+    datatables-scroller:
+        basePath: '%assets_static_relative%/datatables.net-scroller/js/'
+        script: dataTables.scroller.min.js
+    datatables-scroller-jqui-theme:
+        basePath: '%assets_static_relative%/datatables.net-scroller-jqui/css/'
+        link: scroller.jqueryui.min.css
+    fontawesome:
+        basePath: '%assets_static_relative%/@fortawesome/fontawesome-free/css/'
+        link: all.min.css
+    datetime-picker:
+        basePath: '%assets_static_relative%/jquery-datetimepicker/build/'
+        script: jquery.datetimepicker.full.min.js
+        link: jquery.datetimepicker.min.css
+    datetime-picker-translated:
+        basePath: '%webroot%/library/js/xl/'
+        script: jquery-datetimepicker-2-5-4-translated.js
+    report-helper:
+        basePath: '%webroot%/library/js/'
+        script: report_helper.js
+    opener:
+        basePath: '%webroot%/interface/main/tabs/js/'
+        script: include_opener.js
+    topdialog:
+        basePath: '%webroot%/library/'
+        script: topdialog.js
+    common:
+        basePath: '%webroot%/library/js/'
+        script: common.js
+    textformat:
+        basePath: '%webroot%/library/'
+        script: textformat.js
+        autoload: true
+        allowNoLoad: true
+    dialog:
+        basePath: '%webroot%/library/'
+        script: dialog.js
+        autoload: true
+        allowNoLoad: true
+    select2:
+        basePath: '%assets_static_relative%/select2/dist/'
+        script: js/select2.full.min.js
+        link:
+            - css/select2.min.css
+            # BS4 theme moved to main theme assets to allow fluidity
+    jscolor:
+        basePath: '%assets_static_relative%/@eastdesire/jscolor/'
+        script: jscolor.min.js
+    esign:
+        basePath: '%webroot%/library/ESign/'
+        script: js/jquery.esign.js
+        link: css/esign.css
+    esign-theme-only:
+        basePath: '%webroot%/library/ESign/'
+        link: css/esign.css
+    dygraphs:
+        basePath: '%assets_static_relative%/modified/dygraphs-2-0-0/'
+        script: dygraph.js
+        link: dygraph.css
+    moment:
+        basePath: '%assets_static_relative%/moment/min/'
+        script: moment.min.js
+    purecss:
+        basePath: '%assets_static_relative%/purecss/build/'
+        link: pure-min.css
+    angular:
+        basePath: '%assets_static_relative%/angular/'
+        script: angular.min.js
+    angular-sanitize:
+        basePath: '%assets_static_relative%/angular-sanitize/'
+        script: angular-sanitize.min.js
+    angular-summernote:
+      basePath: '%assets_static_relative%/angular-summernote/dist/'
+      script: angular-summernote.min.js
+    backbone:
+        basePath: '%assets_static_relative%/backbone/'
+        script: backbone-min.js
+    checklist-model:
+        basePath: '%assets_static_relative%/checklist-model/'
+        script: checklist-model.js
+    summernote:
+      basePath: '%assets_static_relative%/summernote/dist/'
+      script: summernote-bs4.min.js
+      link: summernote-bs4.min.css
+    summernote-ext-nugget:
+      basePath: '%assets_static_relative%/summernote-nugget/plugins/nugget/'
+      script: summernote-ext-nugget.js
+    underscore:
+        basePath: '%assets_static_relative%/underscore/'
+        script: underscore-min.js
+    ckeditor:
+        basePath: '%assets_static_relative%/ckeditor5/dist/browser/'
+        script: ckeditor5.umd.js
+        link: ckeditor5.css
+    ckeditor-nation-notes:
+        basePath: '%webroot%/library/js/'
+        script: nncustom_config.js
+    ckeditor-limited:
+        basePath: '%webroot%/library/js/'
+        script: limitedcustom_config.js
+    search-highlight:
+        basePath: '%webroot%/library/js/'
+        script: SearchHighlight.js
+    track-anything:
+        basePath: '%webroot%/interface/forms/track_anything/'
+        link: style.css
+    konva:
+        basePath: '%assets_static_relative%/konva/'
+        script: konva.min.js
+    magic-wand:
+        basePath: '%assets_static_relative%/magic-wand-js/js/'
+        script: magic-wand-min.js
+    jszip:
+        basePath: '%assets_static_relative%/jszip/dist/'
+        script: jszip.min.js
+    jspdf:
+        basePath: '%assets_static_relative%/jspdf/dist/'
+        script: jspdf.umd.min.js
+    jstiff:
+      basePath: '%assets_static_relative%/tiff/'
+      script: tiff.min.js
+    dwv:
+        basePath: '%assets_static_relative%/dwv/'
+        script:
+            - decoders/pdfjs/jpx.js
+            - decoders/pdfjs/util.js
+            - decoders/pdfjs/arithmetic_decoder.js
+            - decoders/pdfjs/jpg.js
+            - decoders/rii-mango/lossless-min.js
+            - dist/dwv.min.js
+    sortablejs:
+      basePath: '%assets_static_relative%/sortablejs/'
+      script: Sortable.min.js
+    hotkeys:
+        basePath: '%assets_static_relative%/hotkeys-js/'
+        script:
+            - dist/hotkeys.min.js
+    reason-code-widget:
+        basePath: '%webroot%/library/js/'
+        script: reasonCodeWidget.js
+    erx:
+        basePath: '%webroot%/library/js/'
+        script: erx_javascript.js
+    checkpwd_validation:
+        basePath: '%webroot%/interface/usergroup/'
+        script: checkpwd_validation.js
+    u2f_api:
+        basePath: '%webroot%/library/js/'
+        script: u2f-api.js
+    chart:
+        basePath: '%assets_static_relative%/'
+        script:
+            - chart.js/dist/chart.umd.js
+            - chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js
+    select2-translated:
+        basePath: '%webroot%/library/js/xl/'
+        script: select2-translated.js
+    dompurify:
+        basePath: '%assets_static_relative%/'
+        script: dompurify/dist/purify.js
+    questionnaires:
+        basePath: '%webroot%/interface/forms/questionnaire_assessments/'
+        script:
+            - src: lforms/webcomponent/assets/lib/zone.min.js
+              type: module
+            - src: lforms/webcomponent/runtime.js
+              type: module
+            - src: lforms/webcomponent/polyfills.js
+              type: module
+            - src: lforms/webcomponent/main.js
+              type: module
+            - src: lforms/fhir/R4/lformsFHIR.min.js
+              type: module
+        link: /assets/styles/styles_openemr_lforms.css
+    questionnaires-lform:
+        basePath: '%webroot%/interface/forms/questionnaire_assessments/'
+        script:
+            -   src: lforms/webcomponent/assets/lib/zone.min.js
+                type: module
+            -   src: lforms/webcomponent/runtime.js
+                type: module
+            -   src: lforms/webcomponent/polyfills.js
+                type: module
+            -   src: lforms/webcomponent/main.js
+                type: module
+            -   src: lforms/fhir/R4/lformsFHIR.min.js
+                type: module
+        link: /assets/styles/styles_openemr_lforms.css
+# Note validation_script depends on the moment asset if using the date validation
+# We currently don't have a way of enforcing this dependency so it is up to the
+# developer to ensure the moment asset is loaded before the validation_script asset
+    validation_script:
+        basePath: '%webroot%/library/validation/'
+        script:
+            -   ../js/vendors/validate/validate_modified.js
+            -   ../js/vendors/validate/validate_extend.js
+            -   validation_script.js

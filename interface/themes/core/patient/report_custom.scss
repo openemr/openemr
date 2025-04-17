@@ -1,0 +1,72 @@
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================*/
+
+@if $compact-theme == false {
+  #report_custom {
+    width: 100%;
+
+    hr {
+      border: 2px dotted $black;
+    }
+
+    .billing,
+    .immunizations,
+    .notes,
+    .transactions,
+    .communications,
+    .documents,
+    .demographics,
+    .insurance,
+    .history {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    h1 {
+      font-size: 120%;
+      margin: 0 0 5px;
+      padding: 0;
+    }
+
+    .issue {
+      margin-left: 20px;
+    }
+
+    .issue_type {
+      font-weight: bold;
+      padding: 5px 0;
+    }
+
+    .issue_diag {
+      margin: 0 20px;
+    }
+
+    .encounter {
+      border-top: 2px dotted $black;
+      margin-top: 10px;
+      padding: 10px 5px;
+      width: 100%;
+
+      h1 {
+        font-size: 140%;
+        margin: 0;
+        padding: 0;
+      }
+
+      &_form {
+        border-top: 1px solid $gray;
+      }
+    }
+  }
+}
+
+@include if-rtl {
+  @if $compact-theme == false {
+    #report_custom .encounter_form {
+      margin: 10px;
+      padding: 10px;
+    }
+  }
+}

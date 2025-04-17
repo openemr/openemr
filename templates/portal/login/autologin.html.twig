@@ -1,0 +1,75 @@
+{#
+# Patient telehealth auto login
+#
+# @package openemr
+# @link      http://www.open-emr.org
+# @author    Stephen Nielson <snielson@discoverandchange.com>
+# @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+
+{# Note that this is the global core portal template we are extending #}
+{% extends "portal/base.html.twig" %}
+{% block head %}
+    {{ parent() }}
+
+{% endblock %}
+{% block pagetitle %}
+    {{ pagetitle | text }}
+{% endblock %}
+{% block header %}
+    <nav id="topNav" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="navbar-brand">
+            <img class="img-fluid" width="140" src="{{ images_static_relative | attr }}/logo-full-con.png"/>
+        </div>
+    </nav>
+{% endblock %}
+{% block content %}
+    <div class="card overflow-auto text-center">
+        <header class="card-header bg-primary text-light">
+            <h1>{{ 'Authenticating Login Session' | xlt }}</h1>
+        </header>
+        {% if pin_required == 1 %}
+        <h5 class="m-5">{{ "Enter PIN to authenticate your session"|xlt }}</h5>
+        {% else %}
+        <h5 class="m-5">{{ "Please wait while we authenticate your session"|xlt }}</h5>
+        {% endif %}
+        <form method="POST" id="autologinform" action="{{ action }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}" />
+            <input type="hidden" name="service_auth" value="{{ service_auth|attr }}" />
+            <input type="hidden" name="target" value="{{ target|attr_url }}" />
+            {% if pin_required %}
+            <label for="login_pin">{{ "PIN Required value"|xlt }}</label>
+            <input type="text" class="text-center m-1" maxlength="6" id="login_pin" name="login_pin" value="" />
+            <input class="btn btn-sm btn-primary" type="submit" name="autoLoginSubmit" value="{{ "Authorize and Go To Destination"|xla }}" />
+            {% else %}
+            <input class="btn btn-lg btn-primary" type="submit" name="autoLoginSubmit" value="{{ "Go To Destination"|xla }}" />
+            {% endif %}
+        </form>
+        {% if pin_required %}
+        <p>{{ "You are Required to confirm access by entering the companion PIN."|xlt }} {{ target|text }}</p>
+        {% else %}
+        <p>{{ "If you have not been redirected in a few seconds click the button above"|xlt }}</p>
+        <p>{{ "You will be sent to the following web page"|xlt }} {{ target|text }}</p>
+        {% endif %}
+    </div>
+    <script>
+        const pinRequired = {{ pin_required|js_escape }};
+        (function() {
+            window.addEventListener("DOMContentLoaded", function() {
+                let form = window.document.getElementById("autologinform");
+                if (!form) {
+                    console.error("Failed to find autologinform");
+                    return;
+                }
+                // if pin is not required, submit the form immediately
+                // otherwise, wait for the user to enter the pin and submit the form.
+                // The pin will be validated on the server side before redirect.
+                // he action must be set in the onetime create actions.
+                if (!pinRequired) {
+                    form.submit(); // submit the form as soon as we load to start the session}
+                }
+            });
+        })(window);
+    </script>
+{% endblock %}

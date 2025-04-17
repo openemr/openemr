@@ -1,0 +1,16 @@
+<html>
+    <body>
+        <div class='wrapper'>
+            <p>{{  "We received a credentials reset request. The link to reset your credentials is below."|xlt }}</p>
+            <p>{{ "Please ignore this email if you did not make this request"|xlt }}</p>
+            <p><strong>{{ "Credentials Reset. Below link is only valid for one hour."|xlt }}: </strong></p>
+            <a href="{{ encoded_link|attr }}">{{ encoded_link|text }}</a>
+            <p><strong>{{ "One Time verification PIN"|xlt }}: </strong>{{ pin|text }}</p>
+            <p><strong>{{ "Your Portal Login Web Address. Bookmark for future logins."|xlt }}: </strong></p>
+            <p><a href='{{ portal_onsite_two_address|attr }}'>{{ portal_onsite_two_address|text }}</a></p>
+
+            {% include 'emails/partials/patient/email-message-fhir-access.html.twig' with {fhir_address: fhir_address, fhir_requirements_address: fhir_requirements_address} %}
+            <p>{{ "Thank you for allowing us to serve you."|xlt }}</p>
+        </div>
+    </body>
+</html>

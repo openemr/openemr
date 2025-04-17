@@ -1,0 +1,27 @@
+{
+  "name": "claimrevolution/oe-module-claimrev-connect",
+  "description": "OpenEMR Custom Module Claim Revolution, LLC Connector",
+  "type": "openemr-module",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Brad Sharp",
+      "email": "brad.sharp@claimrev.com",
+      "role": "Developer"
+    }
+  ],
+  "keywords": ["openemr", "openemr-module","clearinghouse","claimrev"],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {"OpenEMR\\Modules\\ClaimRevConnector\\": "src/"}
+  },
+  "require": {
+    "openemr/oe-module-installer-plugin": "^0.1.0",
+    "php": ">=7.1",
+    "symfony/event-dispatcher": "^4.4.0",
+    "nyholm/psr7": "^1.4"
+  },
+  "conflict": {
+    "openemr/openemr": "<6.0.0"
+  }
+}

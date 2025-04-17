@@ -1,0 +1,62 @@
+<html>
+    <head>
+        {{ setupHeader(['common','datatables','datatables-colreorder','datatables-dt','datatables-bs']) }}
+        <title>{{ "Insurance Companies"|xlt }} {{ applicationTitle|text }}</title>
+    </head>
+<body>
+<a href="{{webroot|attr}}/controller.php?practice_settings&insurance_company&action=edit" onclick="top.restoreSession()" class="btn btn-secondary btn-add">{{'Add a Company'|xlt}}</a>
+<div class="table-responsive pt-3">
+    <table class="table table-striped" id="insurance">
+        <thead>
+        <tr>
+            <th>{{ 'Name'|xlt}}</th>
+            <th>{{ 'Address'|xlt}}</th>
+            <th>{{ 'City, State, ZIP'|xlt}}</th>
+            <th>{{ 'Phone'|xlt}}</th>
+            <th>{{ 'Fax'|xlt}}</th>
+            <th>{{ 'Payer ID'|xlt}}</th>
+            <th>{{ 'Default X12 Partner'|xlt}}</th>
+            <th>{{ 'Deactivated'|xlt}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if icompanies|length > 0 %}
+        {% for insurancecompany in icompanies %}
+        <tr>
+            <td>
+                <a href="{{webroot|attr}}/controller.php?practice_settings&insurance_company&action=edit&id={{insurancecompany.id|attr_url}}" onclick="top.restoreSession()">
+                    {{insurancecompany.name|text}}
+                </a>
+            </td>
+            <td>{{insurancecompany.line1|text}} {{insurancecompany.line2|text}}&nbsp;</td>
+            <td>{{insurancecompany.city|text}} {{insurancecompany.state|upper|text}} {{insurancecompany.zip|text}}&nbsp;</td>
+            <td>{{insurancecompany.phone|text}}&nbsp;</td>
+            <td>{{insurancecompany.fax|text}}&nbsp;</td>
+            <td>{{insurancecompany.cms_id|text}}&nbsp;</td>
+            <td>{{insurancecompany.x12_default_partner_name|text}}&nbsp;</td>
+            <td>{% if insurancecompany.inactive == 1%}{{ 'Yes'|xlt}}{% endif %}&nbsp;</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td>{{ 'No Insurance Companies Found'|xlt}}</td>
+            <!-- DataTables requires the number of cols in the table header match the table body,
+                https://datatables.net/manual/tech-notes/18 -->
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#insurance').DataTable();
+    });
+</script>
+</body></html>

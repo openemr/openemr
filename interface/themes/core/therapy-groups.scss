@@ -1,0 +1,216 @@
+/* ------- Therapy groups styling --------- */
+@if $compact-theme == false {
+  .group-row {
+    margin-top: 15px;
+  }
+
+  .container-group {
+    margin-top: auto;
+  }
+
+  .group-error-msg {
+    color: $orange;
+  }
+
+  .group-success-msg {
+    color: $success;
+  }
+
+  #component-border {
+    border: 1px solid $primary;
+    margin-bottom: 20px;
+    min-height: 150px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  table.dataTable#therapy_groups_list tbody td {
+    font-size: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .therapy_group #therapy_groups_list_container {
+    margin-top: initial;
+    width: initial;
+  }
+
+  .therapy_group #therapy_groups_list_container input[type="text"] {
+    border-color: $gray-400;
+  }
+
+  .therapy_group #therapy_groups_list_container input[type=number] {
+    appearance: textfield;
+  }
+
+  .therapy_group #therapy_groups_list_container input[type=number]::-webkit-inner-spin-button,
+  .therapy_group #therapy_groups_list_container input[type=number]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  .therapy_group .delete_btn button,
+  .therapy_group .delete_btn span {
+    @include font-size("0.9375rem");
+    background-color: lighten($danger, 20%);
+    padding: 2px 10px;
+  }
+
+  .therapy_group .delete_btn a {
+    color: $white;
+    text-decoration: none;
+  }
+
+  .therapy_group #therapy_groups_list_container .failed_message {
+    @include font-size("0.9375rem");
+  }
+
+  #updateParticipants {
+    position: relative;
+  }
+
+  #addParticipant {
+    position: absolute;
+    z-index: 100;
+    #{$right}: 0;
+  }
+
+  #add-participant-form {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 1s ease-out;
+  }
+
+  .showAddForm {
+    max-height: 250px !important;
+  }
+
+  .groups-error-msg {
+    @include font-size("1.3rem");
+    color: $orange;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .therapy_group .event_details {
+    @include font-size("1rem");
+  }
+
+  #add_participant {
+    margin-bottom: 20px;
+    margin-#{$left}: 10px;
+  }
+
+  #add_participant .patient_wrap,
+  #add_participant .comment_wrap,
+  #add_participant .button_wrap {
+    margin-top: 7px;
+  }
+
+  #add_participant .patient_wrap,
+  #add_participant .comment_wrap {
+    display: inline-block;
+  }
+
+  #add_participant .button_wrap input {
+    display: inline-block;
+    float: none;
+  }
+
+  #add_participant_element .input_label {
+    display: block;
+  }
+
+  #add_participant_element .error_wrap .error {
+    color: $danger;
+  }
+
+  #group_attendance_form_table tbody td {
+    text-align: center;
+  }
+
+  #file_type_whitelist .subject-black-list,
+  #file_type_whitelist .subject-white-list {
+    display: inline-block;
+    float: $left;
+    width: 420px;
+  }
+
+  #file_type_whitelist {
+    height: 400px;
+    padding: 10px;
+  }
+
+  #white-list,
+  #black-list {
+    margin: 10px;
+    padding: 10px;
+    width: 400px;
+  }
+
+  #file_type_whitelist select {
+    height: 250px;
+    padding: 0;
+  }
+
+  #file_type_whitelist option {
+    padding: 4px 10px;
+  }
+
+  #file_type_whitelist option:hover {
+    background: lighten($gray-200, 10%);
+  }
+
+  #file_type_whitelist .subject-info-arrows {
+    display: inline-block;
+    float: $left;
+    margin: 130px 30px 30px;
+    width: 58px;
+  }
+
+  #file_type_whitelist .subject-info-save {
+    float: $left;
+    margin: 170px 30px 30px;
+    width: 60px;
+  }
+
+  #file_type_whitelist input[type=button] {
+    float: none !important;
+    width: 63px;
+  }
+
+  #file_type_whitelist #add-manually {
+    display: inline-block;
+  }
+
+  #file_type_whitelist #add-manually-input {
+    width: 190px;
+  }
+
+  #file_type_whitelist .top-list {
+    margin: 20px 20px 2px;
+  }
+
+  #new-encounter-group-title {
+    float: $left;
+  }
+
+  #new-encounter-group-buttons {
+    float: $left;
+    margin-top: -3px;
+    margin-#{$left}: 8px;
+  }
+}
+
+@include if-rtl {
+  @if $compact-theme == false {
+    #white-list,
+    #black-list {
+      direction: ltr;
+    }
+
+    #therapy_groups_list_container #clear_filters {
+      float: right;
+    }
+  }
+}

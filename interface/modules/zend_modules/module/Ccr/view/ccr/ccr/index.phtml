@@ -1,0 +1,347 @@
+<?php
+
+/**
+* interface/modules/zend_modules/module/Ccr/view/ccr/ccr/index.phtml
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Vinish K <vinish@zhservices.com>
+* @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
+
+echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css');
+echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
+?>
+<style>
+#patient_select {
+width: 410px;
+height: 110px;
+display: none;
+position: fixed;
+left: 38%;
+top: 20%;
+background: #f9f9f9;
+-moz-box-shadow: 1px 4px 4px 1px #8B8B8B;
+-webkit-box-shadow: 1px 4px 4px 1px #8B8B8B;
+box-shadow: 1px 4px 4px 1px #8B8B8B;
+}
+</style>
+<script>
+$(function () {
+    height_value = parent.window.innerHeight - 100;
+    if (height_value < 600) {
+        height_value = 600
+    }
+    ;
+    if (parent.document.getElementById('ccr_iframe')) {
+        parent.iframeLoaded(height_value, 'ccr_iframe');
+    }
+
+    $('.import_ccr').click(function () {
+        clicked_id = this.id;
+        var import_id = (clicked_id).split('|');
+        $.ajax({
+            type: "POST",
+            url: "<?php echo $this->basePath();?>/ccr/import",
+            dataType: "html",
+            data: {
+                document_id: import_id[1],
+            },
+            async: false,
+            success: function (thedata) {
+                if (thedata == 'Imported') {
+                    document.getElementById(clicked_id).style.display = 'none';
+                    $('#form_ccr_import').submit();
+                }
+            },
+            error: function () {
+                alert('<?php echo $this->listenerObject->z_xlt('Could not import the document. Please contact the EMR vendor.');?>');
+            }
+        });
+    });
+
+    $('.add_new_patient').click(function () {
+        arr = (this.id).split('|');
+        document.getElementById('action').value = arr[0];
+        document.getElementById('am_id').value = arr[1];
+        document.getElementById('form_ccr_import').submit();
+    });
+
+    $('.add_to_existing_patient').click(function () {
+        arr = (this.id).split('|');
+        $('#amid').val(arr[1]);
+        $('#patient_select').show('scale', '', 500, '');
+    });
+
+    $('#go').click(function () {
+        $('#pid').val($('#string_id1').val());
+        $('#form_ccr_import').attr('action', '<?php echo $this->basePath();?>/ccr/revandapprove');
+        document.getElementById('form_ccr_import').submit();
+    });
+});
+
+$(function () {
+    var obj = $("#dragandrophandler");
+    obj.on('dragenter', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        $(this).css('background', 'url("<?php echo $this->basePath();?>/css/icons/ark.png") no-repeat center');
+    });
+    obj.on('dragover', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    });
+    obj.on('drop', function (e) {
+        $(this).css('background', 'url("")');
+        e.preventDefault();
+        var files = e.originalEvent.dataTransfer.files;
+
+        //We need to send dropped files to Server
+        handleFileUpload(files, obj);
+    });
+
+    $('#file_uploader').change(function (e) {
+        var files = e.target.files;
+        handleFileUpload(files, $('#file_uploader'));
+    });
+
+    $('#close_patient_select').click(function () {
+        $('#patient_select').hide('scale', '', 500, '');
+    });
+});
+
+function sendFileToServer(formData, status) {
+    var uploadURL = "<?php echo $this->basePath();?>/ccr/index"; //Upload URL
+    var extraData = {}; //Extra Data.
+    var jqXHR = $.ajax({
+        xhr: function () {
+            var xhrobj = $.ajaxSettings.xhr();
+            if (xhrobj.upload) {
+                xhrobj.upload.addEventListener('progress', function (event) {
+                    var percent = 0;
+                    var position = event.loaded || event.position;
+                    var total = event.total;
+                    if (event.lengthComputable) {
+                        percent = Math.ceil(position / total * 100);
+                    }
+                    //Set progress
+                    status.setProgress(percent);
+                }, false);
+            }
+            return xhrobj;
+        },
+        url: uploadURL,
+        type: "POST",
+        contentType: false,
+        processData: false,
+        cache: false,
+        data: formData,
+        success: function (data) {
+            status.setProgress(100);
+            uploadedSuccessfullCount++;
+            if (uploadedSuccessfullCount == rowCount) {
+                $('#status1').hide('clip', '', 500, '');
+                $('#form_ccr_import').submit();
+            }
+        }
+    });
+    status.setAbort(jqXHR);
+}
+
+var rowCount = 0;
+var uploadedSuccessfullCount = 0;
+
+function createStatusbar(obj) {
+    rowCount++;
+    var row = "odd";
+    if (rowCount % 2 == 0) row = "even";
+    this.statusbar = $("<div class='statusbar " + row + "'></div>");
+    this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
+    this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
+    this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
+    this.abort = $("<div class='abort'><?php echo $this->listenerObject->z_xlt('Abort');?></div>").appendTo(this.statusbar);
+    $('#status1').append(this.statusbar);
+
+    this.setFileNameSize = function (name, size) {
+        var sizeStr = "";
+        var sizeKB = size / 1024;
+        if (parseInt(sizeKB) > 1024) {
+            var sizeMB = sizeKB / 1024;
+            sizeStr = sizeMB.toFixed(2) + " MB";
+        } else {
+            sizeStr = sizeKB.toFixed(2) + " KB";
+        }
+
+        this.filename.html(name);
+        this.size.html(sizeStr);
+    }
+    this.setProgress = function (progress) {
+        var progressBarWidth = progress * this.progressBar.width() / 100;
+        this.progressBar.find('div').animate({width: progressBarWidth}, 10).html(progress + "%&nbsp;");
+        if (parseInt(progress) >= 100) {
+            this.abort.hide();
+        }
+    }
+    this.setAbort = function (jqxhr) {
+        var sb = this.statusbar;
+        this.abort.click(function () {
+            jqxhr.abort();
+            sb.hide();
+        });
+    }
+}
+
+function handleFileUpload(files, obj) {
+    for (var i = 0; i < files.length; i++) {
+        var fd = new FormData();
+        fd.append('file', files[i]);
+        fd.append('document_category', '<?php echo $this->escapeHtml($this->category_id);?>');
+        fd.append('file_location', '<?php echo $this->escapeHtml($this->file_location);?>');
+        fd.append('patient_id', '<?php echo $this->escapeHtml($this->patient_id);?>');
+
+        var status = new createStatusbar(obj); //Using this we can set progress.
+        status.setFileNameSize(files[i].name, files[i].size);
+        sendFileToServer(fd, status);
+    }
+    $('#status1').show('clip', '', 500, '');
+}
+</script>
+<body id="dragandrophandler" style="min-height: 600px">
+<form method="post" enctype="multipart/form-data" id="form_ccr_import">
+    <input type="hidden" name="action" id="action">
+    <input type="hidden" name="am_id" id="am_id">
+    <!--Patient search for merging data in case of no match-->
+    <div id="patient_select">
+        <div style="background: none repeat scroll 0 0 #F1F1F1; width: 100%; height: 25px; text-align: right; margin-bottom: 20px;border-bottom: 1px solid #CCCCCC;">
+            <img title="<?php echo $this->listenerObject->z_xlt('Close'); ?>" id="close_patient_select" style="height: 25px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/images/close.png">
+        </div>
+        <input type="hidden" name="amid" id="amid">
+        <input type="hidden" name="pid" id="pid">
+        <!-- Auto suggest -->
+        <div id="autosuggest1" style="float: left; clear: right; margin-left: 10px; font-size: 12px;">
+            <?php echo $this->listenerObject->z_xlt('Patient'); ?>
+            <input type="text" class="lookup" id="inputString1"
+                onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'patient', '1', 'single');"
+                value=""
+                autocomplete="off" />
+            <input type="hidden" id="string_value1" name="string_value" value="" />
+            <input type="text" id="string_id1" name="string_id" value="" class="string_id" />
+            <!-- Start Records display area -->
+            <div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 450px; left: 60px;">
+                <div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
+            </div>
+            <!-- End Records display area -->
+        </div>
+        <a style="text-decoration: none; float:right; margin-left: 10px;" href="#" id="go">
+            <img title='<?php echo $this->listenerObject->z_xlt("GO"); ?>' style="height: 30px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/go.png">
+        </a>
+        <!-- End Auto suggest -->
+    </div>
+    <!---->
+    <div class="body_inner_wrapper">
+        <div class="header_wrap">
+            <div id="uploader">
+                <input type="file" id="file_uploader" multiple>
+            </div>
+            <div id="refresh" onclick="javascript:document.getElementById('form_ccr_import').submit();">&nbsp;</div>
+        </div>
+        <div class="clear"></div>
+        <!--Display upload status-->
+        <div style="display: none" id="status1">
+        </div>
+        <!---->
+        <div class="clear"></div>
+        <div class="se_in_8">
+            <?php
+            if (count($this->records ?? []) > 0) {
+                ?>
+                <table class="responsive">
+                    <tr class="se_in_9">
+                        <th style="height: 20px;"><?php echo '#'; ?></th>
+                        <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
+                        <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
+                        <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                        <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
+                        <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
+                        <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    <?php
+                    $slno = 0;
+                    foreach ($this->records as $row) {
+                        ?>
+                        <tr>
+                            <td style="height: 20px;"><?php echo ++$slno; ?></td>
+                            <td><?php echo $this->commonplugin->date_format($row['date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></td>
+                            <td><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['lname']); ?></td>
+                            <td><?php echo $this->escapeHtml($row['pat_name']); ?></td>
+                            <td><?php echo $row['dob']; ?></td>
+                            <td>
+                                <?php
+                                if ($row['imported'] == 1) {
+                                    if ($row['pid'] > 0) {
+                                        $temp_ans = $this->listenerObject->z_xlt('Yes');
+                                        if ($row['is_unstructured_document'] ?? 0) {
+                                            $temp_ans = $this->listenerObject->z_xlt('Will Merge');
+                                        }
+                                        echo "<span style='color: red' title='" . $this->escapeHtml($row['matched_patient']) . " [" . $this->escapeHtml($row['pid']) . "]'>" . $temp_ans . "</span>";
+                                    } else {
+                                        echo $this->listenerObject->z_xlt('No');
+                                    }
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml($row['matched_patient']); ?>
+                            </td>
+                            <td nowrap>
+                                <?php
+                                if ($row['imported'] == 0) {
+                                    ?>
+                                    <img class="import_ccr" id="import_ccr|<?php echo $this->escapeHtml($row['document_id']); ?>" style="height:20px; cursor: pointer;" title="<?php echo $this->listenerObject->z_xlt('Import CCR'); ?>" src="<?php echo $this->basePath(); ?>/css/icons/import.png">&nbsp;&nbsp;&nbsp;
+                                    <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath(); ?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']); ?>">
+                                        <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View details'); ?>">
+                                    </a>
+                                    <?php
+                                } elseif ($row['imported'] == 1) {
+                                    if ($row['pid'] > 0) {
+                                        ?>
+                                        <a style="text-decoration: none;" href="<?php echo $this->basePath(); ?>/ccr/revandapprove?document_id=<?php echo $this->escapeHtml($row['document_id']); ?>&amid=<?php echo $this->escapeHtml($row['amid']); ?>&pid=<?php echo $this->escapeHtml($row['pid']); ?>">
+                                            <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/compare.png" title="<?php echo $this->listenerObject->z_xlt('Review and Approve'); ?>">
+                                        </a>&nbsp;&nbsp;
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <a style="text-decoration: none;" href="#AE">
+                                            <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/add_to_existing.png" title="<?php echo $this->listenerObject->z_xlt('Merge to any patient'); ?>" class="add_to_existing_patient" id="add_to_existing_patient|<?php echo $this->escapeHtml($row['amid']); ?>">
+                                        </a>&nbsp;&nbsp;
+                                        <?php
+                                    }
+                                    ?>
+                                    <a style="text-decoration: none;" target="_blank" href="<?php echo $this->basePath(); ?>/documents/documents/retrieve/<?php echo $this->escapeHtml($row['document_id']); ?>">
+                                        <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View details'); ?>">
+                                    </a>&nbsp;&nbsp;
+                                    <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/add_patient.png" title="<?php echo $this->listenerObject->z_xlt('Add as new patient'); ?>" class="add_new_patient" id="add_new_patient|<?php echo $this->escapeHtml($row['amid']); ?>">
+                                    <?php
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                </table>
+                <?php
+            } else {
+                ?>
+                <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
+                    <?php echo $this->listenerObject->z_xlt('Nothing to display'); ?>
+                </div>
+                <?php
+            }
+            ?>
+        </div>
+    </div>
+</form>
+</body>

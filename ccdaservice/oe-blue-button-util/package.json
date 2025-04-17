@@ -1,0 +1,22 @@
+{
+    "name": "blue-button-util",
+    "version": "1.5.0",
+    "description": "Common methods for Amida-Tech repos",
+    "main": "index.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "scripts": {},
+    "author": "Dmitry Kachaev <dmitry@amida-tech.com>",
+    "contributors": [{
+        "name": "Matthew McCall",
+        "email": "matt@amida-tech.com"
+    }, {
+        "name": "Afsin Ustundag",
+        "email": "afsin.ustundag@us.pwc.com"
+    }],
+    "license": "Apache-2.0",
+    "engines": {
+        "node": ">= 0.10.0"
+    }
+}

@@ -1,0 +1,1218 @@
+Checking constants:
+
+Following constant not same:
+	original- val:A place to document and display the patient's past medical history, family history, personal history
+	spreadsheet- ID:34 val:A place to document and display the patient\'s past medical history, family history, personal history
+Following constant not same:
+	original- val:A provider or warehouse can be selected in the dropwdown box. For this option to be displayed 'Support provider in line item in fee sheet' box must be checked in Administration > Globals> Billing page
+	spreadsheet- ID:39 val:A provider or warehouse can be selected in the dropwdown box. For this option to be displayed \'Support provider in line item in fee sheet\' box must be checked in Administration > Globals> Billing page
+Following constant not same:
+	original- val:A third alternative is to scan the results and save it as a document - TIFF, JPEG or PDF in the patient's chart under documents
+	spreadsheet- ID:54 val:A third alternative is to scan the results and save it as a document - TIFF, JPEG or PDF in the patient\'s chart under documents
+Following constant not same:
+	original- val:Active Alert - that presents as a pop-up notification when a patient's chart is entered
+	spreadsheet- ID:168 val:Active Alert - that presents as a pop-up notification when a patient\'s chart is entered
+Following constant not same:
+	original- val:Add desired privileges by moving items (ACOs) from the 'Inactive' column to the 'Active' column.
+	spreadsheet- ID:233 val:Add desired privileges by moving items (ACOs) from the \'Inactive\' column to the \'Active\' column.
+Following constant not same:
+	original- val:After Uploading click the button "Import"
+	spreadsheet- ID:433 val:After Uploading click the button \"Import\"
+Following constant not same:
+	original- val:After Uploading, click "Import"
+	spreadsheet- ID:434 val:After Uploading, click \"Import\"
+Following constant not same:
+	original- val:After you filled in the spreadsheet with the relevant ICD categories and ICD codes go to Administration > Lists. Select 'Service Category' from the dropdown box
+	spreadsheet- ID:435 val:After you filled in the spreadsheet with the relevant ICD categories and ICD codes go to Administration > Lists. Select \'Service Category\' from the dropdown box
+Following constant not same:
+	original- val:After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select 'Code Types' from the dropdown box. Select 'ICD10 Diagnosis' from the last dropdown box under ICD 10
+	spreadsheet- ID:436 val:After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select \'Code Types\' from the dropdown box. Select \'ICD10 Diagnosis\' from the last dropdown box under ICD 10
+Following constant not same:
+	original- val:Age format for "age from" is not valid
+	spreadsheet- ID:446 val:Age format for \"age from\" is not valid
+Following constant not same:
+	original- val:Age format for "age up to" is not valid
+	spreadsheet- ID:447 val:Age format for \"age up to\" is not valid
+Following constant not same:
+	original- val:Allow Check In before the appointment's time.
+	spreadsheet- ID:534 val:Allow Check In before the appointment\'s time.
+Following constant not same:
+	original- val:Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the initial 'Select Method' section. This brings up the 'ERA Upload' Section.
+	spreadsheet- ID:627 val:Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the \'ERA upload\' option in the initial \'Select Method\' section. This brings up the \'ERA Upload\' Section.
+Following constant not same:
+	original- val:An Issue concerns matters relating to the patient's health
+	spreadsheet- ID:687 val:An Issue concerns matters relating to the patient\'s health
+Following constant not same:
+	original- val:Are you sure you'd like to quit without saving your answers?
+	spreadsheet- ID:876 val:Are you sure you\'d like to quit without saving your answers?
+Following constant not same:
+	original- val:Aud URI (use this in the "aud" claim of your JWT)
+	spreadsheet- ID:949 val:Aud URI (use this in the \"aud\" claim of your JWT)
+Following constant not same:
+	original- val:Automatically create a new encounter when appointment status is set to "@" (arrived).
+	spreadsheet- ID:1030 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+Following constant not same:
+	original- val:Based on the individual practice's need the tests can be organized into various groups
+	spreadsheet- ID:1121 val:Based on the individual practice\'s need the tests can be organized into various groups
+Following constant not same:
+	original- val:Being so restless that it's hard to sit still
+	spreadsheet- ID:1162 val:Being so restless that it\'s hard to sit still
+Following constant not same:
+	original- val:button to clear Location selections, "Send" button to send templates to patient(s) or profiles
+	spreadsheet- ID:1373 val:button to clear Location selections, \"Send\" button to send templates to patient(s) or profiles
+Following constant not same:
+	original- val:By default all codes are selected, uncheck the codes you do not want and click 'Add'. These codes will then be added to the current encounter
+	spreadsheet- ID:1377 val:By default all codes are selected, uncheck the codes you do not want and click \'Add\'. These codes will then be added to the current encounter
+Following constant not same:
+	original- val:By selecting a payment method the rates calculated for that payment method will be automatically displayed in 'Selected Fee Sheet Codes and Charges for Current Encounter' section
+	spreadsheet- ID:1382 val:By selecting a payment method the rates calculated for that payment method will be automatically displayed in \'Selected Fee Sheet Codes and Charges for Current Encounter\' section
+Following constant not same:
+	original- val:Can't find file!
+	spreadsheet- ID:1417 val:Can\'t find file!
+Following constant not same:
+	original- val:Can't upload
+	spreadsheet- ID:1418 val:Can\'t upload
+Following constant not same:
+	original- val:Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+	spreadsheet- ID:1782 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+Following constant not same:
+	original- val:Click 'Save'
+	spreadsheet- ID:1783 val:Click \'Save\'
+Following constant not same:
+	original- val:Click 'Save'. Now you will be able to use the Search feature to search all ICD 10 codes
+	spreadsheet- ID:1784 val:Click \'Save\'. Now you will be able to use the Search feature to search all ICD 10 codes
+Following constant not same:
+	original- val:Click on the 'Add Group' button to create this new group (ARO).
+	spreadsheet- ID:1852 val:Click on the \'Add Group\' button to create this new group (ARO).
+Following constant not same:
+	original- val:Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page.
+	spreadsheet- ID:1864 val:Click on the icon next to the \'Access Control List Administration\' title to go to the phpGACL page.
+Following constant not same:
+	original- val:Click the 'Add New Group' button to display the 'New Group Information' section.
+	spreadsheet- ID:1881 val:Click the \'Add New Group\' button to display the \'New Group Information\' section.
+Following constant not same:
+	original- val:Click the 'Delete Group' button to completely remove this group.
+	spreadsheet- ID:1882 val:Click the \'Delete Group\' button to completely remove this group.
+Following constant not same:
+	original- val:Click the 'Remove Group' button to display the 'Remove Group Form'.
+	spreadsheet- ID:1883 val:Click the \'Remove Group\' button to display the \'Remove Group Form\'.
+Following constant not same:
+	original- val:Click the 'Yes' radio button.
+	spreadsheet- ID:1884 val:Click the \'Yes\' radio button.
+Following constant not same:
+	original- val:Clicking on 'Review' will list all the codes entered for previous encounters
+	spreadsheet- ID:1968 val:Clicking on \'Review\' will list all the codes entered for previous encounters
+Following constant not same:
+	original- val:Clicking on the icon next to the caption will display everyone's messages and the caption will change to All Messages
+	spreadsheet- ID:1978 val:Clicking on the icon next to the caption will display everyone\'s messages and the caption will change to All Messages
+Following constant not same:
+	original- val:Clicking on the icon next to their name will bring up the 'Edit' window.
+	spreadsheet- ID:1979 val:Clicking on the icon next to their name will bring up the \'Edit\' window.
+Following constant not same:
+	original- val:Clicking on the patient's name will reveal the message
+	spreadsheet- ID:1981 val:Clicking on the patient\'s name will reveal the message
+Following constant not same:
+	original- val:Clicking the button will reveal a popup that will list the E/M codes, check the appropriate code and click 'OK'
+	spreadsheet- ID:1987 val:Clicking the button will reveal a popup that will list the E/M codes, check the appropriate code and click \'OK\'
+Following constant not same:
+	original- val:Couldn't create backup dir:
+	spreadsheet- ID:2376 val:Couldn\'t create backup dir:
+Following constant not same:
+	original- val:Couldn't remove dir:
+	spreadsheet- ID:2377 val:Couldn\'t remove dir:
+Following constant not same:
+	original- val:Couldn't remove old backup file:
+	spreadsheet- ID:2378 val:Couldn\'t remove old backup file:
+Following constant not same:
+	original- val:Couldn't remove old export file: 
+	spreadsheet- ID:2379 val:Couldn\'t remove old export file: 
+Following constant not same:
+	original- val:Creates a report that contains various sections of the patient's medical record
+	spreadsheet- ID:2463 val:Creates a report that contains various sections of the patient\'s medical record
+Following constant not same:
+	original- val:Date format for "appointment end" is not valid
+	spreadsheet- ID:2645 val:Date format for \"appointment end\" is not valid
+Following constant not same:
+	original- val:Date format for "appointment start" is not valid
+	spreadsheet- ID:2646 val:Date format for \"appointment start\" is not valid
+Following constant not same:
+	original- val:Date format for "Next Appointment" is not valid
+	spreadsheet- ID:2647 val:Date format for \"Next Appointment\" is not valid
+Following constant not same:
+	original- val:Date format for "not seen since" is not valid
+	spreadsheet- ID:2648 val:Date format for \"not seen since\" is not valid
+Following constant not same:
+	original- val:Date format for "seen before" is not valid
+	spreadsheet- ID:2649 val:Date format for \"seen before\" is not valid
+Following constant not same:
+	original- val:Date format for "seen since" is not valid
+	spreadsheet- ID:2650 val:Date format for \"seen since\" is not valid
+Following constant not same:
+	original- val:Date of Service is today's date by default. If needed it can be changed to any valid date
+	spreadsheet- ID:2679 val:Date of Service is today\'s date by default. If needed it can be changed to any valid date
+Following constant not same:
+	original- val:Decide on the code categories and the order you want them to appear, these will be displayed on the buttons in the 'Select Codes' section
+	spreadsheet- ID:2759 val:Decide on the code categories and the order you want them to appear, these will be displayed on the buttons in the \'Select Codes\' section
+Following constant not same:
+	original- val:Detail's group was saved successfully
+	spreadsheet- ID:2920 val:Detail\'s group was saved successfully
+Following constant not same:
+	original- val:Developer error missing form 'patientForm'
+	spreadsheet- ID:2927 val:Developer error missing form \'patientForm\'
+Following constant not same:
+	original- val:Developer error missing hidden form element 'selectedPatient'
+	spreadsheet- ID:2928 val:Developer error missing hidden form element \'selectedPatient\'
+Following constant not same:
+	original- val:Display the patient's current glasses
+	spreadsheet- ID:3088 val:Display the patient\'s current glasses
+Following constant not same:
+	original- val:Documents - a repository of the patient's scanned/faxed paper documents. It also the place to download patient specific templates
+	spreadsheet- ID:3202 val:Documents - a repository of the patient\'s scanned/faxed paper documents. It also the place to download patient specific templates
+Following constant not same:
+	original- val:Don't Save
+	spreadsheet- ID:3218 val:Don\'t Save
+Following constant not same:
+	original- val:Download report as a pdf file into the browser's download folder
+	spreadsheet- ID:3262 val:Download report as a pdf file into the browser\'s download folder
+Following constant not same:
+	original- val:Empty value in "Email Hours"
+	spreadsheet- ID:3520 val:Empty value in \"Email Hours\"
+Following constant not same:
+	original- val:Empty value in "Email Sender"
+	spreadsheet- ID:3521 val:Empty value in \"Email Sender\"
+Following constant not same:
+	original- val:Empty value in "Email Subject"
+	spreadsheet- ID:3522 val:Empty value in \"Email Subject\"
+Following constant not same:
+	original- val:Empty value in "Email Text"
+	spreadsheet- ID:3523 val:Empty value in \"Email Text\"
+Following constant not same:
+	original- val:Empty value in "Name of Provider"
+	spreadsheet- ID:3524 val:Empty value in \"Name of Provider\"
+Following constant not same:
+	original- val:Empty value in "Password"
+	spreadsheet- ID:3525 val:Empty value in \"Password\"
+Following constant not same:
+	original- val:Empty value in "SMS Hours"
+	spreadsheet- ID:3526 val:Empty value in \"SMS Hours\"
+Following constant not same:
+	original- val:Empty value in "SMS Text"
+	spreadsheet- ID:3527 val:Empty value in \"SMS Text\"
+Following constant not same:
+	original- val:Empty value in "Username"
+	spreadsheet- ID:3528 val:Empty value in \"Username\"
+Following constant not same:
+	original- val:Enter the category data in the appropriate fields and click 'Save'. These will be used to group the ICD codes and will be displayed on the buttons in the 'Select Codes' section
+	spreadsheet- ID:3814 val:Enter the category data in the appropriate fields and click \'Save\'. These will be used to group the ICD codes and will be displayed on the buttons in the \'Select Codes\' section
+Following constant not same:
+	original- val:Error in "Gender" selection
+	spreadsheet- ID:3883 val:Error in \"Gender\" selection
+Following constant not same:
+	original- val:Error in "HIPAA" selection
+	spreadsheet- ID:3884 val:Error in \"HIPAA\" selection
+Following constant not same:
+	original- val:Error in "Process" selection
+	spreadsheet- ID:3885 val:Error in \"Process\" selection
+Following constant not same:
+	original- val:Error in "SMS Gateway" selection
+	spreadsheet- ID:3886 val:Error in \"SMS Gateway\" selection
+Following constant not same:
+	original- val:Error in "Sort By" selection
+	spreadsheet- ID:3887 val:Error in \"Sort By\" selection
+Following constant not same:
+	original- val:Error: passwords don't match. Please check your typing.
+	spreadsheet- ID:3942 val:Error: passwords don\'t match. Please check your typing.
+Following constant not same:
+	original- val:Facility ID's
+	spreadsheet- ID:4161 val:Facility ID\'s
+Following constant not same:
+	original- val:FAILURE: Couldn't create the zip
+	spreadsheet- ID:4196 val:FAILURE: Couldn\'t create the zip
+Following constant not same:
+	original- val:Family history - Documents the patient's family history, an ICD10 diagnosis can be linked to the medical conditions
+	spreadsheet- ID:4202 val:Family history - Documents the patient\'s family history, an ICD10 diagnosis can be linked to the medical conditions
+Following constant not same:
+	original- val:Field 'name' cannot be NULL
+	spreadsheet- ID:4266 val:Field \'name\' cannot be NULL
+Following constant not same:
+	original- val:Filename must end with ".pdf"
+	spreadsheet- ID:4296 val:Filename must end with \".pdf\"
+Following constant not same:
+	original- val:Fill in any missing details or edit existing information. This will be saved in the patient's demographics page in openEMR
+	spreadsheet- ID:4306 val:Fill in any missing details or edit existing information. This will be saved in the patient\'s demographics page in openEMR
+Following constant not same:
+	original- val:For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. 
+	spreadsheet- ID:4442 val:For detailed instructions close the \'Enter Details\' pop-up and click on the Help icon on the main form. 
+Following constant not same:
+	original- val:For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. 
+	spreadsheet- ID:4443 val:For detailed instructions close the \'Enter Provider Details\' popup and click on the Help icon on the main form. 
+Following constant not same:
+	original- val:For each issue type there is a list of commonly selected titles which are customizable for your clinic's specific needs
+	spreadsheet- ID:4444 val:For each issue type there is a list of commonly selected titles which are customizable for your clinic\'s specific needs
+Following constant not same:
+	original- val:For example: Privacy_Agreement.txt becomes "Privacy Agreement" button in Patient Documents.
+	spreadsheet- ID:4450 val:For example: Privacy_Agreement.txt becomes \"Privacy Agreement\" button in Patient Documents.
+Following constant not same:
+	original- val:Go to Administration > Lists. Select 'Fee Sheet' from the dropdown box
+	spreadsheet- ID:4738 val:Go to Administration > Lists. Select \'Fee Sheet\' from the dropdown box
+Following constant not same:
+	original- val:Go to Adminstration > Lists and select 'Code Types' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select 'No' in the last dropdown box under ICD 10
+	spreadsheet- ID:4740 val:Go to Adminstration > Lists and select \'Code Types\' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select \'No\' in the last dropdown box under ICD 10
+Following constant not same:
+	original- val:Group's name
+	spreadsheet- ID:4801 val:Group\'s name
+Following constant not same:
+	original- val:Guardian's Name
+	spreadsheet- ID:4817 val:Guardian\'s Name
+Following constant not same:
+	original- val:History - patient's past medical history, family history, personal history
+	spreadsheet- ID:4961 val:History - patient\'s past medical history, family history, personal history
+Following constant not same:
+	original- val:If a field's Data Col = 0 the data field will immediately follow its label field on the same line
+	spreadsheet- ID:5096 val:If a field\'s Data Col = 0 the data field will immediately follow its label field on the same line
+Following constant not same:
+	original- val:If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+	spreadsheet- ID:5097 val:If a field\'s Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+Following constant not same:
+	original- val:If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
+	spreadsheet- ID:5098 val:If a field\'s Label Col = 1 the label field will go to a new line unless the previous field\'s total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
+Following constant not same:
+	original- val:If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+	spreadsheet- ID:5129 val:If the csv file has been uploaded, then click on the \"Import holiday events\" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+Following constant not same:
+	original- val:If the message is forwarded it will show up in the active messages list of the user to whom the message was forwarded and disappear from the current user's active messages list
+	spreadsheet- ID:5135 val:If the message is forwarded it will show up in the active messages list of the user to whom the message was forwarded and disappear from the current user\'s active messages list
+Following constant not same:
+	original- val:If you choose to do a manual entry click the 'Invoice Search' radio button. It displays two sections 'Post Item' and 'Invoice Search'
+	spreadsheet- ID:5165 val:If you choose to do a manual entry click the \'Invoice Search\' radio button. It displays two sections \'Post Item\' and \'Invoice Search\'
+Following constant not same:
+	original- val:If you choose to integrate lab results with the patient's record then some preliminary setup has to be performed
+	spreadsheet- ID:5166 val:If you choose to integrate lab results with the patient\'s record then some preliminary setup has to be performed
+Following constant not same:
+	original- val:If you click on any user in the 'User Memberships' section you will now see these newly created group (ARO) in the 'Inactive' column. These can now be assigned in the usual fashion as needed.
+	spreadsheet- ID:5167 val:If you click on any user in the \'User Memberships\' section you will now see these newly created group (ARO) in the \'Inactive\' column. These can now be assigned in the usual fashion as needed.
+Following constant not same:
+	original- val:If you click on the edit icon next to this newly created group (ARO) you will note that the 'Active' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the 'Active' column.
+	spreadsheet- ID:5168 val:If you click on the edit icon next to this newly created group (ARO) you will note that the \'Active\' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the \'Active\' column.
+Following constant not same:
+	original- val:If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
+	spreadsheet- ID:5180 val:If you have already filled the calendar_external table, then click on \"Synchronize\" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
+Following constant not same:
+	original- val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the 'Process ERA File' button at the bottom of the page. This will produce a new window with a detailed report.
+	spreadsheet- ID:5183 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the \'Process ERA File\' button at the bottom of the page. This will produce a new window with a detailed report.
+Following constant not same:
+	original- val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+	spreadsheet- ID:5294 val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel\'s constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+Following constant not same:
+	original- val:In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+	spreadsheet- ID:5304 val:In the \'Post Item\' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+Following constant not same:
+	original- val:Integrating lab results into a patient's chart in openEMR can be done manually i.e. both ordering tests and uploading the received results or electronically
+	spreadsheet- ID:5506 val:Integrating lab results into a patient\'s chart in openEMR can be done manually i.e. both ordering tests and uploading the received results or electronically
+Following constant not same:
+	original- val:Internal error: encounter '
+	spreadsheet- ID:5526 val:Internal error: encounter \'
+Following constant not same:
+	original- val:Invalid source designation "
+	spreadsheet- ID:5574 val:Invalid source designation \"
+Following constant not same:
+	original- val:Issues - summarizes the patient's medical problems, allergies, medications, surgeries and dental issues
+	spreadsheet- ID:5681 val:Issues - summarizes the patient\'s medical problems, allergies, medications, surgeries and dental issues
+Following constant not same:
+	original- val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in 'Select Codes'
+	spreadsheet- ID:5787 val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in \'Select Codes\'
+Following constant not same:
+	original- val:k, here's the rest 
+	spreadsheet- ID:5791 val:k, here\'s the rest 
+Following constant not same:
+	original- val:Lets you delete a line or row. Hit 'Refresh' and the line will have a strikethrough across it
+	spreadsheet- ID:6016 val:Lets you delete a line or row. Hit \'Refresh\' and the line will have a strikethrough across it
+Following constant not same:
+	original- val:Lifestyle - lists the patient's use of Tobacco, Coffee, Alcohol, Recreational Drugs etc
+	spreadsheet- ID:6044 val:Lifestyle - lists the patient\'s use of Tobacco, Coffee, Alcohol, Recreational Drugs etc
+Following constant not same:
+	original- val:Make sure "
+	spreadsheet- ID:6241 val:Make sure \"
+Following constant not same:
+	original- val:Medical Problems - will show the patient's medical issues, Issues > Medical Problems
+	spreadsheet- ID:6374 val:Medical Problems - will show the patient\'s medical issues, Issues > Medical Problems
+Following constant not same:
+	original- val:Mother's Name
+	spreadsheet- ID:6623 val:Mother\'s Name
+Following constant not same:
+	original- val:Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+	spreadsheet- ID:6632 val:Move the individual items from \'Active\' to \'Inactive\' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+Following constant not same:
+	original- val:Note there is no 'Save' button.
+	spreadsheet- ID:7245 val:Note there is no \'Save\' button.
+Following constant not same:
+	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:7260 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+Following constant not same:
+	original- val:NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number
+	spreadsheet- ID:7312 val:NPI - Enter the Provider\'s unique 10-digit National Provider Identifier or NPI identification number
+Following constant not same:
+	original- val:Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user's authenticator app
+	spreadsheet- ID:7460 val:Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user\'s authenticator app
+Following constant not same:
+	original- val:Participant's name
+	spreadsheet- ID:7787 val:Participant\'s name
+Following constant not same:
+	original- val:Passwords Don't match!
+	spreadsheet- ID:7824 val:Passwords Don\'t match!
+Following constant not same:
+	original- val:Patient's number
+	spreadsheet- ID:8055 val:Patient\'s number
+Following constant not same:
+	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:8068 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+Following constant not same:
+	original- val:Pay attention to the 'Done with' checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:8069 val:Pay attention to the \'Done with\' checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+Following constant not same:
+	original- val:Please enter at least the item's name
+	spreadsheet- ID:8347 val:Please enter at least the item\'s name
+Following constant not same:
+	original- val:Please enter at least the track's name
+	spreadsheet- ID:8348 val:Please enter at least the track\'s name
+Following constant not same:
+	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:8406 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+Following constant not same:
+	original- val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user's Message Center
+	spreadsheet- ID:9107 val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user\'s Message Center
+Following constant not same:
+	original- val:Report - Generates and downloads the patient's Continuity of Care Record (CCR), Continuity of Care Document (CCD) and Patient Report
+	spreadsheet- ID:9368 val:Report - Generates and downloads the patient\'s Continuity of Care Record (CCR), Continuity of Care Document (CCD) and Patient Report
+Following constant not same:
+	original- val:Reports consisting of various portions of the patient's medical record can be created here
+	spreadsheet- ID:9391 val:Reports consisting of various portions of the patient\'s medical record can be created here
+Following constant not same:
+	original- val:Select 'Price Levels' and enter Credit Card and Cash
+	spreadsheet- ID:9845 val:Select \'Price Levels\' and enter Credit Card and Cash
+Following constant not same:
+	original- val:Select the appropriate radio button. Enter the search term in the search box and click 'Search'
+	spreadsheet- ID:9951 val:Select the appropriate radio button. Enter the search term in the search box and click \'Search\'
+Following constant not same:
+	original- val:Set which radio button is selected by default in 'Search for Additional Codes' section
+	spreadsheet- ID:10120 val:Set which radio button is selected by default in \'Search for Additional Codes\' section
+Following constant not same:
+	original- val:SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR.
+	spreadsheet- ID:10329 val:SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the \'launch\' scope will allow EMR users to launch an app from within the EHR.
+Following constant not same:
+	original- val:Start by clicking the Browse button and selecting the file to upload, and then clicking 'Upload' to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+	spreadsheet- ID:10548 val:Start by clicking the Browse button and selecting the file to upload, and then clicking \'Upload\' to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+Following constant not same:
+	original- val:The 'Clear' button will remove all annotations.
+	spreadsheet- ID:10954 val:The \'Clear\' button will remove all annotations.
+Following constant not same:
+	original- val:The 'Edit' window is divided into two columns, 'Active' and 'Inactive'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+	spreadsheet- ID:10955 val:The \'Edit\' window is divided into two columns, \'Active\' and \'Inactive\'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+Following constant not same:
+	original- val:The 'Select Codes' section will now have all the CPT and ICD codes that you entered grouped under the categories that you had decided upon
+	spreadsheet- ID:10956 val:The \'Select Codes\' section will now have all the CPT and ICD codes that you entered grouped under the categories that you had decided upon
+Following constant not same:
+	original- val:The advantage of integrating the results with the patient's chart as structured data is the ability to manipulate it to see trends in one convenient location, to plot graphs with the data and use it in data analysis
+	spreadsheet- ID:10966 val:The advantage of integrating the results with the patient\'s chart as structured data is the ability to manipulate it to see trends in one convenient location, to plot graphs with the data and use it in data analysis
+Following constant not same:
+	original- val:The advantage of scanning the results into the chart is simplicity - no setup is required other than defining a directory/folder in the patient's chart under Documents where the result will be stored. Being unstructured data it does not have the above advantages and will not fulfill Meaningful Use criteria for Computerized Provider Order Entry (CPOE)
+	spreadsheet- ID:10967 val:The advantage of scanning the results into the chart is simplicity - no setup is required other than defining a directory/folder in the patient\'s chart under Documents where the result will be stored. Being unstructured data it does not have the above advantages and will not fulfill Meaningful Use criteria for Computerized Provider Order Entry (CPOE)
+Following constant not same:
+	original- val:The custmomized Fee Sheet can be used. If and when you come across a code that is not there in the custom 'Select Codes' section you can always use the 'Search for Additional Codes' section
+	spreadsheet- ID:11007 val:The custmomized Fee Sheet can be used. If and when you come across a code that is not there in the custom \'Select Codes\' section you can always use the \'Search for Additional Codes\' section
+Following constant not same:
+	original- val:The dashboard is the central location for convenient access the patient's medical record
+	spreadsheet- ID:11010 val:The dashboard is the central location for convenient access the patient\'s medical record
+Following constant not same:
+	original- val:The default has two buttons that is set for 'New Patient' and 'Established' patient
+	spreadsheet- ID:11019 val:The default has two buttons that is set for \'New Patient\' and \'Established\' patient
+Following constant not same:
+	original- val:The default is 'Standard' usually used to reflect rates charged for insurance billing. You can have a different amount charged for credit card payment and for cash payment
+	spreadsheet- ID:11024 val:The default is \'Standard\' usually used to reflect rates charged for insurance billing. You can have a different amount charged for credit card payment and for cash payment
+Following constant not same:
+	original- val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics
+	spreadsheet- ID:11043 val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won\'t display system forms like Demographics
+Following constant not same:
+	original- val:The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+	spreadsheet- ID:11071 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+Following constant not same:
+	original- val:The first step is to plan what your Fee Sheet 'Select Codes' section should display
+	spreadsheet- ID:11082 val:The first step is to plan what your Fee Sheet \'Select Codes\' section should display
+Following constant not same:
+	original- val:The group (ARO) that you created will now appear in alphabetical order in the 'Groups and Access Controls' section.
+	spreadsheet- ID:11107 val:The group (ARO) that you created will now appear in alphabetical order in the \'Groups and Access Controls\' section.
+Following constant not same:
+	original- val:The header section will reveal patient specific information across most pages related to the patient's medical record
+	spreadsheet- ID:11109 val:The header section will reveal patient specific information across most pages related to the patient\'s medical record
+Following constant not same:
+	original- val:The items listed in the 'Active' column delineate the privileges of this group (ARO) and constitutes this group's Access Control List (ACL).
+	spreadsheet- ID:11137 val:The items listed in the \'Active\' column delineate the privileges of this group (ARO) and constitutes this group\'s Access Control List (ACL).
+Following constant not same:
+	original- val:The messaging center will open with the Messages tab activated and will display the logged in user's messages as indicated by the caption My Messages
+	spreadsheet- ID:11157 val:The messaging center will open with the Messages tab activated and will display the logged in user\'s messages as indicated by the caption My Messages
+Following constant not same:
+	original- val:The most important issue that needs to be addressed is who you are trying to connect to and what needs to happen at their end. Most major labs will not deal with individuals practices, in such cases a third party vendor will act an an intermediary who will be responsible for setting up a connection between the practice and the lab through their (the intermediary's) interface
+	spreadsheet- ID:11161 val:The most important issue that needs to be addressed is who you are trying to connect to and what needs to happen at their end. Most major labs will not deal with individuals practices, in such cases a third party vendor will act an an intermediary who will be responsible for setting up a connection between the practice and the lab through their (the intermediary\'s) interface
+Following constant not same:
+	original- val:The Nav Bar allows one to quickly navigate to various parts of the patient's medical record
+	spreadsheet- ID:11167 val:The Nav Bar allows one to quickly navigate to various parts of the patient\'s medical record
+Following constant not same:
+	original- val:The Search results are displayed in the section 'Search Results'.
+	spreadsheet- ID:11234 val:The Search results are displayed in the section \'Search Results\'.
+Following constant not same:
+	original- val:The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+	spreadsheet- ID:11235 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+Following constant not same:
+	original- val:The section labeled 'Invoice Search' is where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the 'Search' button to perform the search.
+	spreadsheet- ID:11240 val:The section labeled \'Invoice Search\' is where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the \'Search\' button to perform the search.
+Following constant not same:
+	original- val:The selected codes will then appear in the 'Selected Fee Sheet Codes and Charges for Current Encounter' section
+	spreadsheet- ID:11242 val:The selected codes will then appear in the \'Selected Fee Sheet Codes and Charges for Current Encounter\' section
+Following constant not same:
+	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:11248 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+Following constant not same:
+	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the 'W' on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:11249 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the \'W\' on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+Following constant not same:
+	original- val:The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
+	spreadsheet- ID:11294 val:The user\'s actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
+Following constant not same:
+	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:11304 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+Following constant not same:
+	original- val:The X12 files as well as the resulting HTML output reports are archived in the 'era' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
+	spreadsheet- ID:11305 val:The X12 files as well as the resulting HTML output reports are archived in the \'era\' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
+Following constant not same:
+	original- val:Then pass it's name as a value to the element
+	spreadsheet- ID:11310 val:Then pass it\'s name as a value to the element
+Following constant not same:
+	original- val:There are three main types of reports that can be created, two pertain to continuity of ongoing care - Continuity of Care Record (CCR) and Continuity of Care Document (CCD) and the third - Patient Report that creates a document containing various sections of the patient's medical record including demographics, medical issues, procedures and encounters. It also has the ability to include all or any of the scanned documents in the patient's chart
+	spreadsheet- ID:11343 val:There are three main types of reports that can be created, two pertain to continuity of ongoing care - Continuity of Care Record (CCR) and Continuity of Care Document (CCD) and the third - Patient Report that creates a document containing various sections of the patient\'s medical record including demographics, medical issues, procedures and encounters. It also has the ability to include all or any of the scanned documents in the patient\'s chart
+Following constant not same:
+	original- val:These three steps are essential before orders can be placed and received results linked to a patient's chart
+	spreadsheet- ID:11392 val:These three steps are essential before orders can be placed and received results linked to a patient\'s chart
+Following constant not same:
+	original- val:This section lets you search for the needed code if it is not in the default or customized options in 'Select Code' section
+	spreadsheet- ID:11546 val:This section lets you search for the needed code if it is not in the default or customized options in \'Select Code\' section
+Following constant not same:
+	original- val:This will be a "dry run" with no physical data updates.
+	spreadsheet- ID:11574 val:This will be a \"dry run\" with no physical data updates.
+Following constant not same:
+	original- val:This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
+	spreadsheet- ID:11605 val:This will turn off use of safe apostrophe, which is done by converting \' and \" to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
+Following constant not same:
+	original- val:To add a copay click the 'Add Copay' button
+	spreadsheet- ID:11674 val:To add a copay click the \'Add Copay\' button
+Following constant not same:
+	original- val:To add more options to the dropdown menu go to Administration > Lists > Manage Lists and select 'Price Level' in the dropdown box and enter the types e.g: Credit Card, Cash etc.
+	spreadsheet- ID:11676 val:To add more options to the dropdown menu go to Administration > Lists > Manage Lists and select \'Price Level\' in the dropdown box and enter the types e.g: Credit Card, Cash etc.
+Following constant not same:
+	original- val:To allow for each procedure line to have a separate provider you have to check the 'Support provider in line item in fee sheet' checkbox in Administration > Globals > Billing. If not checked the rendering provider in this section will be used for all claims
+	spreadsheet- ID:11681 val:To allow for each procedure line to have a separate provider you have to check the \'Support provider in line item in fee sheet\' checkbox in Administration > Globals > Billing. If not checked the rendering provider in this section will be used for all claims
+Following constant not same:
+	original- val:To ded'ble
+	spreadsheet- ID:11695 val:To ded\'ble
+Following constant not same:
+	original- val:To display the copay amount it must have been entered in the patient's insurance under Edit > Demographics
+	spreadsheet- ID:11703 val:To display the copay amount it must have been entered in the patient\'s insurance under Edit > Demographics
+Following constant not same:
+	original- val:To fully delete hit 'Save'
+	spreadsheet- ID:11718 val:To fully delete hit \'Save\'
+Following constant not same:
+	original- val:To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' 
+	spreadsheet- ID:11719 val:To get started you choose one of the two radio buttons. \'Invoice Search\' or \'ERA Upload\' 
+Following constant not same:
+	original- val:To include the scanned documents that are a part of the patient's record select the desired records by check the relevant check-boxes
+	spreadsheet- ID:11724 val:To include the scanned documents that are a part of the patient\'s record select the desired records by check the relevant check-boxes
+Following constant not same:
+	original- val:To select multiple groups hold down the 'Shift' or 'Ctrl' keys while clicking.
+	spreadsheet- ID:11745 val:To select multiple groups hold down the \'Shift\' or \'Ctrl\' keys while clicking.
+Following constant not same:
+	original- val:Transactions - lists various notes about happenings in a patient's chart with respect to billing, legal, patient request, physician request and also generates a patient referral or counter-referral
+	spreadsheet- ID:11918 val:Transactions - lists various notes about happenings in a patient\'s chart with respect to billing, legal, patient request, physician request and also generates a patient referral or counter-referral
+Following constant not same:
+	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:12211 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+Following constant not same:
+	original- val:Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:12212 val:Upon clicking an invoice number the \'manual posting window\' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+Following constant not same:
+	original- val:URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.
+	spreadsheet- ID:12239 val:URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter \"test\" for dummy data.
+Following constant not same:
+	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
+	spreadsheet- ID:12377 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+Following constant not same:
+	original- val:When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.
+	spreadsheet- ID:12703 val:When checked, messages are processed for patients with Patient Demographic Choice: \"Hipaa Notice Received\" set to \"Unassigned\" or \"Yes\". When unchecked, this choice must = \"YES\" to process the patient reminder. For patients with Choice =\"No\", Reminders will need to be processed manually.
+Following constant not same:
+	original- val:You can click on the patient name to quickly access the patient's chart
+	spreadsheet- ID:12870 val:You can click on the patient name to quickly access the patient\'s chart
+Following constant not same:
+	original- val:You can close the edit box by clicking on the 'slashed eye' icon next to the group's name.
+	spreadsheet- ID:12872 val:You can close the edit box by clicking on the \'slashed eye\' icon next to the group\'s name.
+Following constant not same:
+	original- val:You can not change status to 'Arrive' before the appointment's time
+	spreadsheet- ID:12880 val:You can not change status to \'Arrive\' before the appointment\'s time
+Following constant not same:
+	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
+	spreadsheet- ID:12902 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
+Following constant not same:
+	original- val:" for code 
+	spreadsheet- ID:13072 val:\" for code 
+Following constant not same:
+	original- val:" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:13073 val:\" is CHECKED in PostCalendar Settings!
+Following constant not same:
+	original- val:' should exist but does not.
+	spreadsheet- ID:13082 val:\' should exist but does not.
+Following constant not same:
+	original- val:= Took Place
+	spreadsheet- ID:13207 val:\'= took place
+
+Done checking constants:
+	190 mismatches found (known is 190)
+Good, constants weren't modified by translators
+
+Checking constants:
+
+Following constant not same:
+	original- val:A place to document and display the patient's past medical history, family history, personal history
+	spreadsheet- ID:34 val:A place to document and display the patient\'s past medical history, family history, personal history
+Following constant not same:
+	original- val:A provider or warehouse can be selected in the dropwdown box. For this option to be displayed 'Support provider in line item in fee sheet' box must be checked in Administration > Globals> Billing page
+	spreadsheet- ID:39 val:A provider or warehouse can be selected in the dropwdown box. For this option to be displayed \'Support provider in line item in fee sheet\' box must be checked in Administration > Globals> Billing page
+Following constant not same:
+	original- val:A third alternative is to scan the results and save it as a document - TIFF, JPEG or PDF in the patient's chart under documents
+	spreadsheet- ID:54 val:A third alternative is to scan the results and save it as a document - TIFF, JPEG or PDF in the patient\'s chart under documents
+Following constant not same:
+	original- val:Active Alert - that presents as a pop-up notification when a patient's chart is entered
+	spreadsheet- ID:168 val:Active Alert - that presents as a pop-up notification when a patient\'s chart is entered
+Following constant not same:
+	original- val:Add desired privileges by moving items (ACOs) from the 'Inactive' column to the 'Active' column.
+	spreadsheet- ID:233 val:Add desired privileges by moving items (ACOs) from the \'Inactive\' column to the \'Active\' column.
+Following constant not same:
+	original- val:After Uploading click the button "Import"
+	spreadsheet- ID:433 val:After Uploading click the button \"Import\"
+Following constant not same:
+	original- val:After Uploading, click "Import"
+	spreadsheet- ID:434 val:After Uploading, click \"Import\"
+Following constant not same:
+	original- val:After you filled in the spreadsheet with the relevant ICD categories and ICD codes go to Administration > Lists. Select 'Service Category' from the dropdown box
+	spreadsheet- ID:435 val:After you filled in the spreadsheet with the relevant ICD categories and ICD codes go to Administration > Lists. Select \'Service Category\' from the dropdown box
+Following constant not same:
+	original- val:After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select 'Code Types' from the dropdown box. Select 'ICD10 Diagnosis' from the last dropdown box under ICD 10
+	spreadsheet- ID:436 val:After you have finished entering all the ICD 10 codes go to Adminstration > Lists and select \'Code Types\' from the dropdown box. Select \'ICD10 Diagnosis\' from the last dropdown box under ICD 10
+Following constant not same:
+	original- val:Age format for "age from" is not valid
+	spreadsheet- ID:446 val:Age format for \"age from\" is not valid
+Following constant not same:
+	original- val:Age format for "age up to" is not valid
+	spreadsheet- ID:447 val:Age format for \"age up to\" is not valid
+Following constant not same:
+	original- val:Allow Check In before the appointment's time.
+	spreadsheet- ID:534 val:Allow Check In before the appointment\'s time.
+Following constant not same:
+	original- val:Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the 'ERA upload' option in the initial 'Select Method' section. This brings up the 'ERA Upload' Section.
+	spreadsheet- ID:627 val:Alternatively, you may choose to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by first selecting the \'ERA upload\' option in the initial \'Select Method\' section. This brings up the \'ERA Upload\' Section.
+Following constant not same:
+	original- val:An Issue concerns matters relating to the patient's health
+	spreadsheet- ID:687 val:An Issue concerns matters relating to the patient\'s health
+Following constant not same:
+	original- val:Are you sure you'd like to quit without saving your answers?
+	spreadsheet- ID:876 val:Are you sure you\'d like to quit without saving your answers?
+Following constant not same:
+	original- val:Aud URI (use this in the "aud" claim of your JWT)
+	spreadsheet- ID:949 val:Aud URI (use this in the \"aud\" claim of your JWT)
+Following constant not same:
+	original- val:Automatically create a new encounter when appointment status is set to "@" (arrived).
+	spreadsheet- ID:1030 val:Automatically create a new encounter when appointment status is set to \"@\" (arrived).
+Following constant not same:
+	original- val:Based on the individual practice's need the tests can be organized into various groups
+	spreadsheet- ID:1121 val:Based on the individual practice\'s need the tests can be organized into various groups
+Following constant not same:
+	original- val:Being so restless that it's hard to sit still
+	spreadsheet- ID:1162 val:Being so restless that it\'s hard to sit still
+Following constant not same:
+	original- val:button to clear Location selections, "Send" button to send templates to patient(s) or profiles
+	spreadsheet- ID:1373 val:button to clear Location selections, \"Send\" button to send templates to patient(s) or profiles
+Following constant not same:
+	original- val:By default all codes are selected, uncheck the codes you do not want and click 'Add'. These codes will then be added to the current encounter
+	spreadsheet- ID:1377 val:By default all codes are selected, uncheck the codes you do not want and click \'Add\'. These codes will then be added to the current encounter
+Following constant not same:
+	original- val:By selecting a payment method the rates calculated for that payment method will be automatically displayed in 'Selected Fee Sheet Codes and Charges for Current Encounter' section
+	spreadsheet- ID:1382 val:By selecting a payment method the rates calculated for that payment method will be automatically displayed in \'Selected Fee Sheet Codes and Charges for Current Encounter\' section
+Following constant not same:
+	original- val:Can't find file!
+	spreadsheet- ID:1417 val:Can\'t find file!
+Following constant not same:
+	original- val:Can't upload
+	spreadsheet- ID:1418 val:Can\'t upload
+Following constant not same:
+	original- val:Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+	spreadsheet- ID:1782 val:Click \'export\' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click \'import\'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+Following constant not same:
+	original- val:Click 'Save'
+	spreadsheet- ID:1783 val:Click \'Save\'
+Following constant not same:
+	original- val:Click 'Save'. Now you will be able to use the Search feature to search all ICD 10 codes
+	spreadsheet- ID:1784 val:Click \'Save\'. Now you will be able to use the Search feature to search all ICD 10 codes
+Following constant not same:
+	original- val:Click on the 'Add Group' button to create this new group (ARO).
+	spreadsheet- ID:1852 val:Click on the \'Add Group\' button to create this new group (ARO).
+Following constant not same:
+	original- val:Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page.
+	spreadsheet- ID:1864 val:Click on the icon next to the \'Access Control List Administration\' title to go to the phpGACL page.
+Following constant not same:
+	original- val:Click the 'Add New Group' button to display the 'New Group Information' section.
+	spreadsheet- ID:1881 val:Click the \'Add New Group\' button to display the \'New Group Information\' section.
+Following constant not same:
+	original- val:Click the 'Delete Group' button to completely remove this group.
+	spreadsheet- ID:1882 val:Click the \'Delete Group\' button to completely remove this group.
+Following constant not same:
+	original- val:Click the 'Remove Group' button to display the 'Remove Group Form'.
+	spreadsheet- ID:1883 val:Click the \'Remove Group\' button to display the \'Remove Group Form\'.
+Following constant not same:
+	original- val:Click the 'Yes' radio button.
+	spreadsheet- ID:1884 val:Click the \'Yes\' radio button.
+Following constant not same:
+	original- val:Clicking on 'Review' will list all the codes entered for previous encounters
+	spreadsheet- ID:1968 val:Clicking on \'Review\' will list all the codes entered for previous encounters
+Following constant not same:
+	original- val:Clicking on the icon next to the caption will display everyone's messages and the caption will change to All Messages
+	spreadsheet- ID:1978 val:Clicking on the icon next to the caption will display everyone\'s messages and the caption will change to All Messages
+Following constant not same:
+	original- val:Clicking on the icon next to their name will bring up the 'Edit' window.
+	spreadsheet- ID:1979 val:Clicking on the icon next to their name will bring up the \'Edit\' window.
+Following constant not same:
+	original- val:Clicking on the patient's name will reveal the message
+	spreadsheet- ID:1981 val:Clicking on the patient\'s name will reveal the message
+Following constant not same:
+	original- val:Clicking the button will reveal a popup that will list the E/M codes, check the appropriate code and click 'OK'
+	spreadsheet- ID:1987 val:Clicking the button will reveal a popup that will list the E/M codes, check the appropriate code and click \'OK\'
+Following constant not same:
+	original- val:Couldn't create backup dir:
+	spreadsheet- ID:2376 val:Couldn\'t create backup dir:
+Following constant not same:
+	original- val:Couldn't remove dir:
+	spreadsheet- ID:2377 val:Couldn\'t remove dir:
+Following constant not same:
+	original- val:Couldn't remove old backup file:
+	spreadsheet- ID:2378 val:Couldn\'t remove old backup file:
+Following constant not same:
+	original- val:Couldn't remove old export file: 
+	spreadsheet- ID:2379 val:Couldn\'t remove old export file: 
+Following constant not same:
+	original- val:Creates a report that contains various sections of the patient's medical record
+	spreadsheet- ID:2463 val:Creates a report that contains various sections of the patient\'s medical record
+Following constant not same:
+	original- val:Date format for "appointment end" is not valid
+	spreadsheet- ID:2645 val:Date format for \"appointment end\" is not valid
+Following constant not same:
+	original- val:Date format for "appointment start" is not valid
+	spreadsheet- ID:2646 val:Date format for \"appointment start\" is not valid
+Following constant not same:
+	original- val:Date format for "Next Appointment" is not valid
+	spreadsheet- ID:2647 val:Date format for \"Next Appointment\" is not valid
+Following constant not same:
+	original- val:Date format for "not seen since" is not valid
+	spreadsheet- ID:2648 val:Date format for \"not seen since\" is not valid
+Following constant not same:
+	original- val:Date format for "seen before" is not valid
+	spreadsheet- ID:2649 val:Date format for \"seen before\" is not valid
+Following constant not same:
+	original- val:Date format for "seen since" is not valid
+	spreadsheet- ID:2650 val:Date format for \"seen since\" is not valid
+Following constant not same:
+	original- val:Date of Service is today's date by default. If needed it can be changed to any valid date
+	spreadsheet- ID:2679 val:Date of Service is today\'s date by default. If needed it can be changed to any valid date
+Following constant not same:
+	original- val:Decide on the code categories and the order you want them to appear, these will be displayed on the buttons in the 'Select Codes' section
+	spreadsheet- ID:2759 val:Decide on the code categories and the order you want them to appear, these will be displayed on the buttons in the \'Select Codes\' section
+Following constant not same:
+	original- val:Detail's group was saved successfully
+	spreadsheet- ID:2920 val:Detail\'s group was saved successfully
+Following constant not same:
+	original- val:Developer error missing form 'patientForm'
+	spreadsheet- ID:2927 val:Developer error missing form \'patientForm\'
+Following constant not same:
+	original- val:Developer error missing hidden form element 'selectedPatient'
+	spreadsheet- ID:2928 val:Developer error missing hidden form element \'selectedPatient\'
+Following constant not same:
+	original- val:Display the patient's current glasses
+	spreadsheet- ID:3088 val:Display the patient\'s current glasses
+Following constant not same:
+	original- val:Documents - a repository of the patient's scanned/faxed paper documents. It also the place to download patient specific templates
+	spreadsheet- ID:3202 val:Documents - a repository of the patient\'s scanned/faxed paper documents. It also the place to download patient specific templates
+Following constant not same:
+	original- val:Don't Save
+	spreadsheet- ID:3218 val:Don\'t Save
+Following constant not same:
+	original- val:Download report as a pdf file into the browser's download folder
+	spreadsheet- ID:3262 val:Download report as a pdf file into the browser\'s download folder
+Following constant not same:
+	original- val:Empty value in "Email Hours"
+	spreadsheet- ID:3520 val:Empty value in \"Email Hours\"
+Following constant not same:
+	original- val:Empty value in "Email Sender"
+	spreadsheet- ID:3521 val:Empty value in \"Email Sender\"
+Following constant not same:
+	original- val:Empty value in "Email Subject"
+	spreadsheet- ID:3522 val:Empty value in \"Email Subject\"
+Following constant not same:
+	original- val:Empty value in "Email Text"
+	spreadsheet- ID:3523 val:Empty value in \"Email Text\"
+Following constant not same:
+	original- val:Empty value in "Name of Provider"
+	spreadsheet- ID:3524 val:Empty value in \"Name of Provider\"
+Following constant not same:
+	original- val:Empty value in "Password"
+	spreadsheet- ID:3525 val:Empty value in \"Password\"
+Following constant not same:
+	original- val:Empty value in "SMS Hours"
+	spreadsheet- ID:3526 val:Empty value in \"SMS Hours\"
+Following constant not same:
+	original- val:Empty value in "SMS Text"
+	spreadsheet- ID:3527 val:Empty value in \"SMS Text\"
+Following constant not same:
+	original- val:Empty value in "Username"
+	spreadsheet- ID:3528 val:Empty value in \"Username\"
+Following constant not same:
+	original- val:Enter the category data in the appropriate fields and click 'Save'. These will be used to group the ICD codes and will be displayed on the buttons in the 'Select Codes' section
+	spreadsheet- ID:3814 val:Enter the category data in the appropriate fields and click \'Save\'. These will be used to group the ICD codes and will be displayed on the buttons in the \'Select Codes\' section
+Following constant not same:
+	original- val:Error in "Gender" selection
+	spreadsheet- ID:3883 val:Error in \"Gender\" selection
+Following constant not same:
+	original- val:Error in "HIPAA" selection
+	spreadsheet- ID:3884 val:Error in \"HIPAA\" selection
+Following constant not same:
+	original- val:Error in "Process" selection
+	spreadsheet- ID:3885 val:Error in \"Process\" selection
+Following constant not same:
+	original- val:Error in "SMS Gateway" selection
+	spreadsheet- ID:3886 val:Error in \"SMS Gateway\" selection
+Following constant not same:
+	original- val:Error in "Sort By" selection
+	spreadsheet- ID:3887 val:Error in \"Sort By\" selection
+Following constant not same:
+	original- val:Error: passwords don't match. Please check your typing.
+	spreadsheet- ID:3942 val:Error: passwords don\'t match. Please check your typing.
+Following constant not same:
+	original- val:Facility ID's
+	spreadsheet- ID:4161 val:Facility ID\'s
+Following constant not same:
+	original- val:FAILURE: Couldn't create the zip
+	spreadsheet- ID:4196 val:FAILURE: Couldn\'t create the zip
+Following constant not same:
+	original- val:Family history - Documents the patient's family history, an ICD10 diagnosis can be linked to the medical conditions
+	spreadsheet- ID:4202 val:Family history - Documents the patient\'s family history, an ICD10 diagnosis can be linked to the medical conditions
+Following constant not same:
+	original- val:Field 'name' cannot be NULL
+	spreadsheet- ID:4266 val:Field \'name\' cannot be NULL
+Following constant not same:
+	original- val:Filename must end with ".pdf"
+	spreadsheet- ID:4296 val:Filename must end with \".pdf\"
+Following constant not same:
+	original- val:Fill in any missing details or edit existing information. This will be saved in the patient's demographics page in openEMR
+	spreadsheet- ID:4306 val:Fill in any missing details or edit existing information. This will be saved in the patient\'s demographics page in openEMR
+Following constant not same:
+	original- val:For detailed instructions close the 'Enter Details' pop-up and click on the Help icon on the main form. 
+	spreadsheet- ID:4442 val:For detailed instructions close the \'Enter Details\' pop-up and click on the Help icon on the main form. 
+Following constant not same:
+	original- val:For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. 
+	spreadsheet- ID:4443 val:For detailed instructions close the \'Enter Provider Details\' popup and click on the Help icon on the main form. 
+Following constant not same:
+	original- val:For each issue type there is a list of commonly selected titles which are customizable for your clinic's specific needs
+	spreadsheet- ID:4444 val:For each issue type there is a list of commonly selected titles which are customizable for your clinic\'s specific needs
+Following constant not same:
+	original- val:For example: Privacy_Agreement.txt becomes "Privacy Agreement" button in Patient Documents.
+	spreadsheet- ID:4450 val:For example: Privacy_Agreement.txt becomes \"Privacy Agreement\" button in Patient Documents.
+Following constant not same:
+	original- val:Go to Administration > Lists. Select 'Fee Sheet' from the dropdown box
+	spreadsheet- ID:4738 val:Go to Administration > Lists. Select \'Fee Sheet\' from the dropdown box
+Following constant not same:
+	original- val:Go to Adminstration > Lists and select 'Code Types' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select 'No' in the last dropdown box under ICD 10
+	spreadsheet- ID:4740 val:Go to Adminstration > Lists and select \'Code Types\' from the dropdown box. Use either ICD 9 or ICD 10, inactivate ICD 9 and select \'No\' in the last dropdown box under ICD 10
+Following constant not same:
+	original- val:Group's name
+	spreadsheet- ID:4801 val:Group\'s name
+Following constant not same:
+	original- val:Guardian's Name
+	spreadsheet- ID:4817 val:Guardian\'s Name
+Following constant not same:
+	original- val:History - patient's past medical history, family history, personal history
+	spreadsheet- ID:4961 val:History - patient\'s past medical history, family history, personal history
+Following constant not same:
+	original- val:If a field's Data Col = 0 the data field will immediately follow its label field on the same line
+	spreadsheet- ID:5096 val:If a field\'s Data Col = 0 the data field will immediately follow its label field on the same line
+Following constant not same:
+	original- val:If a field's Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+	spreadsheet- ID:5097 val:If a field\'s Label Col = 0 the label will immediately follow the previous data field in the Order sequence, on the same line as the Data field.
+Following constant not same:
+	original- val:If a field's Label Col = 1 the label field will go to a new line unless the previous field's total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
+	spreadsheet- ID:5098 val:If a field\'s Label Col = 1 the label field will go to a new line unless the previous field\'s total column values (Label + Data) is less than number of Layout columns from Group Properties or Layout Properties.
+Following constant not same:
+	original- val:If the csv file has been uploaded, then click on the "Import holiday events" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+	spreadsheet- ID:5129 val:If the csv file has been uploaded, then click on the \"Import holiday events\" button. NOTE that clicking on the button will remove all the existing rows in the calendar_external table
+Following constant not same:
+	original- val:If the message is forwarded it will show up in the active messages list of the user to whom the message was forwarded and disappear from the current user's active messages list
+	spreadsheet- ID:5135 val:If the message is forwarded it will show up in the active messages list of the user to whom the message was forwarded and disappear from the current user\'s active messages list
+Following constant not same:
+	original- val:If you choose to do a manual entry click the 'Invoice Search' radio button. It displays two sections 'Post Item' and 'Invoice Search'
+	spreadsheet- ID:5165 val:If you choose to do a manual entry click the \'Invoice Search\' radio button. It displays two sections \'Post Item\' and \'Invoice Search\'
+Following constant not same:
+	original- val:If you choose to integrate lab results with the patient's record then some preliminary setup has to be performed
+	spreadsheet- ID:5166 val:If you choose to integrate lab results with the patient\'s record then some preliminary setup has to be performed
+Following constant not same:
+	original- val:If you click on any user in the 'User Memberships' section you will now see these newly created group (ARO) in the 'Inactive' column. These can now be assigned in the usual fashion as needed.
+	spreadsheet- ID:5167 val:If you click on any user in the \'User Memberships\' section you will now see these newly created group (ARO) in the \'Inactive\' column. These can now be assigned in the usual fashion as needed.
+Following constant not same:
+	original- val:If you click on the edit icon next to this newly created group (ARO) you will note that the 'Active' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the 'Active' column.
+	spreadsheet- ID:5168 val:If you click on the edit icon next to this newly created group (ARO) you will note that the \'Active\' column contains only a single entry - Placeholder (Maintains empty ACLs). As yet this new group (ARO) has NO access to any part of the program as there are no ACOs assigned in the \'Active\' column.
+Following constant not same:
+	original- val:If you have already filled the calendar_external table, then click on "Synchronize" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
+	spreadsheet- ID:5180 val:If you have already filled the calendar_external table, then click on \"Synchronize\" button to have the holidays in the calendar view. NOTE that clicking on the button will remove all the existing items in the calendar view related to holidays
+Following constant not same:
+	original- val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the 'Process ERA File' button at the bottom of the page. This will produce a new window with a detailed report.
+	spreadsheet- ID:5183 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described above) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the \'Process ERA File\' button at the bottom of the page. This will produce a new window with a detailed report.
+Following constant not same:
+	original- val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel's constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+	spreadsheet- ID:5294 val:In order to record the values of the results returned you have to create a separate Discrete Result (Tier 4) for each of the panel\'s constituents, the fruit, as direct descendants of this (General Health Panel) branch (Tier 3). Examples of the results being CBC - Hemoglobin, CBC - Hematocrit, CMP - Sodium, CMP - Potassium, TSH etc. 
+Following constant not same:
+	original- val:In the 'Post Item' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+	spreadsheet- ID:5304 val:In the \'Post Item\' section that is displayed at the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+Following constant not same:
+	original- val:Integrating lab results into a patient's chart in openEMR can be done manually i.e. both ordering tests and uploading the received results or electronically
+	spreadsheet- ID:5506 val:Integrating lab results into a patient\'s chart in openEMR can be done manually i.e. both ordering tests and uploading the received results or electronically
+Following constant not same:
+	original- val:Internal error: encounter '
+	spreadsheet- ID:5526 val:Internal error: encounter \'
+Following constant not same:
+	original- val:Invalid source designation "
+	spreadsheet- ID:5574 val:Invalid source designation \"
+Following constant not same:
+	original- val:Issues - summarizes the patient's medical problems, allergies, medications, surgeries and dental issues
+	spreadsheet- ID:5681 val:Issues - summarizes the patient\'s medical problems, allergies, medications, surgeries and dental issues
+Following constant not same:
+	original- val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in 'Select Codes'
+	spreadsheet- ID:5787 val:Justify each CPT code with one or more justifications using the dropdown box. These will reflect the diagnosis codes that was previously selected in \'Select Codes\'
+Following constant not same:
+	original- val:k, here's the rest 
+	spreadsheet- ID:5791 val:k, here\'s the rest 
+Following constant not same:
+	original- val:Lets you delete a line or row. Hit 'Refresh' and the line will have a strikethrough across it
+	spreadsheet- ID:6016 val:Lets you delete a line or row. Hit \'Refresh\' and the line will have a strikethrough across it
+Following constant not same:
+	original- val:Lifestyle - lists the patient's use of Tobacco, Coffee, Alcohol, Recreational Drugs etc
+	spreadsheet- ID:6044 val:Lifestyle - lists the patient\'s use of Tobacco, Coffee, Alcohol, Recreational Drugs etc
+Following constant not same:
+	original- val:Make sure "
+	spreadsheet- ID:6241 val:Make sure \"
+Following constant not same:
+	original- val:Medical Problems - will show the patient's medical issues, Issues > Medical Problems
+	spreadsheet- ID:6374 val:Medical Problems - will show the patient\'s medical issues, Issues > Medical Problems
+Following constant not same:
+	original- val:Mother's Name
+	spreadsheet- ID:6623 val:Mother\'s Name
+Following constant not same:
+	original- val:Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+	spreadsheet- ID:6632 val:Move the individual items from \'Active\' to \'Inactive\' or vice-versa by selecting the items and pressing the relevant button with the double chevron.
+Following constant not same:
+	original- val:Note there is no 'Save' button.
+	spreadsheet- ID:7245 val:Note there is no \'Save\' button.
+Following constant not same:
+	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:7260 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+Following constant not same:
+	original- val:NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number
+	spreadsheet- ID:7312 val:NPI - Enter the Provider\'s unique 10-digit National Provider Identifier or NPI identification number
+Following constant not same:
+	original- val:Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user's authenticator app
+	spreadsheet- ID:7460 val:Once this is done the shared secret key that is unique for each user should only exist in OpenEMR and on the user\'s authenticator app
+Following constant not same:
+	original- val:Participant's name
+	spreadsheet- ID:7787 val:Participant\'s name
+Following constant not same:
+	original- val:Passwords Don't match!
+	spreadsheet- ID:7824 val:Passwords Don\'t match!
+Following constant not same:
+	original- val:Patient's number
+	spreadsheet- ID:8055 val:Patient\'s number
+Following constant not same:
+	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:8068 val:Pay attention to the \"Done with\" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+Following constant not same:
+	original- val:Pay attention to the 'Done with' checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:8069 val:Pay attention to the \'Done with\' checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+Following constant not same:
+	original- val:Please enter at least the item's name
+	spreadsheet- ID:8347 val:Please enter at least the item\'s name
+Following constant not same:
+	original- val:Please enter at least the track's name
+	spreadsheet- ID:8348 val:Please enter at least the track\'s name
+Following constant not same:
+	original- val:Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+	spreadsheet- ID:8406 val:Please select a Primary Business Entity facility with \'Tax ID\' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system.
+Following constant not same:
+	original- val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user's Message Center
+	spreadsheet- ID:9107 val:Received messages are processed and a new Patient Note is delivered to a specified user and appears in that user\'s Message Center
+Following constant not same:
+	original- val:Report - Generates and downloads the patient's Continuity of Care Record (CCR), Continuity of Care Document (CCD) and Patient Report
+	spreadsheet- ID:9368 val:Report - Generates and downloads the patient\'s Continuity of Care Record (CCR), Continuity of Care Document (CCD) and Patient Report
+Following constant not same:
+	original- val:Reports consisting of various portions of the patient's medical record can be created here
+	spreadsheet- ID:9391 val:Reports consisting of various portions of the patient\'s medical record can be created here
+Following constant not same:
+	original- val:Select 'Price Levels' and enter Credit Card and Cash
+	spreadsheet- ID:9845 val:Select \'Price Levels\' and enter Credit Card and Cash
+Following constant not same:
+	original- val:Select the appropriate radio button. Enter the search term in the search box and click 'Search'
+	spreadsheet- ID:9951 val:Select the appropriate radio button. Enter the search term in the search box and click \'Search\'
+Following constant not same:
+	original- val:Set which radio button is selected by default in 'Search for Additional Codes' section
+	spreadsheet- ID:10120 val:Set which radio button is selected by default in \'Search for Additional Codes\' section
+Following constant not same:
+	original- val:SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR.
+	spreadsheet- ID:10329 val:SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the \'launch\' scope will allow EMR users to launch an app from within the EHR.
+Following constant not same:
+	original- val:Start by clicking the Browse button and selecting the file to upload, and then clicking 'Upload' to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+	spreadsheet- ID:10548 val:Start by clicking the Browse button and selecting the file to upload, and then clicking \'Upload\' to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+Following constant not same:
+	original- val:The 'Clear' button will remove all annotations.
+	spreadsheet- ID:10954 val:The \'Clear\' button will remove all annotations.
+Following constant not same:
+	original- val:The 'Edit' window is divided into two columns, 'Active' and 'Inactive'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+	spreadsheet- ID:10955 val:The \'Edit\' window is divided into two columns, \'Active\' and \'Inactive\'. The groups (AROs) that are listed in the active column are those groups that the user belongs to.
+Following constant not same:
+	original- val:The 'Select Codes' section will now have all the CPT and ICD codes that you entered grouped under the categories that you had decided upon
+	spreadsheet- ID:10956 val:The \'Select Codes\' section will now have all the CPT and ICD codes that you entered grouped under the categories that you had decided upon
+Following constant not same:
+	original- val:The advantage of integrating the results with the patient's chart as structured data is the ability to manipulate it to see trends in one convenient location, to plot graphs with the data and use it in data analysis
+	spreadsheet- ID:10966 val:The advantage of integrating the results with the patient\'s chart as structured data is the ability to manipulate it to see trends in one convenient location, to plot graphs with the data and use it in data analysis
+Following constant not same:
+	original- val:The advantage of scanning the results into the chart is simplicity - no setup is required other than defining a directory/folder in the patient's chart under Documents where the result will be stored. Being unstructured data it does not have the above advantages and will not fulfill Meaningful Use criteria for Computerized Provider Order Entry (CPOE)
+	spreadsheet- ID:10967 val:The advantage of scanning the results into the chart is simplicity - no setup is required other than defining a directory/folder in the patient\'s chart under Documents where the result will be stored. Being unstructured data it does not have the above advantages and will not fulfill Meaningful Use criteria for Computerized Provider Order Entry (CPOE)
+Following constant not same:
+	original- val:The custmomized Fee Sheet can be used. If and when you come across a code that is not there in the custom 'Select Codes' section you can always use the 'Search for Additional Codes' section
+	spreadsheet- ID:11007 val:The custmomized Fee Sheet can be used. If and when you come across a code that is not there in the custom \'Select Codes\' section you can always use the \'Search for Additional Codes\' section
+Following constant not same:
+	original- val:The dashboard is the central location for convenient access the patient's medical record
+	spreadsheet- ID:11010 val:The dashboard is the central location for convenient access the patient\'s medical record
+Following constant not same:
+	original- val:The default has two buttons that is set for 'New Patient' and 'Established' patient
+	spreadsheet- ID:11019 val:The default has two buttons that is set for \'New Patient\' and \'Established\' patient
+Following constant not same:
+	original- val:The default is 'Standard' usually used to reflect rates charged for insurance billing. You can have a different amount charged for credit card payment and for cash payment
+	spreadsheet- ID:11024 val:The default is \'Standard\' usually used to reflect rates charged for insurance billing. You can have a different amount charged for credit card payment and for cash payment
+Following constant not same:
+	original- val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won't display system forms like Demographics
+	spreadsheet- ID:11043 val:The Encounter Preview button is useful for showing encounter type layout forms as seen when using form in an encounter. Note, this feature is only useful for showing encounter forms and won\'t display system forms like Demographics
+Following constant not same:
+	original- val:The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+	spreadsheet- ID:11071 val:The first (\"target\") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.
+Following constant not same:
+	original- val:The first step is to plan what your Fee Sheet 'Select Codes' section should display
+	spreadsheet- ID:11082 val:The first step is to plan what your Fee Sheet \'Select Codes\' section should display
+Following constant not same:
+	original- val:The group (ARO) that you created will now appear in alphabetical order in the 'Groups and Access Controls' section.
+	spreadsheet- ID:11107 val:The group (ARO) that you created will now appear in alphabetical order in the \'Groups and Access Controls\' section.
+Following constant not same:
+	original- val:The header section will reveal patient specific information across most pages related to the patient's medical record
+	spreadsheet- ID:11109 val:The header section will reveal patient specific information across most pages related to the patient\'s medical record
+Following constant not same:
+	original- val:The items listed in the 'Active' column delineate the privileges of this group (ARO) and constitutes this group's Access Control List (ACL).
+	spreadsheet- ID:11137 val:The items listed in the \'Active\' column delineate the privileges of this group (ARO) and constitutes this group\'s Access Control List (ACL).
+Following constant not same:
+	original- val:The messaging center will open with the Messages tab activated and will display the logged in user's messages as indicated by the caption My Messages
+	spreadsheet- ID:11157 val:The messaging center will open with the Messages tab activated and will display the logged in user\'s messages as indicated by the caption My Messages
+Following constant not same:
+	original- val:The most important issue that needs to be addressed is who you are trying to connect to and what needs to happen at their end. Most major labs will not deal with individuals practices, in such cases a third party vendor will act an an intermediary who will be responsible for setting up a connection between the practice and the lab through their (the intermediary's) interface
+	spreadsheet- ID:11161 val:The most important issue that needs to be addressed is who you are trying to connect to and what needs to happen at their end. Most major labs will not deal with individuals practices, in such cases a third party vendor will act an an intermediary who will be responsible for setting up a connection between the practice and the lab through their (the intermediary\'s) interface
+Following constant not same:
+	original- val:The Nav Bar allows one to quickly navigate to various parts of the patient's medical record
+	spreadsheet- ID:11167 val:The Nav Bar allows one to quickly navigate to various parts of the patient\'s medical record
+Following constant not same:
+	original- val:The Search results are displayed in the section 'Search Results'.
+	spreadsheet- ID:11234 val:The Search results are displayed in the section \'Search Results\'.
+Following constant not same:
+	original- val:The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+	spreadsheet- ID:11235 val:The second (\"source\") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.
+Following constant not same:
+	original- val:The section labeled 'Invoice Search' is where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the 'Search' button to perform the search.
+	spreadsheet- ID:11240 val:The section labeled \'Invoice Search\' is where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the \'Search\' button to perform the search.
+Following constant not same:
+	original- val:The selected codes will then appear in the 'Selected Fee Sheet Codes and Charges for Current Encounter' section
+	spreadsheet- ID:11242 val:The selected codes will then appear in the \'Selected Fee Sheet Codes and Charges for Current Encounter\' section
+Following constant not same:
+	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:11248 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+Following constant not same:
+	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the 'W' on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:11249 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the \'W\' on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+Following constant not same:
+	original- val:The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
+	spreadsheet- ID:11294 val:The user\'s actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has.
+Following constant not same:
+	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+	spreadsheet- ID:11304 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+Following constant not same:
+	original- val:The X12 files as well as the resulting HTML output reports are archived in the 'era' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
+	spreadsheet- ID:11305 val:The X12 files as well as the resulting HTML output reports are archived in the \'era\' subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time.
+Following constant not same:
+	original- val:Then pass it's name as a value to the element
+	spreadsheet- ID:11310 val:Then pass it\'s name as a value to the element
+Following constant not same:
+	original- val:There are three main types of reports that can be created, two pertain to continuity of ongoing care - Continuity of Care Record (CCR) and Continuity of Care Document (CCD) and the third - Patient Report that creates a document containing various sections of the patient's medical record including demographics, medical issues, procedures and encounters. It also has the ability to include all or any of the scanned documents in the patient's chart
+	spreadsheet- ID:11343 val:There are three main types of reports that can be created, two pertain to continuity of ongoing care - Continuity of Care Record (CCR) and Continuity of Care Document (CCD) and the third - Patient Report that creates a document containing various sections of the patient\'s medical record including demographics, medical issues, procedures and encounters. It also has the ability to include all or any of the scanned documents in the patient\'s chart
+Following constant not same:
+	original- val:These three steps are essential before orders can be placed and received results linked to a patient's chart
+	spreadsheet- ID:11392 val:These three steps are essential before orders can be placed and received results linked to a patient\'s chart
+Following constant not same:
+	original- val:This section lets you search for the needed code if it is not in the default or customized options in 'Select Code' section
+	spreadsheet- ID:11546 val:This section lets you search for the needed code if it is not in the default or customized options in \'Select Code\' section
+Following constant not same:
+	original- val:This will be a "dry run" with no physical data updates.
+	spreadsheet- ID:11574 val:This will be a \"dry run\" with no physical data updates.
+Following constant not same:
+	original- val:This will turn off use of safe apostrophe, which is done by converting \' and " to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
+	spreadsheet- ID:11605 val:This will turn off use of safe apostrophe, which is done by converting \' and \" to `.(it is highly recommended that this setting is turned off and that safe apostrophe\'s are used)
+Following constant not same:
+	original- val:To add a copay click the 'Add Copay' button
+	spreadsheet- ID:11674 val:To add a copay click the \'Add Copay\' button
+Following constant not same:
+	original- val:To add more options to the dropdown menu go to Administration > Lists > Manage Lists and select 'Price Level' in the dropdown box and enter the types e.g: Credit Card, Cash etc.
+	spreadsheet- ID:11676 val:To add more options to the dropdown menu go to Administration > Lists > Manage Lists and select \'Price Level\' in the dropdown box and enter the types e.g: Credit Card, Cash etc.
+Following constant not same:
+	original- val:To allow for each procedure line to have a separate provider you have to check the 'Support provider in line item in fee sheet' checkbox in Administration > Globals > Billing. If not checked the rendering provider in this section will be used for all claims
+	spreadsheet- ID:11681 val:To allow for each procedure line to have a separate provider you have to check the \'Support provider in line item in fee sheet\' checkbox in Administration > Globals > Billing. If not checked the rendering provider in this section will be used for all claims
+Following constant not same:
+	original- val:To ded'ble
+	spreadsheet- ID:11695 val:To ded\'ble
+Following constant not same:
+	original- val:To display the copay amount it must have been entered in the patient's insurance under Edit > Demographics
+	spreadsheet- ID:11703 val:To display the copay amount it must have been entered in the patient\'s insurance under Edit > Demographics
+Following constant not same:
+	original- val:To fully delete hit 'Save'
+	spreadsheet- ID:11718 val:To fully delete hit \'Save\'
+Following constant not same:
+	original- val:To get started you choose one of the two radio buttons. 'Invoice Search' or 'ERA Upload' 
+	spreadsheet- ID:11719 val:To get started you choose one of the two radio buttons. \'Invoice Search\' or \'ERA Upload\' 
+Following constant not same:
+	original- val:To include the scanned documents that are a part of the patient's record select the desired records by check the relevant check-boxes
+	spreadsheet- ID:11724 val:To include the scanned documents that are a part of the patient\'s record select the desired records by check the relevant check-boxes
+Following constant not same:
+	original- val:To select multiple groups hold down the 'Shift' or 'Ctrl' keys while clicking.
+	spreadsheet- ID:11745 val:To select multiple groups hold down the \'Shift\' or \'Ctrl\' keys while clicking.
+Following constant not same:
+	original- val:Transactions - lists various notes about happenings in a patient's chart with respect to billing, legal, patient request, physician request and also generates a patient referral or counter-referral
+	spreadsheet- ID:11918 val:Transactions - lists various notes about happenings in a patient\'s chart with respect to billing, legal, patient request, physician request and also generates a patient referral or counter-referral
+Following constant not same:
+	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:12211 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+Following constant not same:
+	original- val:Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:12212 val:Upon clicking an invoice number the \'manual posting window\' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+Following constant not same:
+	original- val:URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.
+	spreadsheet- ID:12239 val:URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter \"test\" for dummy data.
+Following constant not same:
+	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
+	spreadsheet- ID:12377 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+Following constant not same:
+	original- val:When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.
+	spreadsheet- ID:12703 val:When checked, messages are processed for patients with Patient Demographic Choice: \"Hipaa Notice Received\" set to \"Unassigned\" or \"Yes\". When unchecked, this choice must = \"YES\" to process the patient reminder. For patients with Choice =\"No\", Reminders will need to be processed manually.
+Following constant not same:
+	original- val:You can click on the patient name to quickly access the patient's chart
+	spreadsheet- ID:12870 val:You can click on the patient name to quickly access the patient\'s chart
+Following constant not same:
+	original- val:You can close the edit box by clicking on the 'slashed eye' icon next to the group's name.
+	spreadsheet- ID:12872 val:You can close the edit box by clicking on the \'slashed eye\' icon next to the group\'s name.
+Following constant not same:
+	original- val:You can not change status to 'Arrive' before the appointment's time
+	spreadsheet- ID:12880 val:You can not change status to \'Arrive\' before the appointment\'s time
+Following constant not same:
+	original- val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
+	spreadsheet- ID:12902 val:You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, \'/*lock::*/\'
+Following constant not same:
+	original- val:" for code 
+	spreadsheet- ID:13072 val:\" for code 
+Following constant not same:
+	original- val:" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:13073 val:\" is CHECKED in PostCalendar Settings!
+Following constant not same:
+	original- val:' should exist but does not.
+	spreadsheet- ID:13082 val:\' should exist but does not.
+Following constant not same:
+	original- val:= Took Place
+	spreadsheet- ID:13207 val:\'= took place
+
+Done checking constants:
+	190 mismatches found (known is 190)
+Good, constants weren't modified by translators
+
+
+Language Statistics:
+Total number of languages with translations: 49
+Total number of constants: 13234
+Total number of real definitions: 224275
+Albanian: 27.89% (3691 definitions)
+Amharic: 0.4% (53 definitions)
+Arabic: 47.53% (6290 definitions)
+Armenian: 52.12% (6898 definitions)
+Bahasa Indonesia: 44.57% (5899 definitions)
+Bengali: 1.3% (172 definitions)
+Bosnian: 0% (0 definitions)
+Bulgarian: 0.09% (12 definitions)
+Chinese (Simplified): 41.7% (5518 definitions)
+Chinese (Traditional): 40.22% (5323 definitions)
+Croatian: 0% (0 definitions)
+Czech: 40% (5294 definitions)
+Danish: 24% (3176 definitions)
+dummy: 100% (13234 definitions)
+Dutch: 63.1% (8350 definitions)
+English (Australian): 0.06% (8 definitions)
+English (Indian): 1.31% (173 definitions)
+English (Standard): 0% (0 definitions)
+Estonian: 5.3% (701 definitions)
+Filipino: 0.08% (10 definitions)
+Finnish: 24.97% (3304 definitions)
+French (Canadian): 19.85% (2627 definitions)
+French (Standard): 41.91% (5546 definitions)
+Georgian: 1.61% (213 definitions)
+German: 42.22% (5587 definitions)
+Greek: 62.56% (8279 definitions)
+Gujarati: 0% (0 definitions)
+Hebrew: 61.4% (8126 definitions)
+Hindi: 46.46% (6149 definitions)
+Hungarian: 0.05% (6 definitions)
+Italian: 51.07% (6758 definitions)
+Japanese: 22.74% (3009 definitions)
+Korean: 1.19% (158 definitions)
+Lao: 0% (0 definitions)
+Lithuanian: 0.43% (57 definitions)
+Marathi: 51.66% (6837 definitions)
+Mongolian: 1.65% (218 definitions)
+Norwegian: 7.22% (955 definitions)
+Persian: 90.17% (11933 definitions)
+Polish: 21.57% (2855 definitions)
+Portuguese (Angolan): 88.76% (11747 definitions)
+Portuguese (Brazilian): 88.81% (11753 definitions)
+Portuguese (European): 88.76% (11747 definitions)
+Romanian: 93.52% (12376 definitions)
+Russian: 43.1% (5704 definitions)
+Serbian: 0.17% (22 definitions)
+Sinhala: 0% (0 definitions)
+Slovak: 0% (0 definitions)
+Somali: 0.75% (99 definitions)
+Spanish (Latin American): 51.91% (6870 definitions)
+Spanish (Spain): 46.82% (6196 definitions)
+Swedish: 23.84% (3155 definitions)
+Tamil: 46.45% (6147 definitions)
+Telugu: 0% (0 definitions)
+Thai: 0.42% (55 definitions)
+Turkish: 43.03% (5695 definitions)
+Ukrainian: 93.56% (12382 definitions)
+Urdu: 0% (0 definitions)
+Vietnamese: 46.41% (6142 definitions)

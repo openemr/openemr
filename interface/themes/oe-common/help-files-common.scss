@@ -1,0 +1,81 @@
+/*-----------------------openemr help files styling---------------------- */
+
+@if $compact-theme == false {
+  .oe-help-container a,
+  .oe-help-container a:not(.btn),
+  .oe-help-container a:not(oe-help-redirect) {
+    color: $gray;
+    font-weight: 700;
+    text-decoration: none !important;
+  }
+
+  .oe-help-container h2 > a {
+    font-weight: 500 !important;
+  }
+
+  .oe-help-heading {
+    background-color: $gray-200;
+    border-color: $gray-300;
+    border-radius: 5px;
+    color: $gray;
+    padding: 10px 5px;
+  }
+
+  .oe-text-orange {
+    color: $orange;
+  }
+
+  .oe-text-red {
+    color: $danger;
+  }
+
+  .oe-text-green {
+    color: $success;
+  }
+
+  .oe-text-black {
+    color: $black;
+  }
+
+  .oe-no-float {
+    float: none !important;
+  }
+
+  .oe-inline {
+    display: inline !important;
+  }
+
+  .oe-superscript {
+    font-size: 70% !important;
+    position: relative;
+    top: -0.5em;
+  }
+
+  .oe-superscript-small {
+    font-size: 50% !important;
+    position: relative;
+    top: -1.2em;
+  }
+
+  .oe-pull-toward {
+    float: $left !important;
+  }
+
+  .oe-pull-toward-unimportant {
+    float: $left;
+  }
+
+  .oe-pull-away {
+    float: $right !important;
+  }
+
+  .oe-pull-away-unimportant {
+    float: $right;
+  }
+
+  .oe-margin-toward {
+    margin-#{$left}: 30px;
+  }
+}
+
+/*-----------------------openemr help files styling---------------------- */

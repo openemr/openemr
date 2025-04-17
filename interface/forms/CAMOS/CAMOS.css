@@ -1,0 +1,63 @@
+/**
+ * CAMOS CAMOS.css
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+body {
+  background-color: #fff;
+  font: 1em, Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+h1 {
+  text-decoration: underline;
+}
+
+.box {
+  background-color: #cfc;
+  border: 1px solid #0f0;
+  width: 75%;
+}
+
+.code {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+/*function names.  used f for less typing around single words affected*/
+.f {
+  font-weight: bold;
+}
+
+#myheader {
+  background-color: #c9c3ed;
+  font-size: 2em;
+  text-align: center;
+}
+
+a:link,
+a:visited {
+  background-color: #fff;
+  color: #6a5acd;
+  text-decoration: none;
+}
+
+a:hover {
+  background-color: #c9c3ed;
+}
+
+#mymenu {
+  font-size: 1em;
+  text-align: center;
+}
+
+img {
+  display: block;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}

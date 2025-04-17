@@ -1,0 +1,468 @@
+@import url('../../../../public/assets/bootstrap/dist/css/bootstrap.min.css');
+@import url('../../../../public/assets/@fortawesome/fontawesome-free/css/all.min.css');
+
+a:hover,
+a:active,
+a:focus {
+  background-color: highlight;
+  color: highlighttext;
+  text-decoration: none;
+}
+
+a img {
+  border: 0;
+}
+
+/* Page layout/boxes */
+
+.info-box-title {
+  border-bottom: 2px solid #999;
+  color: #999;
+  font-size: 14pt;
+  font-weight: normal;
+  margin: 1em 0 0;
+}
+
+.info-box-body {
+  border: 1px solid #999;
+  padding: 0.5em;
+}
+
+.nav-bar {
+  font-size: 8pt;
+  margin: 0 0 1em;
+  padding: 0.2em;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.oddrow {
+  background-color: #f8f8f8;
+  border: 1px solid #aaa;
+  margin-bottom: 1em;
+  padding: 0.5em;
+}
+
+.evenrow {
+  border: 1px solid #aaa;
+  margin-bottom: 1em;
+  padding: 0.5em;
+}
+
+.page-body {
+  margin: auto;
+  max-width: 800px;
+}
+
+.tree {
+  font: icon;
+  white-space: nowrap;
+}
+
+.tree dd {
+  margin-left: 19px;
+}
+
+.tree dl {
+  margin: 0;
+}
+
+.tree-icon {
+  border: 0;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
+/* Index formatting classes */
+
+.index-item-body {
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
+}
+
+.index-item-description {
+  margin-top: 0.25em;
+}
+
+.index-item-details {
+  font-size: 8pt;
+  font-style: italic;
+  font-weight: normal;
+}
+
+.index-letter-section {
+  background-color: #eee;
+  border: 1px dotted #999;
+  margin-bottom: 1em;
+  padding: 0.5em;
+}
+
+.index-letter-title {
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+.index-letter-menu {
+  margin: 1em;
+  text-align: center;
+}
+
+.index-letter {
+  font-size: 12pt;
+}
+
+/* Docbook classes */
+
+.short-description {
+  color: #666;
+  font-weight: bold;
+}
+
+.tags {
+  color: #666;
+  list-style-type: square;
+  margin-left: 3em;
+  padding-left: 0;
+}
+
+.parameters {
+  color: #014fbe;
+  list-style-type: square;
+  margin-left: 3em;
+  padding-left: 0;
+}
+
+.redefinitions {
+  font-size: 8pt;
+  margin-left: 2em;
+  padding-left: 0;
+}
+
+.package {
+  font-weight: bold;
+}
+
+.package-title {
+  border-bottom: 1px solid #000;
+  font-size: 14pt;
+  font-weight: bold;
+}
+
+.package-details {
+  font-size: 85%;
+}
+
+.sub-package {
+  font-weight: bold;
+}
+
+.tutorial {
+  border-color: #06f;
+  border-width: thin;
+}
+
+.tutorial-nav-box {
+  background-color: #f8f8f8;
+  border: 1px solid #999;
+  width: 100%;
+}
+
+.folder-title {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: italic;
+}
+
+/* Generic formatting */
+
+.field {
+  font-weight: bold;
+}
+
+.detail {
+  font-size: 8pt;
+}
+
+.notes {
+  font-size: 8pt;
+  font-style: italic;
+}
+
+.separator {
+  background-color: #999;
+  height: 2px;
+}
+
+.warning {
+  color: #f60;
+}
+
+.disabled {
+  color: #999;
+  font-style: italic;
+}
+
+/* Code elements */
+
+.class-table {
+  width: 100%;
+}
+
+.class-table-header {
+  border-bottom: 1px dotted #666;
+  text-align: left;
+}
+
+.class-name {
+  color: #00a;
+  font-weight: bold;
+}
+
+.method-summary {
+  color: #009000;
+  font-size: 8pt;
+  padding-left: 1em;
+}
+
+.method-definition {
+  margin-bottom: 0.2em;
+}
+
+.method-title {
+  color: #009000;
+  font-weight: bold;
+}
+
+.method-name {
+  font-weight: bold;
+}
+
+.method-signature {
+  color: #666;
+  font-size: 85%;
+  margin: 0.5em 0;
+}
+
+.method-result {
+  font-style: italic;
+}
+
+.var-summary {
+  font-size: 8pt;
+  padding-left: 1em;
+}
+
+.var-title {
+  color: #014fbe;
+  margin-bottom: 0.3em;
+}
+
+.var-type {
+  font-style: italic;
+}
+
+.var-name {
+  font-weight: bold;
+}
+
+.var-description {
+  color: #000;
+  font-weight: normal;
+}
+
+.include-title {
+  color: #014fbe;
+}
+
+.include-type {
+  font-style: italic;
+}
+
+.include-name {
+  font-weight: bold;
+}
+
+.const-title {
+  color: #f60;
+}
+
+.const-name {
+  font-weight: bold;
+}
+
+/* Syntax highlighting */
+
+*[class='src-code'] {
+  line-height: 0.5em;
+}
+
+.src-code a:link {
+  color: #00d;
+  padding: 1px;
+  text-decoration: underline;
+}
+
+.src-code a:visited {
+  color: #00d;
+  text-decoration: underline;
+}
+
+.src-code a:active {
+  background-color: #ff6;
+  color: #008000;
+}
+
+.src-code a:hover {
+  background-color: #ff6;
+  color: #008000;
+  text-decoration: overline underline;
+}
+
+.src-comm {
+  color: #666;
+}
+
+.src-id {
+  color: #f60;
+  font-style: italic;
+}
+
+.src-inc {
+  color: #00a;
+  font-weight: bold;
+}
+
+.src-key {
+  color: #00a;
+  font-weight: bold;
+}
+
+.src-num {
+  color: #c00;
+}
+
+.src-str {
+  color: #c00;
+}
+
+.src-php {
+  font-weight: bold;
+}
+
+.src-doc {
+  color: #666;
+}
+
+.src-doc-close-template {
+  color: #666;
+}
+
+.src-doc-coretag {
+  color: #008000;
+}
+
+.src-doc-tag {
+  color: #0080cc;
+}
+
+.src-doc-template {
+  color: #666;
+}
+
+.src-doc-type {
+  color: #444;
+  font-style: italic;
+}
+
+.src-doc-var {
+  color: #444;
+}
+
+.tute-tag {
+  color: #099;
+}
+
+.tute-attribute-name {
+  color: #00f;
+}
+
+.tute-attribute-value {
+  color: #09f;
+}
+
+.tute-entity {
+  font-weight: bold;
+}
+
+.tute-comment {
+  font-style: italic;
+}
+
+.tute-inline-tag {
+  color: #636311;
+  font-weight: bold;
+}
+
+/* tutorial */
+
+.author {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.author-blurb {
+  font-size: 85%;
+  font-style: normal;
+  font-weight: normal;
+  margin: 0.5em 0 0.5em 2em;
+}
+
+.example {
+  background-color: #eee;
+  border: 1px dashed #999;
+  padding: 0.5em;
+}
+
+*[class='example'] {
+  line-height: 0.5em;
+}
+
+.listing {
+  background-color: #eee;
+  border: 1px dashed #999;
+  padding: 0.5em;
+  white-space: nowrap;
+}
+
+*[class='listing'] {
+  line-height: 0.5em;
+}
+
+.release-info {
+  font-size: 85%;
+  font-style: italic;
+  margin: 1em 0;
+}
+
+.ref-purpose {
+  color: #666;
+  font-style: italic;
+}
+
+.title {
+  border-bottom: 1px solid #999;
+  color: #999;
+  font-weight: bold;
+}
+
+.cmd-synopsis {
+  margin: 1em 0;
+}
+
+.cmd-title {
+  font-weight: bold;
+}
+
+.toc {
+  margin-left: 2em;
+  padding-left: 0;
+}

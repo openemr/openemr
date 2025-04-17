@@ -1,0 +1,12 @@
+/* OpenEMR help files override */
+
+@if $compact-theme == false {
+  .oe-help-redirect {
+    color: $darker !important;
+  }
+
+  .oe-help-heading {
+    background-color: $palepale !important;
+    border-color: $midpale !important;
+  }
+}

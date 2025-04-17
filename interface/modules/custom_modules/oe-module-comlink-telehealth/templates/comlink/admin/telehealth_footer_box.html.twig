@@ -1,0 +1,174 @@
+<!-- bootstrap alert box for telehealth information -->
+<script>
+    (function(window) {
+
+        function verifyBridgeSettings(bridgeSettings) {
+            // first need to import the
+            let url = {{ telehealthCvbUrl|json_encode }};
+            let responseReceived = false; // used for timeout if we don't get a response from the bridge.
+            function displayResponse(type, message) {
+                let settingsContainer = document.querySelector('.section-verify-configuration-settings');
+                settingsContainer.classList.remove('d-none');
+                settingsContainer.classList.remove('text-success');
+                settingsContainer.classList.remove('text-danger');
+                settingsContainer.classList.remove('text-info');
+                settingsContainer.classList.add('text-' + type);
+                // removes any html so safe to inject message
+                settingsContainer.textContent = message;
+            }
+            import(url).then((cvb) => {
+                let settings = {
+                    userId: bridgeSettings.userId
+                    ,passwordHash: bridgeSettings.passwordHash
+                    ,serviceUrl: bridgeSettings.telehealthApiUrl
+                    ,type: 'normal'
+                };
+               let videoBridge = new cvb.VideoBridge(settings);
+               videoBridge.onbridgeactive = function() {
+                   displayResponse('success', bridgeSettings.successMessage);
+                   responseReceived = true;
+                   videoBridge.shutdown();
+               };
+               videoBridge.onbridgefailure = function() {
+                   responseReceived = true;
+                   displayResponse('danger', bridgeSettings.errorMessage);
+               };
+               videoBridge.start();
+               setTimeout(function() {
+                   if (!responseReceived) {
+                       displayResponse('danger', bridgeSettings.errorMessage);
+                   }
+               }, 5000);
+            });
+        }
+
+        function verifySettings() {
+            let url = {{ verifyInstallationPathUrl|json_encode }};
+            let confirmMessage ={{ "Verifying your installation settings will provision the currently logged in user with the Telehealth service if the user is not already provisioned."|xlj }}
+            + {{ "Do you wish to proceed?"|xlj }}
+            if (confirm(confirmMessage)) {
+                let settings = document.querySelector('.section-verify-configuration-settings');
+                settings.classList.add("d-none");
+                settings.classList.remove('text-success');
+                settings.classList.remove('text-danger');
+                settings.classList.remove('text-info');
+                window.fetch(url)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(json => {
+                        if (json.status == 'success') {
+                            verifyBridgeSettings(json.bridgeSettings);
+                        } else {
+                            settings.classList.remove('d-none');
+                            settings.classList.add('text-danger');
+                            // removes any html so safe to inject message
+                            settings.textContent = json.message;
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        settings.classList.remove('d-none');
+                        settings.classList.add('text-danger');
+                        settings.textContent = {{ "An error occurred while verifying your installation settings."|xlj }}
+                        + " " + {{ "Check your internet connection,try again, or contact a System Administrator"|xlj }};
+                    });
+            }
+        }
+
+        window.document.addEventListener("DOMContentLoaded", function() {
+            let comlinkBtn = document.querySelector('.btn-verify-comlink-configuration');
+            comlinkBtn.addEventListener('click', verifySettings);
+        });
+    })(window);
+</script>
+<p>
+    {{ "The Telehealth module allows you to conduct video visits with your patients."|xlt }}
+    {{ "After saving these settings you must log out and log back in for the Telehealth Settings to be applied"|xlt }}
+</p>
+<div class="alert alert-info">
+    <details>
+        <summary class="h4">
+            {{ "Telehealth Configuration Settings Check"|xlt }}
+        </summary>
+        <ul>
+            <li class="h5">
+                {{ "Config"|xlt }} -> {{ "Telehealth"|xlt }}
+                <input type="button" class="btn btn-primary btn-verify-comlink-configuration" value="{{ "Check Telehealth Configuration"|xla }}" />
+                <p class="d-none section-verify-configuration-settings"></p>
+                <p>
+                    {{ "The following setting must be configured in the Config Globals section for Telehealth to be enabled"|xlt }}
+                </p>
+                <ul class="h6">
+                    <li>{{ "Telehealth Registration URI"|xlt }}
+                        {% if isValidRegistrationUri %}
+{#                            <span class="text-success">{{ "Valid URL"|xlt }}</span>#}
+                        {% else %}
+                            - <span class="text-danger">{{ "Missing"|xlt }}</span>
+                        {% endif %}
+                    </li>
+                    <li>{{ "Telehealth Video API URI"|xlt }}
+                        {% if isValidTelehealthApi %}
+                            {#                            <span class="text-success">{{ "Valid URL"|xlt }}</span>#}
+                        {% else %}
+                            - <span class="text-danger">{{ "Missing"|xlt }}</span>
+                        {% endif %}
+                    </li>
+                    <li>{{ "Telehealth Installation User ID"|xlt }}</li>
+                    <li>{{ "Telehealth Installation User Password (Encrypted)"|xlt }}</li>
+                    <li>{{ "Telehealth Installation CMSID"|xlt }}</li>
+                </ul>
+            </li>
+            <li class="h5">
+                {{ "Config"|xlt }} -> {{ "Portal"|xlt }} -
+                {% if isThirdPartyConfigurationSetup %}
+                    <span class="text-success">{{ "Configured"|xlt }}</span>
+                {% else %}
+                    <span class="text-danger">{{ "Incorrect"|xlt }}</span>
+                {% endif %}
+                <p>
+                    {{ "The following settings must be configured in the Config Portal section for patients to join the telehealth session" }}
+                </p>
+                <ul class="h6">
+                    <li>{{ "Enable Patient Portal"|xlt }}</li>
+                    <li>{{ "Patient Portal Site Address"|xlt }}</li>
+                </ul>
+            </li>
+            <li class="h5">
+                {{ "Config"|xlt }} -> {{ "Notifications"|xlt }} -
+                {% if emailNotificationsConfigured %}
+                    <span class="text-success">{{ "Configured"|xlt }}</span>
+                {% else %}
+                    <span class="text-danger">{{ "Incorrect"|xlt }}</span>
+                {% endif %}
+                <p>
+                    {{ "The following settings must be configured in the Config Notifications section for Telehealth invitations to go out"|xlt }}
+                </p>
+                <ul class="h6">
+                    <li>{{ "Patient Reminder Sender Email"|xlt }}</li>
+                    <li>{{ "Email Transport Method"|xlt }}</li>
+                    <li>{{ "SMTP Server Hostname"|xlt }} - {{ "When using SMTP transport method"|xlt }}</li>
+                    <li>{{ "SMTP Server Port Number"|xlt }} - {{ "When using SMTP transport method"|xlt }}</li>
+                    <li>{{ "SMTP Security Protocol"|xlt }} - {{ "Recommended to use TLS when using SMTP transport method"|xlt }}</li>
+                    <li>{{ "SMTP User for Authentication"|xlt }} - {{ "When using SMTP transport method and SMTP Security Protocol"|xlt }}</li>
+                    <li>{{ "SMTP Password for Authentication"|xlt }} - {{ "When using SMTP transport method and SMTP Security Protocol"|xlt }}</li>
+                </ul>
+            </li>
+            <li class="h5">
+                {{ "Config"|xlt }} -> {{ "Locale"|xlt }} -
+                {% if isLocaleConfigured %}
+                    <span class="text-success">{{ "Configured"|xlt }}</span>
+                {% else %}
+                    <span class="text-danger">{{ "Incorrect"|xlt }}</span>
+                {% endif %}
+                <p>
+                    {{ "The following settings must be configured in the Config Locale section for Telehealth Calendar Sessions to work properly"|xlt }}
+                </p>
+                <ul class="h6">
+                    <li>{{ "Time Zone"|xlt }}</li>
+                </ul>
+            </li>
+        </ul>
+    </details>
+
+</div>

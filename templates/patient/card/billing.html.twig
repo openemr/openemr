@@ -1,0 +1,60 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-4">{{ "Patient Balance Due"|xlt }}</div>
+        <div class="col">{{ patientBalance|money|text }}</div>
+    </div>
+    <div class="row">
+        <div class="col-4">{{ "Insurance Balance Due"|xlt }}</div>
+        <div class="col">{{ insuranceBalance|money|text }}</div>
+    </div>
+    <div class="row">
+        <div class="col-4">{{ "Total Balance Due"|xlt }}</div>
+        <div class="col">{{ totalBalance|money|text }}</div>
+    </div>
+
+    {% if unallocated > 0 %}
+    <div class="row">
+        <div class="col-4">{{ "Unallocated Patient Pre-Payment"|xlt }}</div>
+        <div class="col">{{ unallocated|money|text }}</font></div>
+    </div>
+    {% endif %}
+
+    {% if collectionBalance > 0 %}
+    <div class="row alert-danger">
+        <div class="col-4">{{ "Collection Balance"|xlt }}</div>
+        <div class="col">{{ collectionBalance|money|text }}</font></div>
+    </div>
+    {% endif %}
+
+    {% if billingNote %}
+    <div class="row">
+        <div class="col-4">{{ "Billing Note"|xlt }}</div>
+        <div class="col">{{ billingNote|text }}</div>
+    </div>
+    {% endif %}
+    {% if provider %}
+    <div class="row">
+        <div class="col-4">{{ "Primary Insurance"|xlt }}</div>
+        <div class="col">{{ insName|text }}</div>
+    </div>
+        {% if copay %}
+        <div class="row">
+            <div class="col-4">{{ "Copay"|xlt }}</div>
+            <div class="col">{{ copay|text }}</div>
+        </div>
+        {% endif %}
+    <div class="row">
+        <div class="col-4">{{ "Effective Date"|xlt }}</div>
+        <div class="col">{{ effDate|shortDate|text }}</div>
+    </div>
+    <div class="row">
+        <div class="col-4">{{ "Effective Date End"|xlt }}</div>
+        <div class="col">{{ effDateEnd|shortDate|text }}</div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

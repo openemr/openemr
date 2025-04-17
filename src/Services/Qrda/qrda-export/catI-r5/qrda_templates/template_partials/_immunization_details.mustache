@@ -1,0 +1,14 @@
+{{#route}}
+<!--  QDM Attribute: Route -->
+<routeCode {{> _code}}/>
+{{/route}}
+{{#negated}}
+<!--  QDM Attribute: Dosage -->
+<doseQuantity nullFlavor="NA"/>
+{{/negated}}
+{{^negated}}
+{{#dosage}}
+  <!--  QDM Attribute: Dosage -->
+  {{{dose_quantity_value}}}
+{{/dosage}}
+{{/negated}}

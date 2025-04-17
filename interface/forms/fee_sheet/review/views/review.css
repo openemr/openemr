@@ -1,0 +1,111 @@
+/**
+ * Manage the style of the review and justify interface of the fee sheet.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kevin Yeh <kevin.y@integralemr.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+div.review {
+  background-color: var(--light);
+  position: absolute;
+  z-index: 100;
+}
+
+div.review > div {
+  border: 1px solid;
+  padding: 1px;
+}
+
+div.review table td {
+  text-align: left;
+}
+
+th.first_column {
+  text-align: left;
+}
+
+div.review table input.price {
+  text-align: right;
+  width: 5em;
+}
+
+div.review table input.units {
+  text-align: right;
+  width: 3em;
+}
+
+a.justify_label {
+  cursor: pointer;
+}
+
+div.justify_template {
+  background-color: var(--light);
+  position: absolute;
+  z-index: 100;
+}
+
+div.justify_template > div {
+  border: 1px solid var(--black);
+}
+
+div.justify_template span.search_results {
+  background-color: var(--white);
+  border: 1px solid var(--black);
+  position: absolute;
+}
+
+div.justify_template span.search_results table {
+  cursor: pointer;
+}
+
+
+tr[encounter_issue] > td.info {
+  font-weight: bold;
+}
+
+tr.patient > td.info {
+  color: var(--primary);
+}
+
+tr.common > td.info {
+  color: #2f4f4f;
+}
+
+tr.search > td.info {
+  color: var(--success);
+}
+
+td.priority {
+  text-align: center;
+  width: 1.1em;
+}
+
+th.sort {
+  cursor: pointer;
+}
+
+div.justify_template span.search_results tr:hover {
+  background-color: var(--yellow);
+}
+
+.problem_warning {
+  background-color: var(--yellow);
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
+}
+
+.warning_details {
+  background-color: var(--white);
+  position: absolute;
+  width: 100%;
+}
+
+td > input.description {
+  width: 100%;
+}

@@ -1,0 +1,50 @@
+<entry>
+  <act classCode="ACT" moodCode="EVN">
+    <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+    <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+    <!-- Symptom Concern Act (V3) -->
+    <templateId root="2.16.840.1.113883.10.20.24.3.138" extension="2019-12-01"/>
+    <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+    <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern"/>
+    {{#prevalencePeriod}}
+    {{#completed_prevalence_period}}
+    <statusCode code="completed" />
+    {{/completed_prevalence_period}}
+    {{^completed_prevalence_period}}
+    <statusCode code="active" />
+    {{/completed_prevalence_period}}
+    <!-- QDM Attribute: Prevalence Period -->
+    {{{prevalence_period}}}
+    {{/prevalencePeriod}}
+    <entryRelationship typeCode="SUBJ">
+      <observation classCode="OBS" moodCode="EVN">
+        <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+        <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+        <!-- Symptom (V2) -->
+        <templateId root="2.16.840.1.113883.10.20.24.3.136" extension="2019-12-01"/>
+        <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+        <code code="75325-1" codeSystem="2.16.840.1.113883.6.1">
+          <translation code="418799008" displayName="Symptom" codeSystem="2.16.840.1.113883.6.96"/>
+        </code>
+        <statusCode code="completed" />
+        {{#prevalencePeriod}}
+        <!-- QDM Attribute: Prevalence Period -->
+        {{{prevalence_period}}}
+        {{/prevalencePeriod}}
+        <!-- QDM Attribute: Code -->
+        {{> qrda_templates/template_partials/_data_element_codes_as_values}}
+        {{#recorder}}
+          <!-- QDM Attribute: Recorder -->
+          <participant typeCode="PRF">
+            {{> qrda_templates/template_partials/_entity}}
+          </participant>
+        {{/recorder}}
+        {{#severity}}
+          <!-- QDM Attribute: Severity -->
+          {{> qrda_templates/template_partials/_severity}}
+        {{/severity}}
+      </observation>
+    </entryRelationship>
+  </act>
+</entry>
+

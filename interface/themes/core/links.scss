@@ -1,0 +1,38 @@
+@if $compact-theme == false {
+  .logout {
+    color: $body-color;
+    text-align: $left;
+    text-decoration: none;
+  }
+
+  .more {
+    text-decoration: none;
+  }
+
+  .back {
+    text-decoration: none;
+  }
+
+  .link_selected {
+    color: $primary;
+    text-decoration: none;
+
+    &:visited {
+      color: $primary;
+      text-decoration: none;
+    }
+  }
+
+  .link_submit {
+    color: darken($primary, 20%);
+    text-decoration: none;
+
+    a:visited {
+      color: darken($primary, 20%);
+    }
+
+    a:hover {
+      color: lighten($danger, 10%);
+    }
+  }
+}

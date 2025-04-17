@@ -1,0 +1,23 @@
+This directory holds the scripts used in the ubuntu-debian packages.
+
+
+PRODUCTION PACKAGE
+production directory - holds the production version package scripts
+Directory structure of package.
+--Note the maintenance scripts need broad execution privileges
+--Note when gzip something use --best switch
+/var/www/openemr (this contains source, obviously not included here)
+/usr/share/applications/openemr.desktop
+/usr/share/doc/openemr/README.Debian
+/usr/share/doc/openemr/changelog.Debian.gz
+/usr/share/doc/openemr/copyright
+/usr/share/man/man8/openemr.8.gz
+/DEBIAN/control
+/DEBIAN/preinst
+/DEBIAN/postinst
+/DEBIAN/prerm
+/DEBIAN/postrm
+/DEBIAN/config
+/DEBIAN/templates
+/etc/apache2/sites-available/openemr.conf
+

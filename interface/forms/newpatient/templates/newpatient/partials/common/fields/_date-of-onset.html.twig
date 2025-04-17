@@ -1,0 +1,15 @@
+{# Date Of Onset Hospital Date #}
+<div class="col-sm {{ globals.gbl_visit_onset_date ? '' : 'd-none' }}">
+    <div class="form-group">
+        <label for="form_onset_date" class="text-right">
+            {{ "Onset/hosp. date:"|xlt }}
+            <i id="onset-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+        </label>
+        <input type="text"
+               class="form-control datepicker"
+               name="form_onset_date"
+               id="form_onset_date"
+               value="{{ encounter.onset_data ? '' : encounter.onset_date|oeFormatDateTime|attr }}"
+               title='{{ 'Date of onset or hospitalization'|xla }}'/>
+    </div>
+</div>

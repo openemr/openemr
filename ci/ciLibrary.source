@@ -1,0 +1,149 @@
+#!/bin/bash
+#
+# Copyright (C) 2020 Brady Miller <brady.g.miller@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# Bash library for openemr ci
+#
+
+composer_github_auth() {
+    githubToken=`echo MjE2OTcwOGE2MmM5ZWRiMzA3NGFmNGVjMmZkOGE0MWY2YzVkMDJhZgo= | base64 --decode`
+    githubTokenRateLimitRequest=`curl -H "Authorization: token $githubToken" https://api.github.com/rate_limit`
+    githubTokenRateLimit=`echo $githubTokenRateLimitRequest | jq '.rate.remaining'`
+    echo "Number of github api requests remaining is $githubTokenRateLimit"
+    if [ "$githubTokenRateLimit" -gt 500 ]; then
+        echo "Trying to use composer github api token"
+        if `composer config --global --auth github-oauth.github.com "$githubToken"`; then
+            echo "github composer token worked"
+        else
+            echo "github composer token did not work"
+        fi
+    else
+        echo "Not using composer github api token"
+    fi
+}
+
+dockers_env_start() {
+    failTest=false
+    cd ci/${DOCKER_DIR} || failTest=true
+    docker compose up -d || failTest=true
+    cd ../../ || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+main_build() {
+      failTest=false
+      # TODO, figure out how not to require the below line (maybe chown or something like that)
+      sudo chmod -R 0777 .
+      composer install || failTest=true
+      npm install || failTest=true
+      npm run build || failTest=true
+      composer global require phing/phing || failTest=true
+      $HOME/.composer/vendor/bin/phing vendor-clean || failTest=true
+      $HOME/.composer/vendor/bin/phing assets-clean || failTest=true
+      composer global remove phing/phing || failTest=true
+      composer dump-autoload -o || failTest=true
+      rm -fr node_modules || failTest=true
+      if $failTest; then
+        exit 1
+      fi
+}
+
+ccda_build() {
+    failTest=false
+    cd ccdaservice || failTest=true
+    npm install || failTest=true
+    cd ../ || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+install_configure() {
+    failTest=false
+    sudo chmod 666 sites/default/sqlconf.php || failTest=true
+    sudo chmod -R 777 sites/default/documents || failTest=true
+    sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_fhir_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_portal_api\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 3 WHERE gl_name = \"oauth_password_grant\"" openemr' || failTest=true
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_system_scopes_api\"" openemr' || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_unit() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite unit --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_e2e() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_ARGUMENTS='--disable-dev-shm-usage'; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_api() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_fixtures() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite fixtures --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_services() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite services --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_validators() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite validators --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_controllers() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite controllers --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+
+build_test_common() {
+    failTest=false
+    docker exec -i $(docker ps | grep openemr[_\-] | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite common --testdox" || failTest=true
+    if $failTest; then
+      exit 1
+    fi
+}
+

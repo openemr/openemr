@@ -1,0 +1,77 @@
+@if $compact-theme == false {
+  #navigation-slide,
+  #navigation-slide * {
+    @include font-size("0.75rem");
+    margin-#{$left}: 0;
+    padding-#{$left}: 0;
+  }
+
+  #navigation-slide li,
+  #navigation-slide * li {
+    list-style: none;
+  }
+
+  #navigation-slide li a,
+  #navigation-slide * li a {
+    @include font-size("1.13rem");
+    background-color: none;
+    color: $body-color;
+    display: block;
+    padding: 8px 0;
+    width: 100%;
+  }
+
+  #navigation-slide li a:hover,
+  #navigation-slide * li a:hover {
+    background-color: $gray-200;
+  }
+
+  #navigation-slide li a.collapsed_lv2::before,
+  #navigation-slide * li a.collapsed_lv2::before,
+  #navigation-slide li a.collapsed_lv3::before,
+  #navigation-slide * li a.collapsed_lv3::before {
+    border-bottom: 5px solid transparent;
+    /* left arrow slant */
+    border-top: 5px solid transparent;
+    content: "&nbsp;";
+    /* bottom, add background color here */
+    font-size: 0;
+    height: 0;
+    line-height: 10px;
+    width: 0;
+    /* right arrow slant */
+    border-#{$left}: 5px solid $dark;
+  }
+
+  #navigation-slide li a.expanded,
+  #navigation-slide * li a.expanded {
+    background: $light;
+  }
+
+  #navigation-slide li a.expanded_lv2::before,
+  #navigation-slide * li a.expanded_lv2::before,
+  #navigation-slide li a.expanded_lv3::before,
+  #navigation-slide * li a.expanded_lv3::before {
+    /* right arrow slant */
+    border-#{$left}: 5px solid $dark;
+    border-#{$right}: 5px solid transparent;
+    /* left arrow slant */
+    border-top: 5px solid transparent;
+    content: "&nbsp;";
+    /* bottom, add background color here */
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    width: 0;
+  }
+
+  #navigation-slide li a img,
+  #navigation-slide * li a img {
+    display: none;
+  }
+
+  #navigation-slide li ul li,
+  #navigation-slide * li ul li {
+    padding-#{$left}: 14px;
+  }
+}

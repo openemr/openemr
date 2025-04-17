@@ -1,0 +1,67 @@
+<tr>
+    <td colspan="8" class="text-left p-3">
+                {% if details|length %}
+
+                    <table class="table table-striped">
+                        <thead>
+                        <tr class="border-0">
+                            <th colspan="3" class="border-0">&nbsp;</th>
+                            <th class="bg-info border-0" colspan="{{ details.denominatorHeaders|length }}">{{ "Denominator"|xlt }}</th>
+                            <th class="bg-success border-0"colspan="{{ details.numeratorHeaders|length }}">{{ "Numerator Criteria"|xlt }}</th>
+                            <th class="bg-success border-0"></th>
+                        </tr>
+                        <tr>
+                            <th class="amc-demographic-label border-top-0">{{ "Name"|xlt }}</th>
+                            <th class="amc-demographic-label border-top-0">{{ "Sex"|xlt }}</th>
+                            <th class="amc-demographic-label border-top-0 border-right">{{ "DOB"|xlt }}</th>
+                            {% for label in details.denominatorHeaders %}
+                                <th class="amc-action-label  border-right">{{ label|text }}</th>
+                            {% endfor %}
+                            {% for label in details.numeratorHeaders%}
+                                <th class="amc-action-label {% if not loop.last %}border-right{% endif %}">{{ label|text }}</th>
+                            {% endfor %}
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in details.patients %}
+                            {% for record in row.records %}
+                                <tr>
+                                    {% if loop.first %}
+                                        <td rowspan="{{ row.records|length }}" class="amc-demographic-label">
+                                            {{ row.patient.fname|text }} {{ row.patient.lname|text}}
+                                        </td>
+                                        <td rowspan="{{ row.records|length }}" class="amc-demographic-label">
+                                            {{ row.patient.sex|text }}
+                                        </td>
+                                        <td rowspan="{{ row.records|length }}" class="amc-demographic-label border-right">
+                                            {{ row.patient.DOB|text }}
+                                        </td>
+                                    {% endif %}
+                                    {% if record.denominator|length %}
+                                        {%  for action in record.denominator %}
+                                            <td class="amc-action-label border-right">
+                                                <strong>{% if action.value %}{{ "Yes"|xlt }}{% else %}{{ "No"|xlt }}{% endif %}</strong>
+                                                {% if action.details != "" %} - <span>{{ action.details|text }}</span>{% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if record.numerator|length %}
+                                        {%  for action in record.numerator %}
+                                            <td class="amc-action-label {% if not loop.last %}border-right{% endif %}">
+                                                <strong>{% if action.value %}{{ "Yes"|xlt }}{% else %}{{ "No"|xlt }}{% endif %}</strong>
+                                                {% if action.details != "" %} - <span>{{ action.details|text }}</span>{% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    {{ "No patient records found"|xlt }}
+                {% endif %}
+    </td>
+</tr>

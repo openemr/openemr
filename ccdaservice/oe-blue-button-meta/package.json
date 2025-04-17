@@ -1,0 +1,21 @@
+{
+    "name": "blue-button-meta",
+    "version": "1.7.0",
+    "description": "Metadata about Blue Button format (CCDA) internal structures",
+    "main": "index.js",
+    "scripts": {},
+    "keywords": [
+        "bluebutton",
+        "metadata",
+        "ccda"
+    ],
+    "author": "Dmitry Kachaev <dmitry.kachaev@gmail.com> (http://github.com/kachok)",
+    "contributors": [{
+        "name": "Matt Martz",
+        "email": "matt.martz@gmail.com"
+    }],
+    "license": "Apache-2.0",
+    "engines": {
+        "node": ">= 0.10.0"
+    }
+}

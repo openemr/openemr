@@ -1,0 +1,25 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+
+<div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
+{% if list|length == 0 %}
+    {% if listTouched == true %}
+        <div class="list-group-item p-0 pl-1">
+            {{ "None{{Issues}}"|xlt }}
+        </div>
+    {% else %}
+    <div class="list-group-item p-0 pl-1">
+        {{ "Nothing Recorded"|xlt }}
+    </div>
+    {% endif %}
+{% else %}
+    {% for m in list %}
+        <div class="list-group-item p-0 pl-1">
+            <span class="font-weight-normal">{{ m.title|text }}</span>
+            <span>{{ m.drug_dosage_instructions|text }}</span>
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
+{% endblock %}

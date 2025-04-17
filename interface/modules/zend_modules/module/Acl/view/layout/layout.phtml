@@ -1,0 +1,58 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Acl/view/layout/layout.phtml
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jacob T.Paul <jacob@zhservices.com>
+ * @author    Basil PT <basil@zhservices.com>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+echo $this->doctype();
+?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- Le styles -->
+        <?php
+
+        $css_treeview = $_SESSION['language_direction'] != 'rtl' ? $this->basePath() . '/css/jquery.treeview-1.4.1/jquery.treeview.css' :  $this->basePath() . '/css/jquery.treeview-1.4.1/rtl-treeview/jquery.treeview.rtl.css';
+
+        echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+        		->prependStylesheet($this->basePath() . '/css/acl.css')
+			->prependStylesheet($css_treeview)
+			->prependStylesheet($this->basePath() . '/css/easyui.css')
+                        ->prependStylesheet($this->basePath() . '/css/icon.css')
+                        ->prependStylesheet($this->basePath() . '/css/demo.css')
+			->prependStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
+			->prependStylesheet($this->basePath() . '/css/style.css')
+			->prependStylesheet($this->basePath() . '/css/suggestion.css')
+			->prependStylesheet($this->basePath() . '/css/bubbletip-IE.css')
+			->prependStylesheet($this->basePath() . '/css/bubbletip.css')
+			->prependStylesheet($this->basePath() . '/css/bubbles.css')
+			->prependStylesheet($this->basePath() . '/css/jquery.custom-scrollbar.css')
+			->prependStylesheet($GLOBALS['css_header']) ?>
+
+        <!-- Scripts -->
+        <?php echo $this->headScript()
+					->prependFile($this->basePath() . '/js/application/common.js')
+                    ->prependFile($this->basePath() . '/js/lib/bootstrap.min.js')
+					->prependFile($this->basePath() . '/js/acl/acl.js')
+					->prependFile($this->basePath() . '/js/lib/jquery.treeview-1.4.1/jquery.treeview.js')
+					->prependFile($this->basePath() . '/js/lib/jquery-ui.js')
+					->prependFile($this->basePath() . '/js/lib/jquery.custom-scrollbar.js')
+					->prependFile($this->basePath() . '/js/lib/jquery-1.8.0.min.js')
+					?>
+    </head>
+    <body  class="container_body">
+        <div class="container2" style="width:100%">
+            <?php echo $this->content; ?>
+        </div> <!-- /container -->
+        <?php echo $this->inlineScript() ?>
+    </body>
+</html>

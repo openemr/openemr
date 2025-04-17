@@ -1,0 +1,8 @@
+[-*Smarty*-]
+[-* set MULTIDAY otherwise day header is not shown. This is what makes week view different from day view *-]
+[-assign var=MULTIDAY value=true-]
+  [-if $PRINT_VIEW == 1-]
+    [-include file="$TPL_NAME/views/month_print/outlook_ajax_template.html"-]
+  [-else-]
+    [-include file="$TPL_NAME/views/month/ajax_template.html"-]
+  [-/if-]

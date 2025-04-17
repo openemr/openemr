@@ -1,0 +1,29 @@
+{**
+ * Prescription General Block
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *}
+ <style>
+ <!--
+td {
+	font-family: sans-serif;
+	text-decoration: none;
+	color: #000000;
+	font-size: 70%;
+}
+-->
+</style>
+<table>
+	{foreach from=$prescriptions item=prescription}
+  {if $prescription->get_active() > 0}
+	<tr>
+		<td>{$prescription->drug|text}</td>
+		<td>{$prescription->get_dosage_display()|text}</td>
+	</tr>
+  {/if}
+	{/foreach}
+</table>

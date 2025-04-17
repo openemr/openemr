@@ -1,0 +1,196 @@
+[{
+        "resourceType": "Practitioner",
+        "id": "90cde167-7b9b-4ed1-bd55-533925cb2605",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-06-15T20:51:33+00:00"
+        },
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Yash Bothra</p></div>"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1234567890"
+        }],
+        "active": true,
+        "name": [{
+            "use": "official",
+            "family": "Perez",
+            "given": [
+                "test-fixture-Eduardo",
+                "Kathy"
+            ],
+            "prefix": [
+                "Mrs."
+            ]
+        }],
+        "telecom": [{
+                "system": "phone",
+                "value": "(619) 555-4859",
+                "use": "home"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 555-7821",
+                "use": "work"
+            },
+            {
+                "system": "phone",
+                "value": "(619) 555-7822",
+                "use": "mobile"
+            },
+            {
+                "system": "email",
+                "value": "info@pennfirm.com",
+                "use": "home"
+            }
+        ],
+        "address": [{
+            "line": [
+                "789 Third Avenue"
+            ],
+            "city": "San Diego",
+            "state": "CA",
+            "postalCode": "90210"
+        }]
+    },
+    {
+        "resourceType": "Practitioner",
+        "id": "90cde167-7b9b-4ed1-bd55-533925cb2606",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2020-06-15T20:51:33+00:00"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "0987654321"
+        }],
+        "active": true,
+        "name": [{
+            "use": "official",
+            "family": "Careful",
+            "given": [
+                "test-fixture-Adam"
+            ],
+            "prefix": [
+                "Dr"
+            ]
+        }],
+        "address": [{
+            "line": [
+                "534 Erewhon St"
+            ],
+            "city": "PleasantVille",
+            "state": "CA",
+            "postalCode": "3999"
+        }]
+    },
+    {
+        "resourceType": "Practitioner",
+        "id": "90cde167-7b9b-4ed1-bd55-533925cb2607",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      <p>Harold Hippocrates, MD</p>\n    </div>"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "9274253214"
+        }],
+        "name": [{
+            "use": "official",
+            "family": "Hippocrates",
+            "given": [
+                "test-fixture-Harold"
+            ],
+            "suffix": [
+                "MD"
+            ]
+        }]
+    }, {
+        "resourceType": "Practitioner",
+        "id": "90cde167-7b9b-4ed1-bd55-533925cb2705",
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Dr. Beverly Crusher</div>"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "1122334499"
+        }],
+        "name": [{
+            "use": "official",
+            "family": "Beverly",
+            "given": [
+                "test-fixture-Crusher"
+            ],
+            "prefix": [
+                "Dr"
+            ]
+        }]
+    },
+    {
+        "resourceType": "Practitioner",
+        "id": "90cde167-7b9b-4ed1-bd55-533925cb2805",
+        "meta": {
+            "lastUpdated": "2012-05-29T23:45:32Z"
+        },
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Seven, Henry. SSN:\n            333333333</div>"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "7876364627"
+        }],
+        "name": [{
+            "use": "official",
+            "family": "Seven",
+            "given": [
+                "test-fixture-Henry"
+            ]
+        }],
+        "telecom": [{
+            "system": "phone",
+            "value": "555-555-1002",
+            "use": "work"
+        }],
+        "address": [{
+            "line": [
+                "1002 Healthcare Drive"
+            ]
+        }]
+    },
+    {
+        "resourceType": "Practitioner",
+        "id": "90cde167-7b9b-4ed1-bd55-533925cb2776",
+        "meta": {
+            "lastUpdated": "2012-05-29T23:45:32Z"
+        },
+        "text": {
+            "status": "generated",
+            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Assigned, Amanda. SSN:\n            33344444</div>"
+        },
+        "identifier": [{
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "3484736473"
+        }],
+        "name": [{
+            "use": "official",
+            "family": "Assigned",
+            "given": [
+                "test-fixture-Amanda"
+            ]
+        }],
+        "telecom": [{
+            "system": "phone",
+            "value": "555-555-1021",
+            "use": "work"
+        }],
+        "address": [{
+            "line": [
+                "1020 Healthcare Drive"
+            ]
+        }]
+    }
+]

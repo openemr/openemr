@@ -1,0 +1,44 @@
+<entry>
+  <procedure classCode="PROC" moodCode="EVN" {{{negation_ind}}}>
+    <!-- Procedure Activity Procedure -->
+    <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+    <!-- Device Applied -->
+    <templateId root="2.16.840.1.113883.10.20.24.3.7" extension="2019-12-01"/>
+    <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+    <code code="360030002" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT" displayName="application of device"/>
+    <text>{{description}}</text>
+    <statusCode code="completed"/>
+    {{{relevant_date_period_or_null_flavor}}}
+    {{#anatomicalLocationSite}}
+      <!-- QDM Attribute: Anatomical Location Site -->
+      {{> qrda_templates/template_partials/_anatomical_location_site}}
+    {{/anatomicalLocationSite}}
+    {{#authorDatetime}}
+      <!-- QDM Attribute: Author dateTime -->
+      {{> qrda_templates/template_partials/_author}}
+    {{/authorDatetime}}
+    <participant typeCode="DEV">
+      <participantRole classCode="MANU">
+        <playingDevice classCode="DEV">
+          <!-- QDM Attribute: Code -->
+          {{> _codes}}
+        </playingDevice>
+      </participantRole>
+    </participant>
+    {{#performer}}
+      <!-- QDM Attribute: Performer -->
+      <participant typeCode="PRF">
+        {{> qrda_templates/template_partials/_entity}}
+      </participant>
+    {{/performer}}
+    {{#reason}}
+      <!-- QDM Attribute: Reason -->
+      {{> qrda_templates/template_partials/_reason}}
+    {{/reason}}
+    {{#negationRationale}}
+      <!-- QDM Attribute: Negation Rationale -->
+      {{> qrda_templates/template_partials/_reason}}
+    {{/negationRationale}}
+  </procedure>
+</entry>
+

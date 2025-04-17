@@ -1,0 +1,69 @@
+/**
+* Login page stylesheet.
+*
+* LICENSE: This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+*
+* @package OpenEMR
+* @author  Robert Down <robertdown@live.com>
+* @link    http://www.open-emr.org
+*/
+
+$login-color-1: #fff !default;
+$login-color-2: #00d4ff !default;
+$login-color-3: #2c9cd4 !default;
+$login-text-color: #fff !default;
+$login-form-bg-color: $white !default;
+$login-button-primary: false !default;
+
+@if $compact-theme == false {
+  .login {
+    background: $light;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+  }
+
+  @media (min-width: map-get($grid-breakpoints, "sm")) {
+    .login {
+      align-items: center;
+    }
+  }
+
+  @media (max-width: map-get($grid-breakpoints, "md")) {
+    .login-row-center {
+      max-width: inherit;
+    }
+  }
+
+  @media (min-width: map-get($grid-breakpoints, "md")) {
+    .login-row-center {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      max-width: 50%;
+    }
+  }
+
+  // Needed for logo
+  .w-40 {
+    width: 40%;
+  }
+
+  // Needed for logo
+  .w-15 {
+    width: 15%;
+  }
+
+  #ui-id-1 > .message {
+    color: $danger;
+    font-weight: bold;
+  }
+}

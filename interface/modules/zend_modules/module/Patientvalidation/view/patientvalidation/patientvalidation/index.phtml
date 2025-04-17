@@ -1,0 +1,115 @@
+<script>
+
+    /* +-----------------------------------------------------------------------------+
+     * Copyright 2016 matrix israel
+     * LICENSE: This program is free software; you can redistribute it and/or
+     * modify it under the terms of the GNU General Public License
+     * as published by the Free Software Foundation; either version 3
+     * of the License, or (at your option) any later version.
+     * This program is distributed in the hope that it will be useful,
+     * but WITHOUT ANY WARRANTY; without even the implied warranty of
+     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+     * GNU General Public License for more details.
+     * You should have received a copy of the GNU General Public License
+     * along with this program. If not, see
+     * http://www.gnu.org/licenses/licenses.html#GPL
+     *    @author  Dror Golan <drorgo@matrix.co.il>
+     * +------------------------------------------------------------------------------+
+     *
+     */
+    <?php if ($closeBeforeOpening):?>
+    opener.document.forms[0].submit();
+    window.close();
+
+    <?php endif;?>
+</script>
+<style>
+    th, td {
+        padding: 15px;
+        text-align: left;
+    }
+
+</style>
+<table id="example" class="display">
+    <thead>
+    <th><?php echo $translate->z_xlt("ID");?></th>
+    <th><?php echo $translate->z_xlt("First name");?></th>
+    <th><?php echo $translate->z_xlt("Last name");?></th>
+    <th><?php echo $translate->z_xlt("DOB");?></th>
+    <th><?php echo $translate->z_xlt("Sex");?></th>
+    </thead>
+    <tbody>
+
+    <?php
+
+        if ($related_patients) : ?>
+        <?php foreach ($related_patients as $key=>$related_patient):?>
+            <tr>
+                <td><?php echo $this->escapeHtml($related_patient['id']);?></td>
+
+                <td><?php echo $this->escapeHtml($related_patient['fname']);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['lname']);?></td>
+                <td><?php echo $this->escapeHtml($related_patient['DOB']);?></td>
+                <td><?php echo $translate->z_xlt($related_patient['sex']);?></td>
+
+            </tr>
+        <?php endforeach;?>
+
+    <?php endif;?>
+    </tbody>
+
+
+</table>
+
+
+<center>
+
+        <input type='button' value='<?php echo $translate->z_xla('Cancel'); ?>'
+               onclick='window.close();' />
+        <?php
+        if ($status == 'ok') { ?>
+        <input type='button' value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
+               onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
+        <?php } ?>
+</center>
+
+
+
+<script>
+    $(function () {
+        var table = $('#example').DataTable({"searching": false});
+        window.resizeTo(950, 600)
+
+        /*
+        ToDo : make it work like the new_patient popup now doesn't open the patient
+         */
+
+        /*
+        $('#example tbody').on('click', 'tr', function () {
+            <?php
+            // The layout loads just the demographics frame here, which in turn
+            // will set the pid and load all the other frames.
+                $newPage = "../../../patient_file/summary/demographics.php?set_pid=";
+                $target = "document";
+            ?>
+            var open_page = '<?php echo $newPage; ?>' + this.firstElementChild.innerHTML;
+            opener.<?php echo $target; ?>.location.href = open_page;
+            window.close();
+            return true;
+
+
+        });
+        */
+        var f = opener.document.forms[0];
+        <?php if ($related_patients) { ?>
+        alert('<?php echo $translate->z_xla('A patient with this ID already exists.'); ?>')
+        <?php } else { ?>
+        opener.force_submit = true;
+        f.create.value = '<?php echo $translate->z_xla('Confirm Create New Patient'); ?>';
+        <?php } ?>
+
+        <?php if (!count($related_patients)) { ?>
+        $("<td><?php echo $translate->z_xla('No matches were found.'); ?></td>").appendTo("#example_info");
+        <?php } ?>
+    });
+</script>

@@ -1,0 +1,77 @@
+/*below section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/
+@if $compact-theme == false {
+  .form-horizontal {
+    .control-label,
+    .col-form-label {
+      padding-top: 2px;
+    }
+  }
+
+  /* This code needs to be gone cuz it's terrible */
+  fieldset {
+    margin-bottom: 10px;
+    padding: 0 0 15px;
+  }
+
+  legend {
+    padding: 0 10px;
+  }
+
+  .oe {
+    &-custom-line {
+      padding-bottom: 5px;
+    }
+
+    &-large {
+      display: inline-block;
+    }
+
+    &-small {
+      display: none;
+    }
+
+    &-show-hide {
+      display: none;
+    }
+
+    &-legend-radio {
+      font-size: 12px;
+      padding: 5px 5px 0 0;
+    }
+
+    &-bold-black {
+      color: $body-color;
+      font-weight: 700;
+    }
+
+    &-payment-select {
+      font-size: 12px;
+      text-align: right;
+      width: 80px !important;
+    }
+
+    &-ckbox-label {
+      font-weight: 500;
+      padding-left: 30px;
+    }
+
+    &-file-div {
+      padding: 10px 15px;
+    }
+
+    &-modal-dialog {
+      width: 65% !important;
+    }
+
+    &-btn-circle {
+      border-radius: 15px;
+      font-size: 12px;
+      height: 30px;
+      line-height: 1.428571429;
+      padding: 6px 0;
+      text-align: center;
+      width: 30px;
+    }
+  }
+}
+/*above section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/

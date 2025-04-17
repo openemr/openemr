@@ -1,0 +1,747 @@
+{**
+* Review of systems form
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*}
+<html>
+<head>
+
+<title>{xl t='Review Of Systems'|text}</title>
+
+{headerTemplate}
+
+ <style>
+    label {
+        padding: 0px 5px !Important;
+    }
+    input[type=checkbox], input[type=radio] {
+        margin: 4px;
+    }
+</style>
+
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>{xlt t="Review Of Systems"}</h2>
+                <form name="ros" class="form-horizontal" method="post" action="{$FORM_ACTION}/interface/forms/ros/save.php" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}" />
+                    <fieldset>
+                        <legend>{xlt t="Constitutional"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="weight_change" class="col-form-label">{xlt t="Weight Change"}:</label>
+                                {html_radios name="weight_change" id="weight_change" options=$form->get_options() selected=$form->get_weight_change() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="anorexia" class="col-form-label">{xlt t="Anorexia"}:</label>
+                                {html_radios name="anorexia" id="anorexia" options=$form->get_options() selected=$form->get_anorexia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="night_sweats" class="col-form-label">{xlt t="Night Sweats"}</label>
+                                {html_radios name="night_sweats" id="night_sweats" options=$form->get_options() selected=$form->get_night_sweats() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="heat_or_cold" class="col-form-label">{xlt t="Heat or Cold"}:</label>
+                                {html_radios name="heat_or_cold" name="heat_or_cold" options=$form->get_options() selected=$form->get_heat_or_cold() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="weakness" class="col-form-label">{xlt t="Weakness"}</label>
+                                {html_radios name="weakness" id="weakness" options=$form->get_options() selected=$form->get_weakness() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="fever" class="col-form-label">{xlt t="Fever"}:</label>
+                                {html_radios name="fever" name="fever" options=$form->get_options() selected=$form->get_fever() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="insomnia" class="col-form-label">{xlt t="Insomnia"}:</label>
+                                {html_radios name="insomnia" name="insomnia" options=$form->get_options() selected=$form->get_insomnia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="intolerance" class="col-form-label">{xlt t="Intolerance"}:</label>
+                                {html_radios name="intolerance" id="intolerance" options=$form->get_options() selected=$form->get_intolerance() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="fatigue" class="col-form-label">{xlt t="Fatigue"}:</label>
+                                {html_radios name="fatigue" id="fatigue" options=$form->get_options() selected=$form->get_fatigue() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="weight_change" class="col-form-label">{xlt t="Chills"}:</label>
+                                {html_radios name="chills" id="chills" options=$form->get_options() selected=$form->get_chills() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="irritability" class="col-form-label">{xlt t="Irritability"}:</label>
+                                {html_radios name="irritability" id="irritability" options=$form->get_options() selected=$form->get_irritability() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Eyes"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="change_in_vision" class="col-form-label">{xlt t="Change in Vision"}:</label>
+                                {html_radios name="change_in_vision" id="change_in_vision" options=$form->get_options() selected=$form->get_weight_change() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="irritation" class="col-form-label">{xlt t="Irritation"}:</label>
+                                {html_radios name="irritation" id="irritation" options=$form->get_options() selected=$form->get_irritation() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="double_vision" class="col-form-label">{xlt t="Double Vision"}:</label>
+                                {html_radios name="double_vision" id="double_vision" options=$form->get_options() selected=$form->get_double_vision() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="glaucoma_history" class="col-form-label">{xlt t="Family History of Glaucoma"}:</label>
+                                {html_radios name="glaucoma_history" id="glaucoma_history" options=$form->get_options() selected=$form->get_glaucoma_history() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="redness" class="col-form-label">{xlt t="Redness"}:</label>
+                                {html_radios name="redness" id="redness" options=$form->get_options() selected=$form->get_redness() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="blind_spots" class="col-form-label">{xlt t="Blind Spots"}:</label>
+                                {html_radios name="blind_spots" id="blind_spots" options=$form->get_options() selected=$form->get_blind_spots() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="eye_pain" class="col-form-label">{xlt t="Eye Pain"}:</label>
+                                {html_radios name="eye_pain" id="eye_pain" options=$form->get_options() selected=$form->get_eye_pain() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="excessive_tearing" class="col-form-label">{xlt t="Excessive Tearing"}:</label>
+                                {html_radios name="excessive_tearing" id="excessive_tearing" options=$form->get_options() selected=$form->get_excessive_tearing() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="photophobia" class="col-form-label">{xlt t="Photophobia"}:</label>
+                                {html_radios name="photophobia" id="photophobia" options=$form->get_options() selected=$form->get_photophobia() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Ears"}, {xlt t="Nose"}, {xlt t="Mouth"}, {xlt t="Throat"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="hearing_loss" class="col-form-label">{xlt t="Hearing Loss"}:</label>
+                                {html_radios name="hearing_loss" id="hearing_loss" options=$form->get_options() selected=$form->get_hearing_loss() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="vertigo" class="col-form-label">{xlt t="Vertigo"}:</label>
+                                {html_radios name="vertigo" id="vertigo" options=$form->get_options() selected=$form->get_vertigo() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="sore_throat" class="col-form-label">{xlt t="Sore Throat"}:</label>
+                                {html_radios name="sore_throat" id="sore_throat" options=$form->get_options() selected=$form->get_sore_throat() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="nosebleed" class="col-form-label">{xlt t="Nosebleed"}:</label>
+                                {html_radios name="nosebleed" options=$form->get_options() selected=$form->get_nosebleed() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="discharge" class="col-form-label">{xlt t="Discharge"}:</label>
+                                {html_radios name="discharge" id="discharge" options=$form->get_options() selected=$form->get_discharge() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="tinnitus" class="col-form-label">{xlt t="Tinnitus"}:</label>
+                                {html_radios name="tinnitus" id="tinnitus" options=$form->get_options() selected=$form->get_tinnitus() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="sinus_problems" class="col-form-label">{xlt t="Sinus Problems"}:</label>
+                                {html_radios name="sinus_problems" id="sinus_problems" options=$form->get_options() selected=$form->get_sinus_problems() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="snoring" class="col-form-label">{xlt t="Snoring"}:</label>
+                                {html_radios name="snoring" id="snoring" options=$form->get_options() selected=$form->get_snoring() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="pain" class="col-form-label">{xlt t="Pain"}:</label>
+                                {html_radios name="pain" id="pain" options=$form->get_options() selected=$form->get_pain() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="frequent_colds" class="col-form-label">{xlt t="Frequent Colds"}:</label>
+                                {html_radios name="frequent_colds" id="frequent_colds" options=$form->get_options() selected=$form->get_frequent_colds() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="post_nasal_drip" class="col-form-label">{xlt t="Post Nasal Drip"}:</label>
+                                {html_radios name="post_nasal_drip" id="post_nasal_drip" options=$form->get_options() selected=$form->get_post_nasal_drip() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="apnea" class="col-form-label">{xlt t="Apnea"}:</label>
+                                {html_radios name="apnea" id="apnea" options=$form->get_options() selected=$form->get_apnea() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Breast"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="breast_mass" class="col-form-label">{xlt t="Breast Mass"}:</label>
+                                {html_radios name="breast_mass" id="breast_mass" options=$form->get_options() selected=$form->get_breast_mass() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="abnormal_mammogram" class="col-form-label">{xlt t="Abnormal Mammogram"}:</label>
+                                {html_radios name="abnormal_mammogram" id="abnormal_mammogram" options=$form->get_options() selected=$form->get_abnormal_mammogram() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="breast_discharge" class="col-form-label">{xlt t="Discharge"}:</label>
+                                {html_radios name="breast_discharge" id="breast_discharge" options=$form->get_options() selected=$form->get_breast_discharge() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="biopsy" class="col-form-label">{xlt t="Biopsy"}</label>
+                                {html_radios name="biopsy" id="biopsy" options=$form->get_options() selected=$form->get_biopsy() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Respiratory"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="cough" class="col-form-label">{xlt t="Cough"}:</label>
+                                {html_radios name="cough" id="cough" options=$form->get_options() selected=$form->get_cough() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="wheezing" class="col-form-label">{xlt t="Wheezing"}:</label>
+                                {html_radios name="wheezing" id="wheezing" options=$form->get_options() selected=$form->get_wheezing() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="copd" class="col-form-label">{xlt t="COPD"}:</label>
+                                {html_radios name="copd" id="copd" options=$form->get_options() selected=$form->get_copd() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="sputum" class="col-form-label">{xlt t="Sputum"}:</label>
+                                {html_radios name="sputum" id="sputum" options=$form->get_options() selected=$form->get_sputum() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="hemoptsyis" class="col-form-label">{xlt t="Hemoptysis"}:</label>
+                                {html_radios name="hemoptsyis" id="hemoptsyis" options=$form->get_options() selected=$form->get_hemoptsyis() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="shortness_of_breath" class="col-form-label">{xlt t="Shortness of Breath"}:</label>
+                                {html_radios name="shortness_of_breath" id="shortness_of_breath" options=$form->get_options() selected=$form->get_shortness_of_breath() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="asthma" class="col-form-label">{xlt t="Asthma"}:</label>
+                                {html_radios name="asthma" id="asthma" options=$form->get_options() selected=$form->get_asthma() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Cardiovascular"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="chest_pain" class="col-form-label">{xlt t="Chest Pain"}:</label>
+                                {html_radios name="chest_pain" id="chest_pain" options=$form->get_options() selected=$form->get_chest_pain() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="pnd" class="col-form-label">{xlt t="PND"}:</label>
+                                {html_radios name="pnd" id="pnd" options=$form->get_options() selected=$form->get_pnd() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="peripheal" class="col-form-label">{xlt t="Peripheral"}:</label>
+                                {html_radios name="peripheal" id="peripheal" options=$form->get_options() selected=$form->get_peripheal() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="history_murmur" class="col-form-label">{xlt t="History of Heart Murmur"}:</label>
+                                {html_radios name="history_murmur" id="history_murmur" options=$form->get_options() selected=$form->get_history_murmur() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="palpitation" class="col-form-label">{xlt t="Palpitation"}:</label>
+                                {html_radios name="palpitation" id="palpitation" options=$form->get_options() selected=$form->get_palpitation() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="doe" class="col-form-label">{xlt t="DOE"}:</label>
+                                {html_radios name="doe" id="doe" options=$form->get_options() selected=$form->get_doe() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="edema" class="col-form-label">{xlt t="Edema"}:</label>
+                                {html_radios name="edema" id="edema" options=$form->get_options() selected=$form->get_edema() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="arrythmia" class="col-form-label">{xlt t="Arrythmia"}:</label>
+                                {html_radios name="arrythmia" id="arrythmia" options=$form->get_options() selected=$form->get_arrythmia() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="syncope" class="col-form-label">{xlt t="Syncope"}:</label>
+                                {html_radios name="syncope" id="syncope" options=$form->get_options() selected=$form->get_syncope() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="orthopnea" class="col-form-label">{xlt t="Orthopnea"}:</label>
+                                {html_radios name="orthopnea" id="orthopnea" options=$form->get_options() selected=$form->get_orthopnea() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="legpain_cramping" class="col-form-label">{xlt t="Leg Pain/Cramping"}:</label>
+                                {html_radios name="legpain_cramping" id="legpain_cramping" options=$form->get_options() selected=$form->get_legpain_cramping() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="heart_problem" class="col-form-label">{xlt t="Heart Problem"}:</label>
+                                {html_radios name="heart_problem" id="heart_problem" options=$form->get_options() selected=$form->get_heart_problem() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Gastrointestinal"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="dysphagia" class="col-form-label">{xlt t="Dysphagia"}:</label>
+                                {html_radios name="dysphagia" id="dysphagia" options=$form->get_options() selected=$form->get_dysphagia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="belching" class="col-form-label">{xlt t="Belching"}:</label>
+                                {html_radios name="belching" id="belching" options=$form->get_options() selected=$form->get_belching() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="vomiting" class="col-form-label">{xlt t="Vomiting"}:</label>
+                                {html_radios name="vomiting" id="vomiting" options=$form->get_options() selected=$form->get_vomiting() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="food_intolerance" class="col-form-label">{xlt t="Food Intolerance"}:</label>
+                                {html_radios name="food_intolerance" id="food_intolerance" options=$form->get_options() selected=$form->get_food_intolerance() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="hematochezia" class="col-form-label">{xlt t="Hematochezia"}:</label>
+                                {html_radios name="hematochezia" id="hematochezia" options=$form->get_options() selected=$form->get_hematochezia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="constipation" class="col-form-label">{xlt t="Constipation"}:</label>
+                                {html_radios name="constipation" id="constipation" options=$form->get_options() selected=$form->get_constipation() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="heartburn" class="col-form-label">{xlt t="Heartburn"}:</label>
+                                {html_radios name="heartburn" id="heartburn" options=$form->get_options() selected=$form->get_heartburn() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="flatulence" class="col-form-label">{xlt t="Flatulence"}:</label>
+                                {html_radios name="flatulence" id="flatulence" options=$form->get_options() selected=$form->get_flatulence() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="hematemesis" class="col-form-label">{xlt t="Hematemesis"}:</label>
+                                {html_radios name="hematemesis" id="hematemesis" options=$form->get_options() selected=$form->get_hematemesis() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="name="hepatitis" " class="col-form-label">{xlt t="H/O Hepatitis"}:</label>
+                                {html_radios name="hepatitis" id="hepatitis" options=$form->get_options() selected=$form->get_hepatitis() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="name="changed_bowel" class="col-form-label">{xlt t="Changed Bowel"}:</label>
+                                {html_radios name="changed_bowel" id="changed_bowel" options=$form->get_options() selected=$form->get_changed_bowel() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="bloating" class="col-form-label">{xlt t="Bloating"}:</label>
+                                {html_radios name="bloating" id="bloating" options=$form->get_options() selected=$form->get_bloating() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="nausea" class="col-form-label">{xlt t="Nausea"}:</label>
+                                {html_radios name="nausea" id="nausea" options=$form->get_options() selected=$form->get_nausea() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="gastro_pain" class="col-form-label">{xlt t="Pain"}:</label>
+                                {html_radios name="gastro_pain" id="gastro_pain" options=$form->get_options() selected=$form->get_gastro_pain() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="jaundice" class="col-form-label">{xlt t="Jaundice"}:</label>
+                                {html_radios name="jaundice" id="jaundice" options=$form->get_options() selected=$form->get_jaundice() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="diarrhea" class="col-form-label">{xlt t="Diarrhea"}:</label>
+                                {html_radios name="diarrhea" id="diarrhea" options=$form->get_options() selected=$form->get_diarrhea() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Genitourinary"} {xlt t="General"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="polyuria" class="col-form-label">{xlt t="Polyuria"}:</label>
+                                {html_radios name="polyuria" id="polyuria" options=$form->get_options() selected=$form->get_polyuria() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="hematuria" class="col-form-label">{xlt t="Hematuria"}:</label>
+                                {html_radios name="hematuria" id="hematuria" options=$form->get_options() selected=$form->get_hematuria() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="incontinence" class="col-form-label">{xlt t="Incontinence"}::</label>
+                                {html_radios name="incontinence" id="incontinence" options=$form->get_options() selected=$form->get_incontinence() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="polydypsia" class="col-form-label">{xlt t="Polydypsia"}:</label>
+                                {html_radios name="polydypsia" id="polydypsia" options=$form->get_options() selected=$form->get_polydypsia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="frequency" class="col-form-label">{xlt t="Frequency"}:</label>
+                                {html_radios name="frequency" id="frequency" options=$form->get_options() selected=$form->get_frequency() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="renal_stones" class="col-form-label">{xlt t="Renal Stones"}:</label>
+                                {html_radios name="renal_stones" id="renal_stones" options=$form->get_options() selected=$form->get_renal_stones() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="dysuria" class="col-form-label">{xlt t="Dysuria"}:</label>
+                                {html_radios name="dysuria" id="dysuria" options=$form->get_options() selected=$form->get_dysuria() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="urgency" class="col-form-label">{xlt t="Urgency"}:</label>
+                                {html_radios name="urgency" id="urgency" options=$form->get_options() selected=$form->get_urgency() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="utis" class="col-form-label">{xlt t="UTIs"}:</label>
+                                {html_radios name="utis" id="utis" options=$form->get_options() selected=$form->get_utis() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Genitourinary"} {xlt t="Male"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="hesitancy" class="col-form-label">{xlt t="Hesitancy"}:</label>
+                                {html_radios name="hesitancy" id="hesitancy" options=$form->get_options() selected=$form->get_hesitancy() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="nocturia" class="col-form-label">{xlt t="Nocturia"}:</label>
+                                {html_radios name="nocturia" id="nocturia" options=$form->get_options() selected=$form->get_nocturia() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="dribbling" class="col-form-label">{xlt t="Dribbling"}:</label>
+                                {html_radios name="dribbling" id="dribbling" options=$form->get_options() selected=$form->get_dribbling() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="erections" class="col-form-label">{xlt t="Erections"}:</label>
+                                {html_radios name="erections" id="erections" options=$form->get_options() selected=$form->get_erections() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="stream" class="col-form-label">{xlt t="Stream"}:</label>
+                                {html_radios name="stream" id="stream" options=$form->get_options() selected=$form->get_stream() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="ejaculations" class="col-form-label">{xlt t="Ejaculations"}:</label>
+                                {html_radios name="ejaculations" id="ejaculations" options=$form->get_options() selected=$form->get_ejaculations() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Genitourinary"} {xlt t="Female"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="g" class="col-form-label">{xlt t="Female G"}:</label>
+                                {html_radios name="g" id="g" options=$form->get_options() selected=$form->get_g() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="lc" class="col-form-label">{xlt t="Female LC"}:</label>
+                                {html_radios name="lc" id="lc" options=$form->get_options() selected=$form->get_lc() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="lmp" class="col-form-label">{xlt t="LMP"}:</label>
+                                {html_radios name="lmp" id="lmp" options=$form->get_options() selected=$form->get_lmp() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="f_symptoms" class="col-form-label">{xlt t="Symptoms"}:</label>
+                                {html_radios name="f_symptoms" id="f_symptoms" options=$form->get_options() selected=$form->get_f_symptoms() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="p" class="col-form-label">{xlt t="Female P"}:</label>
+                                {html_radios name="p" id="p" options=$form->get_options() selected=$form->get_p() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="mearche" class="col-form-label">{xlt t="Menarche"}:</label>
+                                {html_radios name="mearche" id="mearche" options=$form->get_options() selected=$form->get_mearche() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="f_frequency" class="col-form-label">{xlt t="Frequency"}:</label>
+                                {html_radios name="f_frequency" id="f_frequency" options=$form->get_options() selected=$form->get_f_frequency() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="abnormal_hair_growth" class="col-form-label">{xlt t="Abnormal Hair Growth"}:</label>
+                                {html_radios name="abnormal_hair_growth" id="abnormal_hair_growth" options=$form->get_options() selected=$form->get_abnormal_hair_growth() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="ap" class="col-form-label">{xlt t="Female AP"}:</label>
+                                {html_radios name="ap" id="ap" options=$form->get_options() selected=$form->get_ap() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="menopause" class="col-form-label">{xlt t="Menopause"}</label>
+                                {html_radios name="menopause" id="menopause" options=$form->get_options() selected=$form->get_menopause() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="f_flow" class="col-form-label">{xlt t="Flow"}:</label>
+                                {html_radios name="f_flow" id="f_flow" options=$form->get_options() selected=$form->get_f_flow() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="f_hirsutism" class="col-form-label">{xlt t="F/H Female Hirsutism/Striae"}:</label>
+                                {html_radios name="f_hirsutism" id="f_hirsutism" options=$form->get_options() selected=$form->get_f_hirsutism() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Musculoskeletal"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="joint_pain" class="col-form-label">{xlt t="Chronic Joint Pain"}:</label>
+                                {html_radios name="joint_pain" id="joint_pain" options=$form->get_options() selected=$form->get_joint_pain() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="m_warm" class="col-form-label">{xlt t="Warm"}:</label>
+                                {html_radios name="m_warm" id="m_warm" options=$form->get_options() selected=$form->get_m_warm() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="m_aches" class="col-form-label">{xlt t="Aches"}:</label>
+                                {html_radios name="m_aches" id="m_aches" options=$form->get_options() selected=$form->get_m_aches() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="swelling" class="col-form-label">{xlt t="Swelling"}:</label>
+                                {html_radios name="swelling" id="swelling" options=$form->get_options() selected=$form->get_swelling() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="m_stiffness" class="col-form-label">{xlt t="Stiffness"}:</label>
+                                {html_radios name="m_stiffness" id="m_stiffness" options=$form->get_options() selected=$form->get_m_stiffness() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="fms" class="col-form-label">{xlt t="FMS"}:</label>
+                                {html_radios name="fms" id="fms" options=$form->get_options() selected=$form->get_fms() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="m_redness" class="col-form-label">{xlt t="Redness"}:</label>
+                                {html_radios name="m_redness" id="m_redness" options=$form->get_options() selected=$form->get_m_redness() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="muscle" class="col-form-label">{xlt t="Muscle"}:</label>
+                                {html_radios name="muscle" id="muscle" options=$form->get_options() selected=$form->get_muscle() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="arthritis" class="col-form-label">{xlt t="Arthritis"}:</label>
+                                {html_radios name="arthritis" id="arthritis" options=$form->get_options() selected=$form->get_arthritis() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Neurologic"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="loc" class="col-form-label">{xlt t="LOC"}:</label>
+                                {html_radios name="loc" id="loc" options=$form->get_options() selected=$form->get_loc() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="tia" class="col-form-label">{xlt t="TIA"}:</label>
+                                {html_radios name="tia" id="tia" options=$form->get_options() selected=$form->get_tia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="paralysis" class="col-form-label">{xlt t="Paralysis"}:</label>
+                                {html_radios name="paralysis" id="paralysis" options=$form->get_options() selected=$form->get_paralysis() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="dementia" class="col-form-label">{xlt t="Dementia"}:</label>
+                                {html_radios name="dementia" id="dementia" options=$form->get_options() selected=$form->get_dementia() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="seizures" class="col-form-label">{xlt t="Seizures"}:</label>
+                                {html_radios name="seizures" id="seizures" options=$form->get_options() selected=$form->get_seizures() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="n_numbness" class="col-form-label">{xlt t="Numbness"}:</label>
+                                {html_radios name="n_numbness" id="n_numbness" options=$form->get_options() selected=$form->get_n_numbness() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="intellectual_decline" class="col-form-label">{xlt t="Intellectual Decline"}:</label>
+                                {html_radios name="intellectual_decline" id="intellectual_decline" options=$form->get_options() selected=$form->get_intellectual_decline() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="n_headache" class="col-form-label">{xlt t="Headache"}:</label>
+                                {html_radios name="n_headache" id="n_headache" options=$form->get_options() selected=$form->get_n_headache() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="stroke" class="col-form-label">{xlt t="Stroke"}:</label>
+                                {html_radios name="stroke" id="stroke" options=$form->get_options() selected=$form->get_stroke() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="n_weakness" class="col-form-label">{xlt t="Weakness"}:</label>
+                                {html_radios name="n_weakness" id="n_weakness" options=$form->get_options() selected=$form->get_n_weakness() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="memory_problems" class="col-form-label">{xlt t="Memory Problems"}:</label>
+                                {html_radios name="memory_problems" id="memory_problems" options=$form->get_options() selected=$form->get_memory_problems() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Skin"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="s_cancer" class="col-form-label">{xlt t="Cancer"}:</label>
+                                {html_radios name="s_cancer" id="s_cancer" options=$form->get_options() selected=$form->get_s_cancer() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="s_other" class="col-form-label">{xlt t="Other"}:</label>
+                                {html_radios name="s_other" id="s_other" options=$form->get_options() selected=$form->get_s_other() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="psoriasis" class="col-form-label">{xlt t="Psoriasis"}:</label>
+                                {html_radios name="psoriasis" id="psoriasis" options=$form->get_options() selected=$form->get_psoriasis() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="s_disease" class="col-form-label">{xlt t="Disease"}:</label>
+                                {html_radios name="s_disease" id="s_disease" options=$form->get_options() selected=$form->get_s_disease() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="s_acne" class="col-form-label">{xlt t="Acne"}:</label>
+                                {html_radios name="s_acne" id="s_acne" options=$form->get_options() selected=$form->get_s_acne() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Psychiatric"}</legend>
+                                                <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="p_diagnosis" class="col-form-label">{xlt t="Psychiatric Diagnosis"}:</label>
+                                {html_radios name="p_diagnosis" id="p_diagnosis" options=$form->get_options() selected=$form->get_p_diagnosis() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="anxiety" class="col-form-label">{xlt t="Anxiety"}:</label>
+                                {html_radios name="anxiety" id="anxiety" options=$form->get_options() selected=$form->get_anxiety() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="p_medication" class="col-form-label">{xlt t="Psychiatric Medication"}:</label>
+                                {html_radios name="p_medication" id="p_medication" options=$form->get_options() selected=$form->get_p_medication() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="social_difficulties" class="col-form-label">{xlt t="Social Difficulties"}:</label>
+                                {html_radios name="social_difficulties" id="social_difficulties" options=$form->get_options() selected=$form->get_social_difficulties() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="depression" class="col-form-label">{xlt t="Depression"}:</label>
+                                {html_radios name="depression" id="depression" options=$form->get_options() selected=$form->get_depression() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Endocrine"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="thyroid_problems" class="col-form-label">{xlt t="Thyroid Problems"}:</label>
+                                {html_radios name="thyroid_problems" id="thyroid_problems" options=$form->get_options() selected=$form->get_thyroid_problems() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="diabetes" class="col-form-label">{xlt t="Diabetes"}:</label>
+                                {html_radios name="diabetes" id="diabetes" options=$form->get_options() selected=$form->get_diabetes() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="abnormal_blood" class="col-form-label">{xlt t="Abnormal Blood Test"}:</label>
+                                {html_radios name="abnormal_blood" id="abnormal_blood" options=$form->get_options() selected=$form->get_abnormal_blood() separator=""}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{xlt t="Hematologic"}/{xlt t="Allergic"}/{xlt t="Immunologic"}</legend>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="anemia" class="col-form-label">{xlt t="Anemia"}:</label>
+                                {html_radios name="anemia" id="anemia" options=$form->get_options() selected=$form->get_anemia() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="allergies" class="col-form-label">{xlt t="Allergies"}:</label>
+                                {html_radios name="allergies" id="allergies" options=$form->get_options() selected=$form->get_allergies() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="hai_status" class="col-form-label">{xlt t="HAI Status"}:</label>
+                                {html_radios name="hai_status" id="hai_status" options=$form->get_options() selected=$form->get_hai_status() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="fh_blood_problems" class="col-form-label">{xlt t="F/H Blood Problems"}:</label>
+                                {html_radios name="fh_blood_problems" id="fh_blood_problems" options=$form->get_options() selected=$form->get_fh_blood_problems() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="frequent_illness" class="col-form-label">{xlt t="Frequent Illness"}:</label>
+                                {html_radios name="frequent_illness" id="frequent_illness" options=$form->get_options() selected=$form->get_frequent_illness() separator=""}
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group mt-3">
+                                <label for="bleeding_problems" class="col-form-label">{xlt t="Bleeding Problems"}:</label>
+                                {html_radios name="bleeding_problems" id="bleeding_problems" options=$form->get_options() selected=$form->get_bleeding_problems() separator=""}
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="hiv" class="col-form-label">{xlt t="HIV"}:</label>
+                                {html_radios name="hiv" id="hiv" options=$form->get_options() selected=$form->get_hiv() separator=""}
+                            </div>
+                        </div>
+
+                    </fieldset>
+                    <div class="form-group mt-3">
+                        <div class="col-sm-12 position-override">
+                            <div class="btn-group" role="group">
+                                <button type="submit" class="btn btn-primary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
+                                <button type="button" class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
+                            </div>
+                            <input type="hidden" name="id" value="{$form->get_id()|attr}" />
+                            <input type="hidden" name="pid" value="{$form->get_pid()|attr}" />
+                            <input type="hidden" name="process" value="true" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

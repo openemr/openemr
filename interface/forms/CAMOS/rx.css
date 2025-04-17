@@ -1,0 +1,103 @@
+/**
+ * CAMOS rx.css
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+#rx1 {
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+
+#rx2 {
+  left: 5.5in;
+  position: absolute;
+  top: 0;
+}
+
+#rx3 {
+  left: 0;
+  position: absolute;
+  top: 4.25in;
+}
+
+#rx4 {
+  left: 5.5in;
+  position: absolute;
+  top: 4.25in;
+}
+
+.rx {
+  height: 4.05in;
+  padding-bottom: 0.09in;
+  padding-left: 0.09in;
+  padding-right: 0.09in;
+  padding-top: 0.09in;
+  width: 5.3in;
+}
+
+.topheader {
+  font-family: times;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.bottomheader {
+  font-family: times;
+  font-size: 12px;
+  font-weight: normal;
+  text-align: left;
+}
+
+.content {
+  font-family: courier;
+  font-size: 14px;
+  font-weight: normal;
+  text-align: left;
+}
+
+.signature {
+  font-size: 12px;
+  font-weight: normal;
+  position: absolute;
+  top: 3.5in;
+}
+
+.sig {
+  position: absolute;
+  top: 2.7in;
+}
+
+.mytagname {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.mydata {
+  font-size: 12px;
+  font-weight: normal;
+  text-decoration: underline;
+}
+
+.symbol {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#vline {
+  left: 5.43in;
+  position: absolute;
+  top: 0;
+}
+
+#hline {
+  left: 0;
+  position: absolute;
+  top: 4.12in;
+}

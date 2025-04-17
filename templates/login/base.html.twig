@@ -1,0 +1,70 @@
+{#
+The base login Twig template
+
+This template sets up the HTML skeleton for the login page and defines several
+blocks that can be overridden by a specific layout. This template cannot be
+directly used, instead, it is extended by a layout that implements the styling
+and semantic choices
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% set srOnly = (showLabels == true) ? "" : "sr-only" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% if displayGoogleSignin %}
+        {% include "login/partials/html/google_signin.html.twig" %}
+    {% endif %}
+
+    <title>{% block title %}{{ title|text }} {{ "Login"|xlt }}{% endblock %}</title>
+    {% block head %}{% endblock %}
+    {{ setupHeader() }}
+
+    {% include "login/partials/js/product_reg.js.twig" %}
+
+    {% block css %}
+    <style type="text/css">
+        .band,
+        .box,
+        .vertical-band {
+            background-color: var(--light);
+        }
+    </style>
+    {% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passInput = document.getElementById('clearPass');
+            const toggle = document.getElementById('password-icon');
+            toggle.addEventListener('click', function () {
+                const isPassword = passInput.getAttribute('type') === 'password';
+                passInput.setAttribute('type', isPassword ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
+</head>
+<body>
+
+{% block pre_content %}{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block post_content %}{% endblock %}
+
+</body>
+
+{% block post_body %}
+    {# @todo Product Reg should be its own module and injected in a better way #}
+    {% include "login/partials/html/product_registration_modal.html.twig" %}
+{% endblock %}
+</html>
+{% if displayGoogleSignin %}
+    {# @todo Google signing should be its own module and injected in a better way #}
+    {% include "login/partials/js/google_signin.js.twig" %}
+{% endif %}

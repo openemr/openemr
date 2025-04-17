@@ -1,0 +1,151 @@
+
+{#
+ # Authorization Server Member
+ #
+ # @package   OpenEMR
+ # @link      http://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "oauth2/oauth2-base.html.twig" %}
+{% block title %}{{ "OpenEMR Authorization"|xlt }}{% endblock %}
+{% block content %}
+<div class="row h-100 w-100 justify-content-center align-items-center">
+    <div class="col-sm-6 bg-light text-dark">
+        <div class="text-md-center">
+            <h4 class="mb-4 mt-1">{% if mfaRequired %}{{'MFA Verification'|xlt }}{% else %}{{ "Sign In"|xlt  }}{% endif %}</h4>
+        </div>
+        <hr />
+        <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
+        {% if invalid is not empty %}
+            <div class="alert alert-danger">
+                <p>{{ invalid|text }}</p>
+            </div>
+        {% endif %}
+            <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw('oauth2')|attr }}" />
+            {% if not mfaRequired %}
+
+            {% if enforce_signin_email %}
+            <div class="form-group">
+                <input class="form-control" placeholder="{{ "Email if required"|xla  }}" type="email" name="email">
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <input class="form-control" placeholder="{{ "Registered username"|xla  }}" type="text" name="username" value="">
+            </div>
+            <div class="form-group">
+                <input class="form-control" placeholder="******" type="password" name="password" value="">
+            </div>
+            {% endif %}
+
+            {% if mfaRequired %}
+                {% if isTOTP %}
+                <fieldset>
+                    <legend>{{'Provide TOTP code'|xlt }}</legend>
+                </fieldset>
+                <div class="form-group">
+                    <input class="form-control" id="totp_token" autocomplete="false" placeholder="{{ "Enter required authentication code"|xla  }}" type="text" name="mfa_token">
+                </div>
+                <div class="form-group">
+                    <button type="submit" name="user_role" class="btn btn-primary btn-save" value="api">{{ "Authenticate TOTP"|xlt }}</button>
+                </div>
+                {% endif %}
+
+                {% if isU2F %}
+                <div class="form-group">
+                    <fieldset>
+                        <legend>{{ 'Insert U2F Key'|xlt  }}</legend>
+                        <div>
+                            <ul>
+                                <li>{{ 'Insert your key into a USB port and click the Authenticate button below.'|xlt  }}</li>
+                                <li>{{ 'Then press the flashing button on your key within 1 minute.'|xlt }}</li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                    <button type="button" id="authutf" class="btn btn-primary btn-save" onclick="doAuth()">{{ 'Authenticate U2F'|xlt  }}</button>
+                    <input type="hidden" name="form_requests" value="{{ u2fRequests|attr }}" />
+                    <input type="hidden" name="user_role" value="api">
+                </div>
+                {% endif %}
+
+                {% if enforce_signin_email %}
+                <div class="form-group">
+                    <input class="form-control" type="hidden" value="{{ user.email|attr }}">
+                </div>
+                {% endif %}
+                <div class="form-group">
+                    <input class="form-control" type="hidden" name="username" value="{{ user.username|attr }}">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="hidden" name="password" value="{{ user.password|attr }}">
+                </div>
+                <input class="form-control" type="hidden" name="mfa_type" value="TOTP">
+            {% endif %}
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="btn-group">
+                        {% if mfaRequired is empty %}
+                            <button type="submit" name="user_role" class="btn btn-outline-primary" value="api">{{"OpenEMR Login"|xlt }} <i class="fa fa-sign-in-alt"></i></button>
+                            {% if patientRoleSupport is not empty %}
+                                <button type="submit" name="user_role" class="btn btn-outline-info" value="portal-api">{{ "Patient Login"|xlt  }} <i class="fa fa-sign-in-alt"></i></button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="form-check-inline float-right">
+                        <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
+                        <label for="persist_login" class="form-check-label">{{ "Remember Me"|xlt  }}</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function doAuth() {
+        let xl = window.top.xl || function(id) { return id; };
+        let f = document.getElementById("userLogin");
+        let requests = [];
+        try {
+            requests = JSON.parse(f.form_requests.value);
+            if (!(Array.isArray(requests) && requests.length > 0 && requests[0].challenge)) {
+                throw "Invalid U2F request data";
+            }
+        }
+        catch (error) {
+            console.error("Internal error: invalid U2f request data.  This should never happen", error);
+            alert(xl("Internal error: invalid U2F request data"));
+            return;
+        }
+        // The server's getAuthenticateData() repeats the same challenge in all requests.
+        let challenge = requests[0].challenge;
+        const registeredKeys = (requests || []).map(req => ({"version": req.version, "keyHandle": req.keyHandle}));
+        u2f.sign({{ appId|json_encode }}, challenge, registeredKeys,
+            function (data) {
+                if (data.errorCode && data.errorCode != 0) {
+                    alert(xl("Key access failed with error") +' ' + data.errorCode);
+                    return;
+                }
+                //hide totp input if both on used
+                const totpTokenElement = document.getElementById('totp_token');
+                if (totpTokenElement) {
+                    totpTokenElement.style.display = 'none';
+                }
+                //create new mfa_token input
+                let elInput = document.createElement('input');
+                elInput.setAttribute('type', 'hidden');
+                elInput.setAttribute('name', 'mfa_token');
+                elInput.setAttribute('value', JSON.stringify(data));
+                f.appendChild(elInput);
+                f.mfa_type.value = 'U2F';
+                f.submit();
+            },
+            60
+    );
+    }
+
+</script>
+{% endblock %}

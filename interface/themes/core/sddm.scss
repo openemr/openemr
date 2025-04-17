@@ -1,0 +1,43 @@
+@if $compact-theme == false {
+  #sddm {
+    li {
+      background: lighten($gray-100, 10%);
+      float: $left;
+      list-style: none;
+      margin: 0;
+
+      a {
+        display: block;
+        margin: 0 1px 0 0;
+        text-align: $left;
+        text-decoration: none;
+
+        &:hover {
+          background: $gray-300;
+        }
+      }
+    }
+
+    div {
+      position: absolute;
+      visibility: hidden;
+
+      a {
+        @include font-size("0.8rem");
+        display: block;
+        font-weight: normal;
+        margin: 0;
+        padding: 5px 10px;
+        position: relative;
+        text-align: $left;
+        text-decoration: none;
+        white-space: normal;
+        width: 170px;
+
+        &:hover {
+          color: $white;
+        }
+      }
+    }
+  }
+}

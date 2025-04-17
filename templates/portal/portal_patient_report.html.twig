@@ -1,0 +1,48 @@
+{#
+* portal_patient_report.html.twig
+*
+* @package   OpenEMR
+* @link      https://www.open-emr.org
+* @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Brady Miller <brady@sparmy.com>
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (C) 2024 Open Plan IT Ltd. <support@openplanit.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<html>
+<head>
+    {% include "portal/partial/reports/patient_report/_head.html.twig" %}
+</head>
+<body class="body_top">
+<div id="patient_reports"> <!-- large outer DIV -->
+    <form name='report_form' id="report_form" method='post' action='./report/portal_custom_report.php'>
+        <span class='card-heading'>{{ "Patient Report"|xlt }}</span>&nbsp;&nbsp;
+        <a class="link_submit" href="#" onclick="return checkAll(true)">{{ "Check All"|xlt }}</a> |
+        <a class="link_submit" href="#" onclick="return checkAll(false)">{{ "Clear All"|xlt }}</a>
+
+        {% include "portal/partial/reports/patient_report/_section_list.html.twig"  %}
+
+        <input type='hidden' name='pdf' value='0'>
+        <br />
+        {% include "portal/partial/reports/patient_report/_issues_encounters_form.html.twig" with {encounters: encounters, issues: issues} %}
+
+        <!-- Procedure Orders -->
+        {% include "portal/partial/reports/patient_report/_procedure_orders.html.twig" with {procedureOrders: procedureOrders} %}
+
+        {% include "portal/partial/reports/patient_report/_documents.html.twig" with {documents: documents} %}
+
+    </form>
+    <input type="button" class="genreport" value="{{ 'Generate Report'|xla }}" />&nbsp;
+    <input type="button" class="genpdfrep" value="{{ 'Download PDF'|xla }}" />&nbsp;
+</div>  <!-- close patient_reports DIV -->
+{% include "portal/partial/reports/patient_report/_body_scripts.html.twig"
+    with {
+        phimail_enable: phimail_enable
+        ,phimail_ccd_enable: phimail_ccd_enable
+        ,phone_country_code: phone_country_code
+    }
+%}
+</body>
+</html>

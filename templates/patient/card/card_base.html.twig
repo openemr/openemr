@@ -1,0 +1,22 @@
+<section class="{{ card_container_class_list|default(['card', 'mb-2'])|join(' ')}}{{ card_bg_color }} {{ card_text_color }}">
+    <div class="card-body p-1">
+        <h6 class="card-title mb-0 d-flex p-1 justify-content-between">
+            <a class="text-left font-weight-bolder" href="#" {% if forceAlwaysOpen != true %} data-toggle="collapse" data-target="#{{ id|attr }}" {% endif %} aria-expanded="true" aria-controls="{{ id|attr }}">{{ title|text }}<i class="ml-1 fa fa-fw {% if initiallyCollapsed %} fa-expand {% else %} fa-compress {% endif %}" data-target="#{{ id|attr }}"></i></a>
+            {% if auth %}
+                <span>
+                {% if card.canAdd() or btnLabel == "Add" %}
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-plus">&nbsp;</i></a>
+                {% endif %}
+                {% if card.canEdit() or btnLabel == "Edit" %}
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-pencil-alt">&nbsp;</i></a>
+                {% endif %}
+                </span>
+            {% endif %}
+        </h6>
+        <div id="{{ id|attr }}" class="card-text collapse{{ initiallyCollapsed ? "" : " show"}}">
+            <div class="clearfix pt-2">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</section>
