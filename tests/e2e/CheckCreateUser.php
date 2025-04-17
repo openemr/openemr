@@ -61,16 +61,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         $sumbmitClick->click();
 
         /*Check that the login was succesfull coparing the title from the page*/
-        // Close registration modal if present
-        $this->frame(null);
-        sleep(1);
-        try {
-            $modalClose = $this->byCssSelector('.product-registration-modal .nothanks');
-            $modalClose->click();
-            sleep(1);
-        } catch (Exception $e) {
-            // Modal not present — no action needed
-        }
+        $this->assertEquals('OpenEMR', $this->title(), "Login Failed");
 
         /*Move to frame left nav and click on new patient*/
         $this->frame("left_nav");
