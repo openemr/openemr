@@ -41,7 +41,7 @@ $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? 0;
 $registeredEmail = $product_row['email'] ?? '';
 $registerOptOut = $product_row['opt_out'] ?? 0;
-$app_under_test = $_SERVER['APP_UNDER_TEST'] ?? defined('APP_UNDER_TEST') ?? false;
+$app_under_test = $_SERVER['APP_UNDER_TEST'] == 'true' ? 1 : defined('APP_UNDER_TEST') ?? false;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
@@ -501,6 +501,11 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
      */
     $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+}
+
+if (!empty($allowRegisterDialog) && empty($app_under_test)) { // disable if running unit tests.
+    // Include the product registration js, telemetry and usage data reporting dialog
+    echo $twig->render("login/partials/js/product_reg.js.twig", ['email' => $registeredEmail, 'allowTelemetry' => $allowTelemetry, 'optOut' => $registerOptOut]);
 }
 
 ?>
