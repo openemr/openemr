@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # manage-openemr.sh - Script to start or stop OpenEMR Docker environment
-# Usage: ./manage-openemr.sh [up|down|restart]
+# Usage: ./manage-openemr.sh [up|down|downv|restart]
 
 # Set the OpenEMR development path
 OPENEMR_DEV_PATH="docker/development-easy"
@@ -9,7 +9,7 @@ OPENEMR_DEV_PATH="docker/development-easy"
 # Check if parameter is provided
 if [ $# -eq 0 ]; then
     echo "Error: Missing parameter."
-    echo "Usage: ./manage-openemr.sh [up|down|restart]"
+    echo "Usage: ./manage-openemr.sh [up|down|downv|restart]"
     exit 1
 fi
 
@@ -28,6 +28,15 @@ case "$1" in
     down)
         echo "Stopping OpenEMR Docker environment..."
         cd "$OPENEMR_DEV_PATH" && docker-compose down
+        if [ $? -eq 0 ]; then
+            echo "OpenEMR has been stopped."
+        else
+            echo "Failed to stop OpenEMR Docker environment."
+        fi
+        ;;
+    downv)
+        echo "Stopping OpenEMR Docker environment fully..."
+        cd "$OPENEMR_DEV_PATH" && docker-compose down -v
         if [ $? -eq 0 ]; then
             echo "OpenEMR has been stopped."
         else

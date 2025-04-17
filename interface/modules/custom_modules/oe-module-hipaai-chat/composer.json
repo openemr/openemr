@@ -1,0 +1,25 @@
+{
+  "name": "geviti/oe-module-hipaai-chat",
+  "version": "0.1.0",
+  "description": "OpenEMR HIPAA AI Chat Module",
+  "type": "openemr-module",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Geviti",
+      "email": "braden@gogeviti.com",
+      "role": "Developer"
+    }
+  ],
+  "keywords": ["openemr", "openemr-module"],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {"OpenEMR\\Modules\\HipaaiChat\\": "src/"}
+  },
+  "require": {
+    "php": ">= 7.4"  
+  },
+  "conflict": {
+    "openemr/openemr": "<6.0.0"
+  }
+}

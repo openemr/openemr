@@ -1,0 +1,10 @@
+.skeleton-module-footer
+{
+    position: absolute;
+    width: 100%;
+    background-color: #e2e2e2;
+    padding: 2rem;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+}
