@@ -4390,7 +4390,7 @@ $GLOBALS_METADATA = array(
             xl('Show Encounter Type option on Encounters'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl('Show Encounter Class option on Encounters'),
+            xl('Show Encounter Type option on Encounters'),
         ],
 
         'enc_enable_ordering_provider' => [
