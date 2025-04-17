@@ -2,11 +2,11 @@
 
 /**
  *
- * @package    OpenEMR
+ * @package        OpenEMR
  * @link           https://www.open-emr.org
- * @author      Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 <sjpadgett@gmail.com>
- * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author         Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright      Copyright (c) 2025 <sjpadgett@gmail.com>
+ * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Telemetry;
@@ -75,6 +75,13 @@ class TelemetryService
             return false;
         }
 
+        // server geo data
+        $geo = new GeoTelemetry();
+        $serverGeoData = $geo->getServerGeoData();
+        if (isset($serverGeo['error'])) {
+            error_log("Error fetching server geolocation: " . $serverGeo['error']);
+        }
+
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
         $interval = date("Ym", strtotime("-33 Days"));
 
@@ -91,7 +98,7 @@ class TelemetryService
             'site_uuid' => $site_uuid,
             'reporting_interval' => $interval,
             'reporting_date' => date("Ymd"),
-            'location' => '',
+            'location' => json_encode($serverGeoData),
             'time_zone' => $time_zone,
             'locale' => locale_get_default(),
             'version' => $this->versionService->asString(),
