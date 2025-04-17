@@ -503,11 +503,6 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 }
 
-if (!empty($allowRegisterDialog) && !$app_under_test) { // disable if running unit tests.
-    // Include the product registration js, telemetry and usage data reporting dialog
-    echo $twig->render("login/partials/js/product_reg.js.twig", ['email' => $registeredEmail, 'allowTelemetry' => $allowTelemetry, 'optOut' => $registerOptOut]);
-}
-
 ?>
 </body>
 
