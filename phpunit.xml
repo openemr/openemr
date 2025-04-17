@@ -4,7 +4,7 @@
   <php>
     <ini name="error_reporting" value="-1"/>
     <server name="PANTHER_WEB_SERVER_DIR" value="interface"/>
-    <server name="DISABLE_REG_MODAL" value="true" />
+    <server name="APP_UNDER_TEST" value="true" />
     <!-- ATTENTION use only on local machine you can not activate chrome visual mode on travis. -->
     <!-- to disable browser's headless mode (will display the testing window, useful to debug) -->
     <!--<server name="PANTHER_NO_HEADLESS" value="1"/>-->
