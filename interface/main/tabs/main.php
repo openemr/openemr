@@ -41,7 +41,11 @@ $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? 0;
 $registeredEmail = $product_row['email'] ?? '';
 $registerOptOut = $product_row['opt_out'] ?? 0;
-$app_under_test = $_SERVER['APP_UNDER_TEST'] == 'true' ? 1 : defined('APP_UNDER_TEST') ?? false;
+if (($_SERVER['APP_UNDER_TEST'] ?? false) == 'true' || (defined('APP_UNDER_TEST') ?? false)) {
+    $app_under_test = true;
+} else {
+    $app_under_test = false;
+}
 
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
