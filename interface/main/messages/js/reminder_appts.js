@@ -95,26 +95,49 @@ function setpatient(pid, lname='', fname='', dob='') {
  *  This function is called with pressing Submit on the Add a Recall page
  */
 function add_this_recall(e) {
-    if ($('#form_recall_date').val() === '') {
-        alert(xljs_PlsDecRecDate);
-        $("#form_recall_date").focus();
-        //e.defaultPrevented();
-        e.preventDefault();
-        return false;
-    } else {
-        var url = "save.php";
-        formData = JSON.stringify($("form#addRecall").serialize());
-        top.restoreSession();
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            action: 'add_recall',
-            data: formData
-        }).done(function (result) {
-            goReminderRecall('Recalls');
-        });
+    let isValid = true;
+    let errorMessage = '';
+
+    if ($('#new_recall_name').val() === '' || $('#new_pid').val() === '') {
+        errorMessage += '- ' + xl('Please select a patient') + '\n';
+        isValid = false;
     }
+
+    if ($('#form_recall_date').val() === '') {
+        errorMessage += '- ' + xl('Please select a recall date') + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_provider').val() === '' || $('#new_provider').val() === null) {
+        errorMessage += '- ' + xl('Please select a provider') + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_facility').val() === '' || $('#new_facility').val() === null) {
+        errorMessage += '- ' + xl('Please select a facility') + '\n';
+        isValid = false;
+    }
+
+    if (!isValid) {
+        alert(errorMessage);
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        return false;
+    }
+
+    var url = "save.php";
+    formData = JSON.stringify($("form#addRecall").serialize());
+    top.restoreSession();
+    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        action: 'add_recall',
+        data: formData
+    }).done(function (result) {
+        goReminderRecall('Recalls');
+    });
 }
 
 /**
