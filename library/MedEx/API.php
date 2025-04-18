@@ -2026,12 +2026,12 @@ class Display extends base
                 <div class="tab-content">
                    <div class="tab-pane active" id="tab-all">
                         <?php
-                            $has_recall = !empty($processed['ALL']);
-                            $this->recall_board_top($has_recall);
-                            if ($has_recall) {
-                                echo $processed['ALL'];
-                                $this->recall_board_bot();
-                            }
+                        $has_recall = !empty($processed['ALL']);
+                        $this->recall_board_top($has_recall);
+                        if ($has_recall) {
+                            echo $processed['ALL'];
+                            $this->recall_board_bot();
+                        }
                         ?>
                     </div>
                 </div>
@@ -2106,7 +2106,7 @@ class Display extends base
             $query .= " AND r_provider = ?";
             $params[] = $rcb_provider;
         }
-        
+
         if (!empty($patient_id)) {
             $query .= " AND r_pid = ?";
             $params[] = $patient_id;
@@ -2125,7 +2125,7 @@ class Display extends base
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
-        
+
         return $recalls ?? null;
     }
 
@@ -2511,12 +2511,12 @@ class Display extends base
         return $pat;
     }
     private function recall_board_top($has_recall = false)
-     {
+    {
         if (!$has_recall) {
             echo '<div class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
             return;
         }
- 
+
         ?>
         <div class="table-responsive">
             <table class="table table-bordered">
