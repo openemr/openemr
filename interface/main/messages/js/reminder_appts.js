@@ -348,22 +348,139 @@ function show_this(colorish='') {
     var pidRE = new RegExp(pidV, 'i');
     var pnameV = $("#form_patient_name").val();
     var pnameRE = new RegExp(pnameV, 'i');
+    var fromDate = $("#form_from_date").val();
+    var toDate = $("#form_to_date").val();
+    var fromDateObj = fromDate ? parseDate(fromDate) : null;
+    var toDateObj = toDate ? parseDate(toDate) : null;
 
-    $('.ALL').hide().filter(function () {
+    $('.ALL').hide();
+
+    var visibleRows = $('.ALL').filter(function () {
         var d = $(this).data();
         meets_fac = (facV === '') || (facV == d.facility);
         meets_prov = (provV === '') || (provV == d.provider);
         meets_pid = pidV === '';
+
         if ((pidV > '') && pidRE.test(d.pid)) {
             meets_pid = true;
         }
+
         meets_pname = pnameV === '';
+
         if ((pnameV > '') && pnameRE.test(d.pname)) {
             meets_pname = true;
         }
-        meets_color = (colorish === '') || (colorish == d.status );
-        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
-    }).show('4000', 'linear');
+
+        meets_color = (colorish === '') || (colorish == d.status);
+        meets_date = true;
+
+        if (fromDateObj || toDateObj) {
+            var apptDateText = $(this).find('.appt_date').text().trim();
+            var apptDate = extractDateFromText(apptDateText);
+            
+            if (apptDate) {
+                if (fromDateObj && apptDate < fromDateObj) {
+                    meets_date = false;
+                }
+                
+                if (toDateObj && apptDate > toDateObj) {
+                    meets_date = false;
+                }
+            }
+        }
+        
+        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color && meets_date;
+    });
+
+    visibleRows.show('400', 'linear');
+
+    if (visibleRows.length === 0) {
+        if ($(".alert.alert-info:contains('No Recalls Found')").length > 0) {
+            $(".alert.alert-info:contains('No Recalls Found')").show();
+        } else {
+            $("#show_recalls").prepend(
+                '<div class="alert alert-info text-center">No Recalls Found</div>'
+            );
+        }
+
+        $(".table-responsive").hide();
+    } else {
+        $(".alert.alert-info:contains('No Recalls Found')").hide();
+        $(".table-responsive").show();
+    }
+}
+
+/**
+ * Parse date from various formats
+ * Handles: DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD and variations
+ * @param {string} dateStr - Date string to parse
+ * @return {Date|null} - JavaScript Date object or null if invalid format
+ */
+function parseDate(dateStr) {
+    if (!dateStr) return null;
+
+    var separator = dateStr.includes('/') ? '/' : 
+                   (dateStr.includes('-') ? '-' : null);
+                   
+    if (!separator) return null;
+    
+    var parts = dateStr.split(separator);
+
+    if (parts.length !== 3) return null;
+    
+    var year, month, day;
+
+    if (parts[0].length === 4) {
+        year = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10) - 1;
+        day = parseInt(parts[2], 10);
+    }
+    else {
+        var isUSFormat = true;
+        
+        if (isUSFormat) {
+            month = parseInt(parts[0], 10) - 1;
+            day = parseInt(parts[1], 10);
+        } else {
+            day = parseInt(parts[0], 10);
+            month = parseInt(parts[1], 10) - 1;
+        }
+        year = parseInt(parts[2], 10);
+
+        if (year < 100) {
+            year = year < 50 ? 2000 + year : 1900 + year;
+        }
+    }
+
+    if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        return null;
+    }
+
+    return new Date(year, month, day);
+}
+
+/**
+ * Extract date from appointment date display text
+ * Searches for date patterns in the text
+ * @param {string} dateText - Text to extract date from
+ * @return {Date|null} - JavaScript Date object or null if no date found
+ */
+function extractDateFromText(dateText) {
+    if (!dateText) return null;
+
+    var firstLine = dateText.split('\n')[0];
+    var isoMatch = firstLine.match(/\d{4}[\-\/]\d{1,2}[\-\/]\d{1,2}/);
+
+    if (isoMatch) {
+        return parseDate(isoMatch[0]);
+    }
+
+    var standardMatch = firstLine.match(/\d{1,2}[\-\/]\d{1,2}[\-\/]\d{4}/);
+    if (standardMatch) {
+        return parseDate(standardMatch[0]);
+    }
+
+    return null;
 }
 
 //in bootstrap_menu.js
@@ -442,5 +559,8 @@ $(function () {
         }
     });
 
+    $("#form_from_date, #form_to_date").on('change', function() {
+        show_this();
+    });
 });
 
