@@ -1857,6 +1857,8 @@ class Display extends base
         global $rcb_selectors;
         global $rcb_facility;
         global $rcb_provider;
+        global $patient_id;
+        global $patient_name;
 
         //let's get all the recalls the user requests, or if no dates set use defaults
         $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
@@ -1877,7 +1879,7 @@ class Display extends base
 
         $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 
-        $recalls = $this->get_recalls($from_date, $to_date);
+        $recalls = $this->get_recalls($from_date, $to_date, $rcb_facility, $rcb_provider, $patient_id, $patient_name);
 
         $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
@@ -2076,22 +2078,47 @@ class Display extends base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls($from_date = '', $to_date = '')
+    public function get_recalls($from_date = '', $to_date = '', $rcb_facility = '', $rcb_provider = '', $patient_id = '', $patient_name = '')
     {
-        // Recalls are requests to schedule a future appointment.
-        // Thus there is no r_appt_time (NULL) but there is a DATE set.
-        $query = "SELECT * FROM medex_recalls,patient_data AS pat
-                    WHERE pat.pid=medex_recalls.r_pid AND
-                    r_eventDate >= ? AND
-                    r_eventDate <= ? AND
-                    IFNULL(pat.deceased_date,0) = 0
-                    ORDER BY r_eventDate ASC";
-        $result = sqlStatement($query, array($from_date,$to_date));
+        $recalls = [];
+
+        $query = "SELECT * FROM medex_recalls JOIN patient_data AS pat ON pat.pid=medex_recalls.r_pid 
+                  WHERE r_eventDate >= ? AND r_eventDate <= ? AND IFNULL(pat.deceased_date,0) = 0";
+
+        $params = array($from_date, $to_date);
+
+        if (!empty($rcb_facility)) {
+            $query .= " AND r_facility = ?";
+            $params[] = $rcb_facility;
+        }
+
+        if (!empty($rcb_provider)) {
+            $query .= " AND r_provider = ?";
+            $params[] = $rcb_provider;
+        }
+        
+        if (!empty($patient_id)) {
+            $query .= " AND r_pid = ?";
+            $params[] = $patient_id;
+        }
+
+        if (!empty($patient_name)) {
+            $query .= " AND (CONCAT(pat.fname, ' ', pat.lname) LIKE ? OR CONCAT(pat.lname, ', ', pat.fname) LIKE ?)";
+            $params[] = "%$patient_name%";
+            $params[] = "%$patient_name%";
+        }
+
+        $query .= " ORDER BY r_eventDate ASC";
+
+        $result = sqlStatement($query, $params);
+
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
+        
         return $recalls ?? null;
     }
+
     private function recall_board_process($logged_in, $recalls, $events = '')
     {
         global $MedEx;
