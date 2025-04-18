@@ -629,8 +629,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
+                                $signed = false;
                                 if ($appt_enc != 0) {
+                                    $signed = is_signed($appt_enc);
                                     echo text($appt_enc);
+                                }
+                                if ($signed) {
+                                    echo "<span class='text-success' title='" . xlt('Signed')
+                                    . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
                                 }
                                 ?>
                             </td>
