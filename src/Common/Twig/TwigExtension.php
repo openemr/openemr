@@ -393,6 +393,28 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 function ($path) {
                     return CacheUtils::addAssetCacheParamToPath($path);
                 }
+            ),
+            new TwigFilter(
+                'pad',
+                function ($string, $length, $pad_string = ' ', $pad_type = 'right')
+                {
+                    $padTypeConstant = STR_PAD_RIGHT; // Default to right padding
+
+                    if (strtolower($pad_type) === 'left') {
+                        $padTypeConstant = STR_PAD_LEFT;
+                    } elseif (strtolower($pad_type) === 'both') {
+                        $padTypeConstant = STR_PAD_BOTH;
+                    }
+
+                    return str_pad($string, $length, $pad_string, $padTypeConstant);
+                }
+            ),
+            new TwigFilter(
+                'match',
+                function ($subject, $pattern)
+                {
+                    return preg_match($pattern, $subject);
+                }
             )
         ];
     }

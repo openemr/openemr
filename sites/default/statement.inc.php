@@ -28,49 +28,7 @@
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Twig\TwigContainer;
-use Twig\TwigFilter;
 
-function pad_filter($string, $length, $pad_string = ' ', $pad_type = 'right')
-{
-    $padTypeConstant = STR_PAD_RIGHT; // Default to right padding
-
-    if (strtolower($pad_type) === 'left') {
-        $padTypeConstant = STR_PAD_LEFT;
-    } elseif (strtolower($pad_type) === 'both') {
-        $padTypeConstant = STR_PAD_BOTH;
-    }
-
-    return str_pad($string, $length, $pad_string, $padTypeConstant);
-}
-
-function match_filter($subject, $pattern)
-{
-    return preg_match($pattern, $subject);
-}
-
-function oe_format_short_date_filter($date)
-{
-    // Assuming oeFormatShortDate is a global function in your OpenEMR setup
-    if (function_exists('oeFormatShortDate')) {
-        return oeFormatShortDate($date);
-    } else {
-        // Handle the case where oeFormatShortDate doesn't exist
-        return date('Y-m-d', strtotime($date)); // Or any default date format
-    }
-}
-
-function trans_filter($string)
-{
-    // Assuming xl() is your OpenEMR translation function
-    if (function_exists('xl')) {
-        return xl($string);
-    } elseif (function_exists('xlt')) {
-        return xlt($string);
-    } else {
-        // Fallback: If no translation function is found, return the original string
-        return $string;
-    }
-}
 
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
@@ -285,10 +243,6 @@ function create_HTML_statement($stmt)
     ];
     // Register the filter with Twig
     $twig = (new TwigContainer(null, $GLOBALS['kernel'])) -> getTwig();
-    $twig -> addFilter(new TwigFilter('pad', 'pad_filter'));
-    $twig -> addFilter(new TwigFilter('match', 'match_filter'));
-    $twig -> addFilter(new TwigFilter('oe_format_short_date', 'oe_format_short_date_filter'));
-    $twig -> addFilter(new TwigFilter('trans', 'trans_filter'));
     return $twig -> render('statements/statement_content.html.twig', $data);
 }//end of create html statement
 
