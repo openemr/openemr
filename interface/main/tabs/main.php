@@ -41,12 +41,6 @@ $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? 0;
 $registeredEmail = $product_row['email'] ?? '';
 $registerOptOut = $product_row['opt_out'] ?? 0;
-if (($_SERVER['APP_UNDER_TEST'] ?? false) == 'true' || (defined('APP_UNDER_TEST') ?? false)) {
-    $app_under_test = true;
-    $allowRegisterDialog = 0;
-} else {
-    $app_under_test = false;
-}
 
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
@@ -122,7 +116,6 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     const isServicesOther = (isSms || isFax);
     const allowTelemetry = <?php echo $allowTelemetry; ?>;
     const registerOptOut = <?php echo $registerOptOut; ?>;
-    const phpunitTestsActive = <?php echo $app_under_test ? 'true' : 'false'; ?>;
 
     /**
      * Async function to get session value from the server

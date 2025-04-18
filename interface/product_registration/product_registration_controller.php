@@ -22,11 +22,10 @@ header("Content-Type: application/json");
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $test = ($_SERVER['APP_UNDER_TEST'] ?? false) == 'true' || (defined('APP_UNDER_TEST') ?? false);
     // Retrieve current registration status
     $sql = "SELECT * FROM product_registration LIMIT 1";
     $row = sqlQuery($sql);
-    if (($row && $row['telemetry_disabled'] !== null) || $test) {
+    if ($row && $row['telemetry_disabled'] !== null) {
         echo json_encode($row); // Both registration and telemetry answered
     } else {
         echo json_encode(["statusAsString" => "UNREGISTERED"]);
@@ -77,8 +76,7 @@ if ($method === 'POST') {
     $res = sqlQueryNoLog($sql);
     $id = $res['id'] ?? 0;
     if ($id > 0) {
-        $sql = "UPDATE `product_registration` SET `email` = ?, `opt_out` = ?, `auth_by_id` = ?, `telemetry_disabled` = ?, `last_ask_date` = ?,
-                                  `last_ask_version` = ?, `options` = ? WHERE `id` = ?";
+        $sql = "UPDATE `product_registration` SET `email` = ?, `opt_out` = ?, `auth_by_id` = ?, `telemetry_disabled` = ?, `last_ask_date` = ?, `last_ask_version` = ?, `options` = ? WHERE `id` = ?";
         $result = sqlStatementNoLog($sql, [
             $email,
             $opt_out,
