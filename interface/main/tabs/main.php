@@ -43,6 +43,7 @@ $registeredEmail = $product_row['email'] ?? '';
 $registerOptOut = $product_row['opt_out'] ?? 0;
 if (($_SERVER['APP_UNDER_TEST'] ?? false) == 'true' || (defined('APP_UNDER_TEST') ?? false)) {
     $app_under_test = true;
+    $allowRegisterDialog = 0;
 } else {
     $app_under_test = false;
 }
@@ -507,7 +508,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 }
 
-if (empty($allowRegisterDialog) ) { // disable if running unit tests.
+if (!empty($allowRegisterDialog)) { // disable if running unit tests.
     // Include the product registration js, telemetry and usage data reporting dialog
     echo $twig->render("login/partials/js/product_reg.js.twig", ['email' => $registeredEmail, 'allowTelemetry' => $allowTelemetry, 'optOut' => $registerOptOut]);
 }
