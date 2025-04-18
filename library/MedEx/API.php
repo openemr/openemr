@@ -1899,13 +1899,16 @@ class Display extends base
                         $last_col_width = "nodisplay";
                     }
                     ?>
-
                     <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls" />
-                        <div class="text-center row align-items-center">
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row justify-content-center mx-sm-1">
-                                    <select class="form-control form-control-sm" id="form_facility" name="form_facility"
+                        <div class="text-center mb-4">
+                            <button class="btn btn-primary btn-add" style="width: 200px;" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <select class="form-control" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         $select_facs = '';
@@ -1923,13 +1926,18 @@ class Display extends base
                                         <?php echo $select_facs; ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+                                
+                                <div class="form-group">
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>" 
+                                        class="form-control text-center" 
+                                        type="text" 
+                                        id="form_patient_id" 
+                                        name="form_patient_id" 
+                                        value="<?php echo (!empty($_REQUEST['form_patient_id'])) ? attr($_REQUEST['form_patient_id']) : ((!empty($form_patient_id)) ? attr($form_patient_id) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row mx-sm-1 justify-content-center">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
                                     <?php
                                     # Build a drop-down list of providers.
                                     $query = "SELECT id, lname, fname FROM users WHERE " .
@@ -1939,7 +1947,7 @@ class Display extends base
                                     $c = sqlFetchArray($ures);
                                     $count_provs = count($c ?: []);
                                     ?>
-                                    <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
+                                    <select class="form-control" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
                                         <?php
@@ -1961,35 +1969,34 @@ class Display extends base
                                         ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
+                                
+                                <div class="form-group">
+                                    <input type="text" 
+                                        placeholder="<?php echo xla('Patient Name'); ?>" 
+                                        class="form-control text-center" 
+                                        id="form_patient_name" 
+                                        name="form_patient_name" 
+                                        value="<?php echo (!empty($_REQUEST['form_patient_name'])) ? attr($_REQUEST['form_patient_name']) : ((!empty($form_patient_name)) ? attr($form_patient_name) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4">
-                                <div class="input-append">
-                                    <div class="form-group row mt-md-5">
-                                        <label for="flow_from" class="col"><?php echo xlt('From'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label for="flow_to" class="col">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row" role="group">
-                                        <div class="col text-right">
-                                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                            <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
-                                        </div>
-                                    </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
+                                    <input id="form_from_date" name="form_from_date" class="datepicker form-control text-center" 
+                                        value="<?php echo attr(oeFormatShortDate($from_date)); ?>" />
                                 </div>
                             </div>
-
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
+                                    <input id="form_to_date" name="form_to_date" class="datepicker form-control text-center" 
+                                        value="<?php echo attr(oeFormatShortDate($to_date)); ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4 mb-2">
+                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit" 
+                                style="width: 200px;" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                         </div>
                         <div name="message" id="message" class="warning">
                         </div>
