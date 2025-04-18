@@ -98,7 +98,7 @@ trait BaseTrait
             // wait up to 2s for the modal title to appear
             $this->client->wait(2)->until(
                 WebDriverExpectedCondition::visibilityOfElementLocated(
-                    WebDriverBy::xpath(XpathsConstants::MODAL_TITLE)
+                    WebDriverBy::xpath(XpathsConstants::MODAL_REGISTRATION)
                 )
             );
             // click the “NoThanks” button
