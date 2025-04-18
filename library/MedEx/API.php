@@ -2579,7 +2579,7 @@ class Display extends base
                 <input type="hidden" name="action" id="go" value="addRecall" />
                 <div class="col-4 divTable m-2 ml-auto">
                     <div class="row divTableBody prefs">
-                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
+                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?><span class="text-danger">*</span></label></div>
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
@@ -2623,7 +2623,7 @@ class Display extends base
                                 <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox">
                                 <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /> <?php echo xlt('plus 3 years'); ?></label>
                             </div>
-                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
+                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:<span class="text-danger">*</span></span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
 
@@ -2639,7 +2639,7 @@ class Display extends base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Provider'); ?></label>
+                                <label><?php echo xlt('Provider'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                     <?php
@@ -2679,7 +2679,7 @@ class Display extends base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Facility'); ?></label>
+                                <label><?php echo xlt('Facility'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                 <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
