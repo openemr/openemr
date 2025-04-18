@@ -110,7 +110,7 @@ trait BaseTrait
             // wait for modal to disappear
             $this->client->wait(2)->until(
                 WebDriverExpectedCondition::invisibilityOfElementLocated(
-                    WebDriverBy::xpath(XpathsConstants::MODAL_TITLE)
+                    WebDriverBy::xpath(XpathsConstants::MODAL_REGISTRATION)
                 )
             );
             // refresh the crawler so subsequent clicks hit the real menu
