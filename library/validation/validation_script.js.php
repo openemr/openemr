@@ -237,7 +237,7 @@ function submitme(new_validate,e,form_id, constraints) {
             **/
             function hideErrors(input, id){
                 $(input).removeClass('error-border');
-                $("#error_" + id).text('');
+                $("#error_" + id).remove();
 
                 var parent_div = $(input).parents('div.tab');
                 if($(parent_div).is('div')) {
