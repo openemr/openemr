@@ -32,7 +32,7 @@
         productRegistrationController.getProductRegistrationStatus(function (err, data) {
             if (err) { return; }
 
-            if (data.statusAsString === 'UNREGISTERED') {
+            if (data.statusAsString === 'UNREGISTERED' && !top.phpunitTestsActive) {
                 productRegistrationController.showProductRegistrationModal();
             }
         });
