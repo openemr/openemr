@@ -1080,7 +1080,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     Count++;
                                     <?php
                                         $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
-                                    } ?>
+                                } ?>
                     </script>
                                 <?php
                                 $lhtml .= "<div class='button-group'>";
