@@ -8,6 +8,7 @@
 [-* as published by the Free Software Foundation; either version 2            *-]
 [-* of the License, or (at your option) any later version.                    *-]
 [-*****************************************************************************-]
+[-* add address RM to day view *-]
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
@@ -625,7 +626,7 @@ foreach ($providers as $provider) {
                         // calculate the duration from this event to the outevent
                         $outH = substr($outevent['startTime'], 0, 2);
                         $outM = substr($outevent['startTime'], 3, 2);
-                        $outMins = ($outH * 60) + $outM;
+                        $outMins = (intval($outH) * 60) + intval($outM);
                         $event['duration'] = ($outMins - $eStartMin) * 60; // duration is in seconds
                         $found = 2;
                         break;
@@ -658,10 +659,10 @@ foreach ($providers as $provider) {
             $eEndInterval = $eMinDiff / $interval;
             // times the interval height
             $eHeight = $eEndInterval * $timeslotHeightVal;
-            if($event['catid']==3)
+            // For all categories: ensure minimum height for zero-duration events
+            if($eEndInterval <= 15 / $interval)
             {
-                // An "OUT" that is "zero duration" still needs height so we can click it.
-                $eHeight = $eEndInterval==0 ? $timeslotHeightVal : $eHeight ;
+                $eHeight = $timeslotHeightVal;
             }
             $evtHeight = $eHeight.$timeslotHeightUnit;
 
@@ -683,6 +684,7 @@ foreach ($providers as $provider) {
             $commapos = strpos(($event['patient_name'] ?? ''), ",");
             $lname = substr(($event['patient_name'] ?? ''), 0, $commapos);
             $fname = substr(($event['patient_name'] ?? ''), $commapos + 2);
+            $address =  $event['patient_address'] ; //RM;
             $patient_dob = oeFormatShortDate($event['patient_dob']);
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -747,6 +749,7 @@ foreach ($providers as $provider) {
                 if ($patientid) {
                     // include patient name and link to their details
                     $link_title = attr($fname) . " " . attr($lname) . " \n";
+                    $link_title .= attr($address) . "\n"; //RM
                     // note we don't escape comment as its already been escaped in pnuserapi
                     $link_title .= xla('Age') . ": " . attr($patient_age) . "\n" . xla('DOB') . ": " . attr($patient_dob) . " $comment" . "\n";
                     $link_title .= "(" . xla('Click to view') . ")";
@@ -756,6 +759,9 @@ foreach ($providers as $provider) {
                     $content .= text($lname);
                     if ($GLOBALS['calendar_appt_style'] != 1) {
                         $content .= "," . text($fname);
+                          if ($event['title'] && $GLOBALS['calendar_appt_style'] ==5) {
+                                $content .= "," . text($address);  //RM
+                          }
                         if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                             $content .= "(" . text($event['title']);
                             if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4) {

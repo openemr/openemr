@@ -1,0 +1,13 @@
+{# Discharge Disposition #}
+<div class="col-sm {{ displayOptionClass('enc_enable_discharge_disposition') }}">
+    <div class="form-group">
+        <label for="discharge_disposition" class="text-right">{{ "Discharge Disposition"|xlt }}:</label>
+        <select name="discharge_disposition" id="discharge_disposition" class="form-control">
+            {% for disposition in dischargeDispositions %}
+                <option value="{{ disposition.option_id|attr }}" {{ disposition.selected ? 'selected' : '' }}>
+                    {{ disposition.title|text }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

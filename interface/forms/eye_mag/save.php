@@ -195,6 +195,12 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
               VALUES
               ('PREFS','RETINA_RIGHT','RETINA DRAW',?,'RETINA_RIGHT','74',?,'20')";
     sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_RETINA_RIGHT']));
+
+    $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
+              VALUES
+              ('PREFS','SDRETINA_RIGHT','SDRETINA DRAW',?,'SDRETINA_RIGHT','80',?,'26')";
+    sqlQuery($query, array($_SESSION['authUserID'], $_REQUEST['PREFS_SDRETINA_RIGHT']));
+
     $query = "REPLACE INTO " . $table_name . "_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','NEURO_RIGHT','NEURO DRAW',?,'NEURO_RIGHT','75',?,'21')";
@@ -224,10 +230,13 @@ if ($_REQUEST['AJAX_PREFS'] ?? '') {
     $setting_HPI = prevSetting($uspfx, 'setting_HPI', 'setting_HPI', '1');
     $setting_PMH = prevSetting($uspfx, 'setting_PMH', 'setting_PMH', '1');
     $setting_ANTSEG = prevSetting($uspfx, 'setting_ANTSEG', 'setting_ANTSEG', '1');
-    $setting_POSTSEG = prevSetting($uspfx, 'setting_POSTSEG', 'setting_POSTSEG', '1');
+    $setting_RETINA = prevSetting($uspfx, 'setting_RETINA', 'setting_RETINA', '1');
+    $setting_SDRETINA = prevSetting($uspfx, 'setting_SDRETINA', 'setting_SDRETINA', '1');
     $setting_EXT = prevSetting($uspfx, 'setting_EXT', 'setting_EXT', '1');
     $setting_NEURO = prevSetting($uspfx, 'setting_NEURO', 'setting_NEURO', '1');
     $setting_IMPPLAN = prevSetting($uspfx, 'setting_IMPPLAN', 'setting_IMPPLAN', '1');
+    echo "Prefs set";
+    die();
 }
 
 /**
@@ -842,6 +851,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             if ($_POST['PLAN'][$i] == '') {
                 continue;
             }
+            $fields = $fields ?? [];
+            $fields['PLAN'] = $fields['PLAN'] ?? '';
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
             $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
             $okthen = sqlQuery($ORDERS_sql, array($form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID));
@@ -889,6 +900,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
     if (!$_POST['DIL_RISKS']) {
         $_POST['DIL_RISKS'] = '0';
+    }
+
+    if ($_POST['DIL_MEDS']) {
+        $_POST['IOPPOSTTIME'] =  date('H:i:s', strtotime($_POST['DIL_MEDS']));
     }
 
     if (!($_POST['ATROPINE'] ?? '')) {
@@ -1172,7 +1187,7 @@ if ($_REQUEST['canvas'] ?? '') {
     // we receive a canvas: adding or replacing this image
     // Does it exist already? If so delete it. Yep.
     //      We should not need to keep each progressive stroke on a canvas, just the last one...
-    //      We are attaching it ot this encounter so when the encounter is locked
+    //      We are attaching it to this encounter so when the encounter is locked
     //      this file should also be locked.  Right?
     // Then add this.
 

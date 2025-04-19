@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\Base;
 
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 
 trait BaseTrait
@@ -131,12 +132,26 @@ trait BaseTrait
     {
         $menuLink = XpathsConstants::USER_MENU_ICON;
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
-        $this->client->waitFor($menuLink);
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($menuLink)
+            )
+        );
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath($menuLink)->click();
         $this->client->waitFor($menuLink2);
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath($menuLink2)->click();
+    }
+
+    private function isUserExist(string $username): bool
+    {
+        $usernameDatabase = sqlQuery("SELECT `username` FROM `users` WHERE `username` = ?", [$username]);
+        if (($usernameDatabase['username'] ?? '') == $username) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private function isPatientExist(string $firstname, string $lastname, string $dob, string $sex): bool
@@ -161,5 +176,14 @@ trait BaseTrait
         } else {
             return false;
         }
+    }
+
+    private function logOut(): void
+    {
+        $this->client->switchTo()->defaultContent();
+        $this->goToUserMenuLink('fa-sign-out-alt');
+        $this->client->waitFor('//input[@id="authUser"]');
+        $title = $this->client->getTitle();
+        $this->assertSame('OpenEMR Login', $title, 'Logout FAILED');
     }
 }

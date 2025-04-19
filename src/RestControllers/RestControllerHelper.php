@@ -151,6 +151,10 @@ class RestControllerHelper
                 // cleanup _limit and _offset
                 unset($getParams['_limit']);
                 unset($getParams['_offset']);
+                // cleanup a mod_rewrite piece so the URL is nicer.
+                if (isset($getParams['_REWRITE_COMMAND'])) {
+                    unset($getParams['_REWRITE_COMMAND']);
+                }
                 $queryParams = http_build_query($getParams);
 
                 $pagination->setSearchUri($bundleUrl . '?' . $queryParams);

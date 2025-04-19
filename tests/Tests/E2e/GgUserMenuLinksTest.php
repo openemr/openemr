@@ -42,18 +42,16 @@ class GgUserMenuLinksTest extends PantherTestCase
             $threwSomething = false;
             $counter++;
             if ($counter > 1) {
-                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
+                echo "\n" . "RE-attempt (" . $menuTreeIcon . ") number " . $counter . " of 3" . "\n";
             }
             $this->base();
             try {
                 $this->login(LoginTestData::username, LoginTestData::password);
-                $this->goToUserMenuLink($menuTreeIcon);
                 if ($menuLinkItem == 'Logout') {
                     // special case for Logout
-                    $this->client->waitFor('//input[@id="authUser"]');
-                    $title = $this->client->getTitle();
-                    $this->assertSame('OpenEMR Login', $title, 'Logout FAILED');
+                    $this->logOut();
                 } else {
+                    $this->goToUserMenuLink($menuTreeIcon);
                     $this->assertActiveTab($expectedTabTitle);
                 }
             } catch (\Throwable $e) {

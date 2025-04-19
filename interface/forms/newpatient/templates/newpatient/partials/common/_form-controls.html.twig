@@ -1,0 +1,13 @@
+<div class="form-row">
+    <div class="col-sm-12 text-left position-override pl-3">
+        <div class="btn-group" role="group">
+            <button id="saveEncounter" type="button" class="btn btn-primary btn-save">
+                {{ "Save"|xlt }}
+            </button>
+            {# Note cancel behavior is wired via javascript. See newpatient.js #}
+            <button type="button" class="btn btn-cancel {{ viewmode or autoloaded ? '' : 'link_submit' }}">
+                {{ "Cancel"|xlt }}
+            </button>
+        </div>
+    </div>
+</div>

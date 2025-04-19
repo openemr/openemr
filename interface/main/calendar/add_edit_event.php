@@ -383,22 +383,21 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         }
 
         $my_repeat_freq = implode(",", $days_every_week_arr);
-        $my_repeat_type = 6;
+        $my_repeat_type = 6; // Keep this as 6. It signifies days of the week recurrence.
         $event_date = setEventDate($_POST['form_date'], $my_repeat_freq);
     } elseif (!empty($_POST['form_repeat'])) {
         $my_recurrtype = 1;
-        if ($my_repeat_type > 4) {
+        if ($my_repeat_type > 6) { // Changed from 4 to 6 to accommodate new options.
             $my_recurrtype = 2;
             $time = strtotime($event_date);
             $my_repeat_on_day = 0 + date('w', $time);
             $my_repeat_on_freq = $my_repeat_freq;
-            if ($my_repeat_type == 5) {
+            if ($my_repeat_type == 5 || $my_repeat_type == 7 || $my_repeat_type == 8 || $my_repeat_type == 9) { //Added conditions for 7th, 8th, 9th.
                 $my_repeat_on_num = intval((date('j', $time) - 1) / 7) + 1;
             } else {
                 // Last occurence of this weekday on the month
-                $my_repeat_on_num = 5;
+                $my_repeat_on_num = 5; // Might need adjustment for new options.
             }
-
             // Maybe not needed, but for consistency with postcalendar:
             $my_repeat_freq = 0;
             $my_repeat_type = 0;
@@ -1622,7 +1621,10 @@ function isRegularRepeat($repeat)
         <!-- dates excluded from the repeat -->
         <select class='col-sm form-control form-control-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
             <?php
-            foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}')) as $key => $value) {
+            // Added options for 7th, 8th, and 9th.
+            $repeatOptions = [1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}'), 7 => xl('7th{{every}}'), 8 => xl('8th{{every}}'), 9 => xl('9th{{every}}') ];
+
+            foreach ($repeatOptions as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $repeatfreq && isRegularRepeat($repeats)) {
                     echo " selected";
@@ -1704,7 +1706,10 @@ function isRegularRepeat($repeat)
 <div class="form-row mx-2">
     <div class="col-sm form-group">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
-        <label id='title_prefcat' class='font-weight-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
+        <label id='title_prefcat' class='font-weight-bold' style='display:none'>
+            <?php echo xlt('Exclusive Category'); ?>:
+            <i class="text-muted font-weight-normal ml-1"><?php echo xlt('(If selected, you will only be shown as available for this category)'); ?></i>
+        </label>
         <?php
         if ($_GET['group'] != true) {
             generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), ($row['pc_apptstatus'] ?? null));

@@ -1,0 +1,5 @@
+<div class="form-group">
+    <label for="{{ key|attr }}">{{ setting.label|text }}</label>
+    <input type="text" id="{{ key|attr }}" name="{{ key|attr }}"
+           class="form-control" value="{{ setting.value|attr }}" readonly disabled />
+</div>

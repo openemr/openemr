@@ -15,6 +15,7 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Menu\PatientMenuEvent;
+use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use Symfony\Component\EventDispatcher\Event;
@@ -50,6 +51,7 @@ function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent)
 {
     $menu = file_get_contents(__DIR__ . '/public/patient_menu/custom_patient_menu.json');
     $menu_parsed = json_decode($menu);
+    $menu_parsed = (new PatientMenuRole())->setPatientMenuUrl($menu_parsed);
     $menuEvent->setMenu($menu_parsed);
     return $menuEvent;
 }

@@ -45,12 +45,37 @@ if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
 }
 
-$logoService = new LogoService();
+// Example https://localhost/openemr/portal/index.php?site=default&landOn=BillingSummary
+// landOn query is used to redirect to a specific section of the portal.
+$landOnHref = [
+    'ClinicalDocuments' => '#onsitedocuments',
+    'Appointments' => '#appointmentcard',
+    'MakePayment' => '#paymentcard',
+    'SecureMessaging' => '#secure-msgs-card',
+    'HealthSnapshot' => '#lists',
+    'Profile' => '#profilecard',
+    'BillingSummary' => '#ledgercard',
+    'MedicalReports' => '#reports-list-card',
+    'PROAssessment' => '#procard',
+    'Settings' => '#settings-card',
+    'Help' => '#help-card',
+    'Logout' => '#logout.php'
+];
+// redirect using the interface query landOn or last page visited
+// TODO sjp - qualify if redirect feature is enabled!
+$whereto = $_SESSION['whereto'] ?? null;
+// set the landOn session variable to the redirected card.
+$landWhere = $_SESSION['landOn'] = $_REQUEST['landOn'] ?? null;
+// Set the landOn href query from lookup.
+$where = $landOnHref[$landWhere] ?? null;
+if (!empty($where)) {
+    $_SESSION['whereto'] = $where;
+}
 
+$logoService = new LogoService();
 
 // Get language definitions for js
 $language_defs = TranslationService::getLanguageDefinitionsForSession();
-$whereto = $_SESSION['whereto'] ?? null;
 
 $user = $_SESSION['sessionUser'] ?? 'portal user';
 $result = getPatientData($pid);
@@ -323,7 +348,7 @@ try {
     $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
     $data = [
         'user' => $user,
-        'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
+        'whereto' => ($_SESSION['whereto'] ?? null) ?: ($whereto ?? '#quickstart-card'),
         'result' => $result,
         'msgs' => $msgs,
         'msgcnt' => $msgcnt,
@@ -364,8 +389,10 @@ try {
         'healthSnapshot' => $filteredEvent->getDataElement('healthSnapshot'),
         'languageDirection' => $_SESSION['language_direction'] ?? 'ltr',
         'dateDisplayFormat' => $GLOBALS['date_display_format'],
+        'timeDisplayFormat' => $GLOBALS['time_display_format'],
         'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
         'assetVersion' => $GLOBALS['v_js_includes'],
+        'extendVisit' => $_SESSION['portal_visit_extended'] ?? 1,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,

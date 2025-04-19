@@ -24,8 +24,10 @@ require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 use Esign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\Filesystem\Path;
 
@@ -50,6 +52,8 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
+$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -94,6 +98,7 @@ $esignApi = new Api();
         jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
         jsGlobals.languageDirection = jsLanguageDirection;
         jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
+        jsGlobals.time_display_format = <?php echo js_escape($GLOBALS['time_display_format']); ?>;
         jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone'] ?? ''); ?>;
         jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
         var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
@@ -101,6 +106,40 @@ $esignApi = new Api();
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
         const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
         const isServicesOther = (isSms || isFax);
+
+        /**
+         * Async function to get session value from the server
+         * Usage Example
+         * let authUser;
+         * let sessionPid = await top.getSessionValue('pid');
+         * // If using then() method a promise is returned instead of the value.
+         * await top.getSessionValue('authUser').then(function (auth) {
+         *    authUser = auth;
+         *    console.log('authUser', authUser);
+         * });
+         * console.log('session pid', sessionPid);
+         * console.log('auth User', authUser);
+        */
+        async function getSessionValue(key) {
+            restoreSession();
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default')); ?>;
+            const config = {
+                url: `${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${csrf_token_js}`,
+                method: 'POST',
+                data: {
+                    mode: 'session_key',
+                    key: key
+                }
+            };
+            try {
+                const response = await $.ajax(config);
+                restoreSession();
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        }
+
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR.
@@ -223,7 +262,7 @@ $esignApi = new Api();
         }
     </script>
 
-    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys']); ?>
+    <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys', 'i18formatting']); ?>
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
@@ -297,14 +336,24 @@ $esignApi = new Api();
     // prepare Issues popup link global that is used in creating the menu
     $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
         AclMain::aclCheckCore('patients', 'med', '', 'write'));
-    ?>
 
-    <?php require_once("templates/tabs_template.php"); ?>
-    <?php require_once("templates/menu_template.php"); ?>
+    // we use twig templates here so modules can customize some of these files
+    // at some point we will twigify all of main.php so we can extend it.
+    echo $twig->render("interface/main/tabs/tabs_template.html.twig", []);
+    echo $twig->render("interface/main/tabs/menu_template.html.twig", []);
+    // TODO: patient_data_template.php is a more extensive refactor that could be done in a future feature request but to not jeopardize 7.0.3 release we will hold off.
+    ?>
     <?php require_once("templates/patient_data_template.php"); ?>
-    <?php require_once("templates/therapy_group_template.php"); ?>
-    <?php require_once("templates/user_data_template.php"); ?>
-    <?php require_once("menu/menu_json.php"); ?>
+    <?php
+    echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
+    echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
+        'openemr_name' => $GLOBALS['openemr_name']
+    ]);
+    // Collect the menu then build it
+    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menu_restrictions = $menuMain->getMenu();
+    echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
+    ?>
     <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 
     <script>

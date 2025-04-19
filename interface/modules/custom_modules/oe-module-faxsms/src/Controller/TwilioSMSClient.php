@@ -24,7 +24,7 @@ class TwilioSMSClient extends AppDispatch
     public $uriDir;
     public $serverUrl;
     public $credentials;
-    protected $crypto;
+    protected CryptoGen $crypto;
     private $sid;
     private $appKey;
     private $appSecret;
@@ -129,10 +129,10 @@ class TwilioSMSClient extends AppDispatch
     }
 
     /**
-     * @param $acl
+     * @param array $acl
      * @return int
      */
-    public function authenticate($acl = ['admin', 'doc']): int
+    public function authenticate(array $acl = ['patients', 'appt']): int
     {
         // did construct happen...
         if (empty($this->credentials)) {

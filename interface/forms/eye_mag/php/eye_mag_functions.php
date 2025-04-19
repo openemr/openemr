@@ -1701,7 +1701,9 @@ function build_PMSFH($pid)
                 $diags = explode(";", $row['diagnosis']);
                 foreach ($diags as $diag) {
                     $codedesc = lookup_code_descriptions($diag);
-                    list($codetype, $code) = explode(':', $diag);
+                    if (strpos($diag, ':') !== false) {
+                        list($codetype, $code) = explode(':', $diag);
+                    }
                     $order   = array("\r\n", "\n","\r");
                     $codedesc = str_replace($order, '', $codedesc);
                     $codetext .= text($diag) . " (" . text($codedesc) . ")";
@@ -2164,6 +2166,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                             </tr>
                         </table>
                         ';
+                    $subtype_Meds[$item['row_subtype']]['table'] = $subtype_Meds[$item['row_subtype']]['table'] ?? '';
                     $subtype_Meds[$item['row_subtype']]['table'] .= "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
                             onclick=\"alter_issue2(" . attr_js($item['rowid']) . ",\"Eye Meds\"," . attr_js($index) . ");\">" . text($item['title']) . "</span><br />";
                     $index++;
@@ -3088,9 +3091,9 @@ function canvas_select($zone, $encounter, $pid)
     $side = "OU";
     $type_name = $side . "_" . $zone . "_VIEW";
     $canvi = [];
-    if (!empty($documents['zones'][$zone]) && !empty($documents['docs_in_name']['Drawings'])) {
+    if (!empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
-            if (!preg_match("/" . $zone . "_VIEW/", $doc['name'])) {
+            if (!preg_match("/_" . $zone . "_VIEW/", $doc['name'])) {
                 continue;
             }
             if (!$doc['encounter_id']) {
@@ -3178,13 +3181,19 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
     $base_name = $pid . "_" . $encounter . "_" . $side . "_" . $zone . "_VIEW";
 
     $file_history =  $filepath . $base_name;
-    $file_store = $file_history . ".jpg";
+    //$file_store = $file_history . ".jpg";
+
     ?>
-    <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" style="text-align:center;height: 2.5in;" class="Draw_class canvas">
+    <div id="Draw_<?php echo attr($zone); ?>" name="Draw_<?php echo attr($zone); ?>" class="Draw_class canvas">
+        <?php
+        if ($zone != "SDRETINA") {
+            ?>
         <span class="far fa-file-alt closeButton" id="BUTTON_TEXT_<?php echo attr($zone); ?>" name="BUTTON_TEXT_<?php echo attr($zone); ?>"></span>
         <i class="closeButton_2 fas fa-database" id="BUTTON_QP_<?php echo attr($zone); ?>_2" name="BUTTON_QP_<?php echo attr($zone); ?>"></i>
         <i class="closeButton_3 fas fa-user-md" name="Shorthand_kb" title="<?php echo xla("Open the Shorthand Window and display Shorthand Codes"); ?>"></i>
 
+            <?php
+        } ?>
         <?php
             $output = canvas_select($zone, $encounter, $pid);
             echo $output;
@@ -3241,8 +3250,20 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 <img id="sketch_sizes_<?php echo attr($zone); ?>_15" onclick='$("#selWidth_<?php echo attr($zone); ?>").val("15");' src="../../forms/<?php echo $form_folder; ?>/images/brush_15.png" style="height:20px;width:20px;">
             </div>
 
-            <div align="center" class="borderShadow">
-                <canvas id="myCanvas_<?php echo attr($zone); ?>" name="myCanvas_<?php echo attr($zone); ?>" width="450" height="225"></canvas>
+            <div class="borderShadow">
+                <canvas id="myCanvas_<?php echo attr($zone); ?>"
+                        name="myCanvas_<?php echo attr($zone); ?>"
+                    <?php
+                    if ($zone == "SDRETINA") {
+                        $height_canvas = "500";
+                        $width_canvas = "1000";
+                    } else {
+                        $height_canvas = "250";
+                        $width_canvas = "450";
+                    }
+                    ?>
+                        width="<?php echo attr($width_canvas); ?>"
+                        height="<?php echo attr($height_canvas); ?>"></canvas>
             </div>
             <div style="margin-top: 7px;">
                 <button onclick="javascript:cUndo('<?php echo attr($zone); ?>');return false;" id="Undo_Canvas_<?php echo attr($zone); ?>"><?php echo xlt("Undo"); ?></button>
@@ -3823,7 +3844,7 @@ function document_engine($pid)
  *
  *  @param string $pid value = patient id
  *  @param string $encounter is the encounter_id
- *  @param string $category_value options EXT,ANTSEG,POSTSEG,NEURO,OTHER
+ *  @param string $category_value options EXT,ANTSEG,RETINA,NEURO,OTHER
  *                These values are taken from the "value" field in the Documents' table "categories".
  *                They allow us to regroup the categories how we like them.
  *  @return array($imaging,$episode)
@@ -3846,7 +3867,7 @@ function display($pid, $encounter, $category_value)
         *   The categories table does have an unused field - "value".
         *   This is where we link document categories to a clinical zone.  We add the clinical section name
         *   on install but the end user can change or add others as the devices evolve.
-        *   Currently the base install has EXT,ANTSEG,POSTSEG,NEURO
+        *   Currently the base install has EXT,ANTSEG,RETINA,NEURO
         *   New names new categories.  OCT would not have been a category 5 years ago.
         *   Who knows what is next?  Gene-lab construction?
         *   So the name is user assigned as is the location.
@@ -3988,7 +4009,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             <li id="menu_PMH" name="menu_PMH"><a class="nav-link black" href="#"><?php echo xlt("PMH{{Past Medical History}}"); ?></a></li>
                             <li id="menu_EXT" name="menu_EXT" ><a class="nav-link black" href="#"><?php echo xlt("External"); ?></a></li>
                             <li id="menu_ANTSEG" name="menu_ANTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Anterior Segment"); ?></a></li>
-                            <li id="menu_POSTSEG" name="menu_POSTSEG" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
+                            <li id="menu_RETINA" name="menu_RETINA" ><a class="nav-link black" href="#"><?php echo xlt("Posterior Segment"); ?></a></li>
                             <li id="menu_NEURO" name="menu_NEURO" ><a class="nav-link black" href="#"><?php echo xlt("Neuro"); ?></a></li>
                             <li id="menu_IMPPLAN" name="menu_IMPPLAN" ><a class="nav-link black" href="#"><?php echo xlt("Imp Plan"); ?></a></li>
                             <li class="divider"></li>
@@ -4013,7 +4034,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 <a class="nav-link black" href="#"  tabindex="-1" id="tooltips_toggle" name="tooltips_toggle">
                                 <i class="fa fa-help"></i>  <?php echo xlt("Tooltips"); ?>
                                 <span id="tooltips_status" name="tooltips_status"></span>
-                                <span class="menu_icon"><i title="<?php echo xla('Turn the Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-check fa-1"></i></span></a>
+                                <span class="menu_icon"><i title="<?php echo xla('Tooltips on/off'); ?>" id="qtip_icon" class="fa fa-info-circle fa-1"></i></span></a>
                             </li>
                             <li>
                                 <a class="nav-link black" tabindex="-1" target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
@@ -4297,10 +4318,10 @@ function report_header($pid, $direction = 'shell')
 
 /**
  *  This function mines the clinical fields for potential diagnostic codes.
- *  The clinical fields are found in table list_options with list_id = Eye_Coding_Fields_
+ *  The clinical fields are found in table list_options with list_id = Eye_Coding_Fields
  *  The clinical terms to mine for are in table list_options with list_id = Eye_Coding_Terms
  *  Both can be directly extended by the user the via Administration -> Lists interface.
- *  The Coding_Eye_Form_Terms list includes the following important fields:
+ *  The Eye_Coding_Terms list includes the following important fields:
  *       Title (the term),
  *       Notes (the form_field to search for the term)
  *       Code(s) (the optional user-defined code).
@@ -4308,10 +4329,10 @@ function report_header($pid, $direction = 'shell')
  *  Terms found in a form_field (Notes) without a predefined Code(s) are concated with
  *      the text value for the form_field (Notes) (found in the list Coding_Eye_Form_Fields: Notes)
  *      and the codebase is searched for a match.
- *  For example: the term "ptosis" is found in the RUL clinical field, and there is no Code value in the
- *      Coding_Eye_Form_Terms Code(s) field.  Thus openEMR Eye Form searches the active codebases for a match.
- *      The codebases are determined in Administration->Lists->Code Types and include those Codesets flagged
- *      as active and as Diagnostic codes.  The terms "ptosis right upper eyelid" are sent to the
+ *  For example: the term "ptosis" is entered in the RUL clinical field of The Eye Form, and there is no Code value in the
+ *      Eye_Coding_Terms list's Code(s) field.  Thus openEMR Eye Form searches the active codebases for a match.
+ *      The codebases are determined in Admin->Forms->Lists->Code Types and include those Codesets flagged
+ *      as active and as Diagnostic codes.  The terms "ptosis right eyelid" are sent to the
  *      standard openEMR code search engine.
  *  @param string $FIELDS - all the clinical fields we are going to scour for clinical terms to code.
  *  @return outputs directly to screen
@@ -4333,13 +4354,13 @@ function start_your_engines($FIELDS)
     }
 
     //get the clinical terms to search for (title) and what field/where to look for it (notes)
-    $query = "SELECT * FROM list_options WHERE list_id = 'Eye_Coding_Terms' order by seq";
+    $query = "SELECT * FROM list_options WHERE list_id = 'Eye_Coding_Terms' and activity='1' order by seq";
     $result = sqlStatement($query);
     while ($term_sheet = sqlFetchArray($result)) {
         if ($term_sheet['title'] > '') {
             $newdata =  array (
-              'term'        => $term_sheet['title'], //the term =/- possible option_values eg. CSME:DM|IOL|RVO
-              'location'    => $term_sheet['notes'], //the form field to search for the term
+              'term'        => $term_sheet['title'], //the term to search for + possible option_values eg. CSME:DM|IOL|RVO
+              'location'    => $term_sheet['notes'], //the Eye Form field to search for the term
               'codes'       => $term_sheet['codes']  //the specific code for this term/location, may be blank
               );
             $clinical_terms[] = $newdata;
@@ -4369,14 +4390,16 @@ function start_your_engines($FIELDS)
             $term = $amihere['term'];
         }
 
-        if (stripos(($FIELDS[$amihere['location']] ?? ''), $term) !== false) {
+        $matches = [];
+        preg_match("/\b$term\b/", $FIELDS[$amihere['location']], $matches);
+        if (!empty($matches)) {
             //the term is in the field
             $within_array = 'no';
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
                 foreach ($positives[$amihere['location']] as $k => $v) {
-                    if (preg_match("/$term/", $v)) {
+                    if (preg_match("/\b$term\b/", $v)) {
                         $within_array = 'yes';
                         break;
                     }
@@ -4432,7 +4455,7 @@ function start_your_engines($FIELDS)
                             //This option is run for 3 conditions at present:
                             //CSME/NVD/NVE per eye.  It is the same every time so only do it once, per eye.
                             //Did we already code this?  If so move on.
-                            if ($hit_DM[$side1] == '1') {
+                            if (!empty($hit_DM) && ($hit_DM[$side1] ?? '') == '1') {
                                 continue;
                             }
 
@@ -4550,7 +4573,7 @@ function start_your_engines($FIELDS)
                                         //or is there a code for both eyes?
                                         if ($side1 == "OS") {
                                             $count = '0';
-                                            for ($i = 0; $i < count($codes_found[$sub_term]); $i++) {
+                                            for ($i = 0; $i < count($codes_found[$sub_term] ?? []); $i++) {
                                                 $swap = "OD";
                                                 $codes_found[$sub_term][$i]['title'] = str_replace($swap, "OU", $codes_found[$sub_term][$i]['title']);
                                                 break 2;
@@ -4645,7 +4668,7 @@ function start_your_engines($FIELDS)
 
                                         if ($side1 == "OS") {
                                             $count = '0';
-                                            for ($i = 0; $i < count($codes_found[$sub_term]); $i++) {
+                                            for ($i = 0; $i < count($codes_found[$sub_term] ?? []); $i++) {
                                                 $swap = "OD";
                                                 $codes_found[$sub_term][$i]['title'] = str_replace($swap, "OU", $codes_found[$sub_term][$i]['title']);
                                                 break 2;
@@ -4718,7 +4741,7 @@ function coding_carburetor($term, $field)
                         'code'  =>  $row['code'],
                         'code_text' => $row['code_text'],
                         'code_type' => $row['code_type_name'],
-                        'code_desc' => $row['code_desc']
+                        'code_desc' => $row['code_desc'] ?? ''
                     );
         $codes[] = $newdata;
     }
@@ -5092,7 +5115,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     $count_Meds = count($PMSFH[0]['Medication']);
                 if ($count_Meds > '0') {
                     foreach ($PMSFH[0]['Medication'] as $drug) {
-                        if (($drug['row_subtype'] == "eye") && (strtotime($drug['enddate']) < strtotime($visit_date) ) && ($drug['status'] != "Inactive")) {
+                        if (($drug['row_subtype'] == "eye") && (strtotime($drug['enddate'] ?? '') < strtotime($visit_date ?? '') ) && ($drug['status'] != "Inactive")) {
+                            $current_drugs = $current_drugs ?? '';
                             $current_drugs .= "<tr><td colspan='2' class='GFS_td_1'><span name='QP_PMH_" . attr($drug['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($drug['rowid']) . "'
                                       onclick=\"alter_issue2(" . attr_js($drug['rowid']) . ",'Medication','" . $i . "');\">" . text($drug['title']) . "</span></td>
                                       <td class='GFS_td'>" . text(oeFormatShortDate($drug['begdate'])) . "</td></tr>";
@@ -5267,6 +5291,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 $cups = "<tr><td class='GFS_td_1 " . $hideme . " '>" . text($visit['exam_date']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;'>" . text($visit['ODCUP']) . "</td><td class='GFS_td " . $hideme . "' style='border:1pt dotted gray;''>" . text($visit['OSCUP']) . "</td></tr>";
                             }
 
+                            $DISCS_chart = $DISCS_chart ?? '';
                             $DISCS_chart .= '"1",';
                             $count++;
                         } else {
@@ -5410,7 +5435,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
                                     pointHitRadius: 3
-                                }, 
+                                },
                                 {
                                     type: 'line',
                                     label: 'OS',
@@ -5559,7 +5584,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointRadius: 1,
                                     pointHitRadius: 3
                                 },
-                                { 
+                                {
                                     axis: 'y',
                                     type: 'line',
                                     label: "OD",
@@ -5579,7 +5604,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     pointHoverBorderWidth: 2,
                                     pointRadius: 1,
                                     pointHitRadius: 3
-                                }, 
+                                },
                                 {
                                     axis: 'y',
                                     type: 'line',
@@ -5692,7 +5717,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                         suggestedMin: 3,
                                         suggestedMax: 6
                                     }
-                                }, 
+                                },
                                 'y-Axis-1': {
                                     type: "linear",
                                     display: false,
@@ -5743,7 +5768,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
                     var myLine = new Chart(ctx1, config_byday);
                     var myLine2 = new Chart(ctx2, config_byhour);
-                    
+
                 </script>
                 <?php
             } else {

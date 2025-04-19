@@ -1,0 +1,41 @@
+<html>
+<head>
+    <title>{% block title %}{{ nav.title|text }}{% endblock %}</title>
+    {% block header %}
+    {{ setupHeader() }}
+    {% endblock %}
+</head>
+<body class="body_top">
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            {% block headerNav %}
+            <div class="page-title">
+                <h2>
+                    {{ nav.title|text }}
+                    {% for index, nav in nav.navs %}
+                        <a class="btn btn-secondary btn-sm {% if index > 0 %} mr-2 {% endif%} float-right" href="{{ nav.url|attr }}" onclick="top.restoreSession()">{{ nav.title|text }}</a>
+                    {% endfor %}
+                </h2>
+            </div>
+            {% endblock headerNav %}
+        </div>
+    </div>
+    {% block contents %}
+    {% endblock %}
+    {% block footer %}
+    <div class="row mt-5">
+        <div class="col alert alert-info">
+            <p>{{ "This administration page is for managing the list of OAUTH2 registered applications that are authorized to use the APIs."|xlt }}</p>
+            <p>
+                {{ "SMART apps that display on the patient summary page can be enabled or disabled from this screen. Any OAUTH2 client requesting the 'launch' scope will allow EMR users to launch an app from within the EHR."|xlt }}
+            </p>
+            <p>
+                {{ "Note it is recommended to avoid approving SMART apps that do not register as a confidential client. These apps are less secure and should be highly restricted in the OAUTH2 scopes you allow them to access."|xlt  }}
+            </p>
+        </div>
+    </div>
+    {% endblock %}
+</div> <!-- end .container -->
+</body> <!-- end body.body_top -->
+</html>

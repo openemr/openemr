@@ -24,25 +24,25 @@ div {
 }
 
 div#top-tr {
-  background: #ccc url("images/top-r.png") no-repeat top right;
+  background: #ccc url('images/top-r.png') no-repeat top right;
   margin: 0;
   padding: 0;
 }
 
 div#top-tl {
-  background: url("images/top-l.png") no-repeat top left;
+  background: url('images/top-l.png') no-repeat top left;
   margin: 0;
   padding: 0;
 }
 
 div#top-br {
-  background: url("images/div-r.png") no-repeat bottom right;
+  background: url('images/div-r.png') no-repeat bottom right;
   margin: 0;
   padding: 0;
 }
 
 div#top-bl {
-  background: url("images/div-l.png") no-repeat bottom left;
+  background: url('images/div-l.png') no-repeat bottom left;
   margin: 0;
   padding: 10px 180px 0 10px;
 }
@@ -60,25 +60,25 @@ div#top-bl h2 {
 }
 
 div#mid-r {
-  background: #fff url("images/mid-r.png") repeat-y top right;
+  background: #fff url('images/mid-r.png') repeat-y top right;
   margin: 0;
   padding: 0;
 }
 
 div#mid-l {
-  background: url("images/mid-l.png") repeat-y top left;
+  background: url('images/mid-l.png') repeat-y top left;
   margin: 0;
   padding: 4px 10px;
 }
 
 div#bot-tr {
-  background: url("images/div-r.png") no-repeat top right;
+  background: url('images/div-r.png') no-repeat top right;
   margin: 0;
   padding: 0;
 }
 
 div#bot-tl {
-  background: url("images/div-l.png") no-repeat top left;
+  background: url('images/div-l.png') no-repeat top left;
 
   font-size: 8pt;
   margin: 0;
@@ -91,13 +91,13 @@ div#bot-tl a {
 }
 
 div#bot-br {
-  background: #ccc url("images/bot-r.png") no-repeat bottom right;
+  background: #ccc url('images/bot-r.png') no-repeat bottom right;
   margin: 0;
   padding: 0;
 }
 
 div#bot-bl {
-  background: url("images/bot-l.png") no-repeat bottom left;
+  background: url('images/bot-l.png') no-repeat bottom left;
   margin: 0;
   padding: 0;
 }
@@ -112,7 +112,7 @@ ul#menu {
 }
 
 ul#menu li {
-  background: #999 url("images/tab-off-r.png") no-repeat top right;
+  background: #999 url('images/tab-off-r.png') no-repeat top right;
   border-bottom: 1px solid #666;
   float: left;
 
@@ -121,7 +121,7 @@ ul#menu li {
 }
 
 ul#menu li a {
-  background: url("images/tab-off-l.png") no-repeat top left;
+  background: url('images/tab-off-l.png') no-repeat top left;
 
   color: #d8d8d8;
   display: block;
@@ -146,12 +146,12 @@ ul#menu li a:hover {
 
 ul#menu li.current {
   background-color: #fff;
-  background-image: url("images/tab-on-r.png");
+  background-image: url('images/tab-on-r.png');
   border-bottom-width: 0;
 }
 
 ul#menu li.current a {
-  background-image: url("images/tab-on-l.png");
+  background-image: url('images/tab-on-l.png');
 
   color: #666;
   padding-bottom: 2px;

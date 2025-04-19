@@ -1,0 +1,14 @@
+{# Facility #}
+<div class="col-sm {{ displayOptionClass('enc_enable_facility') }}">
+    <div class="form-group">
+        <label for="facility_id" class="text-right">{{ "Facility"|xlt }}:</label>
+        <select name="facility_id_sel" id="facility_id_sel" class="form-control" {{ mode == 'followup' ? 'disabled' : '' }}>
+            <option value="">-- {{ "Select Facility"|xlt }} --</option>
+            {% for facility in facilities %}
+                <option value="{{ facility.id|attr }}" {{ facility.selected ? 'selected' : '' }}>
+                    {{ facility.name|text }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

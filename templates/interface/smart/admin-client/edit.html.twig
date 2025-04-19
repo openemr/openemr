@@ -1,0 +1,248 @@
+
+{% extends "interface/smart/admin-client/base.html.twig" %}
+{% block title %}{{ "Client Registrations"|xlt }}{% endblock %}
+{% block contents %}
+    <a href="{{ listAction|attr }}" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; {{ "Back to Client List"|xlt  }}</a>
+    <div class="card mt-3">
+        <div class="card-header">
+            <h2>
+                {{ "Edit"|xlt }} <em>{{ client.getName()|text }}</em>
+                <div class="float-right">
+                    {% if allowSkipAuthSetting %}
+                        {% if skipAuthorizationFlow %}
+                            <a href="{{ disableSkipAuthorizationFlowLink|attr }}" class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ "Enable EHR Launch Authorization Flow"|xlt }}</a>
+                        {% else %}
+                            <a href="{{ enableSkipAuthorizationFlowLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable EHR Launch Authorization Flow"|xlt }}</a>
+                        {% endif %}
+                    {% endif %}
+                    {% if isEnabled %}
+                        <a href="{{ disableClientLink|attr }}" class="btn btn-sm btn-danger" onclick="top.restoreSession()">{{ "Disable Client"|xlt }}</a>
+                    {% else %}
+                        <a href="{{ enableClientLink|attr }}" class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ "Enable Client"|xlt }}</a>
+                    {% endif %}
+                </div>
+                <div class="nav-pills">
+                    <a href="#trustedUsers" class="btn btn-sm btn-link">{{ "Authenticated API Users"|xlt }}</a>
+                    {% if services|length > 0 %}
+                    <a href="#services" class="btn btn-sm btn-link">{{ "Decision Support Intervention Services"|xlt }}</a>
+                    {% endif %}
+                </div>
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-6">
+                    {% if requestMessage %}
+                        <div class="alert alert-info">
+                            {{ requestMessage|text }}
+                        </div>
+                    {% endif %}
+                    {% if not isEnabled %}
+                        <div class="alert alert-danger">
+                            {{ "This client is currently disabled"|xlt }}
+                        </div>
+                    {% endif %}
+                    <form>
+                        {% for key,setting in formValues %}
+                            {% if setting.type == 'text' %}
+                                {% include "interface/smart/admin-client/partials/text-input.html.twig"
+                                    with {key: key, setting: setting} %}
+                            {% elseif setting.type == 'textarea' %}
+                                {% include "interface/smart/admin-client/partials/textarea.html.twig"
+                                    with {key: key, setting: setting} %}
+                            {% elseif setting.type == 'checkbox' %}
+                                {% include "interface/smart/admin-client/partials/checkbox.html.twig"
+                                    with {key: key, setting: setting} %}
+                            {% endif %}
+                        {% endfor %}
+                    </form>
+                </div>
+                <div class="col-6">
+                    <label>{{ "Scopes"|xlt }}</label>
+                    <ul>
+                        {% for scope in scopes %}
+                            <li>
+                                {{ scope|text }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="text-center border-bottom pb-2"><a id="trustedUsers" class="text-decoration-none text-reset">{{ "Authenticated API Users"|xlt }}</a></h3>
+                    <hr class="w-50" />
+                    {% if trustedUsers|length <= 0 %}
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-info text-center">
+                                {{ "No authorized users found for this client"|xlt }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% for trustedUser in trustedUsers %}
+                    <div class="card m-3">
+                        <div class="card-header">
+                            <h4 class="text-center">{{ trustedUser.user.display_name|text }}
+                                <a href="{{ trustedUser.link|attr }}"
+                                   class="btn btn-sm btn-primary float-right" onclick="top.restoreSession()">
+                                    {{ "Revoke User"|xlt }}
+                                </a>
+                            </h4>
+                        </div>
+                        <div class="card-body p-5">
+                            <div class="row font-weight-bold bg-secondary rounded text-dark">
+                                <div class="col-1">
+                                    {{ "Type"|xlt }}
+                                </div>
+                                <div class="col-4">
+                                    {{ "UUID"|xlt }}
+                                </div>
+                                <div class="col-3">
+                                    {{ "Name/Username"|xlt }}
+                                </div>
+                                <div class="col-1">
+                                    {{ "Date"|xlt }}
+                                </div>
+                                <div class="col-1">
+                                    {{ "Persist Login"|xlt }}
+                                </div>
+                                <div class="col-2">
+                                    {{ "Grant Type"|xlt }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-1">
+                                    {{ trustedUser.user.user_type|text }}
+                                </div>
+                                <div class="col-4">
+                                    {{ trustedUser.user.user_id|text }}
+                                </div>
+                                <div class="col-3">
+                                    {{ trustedUser.user.display_name|text }}
+                                </div>
+                                <div class="col-1">
+                                    {{ trustedUser.time|text }}
+                                </div>
+                                <div class="col-1">
+                                    {{ trustedUser.persist_login|text }}
+                                </div>
+                                <div class="col-2">
+                                    {{ trustedUser.grant_type|text }}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <h4>{{ "Access Tokens"|xlt }}</h4>
+                                    <hr class="w-100 mt-3 mb-3"/>
+                                    <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
+                                        <div class="col-3">
+                                            {{ "Token"|xlt }}
+                                        </div>
+                                        <div class="col-2">
+                                            {{ "Expiry"|xlt }}
+                                        </div>
+                                        <div class="col-4">
+                                            {{ "Scopes"|xlt }}
+                                        </div>
+                                        <div class="col-3">
+                                            {{ "Action"|xlt }}
+                                        </div>
+                                    </div>
+                                    {% if trustedUser.user.accessTokens|length <= 0 %}
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="alert alert-info text-center">
+                                                {{ "No active access tokens found"|xlt }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if trustedUser.user.accessTokens|length > 0 %}
+                                    {% for accessToken in trustedUser.user.accessTokens %}
+                                    <div class="row">
+                                        <div class="col-3">
+                                            {{ accessToken.tokenObj.token|text }}
+                                        </div>
+                                        <div class="col-2">
+                                            {{ accessToken.tokenObj.expiry|text }}
+                                        </div>
+                                        <div class="col-4">
+                                            <label>{{ "Scopes"|xlt }}</label>
+                                            <ul>
+                                                {% for scope in accessToken.tokenObj.scopes %}
+                                                    <li>
+                                                        {{ scope|text }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        <div class="col-3">
+                                            <a href="{{ accessToken.link|attr }}"
+                                               class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ "Revoke Token"|xlt }}</a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <h4>{{ "Refresh Tokens"|xlt }}</h4>
+                                    <hr class="w-100 mt-3 mb-3"/>
+                                    <div class="row bg-primary rounded text-light mb-2 pt-3 pb-3">
+                                        <div class="col-7">
+                                            {{ "Token"|xlt }}
+                                        </div>
+                                        <div class="col-2">
+                                            {{ "Expiry"|xlt }}
+                                        </div>
+                                        <div class="col-3">
+                                            {{ "Action"|xlt }}
+                                        </div>
+                                    </div>
+                                    {% if trustedUser.user.refreshTokens|length <= 0 %}
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="alert alert-info text-center">
+                                                {{ "No active refresh tokens found"|xlt }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if trustedUser.user.refreshTokens|length > 0 %}
+                                    {% for refreshToken in trustedUser.user.refreshTokens %}
+                                    <div class="row">
+                                        <div class="col-7">
+                                            {{ refreshToken.tokenObj.token|text }}
+                                        </div>
+                                        <div class="col-2">
+                                            {{ refreshToken.tokenObj.expiry|text }}
+                                        </div>
+                                        <div class="col-3">
+                                            <a href="{{ refreshToken.link|attr }}"
+                                               class="btn btn-sm btn-primary" onclick="top.restoreSession()">{{ 'Revoke Token'|xlt }}</a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if client.hasDSI() %}
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-center mb-2"><a id="services" class="text-decoration-none text-reset">{{ "Decision Support Intervention Services"|xlt }}</a></h3>
+                        {% include 'interface/smart/admin-client/partials/_external-cdr-list.html.twig' with {services: services } %}
+{#                        {% include 'interface/smart/admin-client/_external-cdr-service-summary.html.twig' with {service: client, saveUrl: dsiSaveUrl} %}#}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

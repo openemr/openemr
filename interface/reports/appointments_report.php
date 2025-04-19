@@ -4,6 +4,10 @@
  * This report shows upcoming appointments with filtering and
  * sorting by patient, practitioner, appointment type, and date.
  *
+ * RM headings in csv file are the same as headings in the report
+ * RM optionally display patients' address
+ * RM choose a selection of providers from the drop down menu
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -34,6 +38,7 @@ use OpenEMR\Common\{
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
+
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -91,7 +96,17 @@ if (!empty($_POST['with_canceled_appt'])) {
     $chk_with_canceled_appt = true;
 }
 
+$chk_show_address = false;
+if (!empty($_POST['show_address'])) {
+    $chk_show_address = true;
+}
+
 $provider  = $_POST['form_provider'] ?? null;
+//RM if 'all' selected set to null
+if ($provider[0] == '') {
+    $provider = null;
+}
+
 $facility  = $_POST['form_facility'] ?? null;  //(CHEMED) facility filter
 $form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUEST['form_orderby'])) ?  $_REQUEST['form_orderby'] : 'date';
 
@@ -237,14 +252,17 @@ if (empty($_POST['form_csvexport'])) {
                   "authorized = 1 ORDER BY lname, fname"; //(CHEMED) facility filter
 
                 $ures = sqlStatement($query);
-
-                echo "   <select name='form_provider' class='form-control'>\n";
-                echo "    <option value=''>-- " . xlt('All') . " --\n";
-
+                //RM select multiple providers - rather than one or all
+                echo "   <select name='form_provider[]' class='form-control'  multiple >\n";
+                echo "    <option value='' ";
+                if (!empty($_POST['form_provider']) && (in_array('', $_POST['form_provider']))) { //RM
+                        echo " selected";
+                }
+                echo ">  -- " . xlt('All') . " --\n";
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if (!empty($_POST['form_provider']) && ($provid == $_POST['form_provider'])) {
+                    if (!empty($_POST['form_provider']) && (in_array($provid, $_POST['form_provider']))) { //RM
                         echo " selected";
                     }
 
@@ -339,6 +357,15 @@ if (empty($_POST['form_csvexport'])) {
                         </label>
                     </div>
                 </td>
+              </tr>
+              <tr>
+                <td></td>
+                 <td>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="show_address" id="show_address" <?php echo ($chk_show_address) ? "checked" : ""; ?>>&nbsp;<?php echo xlt('Show Patient Address'); ?>
+                        </label>
+                    </div>
+                </td>
             </tr>
 
         </table>
@@ -380,7 +407,7 @@ if (empty($_POST['form_csvexport'])) {
 </table>
 
 </div>
-<!-- end of search parameters --> 
+<!-- end of search parameters -->
 <?php } // end not form_csvexport
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
@@ -412,6 +439,11 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <th><a href="nojs.php" onclick="return dosort('patient')"
         <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
         </th>
+
+        <?php if ($chk_show_address) {
+              echo "<th>";  echo xlt('Address') . "</a>
+        </th>";
+        } ?>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
         <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
@@ -463,8 +495,24 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
-        $fields = ['pc_eventDate', 'pc_startTime', 'fname', 'lname', 'DOB'];
-        $spreadsheet = new SpreadSheetService($appointments, $fields, 'appts');
+        // include provider as well
+        // RM generate csv file with same column headers row as used in the report itself
+        $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB'];
+        for ($i = 0; $i < count($appointments); ++$i) {
+              $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
+              $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
+              $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
+              $csvfields[$i]["Time"] = $appointments[$i]["pc_startTime"] ;
+              $csvfields[$i]["Patient"] = $appointments[$i]["fname"] . " " .  $appointments[$i]["lname"] ;
+            if ($chk_show_address) {
+                  $csvfields[$i]["Address"] = $appointments[$i]["address1"];
+                if ($appointments[$i]["address2"]) {
+                    $csvfields[$i]["Address"]  .=  ", "  .  $appointments[$i]["address2"]  ;
+                }
+            }
+              $csvfields[$i]["DOB"] = $appointments[$i]["DOB"] ;
+        }
+        $spreadsheet = new SpreadSheetService($csvfields, $fields, 'appts');
         if (!empty($spreadsheet->buildSpreadsheet())) {
             $spreadsheet->downloadSpreadsheet('Csv');
         }
@@ -519,6 +567,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
             <td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
             </td>
+
+                  <?php if ($chk_show_address) {
+                        echo " <td class='detail'>&nbsp;" ;
+                        echo text($appointment['address1']);
+                        if ($appointment['address2']) {
+                            echo text(", " . $appointment['address2']) ;
+                        }
+                        echo "</td>" ;
+                  } ?>
 
             <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
 

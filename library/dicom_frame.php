@@ -44,7 +44,8 @@ if ($web_path) {
 $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => $GLOBALS['assets_static_relative']
+    ,'web_root' => $web_root
     ,'web_path' => $web_path
-    ,'state_url' => $state_url
-    ,'docid' => $docid
+    ,'state_url' => $state_url ?? null
+    ,'docid' => $docid ?? null
 ]);

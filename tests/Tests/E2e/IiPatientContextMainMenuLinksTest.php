@@ -59,7 +59,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
             $threwSomething = false;
             $counter++;
             if ($counter > 1) {
-                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
+                echo "\n" . "RE-attempt (" . $menuLink . ") number " . $counter . " of 3" . "\n";
             }
             $this->base();
             try {
@@ -91,7 +91,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     {
         return [
             'Patient -> Dashboard menu link' => ['Patient||Dashboard', 'Dashboard', false],
-            'Patient -> Visits -> Create Visit menu link' => ['Patient||Visits||Create Visit', 'Patient Encounter', false, 'Visit History', true],
+            'Patient -> Visits -> Create Visit menu link' => ['Patient||Visits||Create Visit', 'Patient Encounter', false, 'Visit History||Loading', true],
             'Patient -> Visits -> Visit History menu link' => ['Patient||Visits||Visit History', 'Visit History', false],
             'Patient -> Records -> Patient Record Request menu link' => ['Patient||Records||Patient Record Request', 'Patient Records Request', false, 'Visit History||Loading'],
             'Popups -> Issues menu link' => ['Popups||Issues', 'Issues', true],

@@ -23,9 +23,9 @@ class EmailClient extends AppDispatch
     public $baseDir;
     public $uriDir;
     public $serverUrl;
-    public mixed $credentials;
+    public $credentials;
     public string $portalUrl;
-    protected $crypto;
+    protected CryptoGen $crypto;
     private EmailClient $client;
     private bool $smtpEnabled;
 
@@ -51,8 +51,7 @@ class EmailClient extends AppDispatch
         $this->sid = $credentials['username'];
         $this->appKey = $credentials['appKey'];
         $this->appSecret = $credentials['appSecret'];
-        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-                "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
@@ -80,7 +79,7 @@ class EmailClient extends AppDispatch
      * @param $acl
      * @return int
      */
-    public function authenticate($acl = ['patient', 'doc']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
         list($s, $v) = $acl;
         return $this->verifyAcl($s, $v);
@@ -92,12 +91,12 @@ class EmailClient extends AppDispatch
     public function sendEmail(): string
     {
         $statusMsg = xlt("Email Requests") . "<br />";
-        $body = $this->getRequest('comments');
+        $body = $this->getRequest('comments', '');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $subject = $this->getRequest('subject', xl("Private confidential message"));
         $user = $this::getLoggedInUser();
-        $htmlContent = $this->getRequest('html_content');
+        $htmlContent = $this->getRequest('html_content', '');
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
         if (!$hasEmail) {
             return js_escape(xlt("Error: Missing email address. Try again."));
@@ -112,7 +111,7 @@ class EmailClient extends AppDispatch
     public function emailDocument($email, $body, $file, array $user = []): string
     {
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
+        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
         $from = $GLOBALS["practice_return_email_path"];
@@ -189,5 +188,14 @@ class EmailClient extends AppDispatch
     function fetchReminderCount(): string|bool
     {
         // TODO: Implement fetchReminderCount() method.
+    }
+
+    /**
+     * @param $uiDateRangeFlag
+     * @return false|string|null
+     */
+    public function fetchEmailList($uiDateRangeFlag = true): false|string|null
+    {
+        return "[]"; // Caller expects JSON result, not HTML;
     }
 }

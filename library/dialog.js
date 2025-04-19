@@ -46,7 +46,7 @@
                 type: 'Alert',
                 sizeHeight: 'auto',
                 resolvePromiseOn: 'close',
-                html: '<p class="text-center">' + data + '</p>'
+                html: '<p class="text-center bg-light text-dark">' + data + '</p>'
             });
         }
 
@@ -62,7 +62,7 @@
                 type: 'Confirm',
                 resolvePromiseOn: 'confirm',
                 sizeHeight: 'auto',
-                html: '<p class="text-center">' + data + '</p>'
+                html: '<p class="text-center bg-light text-dark">' + data + '</p>'
             });
         }
 
@@ -511,7 +511,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         type: 'iframe', // POST, GET (ajax) or iframe
         async: true,
         frameContent: "", // for iframe embedded content
-        html: "", // content for alerts, comfirm etc ajax
+        html: "", // content for alerts, confirm etc ajax
         allowDrag: false,
         allowResize: true,
         sizeHeight: 'auto', // 'full' will use as much height as allowed
@@ -559,7 +559,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         width = "modal-full";
     }
     // Convert dialog size to percentages and/or css class.
-    var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl', 'modal-full'];
+    const sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl', 'modal-full'];
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
         mWidth = (width / where.innerWidth * 100).toFixed(1) + '%';
@@ -711,11 +711,16 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 if (opts.resolvePromiseOn === 'shown') {
                     resolve(dlgContainer);
                 }
+            }).on('hide.bs.modal', function (e) {
+                console.log("Dialog is closing...");
+                e.currentTarget.style.cursor = "auto";
             }).on('hidden.bs.modal', function (e) {
+                console.log("Dialog is closed...");
                 // clear cursor
-                e.target.style.cursor = "pointer";
+                e.currentTarget.style.cursor = "auto";
                 // remove our dialog
                 jQuery(this).remove();
+                document.body.style.cursor = "auto";
                 // now we can run functions in our window.
                 if (opts.onClosed) {
                     console.log('Doing onClosed:[' + opts.onClosed + ']');

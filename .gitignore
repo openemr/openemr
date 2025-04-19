@@ -18,6 +18,7 @@ ccdaservice/node_modules
 # dev editor configs
 /.idea/*
 /.vscode/*
+/.vscode-oss/*
 /nbproject/*
 .DS_Store
 .buildpath
@@ -27,3 +28,4 @@ ccdaservice/node_modules
 # testing
 .phpunit.result.cache
 coverage/js-unit
+

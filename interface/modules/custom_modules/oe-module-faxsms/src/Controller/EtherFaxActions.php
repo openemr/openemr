@@ -28,7 +28,7 @@ class EtherFaxActions extends AppDispatch
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
-    protected $crypto;
+    protected CryptoGen $crypto;
     private EtherFaxClient $client;
     private mixed $appSecret;
     private mixed $sid;
@@ -239,7 +239,7 @@ class EtherFaxActions extends AppDispatch
      * @param $acl
      * @return int
      */
-    public function authenticate($acl = ['admin', 'doc']): int
+    public function authenticate($acl = ['patients', 'appt']): int
     {
         if (empty($this->credentials)) {
             $this->credentials = $this->getCredentials();

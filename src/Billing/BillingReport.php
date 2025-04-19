@@ -43,7 +43,7 @@ class BillingReport
                     $billstring .= ' AND ' . "billing.billed = '1'";
                 } elseif (strpos($criteria_value, "billing.billed|=|0") !== false) {
                     //3 is an error condition
-                    $billstring .= ' AND ' . "(billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
+                    $billstring .= ' AND ' . "(billing.billed = '0' OR billing.billed IS NULL OR (billing.billed = '1' AND billing.bill_process = '3'))";
                 } elseif (strpos($criteria_value, "billing.billed|=|7") !== false) {
                     $billstring .= ' AND ' . "billing.bill_process = '7'";
                 } elseif (strpos($criteria_value, "billing.id|=|null") !== false) {

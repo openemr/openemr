@@ -252,7 +252,7 @@ foreach (explode(',', $given) as $item) {
                 document.getElementById('row_begindate').style.display = '';
                 document.getElementById('row_enddate').style.display = '';
                 document.getElementById('row_occurrence').style.display = '';
-                f.form_occur.options[2].selected = true;
+                f.form_occur.options[0].selected = true;
                 document.getElementById('row_comments').style.display = '';
 
             } else if (index == 'Allergy') {
@@ -678,7 +678,7 @@ foreach (explode(',', $given) as $item) {
                     <tr id='row_quick_picks'>
                         <td class="text-nowrap">&nbsp;</td>
                         <td class="align-top" colspan="3">
-                            <select size="7" name='form_titles' onchange='top.restoreSession();set_text();'>
+                            <select size="6" name='form_titles' onchange='top.restoreSession();set_text();'>
                             </select>
                         </td>
                         <td>

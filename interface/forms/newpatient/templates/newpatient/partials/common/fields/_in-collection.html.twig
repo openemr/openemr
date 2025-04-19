@@ -1,0 +1,13 @@
+{# In Collection #}
+<div class="col-sm {{ not showInCollection ? 'd-none' : displayOptionClass('enc_in_collection') }}">
+    <div class="form-group">
+        <label for="in_collection" class="text-right">{{ "In Collection"|xlt }}:</label>
+        <select name="in_collection" id="in_collection" class="form-control">
+            {% for option in inCollectionOptions %}
+                <option value="{{ option.value|attr }}" {{ option.selected ? 'selected' : '' }}>
+                    {{ option.title|text }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

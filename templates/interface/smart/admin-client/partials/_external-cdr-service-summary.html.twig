@@ -1,0 +1,50 @@
+{# Note saveAction is already escaped #}
+<form method="post" action="{{ saveAction|attr }}">
+{{ csrfToken() }}
+<div class="card">
+    <div class="card-body">
+        {% if saveMessage is not empty %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-{{ alertType|attr }}" role="alert">
+                        {{ saveMessage|text }}
+                    </div>
+                </div>
+            </div>
+
+        {% endif %}
+        {#
+        Create a bootstrap form control for each field in the service.fields of type text
+        #}
+        <div class="row">
+            <div class="col-12">
+                {% for field in service.fields %}
+                    {% if field.type == 'text' %}
+                        <div class="form-group">
+                            <label for="{{ field.name|attr }}">{{ field.label|text }}</label>
+                            <input type="text" class="form-control" id="{{ field.name|attr }}" name="{{ field.name|attr }}" value="{{ field.value|attr }}">
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <p>
+                        {{ "New source attributes can be added via Admin -> Forms -> Lists."|xlt }}
+                    </p>
+                    <p>
+                    {% if service.client.hasPredictiveDSI %}
+                        {{ "Edit the Predictive Decision Support Interventions Source Attributes list."|xlt }}
+                        <a href="/interface/super/edit_list.php?list_id={{ predictiveDSIListID|attr_url }}">{{ "Go To List"|xlt }}</a>
+                    {% elseif service.client.hasEvidenceDSI %}
+                        {{ "Edit the Evidence Decision Support Interventions Source Attributes list."|xlt }}
+                        <a href="/interface/super/edit_list.php?list_id={{ evidenceDSIListID|attr_url }}">{{ "Go To List"|xlt }}</a>
+                    {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

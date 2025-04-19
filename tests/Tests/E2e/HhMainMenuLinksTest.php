@@ -32,13 +32,18 @@ class HhMainMenuLinksTest extends PantherTestCase
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      */
-    public function testMainMenuLink(string $menuLink, string $expectedTabTitle): void
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
             //  a high enough version of nodejs)
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
+
+        if (empty($loading)) {
+            $loading = "Loading";
+        }
+
         $counter = 0;
         $threwSomething = true;
         // below will basically allow 3 timeouts
@@ -46,13 +51,13 @@ class HhMainMenuLinksTest extends PantherTestCase
             $threwSomething = false;
             $counter++;
             if ($counter > 1) {
-                echo "\n" . "RE-attempt number " . $counter . " of 3" . "\n";
+                echo "\n" . "RE-attempt (" . $menuLink . ") number " . $counter . " of 3" . "\n";
             }
             $this->base();
             try {
                 $this->login(LoginTestData::username, LoginTestData::password);
                 $this->goToMainMenuLink($menuLink);
-                $this->assertActiveTab($expectedTabTitle);
+                $this->assertActiveTab($expectedTabTitle, $loading);
             } catch (\Throwable $e) {
                 // Close client
                 $this->client->quit();
@@ -73,9 +78,9 @@ class HhMainMenuLinksTest extends PantherTestCase
     {
         return [
             'Calendar menu link' => ['Calendar', 'Calendar'],
-            'Finder menu link' => ['Finder', 'Patient Finder'],
-            'Flow menu link' => ['Flow', 'Flow Board'],
-            'Recalls menu link' => ['Recalls', 'Recall Board'],
+            'Finder menu link' => ['Finder', 'Patient Finder', 'undefined...||Loading'],
+            'Flow menu link' => ['Flow', 'Flow Board', 'undefined...||Loading'],
+            'Recalls menu link' => ['Recalls', 'Recall Board', 'undefined...||Loading'],
             'Messages menu link' => ['Messages', 'Message Center'],
             'Patient -> New/Search menu link' => ['Patient||New/Search', 'Search or Add Patient'],
             'Fees -> Billing Manager menu link' => ['Fees||Billing Manager', 'Billing Manager'],
@@ -128,8 +133,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Reports -> Clinic -> Report Results menu link' => ['Reports||Clinic||Report Results', 'Report Results/History'],
             'Reports -> Clinic -> Standard Measures menu link' => ['Reports||Clinic||Standard Measures', 'Standard Measures'],
             'Reports -> Clinic -> Automated Measures (AMC) menu link' => ['Reports||Clinic||Automated Measures (AMC)', 'Automated Measure Calculations (AMC)'],
-            'Reports -> Clinic -> 2024 Real World Testing Report menu link' => ['Reports||Clinic||2024 Real World Testing Report', '2024 Real World Testing Report'],
-            'Reports -> Clinic -> 2023 Real World Testing Report menu link' => ['Reports||Clinic||2023 Real World Testing Report', '2023 Real World Testing Report'],
+            'Reports -> Clinic -> 2025 Real World Testing Report menu link' => ['Reports||Clinic||2025 Real World Testing Report', '2025 Real World Testing Report'],
             'Reports -> Clinic -> Alerts Log menu link' => ['Reports||Clinic||Alerts Log', 'Alerts Log'],
             'Reports -> Visits -> Daily Report menu link' => ['Reports||Visits||Daily Report', 'Daily Summary Report'],
             'Reports -> Visits -> Patient Flow Board menu link' => ['Reports||Visits||Patient Flow Board', 'Patient Flow Board Report'],
@@ -164,7 +168,7 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Miscellaneous -> Chart Tracker menu link' => ['Miscellaneous||Chart Tracker', 'Chart Tracker'],
             'Miscellaneous -> Office Notes menu link' => ['Miscellaneous||Office Notes', 'Office Notes'],
             'Miscellaneous -> Batch Communication Tool menu link' => ['Miscellaneous||Batch Communication Tool', 'BatchCom'],
-            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'Documents']
+            'Miscellaneous -> New Documents menu link' => ['Miscellaneous||New Documents', 'New Documents']
         ];
     }
 }

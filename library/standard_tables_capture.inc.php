@@ -358,7 +358,10 @@ function snomedRF2_import()
             `term` varchar(255) NOT NULL,
             `caseSignificanceId` bigint(25) NOT NULL,
              PRIMARY KEY (`id`, `active`, `conceptId`),
-             KEY `idx_concept_id` (`conceptId`)
+             KEY `idx_concept_id` (`conceptId`),
+             INDEX `idx_term` (term),
+             INDEX `idx_active_term` (active, term),
+             FULLTEXT INDEX `ft_term` (term)
             ) ENGINE=InnoDB",
         "sct2_identifier_drop" => "DROP TABLE IF EXISTS `sct2_identifier`",
         "sct2_identifier_structure" => "CREATE TABLE IF NOT EXISTS `sct2_identifier` (
@@ -627,7 +630,7 @@ function valueset_import($type)
                             foreach ($cp->Concept as $con) {
                                 $con_attr = $con->attributes();
                                 sqlStatementNoLog(
-                                    "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    "INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE
                                     code_system = values(code_system),
                                     description = values(description),
                                     valueset_name = values(valueset_name)",
@@ -642,7 +645,7 @@ function valueset_import($type)
                                     )
                                 );
                                 sqlStatementNoLog(
-                                    "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE 
+                                    "INSERT INTO valueset_oid values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE
                                     code_system = values(code_system),
                                     description = values(description),
                                     valueset_name = values(valueset_name)",

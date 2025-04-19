@@ -1085,7 +1085,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 <body class="body_top" onsubmit="doWait(event)">
     <div class="container">
         <div class="page-header">
-            <h2><?php echo implode(" ", $title); ?></h2>
+            <h2><?php echo text(implode(" ", $title)); ?></h2>
         </div>
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
