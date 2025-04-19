@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Patient;
 
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
@@ -46,6 +48,34 @@ trait PatientOpenTrait
         $this->client->quit();
     }
 
+    private function dismissRegistrationModal(): void
+    {
+        try {
+            // wait up to 2s for the modal title to appear
+            $this->client->wait(2)->until(
+                WebDriverExpectedCondition::visibilityOfElementLocated(
+                    WebDriverBy::xpath(XpathsConstants::MODAL_REGISTRATION)
+                )
+            );
+            // click the “NoThanks” button
+            $this->client
+                ->findElement(
+                    WebDriverBy::cssSelector('.product-registration-modal .nothanks')
+                )
+                ->click();
+            // wait for modal to disappear
+            $this->client->wait(2)->until(
+                WebDriverExpectedCondition::invisibilityOfElementLocated(
+                    WebDriverBy::xpath(XpathsConstants::MODAL_REGISTRATION)
+                )
+            );
+            // refresh the crawler so subsequent clicks hit the real menu
+            $this->crawler = $this->client->refreshCrawler();
+        } catch (\Exception $e) {
+            // if no modal showed up, just carry on
+        }
+    }
+
     private function patientOpenIfExist(string $firstname, string $lastname, string $dob, string $sex, bool $login = true): void
     {
         // if patient does not already exists, then fail
@@ -58,6 +88,8 @@ trait PatientOpenTrait
             $this->login(LoginTestData::username, LoginTestData::password);
         }
 
+        // wait for the main menu to be visible
+        $this->dismissRegistrationModal();
         // search for last name via anySearchBox
         $this->client->waitFor(XpathsConstantsPatientOpenTrait::ANYSEARCHBOX_FORM_PATIENTOPEN_TRAIT);
         $this->crawler = $this->client->refreshCrawler();
