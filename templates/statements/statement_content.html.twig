@@ -2,17 +2,17 @@
     {{ report_header|raw }}
 
     {% if use_dunning_message and (ins_paid != 0 or level_closed == 4) %}
-        {% if age <= first_dun_msg_set %}
-            {% set dun_message = first_dun_msg_text %}
-        {% elseif age <= second_dun_msg_set %}
-            {% set dun_message = second_dun_msg_text %}
-        {% elseif age <= third_dun_msg_set %}
-            {% set dun_message = third_dun_msg_text %}
-        {% elseif age <= fourth_dun_msg_set %}
-            {% set dun_message = fourth_dun_msg_text %}
-        {% elseif age >= fifth_dun_msg_set %}
-            {% set dun_message = fifth_dun_msg_text %}
-        {% endif %}
+	{% if age <= first_dun_msg_set %}
+	    {% set dun_message = first_dun_msg_text %}
+	{% elseif age <= second_dun_msg_set %}
+	    {% set dun_message = second_dun_msg_text %}
+	{% elseif age <= third_dun_msg_set %}
+	    {% set dun_message = third_dun_msg_text %}
+	{% elseif age <= fourth_dun_msg_set %}
+	    {% set dun_message = fourth_dun_msg_text %}
+	{% elseif age >= fifth_dun_msg_set %}
+	    {% set dun_message = fifth_dun_msg_text %}
+	{% endif %}
     {% endif %}
 
     {% set label_addressee = 'ADDRESSED TO'|xl %}
@@ -33,129 +33,93 @@
     {% set label_amt = 'Amount'|xl %}
 </div>
     <div style='margin-left:60px;margin-top:20px;'>
-        <pre>
-            <br>
-            _______________________ {{ label_pgbrk }} _______________________<br>
-            <br>
-            {{ label_visit|e('html')|pad(11, ' ', 'right') }} {{ label_desc|e('html')|pad(46, ' ', 'right') }} {{ label_amt|e('html')|e('html') }}<br>
+	<pre>
+	    <br>
+	    _______________________ {{ label_pgbrk }} _______________________<br>
+	    <br>
+	    {{ label_visit|e('html')|pad(11, ' ', 'right') }} {{ label_desc|e('html')|pad(46, ' ', 'right') }} {{ label_amt|e('html')|e('html') }}<br>
 
-            {% set count = 5 %}
-                {% set aging = [0.00, 0.00, 0.00, 0.00] %}
-                {% set todays_time = date().timestamp %}
+	    {% set count = 5 %}
+		{% set aging = [0.00, 0.00, 0.00, 0.00] %}
+		{% set todays_time = date().timestamp %}
 
-                {% for line in stmt.lines %}
-                {% set description = line.desc|slice(0, 30) %}
-                {% if description|slice(0, 14) in ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'] %}
-                    {% set description = description|replace({'Procedure': 'Office Visit'|xl ~ ':'}) %}
-                {% endif %}
+		{% for line in stmt.lines %}
+		{% set description = line.desc|slice(0, 30) %}
+		{% if description|slice(0, 14) in ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'] %}
+		    {% set description = description|replace({'Procedure': 'Office Visit'|xl ~ ':'}) %}
+		{% endif %}
 
-                {% set dos = line.dos %}
-                {% set adj_flag = false %}
-                {% set note_flag = false %}
-                {% set pt_paid_flag = false %}
-                {% set prev_ddate = '' %}
-                {% set last_activity_date = dos %}
+		{% set dos = line.dos %}
+		{% set adj_flag = false %}
+		{% set note_flag = false %}
+		{% set pt_paid_flag = false %}
+		{% set prev_ddate = '' %}
+		{% set last_activity_date = dos %}
 
-                {% for dkey, ddata in line.detail %}
-                    {% set ddate = dkey|slice(0, 10) %}
-                    {% if ddate|match('/^(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)\\s*$/') %}
-                        {% set ddate = ddate|replace({(ddate|slice(0, 4)): ddate|slice(0, 4) ~ '-', (ddate|slice(4, 2)): ddate|slice(4, 2) ~ '-', (ddate|slice(6, 2)): ddate|slice(6, 2)}) %}
-                    {% endif %}
+		{% for dkey, ddata in line.detail %}
+		    {% set ddate = dkey|slice(0, 10) %}
+		    {% if ddate|match('/^(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)\\s*$/') %}
+			{% set ddate = ddate|replace({(ddate|slice(0, 4)): ddate|slice(0, 4) ~ '-', (ddate|slice(4, 2)): ddate|slice(4, 2) ~ '-', (ddate|slice(6, 2)): ddate|slice(6, 2)}) %}
+		    {% endif %}
 
-                    {% if ddate and ddate > last_activity_date %}
-                        {% set last_activity_date = ddate %}
-                    {% endif %}
+		    {% if ddate and ddate > last_activity_date %}
+			{% set last_activity_date = ddate %}
+		    {% endif %}
 
-                    {% set amount = '' %}
+		    {% set amount = '' %}
 
-                    {% if ddata.pmt is not empty %}
-                        {% set amount = '%.2f'|format(0 - ddata.pmt) %}
-                        {% set desc = 'Paid'|xl ~ ' ' ~ ddate|oe_format_short_date|slice(0, 6) ~ ddate|oe_format_short_date|slice(8, 2) ~ ': ' ~ ddata.src ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
-                        {% if ddata.src == 'Pt Paid' or ddata.plv == '0' %}
-                            {% set pt_paid_flag = true %}
-                            {% set desc = 'Pt paid'|xl ~ ' ' ~ ddate|oe_format_short_date|slice(0, 6) ~ ddate|oe_format_short_date|slice(8, 2) %}
-                        {% endif %}
-                    {% elseif ddata.rsn is not empty %}
-                        {% if ddata.chg %}
-                            {% set adj_flag = true %}
-                        {% else %}
-                            {% if ddate == prev_ddate %}
-                                {% if not note_flag %}
-                                    {% set desc = 'Note'|trans ~ ' ' ~ ddate|oe_format_short_date|slice(0, 6) ~ ddate|oe_format_short_date|slice(8, 2) ~ ': ' ~ ': ' ~ ddata.rsn ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
-                                    {% set note_flag = true %}
-                                {% endif %}
-                            {% endif %}
-                        {% endif %}
-                    {% elseif ddata.chg < 0 %}
-                        {% set amount = '%.2f'|format(ddata.chg) %}
-                        {% set desc = 'Patient Payment'|xl %}
-                    {% else %}
-                        {% set amount = '%.2f'|format(ddata.chg) %}
-                        {% set desc = description %}
-                    {% endif %}
+		    {% if ddata.pmt is not empty %}
+			{% set amount = '%.2f'|format(0 - ddata.pmt) %}
+			{% set desc = 'Paid'|xl ~ ' ' ~ ddate|shortDate|slice(0, 6) ~ ddate|shortDate|slice(8, 2) ~ ': ' ~ ddata.src ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
+			{% if ddata.src == 'Pt Paid' or ddata.plv == '0' %}
+			    {% set pt_paid_flag = true %}
+			    {% set desc = 'Pt paid'|xl ~ ' ' ~ ddate|shortDate|slice(0, 6) ~ ddate|shortDate|slice(8, 2) %}
+			{% endif %}
+		    {% elseif ddata.rsn is not empty %}
+			{% if ddata.chg %}
+			    {% set adj_flag = true %}
+			{% else %}
+			    {% if ddate == prev_ddate %}
+				{% if not note_flag %}
+				    {% set desc = 'Note'|xlt ~ ' ' ~ ddate|shortDate|slice(0, 6) ~ ddate|shortDate|slice(8, 2) ~ ': ' ~ ': ' ~ ddata.rsn ~ ' ' ~ ddata.pmt_method ~ ' ' ~ ddata.insurance_company %}
+				    {% set note_flag = true %}
+				{% endif %}
+			    {% endif %}
+			{% endif %}
+		    {% elseif ddata.chg < 0 %}
+			{% set amount = '%.2f'|format(ddata.chg) %}
+			{% set desc = 'Patient Payment'|xl %}
+		    {% else %}
+			{% set amount = '%.2f'|format(ddata.chg) %}
+			{% set desc = description %}
+		    {% endif %}
 
-                    {% if not adj_flag %}
-                        {{ dos|oe_format_short_date|e('html')|pad(10, ' ', 'right') }}  {{ desc|e('html')|pad(45, ' ', 'right') }}{{ amount|e('html')|pad(8, ' ', 'right') }}<br>
-                        {% set count = count + 1 %}
-                    {% endif %}
+		    {% if not adj_flag %}
+			{{ dos|shortDate|e('html')|pad(10, ' ', 'right') }}  {{ desc|e('html')|pad(45, ' ', 'right') }}{{ amount|e('html')|pad(8, ' ', 'right') }}<br>
+			{% set count = count + 1 %}
+		    {% endif %}
 
-                    {% set dos = '' %}
-                    {% set adj_flag = false %}
-                    {% set note_flag = false %}
-                    {% set prev_ddate = ddate %}
-                {% endfor %}
+		    {% set dos = '' %}
+		    {% set adj_flag = false %}
+		    {% set note_flag = false %}
+		    {% set prev_ddate = ddate %}
+		{% endfor %}
 
-                {% if line.adjust != '0.00' %}
-                    {{ dos|oe_format_short_date|e('html')|pad(10, ' ', 'right') }}  {{ "Insurance adjusted"|e('html')|pad(45, ' ', 'right') }}{{ '%.2f'|format(0 - line.adjust)|pad(8, ' ', 'right') }}<br>
-                    {% set count = count + 1 %}
-                {% endif %}
+		{% if line.adjust != '0.00' %}
+		    {{ dos|shortDate|e('html')|pad(10, ' ', 'right') }}  {{ "Insurance adjusted"|e('html')|pad(45, ' ', 'right') }}{{ '%.2f'|format(0 - line.adjust)|pad(8, ' ', 'right') }}<br>
+		    {% set count = count + 1 %}
+		{% endif %}
 
-                {% if not pt_paid_flag %}
-                    {{ dos|oe_format_short_date|e('html')|pad(10, ' ', 'right') }}  {{ "Item balance"|e('html')|pad(45, ' ', 'right') }}{{ '%.2f'|format(line.amount - line.paid)|pad(8, ' ', 'right') }}<br>
-                    {% set count = count + 1 %}
-                {% endif %}
+		{% if not pt_paid_flag %}
+		    {{ dos|shortDate|e('html')|pad(10, ' ', 'right') }}  {{ "Item balance"|e('html')|pad(45, ' ', 'right') }}{{ '%.2f'|format(line.amount - line.paid)|pad(8, ' ', 'right') }}<br>
+		    {% set count = count + 1 %}
+		{% endif %}
 
-                {% set last_activity_date = (line.bill_date > last_activity_date) ? line.bill_date : last_activity_date %}
-                {% if stmt.dun_count == '0' %}{% endif %}
-            {% endfor %}
-        </pre>
+		{% set last_activity_date = (line.bill_date > last_activity_date) ? line.bill_date : last_activity_date %}
+		{% if stmt.dun_count == '0' %}{% endif %}
+	    {% endfor %}
+	</pre>
     </div>
-<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;">
-    <br /><br />
-    <table style="width:7in;margin-left:20px;">
-        <tr>
-            <td style="width:4.5in;"><br />
-                {{ label_payby }} {{ label_cards }}
-                <br /><br />
-                {{ label_cardnum }}: __________________________________
-                {{ label_expiry }}: ___ / ____
-                {{ label_cvv }}:____<br /><br />
-                {{ label_sign }} ______________________________________________<br />
-            </td>
-            <td style="width:2.0in;vertical-align:middle;">
-                {% if has_practice_cards %}
-                    <img src="{{ practice_cards_path }}" style="width:90px;height:auto; margin:4px auto;">
-                    <br />
-                    <p>
-                        <b>{{ label_totaldue }}</b>: {{ stmt.amount }}<br />
-                        {{ 'Payment Tracking Id'|trans }}: {{ stmt.pid }}
-                        <br />
-                        {{ 'Amount Paid'|trans }}: _______ {{ 'Check'|trans }} #:
-                    </p>
-                {% else %}
-                    <br />
-                    <p>
-                        <b>{{ label_totaldue }}</b>: {{ stmt.amount }}<br />
-                        {{ 'Payment Tracking Id'|trans }}: {{ stmt.pid }}
-                    </p>
-                    <br />
-                    <p>
-                        {{ 'Amount Paid'|trans }}: _______ {{ 'Check'|trans }} #:
-                    </p>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
-</div>
+
 
 

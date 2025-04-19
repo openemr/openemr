@@ -29,13 +29,12 @@
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Twig\TwigContainer;
 
-
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
 
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
-$STMT_PRINT_CMD = (new CryptoGen()) -> decryptStandard($GLOBALS['more_secure']['print_command']);
+$STMT_PRINT_CMD = (new CryptoGen())->decryptStandard($GLOBALS['more_secure']['print_command']);
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF
@@ -52,66 +51,70 @@ $STMT_PRINT_CMD = (new CryptoGen()) -> decryptStandard($GLOBALS['more_secure']['
 function make_statement($stmt)
 {
     if ($GLOBALS['statement_appearance'] == "1") {
-        if (!empty($_POST['form_portalnotify']) && is_auth_portal($stmt['pid'])) {
-            return osp_create_HTML_statement($stmt);
-        } else {
-            return create_HTML_statement($stmt);
-        }
+	if (!empty($_POST['form_portalnotify']) && is_auth_portal($stmt['pid'])) {
+	    return osp_create_HTML_statement($stmt);
+	} else {
+	    return create_HTML_statement($stmt);
+	}
     } else {
-        return create_statement($stmt);
+	return create_statement($stmt);
     }
 }
-
 /**
  * This prints a header for documents.  Keeps the brand uniform...
- * @param string $pid patient_id
- * @param string $direction , options "web" or anything else.  Web provides apache-friendly url links.
- * @return outputs to be displayed however requested
+ *  @param string $pid patient_id
+ *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
+ *  @return string to be displayed however requested
  */
 function report_header_2($stmt, $providerID = '1')
 {
     //start of AI generated code by Codeium
     $titleres = getPatientData($stmt['pid'], "fname,lname,DOB");
-    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe JOIN facility f ON fe.facility_id = f.id WHERE fe.id = ?", array ($stmt['fid']));
+    $service_query = sqlStatement("SELECT * FROM `form_encounter` fe JOIN facility f ON fe.facility_id = f.id WHERE fe.id = ?", array($stmt['fid']));
     $facility = sqlFetchArray($service_query);
 
     $practice_logo = !empty($GLOBALS['statement_logo'])
-        ? $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo'])
-        : $GLOBALS['OE_SITE_DIR'] . "/images/practice_logo.gif";
+	? $GLOBALS['OE_SITE_DIR'] . "/images/" . convert_safe_file_dir_name($GLOBALS['statement_logo'])
+	: $GLOBALS['OE_SITE_DIR'] . "/images/practice_logo.gif";
 
     $data = [
-        'facility' => [
-            'name' => text($facility['name']),
-            'street' => text($facility['street']),
-            'city' => text($facility['city']),
-            'state' => text($facility['state']),
-            'postal_code' => text($facility['postal_code']),
-            'phone' => text($facility['phone']),
-            'fax' => text($facility['fax']),
-        ],
-        'patient' => [
-            'fname' => text($titleres['fname']),
-            'lname' => text($titleres['lname']),
-            'pid' => text($stmt['pid']),
-        ],
-        'generated_on' => text(oeFormatShortDate()),
-        'provider_name' => text(getProviderName($providerID)),
-        'practice_logo' => is_file($practice_logo) ? attr($practice_logo) : null,
-        'have_logo' => is_file($practice_logo),
+	'facility' => [
+	    'name' => text($facility['name']),
+	    'street' => text($facility['street']),
+	    'city' => text($facility['city']),
+	    'state' => text($facility['state']),
+	    'postal_code' => text($facility['postal_code']),
+	    'phone' => text($facility['phone']),
+	    'fax' => text($facility['fax']),
+	],
+	'patient' => [
+	    'fname' => text($titleres['fname']),
+	    'lname' => text($titleres['lname']),
+	    'pid' => text($stmt['pid']),
+	],
+	'generated_on' => text(oeFormatShortDate()),
+	'provider_name' => text(getProviderName($providerID)),
+	'practice_logo' => is_file($practice_logo) ? attr($practice_logo) : null,
+	'have_logo' => is_file($practice_logo),
     ];
     //end of AI generated code
-    return (new TwigContainer(null, $GLOBALS['kernel'])) -> getTwig() -> render('statements/statement_header.html.twig', $data);
+    return (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('statements/statement_header.html.twig', $data);
 }
 
+/**
+ * @throws \Twig\Error\RuntimeError
+ * @throws \Twig\Error\SyntaxError
+ * @throws \Twig\Error\LoaderError
+ */
 function create_HTML_statement($stmt)
 {
     if (!$stmt['pid']) {
-        return ""; // get out if no data
+	return ""; // get out if no data
     }
 
 #minimum_amount_due_to _print
     if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion'] && ($_POST['form_category'] !== "All")) {
-        return "";
+	return "";
     }
 
     // Facility and Billing Locations
@@ -134,20 +137,20 @@ function create_HTML_statement($stmt)
     // Dunning Message
     $dun_message = '';
     if ($GLOBALS['use_dunning_message']) {
-        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
-            $age = $stmt['age'];
-            if ($age <= $GLOBALS['first_dun_msg_set']) {
-                $dun_message = $GLOBALS['first_dun_msg_text'];
-            } elseif ($age <= $GLOBALS['second_dun_msg_set']) {
-                $dun_message = $GLOBALS['second_dun_msg_text'];
-            } elseif ($age <= $GLOBALS['third_dun_msg_set']) {
-                $dun_message = $GLOBALS['third_dun_msg_text'];
-            } elseif ($age <= $GLOBALS['fourth_dun_msg_set']) {
-                $dun_message = $GLOBALS['fourth_dun_msg_text'];
-            } elseif ($age >= $GLOBALS['fifth_dun_msg_set']) {
-                $dun_message = $GLOBALS['fifth_dun_msg_text'];
-            }
-        }
+	if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
+	    $age = $stmt['age'];
+	    if ($age <= $GLOBALS['first_dun_msg_set']) {
+		$dun_message = $GLOBALS['first_dun_msg_text'];
+	    } elseif ($age <= $GLOBALS['second_dun_msg_set']) {
+		$dun_message = $GLOBALS['second_dun_msg_text'];
+	    } elseif ($age <= $GLOBALS['third_dun_msg_set']) {
+		$dun_message = $GLOBALS['third_dun_msg_text'];
+	    } elseif ($age <= $GLOBALS['fourth_dun_msg_set']) {
+		$dun_message = $GLOBALS['fourth_dun_msg_text'];
+	    } elseif ($age >= $GLOBALS['fifth_dun_msg_set']) {
+		$dun_message = $GLOBALS['fifth_dun_msg_text'];
+	    }
+	}
     }
 
     // Aging Calculation
@@ -157,89 +160,89 @@ function create_HTML_statement($stmt)
     $last_activity_date = '';
 
     foreach ($stmt['lines'] as $line) {
-        $last_activity_date = $line['dos']; // Initialize with date of service
-        foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
-            if (preg_match('/^(\d{4})(\d{2})(\d{2})$/', $ddate, $matches)) {
-                $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-            }
+	$last_activity_date = $line['dos']; // Initialize with date of service
+	foreach ($line['detail'] as $dkey => $ddata) {
+	    $ddate = substr($dkey, 0, 10);
+	    if (preg_match('/^(\d{4})(\d{2})(\d{2})$/', $ddate, $matches)) {
+		$ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+	    }
 
-            if ($ddate > $last_activity_date) {
-                $last_activity_date = $ddate;
-            }
-        }
+	    if ($ddate > $last_activity_date) {
+		$last_activity_date = $ddate;
+	    }
+	}
 
-        $last_activity_date = ($line['bill_date'] > $last_activity_date) ? $line['bill_date'] : $last_activity_date;
-        if ($stmt['dun_count'] == '0') {
-            $last_activity_date = date('Y-m-d');
-            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array (date('Y-m-d'), $stmt['pid'], $stmt['encounter']));
-        }
-        $age_in_days = (int)(($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
-        $age_index = (int)(($age_in_days - 1) / 30);
-        $age_index = max(0, min($num_ages - 1, $age_index));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
+	$last_activity_date = ($line['bill_date'] > $last_activity_date) ? $line['bill_date'] : $last_activity_date;
+	if ($stmt['dun_count'] == '0') {
+	    $last_activity_date = date('Y-m-d');
+	    sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array (date('Y-m-d'), $stmt['pid'], $stmt['encounter']));
+	}
+	$age_in_days = (int)(($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
+	$age_index = (int)(($age_in_days - 1) / 30);
+	$age_index = max(0, min($num_ages - 1, $age_index));
+	$aging[$age_index] += $line['amount'] - $line['paid'];
     }
 
     // Aging Line
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
-        $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' . sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
+	$ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' . sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
     }
     if ($GLOBALS['show_aging_on_custom_statement']) {
-        $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' . sprintf(" %.2f", $aging[$age_index]);
+	$ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' . sprintf(" %.2f", $aging[$age_index]);
     }
 
     // Appointments
     $num_appts = $GLOBALS['number_appointments_on_statement'];
     $events = [];
     if ($num_appts != 0) {
-        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
-        $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
+	$next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
+	$current_date2 = date('Y-m-d', $next_day);
+	$events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
     }
     $statement_message = $GLOBALS['statement_msg_text'] ?? '';
     $billing_phone_number = $GLOBALS['billing_phone_number'] ?? $facility_row['phone'] ?? '';
 
     $data = [
-        'stmt' => $stmt,
-        'report_header' => $report_header,
-        'use_dunning_message' => $GLOBALS['use_dunning_message'],
-        'ins_paid' => $stmt['ins_paid'],
-        'level_closed' => $stmt['level_closed'],
-        'age' => $stmt['age'] ?? null,
-        'first_dun_msg_set' => $GLOBALS['first_dun_msg_set'] ?? null,
-        'second_dun_msg_set' => $GLOBALS['second_dun_msg_set'] ?? null,
-        'third_dun_msg_set' => $GLOBALS['third_dun_msg_set'] ?? null,
-        'fourth_dun_msg_set' => $GLOBALS['fourth_dun_msg_set'] ?? null,
-        'fifth_dun_msg_set' => $GLOBALS['fifth_dun_msg_set'] ?? null,
-        'first_dun_msg_text' => $GLOBALS['first_dun_msg_text'] ?? '',
-        'second_dun_msg_text' => $GLOBALS['second_dun_msg_text'] ?? '',
-        'third_dun_msg_text' => $GLOBALS['third_dun_msg_text'] ?? '',
-        'fourth_dun_msg_text' => $GLOBALS['fourth_dun_msg_text'] ?? '',
-        'fifth_dun_msg_text' => $GLOBALS['fifth_dun_msg_text'] ?? '',
-        'dun_message' => $dun_message,
-        'aging' => $aging,
-        'ageline' => $ageline,
-        'clinic_name' => $clinic_name,
-        'clinic_addr' => $clinic_addr,
-        'clinic_csz' => $clinic_csz,
-        'remit_name' => $remit_name,
-        'remit_addr' => $remit_addr,
-        'remit_csz' => $remit_csz,
-        'events' => $events,
-        'number_appointments_on_statement' => $GLOBALS['number_appointments_on_statement'],
-        'show_aging_on_custom_statement' => $GLOBALS['show_aging_on_custom_statement'],
-        'statement_message' => $statement_message,
-        'billing_phone_number' => $billing_phone_number,
-        'label_payby' => xl('If paying by'),
-        'label_cards' => xl('VISA/MC/Discovery/HSA'),
-        'label_cardnum' => xl('Card'),
-        'label_expiry' => xl('Exp'),
-        'label_cvv' => xl('CVV'),
-        'label_sign' => xl('Signature'),
-        'label_retpay' => xl('Please fill in credit information and send for review.'),
-        'practice_cards_path' => $GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif",
-        'has_practice_cards' => file_exists($GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif"), // Add this line
+	'stmt' => $stmt,
+	'report_header' => $report_header,
+	'use_dunning_message' => $GLOBALS['use_dunning_message'],
+	'ins_paid' => $stmt['ins_paid'],
+	'level_closed' => $stmt['level_closed'],
+	'age' => $stmt['age'] ?? null,
+	'first_dun_msg_set' => $GLOBALS['first_dun_msg_set'] ?? null,
+	'second_dun_msg_set' => $GLOBALS['second_dun_msg_set'] ?? null,
+	'third_dun_msg_set' => $GLOBALS['third_dun_msg_set'] ?? null,
+	'fourth_dun_msg_set' => $GLOBALS['fourth_dun_msg_set'] ?? null,
+	'fifth_dun_msg_set' => $GLOBALS['fifth_dun_msg_set'] ?? null,
+	'first_dun_msg_text' => $GLOBALS['first_dun_msg_text'] ?? '',
+	'second_dun_msg_text' => $GLOBALS['second_dun_msg_text'] ?? '',
+	'third_dun_msg_text' => $GLOBALS['third_dun_msg_text'] ?? '',
+	'fourth_dun_msg_text' => $GLOBALS['fourth_dun_msg_text'] ?? '',
+	'fifth_dun_msg_text' => $GLOBALS['fifth_dun_msg_text'] ?? '',
+	'dun_message' => $dun_message,
+	'aging' => $aging,
+	'ageline' => $ageline,
+	'clinic_name' => $clinic_name,
+	'clinic_addr' => $clinic_addr,
+	'clinic_csz' => $clinic_csz,
+	'remit_name' => $remit_name,
+	'remit_addr' => $remit_addr,
+	'remit_csz' => $remit_csz,
+	'events' => $events,
+	'number_appointments_on_statement' => $GLOBALS['number_appointments_on_statement'],
+	'show_aging_on_custom_statement' => $GLOBALS['show_aging_on_custom_statement'],
+	'statement_message' => $statement_message,
+	'billing_phone_number' => $billing_phone_number,
+	'label_payby' => xl('If paying by'),
+	'label_cards' => xl('VISA/MC/Discovery/HSA'),
+	'label_cardnum' => xl('Card'),
+	'label_expiry' => xl('Exp'),
+	'label_cvv' => xl('CVV'),
+	'label_sign' => xl('Signature'),
+	'label_retpay' => xl('Please fill in credit information and send for review.'),
+	'practice_cards_path' => $GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif",
+	'has_practice_cards' => file_exists($GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif"), // Add this line
     ];
     // Register the filter with Twig
     $twig = (new TwigContainer(null, $GLOBALS['kernel'])) -> getTwig();
@@ -321,11 +324,11 @@ function create_HTML_statement($stmt)
 function create_statement($stmt)
 {
     if (!$stmt['pid']) {
-        return ""; // Exit if no data
+	return ""; // Exit if no data
     }
 
     if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
-        return "";
+	return "";
     }
 
     // Fetch clinic and billing location details
@@ -338,20 +341,20 @@ function create_statement($stmt)
     // Dunning messages based on invoice age
     $dun_message = "";
     if ($GLOBALS['use_dunning_message'] && ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)) {
-        foreach (
-            [
-                'first' => 'first_dun_msg_set',
-                'second' => 'second_dun_msg_set',
-                'third' => 'third_dun_msg_set',
-                'fourth' => 'fourth_dun_msg_set',
-                'fifth' => 'fifth_dun_msg_set'
-            ] as $key => $globalVar
-        ) {
-            if ($stmt['age'] <= $GLOBALS[$globalVar]) {
-                $dun_message = $GLOBALS["{$key}_dun_msg_text"];
-                break;
-            }
-        }
+	foreach (
+	    [
+		'first' => 'first_dun_msg_set',
+		'second' => 'second_dun_msg_set',
+		'third' => 'third_dun_msg_set',
+		'fourth' => 'fourth_dun_msg_set',
+		'fifth' => 'fifth_dun_msg_set'
+	    ] as $key => $globalVar
+	) {
+	    if ($stmt['age'] <= $GLOBALS[$globalVar]) {
+		$dun_message = $GLOBALS["{$key}_dun_msg_text"];
+		break;
+	    }
+	}
     }
 
     // Calculate aging buckets for outstanding balance
@@ -359,27 +362,27 @@ function create_statement($stmt)
     $today = strtotime(date('Y-m-d'));
 
     foreach ($stmt['lines'] as &$line) {
-        $line['desc'] = ($GLOBALS['use_custom_statement']) ? substr($line['desc'], 0, 30) : $line['desc'];
-        if (strpos($line['desc'], 'Procedure 992') === 0) {
-            $line['desc'] = str_replace("Procedure", "Office Visit:", $line['desc']);
-        }
+	$line['desc'] = ($GLOBALS['use_custom_statement']) ? substr($line['desc'], 0, 30) : $line['desc'];
+	if (strpos($line['desc'], 'Procedure 992') === 0) {
+	    $line['desc'] = str_replace("Procedure", "Office Visit:", $line['desc']);
+	}
 
-        // Calculate aging index
-        $age_days = (int)(($today - strtotime($line['dos'])) / (60 * 60 * 24));
-        $age_index = min(3, max(0, (int)(($age_days - 1) / 30)));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
+	// Calculate aging index
+	$age_days = (int)(($today - strtotime($line['dos'])) / (60 * 60 * 24));
+	$age_index = min(3, max(0, (int)(($age_days - 1) / 30)));
+	$aging[$age_index] += $line['amount'] - $line['paid'];
     }
 
     // Prepare data array for Twig rendering
     $data = [
-        'clinic' => $clinic,
-        'billing' => $billing,
-        'contact' => $contact,
-        'stmt' => $stmt,
-        'dun_message' => $dun_message,
-        'aging' => $aging,
-        'generated_on' => oeFormatShortDate(),
-        'provider_name' => getProviderName($stmt['provider_id']),
+	'clinic' => $clinic,
+	'billing' => $billing,
+	'contact' => $contact,
+	'stmt' => $stmt,
+	'dun_message' => $dun_message,
+	'aging' => $aging,
+	'generated_on' => oeFormatShortDate(),
+	'provider_name' => getProviderName($stmt['provider_id']),
     ];
 
     return (new TwigContainer(null, $GLOBALS['kernel'])) -> getTwig() -> render('statements/statement_content.html.twig', $data);
@@ -389,23 +392,23 @@ function create_statement($stmt)
 function osp_create_HTML_statement($stmt)
 {
     if (!$stmt['pid']) {
-        return ""; // get out if no data
+	return ""; // get out if no data
     }
 
     #minimum_amount_due_to _print
     if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
-        return "";
+	return "";
     }
 
     // Facility (service location)
     $atres = sqlStatement(
-        "select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
-        " left join users u on f.id=u.facility_id " .
-        " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-        " where service_location=1",
-        array (
-                $stmt['pid']
-        )
+	"select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
+	" left join users u on f.id=u.facility_id " .
+	" left join  billing b on b.provider_id=u.id and b.pid = ? " .
+	" where service_location=1",
+	array (
+		$stmt['pid']
+	)
     );
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
@@ -424,13 +427,13 @@ function osp_create_HTML_statement($stmt)
     <div style="padding-left:25px;">
     <?php
     $find_provider = sqlQuery(
-        "SELECT * FROM form_encounter " .
-        "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1",
-        array (
-                $stmt['pid'],
-            $stmt['encounter']
-        )
+	"SELECT * FROM form_encounter " .
+	"WHERE pid = ? AND encounter = ? " .
+	"ORDER BY id DESC LIMIT 1",
+	array (
+		$stmt['pid'],
+	    $stmt['encounter']
+	)
     );
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $providerID);
@@ -443,26 +446,26 @@ function osp_create_HTML_statement($stmt)
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
-        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
-            // do collection messages
-            switch ($stmt['age']) {
-                case $stmt['age'] <= $GLOBALS['first_dun_msg_set']:
-                    $dun_message = $GLOBALS['first_dun_msg_text'];
-                    break;
-                case $stmt['age'] <= $GLOBALS['second_dun_msg_set']:
-                    $dun_message = $GLOBALS['second_dun_msg_text'];
-                    break;
-                case $stmt['age'] <= $GLOBALS['third_dun_msg_set']:
-                    $dun_message = $GLOBALS['third_dun_msg_text'];
-                    break;
-                case $stmt['age'] <= $GLOBALS['fourth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                    break;
-                case $stmt['age'] >= $GLOBALS['fifth_dun_msg_set']:
-                    $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                    break;
-            }
-        }
+	if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
+	    // do collection messages
+	    switch ($stmt['age']) {
+		case $stmt['age'] <= $GLOBALS['first_dun_msg_set']:
+		    $dun_message = $GLOBALS['first_dun_msg_text'];
+		    break;
+		case $stmt['age'] <= $GLOBALS['second_dun_msg_set']:
+		    $dun_message = $GLOBALS['second_dun_msg_text'];
+		    break;
+		case $stmt['age'] <= $GLOBALS['third_dun_msg_set']:
+		    $dun_message = $GLOBALS['third_dun_msg_text'];
+		    break;
+		case $stmt['age'] <= $GLOBALS['fourth_dun_msg_set']:
+		    $dun_message = $GLOBALS['fourth_dun_msg_text'];
+		    break;
+		case $stmt['age'] >= $GLOBALS['fifth_dun_msg_set']:
+		    $dun_message = $GLOBALS['fifth_dun_msg_text'];
+		    break;
+	    }
+	}
     }
 
     // Text only labels
@@ -504,64 +507,64 @@ function osp_create_HTML_statement($stmt)
     $num_ages = 4;
     $aging = array ();
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
-        $aging[$age_index] = 0.00;
+	$aging[$age_index] = 0.00;
     }
 
     $todays_time = strtotime(date('Y-m-d'));
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'], 0, 30);
-        } else {
-            $description = $line['desc'];
-        }
+	if ($GLOBALS['use_custom_statement']) {
+	    $description = substr($line['desc'], 0, 30);
+	} else {
+	    $description = $line['desc'];
+	}
 
-        $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
-            $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
-        }
+	$tmp = substr($description, 0, 14);
+	if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+	    $description = str_replace("Procedure", xl('Office Visit') . ":", $description);
+	}
 
-        //92002-14 are Eye Office Visit Codes
+	//92002-14 are Eye Office Visit Codes
 
-        $dos = $line['dos'];
-        ksort($line['detail']);
-        # Compute the aging bucket index and accumulate into that bucket.
-        $age_in_days = (int)(($todays_time - strtotime($dos)) / (60 * 60 * 24));
-        $age_index = (int)(($age_in_days - 1) / 30);
-        $age_index = max(0, min($num_ages - 1, $age_index));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
+	$dos = $line['dos'];
+	ksort($line['detail']);
+	# Compute the aging bucket index and accumulate into that bucket.
+	$age_in_days = (int)(($todays_time - strtotime($dos)) / (60 * 60 * 24));
+	$age_index = (int)(($age_in_days - 1) / 30);
+	$age_index = max(0, min($num_ages - 1, $age_index));
+	$aging[$age_index] += $line['amount'] - $line['paid'];
 
-        foreach ($line['detail'] as $dkey => $ddata) {
-            $ddate = substr($dkey, 0, 10);
-            if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
-                $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-            }
+	foreach ($line['detail'] as $dkey => $ddata) {
+	    $ddate = substr($dkey, 0, 10);
+	    if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
+		$ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+	    }
 
-            $amount = '';
+	    $amount = '';
 
-            if ($ddata['pmt']) {
-                $amount = sprintf("%.2f", 0 - $ddata['pmt']);
-                $desc = xl('Paid') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
-            } elseif ($ddata['rsn']) {
-                if ($ddata['chg']) {
-                    $amount = sprintf("%.2f", $ddata['chg']);
-                    $desc = xl('Adj') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
-                } else {
-                    $desc = xl('Note') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
-                }
-            } elseif ($ddata['chg'] < 0) {
-                $amount = sprintf("%.2f", $ddata['chg']);
-                $desc = xl('Patient Payment');
-            } else {
-                $amount = sprintf("%.2f", $ddata['chg']);
-                $desc = $description;
-            }
+	    if ($ddata['pmt']) {
+		$amount = sprintf("%.2f", 0 - $ddata['pmt']);
+		$desc = xl('Paid') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['src'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
+	    } elseif ($ddata['rsn']) {
+		if ($ddata['chg']) {
+		    $amount = sprintf("%.2f", $ddata['chg']);
+		    $desc = xl('Adj') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
+		} else {
+		    $desc = xl('Note') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
+		}
+	    } elseif ($ddata['chg'] < 0) {
+		$amount = sprintf("%.2f", $ddata['chg']);
+		$desc = xl('Patient Payment');
+	    } else {
+		$amount = sprintf("%.2f", $ddata['chg']);
+		$desc = $description;
+	    }
 
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
-            $dos = '';
-            ++$count;
-        }
+	    $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+	    $dos = '';
+	    ++$count;
+	}
     }
 
     // This generates blank lines until we are at line 20.
@@ -574,8 +577,8 @@ function osp_create_HTML_statement($stmt)
     #
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
-        $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
+	$ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
+	    sprintf(" %.2f", $GLOBALS['gbl_currency_symbol'] . '' . $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -592,24 +595,24 @@ function osp_create_HTML_statement($stmt)
     // This is the top portion of the page.
     $out .= "\n";
     if (strlen($stmt['bill_note']) != 0 && $GLOBALS['statement_bill_note_print']) {
-        $out .= sprintf("%-46s\n", $stmt['bill_note']);
-        $count++;
+	$out .= sprintf("%-46s\n", $stmt['bill_note']);
+	$count++;
     }
 
     if ($GLOBALS['use_dunning_message']) {
-        $out .= sprintf("%-46s\n", $dun_message);
-        $count++;
+	$out .= sprintf("%-46s\n", $dun_message);
+	$count++;
     }
 
     $out .= "\n";
     $out .= sprintf(
-        "%-s: %-25s %-s: %-14s %-s: %8s\n",
-        $label_ptname,
-        $stmt['patient'],
-        $label_today,
-        oeFormatShortDate($stmt['today']),
-        $label_due,
-        $stmt['amount']
+	"%-s: %-25s %-s: %-14s %-s: %8s\n",
+	$label_ptname,
+	$stmt['patient'],
+	$label_today,
+	oeFormatShortDate($stmt['today']),
+	$label_due,
+	$stmt['amount']
     );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
@@ -619,47 +622,47 @@ function osp_create_HTML_statement($stmt)
     $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if ($GLOBALS['statement_message_to_patient']) {
-        $out .= "\n";
-        $statement_message = $GLOBALS['statement_msg_text'];
-        $out .= sprintf("%-40s\n", $statement_message);
-        $count++;
+	$out .= "\n";
+	$statement_message = $GLOBALS['statement_msg_text'];
+	$out .= sprintf("%-40s\n", $statement_message);
+	$count++;
     }
 
     if ($GLOBALS['show_aging_on_custom_statement']) {
-        # code for ageing
-        $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
-            sprintf(" %.2f", $aging[$age_index]);
-        $out .= "\n" . $ageline . "\n\n";
-        $count++;
+	# code for ageing
+	$ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
+	    sprintf(" %.2f", $aging[$age_index]);
+	$out .= "\n" . $ageline . "\n\n";
+	$count++;
     }
 
     if ($GLOBALS['number_appointments_on_statement'] != 0) {
-        $out .= "\n";
-        $num_appts = $GLOBALS['number_appointments_on_statement'];
-        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
-        # add one day to date so it will not get todays appointment
-        $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
-        $j = 0;
-        $out .= sprintf("%-s\n", $label_appointments);
-        #loop to add the appointments
-        for ($x = 1; $x <= $num_appts; $x++) {
-            $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
-            if (strlen(umname) != 0) {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' . $events[$j]['ulname'];
-            } else {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['ulname'];
-            }
+	$out .= "\n";
+	$num_appts = $GLOBALS['number_appointments_on_statement'];
+	$next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
+	# add one day to date so it will not get todays appointment
+	$current_date2 = date('Y-m-d', $next_day);
+	$events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
+	$j = 0;
+	$out .= sprintf("%-s\n", $label_appointments);
+	#loop to add the appointments
+	for ($x = 1; $x <= $num_appts; $x++) {
+	    $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
+	    $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
+	    if (strlen(umname) != 0) {
+		$next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' . $events[$j]['ulname'];
+	    } else {
+		$next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['ulname'];
+	    }
 
-            if (strlen($next_appoint_time) != 0) {
-                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\n", $label_plsnote[$j]);
-            }
+	    if (strlen($next_appoint_time) != 0) {
+		$label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
+		$out .= sprintf("%-s\n", $label_plsnote[$j]);
+	    }
 
-            $j++;
-            $count++;
-        }
+	    $j++;
+	    $count++;
+	}
     }
 
     // while ($count++ < 29) $out .= "\n";
@@ -675,30 +678,30 @@ function osp_create_HTML_statement($stmt)
     $out .= "      </td><td style=width:2.0in;vertical-align:middle;'>";
     $practice_cards = $GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR'] . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-        //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
-        $out .= "<br /><p>" . $label_totaldue . ": " . $stmt['amount'] . "</p>";
+	//$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
+	$out .= "<br /><p>" . $label_totaldue . ": " . $stmt['amount'] . "</p>";
     }
 
     $out .= "</td></tr></table>";
 
     $out .= '</div><br />';
     if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+	$out .= sprintf("   %-32s\n", $stmt['to'][3]);
     }
 
     $out .= ' </pre>
   <div style="width:8in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
     $out .= '<td style="width:3.0in;"><b>'
-        . $label_addressee . '</b><br />'
-        . $stmt['to'][0] . '<br />'
-        . $stmt['to'][1] . '<br />'
-        . $stmt['to'][2] . '
+	. $label_addressee . '</b><br />'
+	. $stmt['to'][0] . '<br />'
+	. $stmt['to'][1] . '<br />'
+	. $stmt['to'][2] . '
       </td>
       <td style="width:3.0in;"><b>' . $label_remitto . '</b><br />'
-        . $remit_name . '<br />'
-        . $remit_addr . '<br />'
-        . $remit_csz . '
+	. $remit_name . '<br />'
+	. $remit_addr . '<br />'
+	. $remit_csz . '
       </td>
       </tr></table>';
 
