@@ -32,5 +32,5 @@ class XpathsConstants
 
     public const ENCOUNTER_FORMS_IFRAME = "//iframe[@src='forms.php']";
 
-    public const MODAL_REGISTRATION = "//div[contains(@class,'product-registration-modal')]//p[contains(@class,'context')]";
+    public const MODAL_REGISTRATION = "//div[contains(@class,'product-registration-modal')]//div[contains(@class,'modal-footer')]";
 }
