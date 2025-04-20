@@ -11,28 +11,27 @@
      */
 
     namespace OpenEMR\Pdf;
-
-    class Config_Mpdf
+class Config_Mpdf
+{
+    public static function getConfigMpdf()
     {
-        public static function getConfigMpdf()
-        {
-            return array (
-                'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-                'mode' => $GLOBALS['pdf_language'],
-                'format' => $GLOBALS['pdf_size'],
-                'default_font_size' => $GLOBALS['pdf_font_size'] ?? '9',
-                'default_font' => 'dejavusans',
-                'margin_left' => $GLOBALS['pdf_left_margin'],
-                'margin_right' => $GLOBALS['pdf_right_margin'],
-                'margin_top' => $GLOBALS['pdf_top_margin'],
-                'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-                'margin_header' => '5',
-                'margin_footer' => '5',
-                'orientation' => $GLOBALS['pdf_layout'],
-                'shrink_tables_to_fit' => 1,
-                'use_kwt' => true,
-                'autoScriptToLang' => true,
-                'keep_table_proportions' => true,
-            );
-        }
+        return array (
+            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+            'mode' => $GLOBALS['pdf_language'],
+            'format' => $GLOBALS['pdf_size'],
+            'default_font_size' => $GLOBALS['pdf_font_size'] ?? '9',
+            'default_font' => 'dejavusans',
+            'margin_left' => $GLOBALS['pdf_left_margin'],
+            'margin_right' => $GLOBALS['pdf_right_margin'],
+            'margin_top' => $GLOBALS['pdf_top_margin'],
+            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
+            'margin_header' => '5',
+            'margin_footer' => '5',
+            'orientation' => $GLOBALS['pdf_layout'],
+            'shrink_tables_to_fit' => 1,
+            'use_kwt' => true,
+            'autoScriptToLang' => true,
+            'keep_table_proportions' => true,
+        );
     }
+}
