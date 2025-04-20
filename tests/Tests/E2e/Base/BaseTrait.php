@@ -92,8 +92,36 @@ trait BaseTrait
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text(), "[$text] popup load FAILED");
     }
 
+    private function dismissRegistrationModal(): void
+    {
+        try {
+            // wait up to 2s for the modal title to appear
+            $this->client->wait(2)->until(
+                WebDriverExpectedCondition::visibilityOfElementLocated(
+                    WebDriverBy::xpath(XpathsConstants::MODAL_REGISTRATION)
+                )
+            );
+            // click the “NoThanks” button
+            $this->client
+                ->findElement(
+                    WebDriverBy::cssSelector('.product-registration-modal .nothanks')
+                )->click();
+            // wait for modal to disappear
+            $this->client->wait(2)->until(
+                WebDriverExpectedCondition::invisibilityOfElementLocated(
+                    WebDriverBy::xpath(XpathsConstants::MODAL_REGISTRATION)
+                )
+            );
+            // refresh the crawler so subsequent clicks hit the real menu
+            $this->crawler = $this->client->refreshCrawler();
+        } catch (\Exception $e) {
+            // if no modal showed up, just carry on
+        }
+    }
+
     private function goToMainMenuLink(string $menuLink): void
     {
+        // wait for the main menu to be visible
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
         // got to and click the menu link

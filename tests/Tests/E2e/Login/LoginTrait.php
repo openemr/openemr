@@ -50,5 +50,6 @@ trait LoginTrait
         } else {
             $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should of FAILED');
         }
+        $this->dismissRegistrationModal();
     }
 }
