@@ -10,7 +10,3 @@ if (php_sapi_name() !== 'cli') {
 $_GET['site'] = 'default';
 $ignoreAuth = true;
 require_once(__DIR__ . "/../interface/globals.php");
-
-if (!defined('APP_UNDER_TEST')) {
-    define('APP_UNDER_TEST', true);
-}
