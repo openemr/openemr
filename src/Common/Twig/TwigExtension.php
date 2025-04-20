@@ -10,6 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -373,7 +374,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return xl_document_category($string);
                 }
             ),
-
             new TwigFilter(
                 'xlFormTitle',
                 function ($string) {
