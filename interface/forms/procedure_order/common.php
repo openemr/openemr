@@ -370,7 +370,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         formFooter();
         exit;
     }
- 
+
     $alertmsg = '';
     $isDorn = false;
     $dornConnector = null;
@@ -383,7 +383,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         $isDorn = false;
         $dornConnector = null;
     }
-    
+
     if (!empty($_POST['bn_xmit'])) {
         // Validate, log and send order. Sets up documents and requisition buttons
         $gbl_lab = get_lab_name($ppid);
