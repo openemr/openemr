@@ -124,20 +124,30 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     $class = array_key_exists('class', $opts) ? $opts['class'] : '';
                     $onchange = array_key_exists('onchange', $opts) ? $opts['onchange'] : '';
                     $tag_id = array_key_exists('tag_id', $opts) ? $opts['tag_id'] : '';
-                    $custom_attributes = array_key_exists('custom_attributes',
-                        $opts) ? $opts['custom_attributes'] : '';
+                    $custom_attributes = array_key_exists('custom_attributes', $opts) ? $opts['custom_attributes'] : '';
                     $multiple = array_key_exists('multiple', $opts) ? $opts['multiple'] : '';
                     $backup_list = array_key_exists('backup_list', $opts) ? $opts['backup_list'] : '';
                     $ignore_default = array_key_exists('ignore_default', $opts) ? $opts['ignore_default'] : '';
-                    $include_inactive = array_key_exists('include_inactive',
-                        $opts) ? $opts['include_inactive'] : '';
+                    $include_inactive = array_key_exists('include_inactive', $opts) ? $opts['include_inactive'] : '';
                     $tabIndex = array_key_exists('tabIndex', $opts) ? $opts['tabIndex'] : false;
-                    return generate_select_list($name, $list, $value, $title, $empty_name, $class, $onchange,
-                        $tag_id, $custom_attributes, $multiple, $backup_list, $ignore_default, $include_inactive,
-                        $tabIndex);
+                    return generate_select_list(
+                        $name,
+                        $list,
+                        $value,
+                        $title,
+                        $empty_name,
+                        $class,
+                        $onchange,
+                        $tag_id,
+                        $custom_attributes,
+                        $multiple,
+                        $backup_list,
+                        $ignore_default,
+                        $include_inactive,
+                        $tabIndex
+                    );
                 }
             ),
-
             new TwigFunction(
                 'tabRow',
                 function ($formType, $result1, $result2) {
@@ -146,7 +156,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
-
             new TwigFunction(
                 'tabData',
                 function ($formType, $result1, $result2) {
@@ -155,7 +164,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
-
             new TwigFunction(
                 'imageWidget',
                 function ($id, $category) {
