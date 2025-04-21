@@ -179,8 +179,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                         return '';
                     }
                     ob_start();
-                    $this -> kernel -> getEventDispatcher() -> dispatch(new GenericEvent($eventName, $eventData),
-                        $eventName);
+                    $this -> kernel -> getEventDispatcher() -> dispatch(
+                        new GenericEvent($eventName, $eventData),
+                        $eventName
+                    );
                     return ob_get_clean();
                 }
             ),
@@ -190,8 +192,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName,
-                        attr(CsrfUtils ::collectCsrfToken($subject)));
+                    return sprintf(
+                        '<input type="hidden" name="%s" value="%s">',
+                        $fieldName,
+                        attr(CsrfUtils ::collectCsrfToken($subject))
+                    );
                 }
             ),
             new TwigFunction(
