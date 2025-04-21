@@ -41,7 +41,17 @@ $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? 0;
 $registeredEmail = $product_row['email'] ?? '';
 $registerOptOut = $product_row['opt_out'] ?? 0;
+// If running unit tests, then disable the registration dialog
+if ($_SESSION['testing_mode'] ?? false) {
+    $allowRegisterDialog = false;
+} else {
+    $test = 0;
+}
 
+// If the user is not a super admin, then disable the registration dialog
+if (!AclMain::aclCheckCore('admin', 'super', '', 'write')) {
+    $allowRegisterDialog = false;
+}
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
 if (

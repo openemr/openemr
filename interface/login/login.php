@@ -208,6 +208,10 @@ if (session_name()) {
     $cookie = json_encode($cookie);
 }
 
+if ($_GET['testing_mode'] ?? 0 == 1) {
+    $_SESSION['testing_mode'] = 1;
+}
+
 $viewArgs = [
     'title' => $openemr_name,
     'displayLanguage' => $GLOBALS["language_menu_login"] && (count($languageList) != 1),
