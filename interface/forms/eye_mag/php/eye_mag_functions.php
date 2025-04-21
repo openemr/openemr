@@ -3898,46 +3898,6 @@ function document_engine($pid)
     return array($documents);
 }
 
-function category_check($zones, $category_name) {
-
-    if (is_null($zones['ANTSEG Lasere'])) {
-        //parent 17 and eyerything here ends with " - Eye"
-        //create the new categories for Laser - Anterior Segment, Retina.
-        //you can add the check here to add a new Document Cateogory anywhere in the list this way.
-        //
-        $sql = "select id from categories ORDER by id desc LIMIT 1";
-        $last_row = sqlQuery($sql);
-        $counter = $last_row['id'];
-        $counter++;
-        $sql = "INSERT INTO `categories` (
-                          `id`, `name`, `value`,
-                          `parent`,
-                          `aco_spec`, `codes`)
-                    VALUES ($counter, 'AntSeg Laser - Eye', 'ANTSEG', '17', 'patients|docs', '');";
-        // echo $sql . " and last_row id = " . $last_row['id'];die();
-        sqlStatement($sql);
-
-        $sql = "SELECT * from categories where id ='" . $counter ."'";
-        $sql2= sqlStatement($sql);
-        while ($row1 = sqlFetchArray($sql2)) {
-            $categories[] = $row1;
-            $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
-            $my_name[$row1['id']] = $row1['name'];
-            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
-            if (!empty($parent_name)) {
-                $parent_name[$row1['name']] = $my_name[$row1['parent']];
-            }
-            if (($row1['value'] ?? '') > '') {
-                //if there is a value, tells us what segment of exam ($zone) this belongs in...
-                $zones[$row1['value']][] = $row1;
-            } else {
-                if ($row1['name'] != "Categories") {
-                    $zones['OTHER'][] = $row1;
-                }
-            }
-        }
-    }
-}
 /**
  *  This function returns ICONS with links for a specific clinical subsection of the Document Library.
  *
