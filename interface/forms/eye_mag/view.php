@@ -2306,7 +2306,6 @@ if ($refresh and $refresh != 'fullscreen') {
                           </tr>
                           <tr>
                             <td colspan="3" rowspan="4" id="dil_box" nowrap="">
-                              <br />
                               <span id="dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
 
                                 <input type="text" class="float-right" title="<?php echo xla('Dilation Time'); ?>" id="DIL_MEDS" name="DIL_MEDS" value="<?php

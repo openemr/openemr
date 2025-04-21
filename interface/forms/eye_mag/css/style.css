@@ -2530,7 +2530,7 @@ View.php
 
 #LayerVision_VAHx {
     display: inline-block;
-    max-width: 1200px;
+    max-width: 1000px;
     width: 83%;
 }
 
@@ -2879,6 +2879,7 @@ div[name=prior_selector] {
 #dil_box,
 #PRIORS_dil_box {
   bottom: 0;
+  padding-top: 5px;
   text-align: left;
   width: 175px;
 }

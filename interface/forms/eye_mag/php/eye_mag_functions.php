@@ -3083,13 +3083,13 @@ function canvas_select($zone, $encounter, $pid)
      *
      * Let's try $documents['docs_in_name'] where ['name']['zone']
      */
-    //iterate through documents?
-        // which are in this zone?
-    //are any from the same as the encounter?  If so selected=selected
-    //
+    // iterate through documents?
+    // which are in this zone?
+    // are any from the same as the encounter?  If so selected=selected
+
     global $documents;
-    $side = "OU";
-    $type_name = $side . "_" . $zone . "_VIEW";
+    //  Currently $side = "OU" everywhere.  We may need OD and OS.  Then we will use $type_name.
+    // $type_name = $side . "_" . $zone . "_VIEW";
     $canvi = [];
     if (!empty($documents['docs_in_name']['Drawings'])) {
         foreach ($documents['docs_in_name']['Drawings'] as $doc) {
@@ -3219,7 +3219,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
                 $doc = sqlQuery($sql, array("%" . $base_name . "%"));
                 $base_filetoshow = $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
                 if ((($doc['id'] ?? null) > '0')) {
-                    $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']) . "&as_file=false&show_original=true&blahblah=" . rand();
+                    $filetoshow = $GLOBALS['web_root'] . "/controller.php?document&retrieve&patient_id=" . attr($pid) . "&document_id=" . attr($doc['id']);
                 } else {
                     //base image.
                     $filetoshow = $base_filetoshow;
@@ -3789,10 +3789,69 @@ function document_engine($pid)
         if (($row1['value'] ?? '') > '') {
             //if there is a value, tells us what segment of exam ($zone) this belongs in...
             $zones[$row1['value']][] = $row1;
+            $zone[$row1['name']] = true;
         } else {
             if ($row1['name'] != "Categories") {
                 $zones['OTHER'][] = $row1;
             }
+        }
+    }
+
+    if (!$zone['AntSeg Laser']) {
+        $sql = "select id from categories ORDER by id desc LIMIT 1";
+        $last_row = sqlQuery($sql);
+        $counter = $last_row['id'];
+        $counter++;
+        $sql = "INSERT INTO `categories` ( `id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
+                    VALUES ($counter, 'AntSeg Laser', 'ANTSEG', '14', 'patients|docs', '');";
+        sqlStatement($sql);
+
+        $sql = "SELECT * from categories where id ='" . $counter ."'";
+        $sql2= sqlStatement($sql);
+        while ($row1 = sqlFetchArray($sql2)) {
+            $categories[] = $row1;
+            $my_name[$row1['id']] = $row1['name'];
+            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
+            $parent_name[$row1['name']] = $my_name[$row1['parent']];
+            $zones[$row1['value']][] = $row1;
+        }
+    }
+    if (!$zone['Retina Laser']) {
+        $sql = "select id from categories ORDER by id desc LIMIT 1";
+        $last_row = sqlQuery($sql);
+        $counter = $last_row['id'];
+        $counter++;
+        $sql = "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
+                    VALUES ($counter, 'Retina Laser', 'POSTSEG', '14', 'patients|docs', '');";
+        sqlStatement($sql);
+
+        $sql = "SELECT * from categories where id ='" . $counter ."'";
+        $sql2= sqlStatement($sql);
+        while ($row1 = sqlFetchArray($sql2)) {
+            $categories[] = $row1;
+            $my_name[$row1['id']] = $row1['name'];
+            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
+            $parent_name[$row1['name']] = $my_name[$row1['parent']];
+            $zones[$row1['value']][] = $row1;
+        }
+    }
+    if (!$zone['Injections']) {
+        $sql = "select id from categories ORDER by id desc LIMIT 1";
+        $last_row = sqlQuery($sql);
+        $counter = $last_row['id'];
+        $counter++;
+        $sql = "INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `aco_spec`, `codes`)
+                    VALUES ($counter, 'Injections', 'POSTSEG', '14', 'patients|docs', '');";
+        sqlStatement($sql);
+
+        $sql = "SELECT * from categories where id ='" . $counter ."'";
+        $sql2= sqlStatement($sql);
+        while ($row1 = sqlFetchArray($sql2)) {
+            $categories[] = $row1;
+            $my_name[$row1['id']] = $row1['name'];
+            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
+            $parent_name[$row1['name']] = $my_name[$row1['parent']];
+            $zones[$row1['value']][] = $row1;
         }
     }
 
@@ -3839,6 +3898,46 @@ function document_engine($pid)
     return array($documents);
 }
 
+function category_check($zones, $category_name) {
+
+    if (is_null($zones['ANTSEG Lasere'])) {
+        //parent 17 and eyerything here ends with " - Eye"
+        //create the new categories for Laser - Anterior Segment, Retina.
+        //you can add the check here to add a new Document Cateogory anywhere in the list this way.
+        //
+        $sql = "select id from categories ORDER by id desc LIMIT 1";
+        $last_row = sqlQuery($sql);
+        $counter = $last_row['id'];
+        $counter++;
+        $sql = "INSERT INTO `categories` (
+                          `id`, `name`, `value`,
+                          `parent`,
+                          `aco_spec`, `codes`)
+                    VALUES ($counter, 'AntSeg Laser - Eye', 'ANTSEG', '17', 'patients|docs', '');";
+        // echo $sql . " and last_row id = " . $last_row['id'];die();
+        sqlStatement($sql);
+
+        $sql = "SELECT * from categories where id ='" . $counter ."'";
+        $sql2= sqlStatement($sql);
+        while ($row1 = sqlFetchArray($sql2)) {
+            $categories[] = $row1;
+            $row1['name'] = preg_replace('/ - Eye/', '', $row1['name']);
+            $my_name[$row1['id']] = $row1['name'];
+            $children_names[$row1['parent'] ?? ''][] = $row1['name'] ?? '';
+            if (!empty($parent_name)) {
+                $parent_name[$row1['name']] = $my_name[$row1['parent']];
+            }
+            if (($row1['value'] ?? '') > '') {
+                //if there is a value, tells us what segment of exam ($zone) this belongs in...
+                $zones[$row1['value']][] = $row1;
+            } else {
+                if ($row1['name'] != "Categories") {
+                    $zones['OTHER'][] = $row1;
+                }
+            }
+        }
+    }
+}
 /**
  *  This function returns ICONS with links for a specific clinical subsection of the Document Library.
  *
@@ -4844,9 +4943,18 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
         $ODIOPTARGET = $encounter_data['ODIOPTARGET'];
         $OSIOPTARGET = $encounter_data['OSIOPTARGET'];
     }
+
     $i = 0;
+    list($ODIOPTARGET, $OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
     //if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
+        if (empty($encounter_data['ODIOPTARGET'])) {
+            $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
+        }
+
+        if (empty($encounter_data['OSIOPTARGET'])) {
+            $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
+        }
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
             if ($visit['date'] == '') {
@@ -4913,7 +5021,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
             }
             $i++;
         }
-   } else { //there are no priors, get info from this visit
+   }
+    else { //there are no priors, get info from this visit
             $VISITS_date[0] = $dated;
             if ($encounter_data['IOPTIME']) {
                 $time_here = explode(":", $encounter_data['IOPTIME']);
@@ -4952,11 +5061,9 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                 //we are ignoring finger tension for graphing purposes but include this should another form of IOP measurement arrive...
                 //What about the Triggerfish contact lens continuous IOP device for example...  iCare device, etc
             }
-
             if ($encounter_data['ODIOPTARGET'] > '0') {
                 $ODIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
             } else {
-                list($ODIOPTARGET, ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
                 $ODIOPTARGETS[$i] = $ODIOPTARGET;
                 $encounter_data['ODIOPTARGET'] = $ODIOPTARGET;
             }
@@ -4964,7 +5071,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
             if ($encounter_data['OSIOPTARGET']) {
                 $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
             } else {
-                list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
                 $OSIOPTARGETS[$i] = $OSIOPTARGET;
                 $encounter_data['OSIOPTARGET'] = $OSIOPTARGET;
             }
@@ -5197,6 +5303,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday') {
                 ?>
                 <tr>
                     <td colspan="3" class="GFS_title"><?php echo xlt('Optic Nerve Analysis'); ?>:&nbsp;
+                   <pre>
+                       <?php
+
+                  // var_dump($documents); ?></pre>
                         <?php
                         if ($count_OCT > '0') { //need to decide how many to show on open, and hide the rest?  For now show first, hide rest.
                             $count = 0;
@@ -6715,7 +6825,6 @@ function getIOPTARGETS($pid, $id, $provider_id)
                     )
                 ORDER BY form_encounter.date DESC";
     $result = sqlStatement($query, array($pid, $id));
-
     while ($row = sqlFetchArray($result)) {
         if (($row['ODIOPTARGET'] > '0') && ($row['OSIOPTARGET'] > '0')) {
             return array($row['ODIOPTARGET'], $row['OSIOPTARGET']);

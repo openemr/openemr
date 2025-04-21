@@ -286,8 +286,6 @@ function submit_canvas(zone) {
  *  Function to update the user's preferences
  */
 function update_PREFS() {
-    var checker = $('#PREFS_TOOLTIPS').val();
-    if (checker > '') {
         var url = "../../forms/eye_mag/save.php";
         var formData = {
             'AJAX_PREFS'            : "1",
@@ -301,6 +299,7 @@ function update_PREFS() {
             'PREFS_ADDITIONAL'      : $('#PREFS_ADDITIONAL').val(),
             'PREFS_VAX'             : $('#PREFS_VAX').val(),
             'PREFS_RXHX'            : $('#PREFS_RXHX').val(),
+            'PREFS_VAHx'            : $('#PREFS_VAHx').val(),
             'PREFS_IOP'             : $('#PREFS_IOP').val(),
             'PREFS_CLINICAL'        : $('#PREFS_CLINICAL').val(),
             'PREFS_EXAM'            : $('#PREFS_EXAM').val(),
@@ -339,7 +338,7 @@ function update_PREFS() {
                url      : url,
                data     : formData
                });
-    }
+
 }
 /*
  *  Function to unlock the form - remove temporary lock at DB level.
@@ -2242,6 +2241,9 @@ function show_by_setting() {
         $("#SDRETINA_right").addClass('nodisplay').removeClass('canvas');
         $("#Draw_SDRETINA").addClass('nodisplay');
     }
+    if ($("#PREFS_VAHx").val() == '1') {
+        $("#LayerVision_VAHx").removeClass('nodisplay');
+    }
 
     return true;
 }
@@ -2287,7 +2289,7 @@ $(function () {
                   });
 
                   $('#tooltips_status').html($('#PREFS_TOOLTIPS').val());
-                  if ($("#PREFS_TOOLTIPS").val() == "<?php echo xla('Off'); ?>") {
+                  if ($("#PREFS_TOOLTIPS").val() != "<?php echo xla('On'); ?>") {
                     $('[title]').each(function() {
                         var $this = $(this);
                         $this.data('title',$this.attr('title'));
