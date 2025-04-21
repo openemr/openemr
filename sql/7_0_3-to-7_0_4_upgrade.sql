@@ -124,15 +124,35 @@ ALTER TABLE `onetime_auth` ADD `onetime_actions` text COMMENT 'JSON array of act
 #ifNotTable track_events
 CREATE TABLE `track_events`
 (
-    `id`           BIGINT(12) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `event_type`   VARCHAR(50)  NOT NULL,
-    `event_label`  VARCHAR(255) NOT NULL,
-    `event_url`    VARCHAR(255) DEFAULT NULL,
-    `event_target` VARCHAR(50)  DEFAULT NULL,
-    `first_event`   DATETIME   NOT NULL,
-    `last_event`   DATETIME     NOT NULL,
-    `count`        INT UNSIGNED NOT NULL DEFAULT 1,
+    `id`                  INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `event_type`     TEXT,
+    `event_label`    TEXT,
+    `event_url`       TEXT,
+    `event_target`  TEXT,
+    `first_event`     DATETIME DEFAULT NULL,
+    `last_event`     DATETIME DEFAULT NULL,
+    `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_event_label` (`event_label`)
 ) ENGINE = InnoDB;
+#endIf
+
+#ifMissingColumn product_registration auth_by_id
+ALTER TABLE `product_registration` ADD `auth_by_id` INT(11) NULL DEFAULT NULL;
+#endIf
+
+#ifMissingColumn product_registration telemetry_disabled
+ALTER TABLE `product_registration` ADD `telemetry_disabled` TINYINT(1) NULL DEFAULT NULL COMMENT '1 disabled. NULL ask. 0 use option scopes';
+#endIf
+
+#ifMissingColumn product_registration last_ask_date
+ALTER TABLE `product_registration` ADD `last_ask_date` DATETIME NULL DEFAULT NULL;
+#endIf
+
+#ifMissingColumn product_registration last_ask_version
+ALTER TABLE `product_registration` ADD `last_ask_version` TINYTEXT;
+#endIf
+
+#ifMissingColumn product_registration options
+ALTER TABLE `product_registration` ADD `options` TEXT COMMENT 'JSON array of scope options';
 #endIf

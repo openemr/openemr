@@ -12227,9 +12227,14 @@ CREATE TABLE `form_taskman` (
 
 DROP TABLE IF EXISTS `product_registration`;
 CREATE TABLE `product_registration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NULL,
-  `opt_out` TINYINT(1) NULL,
+    `id` int(11) NOT NULL,
+    `email` varchar(255) DEFAULT NULL,
+    `opt_out` tinyint(1) DEFAULT NULL,
+    `auth_by_id` int(11) DEFAULT NULL,
+    `telemetry_disabled` tinyint(1) DEFAULT NULL COMMENT '1 opted out, disabled. NULL ask. 0 use option scopes',
+    `last_ask_date` datetime DEFAULT NULL,
+    `last_ask_version` tinytext DEFAULT NULL,
+    `options` text DEFAULT NULL COMMENT 'JSON array of scope options',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
@@ -13718,3 +13723,16 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_dob', 'Intervention use of date of birth as expressed in the standards in US § 170.213', 110);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sdoh', 'Intervention use of social determinants of health data as expressed in the standards in US § 170.213', 120);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_health_status', 'Intervention use of health status assessments data as expressed in the standards in US § 170.213', 130);
+
+CREATE TABLE `track_events` (
+    `id`                  BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `event_type`     TEXT,
+    `event_label`    TEXT,
+    `event_url`       TEXT,
+    `event_target`  TEXT,
+    `first_event`     DATETIME DEFAULT NULL,
+    `last_event`     DATETIME DEFAULT NULL,
+    `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_event_label` (`event_label`)
+) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';

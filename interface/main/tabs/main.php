@@ -44,14 +44,12 @@ $registerOptOut = $product_row['opt_out'] ?? 0;
 // If running unit tests, then disable the registration dialog
 if ($_SESSION['testing_mode'] ?? false) {
     $allowRegisterDialog = false;
-} else {
-    $test = 0;
 }
-
 // If the user is not a super admin, then disable the registration dialog
 if (!AclMain::aclCheckCore('admin', 'super', '', 'write')) {
     $allowRegisterDialog = false;
 }
+
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
 if (
@@ -124,8 +122,8 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
     const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
     const isServicesOther = (isSms || isFax);
-    const allowTelemetry = <?php echo $allowTelemetry; ?>;
-    const registerOptOut = <?php echo $registerOptOut; ?>;
+    const allowTelemetry = <?php echo js_escape($allowTelemetry); ?>;
+    const registerOptOut = <?php echo js_escape($registerOptOut); ?>;
 
     /**
      * Async function to get session value from the server
