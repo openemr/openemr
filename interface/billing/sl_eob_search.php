@@ -47,9 +47,8 @@ use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     echo (
-        new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig',
-        ['pageTitle' => xl("EOB Posting - Search")]
-    );
+        new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]
+        );
     exit;
 }
 
@@ -109,13 +108,15 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
                 $_SESSION['authUser'],
                 $_SESSION['authUser'],
                 $_SESSION['portalUser'],
-                $invoices[0]['patient'], "New",
+                $invoices[0]['patient'],
+                "New",
                 '0'
             ) == 1
         ) { // remind admin this was sent
             sendMail(
                 $_SESSION['portalUser'],
-                $note, xlt('Bill/Collect'),
+                $note,
+                xlt('Bill/Collect'),
                 '',
                 '0',
                 $_SESSION['authUser'],
@@ -123,7 +124,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
                 $_SESSION['portalUser'],
                 $invoices[0]['patient'],
                 "New",
-            '0'
+                '0'
             ); // notify patient
         } else {
             return false;
@@ -603,8 +604,10 @@ if (
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 fwrite($fhprint, make_statement($stmt));
                 if (
-                    !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE,
-                    $stmt['pid'] . "-" . $stmt['encounter'])
+                    !notify_portal(
+                        $stmt['pid'], $pvoice, $STMT_TEMP_FILE,
+                    $stmt['pid'] . "-" . $stmt['encounter']
+                    )
                 ) {
                     $alertmsg = xlt('Notification FAILED');
                     break;
@@ -1175,11 +1178,11 @@ if (
                                 <th class="dehead text-right"><?php echo xlt('Balance'); ?>&nbsp;</th>
                                 <th class="dehead text-center"><?php echo xlt('Prv'); ?></th>
                                 <?php
-                            if (!$eracount) { ?>
+                                if (!$eracount) { ?>
                                     <th class="dehead text-left"><?php echo xlt('Sel'); ?></th>
                                     <th class="dehead text-center"><?php echo xlt('Email'); ?></th>
                                     <?php
-                            } ?>
+                                } ?>
                             </tr>
                             </thead>
                             <?php
@@ -1298,7 +1301,7 @@ if (
                                         $patientData = sqlQuery(
                                             "SELECT * FROM `patient_data` WHERE `pid`=?",
                                             array($row['pid'])
-                                            );
+                                        );
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {
