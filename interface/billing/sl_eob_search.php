@@ -1002,108 +1002,108 @@ if (
                     </legend>
                     <div class="table-responsive">
                         <?php
-                        if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
-                        if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
-                            CsrfUtils::csrfNotVerified();
-                        }
-
-                        $form_name = trim($_REQUEST['form_name']);
-                        $form_pid = trim($_REQUEST['form_pid']);
-                        $form_encounter = trim($_REQUEST['form_encounter']);
-                        $form_date = fixDate($_REQUEST['form_date'], "");
-                        $form_to_date = fixDate($_REQUEST['form_to_date'], "");
-
-                        $where = "";
-
-                        // Handle X12 835 file upload.
-                        //
-                        if ($_FILES['form_erafile']['size']) {
-                            $tmp_name = $_FILES['form_erafile']['tmp_name'];
-
-                            // Handle .zip extension if present.  Probably won't work on Windows.
-                            if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
-                                rename($tmp_name, "$tmp_name.zip");
-                                exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
-                                unlink("$tmp_name.zip");
+                            if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
+                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+                                CsrfUtils::csrfNotVerified();
                             }
 
-                            echo "<!-- Notes from ERA upload processing:\n";
-                            $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
-                            echo "-->\n";
-                            $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
-                            $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";
+                            $form_name = trim($_REQUEST['form_name']);
+                            $form_pid = trim($_REQUEST['form_pid']);
+                            $form_encounter = trim($_REQUEST['form_encounter']);
+                            $form_date = fixDate($_REQUEST['form_date'], "");
+                            $form_to_date = fixDate($_REQUEST['form_to_date'], "");
 
-                            if (is_file($erafullname)) {
-                                $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
-                                    $alertmsg .= "and processed. ";
-                                } else {
-                                    $alertmsg .= "but not yet processed. ";
+                            $where = "";
+
+                            // Handle X12 835 file upload.
+                            //
+                            if ($_FILES['form_erafile']['size']) {
+                                $tmp_name = $_FILES['form_erafile']['tmp_name'];
+
+                                // Handle .zip extension if present.  Probably won't work on Windows.
+                                if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+                                    rename($tmp_name, "$tmp_name.zip");
+                                    exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
+                                    unlink("$tmp_name.zip");
                                 }
-                            }
-                            rename($tmp_name, $erafullname);
-                            copy($erafullname, $edihname);
-                        } // End 835 upload
 
-                        if ($eracount) {
-                            // Note that ParseERA::parseERA() modified $eracount and $where.
-                            if (!$where) {
-                                $where = '1 = 2';
-                            }
-                        } else {
-                            if ($form_name) {
-                                if ($where) {
-                                    $where .= " AND ";
-                                }
-                                // Allow the last name to be followed by a comma and some part of a first name.
-                                if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
-                                    $where .= "p.lname LIKE '" . add_escape_custom($matches[1]) . "%' AND p.fname LIKE '" . add_escape_custom($matches[2]) . "%'";
-                                    // Allow a filter like "A-C" on the first character of the last name.
-                                } elseif (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
-                                    $tmp = '1 = 2';
-                                    while (ord($matches[1]) <= ord($matches[2])) {
-                                        $tmp .= " OR p.lname LIKE '" . add_escape_custom($matches[1]) . "%'";
-                                        $matches[1] = chr(ord($matches[1]) + 1);
+                                echo "<!-- Notes from ERA upload processing:\n";
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+                                echo "-->\n";
+                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
+                                $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";
+
+                                if (is_file($erafullname)) {
+                                    $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
+                                        $alertmsg .= "and processed. ";
+                                    } else {
+                                        $alertmsg .= "but not yet processed. ";
                                     }
-                                    $where .= "( $tmp ) ";
-                                } else {
-                                    $where .= "p.lname LIKE '%" . add_escape_custom($form_name) . "%'";
+                                }
+                                rename($tmp_name, $erafullname);
+                                copy($erafullname, $edihname);
+                            } // End 835 upload
+
+                            if ($eracount) {
+                                // Note that ParseERA::parseERA() modified $eracount and $where.
+                                if (!$where) {
+                                    $where = '1 = 2';
+                                }
+                            } else {
+                                if ($form_name) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    // Allow the last name to be followed by a comma and some part of a first name.
+                                    if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
+                                        $where .= "p.lname LIKE '" . add_escape_custom($matches[1]) . "%' AND p.fname LIKE '" . add_escape_custom($matches[2]) . "%'";
+                                        // Allow a filter like "A-C" on the first character of the last name.
+                                    } elseif (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
+                                        $tmp = '1 = 2';
+                                        while (ord($matches[1]) <= ord($matches[2])) {
+                                            $tmp .= " OR p.lname LIKE '" . add_escape_custom($matches[1]) . "%'";
+                                            $matches[1] = chr(ord($matches[1]) + 1);
+                                        }
+                                        $where .= "( $tmp ) ";
+                                    } else {
+                                        $where .= "p.lname LIKE '%" . add_escape_custom($form_name) . "%'";
+                                    }
+                                }
+                                if ($form_pid) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    $where .= "f.pid = '" . add_escape_custom($form_pid) . "'";
+                                }
+                                if ($form_encounter) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    $where .= "f.encounter = '" . add_escape_custom($form_encounter) . "'";
+                                }
+                                if ($form_date) {
+                                    if ($where) {
+                                        $where .= " AND ";
+                                    }
+                                    if ($form_to_date) {
+                                        $where .= "f.date >= '" . add_escape_custom($form_date) . "' AND f.date <= '" . add_escape_custom($form_to_date) . "'";
+                                    } else {
+                                        $where .= "f.date = '" . add_escape_custom($form_date) . "'";
+                                    }
+                                }
+                                if (!$where) {
+                                    if ($_REQUEST['form_category'] == 'All') {
+                                        $alertmsg .= xlt("At least one search parameter is required if you select All.");
+                                    } else {
+                                        $where = "1 = 1";
+                                    }
                                 }
                             }
-                            if ($form_pid) {
-                                if ($where) {
-                                    $where .= " AND ";
-                                }
-                                $where .= "f.pid = '" . add_escape_custom($form_pid) . "'";
-                            }
-                            if ($form_encounter) {
-                                if ($where) {
-                                    $where .= " AND ";
-                                }
-                                $where .= "f.encounter = '" . add_escape_custom($form_encounter) . "'";
-                            }
-                            if ($form_date) {
-                                if ($where) {
-                                    $where .= " AND ";
-                                }
-                                if ($form_to_date) {
-                                    $where .= "f.date >= '" . add_escape_custom($form_date) . "' AND f.date <= '" . add_escape_custom($form_to_date) . "'";
-                                } else {
-                                    $where .= "f.date = '" . add_escape_custom($form_date) . "'";
-                                }
-                            }
-                            if (!$where) {
-                                if ($_REQUEST['form_category'] == 'All') {
-                                    $alertmsg .= xlt("At least one search parameter is required if you select All.");
-                                } else {
-                                    $where = "1 = 1";
-                                }
-                            }
-                        }
 
                         // Notes that as of release 4.1.1 the copays are stored
                         // in the ar_activity table marked with a PCP in the account_code column.
-                        $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
+                            $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
                             "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, f.in_collection, " .
                             "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
                             "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
@@ -1124,17 +1124,17 @@ if (
                         // out encounters that are paid up.  Also the use of sub-selects
                         // will require MySQL 4.1 or greater.
 
-                        $num_invoices = 0;
+                            $num_invoices = 0;
 
-                        // removed if condition on alert message so biller can see what's in the era
-                        $t_res = sqlStatement($query);
-                        $num_invoices = sqlNumRows($t_res);
+                            // removed if condition on alert message so biller can see what's in the era
+                            $t_res = sqlStatement($query);
+                            $num_invoices = sqlNumRows($t_res);
 
-                        if ($eracount && $num_invoices != $eracount) {
-                            $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
+                            if ($eracount && $num_invoices != $eracount) {
+                                $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
                                 "matching encounters in OpenEMR. ";
-                        }
-                        ?>
+                            }
+                            ?>
                         <table class="table table-striped table-sm">
                             <thead>
                             <tr>
@@ -1160,13 +1160,14 @@ if (
                             $orow = -1;
 
                             while ($row = sqlFetchArray($t_res)) {
-                                $balance = sprintf("%.2f",
-                                    $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
+                                $balance = sprintf(
+                                    "%.2f",
+                                    $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']
+                                );
                                 //new filter only patients with debt.
                                 if (!empty($_REQUEST['only_with_debt']) && $balance <= 0) {
                                     continue;
                                 }
-
 
                                 if ($_REQUEST['form_category'] != 'All' && $eracount == 0 && $balance == 0) {
                                     continue;
@@ -1189,8 +1190,9 @@ if (
                                 //
                                 if (!$duncount) {
                                     for (
-                                        $i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'],
-                                        $i); ++$i) {
+                                        $i = 1; $i <= 3 && SLEOB::arGetPayerID($row['pid'], $row['date'], $i); ++$i
+                                    ) {
+                                        // do nothing?
                                     }
                                     $duncount = $row['last_level_closed'] + 1 - $i;
                                 }
@@ -1267,8 +1269,10 @@ if (
                                     <?php } ?>
                                     <td class="detail text-left">
                                         <?php
-                                        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?",
-                                            array($row['pid']));
+                                        $patientData = sqlQuery(
+                                            "SELECT * FROM `patient_data` WHERE `pid`=?",
+                                        array($row['pid'])
+                                        );
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {
@@ -1279,8 +1283,8 @@ if (
                                 </tr>
                                 <?php
                             } // end while
-                            } // end search/print logic
-                            ?>
+                        } // end search/print logic
+                        ?>
                         </table>
                     </div><!--End of table-responsive div-->
                 </fieldset>
