@@ -13737,7 +13737,7 @@ DROP TABLE IF EXISTS `track_events`;
 CREATE TABLE `track_events` (
     `id`                  INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `event_type`     TEXT,
-    `event_label`    TEXT,
+    `event_label`    VARCHAR(255) DEFAULT NULL,
     `event_url`       TEXT,
     `event_target`  TEXT,
     `first_event`     DATETIME NULL,
