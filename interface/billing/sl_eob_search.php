@@ -46,8 +46,10 @@ use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig',
-        ['pageTitle' => xl("EOB Posting - Search")]);
+    echo (
+        new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig',
+        ['pageTitle' => xl("EOB Posting - Search")]
+    );
     exit;
 }
 
@@ -57,8 +59,7 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 $g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
-$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable',
-    $g_posting_adj_disable);
+$posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
 
 /* Load dependencies only if we need them */
@@ -69,8 +70,9 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?",
-            array($pid))) {
+        if (
+            $pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", array($pid))
+        ) {
             if ($pData['allow_patient_portal'] != "YES") {
                 return false;
             } else {
@@ -97,12 +99,32 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             return false;
         } // this is all the invoice data for portal auditing
         $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
-        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'],
-                $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New",
-                '0') == 1) { // remind admin this was sent
-            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'],
-                $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New",
-                '0'); // notify patient
+        if (
+            sendMail(
+                $_SESSION['authUser'],
+                $note,
+                xlt('Bill/Collect'),
+                '',
+                '0',
+                $_SESSION['authUser'],
+                $_SESSION['authUser'],
+                $_SESSION['portalUser'],
+                $invoices[0]['patient'], "New",
+                '0'
+            ) == 1
+        ) { // remind admin this was sent
+            sendMail(
+                $_SESSION['portalUser'],
+                $note, xlt('Bill/Collect'),
+                '',
+                '0',
+                $_SESSION['authUser'],
+                $_SESSION['authUser'],
+                $_SESSION['portalUser'],
+                $invoices[0]['patient'],
+                "New",
+            '0'
+            ); // notify patient
         } else {
             return false;
         }
@@ -538,8 +560,10 @@ if (
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
         // grab last bill date from billing
-        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1",
-            array($row['pid'], $row['encounter']));
+        $bdrow = sqlQuery(
+            "select bill_date from billing where pid = ? AND encounter = ? limit 1",
+            array($row['pid'], $row['encounter'])
+        );
 
         $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
@@ -578,8 +602,10 @@ if (
             // we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
             if ($inv_pid[$inv_count] != $inv_pid[$inv_count + 1]) {
                 fwrite($fhprint, make_statement($stmt));
-                if (!notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE,
-                    $stmt['pid'] . "-" . $stmt['encounter'])) {
+                if (
+                    !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE,
+                    $stmt['pid'] . "-" . $stmt['encounter'])
+                ) {
                     $alertmsg = xlt('Notification FAILED');
                     break;
                 }
@@ -1002,7 +1028,7 @@ if (
                     </legend>
                     <div class="table-responsive">
                         <?php
-                            if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
+                        if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
                             if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
                                 CsrfUtils::csrfNotVerified();
                             }
@@ -1149,11 +1175,11 @@ if (
                                 <th class="dehead text-right"><?php echo xlt('Balance'); ?>&nbsp;</th>
                                 <th class="dehead text-center"><?php echo xlt('Prv'); ?></th>
                                 <?php
-                                if (!$eracount) { ?>
+                            if (!$eracount) { ?>
                                     <th class="dehead text-left"><?php echo xlt('Sel'); ?></th>
                                     <th class="dehead text-center"><?php echo xlt('Email'); ?></th>
                                     <?php
-                                } ?>
+                            } ?>
                             </tr>
                             </thead>
                             <?php
@@ -1271,8 +1297,8 @@ if (
                                         <?php
                                         $patientData = sqlQuery(
                                             "SELECT * FROM `patient_data` WHERE `pid`=?",
-                                        array($row['pid'])
-                                        );
+                                            array($row['pid'])
+                                            );
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {
