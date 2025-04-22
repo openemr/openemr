@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ "Encounter Report" | xlt }}</title>
+    {{ setupHeader(['datetime-picker']) }}
+
+    <script>
+        {{ DateToYYYYMMDD_js() }}
+
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+
+            {{ jqueryDateTimePicker('.datepicker',false,false,true) }}
+        });
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row mt-5">
+            <div class="col-12">
+                <div>
+                     <h1>{{ 'Encounter Report' | xlt }}</h1>
+                </div>
+            </div>
+        </div>
+            <form method="get" action="" class="mb-3">
+                <input type="hidden" name="csrf_token_form" value="{{ csrfToken | attr }}" >
+                <div class="row">
+                    <div class="col-md-3">
+
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mt-4">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="facility">{{ "Facility" | xlt }}:</label>
+                                        <select name="facility" id="facility" class="form-control">
+                                            <option value="all">{{ "All Facilities" | xlt }}</option>
+                                            {% for facility in facilities %}
+                                                <option value="{{ facility.id }}" {% if filters.facility == facility.id %}selected{% endif %}>
+                                                    {{ facility.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="provider">{{ "Provider" | xlt }}:</label>
+                                        <select name="provider" id="provider" class="form-control">
+                                            <option value="all">{{ "All" | xlt }}</option>
+                                            {% for provider in providers %}
+                                                <option value="{{ provider.id }}" {% if filters.provider == provider.id %}selected{% endif %}>
+                                                    {{ provider.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="date_from">{{ "Date From" | xlt }}:</label>
+                                        <input type="text" name="date_from" id="date_from" class="form-control datepicker" value="{{ filters.date_from|attr }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="date_to">{{ "Date To" | xlt }}:</label>
+                                        <input type="text" name="date_to" id="date_to" class="form-control datepicker" value="{{ filters.date_to|attr }}">
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-md-9 d-flex flex-wrap align-items-center">
+                                <div class="form-check mr-3">
+                                    <input class="form-check-input" type="checkbox" name="details" id="details" {% if filters.details %}checked{% endif %}>
+                                    <label class="form-check-label" for="details">{{ "Details" | xlt }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex justify-content-end align-items-center">
+                                <button type="submit" class="btn btn-primary mr-2">{{ "Generate Report" | xlt }}</button>
+                                <button type="button" class="btn btn-success" id="exportCsvButton">{{ "Export CSV" | xlt }}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+
+                    </div>
+                </div>
+            </form>
+        {% if errors|length > 0 %}
+            <div class="alert alert-danger">
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="row m-3 w-100 d-flex">
+            {% if filters.details|length == 0 and encounters.providers is defined and encounters.providers|length > 0 %}
+                <h3>{{ "Summary" | xlt }}</h3>
+                <table id="encounterSummaryTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ "Provider" | xlt }}</th>
+                            <th class="text-right">{{ "Encounters" | xlt }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for provider in encounters.providers %}
+                            <tr>
+                                <td>{{ provider.provider_name|text }}</td>
+                                <td class="text-right">{{ provider.encounter_count }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr class="font-weight-bold">
+                            <td>{{ "Total" | xlt }}</td>
+                            <td class="text-right">{{ encounters.total_encounters }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if filters.details|length > 0 and  encounters is defined and encounters|length > 0 %}
+                <div class="detailed-report mt-4 w-100">
+                    <h3>{{ "Detailed Encounters"|xlt }}</h3>
+                    <table id="encounterDetailTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{ "ID"|xlt }}</th>
+                                <th>{{ "Date"|xlt }}</th>
+                                <th>{{ "Patient"|xlt }}</th>
+                                <th>{{ "Provider"|xlt }}</th>
+                                <th>{{ "Signed"|xlt }}</th>
+                                <th>{{ "Visit Type"|xlt }}</th>
+                                <th>{{ "Enc#"|xlt }}</th>
+                                <th>{{ "Forms"|xlt }}</th>
+                                <th>{{ "Coding"|xlt }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for encounter in encounters %}
+                                <tr>
+                                    <td>{{ encounter.id|default('') }}</td>
+                                    <td>{{ encounter.date|date('Y-m-d') }}</td>
+                                    <td>{{ encounter.patient|default('') }}</td>
+                                    <td>{{ encounter.provider|default('') }}</td>
+                                    <td>{{ encounter.status|default('') }}</td>
+                                    <td>{{ encounter.category|default('') }}</td>
+                                    <td><input type="button" class="btn btn-link" value="{{ encounter.encounter }}-{{ encounter.pid }}" onclick="toEncounter('{{ encounter.pid }}', '{{ encounter.encounter }}')"/></td>
+                                    <td>{{ encounter.forms|default('') }}</td>
+                                    <td>{{ encounter.coding|default('') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p>{{ "Total Encounters"|xlt }}: {{ encounterCount }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#exportCsvButton').click(function() {
+                // Determine which table is visible and has data
+                let exportTable = $('#encounterSummaryTable').is(':visible') && $('#encounterSummaryTable tbody tr').length > 0
+                    ? $('#encounterSummaryTable')
+                    : $('#encounterDetailTable').is(':visible') && $('#encounterDetailTable tbody tr').length > 0
+                        ? $('#encounterDetailTable')
+                        : null;
+
+                if (!exportTable) {
+                    alert({{ 'No data to export' | xlj }});
+                    return;
+                }
+
+                // Get table data
+                let csv = [];
+                let headers = [];
+
+                // Get headers
+                exportTable.find('thead th').each(function() {
+                    headers.push($(this).text().trim());
+                });
+                csv.push(headers.join(','));
+
+                // Get rows
+                exportTable.find('tbody tr').each(function() {
+                    let row = [];
+                    $(this).find('td').each(function() {
+                        row.push($(this).text().trim().replace(/,/g, ';'));
+                    });
+                    csv.push(row.join(','));
+                });
+
+                // Create download link
+                const csvContent = csv.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'encounter_report_' + new Date().toISOString().slice(0,10) + '.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+    </script>
+    <script>
+        function toEncounter(pid, encounter) {
+            top.restoreSession();
+            top.RTop.location = '../../patient_file/encounter/encounter_top.php?set_encounter=' +
+                encodeURIComponent(encounter) + '&pid=' + encodeURIComponent(pid);
+        }
+    </script>
+</body>
+</html>
