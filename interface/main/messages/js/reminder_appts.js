@@ -469,13 +469,13 @@ function extractDateFromText(dateText) {
     if (!dateText) return null;
 
     var firstLine = dateText.split('\n')[0];
-    var isoMatch = firstLine.match(/\d{4}[\-\/]\d{1,2}[\-\/]\d{1,2}/);
+    var isoMatch = firstLine.match(/\d{4}[-/]\d{1,2}[-/]\d{1,2}/);
 
     if (isoMatch) {
         return parseDate(isoMatch[0]);
     }
 
-    var standardMatch = firstLine.match(/\d{1,2}[\-\/]\d{1,2}[\-\/]\d{4}/);
+    var standardMatch = firstLine.match(/\d{1,2}[-/]\d{1,2}[-/]\d{4}/);
     if (standardMatch) {
         return parseDate(standardMatch[0]);
     }
