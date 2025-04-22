@@ -47,10 +47,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     protected function getOemrUiInstance($oemrSettings = array ())
     {
-        if (!isset($this -> oemrUI)) {
-            $this -> oemrUI = new OemrUI($oemrSettings);
+        if (!isset($this->oemrUI)) {
+            $this->oemrUI = new OemrUI($oemrSettings);
         }
-        return $this -> oemrUI;
+        return $this->oemrUI;
     }
 
     /**
@@ -60,8 +60,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function __construct(GlobalsService $globals, ?Kernel $kernel)
     {
-        $this -> globals = $globals -> getGlobalsMetadata();
-        $this -> kernel = $kernel;
+        $this->globals = $globals->getGlobalsMetadata();
+        $this->kernel = $kernel;
     }
 
     public function getGlobals(): array
