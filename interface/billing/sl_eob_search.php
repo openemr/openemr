@@ -605,8 +605,10 @@ if (
                 fwrite($fhprint, make_statement($stmt));
                 if (
                     !notify_portal(
-                        $stmt['pid'], $pvoice, $STMT_TEMP_FILE,
-                    $stmt['pid'] . "-" . $stmt['encounter']
+                        $stmt['pid'],
+                        $pvoice,
+                        $STMT_TEMP_FILE,
+                        $stmt['pid'] . "-" . $stmt['encounter']
                     )
                 ) {
                     $alertmsg = xlt('Notification FAILED');
