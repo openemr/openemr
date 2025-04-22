@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * package   OpenEMR
+ * link      http://www.open-emr.org
+ * author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * author-AI Gemini, Cascade
+ * All rights reserved
+ * Copyright (c) 2025.
+ */
+
 namespace OpenEMR\Reports\Encounter;
 
 class EncounterReportData

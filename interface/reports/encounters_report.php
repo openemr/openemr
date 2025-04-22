@@ -1,5 +1,14 @@
 <?php
-// interface/reports/encounters_report.php
+
+/**
+ * package   OpenEMR
+ * link      http://www.open-emr.org
+ * author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * author-AI Gemini, Cascade
+ * All rights reserved
+ * Copyright (c) 2025.
+ */
+
 
 require_once dirname(__DIR__) . '/globals.php'; // Include globals.php
 
@@ -71,8 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['date_from']) && isset($
             $encounterCount = $data->getEncounterCount($filters);
             $formatter = new EncounterReportFormatter();
             $formattedEncounters = $formatter->formatEncounters($encounters);
-            $generator = new EncounterReportGenerator();
-            $reportOutput = $generator->generateReport($formattedEncounters);
         }
     }
 }
