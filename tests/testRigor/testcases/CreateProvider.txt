@@ -1,0 +1,9 @@
+LoginAndValidate
+CreateProvider
+//Validate provider
+check page contains saved value "npi"
+click "Edit" roughly on the right of saved value "npi"
+//Clean up
+scroll down on "modalFrame" until page contains button "Delete"
+click "Delete"
+check that page doesn't contain saved value "npi"

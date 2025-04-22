@@ -147,3 +147,17 @@ build_test_common() {
     fi
 }
 
+build_testrigor_tests() {
+    failTest=false
+    sudo chmod +x "$WORKSPACE_DIR/tests/testRigor/run_testrigor_tests.sh"
+    "$WORKSPACE_DIR/tests/testRigor/run_testrigor_tests.sh" \
+        "$TEST_SUITE_ID" \
+        "$AUTH_TOKEN" \
+        "$WORKSPACE_DIR" \
+        "$BRANCH" \
+        "$COMMIT" \
+        "$JOB_ID"
+    if $failTest; then
+      exit 1
+    fi
+}

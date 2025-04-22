@@ -1,0 +1,1 @@
+open url from string with parameters "${homePrefix}/portal/patient/index.php"

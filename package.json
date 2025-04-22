@@ -64,7 +64,8 @@
     "stylelint-config-sass-guidelines": "12.1.0",
     "stylelint-config-standard": "37.0.0",
     "stylelint-order": "6.0.4",
-    "stylelint-scss": "6.11.0"
+    "stylelint-scss": "6.11.0",
+    "testrigor-cli": "0.0.31-beta"
   },
   "dependencies": {
     "@eastdesire/jscolor": "2.5.2",
