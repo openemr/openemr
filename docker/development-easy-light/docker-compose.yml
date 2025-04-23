@@ -16,6 +16,8 @@ services:
   openemr:
     restart: always
     image: openemr/openemr:flex
+    mem_limit: 2g
+    command: ["sh", "-c", "chmod +x /openemr.sh && ./openemr.sh"]
     ports:
     - 8300:80
     - 9300:443
