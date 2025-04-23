@@ -29,6 +29,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\CareTeamService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -98,10 +99,15 @@ class C_EncounterVisitForm
 
     function getCareTeamFacilityForPatient($pid)
     {
+        // TODO: We should put helper methods into CareTeamService for this.
         $care_team_facility = sqlQuery("SELECT `care_team_facility` FROM `patient_data` WHERE `pid` = ?", array($pid));
         // TODO: @adunsulag right now care facility is an array... the original code in common.php treats this as a single value
         // we need to look at fixing this if there is multiple facilities
-        return $care_team_facility['care_team_facility'] ?? null;
+        if (!empty($care_team_facility['care_team_facility'])) {
+            $facilities = explode("|", $care_team_facility['care_team_facility']);
+            return $facilities[0] ?? null;
+        }
+        return null;
     }
 
 
@@ -570,8 +576,10 @@ class C_EncounterVisitForm
          * @global $pid
          */
         $provider_id = ($userauthorized ?? '') ? $_SESSION['authUserID'] : null;
-        $default_fac_override = $encounter['facility_id'] ?? $this->getCareTeamFacilityForPatient($pid);
+        $facilityService = new FacilityService();
+        $default_fac_override = $encounter['facility_id'] ?? $this->getDefaultFacilityForNewEncounters($pid, $facilityService);
         if (!$viewmode) {
+            //
             $now = date('Y-m-d');
             $encnow = date('Y-m-d 00:00:00');
             $time = date("H:i:00");
@@ -596,7 +604,7 @@ class C_EncounterVisitForm
                 'provider_id' => $provider_id
                 // no encounter or anything
                 ,'facility_id' => $default_fac_override
-                ,'billing_facility_id' => $default_bill_fac_override ?? ''
+                ,'billing_facility' => $default_bill_fac_override ?? ''
                 ,'pc_catid' => $default_catid_override ?? ''
                 ,'date' => date('Y-m-d H:i:00')
                 ,'in_collection' => 0
@@ -629,7 +637,7 @@ class C_EncounterVisitForm
             return $provider;
         }, $MBO->getOrderingProviders());
 
-        $facilityService = new FacilityService();
+
         $facilities = $this->getFacilitiesForTemplate($facilityService, $default_fac_override);
         $posCode = '';
         foreach ($facilities as $facility) {
@@ -648,7 +656,7 @@ class C_EncounterVisitForm
         } else {
             $facilityPosCode = null;
         }
-        $billingFacilities = $this->getBillingFacilityForTemplate($facilityService, $encounter['billing_facility_id'] ?? null);
+        $billingFacilities = $this->getBillingFacilityForTemplate($facilityService, $encounter['billing_facility'] ?? null);
         $inCollectionOptions = $this->getInCollectionOptionsForTemplate($encounter);
         $dischargeDispositions = $this->getDischargeDispositionsForTemplate($viewmode ? $encounter : null);
         $groupData = $this->getGroupDataForTemplate($viewmode ? $encounter : null);
@@ -722,5 +730,19 @@ class C_EncounterVisitForm
         }
 // Render template
         echo $this->twig->render($event->getTwigTemplate(), $event->getTwigVariables());
+    }
+
+
+    function getDefaultFacilityForNewEncounters($pid, FacilityService $facilityService)
+    {
+        $default_fac_override = null;
+        if (!empty($GLOBALS['set_service_facility_encounter'])) {
+            $default_fac_override = $this->getCareTeamFacilityForPatient($pid);
+        }
+        if (empty($default_fac_override)) {
+            $user_facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+            $default_fac_override = $user_facility['id'] ?? null;
+        }
+        return $default_fac_override;
     }
 }
