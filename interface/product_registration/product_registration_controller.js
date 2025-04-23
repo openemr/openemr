@@ -21,9 +21,11 @@ function ProductRegistrationController() {
     };
     const _registrationCreatedHandler = function (data) {
         $('.product-registration-modal .context').remove();
+        if ($('.product-registration-modal .email').length > 0) {
+            $('.product-registration-modal .message').text(registrationTranslations.registeredSuccess);
+        }
         $('.product-registration-modal .email').remove();
-        $('.product-registration-modal .message').text(registrationTranslations.registeredSuccess);
-        _closeModal(1000);
+        _closeModal(2000);
         self.displayRegistrationInformationIfDivExists(data);
     };
     const _formCancellationHandler = function () {
@@ -32,19 +34,11 @@ function ProductRegistrationController() {
         top.restoreSession();
     };
     const _formSubmissionHandler = function () {
-        let email = $('.product-registration-modal .email').val() || '';
+        let email = $('.product-registration-modal .email').val() || null;
         if (email > '' && email.indexOf('@') < 0) {
             $('.product-registration-modal .message').text(registrationTranslations.pleaseProvideValidEmail);
             $('.product-registration-modal .email').focus();
             return false;
-        }
-        if (email === '') {
-            $('.product-registration-modal .message').text(registrationTranslations.pleaseProvideValidEmail);
-            let returned = confirm(xl('Continue without registering an email address?'));
-            if (returned === false) {
-                $('.product-registration-modal .email').focus();
-                return false;
-            }
         }
 
         $('.product-registration-modal .message').text('');
@@ -98,8 +92,6 @@ function ProductRegistrationController() {
 
         // Toggle the modal display
         $('.product-registration-modal').modal('toggle');
-
-        $('.product-registration-modal .email').val(registrationConstants.email);
 
         // Handle enter key on the email field
         $('.product-registration-modal .email').on('keypress', function (event) {

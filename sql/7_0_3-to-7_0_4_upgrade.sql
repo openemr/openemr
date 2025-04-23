@@ -134,24 +134,24 @@ CREATE TABLE `track_events` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_event_label` (`event_label`)
 ) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';
-#endIf
+#EndIf
 
 #ifMissingColumn product_registration auth_by_id
 ALTER TABLE `product_registration` ADD `auth_by_id` INT(11) NULL;
-#endIf
+#EndIf
 
 #ifMissingColumn product_registration telemetry_disabled
 ALTER TABLE `product_registration` ADD `telemetry_disabled` TINYINT(1) NULL COMMENT '1 disabled. NULL ask. 0 use option scopes';
-#endIf
+#EndIf
 
 #ifMissingColumn product_registration last_ask_date
 ALTER TABLE `product_registration` ADD `last_ask_date` DATETIME NULL;
-#endIf
+#EndIf
 
 #ifMissingColumn product_registration last_ask_version
 ALTER TABLE `product_registration` ADD `last_ask_version` TINYTEXT;
-#endIf
+#EndIf
 
 #ifMissingColumn product_registration options
 ALTER TABLE `product_registration` ADD `options` TEXT COMMENT 'JSON array of scope options';
-#endIf
+#EndIf

@@ -38,9 +38,10 @@ $menuLogo = $logoService->getLogo('core/menu/primary/');
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductStatus();
 $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
-$allowTelemetry = $product_row['allowTelemetry'] ?? 0;
-$registeredEmail = $product_row['email'] ?? '';
-$registerOptOut = $product_row['opt_out'] ?? 0;
+$allowTelemetry = $product_row['allowTelemetry'] ?? null;
+$allowEmail = $product_row['statusAsString'] == 'UNREGISTERED' ? 1 : 0;
+$registeredEmail = $product_row['email'] ?? null;
+$registerOptOut = $product_row['opt_out'] ?? null;
 // If running unit tests, then disable the registration dialog
 if ($_SESSION['testing_mode'] ?? false) {
     $allowRegisterDialog = false;
@@ -465,7 +466,12 @@ if (isset($_SESSION['app1'])) {
     <div class="mainFrames d-flex flex-row" id="mainFrames_div">
         <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
     </div>
-    <?php echo $twig->render("login/partials/html/product_registration_modal.html.twig", []); ?>
+    <?php echo $twig->render("login/partials/html/product_registration_modal.html.twig", [
+        'webroot' => $webroot,
+        'email' => $email ?? '',
+        'allowEmail' => $allowEmail ?? false,
+        'allowTelemetry' => $allowTelemetry ?? false,
+        'optOut' => $optOut ?? null]); ?>
 </div>
 <script>
     ko.applyBindings(app_view_model);
@@ -511,7 +517,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
 
 if (!empty($allowRegisterDialog)) { // disable if running unit tests.
     // Include the product registration js, telemetry and usage data reporting dialog
-    echo $twig->render("login/partials/js/product_reg.js.twig", ['email' => $registeredEmail, 'allowTelemetry' => $allowTelemetry, 'optOut' => $registerOptOut]);
+    echo $twig->render("login/partials/js/product_reg.js.twig", ['webroot' => $webroot]);
 }
 
 ?>

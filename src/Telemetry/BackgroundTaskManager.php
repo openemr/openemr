@@ -21,9 +21,9 @@ class BackgroundTaskManager
      *
      * @param string $period Number of days (as a string) for the task interval.
      */
-    public static function modifyTelemetryTask(string $period = '33'): void
+    public static function modifyTelemetryTask(): void
     {
-        $total_minutes = (int)$period * 1440;
+        $total_minutes = 33 * 1440;
 
         $sql = "SELECT COUNT(*) as count FROM `background_services` WHERE `name` = 'Telemetry_Task'";
         $result = sqlQueryNoLog($sql);

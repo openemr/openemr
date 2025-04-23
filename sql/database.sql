@@ -13730,7 +13730,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 
 -- -----------------------------------------------------
 --
--- Table structure for table 'product_registration'
+-- Table structure for table 'track_events'
 --
 
 DROP TABLE IF EXISTS `track_events`;

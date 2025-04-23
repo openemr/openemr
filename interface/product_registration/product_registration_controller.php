@@ -25,7 +25,7 @@ if ($method === 'GET') {
     // Retrieve current registration status
     $sql = "SELECT * FROM product_registration LIMIT 1";
     $row = sqlQuery($sql);
-    if ($row && $row['telemetry_disabled'] !== null) {
+    if ($row['opt_out'] !== null && $row['telemetry_disabled'] !== null) {
         echo json_encode($row); // Both registration and telemetry answered
     } else {
         echo json_encode(["statusAsString" => "UNREGISTERED"]);
@@ -37,7 +37,7 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     // Retrieve email; if empty or "false", treat as opt-out.
     $opt_out = 0;
-    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : null;
     if (empty($email)) {
         $opt_out = 1;
     }
@@ -50,7 +50,19 @@ if ($method === 'POST') {
         // send to product registration service
         $response = [];
         $productRegistrationService = new ProductRegistrationService();
-        $registrationEmail = $productRegistrationService->registerProduct($email);
+        try {
+            $registrationEmail = $productRegistrationService->registerProduct($email);
+        } catch (GenericProductRegistrationException $e) {
+            // Handle the exception
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+            exit;
+        } catch (Exception $e) {
+            // Handle any other exceptions
+            http_response_code(500);
+            echo json_encode(["error" => "An internal error occurred while processing your request."]);
+            exit;
+        }
         $response['email'] = $registrationEmail;
         $status = 201;
     }
@@ -68,31 +80,28 @@ if ($method === 'POST') {
 
     // Update the last ask date and version
     $last_ask_date = date("Y-m-d H:i:s");
-
     $versionService = new VersionService();
     $last_ask_version = $versionService->asString();
 
-    $sql = "SELECT id FROM `product_registration` WHERE id > 0 LIMIT 1";
-    $res = sqlQueryNoLog($sql);
-    $id = $res['id'] ?? 0;
+    // Insert or update the registration record (assuming single-row record with id )
+    $res = sqlQueryNoLog("SELECT id FROM `product_registration` WHERE id > 0 LIMIT 1");
+    $id = (int)($res['id'] ?? 0);
     if ($id > 0) {
-        $sql = "UPDATE `product_registration` SET `email` = ?, `opt_out` = ?, `auth_by_id` = ?, `telemetry_disabled` = ?, `last_ask_date` = ?, `last_ask_version` = ?, `options` = ? WHERE `id` = ?";
-        $result = sqlStatementNoLog($sql, [
-            $email,
-            $opt_out,
-            $auth_by_id,
-            $telemetry_disabled,
-            $last_ask_date,
-            $last_ask_version,
-            $options,
-            $id
-        ]);
+        if (!empty($email)) {
+            // For occasional email changes, we need to update the email and opt-out status
+            $sql = "UPDATE `product_registration` SET `email` = ?, `opt_out` = ?, `auth_by_id` = ?, `telemetry_disabled` = ?, `last_ask_date` = ?, `last_ask_version` = ?, `options` = ? WHERE `id` = ?";
+            $params = [$email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options, $id];
+        } else {
+            // Otherwise, we just update the telemetry status
+            $sql = "UPDATE `product_registration` SET `auth_by_id` = ?, `telemetry_disabled` = ?, `last_ask_date` = ?, `last_ask_version` = ?, `options` = ? WHERE `id` = ?";
+            $params = [$auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options, $id];
+        }
     } else {
-        // Insert or update the registration record (assuming single-row record with id = 1)
+        // New registration details
         $sql = "INSERT INTO `product_registration` (email, opt_out, auth_by_id, telemetry_disabled, last_ask_date, last_ask_version, options) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $params = [$email, $opt_out, $auth_by_id, $telemetry_disabled, $last_ask_date, $last_ask_version, $options];
-        $result = sqlStatementNoLog($sql, $params);
     }
+    $result = sqlStatementNoLog($sql, $params);
 
     if ($result) {
         // Update the telemetry task if telemetry is enabled

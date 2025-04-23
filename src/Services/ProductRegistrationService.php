@@ -38,7 +38,7 @@ class ProductRegistrationService
         $optOut = $row['opt_out'] ?? null;
         $telemetry_disabled = $row['telemetry_disabled'] ?? null;
 
-        if (empty($row) || empty($optOut)) {
+        if (empty($row) || $optOut == null) {
             $row['statusAsString'] = 'UNREGISTERED';
         } elseif (!empty($email)) {
             $row['statusAsString'] = 'REGISTERED';
@@ -46,15 +46,18 @@ class ProductRegistrationService
             $row['statusAsString'] = 'OPT_OUT';
         }
 
-        $row['allowTelemetry'] = empty($telemetry_disabled) ? 1 : 0;
+        $row['allowTelemetry'] = $telemetry_disabled === null ? 1 : null;
         $row['allowRegisterDialog'] = 0;
-        if ($telemetry_disabled == null || empty($optOut)) {
+        if ($telemetry_disabled == null || $optOut == null) {
             $row['allowRegisterDialog'] = 1;
         }
 
         return $row;
     }
 
+    /**
+     * @throws \GenericProductRegistrationException
+     */
     public function registerProduct($email)
     {
         if (!$email || $email == 'false') {

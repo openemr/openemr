@@ -26,8 +26,8 @@ header("Content-Type: application/json");
 function handleRequest(): void
 {
     // Read JSON payload.
-    $inputJSON = file_get_contents('php://input');
-    $data = json_decode($inputJSON, true);
+    $input_json = file_get_contents('php://input');
+    $data = json_decode($input_json, true);
 
     // Verify CSRF token.
     if (!isset($data["csrf_token_form"]) || !CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
