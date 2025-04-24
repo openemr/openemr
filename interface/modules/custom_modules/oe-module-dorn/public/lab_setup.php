@@ -135,7 +135,7 @@ if (!empty($_POST)) {
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="form_active"><?php echo xlt("Is Active") ?>:</label>
-                                <select id="form_active" name="form_connected">
+                                <select id="form_active" name="form_active">
                                     <option value=""><?php echo xlt("All") ?></option>
                                     <option value="yes" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'yes' ? ' selected ' : '' : '' ?> ><?php echo xlt("Yes"); ?></option>
                                     <option value="no" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'no' ? ' selected ' : '' : '' ?> ><?php echo xlt("No"); ?></option>
