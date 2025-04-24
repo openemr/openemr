@@ -279,7 +279,7 @@ $widgetConstants = [
     (function() {
 
         // make sure we don't leak anything
-        let addresses = <?php echo json_encode($addresses); ?>;
+        let addresses = <?php echo js_escape($addresses); ?>;
         let tableId = <?php echo js_escape($table_id); ?>;
         init(tableId, addresses);
     })();
@@ -344,9 +344,9 @@ $widgetConstants = [
         let fullAddress = fullAddressFromRecord(record, 1);
         let period = PeriodFromRecord(record);
 
-        row_address_clone.querySelector(".display_addresses_full_address").innerHTML  = fullAddress[0];
-        row_address_clone.querySelector(".display_addresses_use").innerHTML  = useDisplay;
-        row_address_clone.querySelector(".display_addresses_period").innerHTML  = period;
+        row_address_clone.querySelector(".display_addresses_full_address").innerText  = fullAddress[0];
+        row_address_clone.querySelector(".display_addresses_use").innerText  = useDisplay;
+        row_address_clone.querySelector(".display_addresses_period").innerText  = period;
 
         let form_row = row_address_clone.querySelector(".form_addresses");
         let display_row = row_address_clone.querySelector(".display_addresses");
@@ -406,9 +406,9 @@ $widgetConstants = [
         let fullAddress = fullAddressFromRecord(record, 1);
         let period = PeriodFromRecord(record);
 
-        row_display_addresses.querySelector(".display_addresses_full_address").innerHTML  = fullAddress[0];
-        row_display_addresses.querySelector(".display_addresses_use").innerHTML  = useDisplay;
-        row_display_addresses.querySelector(".display_addresses_period").innerHTML  = period;
+        row_display_addresses.querySelector(".display_addresses_full_address").innerText  = fullAddress[0];
+        row_display_addresses.querySelector(".display_addresses_use").innerText  = useDisplay;
+        row_display_addresses.querySelector(".display_addresses_period").innerText  = period;
 
     }
 
