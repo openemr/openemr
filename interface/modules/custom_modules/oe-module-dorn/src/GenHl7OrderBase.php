@@ -185,21 +185,21 @@ class GenHl7OrderBase
         if ($tmp == '') {
             return '';
         } elseif ($tmp == 'asian') {
-            return 'A';
+            return '2028-9';
         } elseif ($tmp == 'black_or_afri_amer') {
-            return 'B';
+            return '2054-5';
         } elseif ($tmp == 'white') {
-            return 'C';
+            return '2106-3';
         } elseif ($tmp == 'hispanic') {
-            return 'H';
+            return '2131-1';
         } elseif ($tmp == 'amer_ind_or_alaska_native') {
-            return 'I';
+            return '1002-5';
         } elseif ($tmp == 'other') {
-            return 'O';
+            return '2131-1';
         } elseif ($tmp == 'ashkenazi_jewish') {
-            return 'J';
+            return '2131-1';
         } elseif ($tmp == 'sephardic_jewish') {
-            return 'S';
+            return '2131-1';
         }
         // Should not get here so this will probably get noticed if we do.
         return $s;
