@@ -2,6 +2,7 @@
 
 /**
  *
+<<<<<<< HEAD
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  *
@@ -13,6 +14,17 @@
  */
 
     require_once __DIR__ . "/../../../../globals.php";
+=======
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ *
+ * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+    require_once "../../../../globals.php";
+>>>>>>> d11e3347b (modules setup and UI changes)
 
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
@@ -49,7 +61,10 @@ if ($resultsGuid) {
 }
 
 ?>
+<<<<<<< HEAD
 <!DOCTYPE html>
+=======
+>>>>>>> d11e3347b (modules setup and UI changes)
 <html>
     <head>
         <?php Header::setupHeader(['opener']); ?>

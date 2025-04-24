@@ -6,7 +6,11 @@
  * @link      http: // www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
+<<<<<<< HEAD
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
+=======
+ * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+>>>>>>> d11e3347b (modules setup and UI changes)
  * @license   https: // github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -51,12 +55,16 @@ class DornGenHl7Order extends GenHl7OrderBase
         $d2 = '^';
         $today = time();
         $out = '';
+<<<<<<< HEAD
 
+=======
+>>>>>>> d11e3347b (modules setup and UI changes)
         $porow = ProcedureSqlStatements::getProcedureOrder($orderid);
         if (empty($porow)) {
             return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
         }
 
+<<<<<<< HEAD
         $orderDxs = ProcedureSqlStatements::getProcedureCode($orderid);
         $dxFlag = false;
         $pcrows = [];
@@ -78,6 +86,16 @@ class DornGenHl7Order extends GenHl7OrderBase
 
         $out .= $this->createPv1("U", $bill_type);
 
+=======
+        $pcres = ProcedureSqlStatements::getProcedureCode($orderid);
+        $pdres = ProcedureSqlStatements::getProcedureCode($orderid);
+        // why was this the exact same query? not sure but it was.
+        $vitals = ProcedureSqlStatements::getVitals($porow['pid'], $porow['encounter']);
+        $bill_type = strtoupper(substr($porow['billing_type'], 0, 1));
+        $out .= $this->createMsh($porow['send_app_id'], $porow['send_fac_id'], $porow['recv_app_id'], $porow['recv_fac_id'], date('YmdHisO', $today), "", $orderid, "T", "", "", "AL", "NE", "", "", "", "");
+        $out .= $this->createPid("1", "", $porow['pid'], "", $porow['fname'], $porow['lname'], $porow['mname'], "", $porow['DOB'], $porow['sex'], "", $porow['race'], $porow['street'], "", $porow['city'], $porow['state'], $porow['postal_code'], "", $porow['phone_home'], "", "", "", "", "", "", "", "", "");
+        $out .= $this->createPv1("U", $bill_type);
+>>>>>>> d11e3347b (modules setup and UI changes)
         // Insurance stuff.
         $payers = $this->loadPayerInfo($porow['pid'], $porow['date_ordered']);
         $setid = 0;
@@ -129,6 +147,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             }
         }
 
+<<<<<<< HEAD
         // GT1 segment
         $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
         foreach ($guarantors as $guarantor) {
@@ -154,16 +173,45 @@ class DornGenHl7Order extends GenHl7OrderBase
         $cntDx = 0; // only 8 codes allowed.
         // Create the ORC segment.
         foreach ($pcrows as $pcrow) {
+=======
+        if ($bill_type == "T") {
+            $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+            // this is returning an array but in the query we have a limit 1!
+            foreach ($guarantors as $guarantor) {
+                $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
+            }
+        } elseif ($bill_type == "P") {
+            // need to figure out what data to pull here, I feel like this should pull patient info. rather than
+            // insurance info
+        } elseif ($bill_type == "C") {
+            // need to figure out what data to pull here
+        }
+        $setid2 = 0;
+        $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+        $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+        //         $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
+        $lb = floor((float)$vitals['weight']);
+        $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
+        $setid = 0;
+        while ($pcrow = sqlFetchArray($pcres)) {
+>>>>>>> d11e3347b (modules setup and UI changes)
             $out .= $this->createOrc("NW", $orderid, $orderid, $porow['docnpi'], $porow['docfname'], $porow['doclname'], "", "", "", "", "", "", "");
             if ($this->hl7Priority($porow['order_priority']) == "S") {
                 $out .= $this->createTq1("", "");
             }
 
             // Observation Request.
+<<<<<<< HEAD
             // this originally used $porow['clinical_hx'] and I want to look at what
             // is there in the database, This note is a reminder to me to look.
 
             $specprocedure = ProcedureSqlStatements::getSpecimen($pcrow['procedure_code']); // some labs require a specimen type.
+=======
+            // this was origionally used $porow['clinical_hx'] and I want to look at what
+            // is there in teh database, I this note is a reminder to me to look.
+
+            $specprocedure = ProcedureSqlStatements::getSpecimen($pcrow['procedure_code']);
+>>>>>>> d11e3347b (modules setup and UI changes)
             $out .= $this->createObr(
                 ++$setid,
                 $orderid,
@@ -181,6 +229,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             );
             // this is where an NTE segment should be placed.
 
+<<<<<<< HEAD
             // this gets the order default primary Dx codes from one place
             // saves from having to populate a Dx for each test order which is not required.
             $defaultCodes = explode(';', $porow['order_diagnosis']);
@@ -206,13 +255,28 @@ class DornGenHl7Order extends GenHl7OrderBase
                     $relcodes = explode(';', $pdrow['diagnoses']);
                     foreach ($relcodes as $codestring) {
                         if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
+=======
+            // now from each test order list
+            $hasDiagnosisSegment = false;
+            while ($pdrow = sqlFetchArray($pdres)) {
+                if (!empty($pdrow['diagnoses'])) {
+                    $relcodes = explode(';', $pdrow['diagnoses']);
+                    foreach ($relcodes as $codestring) {
+                        if ($codestring === '') {
+>>>>>>> d11e3347b (modules setup and UI changes)
                             continue;
                         }
                         list($codetype, $code) = explode(':', $codestring);
                         $desc = lookup_code_descriptions($codestring);
+<<<<<<< HEAD
                         $out .= $this->createDg1(++$cntDx, $code, $desc, $codetype);
                         $hasDiagnosisSegment = true;
                         if ($cntDx < 9) {
+=======
+                        $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
+                        $hasDiagnosisSegment = true;
+                        if ($setid2 < 9) {
+>>>>>>> d11e3347b (modules setup and UI changes)
                             $D[1] .= $code . '^';
                         }
                     }
@@ -224,7 +288,11 @@ class DornGenHl7Order extends GenHl7OrderBase
 
             // Order entry questions and answers.
             $qres = ProcedureSqlStatements::getProcedureAnswers($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']);
+<<<<<<< HEAD
             $cntDx = 0;
+=======
+            $setid2 = 0;
+>>>>>>> d11e3347b (modules setup and UI changes)
             $fastflag = false;
             while ($qrow = sqlFetchArray($qres)) {
                 // Formatting of these answer values may be lab-specific and we'll figure
@@ -245,7 +313,11 @@ class DornGenHl7Order extends GenHl7OrderBase
                     $days = $answer % 7;
                     $answer = $weeks . 'wks ' . $days . 'days';
                 }
+<<<<<<< HEAD
                 $out .= $this->createObx(++$cntDx, $datatype, $qrow['tips'], $answer, "", "", "F", "", "", "");
+=======
+                $out .= $this->createObx(++$setid2, $datatype, $qrow['tips'], $answer, "", "", "F", "", "", "");
+>>>>>>> d11e3347b (modules setup and UI changes)
             }
 
             $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
@@ -253,7 +325,11 @@ class DornGenHl7Order extends GenHl7OrderBase
             $T[$setid] = $this->hl7Text($pcrow['procedure_code']);
             if ($vvalue === "Y" && $fastflag === false) {
                 // TODO -sjp- for now patch out the fasting default auto question. Dorn autolab doesn't allow but maybe others will!
+<<<<<<< HEAD
                 //$out .= $this->createObx(++$cntDx, "ST", "FASTIN^FASTING^L", $vvalue, "", "", "F", "", "", "");
+=======
+                //$out .= $this->createObx(++$setid2, "ST", "FASTIN^FASTING^L", $vvalue, "", "", "F", "", "", "");
+>>>>>>> d11e3347b (modules setup and UI changes)
             }
         }
         return '';
@@ -262,9 +338,291 @@ class DornGenHl7Order extends GenHl7OrderBase
 
     /**
      * Generate HL7 for the specified procedure order.
+<<<<<<< HEAD
      * Remove by sjp 06-11-25 Not needed by DORN.
      *
      */
+=======
+     *
+     * @param integer  $orderid Procedure order ID.
+     * @param string  &$out     Container for target HL7 text.
+     * @param string  &$reqStr
+     * @return string            Error text, or empty if no errors.
+     */
+    public function genHl7OrderBarCode($orderid, &$reqStr)
+    {
+        $today = time();
+        // init 2d barcode req record arrays
+        for ($i = 0; $i < 98; $i++) {
+            if ($i < 6) {
+                $H[$i] = '';
+            }
+            if ($i < 9) {
+                $G[$i] = '';
+            }
+            if ($i < 27) {
+                $C[$i] = '';
+            }
+            if ($i < 41) {
+                $A[$i] = '';
+                $T[$i] = '';
+            }
+            $P[$i] = '';
+        }
+        $H[0] = 'H';
+        $C[0] = 'C';
+        $C[19] = '^';
+        $A[0] = 'A';
+        $M[0] = 'M';
+        $T[0] = 'T';
+        $O[0] = 'O';
+        $S[0] = 'S';
+        $G[0] = 'G';
+        $D[0] = 'D';
+        $L[0] = 'L';
+        $E[0] = 'E';
+        $A[21] = "^^";
+        $A[22] = "^";
+        $A[23] = "^";
+        $A[29] = "^";
+        $A[30] = "^^^^^";
+        $A[33] = "^^^";
+        $G[1] = "^";
+        $S[1] = "^^^^^^";
+        $P[0] = 'P';
+        $P[36] = "^";
+        $P[45] = "^";
+        $P[54] = "^^^^^^^^^^^^^^";
+        $P[55] = "^^^^^^^";
+        $P[72] = "^^";
+        $P[73] = "^^";
+        $P[74] = "^^";
+        $P[75] = "^^";
+        $P[79] = "^";
+        $P[85] = "^";
+        $P[86] = "^^^^";
+        $P[89] = "^";
+        $P[94] = "^";
+        $P[95] = "^^";
+        $B = "B|||||||||||||||||||||";
+        $K = "K|^|||||||||||||||^^^^||||||";
+        $I = "I|^^|^^|^^|^^|^^|^^|^^|^^|";
+        $porow = ProcedureSqlStatements::getProcedureOrder($orderid);
+        if (empty($porow)) {
+            return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+        }
+
+        $pcres = ProcedureSqlStatements::getProcedureCode($orderid);
+        $pdres = ProcedureSqlStatements::getProcedureCode($orderid);
+        // why was this the exact same query? not sure but it was.
+        $vitals = ProcedureSqlStatements::getVitals($porow['pid'], $porow['encounter']);
+        $P[68] = $vitals['weight'];
+        $P[70] = $vitals['height'];
+        $P[88] = $vitals['bps'] . '^' . $vitals['bpd'];
+        $P[89] = $vitals['waist_circ'];
+        $C[17] = parent::hl7Date(date("Ymd", strtotime($porow['date_collected'])));
+        $bill_type = strtoupper(substr($porow['billing_type'], 0, 1));
+        $H[1] = $porow['send_app_id'];
+        $H[2] = date('Ymd', $today);
+        $P[1] = $porow['pid'];
+        $P[7] = $porow['recv_fac_id'];
+        $P[9] = $this->hl7Text($porow['lname']) . '^' . $this->hl7Text($porow['fname']) . '^' . $this->hl7Text($porow['mname']);
+        $P[10] = $this->hl7Date($porow['DOB']);
+        $P[11] = $this->hl7Sex($porow['sex']);
+        $P[12] = $this->hl7SSN($porow['ss']);
+        $P[13] = $this->hl7Text($porow['street']);
+        $P[14] = $this->hl7Text($porow['city']);
+        $P[15] = $this->hl7Text($porow['state']);
+        $P[16] = $this->hl7Zip($porow['postal_code']);
+        $P[17] = $this->hl7Phone($porow['phone_home']);
+        $P[57] = $orderid;
+        $P[58] = $porow['pid'];
+        if ($bill_type == 'T') {
+            $P[18] = "XI";
+        } elseif ($bill_type == 'P') {
+            $P[18] = "03";
+        } else {
+            $P[18] = "04";
+        }
+
+        $P[29] = $this->hl7Text($porow['doclname']) . "^" . $this->hl7Text($porow['docfname']);
+        $P[30] = $this->hl7Text($porow['docnpi']);
+        $P[71] = $this->hl7Text($porow['docnpi']);
+        // Insurance stuff.
+        $payers = $this->loadPayerInfo($porow['pid'], $porow['date_ordered']);
+        $setid = 0;
+        if ($bill_type == 'T') {
+            // only send primary and secondary insurance
+            foreach ($payers as $payer) {
+                $payer_object = $payer['object'];
+                $payer_address = $payer_object->get_address();
+                $full_address = $payer_address->get_line1();
+                $setid = $setid + 1;
+                if (!empty($payer_address->get_line2())) {
+                    $full_address .= "," . $payer_address->get_line2();
+                }
+
+                if ($payer_object->get_ins_type_code() === '2') {
+                    // medicare
+                    $P[19] = $this->hl7Text($payer['data']['policy_number']);
+                } elseif ($payer_object->get_ins_type_code() === '3') {
+                    // medicaid
+                    $P[53] = $this->hl7Text($payer['data']['policy_number']);
+                } else {
+                    $P[40] = $this->hl7Text($payer['data']['policy_number']);
+                }
+                if ($setid === 2) {
+                    $P[43] = $this->hl7Text($payer['company']['cms_id']);
+                    $P[44] = $this->hl7Text($payer['company']['name']);
+                    $P[45] = $this->hl7Text($full_address);
+                    $P[46] = $this->hl7Text($payer_address->get_city());
+                    $P[47] = $this->hl7Text($payer_address->get_state());
+                    $P[48] = $this->hl7Zip($payer_address->get_zip());
+                    $P[41] = $this->hl7Text($payer['data']['group_number']);
+                    $P[52] = $this->hl7Workman($payer['data']['policy_type']);
+                    break;
+                }
+                $P[34] = $this->hl7Text($payer['company']['cms_id']);
+                $P[35] = $this->hl7Text($payer['company']['name']);
+                $P[36] = $this->hl7Text($full_address);
+                $P[37] = $this->hl7Text($payer_address->get_city());
+                $P[38] = $this->hl7Text($payer_address->get_state());
+                $P[39] = $this->hl7Zip($payer_address->get_zip());
+                $P[41] = $this->hl7Text($payer['data']['group_number']);
+                $P[52] = $this->hl7Workman($payer['data']['policy_type']);
+            }
+            if ($setid === 0) {
+                return "\nInsurance is being billed but patient does not have any payers on record!";
+            }
+        }
+
+        /*
+        bill_type is T = Third Party
+                     P = Self Pay
+                     C = Clinic
+        */
+        if ($bill_type == "T") {
+            $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+            // this is returning an array but in the query we have a limit 1!
+            foreach ($guarantors as $guarantor) {
+                $P[20] = $this->hl7Text($guarantor['data']['subscriber_lname']) . '^' . $this->hl7Text($guarantor['data']['subscriber_fname']) . '^';
+                $P[21] = $this->hl7Date($guarantor['data']['subscriber_ss']);
+                $P[22] = $this->hl7Text($guarantor['data']['subscriber_street']);
+                $P[23] = $this->hl7Text($guarantor['data']['subscriber_city']);
+                $P[24] = $this->hl7Text($guarantor['data']['subscriber_state']);
+                $P[25] = $this->hl7Zip($guarantor['data']['subscriber_postal_code']);
+                // $P[26] =  // employer;
+                $P[27] = $this->hl7Relation($guarantor['data']['subscriber_relationship']);
+                $P[56] = $this->hl7Phone($guarantor['data']['subscriber_phone']);
+            }
+        } elseif ($bill_type == "P") {
+            // need to figure out what data to pull here, I feel like this should pull patient info. rather than
+            // insurance info
+        } elseif ($bill_type == "C") {
+            // need to figure out what data to pull here
+        }
+
+
+        $setid2 = 0;
+        $D[1] = substr($D[1], 0, strlen($D[1]) - 1);
+        $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+        $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
+        //         $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
+        $lb = floor((float)$vitals['weight']);
+        $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
+        $setid = 0;
+        while ($pcrow = sqlFetchArray($pcres)) {
+            // this is where an NTE segment should be placed.
+
+            // now from each test order list
+            $hasDiagnosisSegment = false;
+            while ($pdrow = sqlFetchArray($pdres)) {
+                if (!empty($pdrow['diagnoses'])) {
+                    $relcodes = explode(';', $pdrow['diagnoses']);
+                    foreach ($relcodes as $codestring) {
+                        if ($codestring === '') {
+                            continue;
+                        }
+                        list($codetype, $code) = explode(':', $codestring);
+                        $desc = lookup_code_descriptions($codestring);
+                        $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
+                        $hasDiagnosisSegment = true;
+                        if ($setid2 < 9) {
+                            $D[1] .= $code . '^';
+                        }
+                    }
+                }
+            }
+            if (!$hasDiagnosisSegment) {
+                return "No diagnosis present";
+            }
+
+            // Order entry questions and answers.
+            $qres = ProcedureSqlStatements::getProcedureAnswers($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']);
+            $setid2 = 0;
+            $fastflag = false;
+            while ($qrow = sqlFetchArray($qres)) {
+                // Formatting of these answer values may be lab-specific and we'll figure
+                // out how to deal with that as more labs are supported.
+                $answer = trim($qrow['answer']);
+                $qcode = trim($qrow['question_code']);
+                $fldtype = $qrow['fldtype'];
+                $datatype = 'ST';
+                if ($qcode == 'FASTIN') {
+                    $fastflag = true;
+                }
+                if ($fldtype == 'N') {
+                    $datatype = "NM";
+                } elseif ($fldtype == 'D') {
+                    $answer = $this->hl7Date($answer);
+                } elseif ($fldtype == 'G') {
+                    $weeks = intval($answer / 7);
+                    $days = $answer % 7;
+                    $answer = $weeks . 'wks ' . $days . 'days';
+                }
+            }
+
+            $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
+            $C[24] = $vvalue === "Y" ? ($vvalue . '12') : $vvalue;
+            $T[$setid] = $this->hl7Text($pcrow['procedure_code']);
+            if ($vvalue === "Y" && $fastflag === false) {
+                $out .= $this->createObx(++$setid2, "ST", "FASTIN^FASTING^L", $vvalue, "", "", "F", "", "", "");
+            }
+        }
+
+        $reqStr = "";
+        for ($i = 0; $i < 6; $i++) {
+            $reqStr .= $H[$i] . '|';
+        }
+        $reqStr .= "\x0D";
+        for ($i = 0; $i < 98; $i++) {
+            $reqStr .= $P[$i] . '|';
+        }
+        $reqStr .= "\x0D";
+        for ($i = 0; $i < 27; $i++) {
+            $reqStr .= $C[$i] . '|';
+        }
+        $reqStr .= "\x0D";
+        for ($i = 0; $i < 41; $i++) {
+            $reqStr .= $A[$i] . '|';
+        }
+        $reqStr .= "\x0D";
+        for ($i = 0; $i < 41; $i++) {
+            $reqStr .= $T[$i] . '|';
+        }
+        $reqStr .= "\x0D";
+        for ($i = 0; $i < 6; $i++) {
+            $reqStr .= $M[$i] . '|';
+        }
+        $reqStr .= "\x0D";
+        $reqStr .= $D[0] . '|' . $D[1] . '||' . "\x0D";
+        $l = strlen($reqStr);
+        $reqStr .= "L|$l|\x0D";
+        $reqStr .= 'E|0|' . "\x0D";
+        $reqStr = strtoupper($reqStr);
+        return '';
+    }
+>>>>>>> d11e3347b (modules setup and UI changes)
 
     /*
     The OBX segment is conditional and only required if/when AOE response information
@@ -711,7 +1069,10 @@ class DornGenHl7Order extends GenHl7OrderBase
     {
         $responseMessage = "";
         global $srcdir;
+<<<<<<< HEAD
 
+=======
+>>>>>>> d11e3347b (modules setup and UI changes)
         $pid = null;
         $porow = sqlQuery("SELECT " .
             "po.date_collected, po.date_ordered, po.order_priority,po.billing_type,po.clinical_hx,po.account,po.order_diagnosis, " .
@@ -752,6 +1113,10 @@ class DornGenHl7Order extends GenHl7OrderBase
             return xl('Internal error: Cannot find MSH-10');
         }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d11e3347b (modules setup and UI changes)
         if ($protocol == 'DL') {
             header("Pragma: public");
             header("Expires: 0");
@@ -765,8 +1130,11 @@ class DornGenHl7Order extends GenHl7OrderBase
             $response = ConnectorApi::sendOrder($labGuid, $labAccountNumber, $orderId, $pid, $out);
             if (!$response->isSuccess) {
                 $responseMessage = $response->responseMessage;
+<<<<<<< HEAD
             } else {
                 $responseMessage = $response;
+=======
+>>>>>>> d11e3347b (modules setup and UI changes)
             }
         }
 

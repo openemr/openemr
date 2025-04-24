@@ -1,0 +1,15 @@
+{
+    "name": "juggernautsei/oe-bamboo-pmp",
+    "description": "PDMP",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Sherwin",
+            "email": "sherwingaddis@gmail.com"
+        }
+    ],
+    "require": {
+        "ext-curl": "*"
+    }
+}

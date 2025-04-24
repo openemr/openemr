@@ -2,6 +2,7 @@
 
 /**
  *
+<<<<<<< HEAD
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  *
@@ -9,6 +10,13 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
+=======
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ *
+ * @author    Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+>>>>>>> d11e3347b (modules setup and UI changes)
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,11 +33,20 @@ use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
+<<<<<<< HEAD
 use OpenEMR\Modules\Dorn\EventSubscriber\DornLabSubscriber;
+=======
+>>>>>>> d11e3347b (modules setup and UI changes)
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> d11e3347b (modules setup and UI changes)
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
@@ -94,7 +111,10 @@ class Bootstrap
             $this->registerMenuItems();
             $this->registerTemplateEvents();
             $this->subscribeToApiEvents();
+<<<<<<< HEAD
             $this->eventDispatcher->addSubscriber(new DornLabSubscriber());
+=======
+>>>>>>> d11e3347b (modules setup and UI changes)
         }
     }
 
@@ -113,12 +133,19 @@ class Bootstrap
     }
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
+<<<<<<< HEAD
         // If globals are properly included elsewhere this should not be needed.
         //  Will leave this here for now to avoid breaking anything.
         global $GLOBALS;
 
         $service = $event->getGlobalsService();
         $section = xlt("DORN Lab Integration");
+=======
+        global $GLOBALS;
+
+        $service = $event->getGlobalsService();
+        $section = xlt("DORN");
+>>>>>>> d11e3347b (modules setup and UI changes)
         $service->createSection($section, 'Portal');
 
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
@@ -133,7 +160,11 @@ class Bootstrap
                     $config['type'],
                     $value,
                     xlt($config['description']),
+<<<<<<< HEAD
                     false // Config only. No user settings entry.
+=======
+                    true
+>>>>>>> d11e3347b (modules setup and UI changes)
                 )
             );
         }
@@ -198,10 +229,15 @@ class Bootstrap
         $menuItem->requirement = 0;
         $menuItem->target = 'mod';
         $menuItem->menu_id = 'mod0';
+<<<<<<< HEAD
         $menuItem->acl_req = ["patients", "lab"];
         $menuItem->label = xlt("DORN Lab Integration");
         $menuItem->global_req = [];
             // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
+=======
+        $menuItem->label = xlt("DORN");
+        // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
+>>>>>>> d11e3347b (modules setup and UI changes)
         // doesn't break any modules.
         $menuItem->url = "/interface/modules/custom_modules/oe-module-dorn/public/index.php";
         $menuItem->children = [];
@@ -235,7 +271,11 @@ class Bootstrap
         $menuItem->global_req = [];
 
         foreach ($menu as $item) {
+<<<<<<< HEAD
             if ($item->menu_id == 'proimg') {
+=======
+            if ($item->menu_id == 'modimg') {
+>>>>>>> d11e3347b (modules setup and UI changes)
                 $item->children[] = $menuItem;
                 break;
             }

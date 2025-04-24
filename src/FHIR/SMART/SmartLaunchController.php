@@ -82,7 +82,7 @@ class SmartLaunchController
         // issuer and audience are the same in a EHR SMART Launch
             $issuer = (new ServerConfig())->getFhirUrl();
             $viewArgs = [
-                        'title' => xl('SMART Enabled Apps'),
+                        'title' => xl('Third Party Apps'),
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                         'id' => 'smart',
                         'forceAlwaysOpen' => false,
