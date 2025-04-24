@@ -36,5 +36,3 @@
             echo "No file uploaded.";
         }
     }
-
-?>
