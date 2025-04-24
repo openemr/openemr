@@ -8,7 +8,7 @@
         {% for client in smartClients %}
         
         <li class="summary_item">
-            <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="{{ client.getName()|attr }}"
+            <button class='btn btn-primary btn-sm smart-launch-btn' style="background-color: #fff !important;" data-smart-name="{{ client.getName()|attr }}"
                     data-intent="{{ intent|attr }}"
                     data-client-id="{{ client.getIdentifier()|attr }}">
                     
