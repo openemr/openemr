@@ -84,3 +84,7 @@ ALTER TABLE `product_registration` ADD `last_ask_version` TINYTEXT;
 ALTER TABLE `product_registration` ADD `options` TEXT COMMENT 'JSON array of scope options';
 #EndIf
 
+UPDATE `list_options`
+SET `notes` = '{"form_title":{"presence": {"message": "Title Required"}}}'
+WHERE `list_id` = 'page_validation' AND `option_id` = 'add_edit_event#theform_prov' AND `title` = '/interface/main/calendar/add_edit_event.php?prov=true' AND `notes` = '{}';
+
