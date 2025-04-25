@@ -142,7 +142,7 @@ if ($_GET) {
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
         <?php
         $allUsers = array();
-        $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
+        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authUserID'])));
         for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
             $allUsers[] = $uRow;
         }
