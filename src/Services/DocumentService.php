@@ -158,12 +158,12 @@ class DocumentService extends BaseService
 
     public function getFile($pid, $did)
     {
-        $filenameSql = sqlQuery("SELECT `url`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
+        $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
 
-        if (empty(basename($filenameSql['url']))) {
+        if (empty($filenameSql['name'])) {
             $filename = "unknownName";
         } else {
-            $filename = basename($filenameSql['url']);
+            $filename = $filenameSql['name'];
         }
 
         $obj = new \C_Document();
