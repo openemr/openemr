@@ -432,6 +432,14 @@ if (isset($this_message['pid'])) {
                                 </div>
                             </div>
                         </div>
+                        <div class="card-footer">
+                            <button type='submit' class='btn btn-primary' name="sendButton" id="sendButton" value="<?php echo xla('Send This Message');?>" onclick='return this.clicked = true;'>
+                                <i class="fa fa-paper-plane mr-1"></i><?php echo xlt('Send This Message'); ?>
+                            </button>
+                            <button type="reset" class="btn btn-secondary ml-1">
+                                <i class="fa fa-eraser mr-1"></i><?php echo xlt('Reset') ?>
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
