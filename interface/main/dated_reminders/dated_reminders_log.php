@@ -21,9 +21,9 @@
     $isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
 <?php
-  /*
+/*
     -------------------  HANDLE POST ---------------------
-  */
+*/
 if ($_GET) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
