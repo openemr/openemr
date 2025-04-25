@@ -445,7 +445,14 @@ if (isset($this_message['pid'])) {
             </div>
 
             <div class="col-12 mt-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><?php echo xlt('Messages Sent Today') ?></h5>
+                    </div>
+                    <div class="card-body p-0">
                         <?php
+                        $_GET['sentBy'] = array($_SESSION['authUserID']);
+                        $_GET['sd'] = oeFormatShortDate();
                         $TempRemindersArray = logRemindersArray();
                         $remindersArray = array();
                         foreach ($TempRemindersArray as $RA) {
@@ -456,47 +463,39 @@ if (isset($this_message['pid'])) {
                             $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
                         }
 
+                        if (empty($remindersArray)) {
+                            echo '<div class="alert alert-info text-center m-3">' . xlt('No Messages Found') . '</div>';
+                        } else {
+                            echo '<div class="table-responsive">
+                                <table class="table table-striped table-hover" id="logTable">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th>' . xlt('ID') . '</th>
+                                        <th>' . xlt('To{{Destination}}') . '</th>
+                                        <th>' . xlt('Patient') . '</th>
+                                        <th>' . xlt('Message') . '</th>
+                                        <th>' . xlt('Due Date') . '</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>';
+
+                            foreach ($remindersArray as $RA) {
+                                echo '<tr>
+                                    <td>' . text($RA['messageID']) . '</td>
+                                    <td>' . text($RA['ToName']) . '</td>
+                                    <td>' . text($RA['PatientName']) . '</td>
+                                    <td>' . text($RA['message']) . '</td>
+                                    <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
+                                    </tr>';
+                            }
+
+                            echo '</tbody></table></div>';
+                        }
+                        ?>
+                    </div>
                 </div>
             </div>
-    <div class="table-responsive">
-    <?php
-        $_GET['sentBy'] = array($_SESSION['authUserID']);
-        $_GET['sd'] = oeFormatShortDate();
-        $TempRemindersArray = logRemindersArray();
-        $remindersArray = array();
-    foreach ($TempRemindersArray as $RA) {
-        $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-        $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));
-        $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
-        $remindersArray[$RA['messageID']]['message'] = $RA['message'];
-        $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
-    }
-
-        echo '<h4>' . xlt('Messages You have sent Today') . '</h4>';
-        echo '<table class="table table-bordered table-hover" id="logTable">
-                <thead>
-                  <tr>
-                    <th>' . xlt('ID') . '</th>
-                    <th>' . xlt('To{{Destination}}') . '</th>
-                    <th>' . xlt('Patient') . '</th>
-                    <th>' . xlt('Message') . '</th>
-                    <th>' . xlt('Due Date') . '</th>
-                  </tr>
-                </thead>
-                <tbody>';
-
-    foreach ($remindersArray as $RA) {
-        echo '<tr class="heading">
-                  <td>' . text($RA['messageID']) . '</td>
-                  <td>' . text($RA['ToName']) . '</td>
-                  <td>' . text($RA['PatientName']) . '</td>
-                  <td>' . text($RA['message']) . '</td>
-                  <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
-                </tr>';
-    }
-
-        echo '</tbody></table></fieldset><div>';
-    ?>
+        </div>
     </div><!--end of container div-->
   <script>
     $(function () {
