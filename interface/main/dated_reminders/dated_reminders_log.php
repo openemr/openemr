@@ -234,6 +234,14 @@ if ($_GET) {
                                 </div>
                             </div>
                         </div>
+                        <div class="card-footer">
+                            <button type="button" id="submitForm" class="btn btn-primary">
+                                <i class="fa fa-refresh mr-1"></i><?php echo xlt('Apply Filters') ?>
+                            </button>
+                            <button type="reset" class="btn btn-secondary ml-1">
+                                <i class="fa fa-eraser mr-1"></i><?php echo xlt('Reset') ?>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
