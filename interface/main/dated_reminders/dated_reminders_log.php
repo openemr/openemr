@@ -243,11 +243,12 @@ if ($_GET) {
         </div>
     </div><!--end of container div-->
     <script>
-       $('#show_hide').click(function() {
+        $('#show_hide').click(function() {
             var elementTitle = $('#show_hide').prop('title');
             var hideTitle = '<?php echo xla('Click to Hide Filters'); ?>';
             var showTitle = '<?php echo xla('Click to Show Filters'); ?>';
-            $('.hideaway').toggle('1000');
+
+            $('.filter-section').toggle('1000');
             $(this).toggleClass('fa-eye-slash fa-eye');
             if (elementTitle == hideTitle) {
                 elementTitle = showTitle;
