@@ -211,7 +211,7 @@ if (isset($this_message['pid'])) {
           // todo : check if they are all numeric , no rush as this is checked in the php after the post
 
           if (!$("#sendTo option:selected").length){
-             errorMessage = errorMessage + '* <?php echo xla('Please Select A Recipient') ?><br />';
+             errorMessage = errorMessage + '* <?php echo xla('Please select a recipient') ?><br />';
           }
 
 
@@ -348,10 +348,6 @@ if (isset($this_message['pid'])) {
                 </div>
             </div>
 
-            <div class="form-group row mt-3">
-                <div class="col-5">
-                    <label for="dueDate"><?php echo xlt('Due Date') ?>:</label>
-                    <input type='text' class='datepicker form-control' name='dueDate' id="dueDate" value="<?php echo ($this_message['dueDate'] == '' ? oeFormatShortDate() : attr(oeFormatShortDate($this_message['dueDate']))); ?>" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                 </div>
                 <div class="col-2">
                     <label for="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
@@ -359,33 +355,21 @@ if (isset($this_message['pid'])) {
                 </div>
                 <div class="col-5">
                     <label for="timeSpan"><?php echo xlt('Select a Time Span') ?>:</label>
-                    <select id="timeSpan" class="form-control">
-                        <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
+            <div class="col-12 mt-4">
                         <?php
                         $optionTxt = '';
                         foreach ($dateRanges as $val => $txt) {
                             $optionTxt .= '<option value="' . attr($val) . '">' . text($txt) . '</option>';
+                        $TempRemindersArray = logRemindersArray();
+                        $remindersArray = array();
+                        foreach ($TempRemindersArray as $RA) {
+                            $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
+                            $remindersArray[$RA['messageID']]['ToName'] = ((!empty($remindersArray[$RA['messageID']]['ToName'])) ? $remindersArray[$RA['messageID']]['ToName'] . ', ' . ($RA['ToName'] ?? '') : ($RA['ToName'] ?? ''));
+                            $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
+                            $remindersArray[$RA['messageID']]['message'] = $RA['message'];
+                            $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
                         }
-                        echo $optionTxt;
-                        ?>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group row mt-3">
-                <div class="col-2 text-right">
-                    <label for="priority"><?php echo xlt('Priority') ?>:</label>
-                </div>
-                <div class="col-10">
-                    <label class="radio-inline"><input <?php echo ($this_message['message_priority'] == 3 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_3" value='3'><strong><?php echo xlt('Low{{Priority}}') ?></strong>
-                    </label>
-                    <label class="radio-inline"><input type="radio" name="optradio" class="d-none" /><input <?php echo ($this_message['message_priority'] == 2 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_2" value='2'><strong><?php echo xlt('Medium{{Priority}}') ?></strong>
-                    </label>
                     <label class="radio-inline"><input type="radio" name="optradio" class="d-none" /><input <?php echo ($this_message['message_priority'] == 1 ? 'checked="checked"' : '') ?> type="radio" name="priority" id="priority_1" value='1'><strong><?php echo xlt('High{{Priority}}') ?></strong>
-                    </label>
-                </div>
-            </div>
-
             <div class="form-group mt-3">
                 <label class="text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
                 <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" class="form-control text-left" rows="5" name="message" id="message" placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text'] ?? '');?></textarea>
