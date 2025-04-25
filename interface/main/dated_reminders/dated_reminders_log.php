@@ -148,68 +148,90 @@ if ($_GET) {
         }
         ?>
         <div class="row">
-            <div class="col-12">
-                <h2><?php echo xlt('Dated Message Log');?> &nbsp;<i id="show_hide" class="fa fa-eye-slash fa-2x small" data-toggle="tooltip" data-placement="top" title="<?php echo xla('Click to Hide Filters'); ?>"></i></h2>
+            <div class="col-12 mb-2">
+                <h2 class="title">
+                    <?php echo xlt('Dated Message Log'); ?>
+                    <i id="show_hide" class="fa fa-eye-slash ml-2" data-toggle="tooltip" data-placement="top" title="<?php echo xla('Click to Hide Filters'); ?>"></i>
+                </h2>
             </div>
-            <div class="col-12 hideaway">
+            <div class="col-12 filter-section mb-3">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset>
-                        <legend><?php echo xlt('Filters') ?></legend>
-                        <h5><?php echo xlt('Date The Message Was Sent');?></h5>
-                        <div class="form-group row">
-                            <div class="col-12 col-md-6">
-                                <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
-                                <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="col-form-label" for="ed"><?php echo xlt('End Date') ?>:</label>
-                                <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
-                            </div>
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><?php echo xlt('Filters') ?></h5>
                         </div>
-                        <div class="form-group row">
-                            <div class="col-12 col-md-6">
-                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
-                                <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
-                                    <?php
-                                    if ($isAdmin) {
-                                        foreach ($allUsers as $user) {
-                                            echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
+                        <div class="card-body">
+                            <div class="section-header mb-2">
+                                <h6 class="text-muted"><?php echo xlt('Message Date Range');?></h6>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-12 col-md-6">
+                                    <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
+                                    <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="col-form-label" for="ed"><?php echo xlt('End Date') ?>:</label>
+                                    <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
+                                </div>
+                            </div>
+
+                            <div class="section-header mt-4 mb-2">
+                                <h6 class="text-muted"><?php echo xlt('Message Participants');?></h6>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-12 col-md-6">
+                                    <label class="col-form-label" for="sentBy">
+                                        <?php echo xlt('Sent By');?>:
+                                        <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
+                                    </label>
+                                    <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
+                                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                        <?php
+                                        if ($isAdmin) {
+                                            foreach ($allUsers as $user) {
+                                                echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
+                                            }
                                         }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
-                                <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
-                                    <?php
-                                    if ($isAdmin) {
-                                        foreach ($allUsers as $user) {
-                                            echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
+                                        ?>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        <?php echo xlt('([ctrl] + click or [cmd] + click on Mac to select multiple)'); ?>
+                                    </small>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="col-form-label" for="sentTo">
+                                        <?php echo xlt('Sent To');?>:
+                                        <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
+                                    </label>
+                                    <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
+                                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                        <?php
+                                        if ($isAdmin) {
+                                            foreach ($allUsers as $user) {
+                                                echo '<option value="' . attr($user['id']) . '">' . text($user['fname'] . ' ' . $user['mname'] . ' ' . $user['lname']) . '</option>';
+                                            }
                                         }
-                                    }
-                                    ?>
-                                </select>
+                                        ?>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        <?php echo xlt('([ctrl] + click or [cmd] + click on Mac to select multiple)'); ?>
+                                    </small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
-                                </label>
-                                <label>
-                                    <input type="checkbox" name="pending" id="pending"><?php echo xlt('Pending') ?>
-                                </label>
+
+                            <div class="section-header mt-4 mb-2">
+                                <h6 class="text-muted"><?php echo xlt('Message Status');?></h6>
                             </div>
-                        </div>
-                    </fieldset>
-                    <div class="form-group row">
-                        <div class="col-sm-12 position-override">
-                            <div class="btn-group form-group" role="group">
-                                <button type="button" value="Refresh" id="submitForm" class="btn btn-secondary btn-refresh" ><?php echo xlt('Refresh') ?></button>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" name="processed" id="processed">
+                                    <label class="custom-control-label" for="processed"><?php echo xlt('Processed') ?></label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" name="pending" id="pending">
+                                    <label class="custom-control-label" for="pending"><?php echo xlt('Pending') ?></label>
+                                </div>
                             </div>
                         </div>
                     </div>
