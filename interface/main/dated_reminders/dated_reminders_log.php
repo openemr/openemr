@@ -35,23 +35,6 @@ if ($_GET) {
         }
     }
 
-    echo '  <div class="col-12">
-            <h4>' . xlt('Click and drag bottom right corner to resize this display') . '</h4>
-            <table class="table table-bordered"  id="logTable">
-                <thead>
-                  <tr>
-                    <th>' . xlt('ID') . '</th>
-                    <th>' . xlt('Sent Date') . '</th>
-                    <th>' . xlt('From') . '</th>
-                    <th>' . xlt('To{{Destination}}') . '</th>
-                    <th>' . xlt('Patient') . '</th>
-                    <th>' . xlt('Message') . '</th>
-                    <th>' . xlt('Due Date') . '</th>
-                    <th>' . xlt('Processed Date') . '</th>
-                    <th>' . xlt('Processed By') . '</th>
-                  </tr>
-                </thead>
-                <tbody>';
     $remindersArray = array();
     $TempRemindersArray = logRemindersArray();
     foreach ($TempRemindersArray as $RA) {
@@ -66,21 +49,57 @@ if ($_GET) {
         $remindersArray[$RA['messageID']]['fromName'] = $RA['fromName'];
     }
 
-    foreach ($remindersArray as $RA) {
-        echo '<tr class="heading">
-              <td>' . text($RA['messageID']) . '</td>
-              <td>' . text(oeFormatDateTime($RA['sDate'])) . '</td>
-              <td>' . text($RA['fromName']) . '</td>
-              <td>' . text($RA['ToName']) . '</td>
-              <td>' . text($RA['PatientName']) . '</td>
-              <td>' . text($RA['message']) . '</td>
-              <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
-              <td>' . text(oeFormatDateTime($RA['pDate'])) . '</td>
-              <td>' . text($RA['processedByName']) . '</td>
-            </tr>';
+    echo '<div class="row">
+            <div class="col-12 results-section mb-3">';
+
+    if (empty($remindersArray)) {
+        echo '<div class="alert alert-info text-center mt-3 mb-3">' . xlt('No Messages Found') . '</div>';
+    } else {
+        echo '<div class="card mt-3 mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">' . xlt('Message Results') . '</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="logTable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>' . xlt('ID') . '</th>
+                                    <th>' . xlt('Sent Date') . '</th>
+                                    <th>' . xlt('From') . '</th>
+                                    <th>' . xlt('To{{Destination}}') . '</th>
+                                    <th>' . xlt('Patient') . '</th>
+                                    <th>' . xlt('Message') . '</th>
+                                    <th>' . xlt('Due Date') . '</th>
+                                    <th>' . xlt('Processed Date') . '</th>
+                                    <th>' . xlt('Processed By') . '</th>
+                                </tr>
+                            </thead>
+                            <tbody>';
+
+        foreach ($remindersArray as $RA) {
+            echo '<tr>
+                    <td>' . text($RA['messageID']) . '</td>
+                    <td>' . text(oeFormatDateTime($RA['sDate'])) . '</td>
+                    <td>' . text($RA['fromName']) . '</td>
+                    <td>' . text($RA['ToName']) . '</td>
+                    <td>' . text($RA['PatientName']) . '</td>
+                    <td>' . text($RA['message']) . '</td>
+                    <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
+                    <td>' . text(oeFormatDateTime($RA['pDate'])) . '</td>
+                    <td>' . text($RA['processedByName']) . '</td>
+                </tr>';
+        }
+
+        echo '</tbody>
+            </table>
+            </div>
+        </div>
+        </div>';
     }
 
-    echo '</tbody></table></div>';
+    echo '</div>
+        </div>';
 
     die;
 }
