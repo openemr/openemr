@@ -101,7 +101,7 @@ class DocumentService extends BaseService
 
         $categoryId = $this->getLastIdOfPath($path);
 
-        $documentsSql  = " SELECT doc.url, doc.id, doc.mimetype, doc.docdate";
+        $documentsSql  = " SELECT doc.id, doc.mimetype, doc.docdate, doc.name, doc.hash";
         $documentsSql .= " FROM documents doc";
         $documentsSql .= " JOIN categories_to_documents ctd on ctd.document_id = doc.id";
         $documentsSql .= " WHERE ctd.category_id = ? and doc.foreign_id = ? and doc.deleted = 0";
@@ -111,7 +111,8 @@ class DocumentService extends BaseService
         $fileResults = array();
         while ($row = sqlFetchArray($documentResults)) {
             array_push($fileResults, array(
-                "filename" => basename($row["url"]),
+                "filename" => $row["name"],
+                "hash" => $row["hash"],
                 "id" =>  $row["id"],
                 "mimetype" =>  $row["mimetype"],
                 "docdate" =>  $row["docdate"]
@@ -157,12 +158,12 @@ class DocumentService extends BaseService
 
     public function getFile($pid, $did)
     {
-        $filenameSql = sqlQuery("SELECT `url`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
+        $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
 
-        if (empty(basename($filenameSql['url']))) {
+        if (empty($filenameSql['name'])) {
             $filename = "unknownName";
         } else {
-            $filename = basename($filenameSql['url']);
+            $filename = $filenameSql['name'];
         }
 
         $obj = new \C_Document();
