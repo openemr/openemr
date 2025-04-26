@@ -140,7 +140,6 @@ function tabCloseByName(name)
 
 function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
-
     top.restoreSession();
     if($("iframe[name='"+name+"']").length>0)
     {
@@ -306,7 +305,6 @@ function popMenuDialog(url, title) {
 
 function menuActionClick(data,evt)
 {
-
     // Yet another menu fixup for legacy 'popup'.
     // let's abandon a tab and call a support function from this view.
     // we'll take along uri and current menu label as title for dialog.
@@ -348,6 +346,10 @@ function menuActionClick(data,evt)
 
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
+            // Send telemetry event. This is sent after the tab is activated to ensure the tab is visible.
+            if (top.allowTelemetry) {
+                reportMenuClickData(data);
+            }
         },xl("Loading") + " " + dataLabel);
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
@@ -370,6 +372,29 @@ function menuActionClick(data,evt)
         }
     }
 
+}
+
+function reportMenuClickData(data, evt = 'menuClick') {
+    top.restoreSession();
+    const clickEventData = {
+        action: 'reportMenuClickData',
+        eventType: evt,
+        eventLabel: data.label(),
+        eventUrl: data.url(),
+        eventTarget: data.target,
+        csrf_token_form: top.csrf_token_js,
+    };
+
+    let url = top.webroot_url + '/library/ajax/track_events.php';
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(clickEventData)
+    }).catch(error => {
+        console.error('reportMenu POST error:', error);
+    });
 }
 
 function clearPatient(openFinder = true)
