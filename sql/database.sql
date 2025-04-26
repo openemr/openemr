@@ -1154,6 +1154,7 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
 --
 -- Table structure for table `contact`
 --
+DROP TABLE IF EXISTS `contact`;
 CREATE TABLE `contact` (
    `id` BIGINT(20) NOT NULL auto_increment,
    `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
@@ -1166,7 +1167,8 @@ CREATE TABLE `contact` (
 --
 -- Table structure for table `contact_address`
 --
-CREATE TABLE `contact_address` (
+DROP TABLE IF EXISTS `contact_address`;
+    CREATE TABLE `contact_address` (
     `id` BIGINT(20) NOT NULL auto_increment,
     `contact_id` BIGINT(20) NOT NULL,
     `address_id` BIGINT(20) NOT NULL,
@@ -1538,7 +1540,7 @@ CREATE TABLE `eligibility_verification` (
 --
 -- Table structure for table `email_queue`
 --
-
+DROP TABLE IF EXISTS `email_queue`;
 CREATE TABLE `email_queue` (
   `id` bigint NOT NULL auto_increment,
   `sender` varchar(255) DEFAULT '',
@@ -1782,7 +1784,7 @@ CREATE TABLE  `facility_user_ids` (
   KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
------------------------------------------------------------
+-- ---------------------------------------------------------
 
 --
 -- Table structure for table `fee_schedule`
@@ -1802,7 +1804,7 @@ CREATE TABLE `fee_schedule` (
     UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 
------------------------------------------------------------
+-- ---------------------------------------------------------
 
 --
 -- Table structure for table `fee_sheet_options`
@@ -12227,9 +12229,14 @@ CREATE TABLE `form_taskman` (
 
 DROP TABLE IF EXISTS `product_registration`;
 CREATE TABLE `product_registration` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NULL,
-  `opt_out` TINYINT(1) NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(255) NULL,
+    `opt_out` TINYINT(1) NULL,
+    `auth_by_id` INT(11) NULL,
+    `telemetry_disabled` TINYINT(1) NULL COMMENT '1 opted out, disabled. NULL ask. 0 use option scopes',
+    `last_ask_date` DATETIME NULL,
+    `last_ask_version`TINYTEXT,
+    `options` TEXT COMMENT 'JSON array of scope options',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
@@ -13396,6 +13403,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('rec
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'lname', 'Last Name', '30');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'DOB', 'Date of Birth', '40');
 
+DROP TABLE IF EXISTS `recent_patients`;
 CREATE TABLE recent_patients (
     user_id varchar(40) NOT NULL,
     patients TEXT,
@@ -13654,6 +13662,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZM', 'Zambian', '2490', '0', '0', '', 'Zambia', 'ZMB:894');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
 
+DROP TABLE IF EXISTS `dsi_source_attributes`;
 CREATE TABLE `dsi_source_attributes` (
  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
  `client_id` VARCHAR(80) NOT NULL,
@@ -13718,3 +13727,22 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_dob', 'Intervention use of date of birth as expressed in the standards in US § 170.213', 110);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_sdoh', 'Intervention use of social determinants of health data as expressed in the standards in US § 170.213', 120);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('dsi_evidence_source_attributes', 'evidence_based_health_status', 'Intervention use of health status assessments data as expressed in the standards in US § 170.213', 130);
+
+-- -----------------------------------------------------
+--
+-- Table structure for table 'track_events'
+--
+
+DROP TABLE IF EXISTS `track_events`;
+CREATE TABLE `track_events` (
+    `id`                  INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `event_type`     TEXT,
+    `event_label`    VARCHAR(255) DEFAULT NULL,
+    `event_url`       TEXT,
+    `event_target`  TEXT,
+    `first_event`     DATETIME NULL,
+    `last_event`     DATETIME NULL,
+    `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_event_label` (`event_label`)
+) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';

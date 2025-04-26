@@ -7,6 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Victor Kofia <victor.kofia@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -29,22 +30,34 @@ class ProductRegistrationService
     {
         $row = sqlQuery("SELECT * FROM `product_registration`");
 
-        if (!empty($row)) {
-            $email = $row['email'];
-            $optOut = $row['opt_out'];
+        if (empty($row)) {
+            $row = [];
         }
 
-        if (empty($row)) {
-            $row = ['statusAsString' => 'UNREGISTERED'];
+        $email = $row['email'] ?? '';
+        $optOut = $row['opt_out'] ?? null;
+        $telemetry_disabled = $row['telemetry_disabled'] ?? null;
+
+        if (empty($row) || $optOut == null) {
+            $row['statusAsString'] = 'UNREGISTERED';
         } elseif (!empty($email)) {
             $row['statusAsString'] = 'REGISTERED';
-        } elseif (!empty($optOut) && $optOut == 1) {
+        } elseif ($optOut == 1) {
             $row['statusAsString'] = 'OPT_OUT';
+        }
+
+        $row['allowTelemetry'] = $telemetry_disabled === null ? 1 : null;
+        $row['allowRegisterDialog'] = 0;
+        if ($telemetry_disabled == null || $optOut == null) {
+            $row['allowRegisterDialog'] = 1;
         }
 
         return $row;
     }
 
+    /**
+     * @throws \GenericProductRegistrationException
+     */
     public function registerProduct($email)
     {
         if (!$email || $email == 'false') {
