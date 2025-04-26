@@ -112,30 +112,3 @@ function getApptStatus($appointments)
 {
     return PatientTrackerService::getApptStatus($appointments);
 }
-
-/**
- * Checks if an encounter of form is signed
- * @param int $appt_enc Encounter ID (must be positive integer)
- * @return bool Returns false on any error or if not signed
- */
-function is_signed(int $appt_enc): bool
-{
-    if ($appt_enc <= 0) {
-        return false;
-    }
-
-    try {
-        $signed = sqlQuery(
-            "SELECT is_lock FROM esign_signatures
-                   WHERE tid IN
-                         (SELECT id FROM `forms` WHERE `encounter` = ?) OR
-                   tid IN (SELECT id FROM `form_encounter` WHERE `encounter` = ?)",
-            [$appt_enc, $appt_enc]
-        );
-
-        return !empty($signed) && $signed['is_lock'] == 1;
-    } catch (Exception $e) {
-        error_log('Signature check failed for encounter ' . $appt_enc . ': ' . $e->getMessage());
-        return false;
-    }
-}

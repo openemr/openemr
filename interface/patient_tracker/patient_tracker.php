@@ -623,11 +623,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
                                 $signed = false;
+                                $isLocked = false;
                                 if ($appt_enc != 0) {
-                                    $signed = is_signed($appt_enc);
+                                    $signable = new ESign\Encounter_Signable($appt_enc);
+                                    // Check lock status - returns boolean
+                                    $isLocked = $signable->isLocked();
                                     echo text($appt_enc);
                                 }
-                                if ($signed) {
+                                if ($isLocked) {
                                     echo "<span class='text-success' title='" . xlt('Signed')
                                     . "'>&nbsp;&nbsp;<i class='fa fa-lock'></i></span>";
                                 }
