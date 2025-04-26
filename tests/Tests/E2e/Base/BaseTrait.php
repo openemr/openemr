@@ -49,13 +49,13 @@ trait BaseTrait
                 }
             });
         }
-        $startTime = (int) (microtime(true) * 1000);
+        $startTime = (int)(microtime(true) * 1000);
         if (str_contains($loading, "||")) {
             // have 2 $loading to check
             $loading = explode("||", $loading);
             while (
                 str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[0]) ||
-                   str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
+                str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
             ) {
                 if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
                     $this->fail("Timeout waiting for tab [$text]");
@@ -82,9 +82,9 @@ trait BaseTrait
     {
         $this->client->waitFor(XpathsConstants::MODAL_TITLE);
         $this->crawler = $this->client->refreshCrawler();
-        $startTime = (int) (microtime(true) * 1000);
+        $startTime = (int)(microtime(true) * 1000);
         while (empty($this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text())) {
-            if (($startTime + 10000) < ((int) (microtime(true) * 1000))) {
+            if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
                 $this->fail("Timeout waiting for popup [$text]");
             }
             usleep(100);
@@ -94,6 +94,7 @@ trait BaseTrait
 
     private function goToMainMenuLink(string $menuLink): void
     {
+        // wait for the main menu to be visible
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
         // got to and click the menu link
