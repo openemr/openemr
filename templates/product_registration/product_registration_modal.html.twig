@@ -24,10 +24,10 @@ Product Registration modal
                         <input placeholder="{{ "email"|xla }}" type="email" id="email" class="email w-100 text-body form-control" value="" />
                         <p class="message font-italic"></p>
                     </div>
-                {% endif %}
-                {% if allowTelemetry %}
                     <span class="font-italic"><small>{{ "Registration is not required for Anonymous Telemetry Opt-In" | xlt }}</small></span>
                     <hr>
+                {% endif %}
+                {% if allowTelemetry %}
                     <div class="form-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="allow_telemetry" id="allowTelemetry" name="allow_telemetry" checked>

@@ -22,14 +22,9 @@ header("Content-Type: application/json");
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // Retrieve current registration status
-    $sql = "SELECT * FROM product_registration LIMIT 1";
-    $row = sqlQuery($sql);
-    if ($row['opt_out'] !== null && $row['telemetry_disabled'] !== null) {
-        echo json_encode($row); // Both registration and telemetry answered
-    } else {
-        echo json_encode(["statusAsString" => "UNREGISTERED"]);
-    }
+    // retrieve if allowRegisterDialog
+    $allowRegisterDialog = (new ProductRegistrationService())->getProductStatus()['allowRegisterDialog'] ?? 0;
+    echo json_encode(["allowRegisterDialog" => $allowRegisterDialog]);
     exit;
 }
 

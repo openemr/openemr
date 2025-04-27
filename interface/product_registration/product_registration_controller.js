@@ -101,11 +101,4 @@ function ProductRegistrationController() {
             }
         });
     };
-
-    // If we are on the about_page, show the registration data.
-    self.displayRegistrationInformationIfDivExists = function (data) {
-        if ($('.product-registration').length > 0) {
-            $('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
-        }
-    };
 }
