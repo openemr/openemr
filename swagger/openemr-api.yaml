@@ -256,6 +256,29 @@ paths:
       security:
         -
           openemr_auth: []
+  /api/therapy_groups:
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of all therapy groups.'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      description: 'Creates a new therapy group.'
+      security:
+        -
+          openemr_auth: []
+  '/api/therapy_groups/:tgid/participants':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of all participants in a therapy group.'
+      security:
+        -
+          openemr_auth: []
   '/api/facility/{fuuid}':
     get:
       tags:
@@ -674,6 +697,45 @@ paths:
                   data: { encounter: 1, uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef }
         '401':
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/therapy_groups':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of therapy groups for a single patient'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/therapy_group/{pgid}':
+    put:
+      tags:
+        - standard
+      description: 'Adds a patient to a therapy group'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: pgid
+          in: path
+          description: 'The id for the therapy group.'
+          required: true
+          schema:
+            type: string
       security:
         -
           openemr_auth: []
@@ -8179,6 +8241,8 @@ components:
             user/soap_note.write: 'Write soap notes the user has access to (api:oemr)'
             user/surgery.read: 'Read surgeries the user has access to (api:oemr)'
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
+            user/therapy_groups.read: 'Read therapy groups the user has access to (api:oemr)'
+            user/therapy_groups.write: 'Write therapy groups the user has access to (api:oemr)'
             user/transaction.read: 'Read transactions the user has access to (api:oemr)'
             user/transaction.write: 'Write transactions the user has access to (api:oemr)'
             user/user.read: 'Read users the current user has access to (api:oemr)'
