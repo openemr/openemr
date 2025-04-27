@@ -120,3 +120,42 @@ ALTER TABLE `onetime_auth` ADD `profile` tinytext COMMENT 'profile of scope for 
 #IfMissingColumn onetime_auth onetime_actions
 ALTER TABLE `onetime_auth` ADD `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token';
 #EndIf
+
+UPDATE `list_options`
+SET `notes` = '{"form_title":{"presence": {"message": "Title Required"}}}'
+WHERE `list_id` = 'page_validation' AND `option_id` = 'add_edit_event#theform_prov' AND `title` = '/interface/main/calendar/add_edit_event.php?prov=true' AND `notes` = '{}';
+
+#IfNotTable track_events
+CREATE TABLE `track_events` (
+    `id`                  INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `event_type`     TEXT,
+    `event_label`    VARCHAR(255) DEFAULT NULL,
+    `event_url`       TEXT,
+    `event_target`  TEXT,
+    `first_event`     DATETIME NULL,
+    `last_event`     DATETIME NULL,
+    `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_event_label` (`event_label`)
+) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';
+#EndIf
+
+#IfMissingColumn product_registration auth_by_id
+ALTER TABLE `product_registration` ADD `auth_by_id` INT(11) NULL;
+#EndIf
+
+#IfMissingColumn product_registration telemetry_disabled
+ALTER TABLE `product_registration` ADD `telemetry_disabled` TINYINT(1) NULL COMMENT '1 disabled. NULL ask. 0 use option scopes';
+#EndIf
+
+#IfMissingColumn product_registration last_ask_date
+ALTER TABLE `product_registration` ADD `last_ask_date` DATETIME NULL;
+#EndIf
+
+#IfMissingColumn product_registration last_ask_version
+ALTER TABLE `product_registration` ADD `last_ask_version` TINYTEXT;
+#EndIf
+
+#IfMissingColumn product_registration options
+ALTER TABLE `product_registration` ADD `options` TEXT COMMENT 'JSON array of scope options';
+#EndIf
