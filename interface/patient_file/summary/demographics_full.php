@@ -417,7 +417,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
 <input type="hidden" name="isSwapClicked" value="" />
 
-    <div class="container-xl">
+    <div class="container-fluid">
         <div class="row">
             <?php if (FormActionBarSettings::shouldDisplayTopActionBar()) { ?>
             <div class="col-12">
@@ -445,7 +445,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 $condition_str = '';
 ?>
 <br />
-<div class='container-xl demographicsEditContainer'>
+<div class='container-fluid demographicsEditContainer'>
     <div class="section-header">
         <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
     </div>
@@ -458,7 +458,7 @@ $condition_str = '';
     </div>
 </div>
 <?php if (FormActionBarSettings::shouldDisplayBottomActionBar()) { ?>
-<div class="container-xl">
+<div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <hr>
