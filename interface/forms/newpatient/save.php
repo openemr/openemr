@@ -107,13 +107,14 @@ if (!empty($encounter_type)) {
 }
 //RM - class_code can't be empty - use default class or if default not set take first in the list
 if (empty($class_code)) {
-    // use defualt from Value Set ActEncounterCode list
+    // use default from Value Set ActEncounterCode list
     $listService = new ListService();
     $option = $listService->getOptionsByListName('_ActEncounterCode'); //get all classes
     // find the default
     foreach ($option as $code) {
         if ($code['is_default']) {
             $class_code = $code['option_id'];
+            break;
         }
     }
     if (empty($class_code)) {
