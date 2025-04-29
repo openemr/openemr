@@ -599,7 +599,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             data-pid="' . attr($appointment['pc_pid']) . '"
                             data-pname="' . attr($ptname) . '"
                             class="text-small"
-                            style="background-color:' . attr($bgcolor) . ';" >';
+                            style="background-color:#' . attr($bgcolor) . ';" >';
 
                         if ($GLOBALS['ptkr_show_pid']) {
                             ?>
