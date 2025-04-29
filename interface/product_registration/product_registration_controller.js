@@ -26,7 +26,6 @@ function ProductRegistrationController() {
         }
         $('.product-registration-modal .email').remove();
         _closeModal(2000);
-        self.displayRegistrationInformationIfDivExists(data);
     };
     const _formCancellationHandler = function () {
         _closeModal();
