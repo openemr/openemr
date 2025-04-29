@@ -52,7 +52,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
-            let dateRange = new Date(new Date().setDate(new Date().getDate() - 2));
+            let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));
             $("#fromdate").val(dateRange.toJSON().slice(0, 10));
             $("#todate").val(new Date().toJSON().slice(0, 10));
 
