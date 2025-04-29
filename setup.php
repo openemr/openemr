@@ -1493,7 +1493,26 @@ STP4TOP;
                     $post_max_size = ini_get('post_max_size');
                     $post_max_size_style = $post_max_size < 30 ? 'text-danger' : '';
                     $memory_limit = ini_get('memory_limit');
-                    $memory_limit_style = $memory_limit < 256 ? 'text-danger' : '';
+                    // Convert from shorthand to M
+                    if (preg_match('/^(\d+)([KMG]?)$/', $memory_limit, $matches)) {
+                        switch ($matches[2]) {
+                            case 'K':
+                                $memory_limit_mb = intdiv($matches[1], 1024);
+                                break;
+                            case 'M':
+                                $memory_limit_mb = (int)$matches[1];
+                                break;
+                            case 'G':
+                                $memory_limit_mb = $matches[1] * 1024;
+                                break;
+                            case '':
+                                $memory_limit_mb = intdiv($matches[1], 1024 * 1024);
+                                break;
+                        }
+                    } else {
+                        $memory_limit_mb = intdiv($memory_limit, 1024 * 1024);
+                    }
+                    $memory_limit_style = $memory_limit_mb < 512 ? 'text-danger' : '';
                     $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
                     $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
@@ -1541,7 +1560,7 @@ STP4TOP;
                                 </tr>
                                 <tr>
                                     <td>memory_limit</td>
-                                    <td>at least 256M</td>
+                                    <td>at least 512M</td>
                                     <td class='" . attr($memory_limit_style) . "'>" . text($memory_limit) . "</td>
                                 </tr>
                                 <tr>
@@ -1794,7 +1813,8 @@ FRM;
                                         <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                     </form>
 FRM;
-                        echo $form . "\r\n";                        }
+                        echo $form . "\r\n";
+                    }
             }
                         $bot = <<<BOT
                                     </div>
