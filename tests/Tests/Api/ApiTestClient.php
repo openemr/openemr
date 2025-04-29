@@ -139,7 +139,14 @@ class ApiTestClient
             "scope" => $scope
         ];
         $clientResponse = $this->post($authURL . '/registration', $clientBody);
-        $clientResponseBody = json_decode($clientResponse->getBody());
+        if ($clientResponse->getStatusCode() >= 400) {
+            throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
+        }
+        $clientResponseBodyRaw = $clientResponse->getBody();
+        $clientResponseBody = json_decode($clientResponseBodyRaw);
+        if ($clientResponseBody === null) {
+            throw new \RuntimeException("Client registration response could not be decoded");
+        }
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
