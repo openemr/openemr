@@ -99,8 +99,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         );
         ?>
 
-        const brandElement = $(".brand");
-
         const sendFax = function (filePath, from = '') {
             let btnClose = <?php echo xlj("Cancel"); ?>;
             let title = <?php echo xlj("Send To Contact"); ?>;
@@ -481,7 +479,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             const msgDetailsBody = $("#msgdetails tbody");
 
             // Start loading animation
-            brandElement.addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             rcvDetailsBody.empty();
             sentDetailsBody.empty();
             msgDetailsBody.empty();
@@ -492,8 +490,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 'datefrom': datefrom,
                 'dateto': dateto
             }, null, 'json').done(function (data) {
-                brandElement.removeClass('fa fa-spinner fa-spin');
                 if (data.error) {
+                    $(".brand").removeClass('fa fa-spinner fa-spin');
                     alertMsg(data.error);
                     return false;
                 }
@@ -502,15 +500,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 sentDetailsBody.append(data[1]);
                 msgDetailsBody.append(data[2]);
 
-                // Get call logs if the service type is SMS
-                if (serviceType === 'sms') {
+                if (serviceType) {
                     getLogs();
                 }
             }).fail(function (xhr, status, error) {
                 const message = `Error: ${error || 'Request to fetch pendings failed with Unknown error!'}`;
                 alertMsg(message, 10000);
             }).always(function () {
-                brandElement.removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
@@ -592,13 +589,13 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 console.log('Session restore failed!');
             }
 
-            brandElement.addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             let actionUrl = 'fetchTextMessage?type=sms';
             $.post(actionUrl, {
                 'id': id,
                 'uri': uri
             }, null, 'json').done(function (data) {
-                brandElement.removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
                 if (data.error) {
                     alertMsg(data.error);
                     return false;
@@ -609,7 +606,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 alertMsg(message, 10000);
                 console.error('Request failed: ', status, error);
             }).always(function () {
-                brandElement.removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
