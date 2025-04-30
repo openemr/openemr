@@ -68,7 +68,6 @@
 #     2. docker-compose up -d
 #    Can see databases via http://localhost:8200
 #
-version: '3.1'
 services:
   openemr-8-0:
     restart: always
