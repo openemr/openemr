@@ -79,18 +79,12 @@ class ProductRegistrationService
         $email = $row['email'] ?? '';
         $optOut = $row['opt_out'] ?? null;
 
-        if (empty($row) || $optOut == null) {
-            $statusAsString = 'UNREGISTERED';
-        } elseif (!empty($email)) {
-            $statusAsString = 'REGISTERED';
-        } elseif ($optOut == 1) {
-            $statusAsString = 'OPT_OUT';
-        } else {
-            // This should never happen, but just in case
-            $statusAsString = 'UNKNOWN';
-        }
-
-        return $statusAsString;
+        return match (true) {
+            empty($row) || $optOut === null => 'UNREGISTERED',
+            !empty($email) => 'REGISTERED',
+            $optOut == 1 => 'OPT_OUT',
+            default => 'UNKNOWN', // This should never happen, but just in case
+        };
     }
 
     /**

@@ -179,6 +179,7 @@ This is a listing of scopes:
   - `user/practitioner.write`
   - `user/prescription.read`
   - `user/procedure.read`
+  - `user/product.read`
   - `user/soap_note.read`
   - `user/soap_note.write`
   - `user/surgery.read`
