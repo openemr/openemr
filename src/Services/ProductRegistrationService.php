@@ -132,7 +132,7 @@ class ProductRegistrationService
                 if ($entry) {
                     sqlStatement("UPDATE `product_registration` SET `email` = ?, `opt_out` = 0, `last_ask_version` = ? WHERE `id` = ?", [$email, $currentVersion, $entry]);
                 } else {
-                    sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (?, 0)", [$email, $currentVersion]);
+                    sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (?, 0, ?)", [$email, $currentVersion]);
                 }
                 return $email;
                 break;

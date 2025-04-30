@@ -19,7 +19,7 @@ Product Registration modal
                 {% if allowEmail %}
                     <div class="form-group">
                         <p class="context">
-                            {{ "We kindly ask you to take a moment to register your installation by providing an email. This ensures you receive timely updates, security alerts, and critical announcements from the OpenEMR Foundation."|xlt }}
+                            {{ "We kindly ask you to take a moment to register your installation by providing an email. This ensures you receive timely updates, security alerts, and critical announcements from the OpenEMR Foundation. You can opt out of this by simply leaving this field blank."|xlt }}
                         </p>
                         <input placeholder="{{ "email"|xla }}" type="email" id="email" class="email w-100 text-body form-control" value="" />
                         <p class="message font-italic"></p>
@@ -45,7 +45,7 @@ Product Registration modal
                 {% endif %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary submit">{{ "Submit"|xlt }}</button>
+                <button type="button" class="btn btn-primary submit"><span id="submit_registration_loader" class="fa fa-spinner fa-spin" style="display: none;"></span> {{ "Submit"|xlt }}</button>
                 <button type="button" class="btn btn-secondary nothanks">{{ "Ask again later"|xlt }}</button>
             </div>
         </div>

@@ -38,10 +38,11 @@ if ($method === 'POST') {
 
     if ($allowEmail) {
         $email = trim($_POST['email'] ?? '');
+
         // validate email address
         if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             http_response_code(400);
-            echo json_encode(["error" => "Invalid email"]);
+            echo json_encode(["message" => xlt("Invalid email")]);
             exit;
         }
 
@@ -51,7 +52,7 @@ if ($method === 'POST') {
         } catch (GenericProductRegistrationException $e) {
             // Handle the exception
             http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
             (new SystemLogger())->error(
                 "Product Email Registration Error, GenericProductRegistrationException occurred",
                 ['trace' => $e->getTraceAsString()]
@@ -60,7 +61,7 @@ if ($method === 'POST') {
         } catch (Exception $e) {
             // Handle any other exceptions
             http_response_code(500);
-            echo json_encode(["error" => "An internal error occurred while processing your request."]);
+            echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
             (new SystemLogger())->error(
                 "Product Email Registration Error, Exception occurred",
                 ['trace' => $e->getTraceAsString()]
@@ -70,7 +71,7 @@ if ($method === 'POST') {
 
         if (empty($email) && !is_null($submitRegistration)) {
             http_response_code(400);
-            echo json_encode(["error" => "An internal error occurred while processing your request."]);
+            echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
             (new SystemLogger())->error(
                 "Product Email Registration Error, error occurred on submit empty email",
                 ['email' => $email, 'submitRegistration' => $submitRegistration]
@@ -79,7 +80,7 @@ if ($method === 'POST') {
         }
         if (!empty($email) && ($submitRegistration != $email)) {
             http_response_code(400);
-            echo json_encode(["error" => "An internal error occurred while processing your request."]);
+            echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
             (new SystemLogger())->error(
                 "Product Email Registration Error, error occurred on submit '" . $email . "' email",
                 ['email' => $email, 'submitRegistration' => $submitRegistration]
@@ -122,7 +123,7 @@ if ($method === 'POST') {
         } else {
             // Error, should never happen
             http_response_code(400);
-            echo json_encode(["error" => "An internal error occurred while processing your request."]);
+            echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
             (new SystemLogger())->error(
                 "Product Telemetry Registration Error, missing entry",
                 ['id' => $id, 'auth_by_id' => $auth_by_id, 'telemetry_disabled' => $telemetry_disabled, 'last_ask_date' => $last_ask_date, 'last_ask_version' => $last_ask_version, 'options' => $options]
@@ -143,7 +144,7 @@ if ($method === 'POST') {
             echo json_encode(["success" => true, "email" => $email]);
         } else {
             http_response_code(500);
-            echo json_encode(["error" => "Failed to update registration"]);
+            echo json_encode(["message" => xlt("Failed to update registration")]);
             (new SystemLogger())->error(
                 "Product Telemetry Registration Error, failed to update registration",
                 ['id' => $id, 'auth_by_id' => $auth_by_id, 'telemetry_disabled' => $telemetry_disabled, 'last_ask_date' => $last_ask_date, 'last_ask_version' => $last_ask_version, 'options' => $options]
@@ -152,6 +153,6 @@ if ($method === 'POST') {
     }
 } else {
     http_response_code(405);
-    echo json_encode(["error" => "Method not allowed"]);
+    echo json_encode(["message" => "Method not allowed"]);
 }
 exit;
