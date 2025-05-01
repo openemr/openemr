@@ -35,7 +35,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
     <title>><?php echo xlt("Setup") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
-    echo "<script>let Service=" . js_escape($service) . "</script>";
+    echo "<script>let Service=" . js_escape($serviceType) . "</script>";
     ?>
     <script>
         $(function () {
@@ -79,10 +79,10 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     return false;
                 }
             });
-            if (Service === '2') {
-                $(".ringcentral").hide();
+            if (Service === 'fax') {
+                $(".smsHide").hide();
             } else {
-                $(".twilio").hide();
+                $(".faxHide").hide();
             }
         });
 
@@ -131,16 +131,17 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                             <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
                             <?php echo xlt("Production Check") ?>
                         </label>
+                        <p><?php echo xlt("Currently only JWT and Phone numbers are required as credentials."); ?></p>
                     </div>
                         <div class="form-group">
                             <label for="form_extension"><?php echo xlt("Extension") ?></label>
                             <input id="form_extension" type="text" name="extension" class="form-control" required="required" value='<?php echo attr($c['extension']) ?>'>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group faxHide">
                             <label for="form_phone"><?php echo xlt("FAX Phone Number") ?></label>
                             <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>'>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group smsHide">
                             <label for="form_smsnumber"><?php echo xlt("SMS Phone Number") ?></label>
                             <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control"
                                 value='<?php echo attr($c['smsNumber']) ?>'>

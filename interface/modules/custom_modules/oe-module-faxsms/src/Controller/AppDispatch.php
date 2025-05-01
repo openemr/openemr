@@ -564,18 +564,6 @@ abstract class AppDispatch
     }
 
     /**
-     * @return string|false
-     */
-    public function getPatientDetails(): bool|string
-    {
-        $id = $this->getRequest('pid');
-        $query = "SELECT fname, lname, phone_cell, email FROM patient_data WHERE pid = ?";
-        $result = sqlQuery($query, array($id));
-
-        return json_encode($result);
-    }
-
-    /**
      *
      * @param $email
      * @return bool

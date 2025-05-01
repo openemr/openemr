@@ -171,7 +171,7 @@ class TwilioSMSClient extends AppDispatch
                 ], 100);
             } catch (Exception $e) {
                 $message = $e->getMessage();
-                $emsg = xlt('Ensure account credentials are correct.');
+                $emsg = xlt('Report to Administration');
                 return json_encode(array('error' => $message . " : " . $emsg));
             }
 
@@ -210,7 +210,7 @@ class TwilioSMSClient extends AppDispatch
             }
         } catch (Exception $e) {
             $message = $e->getMessage();
-            $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
+            $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
             echo json_encode(array('error' => $responseMsgs));
             exit();
         }
