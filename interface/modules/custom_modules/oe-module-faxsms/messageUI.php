@@ -52,7 +52,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
-            let dateRange = new Date(new Date().setDate(new Date().getDate() - 7));
+            let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));
             $("#fromdate").val(dateRange.toJSON().slice(0, 10));
             $("#todate").val(new Date().toJSON().slice(0, 10));
 
@@ -98,6 +98,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
         );
         ?>
+
         const sendFax = function (filePath, from = '') {
             let btnClose = <?php echo xlj("Cancel"); ?>;
             let title = <?php echo xlj("Send To Contact"); ?>;
@@ -473,13 +474,12 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             const dateto = $('#todate').val();
 
             // Cache DOM elements
-            const brandElement = $(".brand");
             const rcvDetailsBody = $("#rcvdetails tbody");
             const sentDetailsBody = $("#sent-details tbody");
             const msgDetailsBody = $("#msgdetails tbody");
 
             // Start loading animation
-            brandElement.addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             rcvDetailsBody.empty();
             sentDetailsBody.empty();
             msgDetailsBody.empty();
@@ -490,9 +490,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 'datefrom': datefrom,
                 'dateto': dateto
             }, null, 'json').done(function (data) {
-                brandElement.removeClass('fa fa-spinner fa-spin');
-
                 if (data.error) {
+                    $(".brand").removeClass('fa fa-spinner fa-spin');
                     alertMsg(data.error);
                     return false;
                 }
@@ -501,16 +500,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 sentDetailsBody.append(data[1]);
                 msgDetailsBody.append(data[2]);
 
-                // Get call logs if the service type is SMS
-                if (serviceType === 'sms') {
+                if (serviceType) {
                     getLogs();
                 }
             }).fail(function (xhr, status, error) {
-                const message = `Error: ${error || 'Request to fetch pending new faxes failed with Unknown error!'}<br />Perhaps invalid or missing credentials. Verify, fix and try again if so.`;
+                const message = `Error: ${error || 'Request to fetch pendings failed with Unknown error!'}`;
                 alertMsg(message, 10000);
-                console.error('Request failed: ', status, error);
             }).always(function () {
-                brandElement.removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
@@ -585,8 +582,32 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             return $('#resource option:selected').val();
         }
 
-        function messageShow(id) {
-            $("." + id).toggleClass("d-none");
+        function messageShow(id, uri) {
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
+
+            $(".brand").addClass('fa fa-spinner fa-spin');
+            let actionUrl = 'fetchTextMessage?type=sms';
+            $.post(actionUrl, {
+                'id': id,
+                'uri': uri
+            }, null, 'json').done(function (data) {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+                if (data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+                $("." + id).empty().append(data);
+            }).fail(function (xhr, status, error) {
+                const message = `Error: ${error || 'Request to fetch message failed with Unknown error!'}`;
+                alertMsg(message, 10000);
+                console.error('Request failed: ', status, error);
+            }).always(function () {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+            });
         }
 
         function messageReply(phone) {
@@ -869,7 +890,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                             </tbody>
                                         </table>
                                     </div>
-                                <?php } else { ?>
+                                <?php } elseif ($service != '1') { // not RC ?>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-striped" id="sent-details">
                                             <thead>
@@ -971,65 +992,65 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     <?php }
                     if ($service == '1') { ?>
                         <div class="tab-content">
+                            <?php  if ($serviceType == 'fax') { ?>
+                                <div class="tab-pane fade in active" id="received">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="rcvdetails">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Start Time") ?></th>
+                                                <th><?php echo xlt("End Time") ?></th>
+                                                <th><?php echo xlt("Pages") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="sent">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="sent-details">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Start Time") ?></th>
+                                                <th><?php echo xlt("End Time") ?></th>
+                                                <th><?php echo xlt("Pages") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                                <th><i role="button" id="delete-selected-sent" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            <?php } else { ?>
                             <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped" id="rcvdetails">
                                         <thead>
                                         <tr>
-                                            <th><?php echo xlt("Start Time") ?></th>
-                                            <th><?php echo xlt("End Time") ?></th>
-                                            <th><?php echo xlt("Pages") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
-                                            <th><?php echo xlt("To") ?></th>
-                                            <th><?php echo xlt("Status") ?></th>
-                                            <th><?php echo xlt("Actions") ?></th>
-                                            <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped" id="sent-details">
-                                        <thead>
-                                        <tr>
-                                            <th><?php echo xlt("Start Time") ?></th>
-                                            <th><?php echo xlt("End Time") ?></th>
-                                            <th><?php echo xlt("Pages") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
-                                            <th><?php echo xlt("To") ?></th>
-                                            <th><?php echo xlt("Status") ?></th>
-                                            <th><?php echo xlt("Actions") ?></th>
-                                            <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div role="tabpanel" class="container-fluid tab-pane fade d-none" id="messages">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped" id="msgdetails">
-                                        <thead>
-                                        <tr>
                                             <th><?php echo xlt("Date") ?></th>
-                                            <th><?php echo xlt("Type") ?></th>
+                                            <th><?php echo xlt("Status") ?></th>
                                             <th><?php echo xlt("From") ?></th>
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Result") ?></th>
-                                            <th class="twilio"><?php echo xlt("Download") ?></th>
-                                            <th class="ringcentral"><?php echo xlt("Message") ?></th>
-                                            <th><?php echo xlt("View") ?></th>
+                                            <th><?php echo xlt("Message") ?></th>
+                                            <th><?php echo xlt("Actions") ?></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -1040,6 +1061,51 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                     </table>
                                 </div>
                             </div>
+                             <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="sent-details">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Date") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Result") ?></th>
+                                                <th><?php echo xlt("Message") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                             <div role="tabpanel" class="container-fluid tab-pane fade" id="messages">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="msgdetails">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Date") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Result") ?></th>
+                                                <th><?php echo xlt("Message") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            <?php } ?>
                             <div role="tabpanel" class="container-fluid tab-pane fade" id="logs">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped" id="logdetails">
