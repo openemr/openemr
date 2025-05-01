@@ -417,48 +417,41 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
 <input type="hidden" name="isSwapClicked" value="" />
 
-    <div class="container-fluid">
-        <div class="row">
-            <?php if (FormActionBarSettings::shouldDisplayTopActionBar()) { ?>
-            <div class="col-12">
-                <h2><?php echo xlt('Edit Current Patient');?></h2>
+<div class="container-xl">
+    <div class="row">
+        <div class="col-12">
+            <h2><?php echo xlt('Edit Current Patient');?></h2>
+        </div>
+        <?php if (FormActionBarSettings::shouldDisplayTopActionBar()) { ?>
+        <div class="col-12">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
+                    <?php echo xlt('Save'); ?>
+                </button>
+                <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
+                    <?php echo xlt('Cancel'); ?>
+                </a>
             </div>
-            <div class="col-12">
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary btn-save" id="submit_btn" disabled="disabled" value="<?php echo xla('Save'); ?>">
-                        <?php echo xlt('Save'); ?>
-                    </button>
-                    <a class="btn btn-secondary btn-cancel" href="demographics.php" onclick="top.restoreSession()">
-                        <?php echo xlt('Cancel'); ?>
-                    </a>
-                </div>
-                <hr>
+            <hr>
+        </div>
+        <?php } ?>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="section-header">
+                <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
             </div>
-            <?php } else { ?>
-            <div class="col-12">
-                <h2><?php echo xlt('Edit Current Patient');?></h2>
+            <ul class="tabNav">
+                <?php display_layout_tabs('DEM', $result, $result2); ?>
+            </ul>
+            <div class="tabContainer">
+                <?php display_layout_tabs_data_editable('DEM', $result, $result2); ?>
             </div>
-            <?php } ?>
         </div>
     </div>
-<?php
-$condition_str = '';
-?>
-<br />
-<div class='container-fluid demographicsEditContainer'>
-    <div class="section-header">
-        <span class="text font-weight-bold"><?php echo xlt("Demographics")?></span>
-    </div>
-    <ul class="tabNav">
-        <?php display_layout_tabs('DEM', $result, $result2); ?>
-    </ul>
 
-    <div class="tabContainer">
-        <?php display_layout_tabs_data_editable('DEM', $result, $result2); ?>
-    </div>
-</div>
-<?php if (FormActionBarSettings::shouldDisplayBottomActionBar()) { ?>
-<div class="container-fluid">
+    <?php if (FormActionBarSettings::shouldDisplayBottomActionBar()) { ?>
     <div class="row">
         <div class="col-12">
             <hr>
@@ -472,8 +465,8 @@ $condition_str = '';
             </div>
         </div>
     </div>
+    <?php } ?>
 </div>
-<?php } ?>
 </form>
 
 <br />
