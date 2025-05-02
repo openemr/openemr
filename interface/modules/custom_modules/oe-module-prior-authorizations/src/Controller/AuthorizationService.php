@@ -14,21 +14,17 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class AuthorizationService
 {
-    private $id;
-    private $pid;
-    private $auth_num;
-    private $start_date;
-    private $end_date;
-    private $cpt;
-    private $init_units;
-    private $remaining_units;
     private const MODULE_TABLE = 'module_prior_authorizations';
+    private ?int $id = null;
+    private ?int $pid = null;
+    private ?string $auth_num = null;
+    private ?string $start_date = null;
+    private ?string $end_date = null;
+    private ?string $cpt = null;
+    private ?int $init_units = null;
+    private ?int $remaining_units = null;
 
-    public function __construct()
-    {
-        //do epic stuff
-    }
-    public function storeAuthorizationInfo()
+    public function storeAuthorizationInfo(): void
     {
         $statement = "INSERT INTO " . self::MODULE_TABLE .
             "(`id`, `pid`, `auth_num`, `start_date`, `end_date`, `cpt`, `init_units`, `remaining_units`) " .
@@ -48,7 +44,7 @@ class AuthorizationService
         QueryUtils::sqlInsert($statement, $binding);
     }
 
-    public static function getUnitsUsed($number)
+    public static function getUnitsUsed($number): false|array|null
     {
         $statement = "SELECT count(prior_auth_number) AS count FROM `form_misc_billing_options` WHERE `prior_auth_number` = ?";
         $binds = [$number];
@@ -62,7 +58,7 @@ class AuthorizationService
     /**
      * @return mixed
      */
-    public function getPid()
+    public function getPid(): ?int
     {
         return $this->pid;
     }
@@ -70,37 +66,37 @@ class AuthorizationService
     /**
      * @param mixed $pid
      */
-    public function setPid($pid): void
+    public function setPid(int $pid): void
     {
         $this->pid = $pid;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getAuthNum()
+    public function getAuthNum(): ?string
     {
         return $this->auth_num;
     }
 
     /**
-     * @param mixed $auth_num
+     * @param string $auth_num
      */
-    public function setAuthNum($auth_num): void
+    public function setAuthNum(string $auth_num): void
     {
         $this->auth_num = $auth_num;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getStartDate()
+    public function getStartDate(): ?string
     {
         return $this->start_date;
     }
 
     /**
-     * @param mixed $start_date
+     * @param $start_data
      */
     public function setStartDate($start_data): void
     {
@@ -108,70 +104,70 @@ class AuthorizationService
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getEndDate()
+    public function getEndDate(): ?string
     {
         return $this->end_date;
     }
 
     /**
-     * @param mixed $end_date
+     * @param string $end_date
      */
-    public function setEndDate($end_date): void
+    public function setEndDate(string $end_date): void
     {
         $this->end_date = $end_date;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getCpt()
+    public function getCpt(): ?string
     {
         return $this->cpt;
     }
 
     /**
-     * @param mixed $cpt
+     * @param string $cpt
      */
-    public function setCpt($cpt): void
+    public function setCpt(string $cpt): void
     {
         $this->cpt = $cpt;
     }
 
     /**
-     * @return mixed
+     * @return int|null
      */
-    public function getInitUnits()
+    public function getInitUnits(): ?int
     {
         return $this->init_units;
     }
 
     /**
-     * @param mixed $init_units
+     * @param int $init_units
      */
-    public function setInitUnits($init_units): void
+    public function setInitUnits(int $init_units): void
     {
         $this->init_units = $init_units;
     }
 
     /**
-     * @return mixed
+     * @return int|null
      */
-    public function getRemainingUnits()
+    public function getRemainingUnits(): ?int
     {
         return $this->remaining_units;
     }
 
     /**
-     * @param mixed $remaining_units
+     * @param int $remaining_units
      */
-    public function setRemainingUnits($remaining_units): void
+    public function setRemainingUnits(int $remaining_units): void
     {
         $this->remaining_units = $remaining_units;
     }
 
-    public function listPatientAuths()
+    public function listPatientAuths(): false|array
     {
         $sql = "SELECT DISTINCT pd.pid AS mrn, pd.fname, pd.lname, mpa.pid, mpa.auth_num, mpa.start_date, mpa.end_date, mpa.cpt, mpa.init_units, ins.provider " . "
             FROM `patient_data` pd " . "
@@ -181,13 +177,13 @@ class AuthorizationService
         return sqlStatement($sql);
     }
 
-    public static function registerFacility()
+    public static function registerFacility(): false|array
     {
         $sql = "SELECT * FROM `facility` WHERE id = 3";
         return sqlQuery($sql);
     }
 
-    public static function registration($clinic)
+    public static function registration($clinic): bool|string
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -207,20 +203,20 @@ class AuthorizationService
         return $response;
     }
 
-    public static function insuranceName($pid)
+    public static function insuranceName($pid): false|array|null
     {
         return sqlQuery("SELECT ic.name  FROM `insurance_data` id
             JOIN insurance_companies ic ON id.provider = ic.id
             WHERE `pid` = ? AND type = 'primary'", [$pid]);
     }
 
-    public static function countUsageOfAuthNumber($pid, $authnum)
+    public static function countUsageOfAuthNumber($pid, $authnum): false|array|null
     {
         return sqlQuery("SELECT count(*) AS count FROM `form_misc_billing_options`
                          WHERE pid = ? AND `prior_auth_number` = ?", [$pid, $authnum]);
     }
 
-    public static function requiresAuthorization($pid)
+    public static function requiresAuthorization($pid): false|array|null
     {
         $sql = "SELECT `d`.`field_value` FROM `lbt_data` d
 JOIN `transactions` t ON `t`.`id` = `d`.`form_id` AND `t`.`title` = 'LBT_authorizations'
@@ -228,7 +224,7 @@ WHERE `t`.`pid` = ? AND `d`.`field_id` = 'authorization_001'";
         return sqlQuery($sql, [$pid]);
     }
 
-    public static function patientInactive($pid)
+    public static function patientInactive($pid): false|array|null
     {
         return sqlQuery("SELECT `ps`.`status` FROM `patient_status` ps WHERE `ps`.`pid` = ? ORDER BY `ps`.`statusId` DESC", [$pid]);
     }
