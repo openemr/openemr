@@ -41,18 +41,21 @@ services:
     - ./docker_data/ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ./docker_data/logvolume:/var/log
     - ./docker_data/couchdbvolume:/couchdb/data
+    - /etc/letsencrypt/live/openemrdev.shoprideon.com/fullchain.pem:/etc/letsencrypt/live/openemrdev.shoprideon.com/fullchain.pem:ro
+    - /etc/letsencrypt/live/openemrdev.shoprideon.com/privkey.pem:/etc/letsencrypt/live/openemrdev.shoprideon.com/privkey.pem:ro
     environment:
       DEBUG_COLORS: "true"
       TERM: xterm-256color
       COLORTERM: truecolor
-      MYSQL_HOST: mysql
-      MYSQL_ROOT_PASS: root
-      MYSQL_USER: openemr
-      MYSQL_PASS: openemr
-      DOMAIN: openemrdev.shoprideon.com
-      EMAIL: bijita.kc@asteriskhubs.com
-      OE_USER: admin
-      OE_PASS: pass
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      MYSQL_ROOT_PASS: ${MYSQL_ROOT_PASS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASS: ${MYSQL_PASS}
+      DOMAIN: ${HALF_DOMAIN}
+      EMAIL: ${EMAIL} 
+      OE_USER: ${OE_USER}
+      OE_PASS: ${OE_PASS}
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
       DEVELOPER_TOOLS: "yes"
@@ -63,7 +66,7 @@ services:
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
-      OPENEMR_SETTING_site_addr_oath: 'https://openemrdev.shoprideon.com'
+      OPENEMR_SETTING_site_addr_oath: ${OPENEMR_SETTING_site_addr_oath}
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -73,8 +76,8 @@ services:
       OPENEMR_SETTING_ccda_alt_service_enable: 3
       OPENEMR_SETTING_couchdb_host: couchdb
       OPENEMR_SETTING_couchdb_port: 6984
-      OPENEMR_SETTING_couchdb_user: admin
-      OPENEMR_SETTING_couchdb_pass: password
+      OPENEMR_SETTING_couchdb_user: ${COUCHDB_USER}
+      OPENEMR_SETTING_couchdb_pass: ${COUCHDB_PASSWORD}
       OPENEMR_SETTING_couchdb_dbase: example
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
@@ -120,8 +123,8 @@ services:
     - ../library/couchdb-config-ssl-cert-keys/easy/server-key.pem:/etc/ssl/server-key.pem:ro
     - ./docker_data/couchdbvolume:/opt/couchdb/data
     environment:
-      COUCHDB_USER: admin
-      COUCHDB_PASSWORD: password
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
   openldap:
     restart: always
     image: openemr/dev-ldap:easy
