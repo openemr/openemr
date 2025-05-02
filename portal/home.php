@@ -335,7 +335,7 @@ $ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_servic
 // Available Themes
 $styleArray = collectStyles();
 // Is telemetry enabled?
-$isTelemetryAllowed= TelemetryService::isTelemetryEnabled();
+$isTelemetryAllowed = TelemetryService::isTelemetryEnabled();
 
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
