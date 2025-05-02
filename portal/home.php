@@ -30,6 +30,7 @@ use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\TranslationService;
+use OpenEMR\Telemetry\TelemetryService;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -329,12 +330,12 @@ $immunRecords = array();
 while ($row = sqlFetchArray($result)) {
     $immunRecords[] = $row;
 }
-
 // CCDA Alt Service
 $ccdaOk = ($GLOBALS['ccda_alt_service_enable'] == 2 || $GLOBALS['ccda_alt_service_enable'] == 3);
-
 // Available Themes
 $styleArray = collectStyles();
+// Is telemetry enabled?
+$isTelemetryAllowed= TelemetryService::isTelemetryEnabled();
 
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
@@ -393,6 +394,7 @@ try {
         'timezone' => $GLOBALS['gbl_time_zone'] ?? '',
         'assetVersion' => $GLOBALS['v_js_includes'],
         'extendVisit' => $_SESSION['portal_visit_extended'] ?? 1,
+        'isTelemetryAllowed' => $isTelemetryAllowed,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,

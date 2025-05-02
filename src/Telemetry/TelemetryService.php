@@ -29,6 +29,27 @@ class TelemetryService
     }
 
     /**
+     * Checks if telemetry is enabled based on the product registration table.
+     * I don't know why I didn't use telemetry_enabled in the product_registration table.
+     *
+     * @return int
+     */
+    public static function isTelemetryEnabled(): int
+    {
+        // Check if telemetry is disabled in the product registration table.
+        $isEnabled = sqlQuery("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0")['telemetry_disabled'] ?? null;
+        if ((int)$isEnabled === 0) {
+            // If telemetry_disabled is 0, it means telemetry is enabled.
+            $isEnabled = 1;
+        } else {
+            // If telemetry_disabled is not 0, it means telemetry is disabled.
+            $isEnabled = 0;
+        }
+
+        return $isEnabled;
+    }
+
+    /**
      * Reports a click event after validating the required input.
      */
     public function reportClickEvent(array $data): void
