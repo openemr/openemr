@@ -17,16 +17,11 @@ function ProductRegistrationController() {
         }, closeWaitTimeMilliseconds || 0);
     };
     const _registrationFailedHandler = function (error) {
+        $('#submit_registration_loader').hide();
         $('.product-registration-modal .message').text(error);
     };
     const _registrationCreatedHandler = function (data) {
-        $('.product-registration-modal .context').remove();
-        if ($('.product-registration-modal .email').length > 0) {
-            $('.product-registration-modal .message').text(registrationTranslations.registeredSuccess);
-        }
-        $('.product-registration-modal .email').remove();
-        _closeModal(2000);
-        self.displayRegistrationInformationIfDivExists(data);
+        _closeModal();
     };
     const _formCancellationHandler = function () {
         _closeModal();
@@ -40,6 +35,8 @@ function ProductRegistrationController() {
             $('.product-registration-modal .email').focus();
             return false;
         }
+
+        $('#submit_registration_loader').show();
 
         $('.product-registration-modal .message').text('');
         // Read the checkbox values; use 1 for checked, 0 otherwise.
@@ -100,12 +97,5 @@ function ProductRegistrationController() {
                 return false;
             }
         });
-    };
-
-    // If we are on the about_page, show the registration data.
-    self.displayRegistrationInformationIfDivExists = function (data) {
-        if ($('.product-registration').length > 0) {
-            $('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
-        }
     };
 }

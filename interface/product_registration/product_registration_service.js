@@ -40,7 +40,7 @@ function ProductRegistrationService() {
                 _genericAjaxSuccessHandler(response, callback);
             },
             error: function (jqXHR) {
-                alert(xl("Invalid Email Error. Please try again."));
+                _genericAjaxFailureHandler(jqXHR, callback);
             }
         });
     };

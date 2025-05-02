@@ -22,6 +22,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 
 $twig = new TwigContainer();
@@ -33,6 +34,9 @@ $versionService = new VersionService();
 $userManual = ($GLOBALS['user_manual_link'] === '')
     ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->asString(false, false) . "_Users_Guide"
     : $GLOBALS['user_manual_link'];
+
+// Collect registered email, if applicable
+$emailRegistered = (new ProductRegistrationService())->getProductStatus()['email'] ?? '';
 
 $viewArgs = [
     'onlineSupportHref' => $GLOBALS["online_support_link"],
@@ -46,6 +50,7 @@ $viewArgs = [
     'displayAcknowledgements' => $GLOBALS['display_acknowledgements'],
     'displayDonations' => $GLOBALS['display_donations_link'],
     'displayReview' => $GLOBALS['display_review_link'],
+    'emailRegistered' => $emailRegistered
 ];
 
 echo $t->render('core/about.html.twig', $viewArgs);

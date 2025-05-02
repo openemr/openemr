@@ -9,14 +9,17 @@
             <div class="col-sm-12 col-lg-8 offset-lg-2 mt-5">
                 <h1 class="text-center">{{ "About"|xlt }} {{ applicationTitle|text }}</h1>
 
-                <span class="product-registration">
-                    <span class="email"></span>
-                </span>
-
                 <div class="version-info d-flex justify-content-between">
                     <p>{{ "Version Number"|xlt }}</p>
                     <strong>{{ versionNumber|text }}</strong>
                 </div>
+
+                {% if emailRegistered is not empty %}
+                    <span class="product-registration d-flex justify-content-between">
+                        <p>{{ "Registered Email"|xlt }}</p>
+                        <strong>{{ emailRegistered|text }}</strong>
+                    </span>
+                {% endif %}
 
                 <div class="uuid-info d-flex justify-content-between">
                     <p>{{ "Unique Installation UUID"|xlt }}</p>

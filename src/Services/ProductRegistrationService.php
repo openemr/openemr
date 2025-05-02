@@ -15,6 +15,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Services\VersionService;
+
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 
 class ProductRegistrationService
@@ -26,33 +28,63 @@ class ProductRegistrationService
     {
     }
 
-    public function getProductStatus()
+    public function getProductStatus(): array
     {
         $row = sqlQuery("SELECT * FROM `product_registration`");
-
         if (empty($row)) {
             $row = [];
         }
-
-        $email = $row['email'] ?? '';
+        $email = $row['email'] ?? null;
+        $lastAskVersion = $row['last_ask_version'] ?? '';
         $optOut = $row['opt_out'] ?? null;
         $telemetry_disabled = $row['telemetry_disabled'] ?? null;
 
-        if (empty($row) || $optOut == null) {
-            $row['statusAsString'] = 'UNREGISTERED';
-        } elseif (!empty($email)) {
-            $row['statusAsString'] = 'REGISTERED';
-        } elseif ($optOut == 1) {
-            $row['statusAsString'] = 'OPT_OUT';
-        }
-
-        $row['allowTelemetry'] = $telemetry_disabled === null ? 1 : null;
+        $row['allowEmail'] = 0;
+        $row['allowTelemetry'] = 0;
         $row['allowRegisterDialog'] = 0;
-        if ($telemetry_disabled == null || $optOut == null) {
-            $row['allowRegisterDialog'] = 1;
+        $currentVersion = (new VersionService())->asString();
+        if ($currentVersion != $lastAskVersion) {
+            // Change in version (or empty entry), so ignore opt outs and show the dialog if empty email or telemetry not enabled
+            if (empty($email) || $telemetry_disabled == 1 || $telemetry_disabled == null) {
+                $row['allowRegisterDialog'] = 1;
+                if (empty($email)) {
+                    $row['allowEmail'] = 1;
+                }
+                if ($telemetry_disabled == 1 || $telemetry_disabled == null) {
+                    $row['allowTelemetry'] = 1;
+                }
+            }
+        } else {
+            // No change in version, so do not show the dialog if has opted out
+            if ($telemetry_disabled == null || $optOut == null) {
+                $row['allowRegisterDialog'] = 1;
+                if ($optOut == null) {
+                    $row['allowEmail'] = 1;
+                }
+                if ($telemetry_disabled == null) {
+                    $row['allowTelemetry'] = 1;
+                }
+            }
         }
 
         return $row;
+    }
+
+    public function getRegistrationStatus(): string
+    {
+        $row = sqlQuery("SELECT * FROM `product_registration`");
+        if (empty($row)) {
+            $row = [];
+        }
+        $email = $row['email'] ?? '';
+        $optOut = $row['opt_out'] ?? null;
+
+        return match (true) {
+            empty($row) || $optOut === null => 'UNREGISTERED',
+            !empty($email) => 'REGISTERED',
+            $optOut == 1 => 'OPT_OUT',
+            default => 'UNKNOWN', // This should never happen, but just in case
+        };
     }
 
     /**
@@ -60,7 +92,7 @@ class ProductRegistrationService
      */
     public function registerProduct($email)
     {
-        if (!$email || $email == 'false') {
+        if (empty($email)) {
             $this->optOutStrategy();
             return null;
         } else {
@@ -87,9 +119,15 @@ class ProductRegistrationService
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
+        $currentVersion = (new VersionService())->asString();
         switch ($responseCode) {
             case 201:
-                sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`) VALUES (?, 0)", [$email]);
+                $entry = $this->entryExist();
+                if ($entry) {
+                    sqlStatement("UPDATE `product_registration` SET `email` = ?, `opt_out` = 0, `last_ask_version` = ? WHERE `id` = ?", [$email, $currentVersion, $entry]);
+                } else {
+                    sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (?, 0, ?)", [$email, $currentVersion]);
+                }
                 return $email;
                 break;
             default:
@@ -100,6 +138,18 @@ class ProductRegistrationService
     // void... don't bother checking for success/failure.
     private function optOutStrategy()
     {
-        sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`) VALUES (null, 1)");
+        $currentVersion = (new VersionService())->asString();
+        $entry = $this->entryExist();
+        if ($this->entryExist()) {
+            sqlStatement("UPDATE `product_registration` SET `email` = null, `opt_out` = 1, `last_ask_version` = ? WHERE `id` = ?", [$currentVersion, $entry]);
+        } else {
+            sqlStatement("INSERT INTO `product_registration` (`email`, `opt_out`, `last_ask_version`) VALUES (null, 1, ?)", [$currentVersion]);
+        }
+    }
+
+    private function entryExist(): int|false
+    {
+        $row = sqlQuery("SELECT * FROM `product_registration`");
+        return $row['id'] ?? false;
     }
 }
