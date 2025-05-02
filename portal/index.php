@@ -606,27 +606,14 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
-                <!-- <div class="form-group">
-                    <label for="uname"><?php echo xlt('Username') ?></label>
-                    <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
-                </div> -->
+
                 <div class="form-group row">
                     <label for="uname" class="col-form-label col-sm-4" style="margin-left: 50px;"><?php echo xlt('Username') ?></label>
                     <div class="col" style="margin-left: -120px !important;margin-right: 160px;">
                         <input type="text" class="form-control" id="uname" name="uname" autocomplete="none" required>
                     </div>
                 </div>
-                    <!-- <div id="standard-auth-password" class="form-group">
-                        <label for="pass"><?php echo xlt('Password') ?></label>
-                        <div class="input-group">
-                            <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <i class="fa fa-eye" id="password-icon" style="cursor: pointer;"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div> -->
+                    
                     <div id="standard-auth-password" class="form-group row">
                         <label for="pass" class="col-form-label col-sm-4" style="margin-left: 50px;"><?php echo xlt('Password') ?></label>
                         <div class="col input-group" style="margin-left: -120px !important;margin-right: 160px;">
@@ -639,10 +626,6 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         </div>
                     </div>
                 <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                    <!-- <div class="form-group">
-                        <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                        <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
-                    </div> -->
                     <div class="form-group row" style="display: none;">
                         <label for="passaddon" class="col-form-label col-sm-4" style="margin-left: 50px;"><?php echo xlt('E-Mail Address') ?></label>
                         <div class="col" style="margin-left: -120px !important;margin-right: 160px;">
@@ -820,7 +803,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             var patientUser = $('#uname').val();
             var patientEmail = $('#passaddon').val(patientUser);
         });
-        
+
     </script>
 </body>
 </html>
