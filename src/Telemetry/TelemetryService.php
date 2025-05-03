@@ -75,7 +75,7 @@ class TelemetryService
             return json_encode(["error" => "Missing required fields"]);
         }
 
-        $success = $this->repository->insertOrUpdateClickEvent(
+        $success = $this->repository->saveTelemetryEvent(
             [
                 'eventType' => $eventType,
                 'eventLabel' => $eventLabel,
