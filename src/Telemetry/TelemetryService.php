@@ -62,7 +62,7 @@ class TelemetryService
      *    'eventTarget' => $eventTarget,
      * ]
      */
-    public function reportClickEvent(array $data): void
+    public function reportClickEvent(array $data): false|string
     {
         $eventType = $data['eventType'] ?? '';
         $eventLabel = $data['eventLabel'] ?? '';
@@ -72,9 +72,7 @@ class TelemetryService
         $currentTime = date("Y-m-d H:i:s");
 
         if (empty($eventType) || empty($eventLabel)) {
-            http_response_code(400);
-            echo json_encode(["error" => "Missing required fields"]);
-            exit;
+            return json_encode(["error" => "Missing required fields"]);
         }
 
         $success = $this->repository->insertOrUpdateClickEvent(
@@ -88,10 +86,9 @@ class TelemetryService
         );
 
         if ($success) {
-            echo json_encode(["success" => true]);
+            return json_encode(["success" => true]);
         } else {
-            http_response_code(500);
-            echo json_encode(["error" => "Database insertion/update failed"]);
+            return json_encode(["error" => "Database insertion/update failed"]);
         }
     }
 
@@ -181,7 +178,7 @@ class TelemetryService
      *
      * @param mixed $event_data The event data to set.
      */
-    public function recordApiTrackEvent(mixed $event_data): void
+    public function trackApiRequestEvent(mixed $event_data): void
     {
         if (empty($this->isTelemetryEnabled())) {
             return;
