@@ -26,6 +26,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Telemetry\TelemetryService;
 use Psr\Http\Message\ResponseInterface;
 
 $gbl = RestConfig::GetInstance();
@@ -406,4 +407,20 @@ if (!empty($apiCallOutput)) {
 if ($dispatchResult === false) {
     $logger->debug("dispatch.php no route found for resource", ['resource' => $resource]);
     http_response_code(404);
+}
+// Report to Telemetry
+// Be nice to find a centralized place to catch failed requests.
+try {
+    $telemetryService = new TelemetryService();
+    if ($telemetryService->isTelemetryEnabled()) {
+        $event = [
+            'eventType' => 'API',
+            'eventLabel' => $restRequest->getRequestMethod() . ' ' . $_SESSION['api'],
+            'eventUrl' => $resource,
+            'eventTarget' => json_encode($GLOBALS['oauth_scopes'] ?? []),
+        ];
+        $telemetryService->recordApiTrackEvent($event);
+    }
+} catch (\Exception $e) {
+    $logger->error("dispatch.php telemetry error", ['exception' => $e]);
 }

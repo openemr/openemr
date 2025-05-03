@@ -22,8 +22,12 @@ class TelemetryService
     protected TelemetryRepository $repository;
     protected VersionService $versionService;
 
-    public function __construct(TelemetryRepository $repository, VersionService $versionService)
+    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null)
     {
+        if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
+            $repository = new TelemetryRepository();
+            $versionService = new VersionService();
+        }
         $this->repository = $repository;
         $this->versionService = $versionService;
     }
@@ -51,6 +55,12 @@ class TelemetryService
 
     /**
      * Reports a click event after validating the required input.
+     * $event = [
+     *    'eventType' => $eventType,
+     *    'eventLabel' => $eventLabel,
+     *    'eventUrl' => $eventUrl,
+     *    'eventTarget' => $eventTarget,
+     * ]
      */
     public function reportClickEvent(array $data): void
     {
@@ -165,5 +175,17 @@ class TelemetryService
         }
 
         return $httpStatus;
+    }
+    /**
+     * Sets the API event data.
+     *
+     * @param mixed $event_data The event data to set.
+     */
+    public function recordApiTrackEvent(mixed $event_data): void
+    {
+        if (empty($this->isTelemetryEnabled())) {
+            return;
+        }
+        $this->reportClickEvent($event_data);
     }
 }
