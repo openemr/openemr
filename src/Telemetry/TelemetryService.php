@@ -173,6 +173,7 @@ class TelemetryService
 
         return $httpStatus;
     }
+
     /**
      * Sets the API event data.
      *
@@ -180,9 +181,8 @@ class TelemetryService
      */
     public function trackApiRequestEvent(mixed $event_data): void
     {
-        if (empty($this->isTelemetryEnabled())) {
-            return;
+        if (!empty($this->isTelemetryEnabled())) {
+            $this->reportClickEvent($event_data);
         }
-        $this->reportClickEvent($event_data);
     }
 }

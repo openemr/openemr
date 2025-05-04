@@ -18,21 +18,8 @@ class TelemetryRepository
      */
     public function saveTelemetryEvent(array $eventData, string $currentTime): bool
     {
-        // For API events, we don't want to check and count existing records.
+        // For API events, we don't want to check and count existing records unless unique scopes.
         // This is to allow for different scopes across duplicate endpoints.
-        if ($eventData['eventType'] == 'API') {
-            $sql = "INSERT INTO track_events (event_type, event_label, event_url, event_target, first_event, last_event, label_count) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $params = [
-                $eventData['eventType'],
-                $eventData['eventLabel'] ?? '',
-                $eventData['eventUrl'] ?? '',
-                $eventData['eventTarget'] ?? '',
-                $currentTime,
-                $currentTime,
-                1
-            ];
-            return (bool)sqlStatementNoLog($sql, $params);
-        }
 
         $sql = "INSERT INTO track_events (event_type, event_label, event_url, event_target, first_event, last_event, label_count)
             VALUES (?, ?, ?, ?, ?, ?, ?)

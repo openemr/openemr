@@ -414,10 +414,11 @@ if ($dispatchResult === false) {
 try {
     (new TelemetryService())->trackApiRequestEvent([
         'eventType' => 'API',
-        'eventLabel' => $restRequest->getRequestMethod() . ' ' . $_SESSION['api'],
+        'eventLabel' => json_encode($GLOBALS['oauth_scopes'] ?? []),
         'eventUrl' => $resource,
-        'eventTarget' => json_encode($GLOBALS['oauth_scopes'] ?? []),
+        'eventTarget' => $restRequest->getRequestMethod() . ' ' . $_SESSION['api'],
     ]);
+    exit;
 } catch (\Exception $e) {
     $logger->error("dispatch.php telemetry error", ['exception' => $e]);
 }
