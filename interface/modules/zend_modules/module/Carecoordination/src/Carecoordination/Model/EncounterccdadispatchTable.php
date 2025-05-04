@@ -37,6 +37,8 @@ use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Services\Search\SearchQueryFragment;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Events\Services\ServiceSaveEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -55,9 +57,20 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchToDate;
     public $searchFiltered = false;
     private $encounterFilterList = [];
+    private $dispatcher;
 
     public function __construct()
     {
+        if (!empty($GLOBALS['kernel'])) {
+            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        } else {
+            $this->dispatcher = new EventDispatcher();
+        }
+    }
+
+    public function getEventDispatcher(): EventDispatcher
+    {
+        return $this->dispatcher;
     }
 
     /**
@@ -3378,6 +3391,19 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         }
 
         $mimeType = "text/xml";
+
+        // Let listeners know we are about to save a C-CDA
+        $send = array("CCDA" => $content, 'pid' => $pid);
+        $event = new ServiceSaveEvent($patientService, $send);
+        $updatedPreSaveEvent = $this->getEventDispatcher()->dispatch($event, ServiceSaveEvent::EVENT_PRE_SAVE);
+
+        if (!$updatedPreSaveEvent instanceof ServiceSaveEvent) {
+            $this->getLogger()->error(self::class .
+              "->logCCDA() failed to receive valid class for " .
+              ServiceSaveEvent::class);
+        } else {
+            $content = $event->getSaveData()['CCDA'];
+        }
 
         try {
             \sqlBeginTrans();
