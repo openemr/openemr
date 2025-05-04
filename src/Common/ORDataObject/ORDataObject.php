@@ -56,12 +56,12 @@ class ORDataObject
             return true;
         }
 
-        // NOTE: REPLACE INTO does a DELETE and then INSERT, if you have foreign keys setup the delete call will trigger
-        $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
+		$sql = "INSERT INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
         $fields = QueryUtils::listTableFields($this->_table);
         $db = get_db();
         $pkeys = $db->MetaPrimaryKeys($this->_table);
+		$setClause = "";
 
         foreach ($fields as $field) {
             $func = "get_" . $field;
@@ -88,7 +88,7 @@ class ORDataObject
 
                                         //modified 01-2010 by BGM to centralize to formdata.inc.php
                             // have place several debug statements to allow standardized testing over next several months
-                    $sql .= " `" . $field . "` = '" . add_escape_custom(strval($val)) . "',";
+                    $setClause .= " `" . $field . "` = '" . add_escape_custom(strval($val)) . "',";
                         //DEBUG LINE - error_log("ORDataObject persist after escape: ".add_escape_custom(strval($val)), 0);
                         //DEBUG LINE - error_log("ORDataObject persist after escape and then stripslashes test: ".stripslashes(add_escape_custom(strval($val))), 0);
                         //DEBUG LINE - error_log("ORDataObject original before the escape and then stripslashes test: ".strval($val), 0);
@@ -96,9 +96,10 @@ class ORDataObject
             }
         }
 
-        if (strrpos($sql, ",") == (strlen($sql) - 1)) {
-                $sql = substr($sql, 0, (strlen($sql) - 1));
-        }
+        $setClause = rtrim($setClause, ',');
+
+		$sql .= $setClause;
+		$sql .= " ON DUPLICATE KEY UPDATE " . $setClause;
 
         if ($this->_throwExceptionOnError) {
             QueryUtils::sqlStatementThrowException($sql, []);
