@@ -19,7 +19,6 @@ class BackgroundTaskManager
     /**
      * Creates or updates the background telemetry task.
      *
-     * @param string $period Number of days (as a string) for the task interval.
      */
     public static function modifyTelemetryTask(): void
     {

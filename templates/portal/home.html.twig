@@ -50,10 +50,6 @@
         white-space: nowrap;
       }
 
-      .dropdown-menu {
-        position: absolute;
-      }
-
       .navbar-nav .dropdown:hover .dropdown-menu {
         display: block;
       }
@@ -100,6 +96,7 @@
             timezone: {{ timezone | js_escape }},
             assetVersion: {{ assetVersion | js_escape }}
         };
+
         function restoreSession() {
             return true;
         }
@@ -193,6 +190,29 @@
         }
 
         $(function () {
+            {% if isTelemetryAllowed == 1 %}
+
+            $('a[id$="-go"]').on('click', function (e) {
+                const cardId = e.currentTarget.id;
+                const target = e.currentTarget.dataset.windowTitle;
+                const url = e.currentTarget.href;
+                // send telemetry data
+                fetch('lib/track_portal_events.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        csrf_token_form: {{ csrfUtils | js_escape }},
+                        'action': 'portalCardClickData',
+                        'eventType': 'patientPortal',
+                        'eventLabel': target,
+                        'eventTarget': cardId,
+                        'eventUrl': url
+                    })
+                });
+            });
+
+            {% endif %}
+
             $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
                 updateWindowTitle(e.target);
@@ -201,7 +221,7 @@
             $('#quickstart-card [data-parent="#cardgroup"]' +
                 ', #reports-list-card [data-parent="#cardgroup"]'
                 + ',.reports-list-back-btn').on('click', (e) => {
-                // we use currentTarget so we grab the event with the original data-parent, if there are buttons or
+                // we use currentTarget, so we grab the event with the original data-parent, if there are buttons or
                 // other stuff inside we want to go to the href.
                 persist($(e.currentTarget).attr('href'), false);
                 updateWindowTitle(e.currentTarget);

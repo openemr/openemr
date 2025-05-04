@@ -22,16 +22,47 @@ class TelemetryService
     protected TelemetryRepository $repository;
     protected VersionService $versionService;
 
-    public function __construct(TelemetryRepository $repository, VersionService $versionService)
+    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null)
     {
+        if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
+            $repository = new TelemetryRepository();
+            $versionService = new VersionService();
+        }
         $this->repository = $repository;
         $this->versionService = $versionService;
     }
 
     /**
-     * Reports a click event after validating the required input.
+     * Checks if telemetry is enabled based on the product registration table.
+     * I don't know why I didn't use telemetry_enabled in the product_registration table.
+     *
+     * @return int
      */
-    public function reportClickEvent(array $data): void
+    public static function isTelemetryEnabled(): int
+    {
+        // Check if telemetry is disabled in the product registration table.
+        $isEnabled = sqlQuery("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0")['telemetry_disabled'] ?? null;
+        if ((int)$isEnabled === 0) {
+            // If telemetry_disabled is 0, it means telemetry is enabled.
+            $isEnabled = 1;
+        } else {
+            // If telemetry_disabled is not 0, it means telemetry is disabled.
+            $isEnabled = 0;
+        }
+
+        return $isEnabled;
+    }
+
+    /**
+     * Reports a click event after validating the required input.
+     * $event = [
+     *    'eventType' => $eventType,
+     *    'eventLabel' => $eventLabel,
+     *    'eventUrl' => $eventUrl,
+     *    'eventTarget' => $eventTarget,
+     * ]
+     */
+    public function reportClickEvent(array $data): false|string
     {
         $eventType = $data['eventType'] ?? '';
         $eventLabel = $data['eventLabel'] ?? '';
@@ -41,12 +72,10 @@ class TelemetryService
         $currentTime = date("Y-m-d H:i:s");
 
         if (empty($eventType) || empty($eventLabel)) {
-            http_response_code(400);
-            echo json_encode(["error" => "Missing required fields"]);
-            exit;
+            return json_encode(["error" => "Missing required fields"]);
         }
 
-        $success = $this->repository->insertOrUpdateClickEvent(
+        $success = $this->repository->saveTelemetryEvent(
             [
                 'eventType' => $eventType,
                 'eventLabel' => $eventLabel,
@@ -57,10 +86,9 @@ class TelemetryService
         );
 
         if ($success) {
-            echo json_encode(["success" => true]);
+            return json_encode(["success" => true]);
         } else {
-            http_response_code(500);
-            echo json_encode(["error" => "Database insertion/update failed"]);
+            return json_encode(["error" => "Database insertion/update failed"]);
         }
     }
 
@@ -144,5 +172,17 @@ class TelemetryService
         }
 
         return $httpStatus;
+    }
+
+    /**
+     * Sets the API event data.
+     *
+     * @param mixed $event_data The event data to set.
+     */
+    public function trackApiRequestEvent(mixed $event_data): void
+    {
+        if (!empty($this->isTelemetryEnabled())) {
+            $this->reportClickEvent($event_data);
+        }
     }
 }
