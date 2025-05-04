@@ -26,6 +26,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Telemetry\TelemetryService;
 use Psr\Http\Message\ResponseInterface;
 
 $gbl = RestConfig::GetInstance();
@@ -154,7 +155,7 @@ if (!empty($tokenId)) {
 
 
 // recollect this so the DEBUG global can be used if set
-    $logger = new SystemLogger();
+$logger = new SystemLogger();
 
 $gbl::$apisBaseFullUrl = $GLOBALS['site_addr_oath'] . $GLOBALS['webroot'] . "/apis/" . $gbl::$SITE;
 $restRequest->setApiBaseFullUrl($gbl::$apisBaseFullUrl);
@@ -266,7 +267,7 @@ if ($isLocalApi) {
     if ($userRole == 'users') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;
-        $_SESSION['authProvider'] =  sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
+        $_SESSION['authProvider'] = sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
         if (empty($_SESSION['authUser']) || empty($_SESSION['authUserID']) || empty($_SESSION['authProvider'])) {
             // this should never happen
             $logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
@@ -296,7 +297,7 @@ if ($isLocalApi) {
         $restRequest->setPatientRequest(true);
         $restRequest->setPatientUuidString($puuidStringCheck);
         $logger->debug("dispatch.php request setup for patient role", ['patient' => $puuidStringCheck]);
-    } else if ($userRole === 'system') {
+    } elseif ($userRole === 'system') {
         $_SESSION['authUser'] = $user["username"] ?? null;
         $_SESSION['authUserID'] = $user["id"] ?? null;
         if (
@@ -398,7 +399,7 @@ if (!$isLocalApi) {
 // Send the output if not empty
 if (!empty($apiCallOutput)) {
     echo $apiCallOutput;
-} else if ($dispatchResult instanceof ResponseInterface) {
+} elseif ($dispatchResult instanceof ResponseInterface) {
     RestConfig::emitResponse($dispatchResult);
 }
 
@@ -406,4 +407,18 @@ if (!empty($apiCallOutput)) {
 if ($dispatchResult === false) {
     $logger->debug("dispatch.php no route found for resource", ['resource' => $resource]);
     http_response_code(404);
+}
+
+// Report to Telemetry
+// Be nice to find a centralized place to catch failed requests.
+try {
+    (new TelemetryService())->trackApiRequestEvent([
+        'eventType' => 'API',
+        'eventLabel' => json_encode($GLOBALS['oauth_scopes'] ?? []),
+        'eventUrl' => $resource,
+        'eventTarget' => $restRequest->getRequestMethod() . ' ' . $_SESSION['api'],
+    ]);
+    exit;
+} catch (\Exception $e) {
+    $logger->error("dispatch.php telemetry error", ['exception' => $e]);
 }

@@ -56,14 +56,14 @@ class ProductRegistrationService
             }
         } else {
             // No change in version, so do not show the dialog if has opted out
-            if ($telemetry_disabled == null || $optOut == null) {
+            if ($telemetry_disabled === null || $optOut == null) {
                 $row['allowRegisterDialog'] = 1;
-                if ($optOut == null) {
-                    $row['allowEmail'] = 1;
-                }
-                if ($telemetry_disabled == null) {
-                    $row['allowTelemetry'] = 1;
-                }
+            }
+            if ($optOut == null) {
+                $row['allowEmail'] = 1;
+            }
+            if (empty($telemetry_disabled)) {
+                $row['allowTelemetry'] = 1;
             }
         }
 
