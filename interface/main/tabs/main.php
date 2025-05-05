@@ -30,6 +30,7 @@ use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
+use OpenEMR\Telemetry\TelemetryService;
 use Symfony\Component\Filesystem\Path;
 
 $logoService = new LogoService();
@@ -38,8 +39,8 @@ $menuLogo = $logoService->getLogo('core/menu/primary/');
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductStatus();
 $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
-$allowTelemetry = $product_row['allowTelemetry'] ?? null;
-$allowEmail = $product_row['allowEmail'] ?? null;
+$allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
+$allowEmail = $product_row['allowEmail'] ?? null; // for dialog
 // If running unit tests, then disable the registration dialog
 if ($_SESSION['testing_mode'] ?? false) {
     $allowRegisterDialog = false;
@@ -121,7 +122,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
     const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
     const isServicesOther = (isSms || isFax);
-    const allowTelemetry = <?php echo js_escape($allowTelemetry); ?>;
+    const allowTelemetry = <?php echo js_escape(TelemetryService::isTelemetryEnabled()); ?>;
 
     /**
      * Async function to get session value from the server
