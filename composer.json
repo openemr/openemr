@@ -13,7 +13,7 @@
     "require": {
         "php": ">=8.2.0",
         "academe/omnipay-authorizenetapi": "3.1.2",
-        "adodb/adodb-php": "5.22.8",
+        "adodb/adodb-php": "5.22.9",
         "aranyasen/hl7": "3.2.0",
         "bacon/bacon-qr-code": "3.0.1",
         "digitickets/lalit": "3.4.0",
