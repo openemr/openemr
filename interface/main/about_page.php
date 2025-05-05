@@ -36,7 +36,7 @@ $userManual = ($GLOBALS['user_manual_link'] === '')
     : $GLOBALS['user_manual_link'];
 
 // Collect registered email, if applicable
-$emailRegistered = (new ProductRegistrationService())->getProductStatus()['email'] ?? '';
+$emailRegistered = (new ProductRegistrationService())->getRegistrationEmail() ?? '';
 
 $viewArgs = [
     'onlineSupportHref' => $GLOBALS["online_support_link"],

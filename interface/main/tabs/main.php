@@ -37,7 +37,7 @@ $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
 // Registration status and options.
 $productRegistration = new ProductRegistrationService();
-$product_row = $productRegistration->getProductStatus();
+$product_row = $productRegistration->getProductDialogStatus();
 $allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
 $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog

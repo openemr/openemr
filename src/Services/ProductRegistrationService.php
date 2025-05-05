@@ -28,7 +28,7 @@ class ProductRegistrationService
     {
     }
 
-    public function getProductStatus(): array
+    public function getProductDialogStatus(): array
     {
         $row = sqlQuery("SELECT * FROM `product_registration`");
         if (empty($row)) {
@@ -70,6 +70,11 @@ class ProductRegistrationService
         }
 
         return $row;
+    }
+
+    public function getRegistrationEmail(): string
+    {
+        return sqlQuery("SELECT `email` FROM `product_registration`")['email'] ?? '';
     }
 
     public function getRegistrationStatus(): string

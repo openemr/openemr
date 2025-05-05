@@ -24,7 +24,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     // retrieve if allowRegisterDialog
-    $allowRegisterDialog = (new ProductRegistrationService())->getProductStatus()['allowRegisterDialog'] ?? 0;
+    $allowRegisterDialog = (new ProductRegistrationService())->getProductDialogStatus()['allowRegisterDialog'] ?? 0;
     echo json_encode(["allowRegisterDialog" => $allowRegisterDialog]);
     exit;
 }
@@ -32,7 +32,7 @@ if ($method === 'GET') {
 // Process form submission
 if ($method === 'POST') {
     // Figure out which elements are going to be updated
-    $productRegistration = (new ProductRegistrationService())->getProductStatus();
+    $productRegistration = (new ProductRegistrationService())->getProductDialogStatus();
     $allowEmail = $productRegistration['allowEmail'] ?? null;
     $allowTelemetry = $productRegistration['allowTelemetry'] ?? null;
 
