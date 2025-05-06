@@ -43,10 +43,6 @@ function handleRequest(): void
         case 'reportMenuClickData':
             $telemetryService->reportClickEvent($data);
             break;
-        case 'reportUsageData':
-            $result = $telemetryService->reportUsageData();
-            echo json_encode($result);
-            break;
         default:
             http_response_code(400);
             echo json_encode(["error" => "Invalid action"]);

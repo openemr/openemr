@@ -179,7 +179,7 @@ class TelemetryService
      *
      * @param mixed $event_data The event data to set.
      */
-    public function trackApiRequestEvent(mixed $event_data): void
+    public function trackApiRequestEvent(array $event_data): void
     {
         if (!empty($this->isTelemetryEnabled())) {
             $this->reportClickEvent($event_data);
