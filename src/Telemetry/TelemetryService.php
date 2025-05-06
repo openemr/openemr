@@ -42,7 +42,7 @@ class TelemetryService
     {
         // Check if telemetry is disabled in the product registration table.
         $isEnabled = sqlQuery("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0")['telemetry_disabled'] ?? null;
-        if ((int)$isEnabled === 0) {
+        if (!is_null($isEnabled)) {
             // If telemetry_disabled is 0, it means telemetry is enabled.
             $isEnabled = 1;
         } else {
