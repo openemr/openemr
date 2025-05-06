@@ -59,7 +59,7 @@ function handleRequest(): void
     $action = $data['action'] ?? '';
     switch ($action) {
         case 'portalCardClickData':
-            $telemetryService->reportClickEvent($data);
+            $telemetryService->reportClickEvent($data, true);
             break;
         default:
             http_response_code(400);

@@ -62,12 +62,16 @@ class TelemetryService
      *    'eventTarget' => $eventTarget,
      * ]
      */
-    public function reportClickEvent(array $data): false|string
+    public function reportClickEvent(array $data, bool $normalizeUrl = false): false|string
     {
         $eventType = $data['eventType'] ?? '';
         $eventLabel = $data['eventLabel'] ?? '';
         // Sanitize URL by stripping query parameters.
         $eventUrl = preg_replace('/\?.*$/', '', $data['eventUrl'] ?? '');
+        // Normalize URL, if $normalizeUrl is true
+        if ($normalizeUrl) {
+            $eventUrl = $this->normalizeUrl($eventUrl);
+        }
         $eventTarget = $data['eventTarget'] ?? '';
         $currentTime = date("Y-m-d H:i:s");
 
@@ -184,5 +188,18 @@ class TelemetryService
         if (!empty($this->isTelemetryEnabled())) {
             $this->reportClickEvent($event_data);
         }
+    }
+
+    private function normalizeUrl(string $url): string
+    {
+        $parsed = parse_url($url);
+        $path = $parsed['path'] ?? '';
+        $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+        if (!empty($GLOBALS['webroot'])) {
+            $normalized = preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path);
+        } else {
+            $normalized = $path;
+        }
+        return ($normalized . $fragment);
     }
 }
