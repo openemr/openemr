@@ -21,6 +21,10 @@ function ProductRegistrationController() {
         $('.product-registration-modal .message').text(error);
     };
     const _registrationCreatedHandler = function (data) {
+        // If telemetry is enabled, set the telemetryEnabled flag
+        if (data && typeof data === 'object' && data.hasOwnProperty('telemetry_enabled') && data.telemetry_enabled) {
+            top.telemetryEnabled = 1;
+        }
         _closeModal();
     };
     const _formCancellationHandler = function () {

@@ -141,7 +141,7 @@ if ($method === 'POST') {
             } else {
                 $backgroundTaskManager->deleteTelemetryTask();
             }
-            echo json_encode(["success" => true, "email" => $email]);
+            echo json_encode(["success" => true, "email" => $email, "telemetry_enabled" => ($telemetry_disabled == 0)]);
         } else {
             http_response_code(500);
             echo json_encode(["message" => xlt("Failed to update registration")]);
