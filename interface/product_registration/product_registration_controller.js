@@ -22,7 +22,7 @@ function ProductRegistrationController() {
     };
     const _registrationCreatedHandler = function (data) {
         // If telemetry is enabled, set the telemetryEnabled flag
-        if (data && typeof data === 'object' && data.hasOwnProperty('telemetry_enabled') && data.telemetry_enabled) {
+        if (data && typeof data === 'object' && Object.prototype.hasOwnProperty.call(data, 'telemetry_enabled') && data.telemetry_enabled) {
             top.telemetryEnabled = 1;
         }
         _closeModal();
