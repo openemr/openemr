@@ -56,12 +56,12 @@ class ORDataObject
             return true;
         }
 
-		$sql = "INSERT INTO " . $this->_prefix . $this->_table . " SET ";
+        $sql = "INSERT INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
         $fields = QueryUtils::listTableFields($this->_table);
         $db = get_db();
         $pkeys = $db->MetaPrimaryKeys($this->_table);
-		$setClause = "";
+        $setClause = "";
 
         foreach ($fields as $field) {
             $func = "get_" . $field;
@@ -98,8 +98,8 @@ class ORDataObject
 
         $setClause = rtrim($setClause, ',');
 
-		$sql .= $setClause;
-		$sql .= " ON DUPLICATE KEY UPDATE " . $setClause;
+        $sql .= $setClause;
+        $sql .= " ON DUPLICATE KEY UPDATE " . $setClause;
 
         if ($this->_throwExceptionOnError) {
             QueryUtils::sqlStatementThrowException($sql, []);
