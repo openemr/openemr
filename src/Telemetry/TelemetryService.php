@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionService;
 
@@ -21,8 +22,10 @@ class TelemetryService
 {
     protected TelemetryRepository $repository;
     protected VersionService $versionService;
+    protected SystemLogger $logger;
 
-    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null)
+
+    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null, SystemLogger $logger = null)
     {
         if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
             $repository = new TelemetryRepository();
@@ -30,6 +33,11 @@ class TelemetryService
         }
         $this->repository = $repository;
         $this->versionService = $versionService;
+
+        if (!($logger instanceof SystemLogger)) {
+            $logger = new SystemLogger();
+        }
+        $this->logger = $logger;
     }
 
     /**
@@ -90,8 +98,20 @@ class TelemetryService
         );
 
         if ($success) {
+            $this->logger->debug("Telemetry Event has been saved", [
+                'eventType' => $eventType,
+                'eventLabel' => $eventLabel,
+                'eventUrl' => $eventUrl,
+                'eventTarget' => $eventTarget,
+            ]);
             return json_encode(["success" => true]);
         } else {
+            $this->logger->error("Telemetry Event failed to save", [
+                'eventType' => $eventType,
+                'eventLabel' => $eventLabel,
+                'eventUrl' => $eventUrl,
+                'eventTarget' => $eventTarget,
+            ]);
             return json_encode(["error" => "Database insertion/update failed"]);
         }
     }

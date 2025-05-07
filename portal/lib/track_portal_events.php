@@ -31,6 +31,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
@@ -54,7 +55,8 @@ function handleRequest(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $telemetryService = new TelemetryService($telemetryRepo, $versionService);
+    $logger = new SystemLogger();
+    $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';
     switch ($action) {
