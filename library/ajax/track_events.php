@@ -13,6 +13,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
@@ -36,16 +37,13 @@ function handleRequest(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $telemetryService = new TelemetryService($telemetryRepo, $versionService);
+    $logger = new SystemLogger();
+    $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';
     switch ($action) {
         case 'reportMenuClickData':
             $telemetryService->reportClickEvent($data);
-            break;
-        case 'reportUsageData':
-            $result = $telemetryService->reportUsageData();
-            echo json_encode($result);
             break;
         default:
             http_response_code(400);
