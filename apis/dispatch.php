@@ -414,9 +414,9 @@ if ($dispatchResult === false) {
 try {
     (new TelemetryService())->trackApiRequestEvent([
         'eventType' => 'API',
-        'eventLabel' => json_encode($GLOBALS['oauth_scopes'] ?? []),
-        'eventUrl' => $resource,
-        'eventTarget' => $restRequest->getRequestMethod() . ' ' . $_SESSION['api'],
+        'eventLabel' => strtoupper($_SESSION['api'] ?? 'UNKNOWN'),
+        'eventUrl' => $restRequest->getRequestMethod() . ' ' . $resource,
+        'eventTarget' => json_encode($GLOBALS['oauth_scopes'] ?? []),
     ]);
     exit;
 } catch (\Exception $e) {

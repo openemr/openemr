@@ -28,7 +28,7 @@ class ProductRegistrationService
     {
     }
 
-    public function getProductStatus(): array
+    public function getProductDialogStatus(): array
     {
         $row = sqlQuery("SELECT * FROM `product_registration`");
         if (empty($row)) {
@@ -39,12 +39,13 @@ class ProductRegistrationService
         $optOut = $row['opt_out'] ?? null;
         $telemetry_disabled = $row['telemetry_disabled'] ?? null;
 
-        $row['allowEmail'] = 0;
-        $row['allowTelemetry'] = 0;
-        $row['allowRegisterDialog'] = 0;
+        $row['allowEmail'] = 0; // if show email dialog
+        $row['allowTelemetry'] = 0; // if show telemetry dialog
+        $row['allowRegisterDialog'] = 0; // if show registration dialog
         $currentVersion = (new VersionService())->asString();
         if ($currentVersion != $lastAskVersion) {
             // Change in version (or empty entry), so ignore opt outs and show the dialog if empty email or telemetry not enabled
+            //  (if do show the dialog, then return if show email and/or telemetry dialog)
             if (empty($email) || $telemetry_disabled == 1 || $telemetry_disabled == null) {
                 $row['allowRegisterDialog'] = 1;
                 if (empty($email)) {
@@ -55,19 +56,25 @@ class ProductRegistrationService
                 }
             }
         } else {
-            // No change in version, so do not show the dialog if has opted out
-            if ($telemetry_disabled === null || $optOut == null) {
+            // No change in version, so do not show the dialog if has opted out of both email and telemetry
+            //  (if do show the dialog, then return if show email and/or telemetry dialog)
+            if ($telemetry_disabled == null || $optOut == null) {
                 $row['allowRegisterDialog'] = 1;
-            }
-            if ($optOut == null) {
-                $row['allowEmail'] = 1;
-            }
-            if (empty($telemetry_disabled)) {
-                $row['allowTelemetry'] = 1;
+                if ($optOut == null) {
+                    $row['allowEmail'] = 1;
+                }
+                if ($telemetry_disabled == null) {
+                    $row['allowTelemetry'] = 1;
+                }
             }
         }
 
         return $row;
+    }
+
+    public function getRegistrationEmail(): string
+    {
+        return sqlQuery("SELECT `email` FROM `product_registration`")['email'] ?? '';
     }
 
     public function getRegistrationStatus(): string
