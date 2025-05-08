@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionService;
 
@@ -21,8 +22,10 @@ class TelemetryService
 {
     protected TelemetryRepository $repository;
     protected VersionService $versionService;
+    protected SystemLogger $logger;
 
-    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null)
+
+    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null, SystemLogger $logger = null)
     {
         if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
             $repository = new TelemetryRepository();
@@ -30,6 +33,11 @@ class TelemetryService
         }
         $this->repository = $repository;
         $this->versionService = $versionService;
+
+        if (!($logger instanceof SystemLogger)) {
+            $logger = new SystemLogger();
+        }
+        $this->logger = $logger;
     }
 
     /**
@@ -42,7 +50,7 @@ class TelemetryService
     {
         // Check if telemetry is disabled in the product registration table.
         $isEnabled = sqlQuery("SELECT `telemetry_disabled` FROM `product_registration` WHERE `telemetry_disabled` = 0")['telemetry_disabled'] ?? null;
-        if ((int)$isEnabled === 0) {
+        if (!is_null($isEnabled)) {
             // If telemetry_disabled is 0, it means telemetry is enabled.
             $isEnabled = 1;
         } else {
@@ -62,12 +70,16 @@ class TelemetryService
      *    'eventTarget' => $eventTarget,
      * ]
      */
-    public function reportClickEvent(array $data): false|string
+    public function reportClickEvent(array $data, bool $normalizeUrl = false): false|string
     {
         $eventType = $data['eventType'] ?? '';
         $eventLabel = $data['eventLabel'] ?? '';
         // Sanitize URL by stripping query parameters.
         $eventUrl = preg_replace('/\?.*$/', '', $data['eventUrl'] ?? '');
+        // Normalize URL, if $normalizeUrl is true
+        if ($normalizeUrl) {
+            $eventUrl = $this->normalizeUrl($eventUrl);
+        }
         $eventTarget = $data['eventTarget'] ?? '';
         $currentTime = date("Y-m-d H:i:s");
 
@@ -86,8 +98,20 @@ class TelemetryService
         );
 
         if ($success) {
+            $this->logger->debug("Telemetry Event has been saved", [
+                'eventType' => $eventType,
+                'eventLabel' => $eventLabel,
+                'eventUrl' => $eventUrl,
+                'eventTarget' => $eventTarget,
+            ]);
             return json_encode(["success" => true]);
         } else {
+            $this->logger->error("Telemetry Event failed to save", [
+                'eventType' => $eventType,
+                'eventLabel' => $eventLabel,
+                'eventUrl' => $eventUrl,
+                'eventTarget' => $eventTarget,
+            ]);
             return json_encode(["error" => "Database insertion/update failed"]);
         }
     }
@@ -179,10 +203,23 @@ class TelemetryService
      *
      * @param mixed $event_data The event data to set.
      */
-    public function trackApiRequestEvent(mixed $event_data): void
+    public function trackApiRequestEvent(array $event_data): void
     {
         if (!empty($this->isTelemetryEnabled())) {
             $this->reportClickEvent($event_data);
         }
+    }
+
+    private function normalizeUrl(string $url): string
+    {
+        $parsed = parse_url($url);
+        $path = $parsed['path'] ?? '';
+        $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+        if (!empty($GLOBALS['webroot'])) {
+            $normalized = preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path);
+        } else {
+            $normalized = $path;
+        }
+        return ($normalized . $fragment);
     }
 }
