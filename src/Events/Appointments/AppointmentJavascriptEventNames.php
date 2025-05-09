@@ -3,8 +3,8 @@
 /**
  * AppointmentJavascriptEventNames class holds an array of javascript event names
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -12,6 +12,7 @@
  */
 
 namespace OpenEMR\Events\Appointments;
+
 use Symfony\Contracts\EventDispatcher\Event;
 
 class AppointmentJavascriptEventNames extends Event
@@ -27,6 +28,7 @@ class AppointmentJavascriptEventNames extends Event
      *  console.log(event.detail); // for the remainder of the data passed in the event
      * });
      * </example>
+     *
      * @see add_edit_event.php
      */
     const APPOINTMENT_PATIENT_SET_EVENT = 'openemr:appointment:patient:set';
