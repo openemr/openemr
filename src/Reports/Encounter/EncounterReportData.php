@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Reports\Encounter;
 
-
 class EncounterReportData
 {
     // START AI GENERATED CODE
