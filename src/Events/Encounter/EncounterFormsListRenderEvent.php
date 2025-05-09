@@ -13,7 +13,9 @@
 
 namespace OpenEMR\Events\Encounter;
 
-class EncounterFormsListRenderEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class EncounterFormsListRenderEvent extends Event
 {
     /**
      * Allows screen output after all of the encounter forms have been rendered for the encounter/forms.php screen

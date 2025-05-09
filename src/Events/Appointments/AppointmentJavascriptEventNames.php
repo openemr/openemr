@@ -12,8 +12,9 @@
  */
 
 namespace OpenEMR\Events\Appointments;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class AppointmentJavascriptEventNames
+class AppointmentJavascriptEventNames extends Event
 {
     /**
      * This event is triggered in javascript when a patient is selected for an appointment in the add_edit_event.php class
