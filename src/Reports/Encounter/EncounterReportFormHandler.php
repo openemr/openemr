@@ -52,8 +52,15 @@ class EncounterReportFormHandler
 
     private function validateDate($date): bool
     {
-        $d = \DateTime::createFromFormat('Y-m-d', $date);
-        return $d && $d->format('Y-m-d') === $date;
+        if ($GLOBALS['date_display_format'] == 0) {
+            return checkdate(substr($date, 5, 2), substr($date, 8, 2), substr($date, 0, 4));
+        } elseif ($GLOBALS['date_display_format'] == 1) {
+            return checkdate(substr($date, 0, 2), substr($date, 3, 2), substr($date, 6, 4));
+        } else {
+            return checkdate(substr($date, 3, 2), substr($date, 0, 2), substr($date, 6, 4));
+        }
+//        $d = \DateTime::createFromFormat('Y-m-d', $date);
+//        return $d && $d->format('Y-m-d') === $date;
     }
 
     // Add other validation methods as needed.
