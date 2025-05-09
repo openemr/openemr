@@ -1,5 +1,7 @@
 #docker mount bind data directory
-docker/development-easy/docker_data
+docker/gheit-local/docker_data
+docker/gheit-dev/docker_data
+docker/gheit-prod/docker_data
 
 # logs
 /logs
