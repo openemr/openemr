@@ -36,7 +36,10 @@ if ($response !== true) {
     die(htmlspecialchars($response));
 }
 
-// Set the maximum excution time and time limit to unlimited.
+// Capture the maximum execution time and display errors setting before changing them.
+$original_ini_max_execution_time = ini_get('max_execution_time');
+$original_ini_display_errors = ini_get('display_errors');
+// Then set the max execution time limit to unlimited, and turn off display errors.
 ini_set('max_execution_time', 0);
 ini_set('display_errors', 0);
 set_time_limit(0);
@@ -1479,13 +1482,13 @@ STP4TOP;
 
                     $short_tag = ini_get('short_open_tag') ? 'On' : 'Off';
                     $short_tag_style = (strcmp($short_tag, 'Off') === 0) ? '' : 'text-danger';
-                    $display_errors = ini_get('display_errors') ? 'On' : 'Off';
+                    $display_errors = $original_ini_display_errors ? 'On' : 'Off';
                     $display_errors_style = (strcmp($display_errors, "Off")  === 0) ? '' : 'text-danger';
                     $register_globals = ini_get('register_globals') ? 'On' : 'Off';
                     $register_globals_style = (strcmp($register_globals, 'Off')  === 0) ? '' : 'text-danger';
                     $max_input_vars = ini_get('max_input_vars');
                     $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
-                    $max_execution_time = (int)ini_get('max_execution_time');
+                    $max_execution_time = (int)$original_ini_max_execution_time;
                     $max_execution_time_style = $max_execution_time >= 60 || $max_execution_time === 0 ? '' : 'text-danger';
                     $max_input_time = ini_get('max_input_time');
                     $max_input_time_style = (strcmp($max_input_time, '-1')  === 0) ? '' : 'text-danger';
