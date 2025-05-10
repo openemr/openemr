@@ -23,13 +23,11 @@ use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
+use OpenEMR\Modules\Dorn\EventSubscriber\DornLabSubscriber;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
-
-
-
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
@@ -65,7 +63,7 @@ class Bootstrap
 
     public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
-        global $GLOBALS;
+        //global $GLOBALS;
 
         if (empty($kernel)) {
             $kernel = new Kernel();
@@ -94,6 +92,7 @@ class Bootstrap
             $this->registerMenuItems();
             $this->registerTemplateEvents();
             $this->subscribeToApiEvents();
+            $this->eventDispatcher->addSubscriber(new DornLabSubscriber());
         }
     }
 
@@ -112,7 +111,7 @@ class Bootstrap
     }
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
-        global $GLOBALS;
+        //global $GLOBALS;
 
         $service = $event->getGlobalsService();
         $section = xlt("DORN");

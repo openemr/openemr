@@ -12,7 +12,11 @@
 
 namespace OpenEMR\Modules\Dorn;
 
+/**
+ * @global OpenEMR\Core\ModulesClassLoader $classLoader
+ */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\Dorn\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
+
 /**
  * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
  */
