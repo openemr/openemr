@@ -4317,7 +4317,7 @@ $GLOBALS_METADATA = array(
         ],
 
         'set_service_facility_encounter' => array(
-            xl('Set Service Facility in Encounter'),
+            xl('Set Service Facility in Encounter To First Care Team Facility'),
             'bool',                           // data type
             '0',                              // default = false
             xl('This feature will allow the default service facility to be selected by the care team facility in Choices.')
@@ -4390,7 +4390,7 @@ $GLOBALS_METADATA = array(
             xl('Show Encounter Type option on Encounters'),
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
-            xl('Show Encounter Class option on Encounters'),
+            xl('Show Encounter Type option on Encounters'),
         ],
 
         'enc_enable_ordering_provider' => [

@@ -115,11 +115,11 @@ class RCFaxClient extends AppDispatch
                 return 1;
             }
         } catch (ApiException $e) {
-            return "API Error: " . text($e->getMessage()) . " - " . text($e->getCode());
+            return js_escape(['error' => "API Error: " . text($e->getMessage()) . " - " . text($e->getCode())]);
         } catch (Exception $e) {
-            return "Error: " . text($e->getMessage());
+            return js_escape(['error' => "Error: " . text($e->getMessage())]);
         }
-        return "Login with JWT failed.";
+        return js_escape(['error' => "Login with JWT failed."]);
     }
 
     /**
@@ -220,8 +220,7 @@ class RCFaxClient extends AppDispatch
                     'to' => [['phoneNumber' => $toPhone]],
                     'text' => $message,
                 ]);
-                sleep(1.25);
-                // RC may only allow 1/second.
+                sleep(1); // Sleep to avoid rate limit 10 per minute
                 return true;
             } catch (ApiException $e) {
                 return text("API Error: " . $e->getMessage() . " - " . $e->getCode());
@@ -229,6 +228,31 @@ class RCFaxClient extends AppDispatch
         }
 
         return true;
+    }
+    /**
+     * @return string
+     */
+    public function fetchTextMessage(): string
+    {
+        $id = $_REQUEST['id'] ?? null;
+        $uri = $_REQUEST['uri'] ?? null;
+
+        if (empty($id) || empty($uri)) {
+            return "Missing id or uri parameters.";
+        }
+
+        $authResult = $this->authenticateRingCentral();
+        if ($authResult !== 1) {
+            return $authResult;
+        }
+
+        try {
+            $response = $this->platform->get($uri);
+            return js_escape((string)$response->text());
+        } catch (Exception $e) {
+            $responseMsg = "<tr><td>" . text($e->getMessage()) . "</td></tr>";
+            return json_encode(['error' => $responseMsg]);
+        }
     }
 
     /**
@@ -244,6 +268,7 @@ class RCFaxClient extends AppDispatch
 
     /**
      * API Endpoint for sending
+     *
      * @return string
      */
     public function forwardFax(): string
@@ -797,6 +822,39 @@ class RCFaxClient extends AppDispatch
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
+    /**
+     * @param string $phone
+     * @return string|bool
+     */
+    public function findPatientByPhone(string $phone): bool|string
+    {
+        if (empty($phone)) {
+            return '';
+        }
+        $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
+        if (strlen($normalizedPhone) === 11 && str_starts_with($normalizedPhone, '1')) {
+            $normalizedPhone = substr($normalizedPhone, 1);
+        }
+
+        $likePhone = "%" . $normalizedPhone;
+
+        $sql = "
+        SELECT CONCAT(fname, ' ', lname) AS fullname
+        FROM patient_data
+        WHERE REPLACE(REPLACE(REPLACE(REPLACE(phone_cell, '-', ''), '(', ''), ')', ''), ' ', '') LIKE ?
+        LIMIT 1
+    ";
+
+        $result = sqlQuery($sql, [$likePhone]);
+        $rtn = $result['fullname'] ?? '';
+        if (!empty($rtn)) {
+            $rtn .= ' ';
+        } else {
+            $rtn = '';
+        }
+
+        return $rtn;
+    }
 
     /**
      * @return string
@@ -813,7 +871,7 @@ class RCFaxClient extends AppDispatch
     /**
      * @return string
      */
-   /* public function getNotificationLog(): string
+    public function getNotificationLog(): string
     {
         $type = $this->getRequest('type');
         $fromDate = $this->getRequest('datefrom');
@@ -833,7 +891,7 @@ class RCFaxClient extends AppDispatch
         }
 
         return $responseMsg;
-    }*/
+    }
 
     /**
      * @return string
@@ -894,42 +952,53 @@ class RCFaxClient extends AppDispatch
      */
     public function getPending(): false|string
     {
+        // Authenticate and refresh token if needed
         $authErrorMsg = $this->authenticate();
         if ($authErrorMsg !== 1) {
             return json_encode(['error' => js_escape($authErrorMsg)]);
         }
 
+        // Get the date range and service type from the request
         $dateFrom = $this->getRequest('datefrom');
         $dateTo = $this->getRequest('dateto');
         $serviceType = $this->getRequest('type', '');
 
         try {
-            $messageStoreDir = $this->baseDir;
-
-            if (!file_exists($messageStoreDir) && !mkdir($messageStoreDir, 0777, true) && !is_dir($messageStoreDir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $messageStoreDir));
-            }
-
             $dateFrom .= 'T00:00:01.000Z';
             $dateTo .= 'T23:59:59.000Z';
-
-            $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
-                'dateFrom' => $dateFrom,
-                'dateTo' => $dateTo,
-            ])->json()->records;
+            $serviceType = strtolower($serviceType);
+            // Fetch the message store list based on the service type
+            if ($serviceType == 'sms') {
+                $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
+                    'dateFrom' => $dateFrom,
+                    'dateTo' => $dateTo,
+                    'messageType' => 'SMS',
+                ])->json()->records;
+            } else {
+                $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
+                    'dateFrom' => $dateFrom,
+                    'dateTo' => $dateTo,
+                    'messageType' => 'Fax',
+                ])->json()->records;
+            }
 
             $responseMsg = $this->processMessageStoreList($messageStoreList, $serviceType);
         } catch (ApiException $e) {
-            $responseMsg = "<tr><td>" . text($e->getMessage()) . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
+            $responseMsg = "<tr><td>" . text($e->getMessage()) . " : " . xlt('Report to Administration.') . "</td></tr>";
             return json_encode(['error' => $responseMsg]);
         }
 
         return json_encode($responseMsg ?: [xlt("Nothing to report"), xlt("Nothing to report"), xlt("Nothing to report")]);
     }
 
-    private function processMessageStoreList($messageStoreList, $serviceType): array
+    private function processMessageStoreList($messageStoreList, $serviceType): false|array|string
     {
         $responseMsg = [];
+        $count = count($messageStoreList ?? []);
+        $timePerMessageStore = 1; // seconds
+        $start = microtime();
+        $useLink = false;
+        $cnt = 0;
         foreach ($messageStoreList as $messageStore) {
             if (property_exists($messageStore, 'attachments')) {
                 foreach ($messageStore->attachments as $attachment) {
@@ -945,14 +1014,51 @@ class RCFaxClient extends AppDispatch
                     $checkbox = "<input type='checkbox' class='delete-fax-checkbox' value='" . attr($id) . "'>";
                     $type = strtolower($messageStore->type);
                     $direction = strtolower($messageStore->direction);
-                    $readStatus = $messageStore->readStatus;
-                    if ($type === "sms") {
-                        $messageText = $this->getMessageContent($uri);
-                        $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->type) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td><span class='$id'>" . text(substr($messageText, 0, 30)) . "</span><div class='d-none $id'>" . text($messageText) . "</div></td><td class='btn-group'>" . attr($links['sms']) . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
-                    } elseif ($direction === "inbound" && $type === $serviceType) {
+                    $messageText = '';
+                    if ($type === "sms" && $type === $serviceType) {
+                        if ($direction === "inbound") {
+                            $links = $this->generateSmsActionLinks($id, $uri, $messageStore->from->phoneNumber ?? '');
+                            $pname = $this->findPatientByPhone($messageStore->from->phoneNumber ?? '');
+                            try {
+                                if (!$useLink) {
+                                    $response = $this->platform->get($uri);
+                                    $messageText = (string)$response->text();
+                                    $messageText = str_replace("\n", "<br>", $messageText);
+                                    sleep(0.5); // Sleep to avoid rate limit 10 per minute
+                                    $cnt++;
+                                    if ($cnt >= 9) {
+                                        $authErrorMsg = $this->authenticate();
+                                        if ($authErrorMsg !== 1) {
+                                            return json_encode(['error' => js_escape($authErrorMsg)]);
+                                        }
+                                        $cnt = 0;
+                                    }
+                                } else {
+                                    $messageText = xlt("Text retrieval error. Click show message");
+                                }
+                            } catch (ApiException $e) {
+                                $messageText = "Error: " . text($e->getMessage());
+                                if ($e->getCode() == 401) {
+                                    $useLink = true;
+                                }
+                            }
+                            $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($pname . $from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
+                        } elseif ($direction === "outbound") {
+                            $links = $this->generateSmsActionLinks($id, $uri, $messageStore->to[0]->phoneNumber ?? '');
+                            $pname = $this->findPatientByPhone($messageStore->to->phoneNumber ?? '');
+                            $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($from) . "</td><td>" . text($pname . $to) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
+                        }
+                        $toName = $to;
+                        $fromName = $pname . $from;
+                        if ($direction === "outbound") {
+                            $toName = $pname . $to;
+                            $fromName = $from;
+                        }
+                        $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($fromName) . "</td><td>" . text($toName) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
+                    } elseif ($direction === "inbound" && $type === $serviceType && $serviceType === "fax") {
                         $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
                         $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
-                    } elseif ($direction === "outbound" && $type === $serviceType) {
+                    } elseif ($direction === "outbound" && $type === $serviceType && $serviceType === "fax") {
                         $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
                         $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) .
                             "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $links['outbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
@@ -972,73 +1078,21 @@ class RCFaxClient extends AppDispatch
         $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
         $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
         $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
-
-        $vtoggle = "<a href='javascript:' onclick=messageShow(" . attr_js($id) . ")><span class='mx-1 fa fa-eye-slash fa-1x'></span></a>";
-        $vreply = "<a href='javascript:' onclick=messageReply(" . attr_js($id) . ")><span class='mx-1 fa fa-reply'></span></a>";
-
         return [
-            'sms' => $vtoggle . $vreply,
             'inbound' => $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink,
             'outbound' => $viewLink . $downloadLink . $deleteLink
         ];
     }
 
-    /**
-     * @param array $responseMsg
-     * @param       $messageStore
-     * @param       $attachment
-     * @return void
-     */
-    private function formatMessageStore(array &$responseMsg, $messageStore, $attachment): void
+    private function generateSmsActionLinks($id, $uri, $phone): array
     {
-        $id = $attachment->id;
-        $uri = $attachment->uri;
-        $to = $messageStore->to[0]->name . " " . $messageStore->to[0]->phoneNumber;
-        $from = $messageStore->from->name . " " . $messageStore->from->phoneNumber;
-        $errors = $messageStore->to[0]->faxErrorCode ? "why: " . $messageStore->to[0]->faxErrorCode : $messageStore->from->faxErrorCode;
-        $status = $messageStore->messageStatus . " " . $errors;
-        $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode($parse ?? [])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
-        $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(($pid_assumed ?? 0)) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
-        $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
-        $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
-        $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
-        $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
+        $vtoggle = "<a href='javascript:' onclick=messageShow(" . attr_js($id) . "," . attr_js($uri) . ")><span class='mx-1 fas fa-comment fa-1x'></span></a>";
+        $vreply = "<a href='javascript:' onclick=messageReply(" . attr_js($phone) . ")><span class='mx-1 fa fa-reply'></span></a>";
 
-        $faxFormattedDate = date('M j, Y g:i:sa T', strtotime($messageStore->lastModifiedTime));
-        $docLen = text(round(1024 / 1024, 2)) . "KB"; // todo add length
-        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($from) . "</td><td>" . text('todo: add caller id') . "</td><td>" . text($to) . "</td><td>" . text($messageStore->PagesReceived) . "</td><td>" . text($docLen) . "</td><td class='text-left'>" . /*$detailLink .*/
-            "</td><td class='text-center'>" . text($pid_assumed ?? '') . "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink . "</td></tr>";
-        //$responseMsg[0] .= $form;
-        $aUrl = "<a href='#' onclick=getDocument(event," . attr_js($uri) . "," . attr_js($id) . ",'true')>" . text($id) . " <span class='fa fa-download'></span></a></br>";
-        $vUrl = "<a href='#' onclick=getDocument(event," . attr_js($uri) . "," . attr_js($id) . ",'false')> <span class='fa fa-file-pdf-o'></span></a></br>";
-        if ($status != 'failed' && $this->formatPhone($this->credentials['smsNumber']) != $messageStore->from) {
-            $vreply = "<a href='javaScript:' onclick=messageReply(" . attr_js($messageStore->from) . ")><span class='mx-1 fa fa-reply'></span></a>";
-        } else {
-            $vreply = "<a href='#' title='SMS failure'> <span class='fa fa-file-pdf text-danger'></span></a></br>";
-        }
-        $row = "<tr>
-                <td>" . text(str_replace(["T", "Z"], " ", $messageStore->lastModifiedTime)) . "</td>
-                <td>" . text($messageStore->type) . "</td>
-                <td>" . text($from) . "</td>
-                <td>" . text($to) . "</td>
-                <td>" . text($status) . "</td>
-                <td>" . ($aUrl) . "</td>
-                <td>" . ($vUrl) . "</td>";
-        if (strtolower($messageStore->type) === "sms") {
-            $row .= "<td>" . ($vreply) . "</td>";
-        }
-
-        $row .= "</tr>";
-        if (strtolower($messageStore->type) === "sms") {
-            $responseMsg[2] .= $row;
-            // sms
-        } elseif (strtolower($messageStore->direction) === "inbound") {
-            $responseMsg[0] .= $row;
-// in fax
-        } else {
-            $responseMsg[1] .= $row;
-// out fax
-        }
+        return [
+            'sms' => $vtoggle . $vreply,
+            'smsoutbound' => $vreply
+        ];
     }
 
     /**
@@ -1055,63 +1109,6 @@ class RCFaxClient extends AppDispatch
             $n = '+1' . $n;
         }
         return $n;
-    }
-
-    /**
-     * @return string|void
-     */
-    public function getMessage()
-    {
-        $authErrorMsg = $this->authenticate();
-        if ($authErrorMsg !== 1) {
-            return text(js_escape($authErrorMsg));
-            // goes to alert
-        }
-
-        try {
-            $messageStoreDir = $this->baseDir;
-            if (!file_exists($messageStoreDir)) {
-                mkdir($messageStoreDir, 0777, true);
-            }
-
-            $messageStoreList = $this->platform->get('/account/~/extension/~/message-store', [
-                'messageType' => "",
-                'dateFrom' => '2018-05-01'
-            ])->json()->records;
-            $timePerMessageStore = 6;
-            $responseMsgs = "";
-            foreach ($messageStoreList as $messageStore) {
-                if (property_exists($messageStore, 'attachments')) {
-                    foreach ($messageStore->attachments as $attachment) {
-                        $id = $attachment->id;
-                        $uri = $attachment->uri;
-                        try {
-                            $apiResponse = $this->platform->get($uri);
-                        } catch (ApiException $e) {
-                            $responseMsgs .= "<tr><td>Errors: " . text($e->getMessage()) . $e->apiResponse()->request()->getUri()->__toString() . "</td></tr>";
-                            continue;
-                        }
-
-                        $ext = $this->getExtensionFromContentType($apiResponse->response()->getHeader('Content-Type')[0]);
-                        $type = $this->getTypeFromContentType($apiResponse->response()->getHeader('Content-Type')[0]);
-                        $start = microtime(true);
-                        file_put_contents("{$messageStoreDir}/{$type}_{$id}.{$ext}", $apiResponse->raw());
-                        $responseMsgs .= "<tr><td>" . $messageStore->creationTime . "</td><td>" . $messageStore->type . "</td><td>" . $messageStore->from->name . "</td><td>" . $messageStore->to->name . "</td><td>" . $messageStore->availability . "</td><td>" . $messageStore->messageStatus . "</td><td>" . $messageStore->message->id . "</td></tr>";
-                        $end = microtime(true);
-                        $time = ($end - $start);
-                        if ($time < $timePerMessageStore) {
-                            sleep($timePerMessageStore - $time);
-                        }
-                    }
-                } else {
-                    echo xlt("Does not have messages") . PHP_EOL;
-                }
-            }
-        } catch (ApiException $e) {
-            echo "<tr><td>Error: " . text($e->getMessage() . $e->apiResponse()->request()->getUri()->__toString()) . "</td></tr>";
-        }
-
-        exit;
     }
 
     /**
@@ -1156,7 +1153,7 @@ class RCFaxClient extends AppDispatch
                 'availability' => 'Alive'
             ]);
             $json = $response->json();
-            return (string) text(count($json->records));
+            return (string)text(count($json->records));
         } catch (Exception $e) {
             error_log('Error fetching incoming faxes: ' . text($e->getMessage()));
             return false;

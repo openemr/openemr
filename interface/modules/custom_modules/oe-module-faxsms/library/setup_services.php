@@ -16,10 +16,55 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 
 $module_config = 1;
 
 $boot = new BootstrapService();
+$taskManager = new NotificationTaskManager();
+$services = ['sms', 'email'];
+$actions = ['create', 'enable', 'disable', 'delete'];
+
+if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+
+    $selectedService = $_POST['selected_service'] ?? null;
+    $selectedAction = $_POST['action'] ?? null;
+    $status = $taskManager->getServiceStatus($selectedService);
+
+    $period = $_POST['period'] ?? null;
+    if (empty($period)) {
+        $period = $taskManager->getTaskHours($selectedService);
+    }
+
+    if ($selectedService && $selectedAction) {
+        if ($selectedAction === 'create') {
+            if ($period) {
+                $taskManager->manageService($selectedService, $period);
+            }
+        }
+        switch ($selectedAction) {
+            case 'create':
+                break;
+            case 'enable':
+                $taskManager->enableService($selectedService, $period);
+                break;
+            case 'disable':
+                $taskManager->disableService($selectedService);
+                break;
+            case 'delete':
+                $taskManager->deleteService($selectedService);
+                break;
+            default:
+                throw new Exception("Invalid action selected.");
+        }
+    }
+}
+
+$currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
+
 if ($_POST['form_save'] ?? null) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -39,11 +84,15 @@ $vendors = $boot->getVendorGlobals();
         $boot->createVendorGlobals();
         $vendors = $boot->getVendorGlobals();
     }
+    $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
+    $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
+    $services = [$isSmsEnabled, $isEmailEnable];
+
     $isRCSMS = $vendors['oefax_enable_sms'] == 1 ? '1' : '0';
-    $isRCFax = $vendors['oefax_enable_fax'] == 1 ? '1' : '0';
     $isEMAIL = $vendors['oe_enable_email'] == 4 ? '1' : '0';
+    $isRCFax = $vendors['oefax_enable_fax'] == 1 ? '1' : '0';
     $setupUrl = './../setup.php';
-    if ($isRCFax) {
+    if ($isRCFax || $isRCSMS) {
         $setupUrl = './../setup_rc.php';
     }
     Header::setupHeader();
@@ -52,6 +101,11 @@ $vendors = $boot->getVendorGlobals();
         let ServiceFax = <?php echo js_escape($isRCFax) ?>;
         let ServiceSMS = <?php echo js_escape($isRCSMS); ?>;
         let ServiceEmail = <?php echo js_escape($isEMAIL); ?>;
+
+        function toggleHelpCard() {
+            const helpCard = document.getElementById('helpCard');
+            helpCard.style.display = helpCard.style.display === 'none' ? 'block' : 'none';
+        }
 
         function toggleSetup(id, type = 'single') {
             let url = './../setup.php';
@@ -110,6 +164,11 @@ $vendors = $boot->getVendorGlobals();
                     $("#form_save").click();
                 })
             });
+            document.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    $("#form_action").submit();
+                });
+            });
         });
     </script>
 </head>
@@ -122,7 +181,8 @@ $vendors = $boot->getVendorGlobals();
             <?php }
             if (!empty($vendors['oefax_enable_fax'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax Account"); ?><span class="caret"></span></button>
-            <?php } if (!empty($vendors['oe_enable_email'])) { ?>
+            <?php }
+            if (!empty($vendors['oe_enable_email'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email Account"); ?><span class="caret"></span></button>
             <?php } ?>
             <span class="checkbox text-light br-dark" title="Use Dialog or Panels">
@@ -186,6 +246,61 @@ $vendors = $boot->getVendorGlobals();
                     </div>
                 </div>
             </form>
+            <form class="form w-100" id="form_action" method="POST" action="setup_services.php">
+                <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <fieldset>
+                    <legend><?php echo xlt('Select Background Service to Manage');
+                        $showFlag = false; ?></legend>
+                    <div id="helpCard" class="help-card card" style="display: none;">
+                        <div class="card-header text-center"><h5><?php echo xlt('Managing Background Services Help'); ?></h5></div>
+                        <div class="card-body"><?php echo nl2br(text('Select a background service to manage.  
+                        You may specify an required interval in hours when creating the task. The default is 24 hours
+                        Use the action buttons to create the task, enable or disable its execution, or delete it. 
+                        When Create is used the task is created but disabled. 
+                        If Enable is selected, the task is created if not already installed and enabled as a step saver. 
+                        Whichever one is used, Create or Enable, and the task already exists, it will be updated with the execute interval input value and enabled if Enable or the task last state if Create.
+                        Whenever a new service task is created and enabled, the task will run initial notifications within 2 minutes so, be prepared.')); ?></div>
+                    </div>
+                    <div class="pl-2 form-group clearfix">
+                        <?php foreach ($services as $service) {
+                            if (empty($service)) {
+                                continue;
+                            }
+                            $showFlag = true;
+                            if ($service != 'disabled') {
+                            }
+                            ?>
+                            <label>
+                                <input type="radio" name="selected_service" value="<?php echo attr($service); ?>" <?php echo ($selectedService === $service) ? 'checked' : ''; ?> required />
+                                <?php echo text(ucfirst($service)); ?>
+                            </label>
+                        <?php }
+                        if ($showFlag) { ?>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" name="action" value="create"><?php echo xlt('Create and Run'); ?></button>
+                                <?php echo xlt('Every'); ?> <input type="text" name="period" id="period_input" class="" style="display:inline-block; max-width: 125px;" maxlength="4"
+                                    placeholder="<?php echo xla('Execute Interval'); ?>"
+                                    value="<?php echo attr($period ?? ''); ?>" /> <?php echo xlt('Hours'); ?>
+                                <span class="button-group">
+                                <button type="submit" class="btn btn-success" name="action" value="enable"><?php echo xlt('Enable'); ?></button>
+                                <button type="submit" class="btn btn-warning" name="action" value="disable"><?php echo xlt('Disable'); ?></button>
+                                <button type="submit" class="btn btn-danger" name="action" value="delete"><?php echo xlt('Delete'); ?></button>
+                                <button type="button" class="btn btn-info" onclick="toggleHelpCard()"><?php echo xlt('Help'); ?></button>
+                            </span>
+                            </div>
+                            <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
+                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst($selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
+                                <ul>
+                                    <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
+                                    <li><strong><?php echo xlt('Execution Run Interval'); ?>: </strong><?php echo text($currentStatus[$selectedService]['execute_interval']) . ' ' . xlt('Minutes'); ?></li>
+                                    <li><strong><?php echo xlt('Next Run Time'); ?>: </strong><?php echo text($currentStatus[$selectedService]['next_run']); ?></li>
+                                </ul>
+                            <?php }
+                        } else { ?>
+                            <h5><?php echo xlt('To enable Background Services setup an SMS vendor, enable the Mail Client or Both.'); ?></h5>
+                        <?php } ?>
+                    </div>
+                </fieldset>
         </div>
         <!-- iframes to hold setup account scripts. Dialogs replace these if requested in UI -->
         <?php if (!empty($vendors['oefax_enable_fax'])) { ?>

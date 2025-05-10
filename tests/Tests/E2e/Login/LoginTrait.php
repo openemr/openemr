@@ -39,7 +39,7 @@ trait LoginTrait
     private function login(string $name, string $password, bool $goalPass = true): void
     {
         // login
-        $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default');
+        $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
         $form = $this->crawler->filter('#login_form')->form();
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
