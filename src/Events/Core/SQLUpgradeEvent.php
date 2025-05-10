@@ -16,8 +16,9 @@
 namespace OpenEMR\Events\Core;
 
 use OpenEMR\Services\Utils\SQLUpgradeService;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class SQLUpgradeEvent
+class SQLUpgradeEvent extends Event
 {
     /**
      * This event is triggered just before the upgrade starts processing the upgrade file
