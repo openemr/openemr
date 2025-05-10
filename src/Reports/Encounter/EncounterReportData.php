@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Reports\Encounter;
 
+
 class EncounterReportData
 {
     // START AI GENERATED CODE
@@ -23,17 +24,17 @@ class EncounterReportData
             e.encounter,
             e.pid,
             e.provider_id,
-            pc.pc_catdesc,
+            pc.pc_catname,
             CONCAT(u.lname, ', ', u.fname) AS provider,
             CONCAT(p.lname, ', ', p.fname) AS patient,
             GROUP_CONCAT(DISTINCT f.form_name SEPARATOR ', ') AS form_list,
             SUM(CASE WHEN esf.tid IS NOT NULL THEN 1 ELSE 0 END) AS signed_forms_count,
             GROUP_CONCAT(DISTINCT CONCAT(signer.lname, ', ', signer.fname) SEPARATOR '; ') AS signers,
             (
-                SELECT b.code
+                SELECT GROUP_CONCAT(DISTINCT b.code SEPARATOR ', ')
                 FROM billing b
                 WHERE b.pid = e.pid AND b.encounter = e.encounter
-                GROUP BY b.pid, b.encounter
+                AND b.code IS NOT NULL AND b.code != ''
             ) AS coding
         FROM form_encounter e
         JOIN users u ON u.id = e.provider_id
@@ -89,9 +90,8 @@ class EncounterReportData
                 'pid' => $row['pid'] ?? '',
                 'provider' => $row['provider'] ?? '',
                 'patient' => $row['patient'] ?? '',
-                'category' => $row['pc_catdesc'] ?? '',
+                'category' => $row['pc_catname'] ?? '',
                 'encounter_number' => '',
-                'pc_catdesc' => $row['pc_catdesc'] ?? '',
                 'forms' => $row['form_list'] ?? '',
                 'signed_forms_count' => $row['signed_forms_count'] ?? 0,
                 'coding' => $row['coding'] ?? '',

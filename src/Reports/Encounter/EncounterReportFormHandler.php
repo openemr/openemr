@@ -59,8 +59,6 @@ class EncounterReportFormHandler
         } else {
             return checkdate(substr($date, 3, 2), substr($date, 0, 2), substr($date, 6, 4));
         }
-//        $d = \DateTime::createFromFormat('Y-m-d', $date);
-//        return $d && $d->format('Y-m-d') === $date;
     }
 
     // Add other validation methods as needed.

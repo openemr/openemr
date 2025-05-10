@@ -33,11 +33,11 @@ class EncounterReportFormatter
             'id' => $encounter['id'],
             'pid' => $encounter['pid'],
             'encounter' => $encounter['encounter'],
-            'category' => $encounter['pc_catdesc'],
+            'category' => $encounter['category'],
             'forms' => $encounter['forms'],
             'encounter_number' => $encounter['encounter_nr'],
             'form' => $encounter['form_id'], // Assuming form_id represents the form
-            'coding' => $encounter['pc_cid'], // Assuming pc_cid represents coding
+            'coding' => $encounter['coding'], // Assuming pc_cid represents coding
             'signedby' => $encounter['signedby'],
         ];
     }
@@ -60,28 +60,5 @@ class EncounterReportFormatter
             'providers' => $formattedSummary,
             'total_encounters' => $totalEncounters
         ];
-    }
-
-    // END AI GENERATED CODE
-    private function getProviderName($providerId)
-    {
-        // Implement logic to get provider name from the database based on providerId
-        // Example:
-        $providerName = sqlQuery("SELECT CONCAT(lname, ', ', fname) AS name FROM users WHERE id = ?", [$providerId]);
-        if ($providerName) {
-            return $providerName['name'];
-        }
-        return '';
-    }
-
-    private function getPatientName($patientId)
-    {
-        // Implement logic to get patient name from the database based on patientId
-        // Example:
-        $patientName = sqlQuery("SELECT CONCAT(lname, ', ', fname) FROM patient_data WHERE pid = ?", [$patientId]);
-        if ($patientName) {
-            return sqlFetchArray($patientName)[0];
-        }
-        return '';
     }
 }

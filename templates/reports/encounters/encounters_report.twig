@@ -157,11 +157,6 @@
                         </tr>
                     </tbody>
                 </table>
-                {% if not filters.details and (encounters.providers is empty or encounters.providers|length == 0) %}
-                    <div class="alert alert-info">
-                        {{ "No encounter summary data found"|xlt }}
-                    </div>
-                {% endif %}
             {% endif %}
             {% if filters.details|length > 0 and  encounters is defined and encounters|length > 0 %}
                 <div class="detailed-report mt-4 w-100">
@@ -202,12 +197,12 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% if filters.details and (encounters is empty or encounters|length == 0) %}
-                        <div class="alert alert-info">
-                            {{ "No encounters found matching your criteria"|xlt }}
-                        </div>
-                    {% endif %}
                     <p>{{ "Total Encounters"|xlt }}: {{ encounterCount }}</p>
+                </div>
+            {% endif %}
+            {% if filters.details and (encounters is empty or encounters|length == 0) %}
+                <div class="alert alert-info d-flex align-items-center justify-content-center w-100">
+                    {{ "No encounters found matching your criteria"|xlt }}
                 </div>
             {% endif %}
         </div>
