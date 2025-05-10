@@ -12,6 +12,7 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -26,9 +27,9 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use OpenEMR\Modules\Dorn\DornGenHl7Order;//wanting to keep everything in the module for easy updating. I hope this works, from what I've read it should.
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -54,16 +55,35 @@ $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", array($
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 
+
+function isDornLab($ppid)
+{
+    $sql = "SHOW TABLES LIKE 'mod_dorn_routes'";
+    $result = sqlQuery($sql);
+    if ($result === false) {
+        return false;
+    }
+
+    $sql = "SELECT 1 FROM mod_dorn_routes WHERE ppid = ?";
+    $dornRecord = sqlQuery($sql, [$ppid]);
+    if ($dornRecord !== false) {
+        return true;
+    }
+    return false;
+}
+
 function get_lab_name($id): string
 {
     global $gbl_lab_title, $gbl_lab, $gbl_client_acct, $gbl_use_codes;
     $tmp = sqlQuery("SELECT name, send_fac_id as clientid, npi FROM procedure_providers Where ppid = ?", array($id));
-    $gbl_lab = stripos($tmp['name'] ?? '', 'quest') !== false ? 'quest' : 'ammon';
+    $gbl_lab = stripos($tmp['name'] ?? '', 'quest') !== false ? 'quest' : $gbl_lab;
     $gbl_lab = stripos($tmp['name'] ?? '', 'labcorp') !== false ? 'labcorp' : $gbl_lab;
     $gbl_lab = stripos($tmp['name'] ?? '', 'clarity') !== false ? 'clarity' : $gbl_lab;
     $gbl_lab_title = trim($tmp['name'] ?? '');
     $gbl_client_acct = trim($tmp['clientid'] ?? '');
-
+    if (empty($gbl_lab)) {
+        $gbl_lab = 'missingName';
+    }
     return $gbl_lab;
 }
 
@@ -372,17 +392,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     }
 
     $alertmsg = '';
-    $isDorn = false;
-    $dornConnector = null;
-    try {
-        $isDorn = DornGenHl7Order::isDornLab($ppid);
-        if ($isDorn) {
-            $dornConnector = new DornGenHl7Order();
-        }
-    } catch (Exception $e) {
-        $isDorn = false;
-        $dornConnector = null;
-    }
+    $isDorn = isDornLab($ppid) ?? false;
 
     if (!empty($_POST['bn_xmit'])) {
         // Validate, log and send order. Sets up documents and requisition buttons
@@ -421,8 +431,13 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             file_put_contents($log_file, $order_log);
         } else { // drop through if no errors..
             if ($isDorn) {
-                $alertmsg .= $dornConnector->genHl7Order($formid, $hl7);
-                $alertmsg .= $dornConnector->genHl7OrderBarCode($formid, $reqStr);
+                $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
+                $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
+                $ed->dispatch($event, DornLabEvent::GEN_BARCODE);
+                $messages = $event->getMessages();
+                if (!empty($messages)) {
+                    $alertmsg .= ($alertmsg ? "\n" : "") . implode("\n", $messages);
+                }
             } else {
                 if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
                     require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
@@ -445,10 +460,15 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
 
             if (empty($alertmsg)) {
                 if (empty($_POST['bn_save_ereq'])) {
-                    if ($isDorn == false) {
-                        $alertmsg = send_hl7_order($ppid, $hl7);
+                    if ($isDorn) {
+                        $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
+                        $ed->dispatch($event, DornLabEvent::SEND_ORDER);
+                        $messages = $event->getMessages();
+                        if (!empty($messages)) {
+                            $alertmsg .= ($alertmsg ? "\n" : "") . implode("\n", $messages);
+                        }
                     } else {
-                        $alertmsg = $dornConnector->sendHl7Order($ppid, $formid, $hl7);
+                        $alertmsg = send_hl7_order($ppid, $hl7);
                     }
                 }
             } else {
@@ -569,7 +589,7 @@ if (!empty($row['lab_id'])) {
 
 
         // we want to setup our reason code widgets
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
                 oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("problem", "csv")) ?>);
             } else {
@@ -726,7 +746,7 @@ if (!empty($row['lab_id'])) {
             }
 
             // now we are going to rename all of our templated nodes to be our newest index.
-            let remapArrayIndex = function(value) {
+            let remapArrayIndex = function (value) {
                 if (value && value.indexOf("[")) {
                     let parts = value.split("[");
                     return parts[0] + "[" + lineCount + "]";
@@ -734,15 +754,14 @@ if (!empty($row['lab_id'])) {
                     return value;
                 }
             };
-            let remapNames = function(node) {
+            let remapNames = function (node) {
                 node.name = remapArrayIndex(node.name);
             };
             // wierdly all of our mapped ids use array indexes as part of the id.
-            let remapIds = function(node) {
-                node.id= remapArrayIndex(node.id);
+            let remapIds = function (node) {
+                node.id = remapArrayIndex(node.id);
             };
-            let remapSelectors = function(selector, map)
-            {
+            let remapSelectors = function (selector, map) {
                 let mapNodes = node.querySelectorAll(selector);
                 if (mapNodes && mapNodes.length) {
                     mapNodes.forEach(map);
@@ -750,15 +769,15 @@ if (!empty($row['lab_id'])) {
             };
             remapSelectors('input,select', remapNames);
             remapSelectors('.qoe-table-sel-procedure', remapIds);
-            remapSelectors('[data-toggle-container]', function(node) {
+            remapSelectors('[data-toggle-container]', function (node) {
                 node.dataset.toggleContainer = "reason_code_" + lineCount;
             });
-            remapSelectors('.reasonCodeContainer', function(node) {
+            remapSelectors('.reasonCodeContainer', function (node) {
                 node.id = "reason_code_" + lineCount;
             });
 
             // now we need to add our events
-            let nullableFunction = function(selector, event, callback) {
+            let nullableFunction = function (selector, event, callback) {
                 let nodeForCallback = node.querySelector(selector);
                 if (nodeForCallback) {
                     nodeForCallback.addEventListener(event, callback);
@@ -767,35 +786,35 @@ if (!empty($row['lab_id'])) {
                 }
             };
             // once our node is in the DOM, we need to add event listeners to it.
-            nullableFunction('.itemTransport', 'click', function(event) {
+            nullableFunction('.itemTransport', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
                 var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
                 getDetails(event, boundLineCount);
             });
-            nullableFunction('.btn-secondary.btn-search', 'click', function(event) {
+            nullableFunction('.btn-secondary.btn-search', 'click', function (event) {
                 // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
                 // and we curry against the outer lineCount
                 var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
                 selectProcedureCode(boundLineCount);
             });
-            nullableFunction('.search-current-diagnoses', 'click', function(event) {
+            nullableFunction('.search-current-diagnoses', 'click', function (event) {
                 current_diagnoses(event.currentTarget); // use the bound target
             });
 
-            nullableFunction('.add-diagnosis-sel-related', 'click', function(event) {
+            nullableFunction('.add-diagnosis-sel-related', 'click', function (event) {
                 sel_related(event.currentTarget.name);
             });
 
-            nullableFunction('.add-diagnosis-sel-related', 'focus', function(event) {
+            nullableFunction('.add-diagnosis-sel-related', 'focus', function (event) {
                 event.currentTarget.blur();
             });
 
-            nullableFunction('.sel-proc-type', 'click', function(event) {
+            nullableFunction('.sel-proc-type', 'click', function (event) {
                 var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
                 sel_proc_type(boundLineCount);
             });
-            nullableFunction('.sel-proc-type', 'focus', function(event) {
+            nullableFunction('.sel-proc-type', 'focus', function (event) {
                 event.currentTarget.blur();
             });
 
@@ -1377,27 +1396,27 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <td class="itemDelete"><i class="fa fa-trash fa-lg"></i></td>
                                     <td class="itemTransport quest">
                                         <input class="itemTransport form-control" readonly
-                                               name='form_transport[]'
-                                               placeholder='<?php echo xla('Click to review the Directory of Service for this test'); ?>'
-                                               value=''>
+                                            name='form_transport[]'
+                                            placeholder='<?php echo xla('Click to review the Directory of Service for this test'); ?>'
+                                            value=''>
                                     </td>
                                     <td class="procedure-div">
                                         <?php if (empty($formid) || empty($oprow['procedure_order_title'])) : ?>
                                             <input type="hidden" name="form_proc_order_title[<?php echo $i; ?>]"
-                                                   value="procedure">
+                                                value="procedure">
                                         <?php else : ?>
                                             <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
-                                                   value=''>
+                                                value=''>
                                         <?php endif; ?>
                                         <div class='input-group-prepend'>
                                             <button type="button" class='btn btn-secondary btn-search' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
                                             <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='' />
                                             <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
-                                                   value=''
-                                                   title='<?php echo xla('Click to select the desired procedure'); ?>'
-                                                   placeholder='<?php echo xla('Click to select the desired procedure'); ?>'
-                                                   class='form-control c-hand sel-proc-type' readonly />
+                                                value=''
+                                                title='<?php echo xla('Click to select the desired procedure'); ?>'
+                                                placeholder='<?php echo xla('Click to select the desired procedure'); ?>'
+                                                class='form-control c-hand sel-proc-type' readonly />
                                             <!-- the configuration type id -->
                                             <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='-1' />
                                         </div>
@@ -1409,10 +1428,10 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             </span>
                                         </div>
                                         <input class='form-control c-hand add-diagnosis-sel-related' type='text'
-                                               name='form_proc_type_diag[<?php echo $i; ?>]'
-                                               value=''
-                                               title='<?php echo xla('Click to add diagnosis for this test'); ?>'
-                                               readonly />
+                                            name='form_proc_type_diag[<?php echo $i; ?>]'
+                                            value=''
+                                            title='<?php echo xla('Click to add diagnosis for this test'); ?>'
+                                            readonly />
                                     </td>
                                     <td>
                                         <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
@@ -1428,8 +1447,8 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     </td>
                                     <td>
                                         <button class="btn btn-secondary reason-code-btn mt-2"
-                                                title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                                data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
+                                            title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
@@ -1517,8 +1536,8 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     </td>
                                     <td>
                                         <button class="btn btn-secondary reason-code-btn mt-2"
-                                                title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                                data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
+                                            title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
@@ -1550,7 +1569,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             $title = $reqdoc['name'];
                                             $rpath = $reqdoc['url']; ?>
                                             <a class="btn btn-outline-primary"
-                                            href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
+                                                href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
                                         <?php }
                                     } ?>
                                     <a class='btn btn-success ml-1' href='#'
