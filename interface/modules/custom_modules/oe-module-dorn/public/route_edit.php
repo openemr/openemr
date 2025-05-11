@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
+require_once "../../../../globals.php";
 
  use OpenEMR\Common\Acl\AclMain;
  use OpenEMR\Common\Csrf\CsrfUtils;
@@ -57,7 +57,7 @@ if (!empty($_POST)) {
 
         //we've added this lab to the address book here.
         $uid = AddressBookAddEdit::createOrUpdateRecordInAddressBook($uid, $labData->name, $labData->address1, $labData->address2, $labData->city, $labData->state, $labData->zipCode, $labData->Website, $labData->phoneNumber, $labData->faxNumber, $note);
-        $ppid = LabRouteSetup::createUpdateProcedureProviders($ppid, $labData->name, $routeData->npi, $labData->labGuid, $uid);
+        $ppid = LabRouteSetup::createUpdateProcedureProviders($ppid, $labData->name, $routeData->npi, $labData->labGuid, $uid, $routeData->labAccountNumber);
 
         //lets add/update to the new dorn route table
         $isLabSetup = LabRouteSetup::createDornRoute($apiResponse->labName, $apiResponse->routeGuid, $apiResponse->labGuid, $ppid, $uid, $labData->textLineBreakCharacter, $routeData->labAccountNumber);

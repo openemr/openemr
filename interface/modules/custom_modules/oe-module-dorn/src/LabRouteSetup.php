@@ -14,22 +14,22 @@ namespace OpenEMR\Modules\Dorn;
 
 class LabRouteSetup
 {
-    public static function createUpdateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid)
+    public static function createUpdateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid, $labAccountNumber)
     {
         if ($ppid > 0) {
-            LabRouteSetup::updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid);
+            LabRouteSetup::updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid, $labAccountNumber);
         } else {
-            $ppid = LabRouteSetup::createProcedureProviders($labName, $npi, $labGuid, $uuid);
+            $ppid = LabRouteSetup::createProcedureProviders($labName, $npi, $labGuid, $uuid, $labAccountNumber);
         }
         return $ppid;
     }
 
-    public static function updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid)
+    public static function updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid, $labAccountNumber)
     {
-        $send_app_id = "";
-        $send_fac_id = "";
-        $recv_app_id = "";
-        $recv_fac_id = "";
+        $send_app_id = "OEMR";
+        $send_fac_id = $labAccountNumber ?? '';
+        $recv_app_id = "DORN";
+        $recv_fac_id = "LAB";
         $DorP = "P";
         $direction = "B";
         $protocol = "DORN";
@@ -53,14 +53,14 @@ class LabRouteSetup
             $lab_director, $active, $type, $ppid);
         sqlStatement($sql, $sqlarr);
     }
-    public static function createProcedureProviders($labName, $npi, $labGuid, $uuid)
+    public static function createProcedureProviders($labName, $npi, $labGuid, $uuid, $labAccountNumber)
     {
         $ppid = null;
 
-        $send_app_id = "";
-        $send_fac_id = "";
-        $recv_app_id = "";
-        $recv_fac_id = "";
+        $send_app_id = "OEMR";
+        $send_fac_id = $labAccountNumber ?? '';
+        $recv_app_id = "DORN";
+        $recv_fac_id = "LAB";
         $DorP = "P";
         $direction = "B";
         $protocol = "DORN";
