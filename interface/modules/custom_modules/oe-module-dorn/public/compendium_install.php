@@ -20,6 +20,9 @@ if (!empty($_GET)) {
         CsrfUtils::csrfNotVerified();
     }
     $labGuid = $_REQUEST['labGuid'];
+    echo "<div style='background-color: var(--light); color: var(--dark)'>" .
+    "<div>" . xlt('Compendium Install') . "</div><ul>";
     LabCompendiumInstall::uninstall($labGuid);
     LabCompendiumInstall::install($labGuid);
+    echo "</ul><div>" . xlt('Compendium Install Complete') . "</div></div>";
 }
