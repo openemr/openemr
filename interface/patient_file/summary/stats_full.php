@@ -237,7 +237,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class="bg-light w-100 p-3 d-flex sticky-top justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <?php if (!($noIssues || $nothingRecorded)) : ?>
-                                <input type="checkbox" class="selection-check mr-1" onclick="headerSelectionChanged(this, <?php echo attr_js($t);?>);"/>
+                                <input type="checkbox" class="selection-check mr-1" onclick="headerSelectionChanged(this, <?php echo attr_js($t);?>);" />
                                 <button type="button" class="btn btn-text px-2" data-issue-type="<?php echo attr($t); ?>" data-action="toggle" data-expanded="false" aria-label="<?php echo xla("Expand or collapse all items in section"); ?>"><span class="fa fa-fw fa-expand" aria-hidden="true"></span></button>
                             <?php endif; ?>
                             <h4 class="d-inline-block p-0 m-0"><?php echo text($focustitles[0]); ?></h4>
@@ -250,7 +250,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php endif; ?>
 
                             <?php if ($btnDelete) : ?>
-                            <button type="button" id="<?php echo attr($t); ?>-delete" class="btn btn-sm btn-text" disabled onclick="deleteSelectedIssues(<?php echo attr_js($t); ?>)"><span class="fa fa-fw fa-trash-can"></span>&nbsp;<?php echo xlt('Delete'); ?></a>
+                            <button type="button" id="<?php echo attr($t); ?>-delete" class="btn btn-sm btn-text" disabled onclick="deleteSelectedIssues(<?php echo attr_js($t); ?>)"><span class="fa fa-fw fa-trash-can"></span>&nbsp;<?php echo xlt('Delete'); ?></button>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -260,7 +260,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php elseif (!$noIssues && $nothingRecorded) : ?>
                             <div class="list-group-item">
                                 <div class="form-check">
-                                    <input class="form-check-input noneCheck" value="none" <?php echo (!AclMain::aclCheckIssue($t, '', 'write')) ? " disabled" : ""; ?> type="checkbox" name="<?php echo attr($t); ?>" id="<?php echo attr($t); ?>">
+                                    <input class="form-check-input noneCheck" value="none" <?php echo (!AclMain::aclCheckIssue($t, '', 'write')) ? " disabled" : ""; ?> type="checkbox" name="<?php echo attr($t); ?>" id="<?php echo attr($t); ?>" />
                                     <label class="form-check-label" for="<?php echo attr($t); ?>"><?php echo xlt("None{{Issue}}"); ?></label>
                                 </div>
                             </div>
@@ -331,7 +331,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="list-group-item p-1">
                             <div class="summary m-0 p-0 d-flex w-100 justify-content-end align-content-center">
                                 <?php if ($canSelect) : ?>
-                                    <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo attr($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>">
+                                    <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo attr($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>" />
                                 <?php endif; ?>
                                 <div class="flex-fill pl-2">
                                     <div class="btn-group" role="group">
