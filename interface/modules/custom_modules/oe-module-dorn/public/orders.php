@@ -2,8 +2,8 @@
 
 /**
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Core\Header;
+
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "orders";
@@ -28,7 +29,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) {
-    //check if form was submitted
+        //check if form was submitted
         $datas = ConnectorApi::searchOrderStatus($_POST['form_orderNumber'], $_POST['form_primaryId'], $_POST['form_startDateTime'], $_POST['form_endDateTime']);
         if ($datas == null) {
             $datas = [];
@@ -36,6 +37,7 @@ if (!empty($_POST)) {
     }
 }
 ?>
+<!DOCTYPE html>
 <html lang="">
 <head>
     <?php Header::setupHeader(['datetime-picker']); ?>
@@ -52,14 +54,14 @@ if (!empty($_POST)) {
     });
 </script>
 <body>
-    <div class="row"> 
+    <div class="row">
         <div class="col">
             <?php
-                require '../templates/navbar.php';
+            require '../templates/navbar.php';
             ?>
         </div>
     </div>
-    <div class="row"> 
+    <div class="row">
         <div class="col">
             <div class="card">
                 <div class="card-body">
@@ -73,9 +75,9 @@ if (!empty($_POST)) {
                                             <?php foreach ($primaryInfos as $primaryInfo) {
                                                 $selected = $primaryInfo->primaryId === $_GET['form_primaryId'] ? "selected" : "";
                                                 ?>
-                                            <option value='<?php echo attr($primaryInfo->primaryId); ?>' <?php echo $selected; ?>>
-                                                <?php echo text($primaryInfo->primaryName); ?>
-                                            </option>
+                                                <option value='<?php echo attr($primaryInfo->primaryId); ?>' <?php echo $selected; ?>>
+                                                    <?php echo text($primaryInfo->primaryName); ?>
+                                                </option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -84,21 +86,21 @@ if (!empty($_POST)) {
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_orderNumber"><?php echo xlt("Order Number") ?>:</label>
-                                            <input type="text" class="form-control" id="form_orderNumber" name="form_orderNumber" value="<?php echo isset($_POST['form_orderNumber']) ? attr($_POST['form_orderNumber']) : '' ?>"/>
-                                        </div>     
+                                            <input type="text" class="form-control" id="form_orderNumber" name="form_orderNumber" value="<?php echo isset($_POST['form_orderNumber']) ? attr($_POST['form_orderNumber']) : '' ?>" />
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_startDateTime"><?php echo xlt("Start Date") ?>:</label>
-                                            <input type="date" class="form-control datepicker" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_endDateTime"><?php echo xlt("End Date") ?>:</label>
-                                            <input type="date" class="form-control datepicker" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>" />
                                         </div>
-                                    </div>                                                
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
@@ -109,47 +111,44 @@ if (!empty($_POST)) {
                         </div>
                     </div>
                     <div class="row">
-                    <div class="col">
-                     <?php
-                        if (empty($datas)) {
-                            echo xlt("No results found");
-                        } else {
-                            ?>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col"><?php echo xlt("Lab Name") ?></th>
-                                    <th scope="col"><?php echo xlt("Order Number") ?></th>
-                                    <th scope="col"><?php echo xlt("Order Status") ?></th>
-                                    <th scope="col"><?php echo xlt("Is Pending") ?></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                foreach ($datas as $data) {
-                                    ?>
-                                <tr>
-                                    <td scope="row"><?php echo text($data->labName); ?></td>
-                                    <td scope="row"><?php echo text($data->orderNumber); ?></td>
-                                    <td scope="row"><?php echo text($data->orderStatusLong); ?></td>
-                                    <td scope="row"><?php echo text($data->isPending); ?></td>
-                                </tr>
-                                    <?php
-                                }//end foreach
+                        <div class="col">
+                            <?php
+                            if (empty($datas)) {
+                                echo xlt("No results found");
+                            } else {
                                 ?>
-                            </tbody>
-                        </table>
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col"><?php echo xlt("Lab Name") ?></th>
+                                        <th scope="col"><?php echo xlt("Order Number") ?></th>
+                                        <th scope="col"><?php echo xlt("Order Status") ?></th>
+                                        <th scope="col"><?php echo xlt("Is Pending") ?></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    foreach ($datas as $data) {
+                                        ?>
+                                        <tr>
+                                            <td scope="row"><?php echo text($data->labName); ?></td>
+                                            <td scope="row"><?php echo text($data->orderNumber); ?></td>
+                                            <td scope="row"><?php echo text($data->orderStatusLong); ?></td>
+                                            <td scope="row"><?php echo text($data->isPending); ?></td>
+                                        </tr>
+                                        <?php
+                                    }//end foreach
+                                    ?>
+                                    </tbody>
+                                </table>
                                 <?php
-                        }//end empty data
-                        ?>
-                    </div>
+                            }//end empty data
+                            ?>
+                        </div>
                     </div>
                 </div>
             </div>
-                 
         </div>
     </div>
-
-
 </body>
 </html>

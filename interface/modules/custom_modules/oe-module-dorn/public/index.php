@@ -16,19 +16,15 @@ use OpenEMR\Core\Header;
 
 $tab = "home";
 
-
-//ensure user has proper access
-// if (!AclMain::aclCheckCore('acct', 'bill')) {
-//     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("DORN Lab Configuration - Home")]);
-//     exit;
-// }
+// ACL is covered by the menu item
 ?>
+<!DOCTYPE html>
 <html lang="">
 <head>
     <?php Header::setupHeader(['opener']); ?>
     <title> <?php echo xlt("DORN Configuration"); ?>  </title>
 </head>
-<body>
+<body class="container-fluid">
     <div class="row">
         <div class="col">
             <?php
@@ -38,7 +34,7 @@ $tab = "home";
     </div>
     <div class="row">
         <div class="col">
-            <h1><?php echo xlt("DORN Configuration"); ?></h1>
+            <h3><?php echo xlt("DORN Configuration"); ?></h3>
         </div>
     </div>
     <div class="row">

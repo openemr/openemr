@@ -36,6 +36,7 @@ if (!empty($_POST)) {
     }
 }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(); ?>
@@ -55,7 +56,7 @@ if (!empty($_POST)) {
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
 </script>
-<body>
+<body class="container-fluid">
     <div class="row">
         <div class="col">
             <?php
@@ -65,7 +66,7 @@ if (!empty($_POST)) {
     </div>
     <div class="row">
         <div class="col">
-            <h1><?php echo xlt("DORN - Lab Setup"); ?></h1>
+            <h3><?php echo xlt("DORN - Lab Setup"); ?></h3>
         </div>
     </div>
     <div class="row">
@@ -146,10 +147,9 @@ if (!empty($_POST)) {
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
+                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary mb-2"><?php echo xlt("Submit") ?></button>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col">
                             <table class="table">

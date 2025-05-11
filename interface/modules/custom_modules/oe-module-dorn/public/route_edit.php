@@ -81,11 +81,13 @@ if (!empty($_POST)) {
 
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
 ?>
+<!DOCTYPE html>
 <html>
 <head>
         <?php Header::setupHeader(['opener']);?>
+        <title><?php echo xlt("Edit or Add Procedure Provider") ?></title>
     </head>
-    <body>
+    <body class="container-fluid">
     <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
         <div class="row">
             <div class="col-sm-6">

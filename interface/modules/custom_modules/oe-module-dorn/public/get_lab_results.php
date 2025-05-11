@@ -47,6 +47,7 @@ if ($resultsGuid) {
 }
 
 ?>
+<!DOCTYPE html>
 <html>
     <head>
         <?php Header::setupHeader(['opener']); ?>

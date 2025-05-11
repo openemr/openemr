@@ -126,7 +126,7 @@ class GlobalConfig
                 'title' => 'API URL'
                 ,'description' => 'The api system you to connect to'
                 ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => 'production\url\when\known'
+                ,'default' => ''
             ]
             ,self::CONFIG_OPTION_CLIENTID => [
                 'title' => 'Client ID'
