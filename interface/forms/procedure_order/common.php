@@ -1091,6 +1091,10 @@ if (!empty($row['lab_id'])) {
       .c-hand {
         cursor: pointer;
       }
+
+      .lfont1 {
+        font-size: 1.25rem;
+      }
     </style>
 </head>
 <?php
@@ -1102,16 +1106,16 @@ $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
 $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 ?>
 <body class="body_top" onsubmit="doWait(event)">
-    <div class="container">
-        <div class="page-header">
-            <h2><?php echo text(implode(" ", $title)); ?></h2>
+    <div class="container-fluid">
+        <div class="page-header text-center">
+            <h3><?php echo text(implode(" ", $title)); ?></h3>
         </div>
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
-                <fieldset class="row">
-                    <legend data-toggle="collapse" data-target="#orderOptions">
+                <fieldset class="container-xl clearfix">
+                    <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">
                         <i class="fa fa-plus"></i>
                         <?php echo xlt('Select Options for Current Order Id') . ' ' . (text($formid) ? text($formid) : 'New Order') ?>
                     </legend>
@@ -1273,12 +1277,66 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         </div>
                     </div>
                 </fieldset>
-                <fieldset class="row">
-                    <legend><?php $t = "<span>" .
-                            ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
-                        echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
+                <fieldset class="container-xl card clearfix">
+                    <legend class="card-heading collapsed lfont1" data-toggle="collapse" data-target="#summary" role="button">
+                        <i class="fa fa-plus mr-2"></i><?php echo xlt("Order Documents and Logs"); ?>
+                        <i class="wait fa fa-cog fa-spin ml-2 d-none"></i>
                     </legend>
-                    <?php if ($order_data ?? null) { ?>
+                    <div class="card-body collapse" id="summary">
+                        <div class="form-group"> <!--Order document links-->
+                            <div class="col-md-12 text-left position-override">
+                                <legend class="bg-dark text-light lfont1" role="button"><?php echo xlt("Order Documents"); ?></legend>
+                                <div class="btn-group" role="group">
+                                    <?php
+                                    if (!empty($req)) {
+                                        foreach ($req as $reqdoc) {
+                                            $title = $reqdoc['name'];
+                                            $rpath = $reqdoc['url']; ?>
+                                            <a class="btn btn-outline-primary"
+                                                href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
+                                        <?php }
+                                    } ?>
+                                    <a class='btn btn-success ml-1' href='#'
+                                        onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
+                                    <?php
+                                    if ($gbl_lab === "labcorp") { ?>
+                                        <button type="submit" class="btn btn-outline-primary btn-save"
+                                            name='bn_save_ereq' id='bn_save_ereq' value="save_ereq"
+                                            onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
+                                        </button>
+                                    <?php } elseif ($gbl_lab === 'clarity') {
+                                        echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/clarity/ereq_form.php?debug=1&formid=" . attr_url($formid) . "'>" . xlt("Manual eREQ") . "</a>";
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <legend class="bg-dark text-light lfont1"><?php echo xlt('Order Log'); ?></legend>
+                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
+                                <?php
+                                if (!empty($order_log)) {
+                                    $alertmsg = $order_log;
+                                } else {
+                                    $order_log = $alertmsg ?? '';
+                                }
+                                if (!empty($alertmsg)) {
+                                    echo nl2br(text($alertmsg));
+                                }
+                                ?>
+                                <input type="hidden" name="order_log" value="<?php echo text($order_log); ?>">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-md-12">
+                    <div class="my-0 py-0 text-center">
+                        <?php $t = "<span class='lfont1'>" .
+                            ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") .
+                            "</span>";
+                        echo "<h4>" . xlt('Procedure Order Details') . " " . text($gbl_lab_title) . "</h4> " . $t; ?>
+                    </div>
+                    <?php if (!empty($order_data ?? null)) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
                             <button type="button" class="close" data-dismiss="alert"><span class="text-dark">&times;</span></button>
                             <p>
@@ -1424,7 +1482,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <td class='diagnosis-div input-group'>
                                         <div class='input-group-prepend'>
                                             <span class='btn btn-secondary input-group-text'>
-                                                <i class='fa fa-search fa-lg search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
+                                                <i class='fa fa-search search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
                                             </span>
                                         </div>
                                         <input class='form-control c-hand add-diagnosis-sel-related' type='text'
@@ -1446,9 +1504,9 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-secondary reason-code-btn mt-2"
+                                        <button class="btn btn-secondary reason-code-btn mt-2 float-right"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i></button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
@@ -1465,14 +1523,14 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                             ?>
                             <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo (string)attr($i) ?>">
                                 <?php if ($i < 1) { ?>
-                                    <thead>
+                                    <thead class="thead-dark">
                                     <tr>
                                         <th>&nbsp;</th>
                                         <th class="quest">&nbsp;</th>
                                         <th><?php echo xlt('Procedure Test'); ?></th>
                                         <th><?php echo xlt('Diagnosis Codes'); ?></th>
                                         <th><?php echo xlt("Order Questions"); ?></th>
-                                        <th><?php echo xlt("Actions"); ?></th>
+                                        <th class="float-right"><?php echo xlt("Actions"); ?></th>
                                     </tr>
                                     </thead>
                                 <?php } ?>
@@ -1512,7 +1570,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <td class='diagnosis-div input-group'>
                                         <div class='input-group-prepend'>
                                             <span class='btn btn-secondary input-group-text'>
-                                                <i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
+                                                <i onclick='current_diagnoses(this)' class='fa fa-search' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
                                             </span>
                                         </div>
                                         <input class='form-control c-hand' type='text'
@@ -1535,9 +1593,9 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-secondary reason-code-btn mt-2"
+                                        <button class="btn btn-secondary reason-code-btn mt-2 float-right"
                                             title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
-                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
+                                            data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-chevron-down"></i></button>
                                     </td>
                                 </tr>
                                 <?php include "templates/procedure_reason_row.php" ?>
@@ -1549,84 +1607,34 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         ?>
                     </div>
                     <div class="btn=group ml-4">
-                        <button type="button" class="btn btn-success btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?>
-                        </button>
-                    </div>
-                </fieldset>
-                <div class="row card clearfix">
-                    <legend class="card-heading collapsed" data-toggle="collapse" data-target="#summary">
-                        <i class="fa fa-plus mr-2"></i><?php echo xlt("Order Documents and Logs"); ?>
-                        <i class="wait fa fa-cog fa-spin ml-2 d-none"></i>
-                    </legend>
-                    <div class="card-body collapse" id="summary">
-                        <div class="form-group"> <!--Order document links-->
-                            <div class="col-md-12 text-left position-override">
-                                <legend class="bg-dark text-light"><?php echo xlt("Order Documents"); ?></legend>
+                        <div class="text-md-center">
+                            <div class="position-override mt-2">
+                                <span class="wait fa fa-cog fa-spin fa-1x ml-2 d-none"></span>
+                                <button type="button" class="btn btn-success btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?></button>
                                 <div class="btn-group" role="group">
-                                    <?php
-                                    if (!empty($req)) {
-                                        foreach ($req as $reqdoc) {
-                                            $title = $reqdoc['name'];
-                                            $rpath = $reqdoc['url']; ?>
-                                            <a class="btn btn-outline-primary"
-                                                href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
-                                        <?php }
-                                    } ?>
-                                    <a class='btn btn-success ml-1' href='#'
-                                        onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
-                                    <?php
-                                    if ($gbl_lab === "labcorp") { ?>
-                                        <button type="submit" class="btn btn-outline-primary btn-save"
-                                            name='bn_save_ereq' id='bn_save_ereq' value="save_ereq"
-                                            onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
-                                        </button>
-                                    <?php } elseif ($gbl_lab === 'clarity') {
-                                        echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/clarity/ereq_form.php?debug=1&formid=" . attr_url($formid) . "'>" . xlt("Manual eREQ") . "</a>";
-                                    }
-                                    ?>
+                                    <button type="submit" class="btn btn-primary btn-save"
+                                        name="bn_save" id="bn_save" value="save"
+                                        title="<?php echo xla('Click to save current order details then continue working.'); ?>"
+                                        onclick='top.restoreSession();transmitting = false;'><?php echo xlt('Save and Continue'); ?>
+                                    </button>
+                                    <button type="submit" class="btn btn-success btn-save"
+                                        name='bn_save_exit' id='bn_save_exit' value="save_exit"
+                                        title="<?php echo xla('Click to save current order details and exit.'); ?>"
+                                        onclick='top.restoreSession();transmitting = false;'><?php echo xlt('Save and Exit'); ?>
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-transmit"
+                                        name='bn_xmit' value="transmit"
+                                        title='<?php echo xla('Click to transmit the order. Order will be saved prior to sending.'); ?>'
+                                        onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-cancel"
+                                        onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <legend class="bg-dark text-light"><?php echo xlt('Order Log'); ?></legend>
-                            <div class="jumbotron m-0 px-2 py-0 overflow-auto" id="processLog" style="max-height: 500px;">
-                                <?php
-                                if (!empty($order_log)) {
-                                    $alertmsg = $order_log;
-                                } else {
-                                    $order_log = $alertmsg ?? '';
-                                }
-                                if (!empty($alertmsg)) {
-                                    echo nl2br(text($alertmsg));
-                                }
-                                ?>
-                                <input type="hidden" name="order_log" value="<?php echo text($order_log); ?>">
-                            </div>
-                        </div>
                     </div>
-                </div>
-                <div class="row form-group clearfix">
-                    <div class="float-left position-override mt-2">
-                        <div class="btn-group" role="group">
-                            <button type="submit" class="btn btn-primary btn-save"
-                                name="bn_save" id="bn_save" value="save"
-                                onclick='transmitting = false;'><?php echo xlt('Save Current'); ?>
-                            </button>
-                            <button type="submit" class="btn btn-success btn-save"
-                                name='bn_save_exit' id='bn_save_exit' value="save_exit"
-                                onclick='transmitting = false;'><?php echo xlt('Save'); ?>
-                            </button>
-                            <button type="submit" class="btn btn-primary btn-transmit"
-                                name='bn_xmit' value="transmit"
-                                onclick='transmitting = true;'><?php echo xlt('Transmit Order'); ?>
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-cancel"
-                                onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
-                            </button>
-                        </div>
-                        <span class="wait fa fa-cog fa-spin fa-2x ml-2 d-none"></span>
-                    </div>
-                </div>
+                </fieldset>
             </form>
         </div>
     </div><!--end of .container -->
