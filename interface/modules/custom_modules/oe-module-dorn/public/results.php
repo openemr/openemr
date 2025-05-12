@@ -6,11 +6,13 @@
  * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once "../../../../globals.php";
+require_once __DIR__ . "/../../../../globals.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -21,7 +23,7 @@ use OpenEMR\Core\Header;
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "results";
-if (!AclMain::aclCheckCore('admin', 'users')) {
+if (!AclMain::aclCheckCore('patients', 'lab')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
 }

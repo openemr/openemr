@@ -434,11 +434,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             if ($isDorn) {
                 $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
-                $messages = $event->getMessagesAsString();
-                $alertmsg .= ($alertmsg ? "\n" : "") . $messages;
+                $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
                 $ed->dispatch($event, DornLabEvent::GEN_BARCODE);
-                $messages = $event->getMessagesAsString();
-                $alertmsg .= ($alertmsg ? "\n" : "") . $messages;
+                $alertmsg .= $event->getMessagesAsString('Generate Barcode: ', true);
             } else {
                 if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
                     require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
@@ -464,8 +462,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
-                        $messages = $event->getMessagesAsString();
-                        $alertmsg .= ($alertmsg ? "\n" : "") . $messages;
+                        $alertmsg .= $event->getMessagesAsString('Send Order: ', true);
                     } else {
                         $alertmsg = send_hl7_order($ppid, $hl7);
                     }
@@ -500,9 +497,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         }
                     }
                 } else {
-                    if (isset($_POST['bn_save_ereq'])) {
-                        $savereq = false;
-                    }
+                    $savereq = false;
                     if ($gbl_lab === 'labcorp' && $isDorn === false) {
                         // Manual requisition
                         $order_log .= "\n" . date('Y-m-d H:i') . " " .
@@ -1274,6 +1269,42 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     name='form_patient_instructions'><?php echo text($row['patient_instructions'] ?? '') ?></textarea>
                             </div>
                         </div>
+                        <div class="form-group form-row bg-dark text-light my-2 py-1">
+                            <label for="form_order_diagnosis" class="col-form-label"><?php echo xlt('Primary Diagnosis'); ?></label>
+                            <div class="col-md-4">
+                                <?php
+                                if (!$formid) {
+                                    $diagres = sqlStatement(
+                                        "SELECT diagnosis FROM lists " .
+                                        "Where activity = 1 And type = ? And pid = ?",
+                                        array('medical_problem', $pid)
+                                    );
+                                    $problem_diags = '';
+                                    while ($probrow = sqlFetchArray($diagres)) {
+                                        if (strpos($probrow['diagnosis'], 'ICD') === false) {
+                                            continue;
+                                        }
+                                        $problem_diags .= $probrow['diagnosis'] . ';';
+                                    }
+                                } ?>
+                                <input class='form-control c-hand' type='text' name='form_order_diagnosis' id='form_order_diagnosis'
+                                    value='<?php echo $problem_diags ?? '' ? attr($problem_diags) : attr($row['order_diagnosis'] ?? '') ?>'
+                                    onclick='sel_related(this.name)'
+                                    title='<?php echo xla('Required Primary Diagnosis for Order. This will be automatically added to any missing test order diagnosis.'); ?>'
+                                    readonly onfocus='this.blur()' />
+                            </div>
+                            <label for="procedure_type_names" class="col-form-label"><?php echo xlt('Default Procedure Type'); ?></label>
+                            <div class="col-md-4">
+                                <?php $procedure_order_type = getListOptions('order_type', array('option_id', 'title')); ?>
+                                <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
+                                    <?php foreach ($procedure_order_type as $ordered_types) { ?>
+                                        <option value="<?php echo attr($ordered_types['option_id']); ?>"
+                                            <?php echo $ordered_types['option_id'] == ($row['procedure_order_type'] ?? '') ? " selected" : ""; ?>><?php echo text(xl_list_label($ordered_types['title'])); ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </fieldset>
                 <fieldset class="container-xl card clearfix">
@@ -1345,42 +1376,6 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         </div>
                     <?php } ?>
                     <div class="col-md-12 procedure-order-container table-responsive">
-                        <div class="form-group form-row bg-dark text-light my-2 py-1">
-                            <label for="form_order_diagnosis" class="col-form-label"><?php echo xlt('Primary Diagnosis'); ?></label>
-                            <div class="col-md-4">
-                                <?php
-                                if (!$formid) {
-                                    $diagres = sqlStatement(
-                                        "SELECT diagnosis FROM lists " .
-                                        "Where activity = 1 And type = ? And pid = ?",
-                                        array('medical_problem', $pid)
-                                    );
-                                    $problem_diags = '';
-                                    while ($probrow = sqlFetchArray($diagres)) {
-                                        if (strpos($probrow['diagnosis'], 'ICD') === false) {
-                                            continue;
-                                        }
-                                        $problem_diags .= $probrow['diagnosis'] . ';';
-                                    }
-                                } ?>
-                                <input class='form-control c-hand' type='text' name='form_order_diagnosis' id='form_order_diagnosis'
-                                    value='<?php echo $problem_diags ?? '' ? attr($problem_diags) : attr($row['order_diagnosis'] ?? '') ?>'
-                                    onclick='sel_related(this.name)'
-                                    title='<?php echo xla('Required Primary Diagnosis for Order. This will be automatically added to any missing test order diagnosis.'); ?>'
-                                    readonly onfocus='this.blur()' />
-                            </div>
-                            <label for="procedure_type_names" class="col-form-label"><?php echo xlt('Default Procedure Type'); ?></label>
-                            <div class="col-md-4">
-                                <?php $procedure_order_type = getListOptions('order_type', array('option_id', 'title')); ?>
-                                <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
-                                    <?php foreach ($procedure_order_type as $ordered_types) { ?>
-                                        <option value="<?php echo attr($ordered_types['option_id']); ?>"
-                                            <?php echo $ordered_types['option_id'] == ($row['procedure_order_type'] ?? '') ? " selected" : ""; ?>><?php echo text(xl_list_label($ordered_types['title'])); ?>
-                                        </option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
                         <?php
                         // This section merits some explanation. :)
                         //
