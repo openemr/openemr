@@ -14,8 +14,9 @@
 namespace OpenEMR\Events\Core;
 
 use OpenEMR\Events\Core\Interfaces\SqlConfigInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class SqlConfigEvent
+class SqlConfigEvent extends Event
 {
     public const EVENT_NAME = "sql.config";
 

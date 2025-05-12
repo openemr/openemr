@@ -15,7 +15,9 @@
 
 namespace OpenEMR\Events\Codes;
 
-class CodeTypeInstalledEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class CodeTypeInstalledEvent extends Event
 {
     /**
      * This event is triggered before the code system is installed

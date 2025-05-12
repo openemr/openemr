@@ -16,7 +16,9 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-class PatientDocumentViewCCDAEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class PatientDocumentViewCCDAEvent extends Event
 {
     /**
      * Name of the event

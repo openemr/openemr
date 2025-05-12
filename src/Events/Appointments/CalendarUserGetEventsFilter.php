@@ -15,7 +15,9 @@
 
 namespace OpenEMR\Events\Appointments;
 
-class CalendarUserGetEventsFilter
+use Symfony\Contracts\EventDispatcher\Event;
+
+class CalendarUserGetEventsFilter extends Event
 {
     /**
      * @var array
