@@ -55,7 +55,18 @@ class DornLabEvent extends Event
 
     public function addMessage(string $message): void
     {
+        if (empty($message)) {
+            return;
+        }
         $this->messages[] = $message;
+    }
+
+    public function getMessagesAsString(): string
+    {
+        if (empty($this->messages)) {
+            return '';
+        }
+        return implode("\n", $this->messages);
     }
 
     public function getMessages(): array

@@ -433,11 +433,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
             if ($isDorn) {
                 $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
+                $messages = $event->getMessagesAsString();
+                $alertmsg .= ($alertmsg ? "\n" : "") . $messages;
                 $ed->dispatch($event, DornLabEvent::GEN_BARCODE);
-                $messages = $event->getMessages();
-                if (!empty($messages)) {
-                    $alertmsg .= ($alertmsg ? "\n" : "") . implode("\n", $messages);
-                }
+                $messages = $event->getMessagesAsString();
+                $alertmsg .= ($alertmsg ? "\n" : "") . $messages;
             } else {
                 if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
                     require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
@@ -463,10 +463,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
-                        $messages = $event->getMessages();
-                        if (!empty($messages)) {
-                            $alertmsg .= ($alertmsg ? "\n" : "") . implode("\n", $messages);
-                        }
+                        $messages = $event->getMessagesAsString();
+                        $alertmsg .= ($alertmsg ? "\n" : "") . $messages;
                     } else {
                         $alertmsg = send_hl7_order($ppid, $hl7);
                     }

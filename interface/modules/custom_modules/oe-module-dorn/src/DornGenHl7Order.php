@@ -162,13 +162,29 @@ class DornGenHl7Order extends GenHl7OrderBase
             );
             // this is where an NTE segment should be placed.
 
-            // now from each test order list
+            // this gets the order default primary codes
             $hasDiagnosisSegment = false;
+            $setid2 = 0;
+            $defaultCodes = explode(';', $porow['order_diagnosis']);
+            $defaultCodes = array_unique($defaultCodes);
+            foreach ($defaultCodes as $codestring) {
+                if ($codestring === '') {
+                    continue;
+                }
+                list($codetype, $code) = explode(':', $codestring);
+                $desc = lookup_code_descriptions($codestring);
+                $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
+                $hasDiagnosisSegment = true;
+                if ($setid2 < 9) {
+                    $D[1] .= $code . '^';
+                }
+            }
+            // now from each test order list
             while ($pdrow = sqlFetchArray($pdres)) {
                 if (!empty($pdrow['diagnoses'])) {
                     $relcodes = explode(';', $pdrow['diagnoses']);
                     foreach ($relcodes as $codestring) {
-                        if ($codestring === '') {
+                        if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
                         }
                         list($codetype, $code) = explode(':', $codestring);
@@ -416,13 +432,30 @@ class DornGenHl7Order extends GenHl7OrderBase
         while ($pcrow = sqlFetchArray($pcres)) {
             // this is where an NTE segment should be placed.
 
-            // now from each test order list
+
+            // this gets the order default primary codes
             $hasDiagnosisSegment = false;
+            $setid2 = 0;
+            $defaultCodes = explode(';', $porow['order_diagnosis']);
+            $defaultCodes = array_unique($defaultCodes);
+            foreach ($defaultCodes as $codestring) {
+                if ($codestring === '') {
+                    continue;
+                }
+                list($codetype, $code) = explode(':', $codestring);
+                $desc = lookup_code_descriptions($codestring);
+                $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
+                $hasDiagnosisSegment = true;
+                if ($setid2 < 9) {
+                    $D[1] .= $code . '^';
+                }
+            }
+            // now from each test order list
             while ($pdrow = sqlFetchArray($pdres)) {
                 if (!empty($pdrow['diagnoses'])) {
                     $relcodes = explode(';', $pdrow['diagnoses']);
                     foreach ($relcodes as $codestring) {
-                        if ($codestring === '') {
+                        if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
                         }
                         list($codetype, $code) = explode(':', $codestring);
