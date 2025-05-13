@@ -416,6 +416,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         if (!$_POST['form_date_collected'] && !$_POST['form_order_psc']) {
             $order_data .= "\n" . xlt("Specimen Collections date has not been entered and this is not a PSC Hold Order!");
         }
+        if (empty($_POST['form_billing_type'])) {
+            $order_data .= "\n" . xlt("Billing Type is required but not selected!");
+        }
         if ($order_data) {
             $alertmsg = date('Y-m-d H:i') . " " . xlt("Prior Validations Errors") . $order_data;
             $order_data .= "\n<span class='text-danger'>" . "- " .
@@ -462,7 +465,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
-                        $alertmsg .= $event->getMessagesAsString('Send Order: ', true);
+                        $order_log .= $event->getMessagesAsString('Send Order: ', true);
                     } else {
                         $alertmsg = send_hl7_order($ppid, $hl7);
                     }
@@ -478,10 +481,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         xlt("Order Successfully Sent") . "...\n" .
                         xlt("Order HL7 Content") .
                         ":\n" . $hl7 . "\n";
-                    //using labname here isn't a good idea, the lab name could be the same at dorn vs another lab quest for instance
-                    //so I'm checking this flag, isDorn
                     if ($isDorn) {
-                        $order_log .= xlt("Transmitting order to DORN");
+                        $order_log .= xlt("DORN Order Transaction.");
                     }
                     if ($gbl_lab === 'quest' && $isDorn === false) {
                         $order_log .= xlt("Transmitting order to Quest");
@@ -892,12 +893,13 @@ if (!empty($row['lab_id'])) {
         // This invokes the find-code popup.
         function sel_related(varname) {
             rcvarname = varname;
-// codetype is just to make things easier and avoid mistakes.
-// Might be nice to have a lab parameter for acceptable code types.
-// Also note the controlling script here runs from interface/patient_file/encounter/.
+            // codetype is just to make things easier and avoid mistakes.
+            // Might be nice to have a lab parameter for acceptable code types.
+            // Also note the controlling script here runs from interface/patient_file/encounter/.
             let title = '<?php echo xla("Select Diagnosis Codes"); ?>';
             <?php /*echo attr(collect_codetypes("diagnosis", "csv")); */?>
-            dlgopen(top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php', '_blank', 985, 750, '', title);
+            let url = top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=' + <?php echo js_url(collect_codetypes("diagnosis", "csv")); ?>;
+            dlgopen(url, '_blank', 985, 750, '', title);
         }
 
         // This is for callback by the find-code popup.

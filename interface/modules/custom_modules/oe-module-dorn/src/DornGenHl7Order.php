@@ -115,18 +115,17 @@ class DornGenHl7Order extends GenHl7OrderBase
             }
         }
 
-        if ($bill_type == "T") {
-            $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
-            // this is returning an array but in the query we have a limit 1!
-            foreach ($guarantors as $guarantor) {
+        // GT1 segment
+        $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+        foreach ($guarantors as $guarantor) {
+            if ($bill_type != "T") {
                 $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
-        } elseif ($bill_type == "P") {
-            // need to figure out what data to pull here, I feel like this should pull patient info. rather than
-            // insurance info
-        } elseif ($bill_type == "C") {
-            // need to figure out what data to pull here
         }
+        if (empty($guarantors)) {
+            return "\nGuarantor is missing for order ID '$orderid'";
+        }
+
         $setid2 = 0;
         $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
@@ -399,27 +398,23 @@ class DornGenHl7Order extends GenHl7OrderBase
                      P = Self Pay
                      C = Clinic
         */
-        if ($bill_type == "T") {
-            $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
-            // this is returning an array but in the query we have a limit 1!
-            foreach ($guarantors as $guarantor) {
-                $P[20] = $this->hl7Text($guarantor['data']['subscriber_lname']) . '^' . $this->hl7Text($guarantor['data']['subscriber_fname']) . '^';
-                $P[21] = $this->hl7Date($guarantor['data']['subscriber_ss']);
-                $P[22] = $this->hl7Text($guarantor['data']['subscriber_street']);
-                $P[23] = $this->hl7Text($guarantor['data']['subscriber_city']);
-                $P[24] = $this->hl7Text($guarantor['data']['subscriber_state']);
-                $P[25] = $this->hl7Zip($guarantor['data']['subscriber_postal_code']);
-                // $P[26] =  // employer;
-                $P[27] = $this->hl7Relation($guarantor['data']['subscriber_relationship']);
-                $P[56] = $this->hl7Phone($guarantor['data']['subscriber_phone']);
+        $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+        foreach ($guarantors as $guarantor) {
+            // sjp does barcode need?
+            if ($bill_type != "T") {
+                $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
-        } elseif ($bill_type == "P") {
-            // need to figure out what data to pull here, I feel like this should pull patient info. rather than
-            // insurance info
-        } elseif ($bill_type == "C") {
-            // need to figure out what data to pull here
+            // this is returning an array but in the query we have a limit 1!
+            $P[20] = $this->hl7Text($guarantor['data']['subscriber_lname']) . '^' . $this->hl7Text($guarantor['data']['subscriber_fname']) . '^';
+            $P[21] = $this->hl7Date($guarantor['data']['subscriber_ss']);
+            $P[22] = $this->hl7Text($guarantor['data']['subscriber_street']);
+            $P[23] = $this->hl7Text($guarantor['data']['subscriber_city']);
+            $P[24] = $this->hl7Text($guarantor['data']['subscriber_state']);
+            $P[25] = $this->hl7Zip($guarantor['data']['subscriber_postal_code']);
+            // $P[26] =  // employer;
+            $P[27] = $this->hl7Relation($guarantor['data']['subscriber_relationship']);
+            $P[56] = $this->hl7Phone($guarantor['data']['subscriber_phone']);
         }
-
 
         $setid2 = 0;
         $D[1] = substr($D[1], 0, strlen($D[1]) - 1);
