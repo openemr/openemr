@@ -6,11 +6,13 @@
  * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once "../../../../globals.php";
+require_once __DIR__ . "/../../../../globals.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -36,6 +38,7 @@ if (!empty($_POST)) {
     }
 }
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(); ?>
@@ -55,7 +58,7 @@ if (!empty($_POST)) {
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
 </script>
-<body>
+<body class="container-fluid">
     <div class="row">
         <div class="col">
             <?php
@@ -65,7 +68,7 @@ if (!empty($_POST)) {
     </div>
     <div class="row">
         <div class="col">
-            <h1><?php echo xlt("DORN - Lab Setup"); ?></h1>
+            <h3><?php echo xlt("DORN - Lab Setup"); ?></h3>
         </div>
     </div>
     <div class="row">
@@ -146,10 +149,9 @@ if (!empty($_POST)) {
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
+                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary mb-2"><?php echo xlt("Submit") ?></button>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col">
                             <table class="table">

@@ -2,15 +2,17 @@
 
 /**
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
+require_once __DIR__ . "/../../../../globals.php";
 
  use OpenEMR\Common\Acl\AclMain;
  use OpenEMR\Common\Csrf\CsrfUtils;
@@ -57,7 +59,7 @@ if (!empty($_POST)) {
 
         //we've added this lab to the address book here.
         $uid = AddressBookAddEdit::createOrUpdateRecordInAddressBook($uid, $labData->name, $labData->address1, $labData->address2, $labData->city, $labData->state, $labData->zipCode, $labData->Website, $labData->phoneNumber, $labData->faxNumber, $note);
-        $ppid = LabRouteSetup::createUpdateProcedureProviders($ppid, $labData->name, $routeData->npi, $labData->labGuid, $uid);
+        $ppid = LabRouteSetup::createUpdateProcedureProviders($ppid, $labData->name, $routeData->npi, $labData->labGuid, $uid, $routeData->labAccountNumber);
 
         //lets add/update to the new dorn route table
         $isLabSetup = LabRouteSetup::createDornRoute($apiResponse->labName, $apiResponse->routeGuid, $apiResponse->labGuid, $ppid, $uid, $labData->textLineBreakCharacter, $routeData->labAccountNumber);
@@ -81,11 +83,13 @@ if (!empty($_POST)) {
 
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
 ?>
+<!DOCTYPE html>
 <html>
 <head>
         <?php Header::setupHeader(['opener']);?>
+        <title><?php echo xlt("Edit or Add Procedure Provider") ?></title>
     </head>
-    <body>
+    <body class="container-fluid">
     <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
         <div class="row">
             <div class="col-sm-6">

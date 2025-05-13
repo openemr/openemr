@@ -55,7 +55,28 @@ class DornLabEvent extends Event
 
     public function addMessage(string $message): void
     {
+        if (empty($message)) {
+            return;
+        }
         $this->messages[] = $message;
+    }
+
+    /**
+     * @param string $prefix  String to prepend if there are any messages
+     * @param bool   $clear   If true, clears the messages array after building the string
+     * @return string
+     */
+    public function getMessagesAsString(string $prefix = '', bool $clear = false): string
+    {
+        $rtn = '';
+        if (!empty($this->messages)) {
+            // implode and prepend only when there are messages
+            $rtn = "\n" . $prefix . implode("\n", $this->messages);
+        }
+        if ($clear) {
+            $this->messages = [];
+        }
+        return $rtn;
     }
 
     public function getMessages(): array

@@ -6,10 +6,13 @@
  * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AclMain;
+
+$isAuth = AclMain::aclCheckCore('admin', 'users') ?? false;
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#"><?php echo xlt("DORN Lab Integration"); ?> </a>
@@ -25,6 +28,7 @@
             ?>">
                 <a class="nav-link" href="index.php"><?php echo xlt("Home"); ?></a>
             </li>
+            <?php if ($isAuth) { ?>
             <li class="nav-item <?php
             if ($tab == "Configure Primary") {
                 echo "active";
@@ -37,6 +41,7 @@
             } ?>">
                 <a class="nav-link" href="lab_setup.php"><?php echo xlt("Lab Setup"); ?> </a>
             </li>
+            <?php } ?>
             <li class="nav-item <?php
             if ($tab == "orders") {
                 echo "active";
