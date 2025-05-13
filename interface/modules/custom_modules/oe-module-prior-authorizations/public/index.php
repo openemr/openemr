@@ -16,10 +16,8 @@ use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-$pid = $_SESSION['pid'];
-
-
-function isValid($date, $format = 'Y-m-d')
+$pid = $_SESSION['pid'] ?? null;
+function isValid($date, $format = 'Y-m-d'): bool
 {
     $dt = DateTime::createFromFormat($format, $date);
     return $dt && $dt->format($format) === $date;
