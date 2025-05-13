@@ -2,11 +2,13 @@
 
 /**
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -63,7 +65,7 @@ class Bootstrap
 
     public function __construct(EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
-        //global $GLOBALS;
+        global $GLOBALS;
 
         if (empty($kernel)) {
             $kernel = new Kernel();
@@ -111,10 +113,12 @@ class Bootstrap
     }
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
-        //global $GLOBALS;
+        // If globals are properly included elsewhere this should not be needed.
+        //  Will leave this here for now to avoid breaking anything.
+        global $GLOBALS;
 
         $service = $event->getGlobalsService();
-        $section = xlt("DORN");
+        $section = xlt("DORN Lab Integration");
         $service->createSection($section, 'Portal');
 
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
@@ -129,7 +133,7 @@ class Bootstrap
                     $config['type'],
                     $value,
                     xlt($config['description']),
-                    true
+                    false // Config only. No user settings entry.
                 )
             );
         }
@@ -194,8 +198,10 @@ class Bootstrap
         $menuItem->requirement = 0;
         $menuItem->target = 'mod';
         $menuItem->menu_id = 'mod0';
-        $menuItem->label = xlt("DORN");
-        // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
+        $menuItem->acl_req = ["patients", "lab"];
+        $menuItem->label = xlt("DORN Lab Integration");
+        $menuItem->global_req = [];
+            // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
         // doesn't break any modules.
         $menuItem->url = "/interface/modules/custom_modules/oe-module-dorn/public/index.php";
         $menuItem->children = [];
@@ -229,7 +235,7 @@ class Bootstrap
         $menuItem->global_req = [];
 
         foreach ($menu as $item) {
-            if ($item->menu_id == 'modimg') {
+            if ($item->menu_id == 'proimg') {
                 $item->children[] = $menuItem;
                 break;
             }

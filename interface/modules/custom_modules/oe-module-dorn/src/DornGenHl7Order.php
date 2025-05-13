@@ -6,7 +6,7 @@
  * @link      http: // www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https: // github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -115,18 +115,17 @@ class DornGenHl7Order extends GenHl7OrderBase
             }
         }
 
-        if ($bill_type == "T") {
-            $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
-            // this is returning an array but in the query we have a limit 1!
-            foreach ($guarantors as $guarantor) {
+        // GT1 segment
+        $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+        foreach ($guarantors as $guarantor) {
+            if ($bill_type != "T") {
                 $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
-        } elseif ($bill_type == "P") {
-            // need to figure out what data to pull here, I feel like this should pull patient info. rather than
-            // insurance info
-        } elseif ($bill_type == "C") {
-            // need to figure out what data to pull here
         }
+        if (empty($guarantors)) {
+            return "\nGuarantor is missing for order ID '$orderid'";
+        }
+
         $setid2 = 0;
         $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
@@ -162,13 +161,29 @@ class DornGenHl7Order extends GenHl7OrderBase
             );
             // this is where an NTE segment should be placed.
 
-            // now from each test order list
+            // this gets the order default primary codes
             $hasDiagnosisSegment = false;
+            $setid2 = 0;
+            $defaultCodes = explode(';', $porow['order_diagnosis']);
+            $defaultCodes = array_unique($defaultCodes);
+            foreach ($defaultCodes as $codestring) {
+                if ($codestring === '') {
+                    continue;
+                }
+                list($codetype, $code) = explode(':', $codestring);
+                $desc = lookup_code_descriptions($codestring);
+                $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
+                $hasDiagnosisSegment = true;
+                if ($setid2 < 9) {
+                    $D[1] .= $code . '^';
+                }
+            }
+            // now from each test order list
             while ($pdrow = sqlFetchArray($pdres)) {
                 if (!empty($pdrow['diagnoses'])) {
                     $relcodes = explode(';', $pdrow['diagnoses']);
                     foreach ($relcodes as $codestring) {
-                        if ($codestring === '') {
+                        if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
                         }
                         list($codetype, $code) = explode(':', $codestring);
@@ -383,27 +398,23 @@ class DornGenHl7Order extends GenHl7OrderBase
                      P = Self Pay
                      C = Clinic
         */
-        if ($bill_type == "T") {
-            $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
-            // this is returning an array but in the query we have a limit 1!
-            foreach ($guarantors as $guarantor) {
-                $P[20] = $this->hl7Text($guarantor['data']['subscriber_lname']) . '^' . $this->hl7Text($guarantor['data']['subscriber_fname']) . '^';
-                $P[21] = $this->hl7Date($guarantor['data']['subscriber_ss']);
-                $P[22] = $this->hl7Text($guarantor['data']['subscriber_street']);
-                $P[23] = $this->hl7Text($guarantor['data']['subscriber_city']);
-                $P[24] = $this->hl7Text($guarantor['data']['subscriber_state']);
-                $P[25] = $this->hl7Zip($guarantor['data']['subscriber_postal_code']);
-                // $P[26] =  // employer;
-                $P[27] = $this->hl7Relation($guarantor['data']['subscriber_relationship']);
-                $P[56] = $this->hl7Phone($guarantor['data']['subscriber_phone']);
+        $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
+        foreach ($guarantors as $guarantor) {
+            // sjp does barcode need?
+            if ($bill_type != "T") {
+                $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
-        } elseif ($bill_type == "P") {
-            // need to figure out what data to pull here, I feel like this should pull patient info. rather than
-            // insurance info
-        } elseif ($bill_type == "C") {
-            // need to figure out what data to pull here
+            // this is returning an array but in the query we have a limit 1!
+            $P[20] = $this->hl7Text($guarantor['data']['subscriber_lname']) . '^' . $this->hl7Text($guarantor['data']['subscriber_fname']) . '^';
+            $P[21] = $this->hl7Date($guarantor['data']['subscriber_ss']);
+            $P[22] = $this->hl7Text($guarantor['data']['subscriber_street']);
+            $P[23] = $this->hl7Text($guarantor['data']['subscriber_city']);
+            $P[24] = $this->hl7Text($guarantor['data']['subscriber_state']);
+            $P[25] = $this->hl7Zip($guarantor['data']['subscriber_postal_code']);
+            // $P[26] =  // employer;
+            $P[27] = $this->hl7Relation($guarantor['data']['subscriber_relationship']);
+            $P[56] = $this->hl7Phone($guarantor['data']['subscriber_phone']);
         }
-
 
         $setid2 = 0;
         $D[1] = substr($D[1], 0, strlen($D[1]) - 1);
@@ -416,13 +427,30 @@ class DornGenHl7Order extends GenHl7OrderBase
         while ($pcrow = sqlFetchArray($pcres)) {
             // this is where an NTE segment should be placed.
 
-            // now from each test order list
+
+            // this gets the order default primary codes
             $hasDiagnosisSegment = false;
+            $setid2 = 0;
+            $defaultCodes = explode(';', $porow['order_diagnosis']);
+            $defaultCodes = array_unique($defaultCodes);
+            foreach ($defaultCodes as $codestring) {
+                if ($codestring === '') {
+                    continue;
+                }
+                list($codetype, $code) = explode(':', $codestring);
+                $desc = lookup_code_descriptions($codestring);
+                $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
+                $hasDiagnosisSegment = true;
+                if ($setid2 < 9) {
+                    $D[1] .= $code . '^';
+                }
+            }
+            // now from each test order list
             while ($pdrow = sqlFetchArray($pdres)) {
                 if (!empty($pdrow['diagnoses'])) {
                     $relcodes = explode(';', $pdrow['diagnoses']);
                     foreach ($relcodes as $codestring) {
-                        if ($codestring === '') {
+                        if ($codestring === '' || in_array($codestring, $defaultCodes, true)) {
                             continue;
                         }
                         list($codetype, $code) = explode(':', $codestring);
