@@ -6,7 +6,7 @@
  * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
+ * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -126,7 +126,7 @@ class GlobalConfig
                 'title' => 'API URL'
                 ,'description' => 'The api system you to connect to'
                 ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => 'production\url\when\known'
+                ,'default' => ''
             ]
             ,self::CONFIG_OPTION_CLIENTID => [
                 'title' => 'Client ID'
