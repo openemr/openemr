@@ -1,0 +1,8 @@
+../../public
+../../interface
+../../portal
+../../templates
+../../contrib
+../../apis
+../../composer.lock
+../../package-lock.json
