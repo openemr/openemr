@@ -16,6 +16,7 @@ require_once("$srcdir/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -335,6 +336,61 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 
     return;
 }
+
+$list_id = ""; // to indicate nav item is active, count and give correct id
+$menuPatient = new PatientMenuRole();
+
+$sql = "SELECT id, CONCAT_WS(' ', lname, fname) as full_name from users where username != '' and password != 'NoLogin' order by full_name";
+$res = sqlStatement($sql);
+$users = [];
+while ($row = sqlFetchArray($res)) {
+    $users[] = $row;
+}
+
+$res = getImmunizationList($pid, ($_GET['sortby'] ?? null), true);
+$_immunizations = [];
+while ($row = sqlFetchArray($res)) {
+    $_immunizations[] = $row;
+}
+
+$viewArgs = [
+    'addedInError' => (!empty($isAddedError)) ? true : false,
+    'code_text' => $code_text ?? '',
+    'custom_list' => $GLOBALS['use_custom_immun_list'],
+    'cvx_code' => $cvx_code ?? '',
+    'dt_educated' => (!empty($education_date)) ? $educated_date : date('Y-m-d'),
+    'dt_given' => (!empty($administered_date)) ? $administered_date : date('Y-m-d H:i'),
+    'dt_vis' => (!empty($vis_date)) ? $vis_date : date('Y-m-d'),
+    'drugUnitSelecteditem' => $drugunitselecteditem ?? '',
+    'entered_by' => $entered_by ?? false,
+    'id' => $id ?? '',
+    'imm_obs_data' => $imm_obs_data ?? [],
+    'immuniz_admin_ste' => $immuniz_admin_ste ?? '',
+    'immuniz_amt_adminstrd' => $immuniz_amt_adminstrd ?? '',
+    'immuniz_completion_status' => $immuniz_completion_status ?? '',
+    'immuniz_exp_date' => (!empty($immuniz_exp_date)) ? $immuniz_exp_date : '',
+    'immuniz_information_source' => $immuniz_information_source ?? '',
+    'immuniz_refusal_reason' => $immuniz_refusal_reason ?? '',
+    'immuniz_route' => $immuniz_route ?? '',
+    'immunization_id' => $immunization_id ?? '',
+    'immunizations' => $_immunizations,
+    'mainMenu' => $menuPatient->displayHorizNavBarMenu(),
+    'manufacturer' => $manufacturer ?? '',
+    'note' => $note ?? '',
+    'obs_result_info' => $GLOBALS['observation_results_immunization'],
+    'observation_criteria' => $observation_criteria,
+    'observation_criteria_value' => $observation_criteria_value,
+    'pid' => $pid,
+    'sortby' => $sortby,
+    'uuid' => $uuid ?? '',
+    'useCVX' => $useCVX,
+    'users' => $users,
+];
+
+$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$t = $twig->getTwig();
+echo $t->render('issues/immunizations/immunization.html.twig', $viewArgs);
+die();
 ?>
 <html>
 <head>
