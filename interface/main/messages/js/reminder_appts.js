@@ -95,26 +95,60 @@ function setpatient(pid, lname='', fname='', dob='') {
  *  This function is called with pressing Submit on the Add a Recall page
  */
 function add_this_recall(e) {
-    if ($('#form_recall_date').val() === '') {
-        alert(xljs_PlsDecRecDate);
-        $("#form_recall_date").focus();
-        //e.defaultPrevented();
-        e.preventDefault();
-        return false;
-    } else {
-        var url = "save.php";
-        formData = JSON.stringify($("form#addRecall").serialize());
-        top.restoreSession();
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            action: 'add_recall',
-            data: formData
-        }).done(function (result) {
-            goReminderRecall('Recalls');
-        });
+    let isValid = true;
+    let errorMessage = '';
+
+    if (typeof translations === 'undefined') {
+        translations = {
+            patient_required: 'Please select a patient',
+            date_required: 'Please select a recall date',
+            provider_required: 'Please select a provider',
+            facility_required: 'Please select a facility',
+            no_recalls_found: 'No Recalls Found'
+        };
+        console.warn('Translations not loaded, using defaults');
     }
+
+    if ($('#new_recall_name').val() === '' || $('#new_pid').val() === '') {
+        errorMessage += '- ' + translations.patient_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#form_recall_date').val() === '') {
+        errorMessage += '- ' + translations.date_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_provider').val() === '' || $('#new_provider').val() === null) {
+        errorMessage += '- ' + translations.provider_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_facility').val() === '' || $('#new_facility').val() === null) {
+        errorMessage += '- ' + translations.facility_required + '\n';
+        isValid = false;
+    }
+
+    if (!isValid) {
+        alert(errorMessage);
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        return false;
+    }
+
+    var url = "save.php";
+    formData = JSON.stringify($("form#addRecall").serialize());
+    top.restoreSession();
+    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        action: 'add_recall',
+        data: formData
+    }).done(function (result) {
+        goReminderRecall('Recalls');
+    });
 }
 
 /**
@@ -325,22 +359,138 @@ function show_this(colorish='') {
     var pidRE = new RegExp(pidV, 'i');
     var pnameV = $("#form_patient_name").val();
     var pnameRE = new RegExp(pnameV, 'i');
+    var fromDate = $("#form_from_date").val();
+    var toDate = $("#form_to_date").val();
+    var fromDateObj = fromDate ? parseDate(fromDate) : null;
+    var toDateObj = toDate ? parseDate(toDate) : null;
 
-    $('.ALL').hide().filter(function () {
+    if (typeof translations === 'undefined') {
+        translations = {
+            patient_required: 'Please select a patient',
+            date_required: 'Please select a recall date',
+            provider_required: 'Please select a provider',
+            facility_required: 'Please select a facility',
+            no_recalls_found: 'No Recalls Found'
+        };
+        console.warn('Translations not loaded, using defaults');
+    }
+
+    $('.ALL').hide();
+
+    var visibleRows = $('.ALL').filter(function () {
         var d = $(this).data();
         meets_fac = (facV === '') || (facV == d.facility);
         meets_prov = (provV === '') || (provV == d.provider);
         meets_pid = pidV === '';
+
         if ((pidV > '') && pidRE.test(d.pid)) {
             meets_pid = true;
         }
+
         meets_pname = pnameV === '';
+
         if ((pnameV > '') && pnameRE.test(d.pname)) {
             meets_pname = true;
         }
-        meets_color = (colorish === '') || (colorish == d.status );
-        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
-    }).show('4000', 'linear');
+
+        meets_color = (colorish === '') || (colorish == d.status);
+        meets_date = true;
+
+        if (fromDateObj || toDateObj) {
+            var apptDateText = $(this).find('.appt_date').text().trim();
+            var apptDate = extractDateFromText(apptDateText);
+            
+            if (apptDate) {
+                if (fromDateObj && apptDate < fromDateObj) {
+                    meets_date = false;
+                }
+                
+                if (toDateObj && apptDate > toDateObj) {
+                    meets_date = false;
+                }
+            }
+        }
+        
+        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color && meets_date;
+    });
+
+    visibleRows.show('400', 'linear');
+
+    if (visibleRows.length === 0) {
+        if ($("#no_recalls_message").length > 0) {
+            $("#no_recalls_message").show();
+        } else {
+            $("#show_recalls").prepend(
+                '<div id="no_recalls_message" class="alert alert-info text-center">' + 
+                translations.no_recalls_found + 
+                '</div>'
+            );
+        }
+
+        $(".table-responsive").hide();
+    } else {
+        $("#no_recalls_message").hide();
+        $(".table-responsive").show();
+    }
+}
+
+/**
+ * Parse date from various formats
+ * Handles: DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD and variations
+ * @param {string} dateStr - Date string to parse
+ * @return {Date|null} - JavaScript Date object or null if invalid format
+ */
+function parseDate(dateStr) {
+    if (!dateStr) return null;
+
+    var g_date_display_format = window.top.jsGlobals.date_display_format || "";
+    switch (g_date_display_format) {
+        case "0":
+            var parts = dateStr.split('-');
+            var year = parseInt(parts[0], 10);
+            var month = parseInt(parts[1], 10) - 1;
+            var day = parseInt(parts[2], 10);
+            break;
+        case "1":
+            var parts = dateStr.split('/');
+            var year = parseInt(parts[2], 10);
+            var month = parseInt(parts[0], 10) - 1;
+            var day = parseInt(parts[1], 10);
+            break;
+        case "2":
+            var parts = dateStr.split('/');
+            var year = parseInt(parts[2], 10);
+            var month = parseInt(parts[1], 10) - 1;
+            var day = parseInt(parts[0], 10);
+            break;
+    }
+    if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        return null;
+    }
+    return new Date(year, month, day);
+}
+
+/**
+ * Extract date from appointment date display text
+ * Searches for date patterns in the text
+ * @param {string} dateText - Text to extract date from
+ * @return {Date|null} - JavaScript Date object or null if no date found
+ */
+function extractDateFromText(dateText) {
+    if (!dateText) return null;
+
+    var firstLine = dateText.split('\n')[0];
+    var isoMatch = firstLine.match(/\d{4}[-/]\d{1,2}[-/]\d{1,2}/);
+    if (isoMatch) {
+        return parseDate(isoMatch[0]);
+    }
+
+    var standardMatch = firstLine.match(/\d{1,2}[-/]\d{1,2}[-/]\d{4}/);
+    if (standardMatch) {
+        return parseDate(standardMatch[0]);
+    }
+
+    return null;
 }
 
 //in bootstrap_menu.js
@@ -419,5 +569,8 @@ $(function () {
         }
     });
 
+    $("#form_from_date, #form_to_date").on('change', function() {
+        show_this();
+    });
 });
 
