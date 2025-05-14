@@ -443,43 +443,30 @@ function show_this(colorish='') {
 function parseDate(dateStr) {
     if (!dateStr) return null;
 
-    var separator = dateStr.includes('/') ? '/' : 
-                   (dateStr.includes('-') ? '-' : null);
-                   
-    if (!separator) return null;
-    
-    var parts = dateStr.split(separator);
-
-    if (parts.length !== 3) return null;
-    
-    var year, month, day;
-
-    if (parts[0].length === 4) {
-        year = parseInt(parts[0], 10);
-        month = parseInt(parts[1], 10) - 1;
-        day = parseInt(parts[2], 10);
+    var g_date_display_format = window.top.jsGlobals.date_display_format || "";
+    switch (g_date_display_format) {
+        case "0":
+            var parts = dateStr.split('-');
+            var year = parseInt(parts[0], 10);
+            var month = parseInt(parts[1], 10) - 1;
+            var day = parseInt(parts[2], 10);
+            break;
+        case "1":
+            var parts = dateStr.split('/');
+            var year = parseInt(parts[2], 10);
+            var month = parseInt(parts[0], 10) - 1;
+            var day = parseInt(parts[1], 10);
+            break;
+        case "2":
+            var parts = dateStr.split('/');
+            var year = parseInt(parts[2], 10);
+            var month = parseInt(parts[1], 10) - 1;
+            var day = parseInt(parts[0], 10);
+            break;
     }
-    else {
-        var isUSFormat = true;
-        
-        if (isUSFormat) {
-            month = parseInt(parts[0], 10) - 1;
-            day = parseInt(parts[1], 10);
-        } else {
-            day = parseInt(parts[0], 10);
-            month = parseInt(parts[1], 10) - 1;
-        }
-        year = parseInt(parts[2], 10);
-
-        if (year < 100) {
-            year = year < 50 ? 2000 + year : 1900 + year;
-        }
-    }
-
     if (isNaN(year) || isNaN(month) || isNaN(day)) {
         return null;
     }
-
     return new Date(year, month, day);
 }
 
@@ -494,7 +481,6 @@ function extractDateFromText(dateText) {
 
     var firstLine = dateText.split('\n')[0];
     var isoMatch = firstLine.match(/\d{4}[-/]\d{1,2}[-/]\d{1,2}/);
-
     if (isoMatch) {
         return parseDate(isoMatch[0]);
     }
