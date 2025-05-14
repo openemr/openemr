@@ -108,8 +108,8 @@ $info_msg = "";
                 };
                 let pfx = ename.substring(0, pfxlen);
                 let code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
-                let cPay = parseFloat(f[pfx + '[pay]'].value).toFixed(2);
-                let cAdjust = parseFloat(f[pfx + '[adj]'].value).toFixed(2);
+                let cPay = parseFloat(f[pfx + '[pay]'].value);
+                let cAdjust = parseFloat(f[pfx + '[adj]'].value);
 
                 if ((cPay !== 0) || cAdjust !== 0) {
                     allempty = false;
