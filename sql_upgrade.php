@@ -47,6 +47,7 @@ $GLOBALS['connection_pooling_off'] = true; // force off database connection pool
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
+require_once('library/classes/Installer.class.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -288,7 +289,7 @@ function pausePoll(othis) {
 <div class="container my-3">
     <div class="row">
         <div class="col-12">
-            <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>            
+            <h2><?php echo xlt("OpenEMR Database Upgrade"); ?></h2>
         </div>
     </div>
     <div class="row">
@@ -391,20 +392,8 @@ function pausePoll(othis) {
         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
         echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
-        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
-        require_once("library/globals.inc.php");
-        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-            foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
-                    $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-                    if (empty($row['count'])) {
-                        sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                            "VALUES ( '$fldid', '0', '$flddef' )");
-                    }
-                }
-            }
-        }
+        $installer = new Installer([]);
+        $installer->insert_globals();
 
         echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
         require("acl_upgrade.php");

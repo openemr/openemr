@@ -25,6 +25,7 @@ $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
+require_once('library/classes/Installer.class.php');
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -67,20 +68,8 @@ $sqlUpgradeService = new SQLUpgradeService();
     $sqlUpgradeService->flush_echo();
 
     echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
-    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
-    require_once("library/globals.inc.php");
-    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-        foreach ($grparr as $fldid => $fldarr) {
-            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-            if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
-                $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-                if (empty($row['count'])) {
-                    sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                    "VALUES ( '$fldid', '0', '$flddef' )");
-                }
-            }
-        }
-    }
+    $installer = new Installer([]);
+    $installer->insert_globals();
 
     $versionService = new VersionService();
     $currentVersion = $versionService->fetch();
