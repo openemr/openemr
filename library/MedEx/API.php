@@ -2513,7 +2513,7 @@ class Display extends base
     private function recall_board_top($has_recall = false)
     {
         if (!$has_recall) {
-            echo '<div class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
+            echo '<div id="no_recalls_message" class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
             return;
         }
 
