@@ -1356,7 +1356,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     echo nl2br(text($alertmsg));
                                 }
                                 ?>
-                                <input type="hidden" name="order_log" value="<?php echo text($order_log); ?>">
+                                <input type="hidden" name="order_log" value="<?php echo attr($order_log); ?>">
                             </div>
                         </div>
                     </div>
