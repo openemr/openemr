@@ -98,23 +98,34 @@ function add_this_recall(e) {
     let isValid = true;
     let errorMessage = '';
 
+    if (typeof translations === 'undefined') {
+        translations = {
+            patient_required: 'Please select a patient',
+            date_required: 'Please select a recall date',
+            provider_required: 'Please select a provider',
+            facility_required: 'Please select a facility',
+            no_recalls_found: 'No Recalls Found'
+        };
+        console.warn('Translations not loaded, using defaults');
+    }
+
     if ($('#new_recall_name').val() === '' || $('#new_pid').val() === '') {
-        errorMessage += '- ' + xl('Please select a patient') + '\n';
+        errorMessage += '- ' + translations.patient_required + '\n';
         isValid = false;
     }
 
     if ($('#form_recall_date').val() === '') {
-        errorMessage += '- ' + xl('Please select a recall date') + '\n';
+        errorMessage += '- ' + translations.date_required + '\n';
         isValid = false;
     }
 
     if ($('#new_provider').val() === '' || $('#new_provider').val() === null) {
-        errorMessage += '- ' + xl('Please select a provider') + '\n';
+        errorMessage += '- ' + translations.provider_required + '\n';
         isValid = false;
     }
 
     if ($('#new_facility').val() === '' || $('#new_facility').val() === null) {
-        errorMessage += '- ' + xl('Please select a facility') + '\n';
+        errorMessage += '- ' + translations.facility_required + '\n';
         isValid = false;
     }
 
@@ -353,6 +364,17 @@ function show_this(colorish='') {
     var fromDateObj = fromDate ? parseDate(fromDate) : null;
     var toDateObj = toDate ? parseDate(toDate) : null;
 
+    if (typeof translations === 'undefined') {
+        translations = {
+            patient_required: 'Please select a patient',
+            date_required: 'Please select a recall date',
+            provider_required: 'Please select a provider',
+            facility_required: 'Please select a facility',
+            no_recalls_found: 'No Recalls Found'
+        };
+        console.warn('Translations not loaded, using defaults');
+    }
+
     $('.ALL').hide();
 
     var visibleRows = $('.ALL').filter(function () {
@@ -395,17 +417,19 @@ function show_this(colorish='') {
     visibleRows.show('400', 'linear');
 
     if (visibleRows.length === 0) {
-        if ($(".alert.alert-info:contains('No Recalls Found')").length > 0) {
-            $(".alert.alert-info:contains('No Recalls Found')").show();
+        if ($("#no_recalls_message").length > 0) {
+            $("#no_recalls_message").show();
         } else {
             $("#show_recalls").prepend(
-                '<div class="alert alert-info text-center">No Recalls Found</div>'
+                '<div id="no_recalls_message" class="alert alert-info text-center">' + 
+                translations.no_recalls_found + 
+                '</div>'
             );
         }
 
         $(".table-responsive").hide();
     } else {
-        $(".alert.alert-info:contains('No Recalls Found')").hide();
+        $("#no_recalls_message").hide();
         $(".table-responsive").show();
     }
 }

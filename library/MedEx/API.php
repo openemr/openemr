@@ -2815,6 +2815,15 @@ class Display extends base
             var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
             var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
 
+            var translations = {
+                patient_required: <?php echo xlj('Please select a patient'); ?>,
+                date_required: <?php echo xlj('Please select a recall date'); ?>,
+                provider_required: <?php echo xlj('Please select a provider'); ?>,
+                facility_required: <?php echo xlj('Please select a facility'); ?>,
+                no_recalls_found: <?php echo xlj('No Recalls Found'); ?>
+            };
+
+
         </script>
             <?php
     }
