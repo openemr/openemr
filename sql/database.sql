@@ -13676,7 +13676,7 @@ CREATE TABLE `dsi_source_attributes` (
  `last_updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`),
  UNIQUE (`list_id`, `option_id`, `client_id`)
-) ENGINE=InnoDB COMMENT = 'Holds information about decission support intervention system source attributes';
+) ENGINE=InnoDB COMMENT = 'Holds information about decision support intervention system source attributes';
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'dsi_predictive_source_attributes', 'Predictive Decision Support Interventions Source Attributes');
 -- Populate list with ONC default values
