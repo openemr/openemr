@@ -1,5 +1,3 @@
-# noinspection SqlNoDataSourceInspectionForFile
-
 --
 -- Database: `openemr`
 --
