@@ -1,0 +1,6 @@
+LoginAndValidate
+NavigateToPatientCreationSearch
+CreatePatient
+//Validate patient creation
+check that page contains saved value "firstName"
+check that page contains saved value "lastName"

@@ -1,0 +1,6 @@
+LoginAndValidate
+//logout
+click "Current User"
+click "Logout"
+//validate logout
+check that page contains "Login" button

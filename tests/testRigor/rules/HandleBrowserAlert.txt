@@ -1,0 +1,1 @@
+accept prompt with value "" if page contains "New Due Clinical Reminders" using OCR only

@@ -1,0 +1,10 @@
+click "Patient"
+click "Dashboard"
+click "Patient Portal / API Access" if page does not contain "Create" roughly below "Patient Portal"
+click "Create" roughly below "Patient Portal"
+click field "Password:"
+type ctrl+A
+type delete
+enter "password" into "Password"
+click "Save"
+grab value of "(?<=Password\:\s)[^\s]+" and save it as "patient_portal_pwd"
