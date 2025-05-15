@@ -47,7 +47,6 @@ $GLOBALS['connection_pooling_off'] = true; // force off database connection pool
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
-require_once('library/classes/Installer.class.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -392,8 +391,7 @@ function pausePoll(othis) {
         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
         echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
-        $installer = new Installer([]);
-        $installer->insert_globals();
+        SQLUpgradeService::insertGlobals();
 
         echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
         require("acl_upgrade.php");

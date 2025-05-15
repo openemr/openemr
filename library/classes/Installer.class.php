@@ -594,31 +594,8 @@ $config = 1; /////////////
 
     public function insert_globals()
     {
-        if (!(function_exists('xl'))) {
-            function xl($s)
-            {
-                return $s;
-            }
-        } else {
-            $GLOBALS['temp_skip_translations'] = true;
-        }
-        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
-        require(dirname(__FILE__) . '/../globals.inc.php');
-        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-            foreach ($grparr as $fldid => $fldarr) {
-                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {
-                    $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
-                    $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
-                    if (empty($row['count'])) {
-                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
-                    }
-                }
-            }
-        }
-
-        return true;
+        // Use the static method from SQLUpgradeService
+        return \OpenEMR\Services\Utils\SQLUpgradeService::insertGlobals();
     }
 
     public function install_gacl()

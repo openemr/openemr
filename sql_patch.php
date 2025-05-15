@@ -25,7 +25,6 @@ $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
-require_once('library/classes/Installer.class.php');
 
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -68,8 +67,8 @@ $sqlUpgradeService = new SQLUpgradeService();
     $sqlUpgradeService->flush_echo();
 
     echo '<p style="font-weight:bold; text-align:left; color:green">',xlt('Updating global configuration defaults'),'...</p>';
-    $installer = new Installer([]);
-    $installer->insert_globals();
+    $sqlUpgradeService->flush_echo();
+    SQLUpgradeService::insertGlobals();
 
     $versionService = new VersionService();
     $currentVersion = $versionService->fetch();
