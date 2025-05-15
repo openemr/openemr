@@ -18,6 +18,8 @@
 
 namespace OpenEMR\Services\Utils;
 
+require(dirname(__FILE__) . '/../../../library/globals.inc.php');
+
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
@@ -27,6 +29,38 @@ class SQLUpgradeService
     private $renderOutputToScreen = true;
     private $throwExceptionOnError = false;
     private $outputBuffer = [];
+
+    /**
+     * Insert global settings into the database.
+     * This is used for updating the database with the default global configuration settings.
+     *
+     * @return bool Returns true on success
+     */
+    public static function insertGlobals()
+    {
+        if (function_exists('xl')) {
+            $GLOBALS['temp_skip_translations'] = true;
+        } else {
+            function xl($s)
+            {
+                return $s;
+            }
+        }
+        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
+        $sqlCountGlobals = 'SELECT count(*) AS count FROM globals WHERE gl_name = ?';
+        $sqlInsertGlobals = 'INSERT INTO globals ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )';
+        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+            foreach ($grparr as $fldid => $fldarr) {
+                list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+                if (!is_array($fldtype) && str_starts_with($fldtype, 'm_')) continue;
+                $res = sqlStatement($sqlCountGlobals, array($fldid));
+                $row = sqlFetchArray($res);
+                if (empty($row['count'])) sqlStatement($sqlInsertGlobals, array($fldid, '0', $flddef));
+            }
+        }
+
+        return true;
+    }
 
     public function __construct()
     {

@@ -392,8 +392,7 @@ function pausePoll(othis) {
         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
         echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
-        $installer = new Installer([]);
-        $installer->insert_globals();
+        SQLUpgradeService::insertGlobals();
 
         echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
         require("acl_upgrade.php");
