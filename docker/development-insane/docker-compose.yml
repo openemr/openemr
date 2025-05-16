@@ -84,6 +84,21 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-1:
     restart: always
     image: openemr/openemr:flex-3.17
@@ -99,6 +114,21 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-2:
     restart: always
     image: openemr/openemr:flex-3.18
@@ -114,6 +144,21 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-3:
     restart: always
     image: openemr/openemr:flex-3.20
@@ -129,6 +174,21 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-4:
     restart: always
     image: openemr/openemr:flex-3.21
@@ -170,6 +230,21 @@ services:
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_gbl_ldap_host: 'ldap://openldap:389'
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
@@ -185,6 +260,21 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-0-redis:
     restart: always
     image: openemr/openemr:flex-3.15-8
@@ -201,6 +291,21 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-1-redis:
     restart: always
     image: openemr/openemr:flex-3.17
@@ -217,6 +322,21 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-2-redis:
     restart: always
     image: openemr/openemr:flex-3.18
@@ -233,6 +353,21 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-3-redis:
     restart: always
     image: openemr/openemr:flex-3.20
@@ -249,6 +384,21 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-8-4-redis:
     restart: always
     image: openemr/openemr:flex-3.21
@@ -265,6 +415,21 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   openemr-edge-redis:
     restart: always
     image: openemr/openemr:flex-edge
@@ -281,6 +446,21 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      interval: 1m
+      retries: 3
+      start_interval: 10s
+      start_period: 3m
+      timeout: 5s
   mariadb:
     restart: always
     image: mariadb:11.4
