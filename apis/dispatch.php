@@ -416,7 +416,7 @@ try {
         'eventType' => 'API',
         'eventLabel' => strtoupper($_SESSION['api'] ?? 'UNKNOWN'),
         'eventUrl' => $restRequest->getRequestMethod() . ' ' . $resource,
-        'eventTarget' => json_encode($GLOBALS['oauth_scopes'] ?? []),
+        'eventTarget' => $userRole ?? 'Unknown',
     ]);
     exit;
 } catch (\Exception $e) {
