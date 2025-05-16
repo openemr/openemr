@@ -28,6 +28,8 @@ services:
     #- ./docker_data/vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     # - ./docker_data/ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ../../interface:/var/www/localhost/htdocs/openemr/interface
+    - ../../library:/var/www/localhost/htdocs/openemr/library
+    - ../../src:/var/www/localhost/htdocs/openemr/src
     - ../../public:/var/www/localhost/htdocs/openemr/public
     - ../../portal:/var/www/localhost/htdocs/openemr/portal
     - ../../templates:/var/www/localhost/htdocs/openemr/templates

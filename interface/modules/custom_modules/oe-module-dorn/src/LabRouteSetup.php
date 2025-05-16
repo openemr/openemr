@@ -6,11 +6,7 @@
  * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
-<<<<<<< HEAD
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
-=======
- * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
->>>>>>> d11e3347b (modules setup and UI changes)
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,40 +14,22 @@ namespace OpenEMR\Modules\Dorn;
 
 class LabRouteSetup
 {
-<<<<<<< HEAD
     public static function createUpdateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid, $labAccountNumber)
     {
         if ($ppid > 0) {
             LabRouteSetup::updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid, $labAccountNumber);
         } else {
             $ppid = LabRouteSetup::createProcedureProviders($labName, $npi, $labGuid, $uuid, $labAccountNumber);
-=======
-    public static function createUpdateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid)
-    {
-        if ($ppid > 0) {
-            LabRouteSetup::updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid);
-        } else {
-            $ppid = LabRouteSetup::createProcedureProviders($labName, $npi, $labGuid, $uuid);
->>>>>>> d11e3347b (modules setup and UI changes)
         }
         return $ppid;
     }
 
-<<<<<<< HEAD
     public static function updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid, $labAccountNumber)
     {
         $send_app_id = "OEMR";
         $send_fac_id = $labAccountNumber ?? '';
         $recv_app_id = "DORN";
         $recv_fac_id = "LAB";
-=======
-    public static function updateProcedureProviders($ppid, $labName, $npi, $labGuid, $uuid)
-    {
-        $send_app_id = "";
-        $send_fac_id = "";
-        $recv_app_id = "";
-        $recv_fac_id = "";
->>>>>>> d11e3347b (modules setup and UI changes)
         $DorP = "P";
         $direction = "B";
         $protocol = "DORN";
@@ -75,7 +53,6 @@ class LabRouteSetup
             $lab_director, $active, $type, $ppid);
         sqlStatement($sql, $sqlarr);
     }
-<<<<<<< HEAD
     public static function createProcedureProviders($labName, $npi, $labGuid, $uuid, $labAccountNumber)
     {
         $ppid = null;
@@ -84,16 +61,6 @@ class LabRouteSetup
         $send_fac_id = $labAccountNumber ?? '';
         $recv_app_id = "DORN";
         $recv_fac_id = "LAB";
-=======
-    public static function createProcedureProviders($labName, $npi, $labGuid, $uuid)
-    {
-        $ppid = null;
-
-        $send_app_id = "";
-        $send_fac_id = "";
-        $recv_app_id = "";
-        $recv_fac_id = "";
->>>>>>> d11e3347b (modules setup and UI changes)
         $DorP = "P";
         $direction = "B";
         $protocol = "DORN";
