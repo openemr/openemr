@@ -118,7 +118,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         // GT1 segment
         $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
         foreach ($guarantors as $guarantor) {
-            if ($bill_type != "T") {
+            if ($bill_type != "C") {
                 $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
         }
@@ -401,7 +401,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
         foreach ($guarantors as $guarantor) {
             // sjp does barcode need?
-            if ($bill_type != "T") {
+            if ($bill_type != "C") {
                 $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
             // this is returning an array but in the query we have a limit 1!
