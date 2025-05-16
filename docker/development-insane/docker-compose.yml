@@ -289,6 +289,18 @@ services:
     - 8210:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mariadb-ssl:
     restart: always
     image: mariadb:11.4
@@ -299,24 +311,72 @@ services:
     - ../library/sql-ssl-certs-keys/insane/server-key.pem:/etc/ssl/server-key.pem:ro
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mariadb-old:
     restart: always
     image: mariadb:10.11
     command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mariadb-very-old:
     restart: always
     image: mariadb:10.6
     command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mariadb-very-very-old:
     restart: always
     image: mariadb:10.5
     command: ['mysqld','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   mysql:
     restart: always
     image: mysql:8.4
