@@ -160,6 +160,14 @@ ALTER TABLE `product_registration` ADD `last_ask_version` TINYTEXT;
 ALTER TABLE `product_registration` ADD `options` TEXT COMMENT 'JSON array of scope options';
 #EndIf
 
+#IfIndex track_events unique_event_label
+ALTER TABLE `track_events` DROP INDEX `unique_event_label`;
+#EndIf
+
+#IfIndex track_events unique_event_label_url
+ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
+#EndIf
+
 #IfNotIndex track_events unique_event_label_target
-ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`, ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
+ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
 #EndIf
