@@ -13744,5 +13744,5 @@ CREATE TABLE `track_events` (
     `last_event`     DATETIME NULL,
     `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_event_label` (`event_label`)
+    UNIQUE KEY `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255))
 ) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';

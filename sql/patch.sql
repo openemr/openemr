@@ -60,7 +60,7 @@ CREATE TABLE `track_events` (
     `last_event`     DATETIME NULL,
     `label_count`    INT UNSIGNED NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_event_label` (`event_label`)
+    UNIQUE KEY `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255))
 ) ENGINE = InnoDB COMMENT = 'Telemetry Event Data';
 #EndIf
 
@@ -88,3 +88,14 @@ UPDATE `list_options`
 SET `notes` = '{"form_title":{"presence": {"message": "Title Required"}}}'
 WHERE `list_id` = 'page_validation' AND `option_id` = 'add_edit_event#theform_prov' AND `title` = '/interface/main/calendar/add_edit_event.php?prov=true' AND `notes` = '{}';
 
+#IfIndex track_events unique_event_label
+ALTER TABLE `track_events` DROP INDEX `unique_event_label`;
+#EndIf
+
+#IfIndex track_events unique_event_label_url
+ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
+#EndIf
+
+#IfNotIndex track_events unique_event_label_target
+ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
+#EndIf
