@@ -1,5 +1,57 @@
 # CHANGELOG.md
 
+## [7.0.3.4](https://github.com/openemr/openemr/milestone/21?closed=1) - 2025-05-18
+
+### Added
+-  Collect usage data from production installs. ([#8188](https://github.com/openemr/openemr/issues/8188))
+-  appointments report: display patients address; select multiple providers ([#8061](https://github.com/openemr/openemr/issues/8061))
+-  need an Eye Form Update: Addition of large format Scleral Depression Drawing/Canvas. ([#8270](https://github.com/openemr/openemr/issues/8270))
+
+
+### Fixed
+- Applying pre-payment bug in the billing system ([#8156](https://github.com/openemr/openemr/issues/8156))
+- Calendar Search Keywords Issue ([#8239](https://github.com/openemr/openemr/issues/8239))
+- Calendar Search is very confusing ([#8241](https://github.com/openemr/openemr/issues/8241))
+- Edit Current Patient label and buttons go to the side when on big display ([#8315](https://github.com/openemr/openemr/issues/8315))
+- FaxSms Module update for RingCentral ([#8311](https://github.com/openemr/openemr/issues/8311))
+- Log http requests and additional data. ([#8337](https://github.com/openemr/openemr/issues/8337))
+- Module Manager locks system ([#8349](https://github.com/openemr/openemr/issues/8349))
+- New feature FaxSMS module - Auto notifications ([#8312](https://github.com/openemr/openemr/issues/8312))
+- Registration and Usage Tracking updates ([#8313](https://github.com/openemr/openemr/issues/8313))
+- Registration modal fix to ensure complete decoupling ([#8334](https://github.com/openemr/openemr/issues/8334))
+- Reminder Workflow Usability ([#8307](https://github.com/openemr/openemr/issues/8307))
+- Security fixes for 7.0.3.4 ([#8281](https://github.com/openemr/openemr/issues/8281))
+- Telemetry disable logic and add API track events. ([#8332](https://github.com/openemr/openemr/issues/8332))
+- Track events API event save error ([#8354](https://github.com/openemr/openemr/issues/8354))
+- When updating any class that extends ORDataObject (e.g., Insurance Company), the record is deleted due to REPLACE INTO, causing the UUID to be regenerated ([#8333](https://github.com/openemr/openemr/issues/8333))
+- Wrong closing tag in stats_full.php ([#8341](https://github.com/openemr/openemr/issues/8341))
+-  Cannot create encounter if "Class" field is hidden ([#8259](https://github.com/openemr/openemr/issues/8259))
+-  FHIR observation endpoint is missing valueQuantity for standalone Inhaled oxygen flow rate vitals sign ([#8136](https://github.com/openemr/openemr/issues/8136))
+-  Flow board does not change color ([#8190](https://github.com/openemr/openemr/issues/8190))
+-  Importing CCDA, add XML sanitation and updates. ([#8227](https://github.com/openemr/openemr/issues/8227))
+-  Misassignment of Clinical Notes to Encounters ([#8242](https://github.com/openemr/openemr/issues/8242))
+-  New Encounter Facility logic ignores Set Service Facility in Encounter setting and creating user's default facility ([#8262](https://github.com/openemr/openemr/issues/8262))
+-  Patient Portal allow_custom_report global setting is not used in portal dashboard page ([#8178](https://github.com/openemr/openemr/issues/8178))
+-  Review and donate globals mismatched on About page ([#8204](https://github.com/openemr/openemr/issues/8204))
+-  api missing employer.read scope for /api/patient/{puuid}/employer endpoint ([#8135](https://github.com/openemr/openemr/issues/8135))
+-  appointments report csv file header row does not match report headers ([#8010](https://github.com/openemr/openemr/issues/8010))
+-  ccdaservice node start failing on Windows ([#8340](https://github.com/openemr/openemr/issues/8340))
+-  provider not included in csv from appointments report ([#7977](https://github.com/openemr/openemr/issues/7977))
+-  reports with relative globals.php include do not render in encounter summary screen. ([#8075](https://github.com/openemr/openemr/issues/8075))
+-  setup.php incorrectly compares and flags memory_limit ([#8319](https://github.com/openemr/openemr/issues/8319))
+- do not send usage report if telemetry is turned off ([#8370](https://github.com/openemr/openemr/issues/8370))
+- help message for config of encounter form is incorrect ([#8268](https://github.com/openemr/openemr/issues/8268))
+- no filename in document api response ([#8304](https://github.com/openemr/openemr/issues/8304))
+- password administration logging ([#8280](https://github.com/openemr/openemr/issues/8280))
+- setup.php display_errors and max_execution_time checks will always show fixed values ([#8344](https://github.com/openemr/openemr/issues/8344))
+- show patients address in appointment summary on calendar ([#8228](https://github.com/openemr/openemr/issues/8228))
+
+
+### Changed
+-  Unable to set "In Office" hours for providers ([#7539](https://github.com/openemr/openemr/issues/7539))
+-  check if registration succeeded before continuing API tests ([#8320](https://github.com/openemr/openemr/issues/8320))
+
+
 ## [7.0.3.3](https://github.com/openemr/openemr/milestone/20?closed=1) - 2025-04-06
 
 ### Fixed
