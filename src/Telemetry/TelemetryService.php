@@ -121,6 +121,11 @@ class TelemetryService
      */
     public function reportUsageData(): int|bool
     {
+        if (empty(self::isTelemetryEnabled())) {
+            error_log("Telemetry is not enabled, so do not send a usage report.");
+            return false;
+        }
+
         $site_uuid = UniqueInstallationUuid::getUniqueInstallationUuid() ?? '';
         if (empty($site_uuid)) {
             error_log("Site UUID not found.");
@@ -205,7 +210,7 @@ class TelemetryService
      */
     public function trackApiRequestEvent(array $event_data): void
     {
-        if (!empty($this->isTelemetryEnabled())) {
+        if (!empty(self::isTelemetryEnabled())) {
             $this->reportClickEvent($event_data);
         }
     }
