@@ -438,8 +438,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
                 $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
-                $ed->dispatch($event, DornLabEvent::GEN_BARCODE);
-                $alertmsg .= $event->getMessagesAsString('Generate Barcode: ', true);
+                // TODO: Generate Barcode may be used for requisition printing.
+                /*$ed->dispatch($event, DornLabEvent::GEN_BARCODE);
+                $alertmsg .= $event->getMessagesAsString('Generate Barcode: ', true);*/
             } else {
                 if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
                     require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
