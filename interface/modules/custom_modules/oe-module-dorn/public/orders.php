@@ -77,7 +77,7 @@ if (!empty($_POST)) {
         <div class="col">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"><?php echo xlt("DORN - Lab Orders"); ?></h5>
+                    <h5 class="card-title"><?php echo xlt("DORN - Lab Pending or Queued Orders"); ?></h5>
                     <div class="row">
                         <div class="col">
                             <form method="post" action="orders.php">
