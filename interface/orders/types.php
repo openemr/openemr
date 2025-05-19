@@ -86,19 +86,19 @@ if ($popup && $_POST['form_save'] ?? '') {
         }
         #con0 td {
             font-family: sans-serif;
-            font-size: 11px;
+            font-size: 16px;
             line-height: 25px;
         }
         .plusminus {
             font-family: monospace;
         }
         .haskids {
-            color: #0000dd;
+            color: #0404fd;
             cursor: pointer;
             cursor: hand;
         }
         tr.head {
-            font-size: 14px;
+            font-size: 16px;
             background-color: var(--light);
             font-weight: bold;
         }
