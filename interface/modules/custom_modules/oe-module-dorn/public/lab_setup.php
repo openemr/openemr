@@ -79,7 +79,7 @@ if (!empty($_POST)) {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="form_labName"><?php echo xlt("Lab Name") ?>:</label>
-                                <input type="text" class="form-control" id="form_labName" name="form_labName" value="<?php echo isset($_POST['form_labName']) ? attr($_POST['form_labName']) : '' ?>" />
+                                <input type="text" class="form-control" id="form_labName" name="form_labName" placeholder="<?php echo xla("Search by Lab name"); ?>" value="<?php echo isset($_POST['form_labName']) ? attr($_POST['form_labName']) : '' ?>" />
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -108,13 +108,13 @@ if (!empty($_POST)) {
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="form_city"><?php echo xlt("City") ?>:</label>
-                                <input type="text" class="form-control" id="form_city" name="form_city" value="<?php echo isset($_POST['form_city']) ? attr($_POST['form_city']) : '' ?>" />
+                                <input type="text" class="form-control" id="form_city" name="form_city" placeholder="<?php echo xla("Search City for Lab"); ?>" value="<?php echo isset($_POST['form_city']) ? attr($_POST['form_city']) : '' ?>" />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="form_state"><?php echo xlt("State") ?>:</label>
-                                <input type="text" class="form-control" id="form_state" name="form_state" value="<?php echo isset($_POST['form_state']) ? attr($_POST['form_state']) : '' ?>" />
+                                <input type="text" class="form-control" id="form_state" name="form_state" placeholder="<?php echo xla("Search State for Lab"); ?>" value="<?php echo isset($_POST['form_state']) ? attr($_POST['form_state']) : '' ?>" />
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -149,7 +149,7 @@ if (!empty($_POST)) {
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary mb-2"><?php echo xlt("Submit") ?></button>
+                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary mb-2"><?php echo xlt("Search") ?></button>
                         </div>
                     </div>
                     <div class="row">

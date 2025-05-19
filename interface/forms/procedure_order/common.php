@@ -438,8 +438,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
                 $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
-                $ed->dispatch($event, DornLabEvent::GEN_BARCODE);
-                $alertmsg .= $event->getMessagesAsString('Generate Barcode: ', true);
+                // TODO: Generate Barcode may be used for requisition printing.
+                /*$ed->dispatch($event, DornLabEvent::GEN_BARCODE);
+                $alertmsg .= $event->getMessagesAsString('Generate Barcode: ', true);*/
             } else {
                 if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
                     require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
@@ -465,7 +466,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
-                        $order_log .= $event->getMessagesAsString('Send Order: ', true);
+                        $alertmsg .= $event->getMessagesAsString('Send Order: ', true);
                     } else {
                         $alertmsg = send_hl7_order($ppid, $hl7);
                     }
@@ -508,6 +509,8 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 }
                 file_put_contents($log_file, $order_log);
             } else {
+                $order_data .= "\n" . xlt("Transmit failed. See Order Log for details.");
+                $alertmsg .= "\n" . xlt("Transmit failed. Lab response") . ': ' . $alertmsg . xlt("Failed HL7 Content") .  ":\n" . $hl7 . "\n";
                 if ($order_log) {
                     $alertmsg = $order_log . "\n" . $alertmsg;
                     $order_log = $alertmsg; // persist log
