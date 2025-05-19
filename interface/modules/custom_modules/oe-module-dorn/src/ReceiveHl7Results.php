@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\Dorn;
 
+use Document;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\ReceiveResultsResponseModel;
