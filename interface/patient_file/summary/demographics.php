@@ -1954,6 +1954,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
         });
     </script>
+    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/main/patient_context_image.js"></script>
 </body>
 <?php $ed->dispatch(new RenderEvent($pid), RenderEvent::EVENT_RENDER_POST_PAGELOAD, 10); ?>
 </html>
