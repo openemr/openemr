@@ -8,10 +8,10 @@
  *  license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Acl\AclMain;
 
-    require_once dirname(__FILE__, 5) . '/globals.php';
+require_once dirname(__FILE__, 5) . '/globals.php';
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     echo xlt('Unauthorized');
