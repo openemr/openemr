@@ -14,7 +14,9 @@
 
 namespace OpenEMR\Events\Encounter;
 
-class LoadEncounterFormFilterEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class LoadEncounterFormFilterEvent extends Event
 {
     const EVENT_NAME = 'encounter.load_form_filter';
     private $formName;

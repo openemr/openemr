@@ -16,7 +16,9 @@
 
 namespace OpenEMR\Events\Patient\Summary;
 
-class PortalCredentialsUpdatedEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class PortalCredentialsUpdatedEvent extends Event
 {
     const EVENT_UPDATE_PRE = 'patient.portal-credentials.update.pre';
     const EVENT_UPDATE_POST  = 'patient.portal-credentials.update.post';
