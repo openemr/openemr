@@ -191,6 +191,14 @@ window.NewPatientForm = function(window) {
             }
         }
 
+        //Show confirmation alert when the form is submitted
+        const form = document.getElementById('new-encounter-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                alert(xl('Form submitted successfully!'));
+            });
+        }
+
         if (window.OeFormValidation) {
             window.OeFormValidation.init();
         }
