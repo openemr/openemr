@@ -17,7 +17,9 @@
 
 namespace OpenEMR\Events\Core;
 
-class TemplatePageEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class TemplatePageEvent extends Event
 {
     const CONTEXT_ARGUMENT_SCRIPT_NAME = "script_name";
 

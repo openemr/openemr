@@ -15,11 +15,12 @@
 
 namespace OpenEMR\Events\UserInterface;
 
+use Symfony\Contracts\EventDispatcher\Event;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuItems;
 use OpenEMR\Menu\MenuItemInterface;
 
-class PageHeadingRenderEvent
+class PageHeadingRenderEvent extends Event
 {
     const EVENT_PAGE_HEADING_RENDER = 'oemrui.page.header.render';
 

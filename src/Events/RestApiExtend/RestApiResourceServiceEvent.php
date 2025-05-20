@@ -2,7 +2,9 @@
 
 namespace OpenEMR\Events\RestApiExtend;
 
-class RestApiResourceServiceEvent
+use Symfony\Contracts\EventDispatcher\Event;
+
+class RestApiResourceServiceEvent extends Event
 {
     /**
      * Used whenever the service for a rest api resource needs to be returned for metadata or other kind of resource purposes
