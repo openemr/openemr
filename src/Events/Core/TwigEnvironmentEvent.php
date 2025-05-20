@@ -27,9 +27,10 @@
 
 namespace OpenEMR\Events\Core;
 
+use Symfony\Contracts\EventDispatcher\Event;
 use Twig\Environment;
 
-class TwigEnvironmentEvent
+class TwigEnvironmentEvent extends Event
 {
     /**
      * This event is triggered after the twig environment has been created in the TwigContainer
