@@ -12,6 +12,18 @@ services:
     - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   openemr:
     restart: always
     image: openemr/openemr:flex
@@ -57,7 +69,23 @@ services:
       OPENEMR_SETTING_portal_onsite_two_enable: 1
       OPENEMR_SETTING_ccda_alt_service_enable: 3
     depends_on:
-    - mysql
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --show-error
+      - --silent
+      - https://localhost/
+      start_period: 3m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   phpmyadmin:
     restart: always
     image: phpmyadmin
@@ -65,6 +93,9 @@ services:
     - 8310:80
     environment:
       PMA_HOSTS: mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
 volumes:
   databasevolume: {}
   assetvolume: {}
