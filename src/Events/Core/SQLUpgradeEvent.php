@@ -15,7 +15,7 @@
 
 namespace OpenEMR\Events\Core;
 
-use OpenEMR\Services\Utils\SQLUpgradeService;
+use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class SQLUpgradeEvent extends Event
@@ -41,11 +41,11 @@ class SQLUpgradeEvent extends Event
     private $path;
 
     /**
-     * @var SQLUpgradeService The sql upgrade service object
+     * @var ISQLUpgradeService The sql upgrade service object
      */
     private $sqlUpgradeService;
 
-    public function __construct($filename, $path, SQLUpgradeService $upgradeService)
+    public function __construct($filename, $path, ISQLUpgradeService $upgradeService)
     {
         $this->filename = $filename;
         $this->path = $path;
@@ -89,18 +89,18 @@ class SQLUpgradeEvent extends Event
     }
 
     /**
-     * @return SQLUpgradeService
+     * @return ISQLUpgradeService
      */
-    public function getSqlUpgradeService(): SQLUpgradeService
+    public function getSqlUpgradeService(): ISQLUpgradeService
     {
         return $this->sqlUpgradeService;
     }
 
     /**
-     * @param SQLUpgradeService $sqlUpgradeService
+     * @param ISQLUpgradeService $sqlUpgradeService
      * @return SQLUpgradeEvent
      */
-    public function setSqlUpgradeService(SQLUpgradeService $sqlUpgradeService): SQLUpgradeEvent
+    public function setSqlUpgradeService(ISQLUpgradeService $sqlUpgradeService): SQLUpgradeEvent
     {
         $this->sqlUpgradeService = $sqlUpgradeService;
         return $this;

@@ -21,8 +21,9 @@ namespace OpenEMR\Services\Utils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
+use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 
-class SQLUpgradeService
+class SQLUpgradeService implements ISQLUpgradeService
 {
     private $renderOutputToScreen = true;
     private $throwExceptionOnError = false;
