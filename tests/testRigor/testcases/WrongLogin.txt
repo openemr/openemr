@@ -1,0 +1,6 @@
+// Setting wrong credentials
+save value "wrong" as "username"
+save value "wrong" as "password"
+login
+// Validation wrong login
+ValidateUnsuccessfulLogin

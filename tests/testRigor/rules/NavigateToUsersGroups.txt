@@ -1,0 +1,4 @@
+click "Admin"
+click "Users"
+check that page contains "User / Groups"
+check that page contains button "Add User"

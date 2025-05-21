@@ -1,0 +1,21 @@
+//Navigate Providers
+click "Procedures"
+click "Providers" below "Procedures"
+// Create Provider
+click "Add New"
+generate from template "**********", then enter into "NPI" and save as "npi"
+// Optional: Fill fields only if submitting an electronic order
+select "Production" from "Usage" // Select 'Debugging' or 'Production' as per requirements
+enter "Sending Application Name" into "Enter Application Name" roughly below "Sender IDs:" // Enter the sending application name
+enter "Sending Facility Name" into "Facility Name" roughly below "Sender IDs:" // Enter the sending facility name
+enter "Receiving Application Name" into "Enter Application Name" roughly below "Receiver IDs:"// Enter the receiving application name
+enter "Receiving Facility Name" into "Facility Name" roughly below "Receiver IDs:" // Enter the receiving facility name
+// Optional: Login details, only if SFTP protocol is selected
+enter "SFTP Username" into "Enter User Login ID"
+enter "SFTP Password" into "Enter Password"
+// Optional: Remote host and file paths for electronic order
+enter "remote_host_url" into "Remote Host"
+enter "order_directory_path" into "Orders Path"
+// Step 3.3: Enter additional notes
+enter "Additional information about provider" into "Notes"
+click "Save"

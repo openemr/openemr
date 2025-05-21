@@ -1,0 +1,8 @@
+check that page does not contain "Current User"
+check that page does not contain "Logout"
+check that page does not contain "Patient"
+check that page does not contain "Popups"
+check that page does not contain "Providers"
+check that page does not contain button "Day"
+check that page does not contain button "Week"
+check that page does not contain button "Month"

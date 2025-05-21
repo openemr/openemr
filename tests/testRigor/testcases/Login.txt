@@ -1,0 +1,4 @@
+LoginAndValidate
+//validate user
+click "Current User"
+check that page contains "Administrator" above "Logout"
