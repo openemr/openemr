@@ -63,7 +63,7 @@ if (!$GLOBALS['ptkr_date_range']) {
 } elseif (($GLOBALS['ptkr_start_date']) == 'D0') {
     $from_date = date('Y-m-d');
 } elseif (($GLOBALS['ptkr_start_date']) == 'B0') {
-    if (date(w) == GLOBALS['first_day_week']) {
+    if (date('w') == $GLOBALS['first_day_week']) {
         //today is the first day of the week
         $from_date = date('Y-m-d');
     } elseif ($GLOBALS['first_day_week'] == 0) {
