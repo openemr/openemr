@@ -381,15 +381,14 @@ function era_callback(&$out)
             }
 
             $prev = $codes[$codekey] ?? '';
-            // However sometimes a secondary insurance (take USAA LIFE for instance)
-            // sometimes doesn't return the modifier that was on the service item
-            // processed by the primary payer so try to deal with that
+            // However sometimes a secondary insurance doesn't return the modifier that was on the service item
+            // that was processed by the primary payer so try to deal with that
             if (!$prev) {
                 if (!$svc['mod']) {
                     if (in_array($svc['code'], $cpts ?? [])) {
                         foreach ($cpts as $k => $v) {
                             if ($v == $codekey) {
-                                $codekey = $cpt . ':' . implode(':', $mods[$v]);
+                                $codekey = $cpt . ':' . implode(':', $mods[$v] ?? []);
                             }
                         }
                     }
