@@ -47,7 +47,6 @@ class Installer
     public $translation_sql;
     public $devel_translation_sql;
     public $ippf_sql;
-    public $icd9;
     public $cvx;
     public $additional_users;
     public $dumpfiles;
@@ -95,7 +94,6 @@ class Installer
         $this->translation_sql = dirname(__FILE__) . '/../../contrib/util/language_translations/currentLanguage_utf8.sql';
         $this->devel_translation_sql = "http://translations.openemr.io/languageTranslations_utf8.sql";
         $this->ippf_sql = dirname(__FILE__) . "/../../sql/ippf_layout.sql";
-        $this->icd9 = dirname(__FILE__) . "/../../sql/icd9.sql";
         $this->cvx = dirname(__FILE__) . "/../../sql/cvx_codes.sql";
         $this->additional_users = dirname(__FILE__) . "/../../sql/official_additional_users.sql";
 
@@ -1436,11 +1434,6 @@ $config = 1; /////////////
 
             if ($this->ippf_specific) {
                 $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
-            }
-
-            // Load ICD-9 codes if present.
-            if (file_exists($this->icd9)) {
-                $dumpfiles[ $this->icd9 ] = "ICD-9";
             }
 
             // Load CVX codes if present
