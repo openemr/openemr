@@ -191,11 +191,29 @@ window.NewPatientForm = function(window) {
             }
         }
 
-        //Show confirmation alert when the form is submitted
+        //Show confirmation alert using Bootstrap when the form is submitted
         const form = document.getElementById('new-encounter-form');
         if (form) {
             form.addEventListener('submit', function() {
-                alert(xl('Form submitted successfully!'));
+                const alertBox = document.createElement('div');
+                alertBox.className = 'alert alert-success alert-dismissible fade show';
+                alertBox.role = 'alert';
+                alertBox.innerText = xl('Form submitted successfully!');
+
+                const closeButton = document.createElement('button');
+                closeButton.type = 'button';
+                closeButton.className = 'btn-close';
+                closeButton.setAttribute('data-bs-dismiss', 'alert');
+                closeButton.setAttribute('aria-label', 'Close');
+                alertBox.appendChild(closeButton);
+
+                document.body.prepend(alertBox);
+
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                    alertBox.classList.add('hide');
+                    alertBox.remove();
+                }, 3000);
             });
         }
 
