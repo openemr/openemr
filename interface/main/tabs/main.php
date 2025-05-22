@@ -438,7 +438,8 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?>>
     <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
         <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
-            <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
+            <!-- <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank"> -->
+                <a class="navbar-brand" href="https://www.open-emr.org" title="NeoCareX" rel="noopener"
                 <img src="<?php echo $menuLogo; ?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo'); ?>">
             </a>
         <?php endif; ?>

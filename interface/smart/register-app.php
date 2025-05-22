@@ -100,6 +100,35 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
     <script>
         (function(window, fhirRegistrationURL, dsiTypes) {
             function registerApp() {
+
+                const fileInput = document.getElementById("smartLogo");
+                const file = fileInput.files[0];
+                const appName = document.querySelector('#appName').value;
+
+                if (!file) {
+                    alert("Please select a file.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("appName", appName);
+
+                fetch("uploadSmartLogo.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Upload failed");
+                    return response.text();
+                })
+                .then(data => {
+                    console.log("Your file has been uploaded.");
+                })
+                .catch(err => {
+                    alert("Error uploading file: " + err.message);
+                });
+
                 let form = document.querySelector('form[name="app_form]');
                 let appRegister = {
                     "application_type": "private"
@@ -465,6 +494,13 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <label for="logoutURI" class="text-right"><?php echo xlt('App Logout URI'); ?>:</label>
                     <input type="text" class="form-control" id="logoutURI" name="logoutURI" placeholder="<?php echo xla('URI'); ?>" />
                 </div>
+                <div class="form-group">
+                    <label for="smartLogo" class="text-right"><?php echo xlt('Logo'); ?>:</label>
+                    <input type="file" class="form-control" id="smartLogo" name="smartLogo" accept=".png" placeholder="<?php echo xla('LOGO'); ?>" />
+                </div>
+                <!-- <div class="form-group col-4">
+                <button onclick="doupload()" name="upload">Upload File</button>
+                </div> -->
                 <!-- TODO: adunsulag display the list of scopes that can be requested here -->
 
                 <div class="form-group">

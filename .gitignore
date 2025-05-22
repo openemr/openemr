@@ -1,3 +1,7 @@
+docker/gheit-local/docker_data
+docker/gheit-dev/docker_data
+docker/gheit-prod/docker_data
+
 # logs
 /logs
 
@@ -29,3 +33,4 @@ ccdaservice/node_modules
 .phpunit.result.cache
 coverage/js-unit
 
+public/images/logos/custom/*
