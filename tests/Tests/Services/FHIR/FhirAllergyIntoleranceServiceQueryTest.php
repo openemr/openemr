@@ -1,15 +1,5 @@
 <?php
 
-/**
- * FHIR Allergy Intolerance Service Query Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
@@ -20,6 +10,16 @@ use OpenEMR\Services\FHIR\FhirUrlResolver;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
+/**
+ * FHIR Allergy Intolerance Service Query Tests
+ *
+ * @coversDefaultClass \OpenEMR\Services\FHIR\FhirAllergyIntoleranceService
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 {
     /**
