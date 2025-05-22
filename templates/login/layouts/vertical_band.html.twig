@@ -25,8 +25,10 @@ This layout creates a vertical banded login layout
 {% endblock %}
 
 {% block content %}
-<div class="vh-100 p-5 d-flex flex-column justify-content-center mx-auto vertical-band">
-    <div class="align-items-center">
+<!-- <div class="vh-100 p-5 d-flex flex-column justify-content-center mx-auto vertical-band">
+    <div class="align-items-center"> -->
+<div class="vh-100 d-flex justify-content-center align-items-center p-5">
+    <div class="vertical-band p-4 h-80">
         {% include "login/partials/html/primary_logo.html.twig" %}
         {% include "login/partials/html/login_details.html.twig" %}
         {% include "login/partials/html/acknowledgements.html.twig" %}
