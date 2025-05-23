@@ -1,0 +1,11 @@
+# Primary Portal Menu Logo
+
+This README ensures the directory path exists for branding the portal menu.
+
+To change the standard "OpenEMR" logo on the portal menu, place an image file
+in this folder named "logo". File type can be PNG, JPG, SVG, or any other
+file type that can be rendered using the `<img>` tag's `src` property.
+
+Only put **one** file in this folder, or you will encounter unexpected results.
+
+This allows every multisite install to showcase a custom primary logo.

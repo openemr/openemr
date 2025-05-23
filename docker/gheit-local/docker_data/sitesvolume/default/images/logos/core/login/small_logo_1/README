@@ -1,0 +1,19 @@
+# Small Logo One
+
+This README ensures the directory path exists for branding the login page.
+
+To change the small logo on the login page, replace the file in this folder
+named logo.png with your own. File type can be PNG, JPG, SVG, or any other
+file type that can be rendered using the `<img>` tag's `src` property.
+
+The initial file in this folder is a placeholder, allowing you to see what your
+login pag will look like with a small logo.
+
+Only put **one** file in this folder, or you will encounter unexpected results.
+
+This allows every multisite install to showcase a custom small logo.
+
+You must enable the Global setting found under "Login Page" titled
+"Show Mini Logo 1" for this logo to be rendered.
+
+Recommended dimensions of this logo is 300x100.

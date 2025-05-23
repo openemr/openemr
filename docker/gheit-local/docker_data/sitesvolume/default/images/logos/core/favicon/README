@@ -1,0 +1,16 @@
+# Favicon
+
+This README ensures the directory path exists for branding the favicon.
+
+To change the standard "OpenEMR" favicon, place an image file
+in this folder named "favicon.ico".
+
+Only put **one** file in this folder, or you will encounter unexpected results.
+
+This allows every multisite install to showcase a custom favicon.
+
+## Note
+Favicons have become more robost throughout the years, and various images can
+now be used based on the browser (i.e. macOS Safari can render an SVG with
+various options. At this time, OpenEMR can only customize a .ico file). Future
+work will expand to create the various favicons that can be consumed.

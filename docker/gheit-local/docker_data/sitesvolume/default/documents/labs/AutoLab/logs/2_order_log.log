@@ -1,0 +1,22 @@
+
+Send Order: Generic Response: Order is a duplicate
+
+Transmit failed. Lab response: 
+Send Order: Generic Response: Order is a duplicate
+Failed HL7 Content:
+MSH|^~\&|OEMR|1232e5|DORN|LAB|20250522123058+0000||OML^O21^OML_O21|2|T|2.5.1|||AL|NE|||||ELINCS_MT-OML-1_1.0
+PID|1||1^^^^AN||Chaudhary^Krishna^||19920806|M|||300 HARDING BLVD^^ROSEVILLE^CA^95678|||||||||||
+PV1|1|U||||||||||||||||||T
+IN1|1|3242|3242|GlobalHealth Group|^^^^|||123||||||||Chaudhary^Krishna^|1|19920805|300 HARDING BLVD^^ROSEVILLE^CA^95678|||||||||||||||||123456
+GT1|1||Chaudhary^Krishna^||300 HARDING BLVD^^ROSEVILLE^CA^95678|||||P|1
+ORC|NW|2||2||||||||1235186800^Administrator^Admin^^^^^^^^^^NPI||||||||||||^^^^
+OBR|1|2||276024^Creat Clearance Normalized|||20250515110000+0000|20250522123058+0000|||L||N|||||||RO||||||||||||||||
+DG1|1||A00.0^Cholera due to Vibrio cholerae 01, biovar cholerae^I10c|||ICD10
+
+
+Send Order: Generic Response: Order is a duplicate
+
+Transmit failed. Lab response: 
+Send Order: Generic Response: Order is a duplicate
+Failed HL7 Content:
+MSH|^~\&|OEMR|1232e5|DORN|LAB|20250522123226+0000||OML^O21^OML_O21|2|T|2.5.1|||AL|NE|||||ELINCS_MT-OML-1_1.0PID|1||1^^^^AN||Chaudhary^Krishna^||19920806|M|||300 HARDING BLVD^^ROSEVILLE^CA^95678|||||||||||PV1|1|U||||||||||||||||||TIN1|1|3242|3242|GlobalHealth Group|^^^^|||123||||||||Chaudhary^Krishna^|1|19920805|300 HARDING BLVD^^ROSEVILLE^CA^95678|||||||||||||||||123456GT1|1||Chaudhary^Krishna^||300 HARDING BLVD^^ROSEVILLE^CA^95678|||||P|1ORC|NW|2||2||||||||1235186800^Administrator^Admin^^^^^^^^^^NPI||||||||||||^^^^OBR|1|2||276024^Creat Clearance Normalized|||20250515110000+0000|20250522123226+0000|||L||N|||||||RO||||||||||||||||DG1|1||A00.0^Cholera due to Vibrio cholerae 01, biovar cholerae^I10c|||ICD10DG1|2||A00.1^Cholera due to Vibrio cholerae 01, biovar eltor^I10c|||ICD10
