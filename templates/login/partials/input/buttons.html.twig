@@ -11,14 +11,6 @@ Render the login button, and google signin button, if set
 @copyright Copyright (c) 2023 Providence Healthtech
 @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
-<style type="text/css">
-    /* Custom CSS to be moved after the BS5 migration, this helps responsiveness */
-    @media (min-width: 768px) {
-        .form-group.d-inline-flex.justify-content-between {
-            margin-left: 74%;
-        }
-    }
-</style>
 {% block buttons %}
 <div class="{{ button_container_class_list|default(['form-group', 'd-inline-flex','justify-content-between'])|join(' ') }}" >
     <button id="login-button" class="btn btn-primary flex-fill" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
