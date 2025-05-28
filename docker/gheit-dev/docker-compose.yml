@@ -28,7 +28,7 @@ services:
     - ../../public:/var/www/localhost/htdocs/openemr/public:rw
     - ./docker_data/sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - ./docker_data/nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
-    - ./docker_data/vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+      #- ./docker_data/vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ./docker_data/ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ./docker_data/logvolume:/var/log/www
     - ./docker_data/couchdbvolume:/couchdb/data
