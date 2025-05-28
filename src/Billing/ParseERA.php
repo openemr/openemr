@@ -14,10 +14,19 @@
 
 namespace OpenEMR\Billing;
 
+use Money\Currencies\ISOCurrencies;
+use Money\Currency;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Parser\DecimalMoneyParser;
+
 class ParseERA
 {
     public static function parseERA2100(&$out, $cb)
     {
+        $currencies = new ISOCurrencies();
+        $moneyParser = new DecimalMoneyParser($currencies);
+        $moneyFormatter = new DecimalMoneyFormatter($currencies);
+
         if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
             // Production date is posted with adjustments, so make sure it exists.
             if (empty($out['production_date'])) {
@@ -33,21 +42,27 @@ class ParseERA
             // create the 'Claim' service type here.
             //
             if ($GLOBALS['force_claim_balancing']) {
-                $chgtotal = floatval($out['amount_charged']);
-                $paytotal = floatval($out['amount_approved']);
-                $pattotal = floatval($out['amount_patient']);
-                $adjtotal = $chgtotal - $paytotal - $pattotal;
+                //$money = $moneyParser->parse('$1.00');
+                //echo $money->getAmount(); // outputs 100
+
+                $chgtotal = $moneyParser->parse($out['amount_charged'], new Currency('USD'));
+                $paytotal = $moneyParser->parse($out['amount_approved'], new Currency('USD'));
+                $pattotal = $moneyParser->parse($out['amount_patient'], new Currency('USD'));
+                $adjtotal = $chgtotal->subtract($paytotal);
+                $adjtotal = $adjtotal->subtract($pattotal);
                 foreach ($out['svc'] as $svc) {
-                    $paytotal -= $svc['paid'];
+                    $paytotal = $paytotal->subtract($moneyParser->parse($svc['paid'], new Currency('USD')));
                     foreach ($svc['adj'] as $adj) {
                         if ($adj['group_code'] != 'PR') {
-                            $adjtotal -= $adj['amount'];
+                            $adjtotal = $adjtotal->subtract($moneyParser->parse($adj['amount'], new Currency('USD')));
                         }
                     }
                 }
 
-                $paytotal = round($paytotal, 2);
-                $adjtotal = round($adjtotal, 2);
+                //$paytotal = round($paytotal, 2);
+                $paytotal = $moneyFormatter->format($paytotal);
+                //$adjtotal = round($adjtotal, 2);
+                $adjtotal = $moneyFormatter->format($adjtotal);
                 if ($paytotal != 0 || $adjtotal != 0) {
                     if ($out['svc'][0]['code'] != 'Claim') {
                         array_unshift($out['svc'], array());
