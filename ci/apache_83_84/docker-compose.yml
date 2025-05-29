@@ -1,4 +1,3 @@
-# docker-compose.yml for travis ci testing
 services:
   mysql:
     restart: always
