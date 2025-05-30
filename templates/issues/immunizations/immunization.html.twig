@@ -1,0 +1,748 @@
+<html>
+<head>
+    {{ setupHeader(['datetime-picker', 'select2']) }}
+    <title>{{ "Immunizations"|xlt }} </title>
+
+    <style>
+        .highlight {
+        color: green;
+        }
+        tr.selected {
+        background-color: white;
+        }
+    </style>
+</head>
+<body>
+{{ mainMenu }}
+<form class="" action="immunizations.php" name="add_immunization" id="add_immunization">
+    <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw|attr }}" />
+    <input type="hidden" name="mode" id="mode" value="add" />
+    <input type="hidden" name="id" id="id" value="{{ id|attr }}" />
+    <input type="hidden" name="pid" id="pid" value="{{ pid|attr }}" />
+    <input type="hidden" name="uuid" id="uuid" value="{{ uuid|attr }}" />
+
+    <div class="container mt-3">
+        <div class="row">
+            {% if addedInError %}
+                <div class="col-sm-12 mt-3">
+                    <div class="alert alert-warning" role="alert">{{ "Entered in error"|xlt }}</div>
+                </div>
+            {% endif %}
+            <div class="col-sm-12 mt-3 col-md-4">
+                <div class="form-group">
+                    <label>{{ 'Immunization'|xlt }} {% if useCVX %}({{ 'CVX Code'|xlt }}){% endif %}</label>
+                    {% if useCVX %}
+                        {{ generateFormField({data_type: '1', field_id: 'immunization_id', list_id: 'immunizations', empty_title: 'SKIP'}, immunization_id) }}
+                    {% else %}
+                        <label>{{ 'Immunization'|xlt }} </label>
+                        <div>
+                            <input type='text' class='form-control' size='10' name='cvx_code' id='cvx_code' value='{{ cvx_code|attr }}' onclick='sel_cvxcode(this)' title='{{ "Click to select or change CVX code"|xla }}'>
+                            <div id='cvx_description' class='d-inline float-right p-1 ml-2'>
+                                {{ code_text|xlt }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <div class="form-group">
+                    <label>{{ 'Date & Time Administered'|xlt }}</label>
+                    <input type='text' size='14' class='datetimepicker form-control' name="administered_date" id="administered_date" value='{{ dt_given|attr }}' >
+                </div>
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <div class="form-group">
+                    <label>{{ 'Amount Administered'|xlt }}</label>
+                    <div class="input-group">
+                        <input class='text form-control mb-2' type='text' name="immuniz_amt_adminstrd" size="25" value="{{ immuniz_amt_adminstrd|attr }}" />
+                        <div class="input-group-append">
+                            {{ selectList("form_drug_units", "drug_units", drugunitselecteditem, 'Select Drug Unit', {class: 'select2', custom_attributes: {'data-placeholder': 'unit'}}) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Manufacturer'|xlt }}</label>
+                {{ selectList('manufacturer', 'Immunization_Manufacturer', manufacturer, 'Select Manufacturer', {class: 'select2', empty_name: ' '}) }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Expiration Date'|xlt }}</label>
+                <input type='text' size='10' class='datepicker form-control' name="immuniz_exp_date" id="immuniz_exp_date" value="{{ immuniz_exp_date|attr }}">
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Lot Number'|xlt }}</label>
+                <select class='auto form-control' type='text' name="lot_number" size="5" value="{{ lot_number|attr }}"></select>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-12 mt-3 col-md-5">
+                <label>{{ 'Name and Title of Immunization Administrator'|xlt }}</label>
+                <input type="text" class="form-control" name="administered_by" id="administered_by" size="25" value="{{ administered_by|attr }}" />
+            </div>
+            <div class="col-12 col-sm-2 text-center m-auto p-auto">
+                {{ 'or'|xlt }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-5">
+                <label for="administered_by_id">{{ "Chose user"|xlt }}</label>
+                <select class="form-control" name="administered_by_id" id='administered_by_id'>
+                    <option value=""></option>
+                    {% for u in users %}
+                        {% set _selected = (administered_by_id and administered_by_id != "") ? administered_by_id : (session.authUserID == u.id) ? 'selected' : '' %}
+                        <option value="{{ u.id|attr }}" {{ _selected }}>{{ u.full_name|text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Date Immunization Information Statements Given'|xlt }}</label>
+                <input type='text' size='10' class='datepicker form-control' name="education_date" id="education_date" value='{{ dt_educated|date()|attr }}'>
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Date of VIS Statement'|xlt }} (<a href="https://www.cdc.gov/vaccines/pubs/vis/default.htm" title="{{ "Help"|xla }}" rel="noopener" target="_blank">?</a>)</label>
+                <input type='text' size='10' class='datepicker form-control' name="vis_date" id="vis_date" value='{{ dt_vis|attr }}'>
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Information Source'|xlt }}</label>
+                {{ selectList('immunization_informationsource', 'immunization_informationsource', immuniz_information_source, 'Select Information Source') }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Route'|xlt }}</label>
+                {{ selectList('immuniz_route', 'drug_route', immuniz_route, 'Select Route') }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Administration Site'|xlt }}</label>
+                {{ selectList('immuniz_admin_ste', 'immunization_administered_site', immuniz_admin_ste, 'Select Administration Site', {backup_list: 'proc_body_site', class: 'select2'}) }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Completion Status'|xlt }}</label>
+                {{ selectList('immuniz_completion_status', 'Immunization_Completion_Status', immuniz_completion_status, 'Select Completion Status') }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Substance Refusal Reason'|xlt }}</label>
+                {{ selectList('immunization_refusal_reason', 'immunization_refusal_reason', immuniz_refusal_reason, 'Select Refusal Reason') }}
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Reason Code'|xlt }}</label>
+                <input class="code-selector-popup form-control immunizationReasonCode"
+                        name="reason_code" type="text" value="{{ reason_code|attr }}" placeholder="{{ 'Selecte a reason code'|xla }}">
+                <input type="hidden" name="reason_code_text" value="{{ reason_code_text|attr }}" />
+                <p class="reason_code_text d-inline float-right p-1 ml-2 {{ reason_code_text|default('d-none')|attr}}"></p>
+            </div>
+            <div class="col-sm-12 mt-3 col-md-4">
+                <label>{{ 'Immunization Ordering Provider'|xlt }}</label>
+                <select class="form-control" name="ordered_by_id" id='ordered_by_id'>
+                    <option value=""></option>
+                    {% for u in users %}
+                        {% set _selected = (ordered_by_id and ordered_by_id != "") ? ordered_by_id : (session.authUserID == u.id) ? 'selected' : '' %}
+                        <option value="{{ u.id|attr }}" {{ _selected }}>{{ u.full_name|text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 mt-3">
+                <label>{{ 'Notes'|xlt }}</label>
+                <textarea class="form-control" name="note" id="note" rows="2" cols="25">{{ note|text }}</textarea>
+            </div>
+
+            <div class="col-sm-12 mt-3">
+                {% if entered_by %}
+                    <p>{{ 'Entered By'|xlt }} {{ entered_by|text }}</p>
+                {% endif %}
+                {% if obs_result_info %}
+                    <button type="button" class="btn btn-secondary" onclick="showObservationResultSection();" title='{{ 'Click here to see observation results'|xla }}'>{{ 'See observation results'|xlt }}</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="observation_results d-none">
+                    <fieldset class="obs_res_head">
+                        <legend>{{ 'Observation Results'|xlt }}</legend>
+                        <div class="obs_res_table">
+                            {% if ((imm_obs_data is not empty) and imm_obs_data|length > 0) %}
+                                {% for k, v in imm_obs_data %}
+                                    {% set _key_snomed = 0 %}
+                                    {% set _key_cvx = 0 %}
+                                    <div class="form-row" id="or_tr_{{ (k + 1)|attr }}">
+                                        {% set _class = (id == 0 and k != 0) ? 'd-none' : 'd-table-cell' %}
+                                        <div class="form-group col {[ _class ]}" id="observation_criteria_td_{{ (k+1)|attr }}" style="width: 765px !important;">
+                                            <label>{{ 'Observation Criteria'|xlt }}</label>
+                                            <select class="form-control" id="observation_criteria_{{ (k+1)|attr }}" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
+                                                {% for o in observation_criteria %}
+                                                    {% set _selected = (o.option_id == v.imo_criteria and id != 0) ? 'selected="selected"' : '' %}
+                                                    <option value="{{ o.option_id|attr }}" {{ _selected }} >{{ o.title|text }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="{{ (v.imo_criteria != 'funding_program_eligibility' or id == 0) ? 'd-none ' : '' }}form-group col observation_criteria_value_td" id="observation_criteria_value_td_{{ (k+1)|attr }}">
+                                            <label>{{ 'Observation Criteria Value'|xlt }}</label>
+                                            <select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_{{ (k+1)|attr }}">
+                                                {% for o in observation_criteria %}
+                                                    {% set _selected = (o.option_id == v.imo_criteria_value and id == 0) ? 'selected' : '' %}
+                                                    <option value="{{ o.option_id|attr }}" {{ _selected }}>{{ o.title|text }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="{{ (v.imo_criteria != 'disease_with_presumed_immunity' or id == 0) ? 'd-none ' : '' }}form-group col code_serach_td" id="code_search_td_{{ (k+1)|attr }}">
+                                            {% set _key_snomed = (k > 0) ? ((k * 2) + 2) : (k + 2) %}
+                                            <label>{{ 'SNOMED-CT Code'|xlt }}</label>
+                                            <input type="text" id="sct_code_{{ key_snomed|attr }}" name="sct_code[]" class="form-control code" value="{{ (id == 0 and v.imo_criteria == 'disease_with_presumed_immunity') ? v.imo_code|attr : '' }}" onclick='sel_code(this.id);'>
+                                            <span id="displaytext_{{ key_snomed|attr }}" class="displaytext d-block text-primary">
+                                                {{ v.imo_codetext|text }}
+                                            </span>
+                                            <input type="hidden" id="codetext_{{ key_snomed|attr }}" name="codetext[]" class="codetext" value="{{ v.imo_codetext|attr }}">
+                                            <input type="hidden" value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden{{ key_snomed|attr }}">
+                                        </div>
+                                        <div class="{{ (v.imo_criteria != 'vaccine_type' or id == 0) ? 'd-none ' : '' }}form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_{{ (k+1)|attr }}">
+                                            <label>{{ 'CVX Code'|xlt }}</label>
+                                            {% set _key_snomed = (k > 0) ? ((k * 2) + 3) : (k + 3) %}
+                                            {% set _input_value = (id != 0 and v.imo_criteria == 'vaccine_type') ? v.imo_code|attr : '' %}
+                                            <input type="text" class="form-control" id="cvx_code{{ key_cvx|attr }}" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"value="{{ _input_value }}">
+                                            <div class="imm-imm-add-12" id="imm-imm-add-12{{ key_cvx|attr }}">
+                                                {{ (id == 0 and v.imo_criteria == 'vaccine_type') ? v.imo_codetext|text : '' }}
+                                            </div>
+                                            <input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden{{ key_cvx|attr }}" />
+                                            <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden{{ key_cvx|attr }}" value="{{ (id == 0 and v.imo_criteria == 'vaccine_type') ? v.imo_codetext|attr : '' }}">
+                                        </div>
+                                        <div class="{{ (v.imo_criteria != 'vaccine_type' or id == 0) ? 'd-none ' : '' }}form-group col vis_published_date_td" id="vis_published_date_td_{{ (k+1)|attr }}">
+                                            <label>{{ 'Date VIS Published'|xlt }}</label>
+                                            {% set _vis_pub_dateval = v.imo_vis_date_published|default('') %}
+                                            <input type="text" class='datepicker form-control' name="vis_published_date[]" value="{{ (id != 0 and vis_published_dateval != 0) ? vis_published_dateval|attr : '' }}" id="vis_published_date_{{ (k+1)|attr }}" />
+                                        </div>
+                                        <div class="{{ (v.imo_criteria != 'vaccine_type' or id == 0) ? 'd-none ' : '' }}form-group col vis_presented_date_td" id="vis_presented_date_td_{{ (k+1)|attr }}">
+                                            <label>{{ 'Date VIS Presented'|xlt }}</label>
+                                            {% set _vis_presented_dateval = v.imo_vix_date_presented|default('') %}
+                                            <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="{{ (_vis_presented_dateval != 0 and id == 0) ? _vis_presented_dateval|attr : '' }}" id="vis_presented_date_{{ (k+1)|attr }}" />
+                                        </div>
+                                        {% if k != 0 and id != 0 %}
+                                            <div class="form-group col">
+                                                <button type="button" class="btn btn-danger btn-delete" id ="{{ (k+1)|attr }}"  onclick="RemoveRow(this.id);" title='{{ 'Click here to delete the row'|xla }}'>
+                                                    {{ 'Delete'|xlt }}
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="form-row" id="or_tr_1">
+                                    <div class="form-group col" id="observation_criteria_td_1">
+                                        <label>{{ 'Observation Criteria'|xlt }}</label>
+                                        <select class="form-control" id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);">
+                                            {% for o in observation_criteria %}
+                                                {% set _selected = ((v.imo_criteria is not empty) and o.option_id == v.imo_criteria and id != 0) ? 'selected="selected"' : '' %}
+                                                <option value="{{ o.option_id|attr }}" {{ _selected }}>{{ o.title|text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="{{ ((v.imo_criteria is not empty) and v.imo_criteria != 'funding_program_eligibility') ? 'd-none ' : '' }}form-group col observation_criteria_value_td" id="observation_criteria_value_td_1">
+                                        <label>{{ 'Observation Criteria Value'|xlt }}</label>
+                                        <select class="form-control" id="observation_criteria_value_1" name="observation_criteria_value[]">
+                                            {% for o in observation_criteria %}
+                                                {% set _selected = ((v.imo_criteria_value is not empty) and o.option_id == v.imo_criteria_value and id != 0) ? 'selected' : '' %}
+                                                <option value="{{ o.option_id|attr }}" {{ _selected }}>{{ o.title|text }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    {% set _display = ((v.imo_criteria is empty)  or ((v.imo_criteria is not empty) and (v.imo_criteria != 'disease_with_presumed_immunity')) or (id is empty)) ? 'd-none ' : '' %}
+                                    <div class="{{ _display }}form-group col code_serach_td" id="code_search_td_1">
+                                        <label>{{ 'SNOMED-CT Code'|xlt }}</label>
+                                        <input type="text" id="sct_code_2" name="sct_code[]" class="code form-control" value="{{ ((id is not empty) and (v.imo_criteria is not empty) and v.imo_criteria == 'disease_with_presumed_immunity') ? v.imo_code|attr : '' }}"  onclick='sel_code(this.id);' />
+                                        <span id="displaytext_2" class="displaytext d-block text-primary">
+                                            {{ v.imo_codetext|default('')|text }}
+                                        </span>
+                                        <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="{{ v.imo_codetext|default('')|attr }}">
+                                        <input type="hidden" value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" />
+                                    </div>
+                                    <div class="{{ ((v.imo_criteria is empty) or ((v.imo_criteria is not empty) and v.imo_criteria != 'vaccine_type')) or (id is empty) ? 'd-none ' : '' }}form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
+                                        <label>{{ 'CVX Code'|xlt }}</label>
+                                        <input type="text" class="form-control" id="cvx_code3" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"
+                                            value="{{ ((id is not empty) and (v.imo_criteria is not empty) and (v.imo_criteria == 'vaccine_type')) ? v.imo_code|attr : '' }}">
+                                        <div class="imm-imm-add-12" id="imm-imm-add-123">
+                                            {{ ((id is not empty) and (v.imo_criteria is not empty) and (v.imo_criteria == 'vaccine_type')) ? v.imo_codetext|text : '' }}
+                                        </div>
+                                        <input type="hidden" value="CVX" name="code_type_hidden[]" id="code_type_hidden3"/>
+                                        <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="{{ ((id is not empty) and (v.imo_criteria is not empty) and v.imo_criteria == 'vaccine_type') ? v.imo_codetext|attr : '' }}">
+                                    </div>
+                                    {% set _display = ((v.imo_criteria is empty) or ((v.imo_criteria is not empty) and (v.imo_criteria != 'vaccine_type')) or (id is empty)) ? 'd-none ' : '' %}
+                                    <div class="{{ _display }}form-group col vis_published_date_td" id="vis_published_date_td_1">
+                                        <label>{{ 'Date VIS Published'|xlt }}</label>
+                                        {% set _vis_published_dateval = (v.imo_vis_date_published is not empty) ? v.imo_vis_date_published : '' %}
+                                        <input type="text" class='datepicker form-control' name="vis_published_date[]" value="{{ ((id is not empty) and _vis_published_dateval != 0) ? _vis_published_dateval|attr : '' }}" id="vis_published_date_1" />
+                                    </div>
+                                    <div class="{{ _display }}form-group col vis_presented_date_td" id="vis_presented_date_td_1">
+                                        <label>{{ 'Date VIS Presented'|xlt }}</label>
+                                        {% set _vis_presented_dateval = (v.imo_vis_date_presented is not empty) ? v.imo_vis_date_presented : '' %}
+                                        <input type="text" class='datepicker form-control' name="vis_presented_date[]" value="{{ ((id is not empty) and _vis_presented_dateval != 0) ? _vis_presented_dateval|attr : '' }}" id="vis_presented_date_1" />
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <button type="button" class="btn btn-primary btn-sm btn-add" onclick="addNewRow();" title='{{ "Click here to add new row"|xla }}'>
+                                    {{ 'Add'|xlt }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="tr_count" id="tr_count" value="{{ ((imm_obs_data is not empty) and imm_obs_data|length > 0) ? imm_obs_data|length|attr : '1' }}">
+                        <input type="hidden" id="clickId" value="">
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 d-flex justify-content-end">
+                <div class="btn-group" role="group" aria-label="Action button group">
+                    <button type="button" class="btn btn-primary btn-save" name="save" id="save" title="{{ 'Save Immunization'|xla }}">{{ 'Save Immunization'|xlt }}</button>
+                    <button type="button" class="btn btn-secondary btn-print" name="print" id="print" title="{{ 'Print Record (PDF)'|xla }}">{{ 'Print PDF'|xlt }}</button>
+                    <button type="button" class="btn btn-secondary btn-print" name="printHtml" id="printHtml" title="{{ 'Print Record (HTML)'|xla }}">{{ 'Print HTML'|xlt }}</button>
+                    <button type="reset" class="btn btn-secondary btn-cancel" name="clear" id="clear" title="{{ 'Clear'|xla }}">{{ 'Clear'|xlt }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive" id="immunization_list">
+                <table class="table table-sm table-hover table-striped">
+                    <!-- some columns are sortable -->
+                    <thead>
+                        <tr>
+                            <th>
+                                <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title='{{ "Sort by vaccine"|xla }}'>{{ 'Vaccine'|xlt }}</a>
+                                <span class='small'>{{ (sortby == 'vacc') ? 'v' : '' }}</span>
+                            </th>
+                            <th>
+                                <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title='{{ "Sort by date"|xla }}'>{{ 'Date'|xlt }}</a>
+                                <span class='small'>{{ (sortby == 'date') ? 'v' : '' }}</span>
+                            </th>
+                            <th>{{ 'Amount'|xlt }}</th>
+                            <th>{{ 'Expiration'|xlt }}</th>
+                            <th>{{ 'Manufacturer'|xlt }}</th>
+                            <th>{{ 'Lot Number'|xlt }}</th>
+                            <th>{{ 'Administered By'|xlt }}</th>
+                            <th>{{ 'Education Date'|xlt }}</th>
+                            <th>{{ 'Route'|xlt }}</th>
+                            <th>{{ 'Administered Site'|xlt }}</th>
+                            <th>{{ 'Notes'|xlt }}</th>
+                            <th>{{ 'Completion Status'|xlt }}</th>
+                            <th>{{ 'Error'|xlt }}</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in immunizations %}
+                        {% set _is_error = (i.added_erroneously) ? true : false %}
+                        {% set _cell_classes = (_is_error) ? "del" : "" %}
+                        {% set _row_title = (_is_error) ? 'title="' ~ "Entered in Error"|xla ~ '"' : '' %}
+                        {% set _selected = ((id is not empty) and (i.id == id)) ? "selected" : '' %}
+                        {% set _display = ((custom_list == false) and (i.code_text_short is empty)) ? generateFormField({data_type: '1', list_id: 'immunizations'}, i.immunization_id) : i.code_text_short|xlt %}
+                        {% set _admin_date = (i.administered_date) ? i.administered_date|date() : "" %}
+                        <tr {{ _row_title }} class="immrow text {{ _selected }} {{ _cell_classes }}" id="{{ i.id|attr }}">
+                            <td>{{ _display }}</td>
+                            <td>{{ _admin_date|text }}
+                            <td>
+                                {% if i.amount_administered > 0 %}
+                                    {{ i.amount_adminstered|text }} {{ generateDisplayField({data_type: '1', 'list_id': 'drug_units'}, i.amount_administered_unit) }}
+                                {% else %}
+                                    &nbsp;
+                                {% endif %}
+                            </td>
+                            <td>{{ i.expiration_date|text }}</td>
+                            <td>{{ i.manufacturer|text }}</td>
+                            <td>{{ i.lot_number|text }}</td>
+                            <td>{{ i.administered_by|text }}</td>
+                            <td>{{ i.education_date|text }}</td>
+                            <td>{{ generateDisplayField({data_type: '1', list_id: 'drug_route'}, i.route|text) }}</td>
+                            <td>{{ generateDisplayField({data_type: '1', list_id: 'immunization_administered_site'}, i.administration_site|text) }}</td>
+                            <td>{{ i.note|text }}</td>
+                            <td>{{ generateDisplayField({data_type: '1', list_id: 'Immunization_Completion_Status'}, i.completion_status|text) }}</td>
+                            <td><input type="checkbox" name="" id="{{ i.id|attr }}" class="error" value="{{ 'Error'|xla }}" {{ _is_error ? 'checked' : '' }}></td>
+                            <td><a href="#" class='btn btn-delete m-0' id='{{ i.id|attr }}'>{{ "Delete"|xlt }}</button></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div> <!-- end immunizations -->
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+var tr_count = $('#tr_count').val();
+
+// jQuery stuff to make the page a little easier to use
+
+$(function () {
+    {% if useCVX %}
+      $("#save").on("click", function() { SaveForm(); });
+    {% else %}
+      $("#save").on("click", function() {
+        if (validate_cvx()) {
+          SaveForm();
+        } else {
+          return;
+        }
+      });
+    {% endif %}
+    $(".select2:not([multiple])").select2();
+    $("#print").on("click", function() { PrintForm("pdf"); });
+    $("#printHtml").on("click", function() { PrintForm("html"); });
+    $(".immrow").on("click", function() { EditImm(this); });
+    $(".error").on("click", function(event) { ErrorImm(this); event.stopPropagation(); });
+    $(".delete").on("click", function(event) { DeleteImm(this); event.stopPropagation(); });
+    $("#administered_by_id").on("change", function() { $("#administered_by").val($("#administered_by_id :selected").text()); });
+
+    $("#form_immunization_id").on("change", function() {
+        if ( $(this).val() != "" ) {
+            $("#cvx_code").val( "" );
+            $("#cvx_description").text( "" );
+            $("#cvx_code").trigger("change");
+        }
+    });
+    $(".immunizationReasonCode").click(sel_reasonCode);
+
+    {{ jqueryDateTimePicker('.datepicker', false, false, false) }}
+    {{ jqueryDateTimePicker('.datetimepicker', false, false, false) }}
+    // special cases to deal with datepicker items that are added dynamically
+    $(document).on('mouseover','.datepicker_dynamic', function(){
+        {{ jqueryDateTimePicker('this', false, false, false) }}
+    });
+});
+
+var PrintForm = function(typ) {
+    top.restoreSession();
+    newURL='shot_record.php?output=' + encodeURIComponent(typ) + '&sortby=' + {{ sortby|js_url }};
+    window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+}
+
+var SaveForm = function() {
+    top.restoreSession();
+    $("#add_immunization").submit();
+}
+
+var EditImm = function(imm) {
+    top.restoreSession();
+    location.href='immunizations.php?mode=edit&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + {{ csrfTokenRaw()|js_url }};
+}
+
+var DeleteImm = function(imm) {
+    if (confirm({{ 'This action cannot be undone.'|xlj }} + "\n" + {{ 'Do you wish to PERMANENTLY delete this immunization record?'|xlj }})) {
+        top.restoreSession();
+        location.href='immunizations.php?mode=delete&id=' + encodeURIComponent(imm.id) + "&csrf_token_form=" + {{ csrfTokenRaw()|js_url }};
+    }
+}
+
+var ErrorImm = function(imm) {
+    top.restoreSession();
+    location.href='immunizations.php?mode=added_error&id=' + encodeURIComponent(imm.id) + '&isError=' + encodeURIComponent(imm.checked) + "&csrf_token_form=" + {{ csrfTokenRaw()|js_url }};
+}
+
+//This is for callback by the find-code popup.
+//Appends to or erases the current list of diagnoses.
+function set_related(codetype, code, selector, codedesc) {
+    if(codetype == 'CVX') {
+        var f = document.forms[0][current_sel_name];
+        if (!f.length) {
+            var s = f.value;
+
+            s = (code) ? code : ''
+
+            f.value = s;
+            if (f.name != 'cvx_vac_type_code[]') {
+                $("#cvx_description").text( codedesc );
+                $("#form_immunization_id").attr( "value", "" );
+                $("#form_immunization_id").trigger("change");
+            } else {
+                id_arr = f.id.split('cvx_code');
+                counter = id_arr[1];
+                $('#imm-imm-add-12'+counter).html(codedesc);
+                $('#code_text_hidden'+counter).val(codedesc);
+            }
+        } else {
+            var index = document.forms[0][current_sel_name].length -1;
+            var elem = document.forms[0][current_sel_name][index];
+            var ss = elem.value;
+            ss = (code) ? code : '';
+
+            elem.value = ss;
+            arr = elem.id.split('cvx_code');
+            count = arr[1];
+            $('#imm-imm-add-12'+count).html(codedesc);
+            $('#code_text_hidden'+count).val(codedesc);
+        }
+    } else {
+        var checkId = $('#clickId').val();
+        $("#sct_code_" + checkId).val(code);
+        $("#codetext_" + checkId).val(codedesc);
+        $("#displaytext_" + checkId).html(codedesc);
+    }
+}
+
+function sel_reasonCode(e) {
+    let target = e.currentTarget;
+    if (!(target && target.name)) {
+        console.error("Could not find DOMNode name for event target");
+        return;
+    }
+    current_sel_name = e.currentTarget.name;
+
+    let previousSelCodeFunction = window.set_related;
+    let restoreCallback = function() {
+        window.set_related = previousSelCodeFunction;
+    };
+
+    let set_relatedReasonCode = function(codetype, code, selector, codedesc) {
+
+        let field = document.forms[0][current_sel_name];
+        let field_text = document.forms[0][current_sel_name + "_text"];
+        let text = document.querySelector("." + current_sel_name + "_text");
+        if (typeof code == 'string' && code.trim() != '') {
+            field.value = codetype + ":" + code;
+            if (field_text && text) {
+                field_text.value = codedesc;
+                text.classList.remove("d-none"); // remove anything hiding the attribute.
+                text.innerText = codedesc;
+            }
+        } else {
+            field.value = "";
+            if (field_text && text) {
+                field_text.value = "";
+                text.classList.add("d-none");
+                text.innerText = "";
+            }
+        }
+    };
+
+    let opts = {
+        callBack: {
+            call: restoreCallback
+        }
+    };
+    // we are going to replace our global function for the time, and it will get setback in the callback
+
+    window.set_related = set_relatedReasonCode;
+    window.top.restoreSession();
+    window.dlgopen("../encounter/find_code_popup.php?default=SNOMED-CT", '_blank', 700, 400, false, undefined, opts);
+}
+
+// This is for callback by the find-code popup.
+// Returns the array of currently selected codes with each element in codetype:code format.
+function get_related() {
+    return new Array();
+}
+
+// This is for callback by the find-code popup.
+// Deletes the specified codetype:code from the currently selected list.
+function del_related(s) {
+    var e = document.forms[0][current_sel_name];
+    e.value = '';
+    $("#cvx_description").text('');
+    $("#form_immunization_id").attr("value", "");
+    $("#form_immunization_id").trigger("change");
+}
+
+// This invokes the find-code popup.
+function sel_cvxcode(e) {
+    current_sel_name = e.name;
+    dlgopen('../encounter/find_code_dynamic.php?codetype=CVX,VALUESET', '_blank', 900, 600);
+}
+
+// This ensures the cvx centric entry is filled.
+function validate_cvx() {
+    if (document.add_immunization.cvx_code.value > 0) {
+        return true;
+    }
+    else {
+        document.add_immunization.cvx_code.style.backgroundColor="red";
+        document.add_immunization.cvx_code.focus();
+        return false;
+    }
+}
+
+function showObservationResultSection()
+{
+    $('.observation_results').toggleClass('d-none');
+}
+
+function selectCriteria(id,value)
+{
+    var arr = id.split('observation_criteria_');
+    var key = arr[1];
+    if (value == 'funding_program_eligibility') {
+        if (key > 1) {
+            var target = $("#observation_criteria_value_"+key);
+            $.ajax({
+                type: "POST",
+                url:  "immunizations.php",
+                dataType: "json",
+                data: {
+                    type : 'duplicate_row_2',
+                    csrf_token_form: {{ csrfTokenRaw()|js_escape }}
+                },
+                success: function(thedata){
+                    $.each(thedata,function(i,item) {
+                        target.append($('<option />').val(item.option_id).text(item.title));
+                    });
+                    $('#observation_criteria_value_'+key+' option[value=""]').prop('selected', true);
+                },
+                error:function(){
+                  alert("ajax error");
+                }
+            });
+        }
+        $("#code_search_td_"+key).hide();
+        $("#vis_published_date_td_"+key).hide();
+        $("#vis_presented_date_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).hide();
+        $("#observation_criteria_value_td_"+key).show();
+    }
+    if (value == 'vaccine_type') {
+        $("#observation_criteria_value_td_"+key).hide();
+        $("#code_search_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).show();
+        $("#vis_published_date_td_"+key).show();
+        $("#vis_presented_date_td_"+key).show();
+        key = (key == 1) ? parseInt(key) + 2 : (parseInt(key) * 2) + 1;
+        $("#cvx_code"+key).css("background-color", "red");
+        $("#cvx_code"+key).focus();
+        return false;
+    }
+    if (value == 'disease_with_presumed_immunity') {
+        $("#observation_criteria_value_td_"+key).hide();
+        $("#vis_published_date_td_"+key).hide();
+        $("#vis_presented_date_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).hide();
+        $("#code_search_td_"+key).show();
+        key = (key == 1) ? parseInt(key) + 1 : (parseInt(key) * 2);
+        $("#sct_code_"+key).css("background-color", "red");
+        $("#sct_code_"+key).focus();
+        return false;
+    }
+    if (value == '') {
+        $("#observation_criteria_value_td_"+key).hide();
+        $("#vis_published_date_td_"+key).hide();
+        $("#vis_presented_date_td_"+key).hide();
+        $("#code_serach_vaccine_type_td_"+key).hide();
+        $("#code_search_td_"+key).hide();
+    }
+}
+
+function RemoveRow(id)
+{
+    tr_count = parseInt($("#tr_count").val());
+    new_tr_count = tr_count-1;
+    $("#tr_count").val(new_tr_count);
+    $("#or_tr_"+id).remove();
+}
+
+function addNewRow()
+{
+    tr_count = parseInt($("#tr_count").val());
+    new_tr_count = tr_count+1;
+    new_tr_count_2 = (new_tr_count * 2);
+    new_tr_count_3 = (new_tr_count *2) + 1;
+    $("#tr_count").val(new_tr_count);
+    label1 = {{ 'Observation Criteria'|xlj }};
+    label2 = {{ 'Observation Criteria Value'|xlj }};
+    label3 = {{ 'SNOMED-CT Code'|xlj }};
+    label4 = {{ 'CVX Code'|xlj }};
+    label5 = {{ 'Date VIS Published'|xlj }};
+    label6 = {{ 'Click here to choose a date'|xlj }};
+    label7 = {{ 'Date VIS Presented'|xlj }};
+    label8 = {{ 'Click here to choose a date'|xlj }};
+    label9 = {{ 'Click here to delete the row'|xlj }};
+    label10 = {{ 'Delete'|xlj }};
+    str = '<div class="form-row" id ="or_tr_'+new_tr_count+'">'+
+              '<div class="form-group col" id ="observation_criteria_td_'+new_tr_count+'"><label>'+label1+'</label><select class="form-control" id="observation_criteria_'+new_tr_count+'" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);"></select>'+
+              '</div>'+
+              '<div id="observation_criteria_value_td_'+new_tr_count+'" class="form-group col observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select class="form-control" name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'"></select>'+
+              '</div>'+
+              '<div class="form-group col code_serach_td" id="code_search_td_'+new_tr_count+'" style="display: none;"><label>'+label3+'</label>'+
+                '<input type="text" id="sct_code_'+new_tr_count_2+'" name="sct_code[]" class="code form-control" onclick=sel_code(this.id) /><br />'+
+                '<span id="displaytext_'+new_tr_count_2+'" class="displaytext d-block text-primary"></span>'+
+                '<input type="hidden" id="codetext_'+new_tr_count_2+'" name="codetext[]" class="codetext" />'+
+                '<input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden'+new_tr_count_2+'" /> '+
+             '</div>'+
+             '<div class="form-group col code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_'+new_tr_count+'" style="display: none;"><label>'+label4+'</label>'+
+               '<input type="text" class="form-control" id="cvx_code'+new_tr_count_3+'" name="cvx_vac_type_code[]" onclick=sel_cvxcode(this); />'+
+               '<div class="imm-imm-add-12" id="imm-imm-add-12'+new_tr_count_3+'"></div> '+
+               '<input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden'+new_tr_count_3+'" /> '+
+               '<input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden'+new_tr_count_3+'" value="" />'+
+             '</div>'+
+             '<div id="vis_published_date_td_'+new_tr_count+'" class="form-group col vis_published_date_td" style="display: none;"><label>'+label5+'</label><input type="text" class="datepicker_dynamic form-control" name= "vis_published_date[]" id ="vis_published_date_'+new_tr_count+'" />'+
+             '</div>'+
+             '<div id="vis_presented_date_td_'+new_tr_count+'" class="form-group col vis_presented_date_td" style="display: none;"><label>'+label7+'</label><input type="text" class="datepicker_dynamic form-control" name= "vis_presented_date[]" id ="vis_presented_date_'+new_tr_count+'" />'+
+             '</div>'+
+             '<div class="form-group col d-flex align-items-end justify-content-center"><button type="button" class="btn btn-danger btn-delete" id="' + new_tr_count +'" onclick="RemoveRow(this.id);" title="' + label9 + '">' + label10 + '</button></div></div>';
+
+    $(".obs_res_table").append(str);
+
+    var ajax_url = 'immunizations.php';
+    var target = $("#observation_criteria_"+new_tr_count);
+    $.ajax({
+        type: "POST",
+        url: ajax_url,
+        dataType: "json",
+        data: {
+            type : 'duplicate_row',
+            csrf_token_form: {{ csrfTokenRaw()|js_escape }}
+        },
+        success: function(thedata){
+            $.each(thedata,function(i,item) {
+                target.append($('<option></option>').val(item.option_id).text(item.title));
+            });
+            $('#observation_criteria_'+new_tr_count+' option[value=""]').prop('selected', true);
+        },
+        error:function(){
+          alert("ajax error");
+        }
+    });
+}
+
+function sel_code(id)
+{
+    id = id.split('sct_code_');
+    var checkId = id[1];
+    $('#clickId').val(checkId);
+    dlgopen('{{ webroot }}/interface/patient_file/encounter/find_code_popup.php', '_blank', 700, 400);
+}
+
+$(function () {
+  $(".auto").select2({
+        width: '100%',
+        ajax: {
+            url: "../../../library/ajax/imm_autocomplete/search.php",
+            dataType: 'json',
+            data: function(params) {
+                return { csrf_token_form: {{ csrfTokenRaw()|js_escape }}, term: params.term };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {text: item, id: index }
+                    })
+                };
+            },
+            cache: true
+        },
+        minimumInputLength: 1,
+        tags: true
+    })
+});
+</script>
+</html>
