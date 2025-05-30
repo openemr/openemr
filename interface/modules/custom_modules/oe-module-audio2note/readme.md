@@ -1,11 +1,5 @@
 # OpenEMR Audio2Note Integration
 
-## Who we are
-Sun PC Solutions LLC is an IT (hardware and software) company owned and operated by an actively practicing physician. We specialize, among other things, in AI solutions for small businesses. 
-
-## Installation Instructions
-Run installModule.sh script and follow the instructions. Installation is automated for host and docker environments. If modifying module files for development purposes, deploy.sh script can be used to apply modifications (docker only)
-
 ## OpenEMR Developer Access
 
 For OpenEMR developers wishing to contribute to or test this module, development license keys and API credentials can be requested by emailing audio2note@shem.slmail.me.
