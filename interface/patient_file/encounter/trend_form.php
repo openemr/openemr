@@ -135,7 +135,7 @@ $(function () {
   // For LBF the <td> has an id of label_id_$fieldid
   $(".graph").on("click", function(e){ show_graph(<?php echo js_escape($formname); ?>, this.id.substring(9), $(this).text()) });
 <?php } else { ?>
-  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, '$(this).text()') });
+  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, $(this).text()) });
 <?php } ?>
 
   // Show hovering effects for the .graph links
