@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+    ENABLE_COVERAGE: "false"
+
 jobs:
 
   build_apache_82_114:
@@ -55,53 +58,92 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
+
 
   build_apache_83_116:
     name: PHP 8.3 - Apache - MariaDB 11.6 (Rolling version)
@@ -110,6 +152,7 @@ jobs:
       DOCKER_DIR: apache_83_116
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+      ENABLE_COVERAGE: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -147,53 +190,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_114:
     name: PHP 8.3 - Apache - MariaDB 11.4
@@ -239,53 +320,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_1011:
     name: PHP 8.3 - Apache - MariaDB 10.11
@@ -331,53 +450,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_106:
     name: PHP 8.3 - Apache - MariaDB 10.6
@@ -423,53 +580,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_105:
     name: PHP 8.3 - Apache - MariaDB 10.5
@@ -515,53 +710,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_84:
     name: PHP 8.3 - Apache - MySQL 8.4
@@ -608,53 +841,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_80:
     name: PHP 8.3 - Apache - MySQL 8.0
@@ -701,53 +972,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_apache_83_57:
     name: PHP 8.3 - Apache - MySQL 5.7
@@ -794,53 +1103,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_nginx_82:
     name: PHP 8.2 - Nginx - MariaDB 11.4
@@ -886,53 +1233,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_nginx_83:
     name: PHP 8.3 - Nginx - MariaDB 11.4
@@ -978,54 +1363,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
 
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_nginx_84:
     name: PHP 8.4 - Nginx - MariaDB 11.4
@@ -1071,53 +1493,91 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}
+
+      - name: Combine coverage
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        run: |
+          . ci/ciLibrary.source
+          merge_coverage
+
+      - name: Check if coverage files exist
+        if: ${{ env.ENABLE_COVERAGE == 'true' && (success() || failure()) }}
+        id: check-files
+        run: |
+          echo "clover_exists=$(test -f coverage.clover.xml && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "htmlcov_exists=$(test -d ./htmlcov && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+        with:
+          name: coverage.clover.xml
+          path: coverage.clover.xml
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.htmlcov_exists == 'true' && (success() || failure()) }}
+        with:
+          name: htmlcov
+          path: ./htmlcov/
+
+      # - name: Upload coverage reports to Codecov
+      #   if: ${{ env.ENABLE_COVERAGE == 'true' && steps.check-files.outputs.clover_exists == 'true' && (success() || failure()) }}
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: coverage.clover.xml
 
   build_nginx_85:
     name: PHP 8.5 - Nginx - MariaDB 11.4
@@ -1163,50 +1623,56 @@ jobs:
           source ci/ciLibrary.source
           install_configure
 
+      - name: Prepare for coverage reporting
+        if: ${{ env.ENABLE_COVERAGE == 'true' }}
+        run: |
+          source ci/ciLibrary.source
+          configure_coverage
+
       - name: Unit testing
         run: |
           source ci/ciLibrary.source
-          build_test_unit
+          build_test unit
         if: ${{ success() || failure() }}
 
       - name: E2e testing
         run: |
           source ci/ciLibrary.source
-          build_test_e2e
+          build_test e2e
         if: ${{ success() || failure() }}
 
       - name: Api testing
         run: |
           source ci/ciLibrary.source
-          build_test_api
+          build_test api
         if: ${{ success() || failure() }}
 
       - name: Fixtures testing
         run: |
           source ci/ciLibrary.source
-          build_test_fixtures
+          build_test fixtures
         if: ${{ success() || failure() }}
 
       - name: Services testing
         run: |
           source ci/ciLibrary.source
-          build_test_services
+          build_test services
         if: ${{ success() || failure() }}
 
       - name: Validators testing
         run: |
           source ci/ciLibrary.source
-          build_test_validators
+          build_test validators
         if: ${{ success() || failure() }}
 
       - name: Controllers testing
         run: |
           source ci/ciLibrary.source
-          build_test_controllers
+          build_test controllers
         if: ${{ success() || failure() }}
 
       - name: Common testing
         run: |
           source ci/ciLibrary.source
-          build_test_common
+          build_test common
         if: ${{ success() || failure() }}

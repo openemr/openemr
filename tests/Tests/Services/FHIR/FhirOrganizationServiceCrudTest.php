@@ -10,7 +10,7 @@ use OpenEMR\Services\FHIR\FhirOrganizationService;
 
 /**
  * FHIR Organization Service Crud Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
+ * @coversDefaultClass \OpenEMR\Services\FHIR\FhirOrganizationService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -47,7 +47,6 @@ class FhirOrganizationServiceCrudTest extends TestCase
     /**
      * Tests a successful insert operation
      * @covers ::insert
-     * @covers ::insertOpenEMRRecord
      */
     public function testInsert()
     {
@@ -64,7 +63,6 @@ class FhirOrganizationServiceCrudTest extends TestCase
     /**
      * Tests an insert operation where an error occurs
      * @covers ::insert
-     * @covers ::insertOpenEMRRecord
      */
     public function testInsertWithErrors()
     {
@@ -77,7 +75,6 @@ class FhirOrganizationServiceCrudTest extends TestCase
     /**
      * Tests a successful update operation
      * @covers ::update
-     * @covers ::updateOpenEMRRecord
      */
     public function testUpdate()
     {
@@ -104,7 +101,6 @@ class FhirOrganizationServiceCrudTest extends TestCase
     /**
      * Tests an update operation where an error occurs
      * @covers ::update
-     * @covers ::updateOpenEMRRecord
      */
     public function testUpdateWithErrors()
     {
