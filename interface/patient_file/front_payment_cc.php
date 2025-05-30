@@ -18,6 +18,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use Stripe\Refund;
 use Stripe\Terminal\ConnectionToken;
 use Stripe\Terminal\Location;
 
@@ -218,5 +219,34 @@ if ($_GET['mode'] == 'terminal_create') {
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
+    }
+}
+
+if ($_POST['mode'] == 'RefundStripe') {
+    try {
+        $cryptoGen = new CryptoGen();
+        $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+        Stripe::setApiKey($apiKey);
+        $refund = Refund::create([
+            'charge' => $_POST['refundCharge'],
+            'amount' => $_POST['refundAmount'] * 100,
+            'reason' => 'requested_by_customer'
+        ]);
+
+        if (!$refund->id) {
+            echo json_encode(['status' => false, 'message' => $refund->error->message], JSON_THROW_ON_ERROR);;
+            exit();
+        } else {
+            echo json_encode(['status' => true, 'message' => 'Refund Successfully.',
+                'data' => [
+                    'refund_id' => $refund->id,
+                    'amount' => $refund->amount / 100,
+                    'status' => $refund->status,
+                ]], JSON_THROW_ON_ERROR);
+            exit();
+        }
+
+    } catch (\Exception $ex) {
+        echo json_encode(['status' => false, 'message' => $ex->getMessage()]);
     }
 }
