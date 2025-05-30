@@ -1,0 +1,24 @@
+{
+    "name": "openemr/oe-module-openemraudio2note",
+    "description": "OpenEMR module for audio to note transcription.",
+    "type": "openemr-module",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Sunserv",
+            "email": "developers@sunserv.org"
+        }
+    ],
+    "require": {
+        "php": ">=7.4 || ^8.0",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Modules\\OpenemrAudio2Note\\": "src/"
+        }
+    },
+    "config": {
+        "process-timeout": 600
+    }
+}

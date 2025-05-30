@@ -1,0 +1,28 @@
+-- Copyright (c) 2025 Sun PC Solutions LLC
+CREATE TABLE IF NOT EXISTS `form_audio_to_note` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `encounter` bigint(20) DEFAULT NULL,
+  `user` bigint(20) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) DEFAULT NULL,
+  `activity` tinyint(4) DEFAULT NULL,
+  `audio_filename` varchar(255) DEFAULT NULL,
+  `transcription_params` JSON DEFAULT NULL,
+  `transcription_service_response` JSON DEFAULT NULL,
+  `status` varchar(50) DEFAULT 'pending_upload',
+  `note_type` varchar(50) DEFAULT 'soap',
+  `transcription_job_id` varchar(255) DEFAULT NULL,
+  `linked_forms_id` bigint(20) DEFAULT NULL,
+  `soap_note_id` bigint(20) DEFAULT NULL,
+  `history_physical_form_id` bigint(20) DEFAULT NULL,
+  `raw_transcript` MEDIUMTEXT DEFAULT NULL,
+  `error_message` TEXT DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`),
+  KEY `encounter` (`encounter`),
+  KEY `status` (`status`),
+  KEY `transcription_job_id` (`transcription_job_id`),
+  KEY `linked_forms_id` (`linked_forms_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
