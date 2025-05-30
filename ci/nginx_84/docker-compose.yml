@@ -1,4 +1,3 @@
-# docker-compose.yml for travis ci testing
 services:
   mysql:
     restart: always
@@ -6,6 +5,18 @@ services:
     command: ['mariadbd','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
   openemr:
     restart: always
     image: openemr/dev-php-fpm:8.4
@@ -16,7 +27,8 @@ services:
     - ../../:/usr/share/nginx/html/openemr
     - ./php.ini:/usr/local/etc/php/php.ini:ro
     depends_on:
-    - mysql
+      mysql:
+        condition: service_healthy
   nginx:
     restart: always
     image: openemr/dev-nginx
