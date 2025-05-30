@@ -1,0 +1,86 @@
+# CHANGELOG
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [UNRELEASED]
+
+### Added
+
+- Expand PageHeading, allowing developers to manage primary and secondary menu
+- Improved layout choices for Login page
+- Secure messaging default portal user and windows backup lists (#6134) (5 days ago)
+- use exisiting Search/Add mechanism to edit ins from demographics (#6118) (7 days ago)
+- Better use of getenv in prior add hooks to support enforcement of ssl/x509 database connections (#6130) (7 days ago)
+- add hooks to support enforcement of ssl/x509 database connection when autoinstalling (really nice to support for dockers and kubernetes) (#6126) (7 days ago)
+- quick upgrade fix (#6124) (7 days ago)
+- Request to be an official module - prior authorizations manager  (#6045) (8 days ago)
+- Yet another LHC Forms update. (#6116) (11 days ago)
+- Add prepayments to front payment display (#6111) (11 days ago)
+- feat: allergy comments fields in REST API (#6108) (12 days ago)
+- handle pm times when locale set to 12 hrs (#6103) (12 days ago)
+- fix php8 math (#6113) (12 days ago)
+- Insurance card information adjustments 3 (#6105) (13 days ago)
+- Telehealth comlink update add price (#6096) (13 days ago)
+- Refactor insurance company admin page to support Datatables (#6084) (13 days ago)
+- fix #6085, ins search fixes (#6087) (2 weeks ago)
+- Update CCDA srvice for Node version 18+ (#6094) (2 weeks ago)
+- Cleanup lform directory and bug fixes (#6083) (2 weeks ago)
+- Immuinzations export spreadsheet (#5787) (3 weeks ago)
+- CCDA fixes (#6072) (3 weeks ago)
+- add insurance effective date end (#6077) (4 weeks ago)
+- Update save.php (#6071) (4 weeks ago)
+- practice settings datatable warning fix for pharmacies, fixes #6065 (#6066) (4 weeks ago)
+- string cast facility id in getByID FacilityService (#6068) (4 weeks ago)
+- Portal document delete exception and New Print button (#6064) (4 weeks ago)
+- Fix for insertEncounter where creating an encounter always use current date (#6069) (4 weeks ago)
+- Better Page Heading UI (#6060) (5 weeks ago)
+- 4739 excessive use of font weight bold throughout the UI (#6059) (5 weeks ago)
+- UI improvements to Messages (#6054) (5 weeks ago)
+- LHC-Form update v33.1 from 33.0 (#6053) (5 weeks ago)
+- fixes (5 weeks ago)
+- add csv export to appt report (#5974) (6 weeks ago)
+- add apache php 8.2 to ci (#6047) (6 weeks ago)
+- minor documentation fixes (#6046) (6 weeks ago)
+- added php 8.3-dev to insane docker dev environment (#6043) (6 weeks ago)
+- add patient portal link to admin page (#6007) (6 weeks ago)
+- add php8.3-dev to ci (#6042) (6 weeks ago)
+- transition to alpine 3.17 (and to nodejs 18) (#6034) (6 weeks ago)
+- Signature in portal pdf fix and Template import changes (#6018) (6 weeks ago)
+- Update npm packages (#6020) (7 weeks ago)
+- upgrade symfony from 4.4 to 5.4 (#6012) (7 weeks ago)
+- update composer particle/validator package to 2.3.5 (#6011) (7 weeks ago)
+- New LHC-Forms version (#5999) (7 weeks ago)
+- Add new remit and claim advice remark codes
+- add yet another mariadb short term release to ci (#6004) (7 weeks ago)
+- php82 ci docker update (#6003) (7 weeks ago)
+- Itemized Invoice (#5735) (8 weeks ago)
+- ci: add minimum GitHub token permissions for workflows (#5801) (8 weeks ago)
+- Add EVENT_RENDER_POST_PAGELOAD hook to Demographics page (#5987) (8 weeks ago)
+- Allow labels of repeating days to be clicked to select associated checkbox (#5992) (8 weeks ago)
+- Use State list to populate state fields in Address Book (#5990) (8 weeks ago)
+- change procedure orderform to Orders category and menu item (#5961) (9 weeks ago)
+
+## Changed
+
+## Deprecated
+
+## Removed
+
+- Drop support for PHP 7.4
+
+## Fixed
+
+- Fix bug in Medical Device UI
+- Fix telehealth user role (#6010) (7 weeks ago)
+- Fix templates and pdf to allow images and barcodes (#6033) (6 weeks ago)
+- Fix method of payment in Pmt method financial report (#5997) (6 weeks ago)
+- Fix overflowing columns (#6041) (6 weeks ago)
+- Fix reserved column delete protection
+- Fix general Portal bug fixes
+- fix ccda import dupl category (#6039) (6 weeks ago)
+
+
+## Security
