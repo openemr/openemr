@@ -14,8 +14,6 @@
 
 namespace OpenEMR\RestControllers;
 
-require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
-
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
