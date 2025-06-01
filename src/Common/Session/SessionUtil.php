@@ -3,9 +3,6 @@
 /**
  * start/destroy session/cookie for OpenEMR or OpenEMR patient-portal or OpenEMR oauth2
  *
- * Note that keeping this class self-sufficient since it is used before the class autoloader
- *  in scripts that need to support both the core OpenEMR and patient portal.
- *
  * OpenEMR session/cookie strategy:
  *  1. The vital difference between the OpenEMR and OpenEMR patient-portal/oauth2 session/cookie is the
  *     cookie_httponly setting.
@@ -51,16 +48,22 @@
  *                            cookie_samesite is set to None)
  *  11. For OpenEMR 6.0.0 added a api session, which requires following settings:
  *      cookie_secure = true (oauth needs to be https, so makes sense to support this setting)
+ *  13. For OpenEMR 7.0.4:
+ *      a. Supported early calls to class with the standard class loader, so can use other classes. Note that this class can be
+ *         used prior to database connection, so beware of that.
+ *      b. Added support for predis redis sentinel mode for session storage.
  *
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2025 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Session;
+
+use OpenEMR\Common\Session\Predis\SentinelUtil;
 
 class SessionUtil
 {
@@ -79,6 +82,14 @@ class SessionUtil
     // (ie. will remove them when PHP 8.4 is the minimum requirement)
     private static $sid_bits_per_character = 6;
     private static $sid_length = 48;
+
+    public static function sessionStartWrapper(array $settings = []): bool
+    {
+        if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+            (new SentinelUtil(self::$gc_maxlifetime))->configure();
+        }
+        return session_start($settings);
+    }
 
     public static function switchToCoreSession($web_root, $read_only = true): void
     {
@@ -114,7 +125,7 @@ class SessionUtil
             ], $settings);
         }
 
-        session_start($settings);
+        self::sessionStartWrapper($settings);
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
@@ -191,7 +202,7 @@ class SessionUtil
             ], $settings);
         }
 
-        session_start($settings);
+        self::sessionStartWrapper($settings);
     }
 
     public static function portalSessionCookieDestroy(): void
@@ -225,7 +236,7 @@ class SessionUtil
             ], $settings);
         }
 
-        session_start($settings);
+        self::sessionStartWrapper($settings);
     }
 
     public static function apiSessionCookieDestroy(): void
@@ -264,7 +275,7 @@ class SessionUtil
             ], $settings);
         }
 
-        session_start($settings);
+        self::sessionStartWrapper($settings);
     }
 
     public static function oauthSessionCookieDestroy(): void
@@ -295,7 +306,7 @@ class SessionUtil
             ], $settings);
         }
 
-        session_start($settings);
+        self::sessionStartWrapper($settings);
     }
 
     public static function setupScriptSessionCookieDestroy(): void

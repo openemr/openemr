@@ -22,6 +22,7 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -115,7 +116,6 @@ function generate_html_middle()
     posted_to_hidden('clearPass');
 }
 
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
 function generate_html_end()
 {
     // to be safe, remove clearPass from memory now (if it is not empty yet)
@@ -127,7 +127,7 @@ function generate_html_end()
         }
     }
     echo "</div></body></html>\n";
-    OpenEMR\Common\Session\SessionUtil::coreSessionDestroy();
+    SessionUtil::coreSessionDestroy();
     return 0;
 }
 

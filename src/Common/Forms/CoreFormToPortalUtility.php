@@ -12,12 +12,6 @@
 
 namespace OpenEMR\Common\Forms;
 
-if (!class_exists('OpenEMR\Common\Session\SessionUtil')) {
-    // This CoreFormToPortalUtility class is sometimes used prior to autoloader,
-    //   so need to manually bring in the SessionUtil class if not autoloaded yet.
-    require_once(__DIR__ . "/../Session/SessionUtil.php");
-}
-
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
