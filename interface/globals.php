@@ -22,6 +22,7 @@ use Dotenv\Dotenv;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionUtil;
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -123,6 +124,23 @@ function GetCallingScriptName()
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 
+//Composer vendor directory, absolute to the webserver root.
+$GLOBALS['vendor_dir'] = "$webserver_root/vendor";
+
+// Includes composer autoload
+// Note this is skipped in special cases where the autoload has already been performed
+// Note this also brings in following library files:
+//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
+//  library/formdata.inc.php - Include sanitization/checking functions (for security)
+//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
+//  library/formatting.inc.php - Includes functions for date/time internationalization and formatting
+//  library/date_functions.php - Includes functions for date internationalization
+//  library/validation/validate_core.php - Includes functions for page validation
+//  library/translation.inc.php - Includes translation functions
+if (empty($GLOBALS['already_autoloaded'])) {
+    require_once $GLOBALS['vendor_dir'] . "/autoload.php";
+}
+
 /*
 * If a session does not yet exist, then will start the core OpenEMR session.
 * If a session already exists, then this means portal or oauth2 or api is being used, which
@@ -138,8 +156,7 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 $read_only = empty($sessionAllowWrite);
 if (session_status() === PHP_SESSION_NONE) {
     //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
-    require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::coreSessionStart($web_root, $read_only);
+    SessionUtil::coreSessionStart($web_root, $read_only);
     //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
 }
 
@@ -227,8 +244,6 @@ $GLOBALS['images_static_relative'] = "$web_root/public/images";
 // Static images directory, absolute to the webserver root.
 $GLOBALS['images_static_absolute'] = "$webserver_root/public/images";
 
-//Composer vendor directory, absolute to the webserver root.
-$GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
@@ -256,17 +271,6 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
         throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
     }
 }
-
-// Includes composer autoload
-// Note this also brings in following library files:
-//  library/htmlspecialchars.inc.php - Include convenience functions with shorter names than "htmlspecialchars" (for security)
-//  library/formdata.inc.php - Include sanitization/checking functions (for security)
-//  library/sanitize.inc.php - Include sanitization/checking functions (for security)
-//  library/formatting.inc.php - Includes functions for date/time internationalization and formatting
-//  library/date_functions.php - Includes functions for date internationalization
-//  library/validation/validate_core.php - Includes functions for page validation
-//  library/translation.inc.php - Includes translation functions
-require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.

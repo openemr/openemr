@@ -23,8 +23,9 @@ require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
@@ -36,8 +37,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
-    require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
@@ -405,7 +405,7 @@ try {
 
     echo $twig->render('portal/home.html.twig', $data);
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {
         (new SystemLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
     }

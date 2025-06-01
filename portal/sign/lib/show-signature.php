@@ -21,17 +21,22 @@ $isPortal = $data['is_portal'];
 $signer = '';
 $ignoreAuth = false;
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // this script is used by both the patient portal and main openemr; below does authorization.
 if ($isPortal) {
-    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+    // Will start the (patient) portal OpenEMR session/cookie.
+    // Need access to classes, so run autoloader now instead of in globals.php.
+    $GLOBALS['already_autoloaded'] = true;
+    require_once(__DIR__ . "/../../../vendor/autoload.php");
+    SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         // authorized by patient portal
         $req_pid = $_SESSION['pid'];
         $ignoreAuth_onsite_portal = true;
     } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         echo js_escape("error");
         exit();
     }
