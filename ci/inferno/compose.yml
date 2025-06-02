@@ -1,0 +1,74 @@
+services:
+  mysql:
+    restart: always
+    image: mariadb:11.4
+    command:
+    - mariadbd
+    - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    restart: always
+    image: openemr/openemr:flex-3.20
+    ports:
+    - 8080:80
+    - 8523:443
+    volumes:
+    - ../../:/var/www/localhost/htdocs/openemr
+    environment:
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+    depends_on:
+      mysql:
+        condition: service_healthy
+  ##
+  # extend the inferno services so that they're in the same docker
+  # network as the openemr service,
+  # but use the onc-certification-g10-test-kit directory for relative mounts.
+  inferno:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: inferno
+  worker:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: worker
+  nginx:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: nginx
+    # https://docs.docker.com/reference/compose-file/merge/#replace-value
+    ports: !override
+    - 8000:80
+  redis:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: redis
+  hl7_validator_service:
+    extends:
+      file: onc-certification-g10-test-kit/docker-compose.yml
+      service: hl7_validator_service
+  terminology_builder:
+    ##
+    # Use a profile so this only runs when specified
+    profiles:
+    - terminology_builder
+    extends:
+      file: onc-certification-g10-test-kit/terminology_compose.yml
+      service: terminology_builder
+    platform: linux/amd64
+    build:
+      context: onc-certification-g10-test-kit
+      dockerfile: Dockerfile.terminology
