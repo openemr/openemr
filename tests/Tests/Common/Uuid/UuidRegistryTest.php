@@ -27,8 +27,8 @@ class UuidRegistryTest extends TestCase
 
     /**
      * Tests bi-directional uuid conversions
-     * @covers ::uuidToBytes
-     * @covers ::uuidToString
+     * @covers \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes
+     * @covers \OpenEMR\Common\Uuid\UuidRegistry::uuidToString
      */
     public function testUuidConversions()
     {

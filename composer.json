@@ -91,6 +91,7 @@
         }
     },
     "require-dev": {
+        "phpunit/php-code-coverage": "^11.0",
         "phpunit/phpunit": "11.*",
         "symfony/panther": "2.*",
         "zircote/swagger-php": "3.*"
