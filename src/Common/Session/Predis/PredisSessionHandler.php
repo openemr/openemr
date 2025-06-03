@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Common\Session\Predis;
 
+
+use OpenEMR\Common\Logging\SystemLogger;
 use Predis\Client;
 use SessionHandlerInterface;
 
@@ -25,6 +27,8 @@ class PredisSessionHandler implements SessionHandlerInterface
 
     private ?string $currentSessionId = null;
 
+    private SystemLogger $logger;
+
     public function __construct(Client $redis, int $ttl, int $lockTimeout = 60, int $waitTimeout = 70, int $waitInterval = 150000)
     {
         $this->redis = $redis;
@@ -32,6 +36,13 @@ class PredisSessionHandler implements SessionHandlerInterface
         $this->lockTimeout = $lockTimeout;
         $this->waitTimeout = $waitTimeout;
         $this->waitInterval = $waitInterval;
+        $this->logger = new SystemLogger();
+    }
+
+    public function __destruct()
+    {
+        $this->releaseLock();
+        $this->logger->debug("PredisSessionHandler instance destructed");
     }
 
     public function open($savePath, $sessionName)
@@ -42,12 +53,8 @@ class PredisSessionHandler implements SessionHandlerInterface
 
     public function close()
     {
-        if ($this->currentSessionId) {
-            $lockKey = "lock:$this->currentSessionId";
-            $this->redis->del($lockKey);
-        } else {
-            $this->currentSessionId = null;
-        }
+        $this->releaseLock();
+        $this->logger->debug("PredisSessionHandler closed session");
         return true;
     }
 
@@ -62,10 +69,12 @@ class PredisSessionHandler implements SessionHandlerInterface
         while (true) {
             $acquired = $this->redis->set($lockKey, 1, 'NX', 'EX', $this->lockTimeout);
             if ($acquired) {
+                $this->logger->debug("PredisSessionHandler acquired lock for session");
                 break;
             }
             if ((time() - $start) >= $this->waitTimeout) {
                 // Could not acquire lock within timeout
+                $this->logger->errorLogCaller("Could not acquire lock for predis session within the timeout period.");
                 throw new \Exception("Could not acquire lock for predis session within the timeout period.");
             }
             usleep($this->waitInterval);
@@ -73,6 +82,7 @@ class PredisSessionHandler implements SessionHandlerInterface
 
         // Read session data
         $data = $this->redis->get($sessionKey);
+        $this->logger->debug("PredisSessionHandler read session data");
         return $data ? $data : '';
     }
 
@@ -81,6 +91,7 @@ class PredisSessionHandler implements SessionHandlerInterface
         $this->currentSessionId = $sessionId;
         $sessionKey = "session:$sessionId";
         $this->redis->setex($sessionKey, $this->ttl, $data);
+        $this->logger->debug("PredisSessionHandler wrote session data");
         return true;
     }
 
@@ -89,6 +100,7 @@ class PredisSessionHandler implements SessionHandlerInterface
         $sessionKey = "session:$sessionId";
         $lockKey = "lock:$sessionId";
         $this->redis->del([$sessionKey, $lockKey]);
+        $this->logger->debug("PredisSessionHandler destroyed session");
         return true;
     }
 
@@ -96,5 +108,15 @@ class PredisSessionHandler implements SessionHandlerInterface
     {
         // Redis handles expiration automatically
         return true;
+    }
+
+    private function releaseLock()
+    {
+        if ($this->currentSessionId) {
+            $lockKey = "lock:$this->currentSessionId";
+            $this->redis->del($lockKey);
+            $this->currentSessionId = null;
+            $this->logger->debug("PredisSessionHandler released lock for session if applicable");
+        }
     }
 }
