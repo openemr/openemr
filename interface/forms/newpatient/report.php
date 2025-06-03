@@ -44,7 +44,7 @@ function newpatient_report($pid, $encounter, $cols, $id)
         $facility_name = (!$hasAccess) ? false : $result['facility_name'];
 
         $encounters[] = [
-            'category' => xl_appt_category($calendar_category[0]['pc_catname']),
+            'category' => (is_array($calendar_category) && !empty($calendar_category)) ? xl_appt_category($calendar_category[0]['pc_catname']) : '',
             'reason' => $reason,
             'provider' => $provider,
             'referringProvider' => $referringProvider,
