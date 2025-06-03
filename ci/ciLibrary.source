@@ -52,7 +52,11 @@ dc() {
 }
 
 _exec() {
-    dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
+    else
+        dc exec --workdir "${OPENEMR_DIR}" openemr "$@"
+    fi
 }
 
 dockers_env_start() {
