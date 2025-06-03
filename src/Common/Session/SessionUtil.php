@@ -51,7 +51,9 @@
  *  13. For OpenEMR 7.0.4:
  *      a. Supported early calls to class with the standard class loader, so can use other classes. Note that this class can be
  *         used prior to database connection, so beware of that.
- *      b. Added support for predis redis sentinel mode for session storage.
+ *      b. Incorporated debug/error logging.
+ *      c. Added support for predis redis sentinel mode for session storage.
+ *      d. Added debug/error logging.
  *
  *
  * @package   OpenEMR
@@ -63,6 +65,7 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
 
 class SessionUtil
@@ -86,6 +89,7 @@ class SessionUtil
     public static function sessionStartWrapper(array $settings = []): bool
     {
         if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+            (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
             (new SentinelUtil(self::$gc_maxlifetime))->configure();
         }
         return session_start($settings);
@@ -96,6 +100,7 @@ class SessionUtil
         session_write_close();
         session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
         self::coreSessionStart($web_root, $read_only);
+        (new SystemLogger())->debug("SessionUtil: switched to core session");
     }
 
     public static function coreSessionStart($web_root, $read_only = true): void
@@ -126,6 +131,7 @@ class SessionUtil
         }
 
         self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started core session");
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
@@ -145,6 +151,10 @@ class SessionUtil
             $_SESSION[$session_key_or_array] = $session_value;
         }
         session_write_close();
+        (new SystemLogger())->debug("SessionUtil: set session value", [
+            'session_key_or_array' => $session_key_or_array,
+            'session_value' => $session_value
+        ]);
     }
 
     public static function unsetSession($session_key_or_array): void
@@ -158,6 +168,9 @@ class SessionUtil
             unset($_SESSION[$session_key_or_array]);
         }
         session_write_close();
+        (new SystemLogger())->debug("SessionUtil: unset session value",[
+            'session_key_or_array' => $session_key_or_array
+        ]);
     }
 
     public static function setUnsetSession($setArray, $unsetArray): void
@@ -170,11 +183,14 @@ class SessionUtil
             unset($_SESSION[$value]);
         }
         session_write_close();
+        (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
+        (new SystemLogger())->debug("SessionUtil: unset numerous session values", $unsetArray);
     }
 
     public static function coreSessionDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed core session");
     }
 
     public static function portalSessionStart(): void
@@ -203,6 +219,7 @@ class SessionUtil
         }
 
         self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started portal session");
     }
 
     public static function portalSessionCookieDestroy(): void
@@ -210,6 +227,7 @@ class SessionUtil
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed portal session");
     }
 
     public static function apiSessionStart($web_root): void
@@ -237,11 +255,13 @@ class SessionUtil
         }
 
         self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started api session");
     }
 
     public static function apiSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed api session");
     }
 
     public static function switchToOAuthSession($web_root): void
@@ -249,6 +269,7 @@ class SessionUtil
         session_write_close();
         session_id($_COOKIE[self::OAUTH_SESSION_ID] ?? '');
         self::oauthSessionStart($web_root);
+        (new SystemLogger())->debug("SessionUtil: switched to oauth session");
     }
 
     public static function oauthSessionStart($web_root): void
@@ -276,11 +297,13 @@ class SessionUtil
         }
 
         self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started oauth session");
     }
 
     public static function oauthSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed oauth session");
     }
 
     public static function setupScriptSessionStart(): void
@@ -307,15 +330,19 @@ class SessionUtil
         }
 
         self::sessionStartWrapper($settings);
+        (new SystemLogger())->debug("SessionUtil: started setup script session");
     }
 
     public static function setupScriptSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed setup script session");
     }
 
     private static function standardSessionCookieDestroy(): void
     {
+        $sessionName = session_name();
+
         // Destroy the cookie
         $params = session_get_cookie_params();
         setcookie(
@@ -333,5 +360,8 @@ class SessionUtil
 
         // Destroy the session.
         session_destroy();
+        (new SystemLogger())->debug("SessionUtil: destroyed session and cookie", [
+            'session_name' => $sessionName,
+        ]);
     }
 }

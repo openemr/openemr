@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Session\Predis;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\PredisSessionHandler;
 use Predis\Client;
 
@@ -42,24 +43,32 @@ class SentinelUtil
     private ?string $masterCertFile;
     private ?string $masterKeyFile;
 
+    private SystemLogger $logger;
+
     public function __construct(int $ttl)
     {
+        // Initialize the logger
+        $this->logger = new SystemLogger();
+
         // Collect and validate environment variables
         $this->ttl = $ttl;
 
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;
         if ($this->sessionStorageMode !== 'predis-sentinel') {
+            $this->logger->errorLogCaller("Invalid SESSION_STORAGE_MODE: " . $this->sessionStorageMode);
             throw new \Exception("Invalid SESSION_STORAGE_MODE. Expected 'predis-sentinel'.");
         }
 
         // required for listing of the sentinels (string delimited by |||)
         $predisSentinels = getenv('PREDIS_SENTINELS', true) ?? null;
         if (empty($predisSentinels)) {
+            $this->logger->errorLogCaller("PREDIS_SENTINELS environment variable is not set.");
             throw new \Exception("PREDIS_SENTINELS environment variable is not set.");
         }
         $this->predisSentinels = explode('|||', $predisSentinels);
         if (empty($this->predisSentinels)) {
+            $this->logger->errorLogCaller("PREDIS_SENTINELS unable to explode any elements using the ||| delimiter.");
             throw new \Exception("PREDIS_SENTINELS unable to explode any elements using the ||| delimiter.");
         }
 
@@ -81,40 +90,63 @@ class SentinelUtil
         $this->predisX509 = ($predisX509 === 'yes');
         // note that TLS needs to be turned on if X509 is turned on
         if ($this->predisX509 && !$this->predisTls) {
+            $this->logger->errorLogCaller("PREDIS_TLS must be set to 'yes' if PREDIS_X509 is set to 'yes'.");
             throw new \Exception("PREDIS_TLS environment variable must be set to 'yes' if PREDIS_X509 is set to 'yes'.");
         }
 
         // optional. If using TLS, then this is required.
         $this->predisSentinelCertKeyPath = getenv('PREDIS_TLS_CERT_KEY_PATH', true) ?? null;
         if ($this->predisTls && empty($this->predisSentinelCertKeyPath)) {
+            $this->logger->errorLogCaller("PREDIS_TLS_CERT_KEY_PATH environment variable is required when PREDIS_TLS is set to 'yes'.");
             throw new \Exception("PREDIS_TLS_CERT_KEY_PATH environment variable is required when PREDIS_TLS is set to 'yes'.");
         }
 
         // collect pertinent certificate files and ensure they are readable
         $this->sentinelCaFile = $this->predisTls ? $this->predisSentinelCertKeyPath . '/' . self::$sentinelCa : null;
         if (!empty($this->sentinelCaFile) && !is_readable($this->sentinelCaFile)) {
+            $this->logger->errorLogCaller("Sentinel CA file does not exist or is not readable: " . $this->sentinelCaFile);
             throw new \Exception("Sentinel CA file does not exist or is not readable: " . $this->sentinelCaFile);
         }
         $this->sentinelCertFile = $this->predisX509 ? $this->predisSentinelCertKeyPath . '/' . self::$sentinelCert : null;
         if (!empty($this->sentinelCertFile) && !is_readable($this->sentinelCertFile)) {
+            $this->logger->errorLogCaller("Sentinel certificate file does not exist or is not readable: " . $this->sentinelCertFile);
             throw new \Exception("Sentinel certificate file does not exist or is not readable: " . $this->sentinelCertFile);
         }
         $this->sentinelKeyFile = $this->predisX509 ? $this->predisSentinelCertKeyPath . '/' . self::$sentinelKey : null;
         if (!empty($this->sentinelKeyFile) && !is_readable($this->sentinelKeyFile)) {
+            $this->logger->errorLogCaller("Sentinel key file does not exist or is not readable: " . $this->sentinelKeyFile);
             throw new \Exception("Sentinel key file does not exist or is not readable: " . $this->sentinelKeyFile);
         }
         $this->masterCaFile = $this->predisTls ? $this->predisSentinelCertKeyPath . '/' . self::$masterCa : null;
         if (!empty($this->masterCaFile) && !is_readable($this->masterCaFile)) {
+            $this->logger->errorLogCaller("Master CA file does not exist or is not readable: " . $this->masterCaFile);
             throw new \Exception("Master CA file does not exist or is not readable: " . $this->masterCaFile);
         }
         $this->masterCertFile = $this->predisX509 ? $this->predisSentinelCertKeyPath . '/' . self::$masterCert : null;
         if (!empty($this->masterCertFile) && !is_readable($this->masterCertFile)) {
+            $this->logger->errorLogCaller("Master certificate file does not exist or is not readable: " . $this->masterCertFile);
             throw new \Exception("Master certificate file does not exist or is not readable: " . $this->masterCertFile);
         }
         $this->masterKeyFile = $this->predisX509 ? $this->predisSentinelCertKeyPath . '/' . self::$masterKey : null;
         if (!empty($this->masterKeyFile) && !is_readable($this->masterKeyFile)) {
+            $this->logger->errorLogCaller("Master key file does not exist or is not readable: " . $this->masterKeyFile);
             throw new \Exception("Master key file does not exist or is not readable: " . $this->masterKeyFile);
         }
+
+        $this->logger->debug("Predis Sentinel constructor initialized successfully.", [
+            'predisSentinels' => $this->predisSentinels,
+            'predisMaster' => $this->predisMaster,
+            'predisSentinelsPassword' => !empty($this->predisSentinelsPassword) ? '***' : '',
+            'predisMasterPassword' => !empty($this->predisMasterPassword) ? '***' : '',
+            'predisTls' => $this->predisTls ? 'true' : 'false',
+            'predisX509' => $this->predisX509 ? 'true' : 'false',
+            'sentinelCaFile' => $this->sentinelCaFile,
+            'sentinelCertFile' => $this->sentinelCertFile,
+            'sentinelKeyFile' => $this->sentinelKeyFile,
+            'masterCaFile' => $this->masterCaFile,
+            'masterCertFile' => $this->masterCertFile,
+            'masterKeyFile' => $this->masterKeyFile
+        ]);
     }
 
     public function configure(): void
@@ -192,7 +224,9 @@ class SentinelUtil
         $handler = new PredisSessionHandler($redis, $this->ttl, 60, 70, 150000);
         $success = session_set_save_handler($handler, true);
         if (!$success) {
+            $this->logger->errorLogCaller("Failed to set session handler for Predis Sentinel.");
             throw new \Exception("Failed to set session handler for Predis Sentinel.");
         }
+        $this->logger->debug("Successfully set session handler for Predis Sentinel.");
     }
 }
