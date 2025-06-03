@@ -34,6 +34,10 @@ jobs:
         for docker_dir in "${dirs[@]}"; do
             IFS=: read -r database db < <(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
             IFS=_ read -r webserver php _ <<< "${docker_dir}"
+
+            # If docker_dir ends with "_no-e2e", we want to skip the e2e tests for this configuration.
+            [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
+
             printf -v php '%d.%d' "${php::1}" "${php:1}"
             case "$webserver" in
                 apache)
@@ -54,10 +58,11 @@ jobs:
                 "docker_dir": "%s",
                 "database": "%s",
                 "db": "%s",
+                "e2e_enabled": "%s",
                 "openemr_dir": "%s",
                 "php": "%s",
                 "webserver": "%s"
-            }\n' "$chromium_install" "$docker_dir" "$database" "$db" "$openemr_dir" "$php" "$webserver"
+            }\n' "$chromium_install" "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver"
         done | {
             printf 'configurations='
             jq -cs .
@@ -121,8 +126,11 @@ jobs:
       run: |
         . ci/ciLibrary.source
         build_test unit
+    ##
+    # To skip E2E tests for specific docker directories,
+    # rename the docker directory to end with "_no-e2e".
     - name: E2e testing
-      if: ${{ success() || failure() }}
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
       run: |
         . ci/ciLibrary.source
         build_test e2e
