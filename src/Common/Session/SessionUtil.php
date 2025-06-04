@@ -168,7 +168,7 @@ class SessionUtil
             unset($_SESSION[$session_key_or_array]);
         }
         session_write_close();
-        (new SystemLogger())->debug("SessionUtil: unset session value",[
+        (new SystemLogger())->debug("SessionUtil: unset session value", [
             'session_key_or_array' => $session_key_or_array
         ]);
     }

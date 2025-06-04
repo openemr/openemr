@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Common\Session\Predis;
 
-
 use OpenEMR\Common\Logging\SystemLogger;
 use Predis\Client;
 use SessionHandlerInterface;
