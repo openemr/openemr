@@ -41,6 +41,8 @@ class QrdaReportService
             $this->client->start();
             sleep(2); // give cpu a rest
         }
+        echo "<pre>";
+        print_r($this->client);
         if (empty($this->client->getHealth()['uptime'] ?? null)) {
             $msg = xlt("Can not complete report request. Node Service is not running.");
             throw new \RuntimeException($msg);

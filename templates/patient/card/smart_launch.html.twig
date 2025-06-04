@@ -1,7 +1,7 @@
 {% extends "patient/card/card_base.html.twig" %}
 
 {% block content %}
-    <ul>
+    <ul class="list-unstyled">
         {% if smartClients is empty %}
         <li><p>{{ "No registered SMART apps in the system"|xlt }}</p></li>
         {% endif %}
@@ -11,7 +11,9 @@
             <button class='btn btn-primary btn-sm smart-launch-btn' style="background-color: #fff !important;" data-smart-name="{{ client.getName()|attr }}"
                     data-intent="{{ intent|attr }}"
                     data-client-id="{{ client.getIdentifier()|attr }}">
-                    <img src="/public/images/logos/custom/rideon/{{client.getName()}}.png" style="height: 30px; width: 30px;">
+                    
+                    <img src="/public/images/logos/custom/rideon/{{client.getName()}}.png" style="height: 30px; width: 20px; pointer-events: none;"/>
+                    <!-- {{ "Launch"|xlt }} -->
             </button> 
             {{ client.getName()|attr }}
             {% if client.hasPredictiveDSI() or client.hasEvidenceDSI() %}

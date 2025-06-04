@@ -27,7 +27,20 @@ class ListAuthorizations
         $sql = "SELECT *
                       FROM module_prior_authorizations
                       WHERE pid = ? ORDER BY `start_date` DESC";
-        return sqlStatement($sql, [$this->pid]);
+                    
+        // return sqlStatement($sql, [$this->pid]);
+        $result = sqlStatement($sql, [$this->pid]);
+
+        if (!$result) {
+            return false;
+        }
+
+        $authorizations = [];
+        while ($row = sqlFetchArray($result)) {
+            $authorizations[] = $row;
+        }
+
+        return $authorizations;
     }
 
     private static function getAuthsFromModulePriorAuth(): false|array
