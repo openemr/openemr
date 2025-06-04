@@ -683,8 +683,6 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 </div>
                 <div class="col col-md col-sm" style="max-width: 20%; margin-left: 470px;">
                     <button class="btn btn-success btn-block patientportal" type="submit"><?php echo xlt('Log In'); ?></button>
-                <div class="col col-md col-sm" style="max-width: 20%; margin-left: 470px;">
-                    <button class="btn btn-success btn-block patientportal" type="submit"><?php echo xlt('Log In'); ?></button>
                     <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
                         <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                     <?php } ?>
