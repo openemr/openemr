@@ -1,20 +1,7 @@
 services:
   mysql:
-    restart: always
-    image: mysql:8.4
-    command: ['mysqld','--character-set-server=utf8mb4']
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+    extends:
+      file: ../common-mysql84.yml
   openemr:
-    restart: always
-    image: openemr/openemr:flex-3.21
-    ports:
-    - 80:80
-    - 443:443
-    volumes:
-    - ../../:/var/www/localhost/htdocs/openemr
-    environment:
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
-    depends_on:
-    - mysql
+    extends:
+      file: ../common-apache84.yml
