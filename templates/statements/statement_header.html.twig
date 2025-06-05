@@ -1,0 +1,23 @@
+<table style="width:100%;">
+    <tr>
+        {% if practice_logo is not empty %}
+            <td style="width:15%; height: auto; text-align:center;">
+                <img src="{{ practice_logo }}" align="left" style="width:100%; height: auto; margin:0px;"><br />
+            </td>
+        {% endif %}
+        <td align="center" style="{{ have_logo ? 'width:40%; max-width:50%;' : 'width:50%;' }}">
+            <em style="font-weight:bold; font-size:1.4em;">{{ facility.name }}</em><br />
+            {{ facility.street }}<br />
+            {{ facility.city }}, {{ facility.state }} {{ facility.postal_code }}<br />
+            {{ 'Phone'|xl }}: {{ facility.phone }}<br />
+            {{ 'Fax'|xl }}: {{ facility.fax }}<br />
+            <br clear="all" />
+        </td>
+        <td align="cemter">
+            <em style="font-weight:bold; font-size:1.4em;">{{ patient.fname }} {{ patient.lname }}</em><br />
+            <b style="font-weight:bold;">{{ 'Chart Number'|xl }}:</b> {{ patient.pid }}<br />
+            <b style="font-weight:bold;">{{ 'Generated on'|xl }}:</b> {{ generated_on }}<br />
+            <b>{{ 'Provider'|xl }}:</b> {{ provider_name }} <br />
+        </td>
+    </tr>
+</table>
