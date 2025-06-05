@@ -1,0 +1,30 @@
+services:
+  mysql:
+    extends:
+      file: ./compose-shared.yml
+      service: mysql
+  openemr:
+    restart: always
+    image: openemr/dev-php-fpm:8.2
+    environment:
+      OPENEMR_BASE_URL_API: "https://nginx"
+      OPENEMR_BASE_URL_E2E: "http://nginx"
+    volumes:
+    - ../:/usr/share/nginx/html/openemr
+    - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+  nginx:
+    restart: always
+    image: openemr/dev-nginx
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ../:/usr/share/nginx/html/openemr
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./nginx/dummy-cert:/etc/nginx/dummy-cert:ro
+    - ./nginx/dummy-key:/etc/nginx/dummy-key:ro
+    depends_on:
+    - openemr
