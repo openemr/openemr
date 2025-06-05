@@ -1,0 +1,33 @@
+services:
+  mysql:
+    restart: always
+    image: mariadb:10.5
+    command: ['mysqld','--character-set-server=utf8mb4']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  openemr:
+    restart: always
+    image: openemr/openemr:flex-3.21
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ../../:/var/www/localhost/htdocs/openemr
+    environment:
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+    depends_on:
+      mysql:
+        condition: service_healthy
