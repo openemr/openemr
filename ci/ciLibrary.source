@@ -110,12 +110,12 @@ install_configure() {
     sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
     _exec php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
     _exec rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
-    _exec mysql -u openemr --password="openemr" --ssl --ssl-cert=client-cert.pem --ssl-key=client-key.pem -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
-    _exec mysql -u openemr --password="openemr" --ssl --ssl-cert=client-cert.pem --ssl-key=client-key.pem -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl --ssl-cert=client-cert.pem --ssl-key=client-key.pem -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl --ssl-cert=client-cert.pem --ssl-key=client-key.pem -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl --ssl-cert=client-cert.pem --ssl-key=client-key.pem -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl --ssl-cert=client-cert.pem --ssl-key=client-key.pem -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
+    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
+    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
+    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
+    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
+    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
+    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
 }
 
 build_test_e2e() {
