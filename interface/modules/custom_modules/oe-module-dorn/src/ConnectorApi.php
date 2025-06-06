@@ -133,6 +133,18 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+    
+    public static function deleteRoutesFromDorn($labGuid, $labAccountNumber)
+    {
+        $payload = [
+            'LabGuid'      => $labGuid,
+            'AccountNumber'=> $labAccountNumber
+        ];
+        $api_server = ConnectorApi::getServerInfo();
+        $url = $api_server . "/api/Route/v1/DeleteRoute";
+        $returnData = ConnectorApi::postData($url, $payload);
+        return $returnData;
+    }
     public static function getLab($labGuid)
     {
         $api_server = ConnectorApi::getServerInfo();

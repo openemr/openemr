@@ -34,6 +34,16 @@ if (!empty($_POST)) {
         }
     }
 }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete') {
+    $result = ConnectorApi::deleteRoutesFromDorn(
+        $_POST['labGuid'] ?? '',
+        $_POST['accountNumber'] ?? ''
+    );
+    $datas = ConnectorApi::getRoutesFromDorn();
+    if ($datas == null) {
+        $datas = [];
+    }
+}
 ?>
 <html lang="">
 <head>
@@ -50,12 +60,7 @@ if (!empty($_POST)) {
         });
     });
 
-    function deleteRoute_click(labGuid) {
-        // dialog open calls restoreSession()
-        let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Create Route"); ?>;
-        let scriptTitle = 'route_edit.php?labGuid=' + encodeURIComponent(labGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
-    }
+
 </script>
 <body>
     <div class="row"> 
@@ -125,8 +130,15 @@ if (!empty($_POST)) {
                                             ?>
                                         </td>
                                         <td scope="row">
-                                        <button type="button" class="btn btn-primary" onclick="deleteRoute_click(<?php echo attr_js($data->labGuid); ?>,<?php echo attr_js($data->accountNumber); ?>)"><?php echo xlt('Delete Route'); ?></button>
-                                        </td>
+                                            <form method="post" action="routes.php" class="d-inline">                                          
+                                                <input type="hidden" name="action"        value="delete">
+                                                <input type="hidden" name="labGuid"       value="<?php echo attr($data->labGuid) ?>">
+                                                <input type="hidden" name="accountNumber" value="<?php echo attr($data->accountNumber) ?>">
+                                                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this route?')">
+                                                <?php echo xlt('Delete') ?>
+                                            </button>
+                                        </form>
+                                    </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
