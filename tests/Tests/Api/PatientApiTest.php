@@ -21,6 +21,7 @@ class PatientApiTest extends TestCase
     const PATIENT_API_ENDPOINT = "/apis/default/api/patient";
     private $testClient;
     private $fixtureManager;
+    private $patientRecord;
 
     protected function setUp(): void
     {

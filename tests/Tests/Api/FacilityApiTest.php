@@ -20,6 +20,7 @@ class FacilityApiTest extends TestCase
 {
     const FACILITY_API_ENDPOINT = "/apis/default/api/facility";
     private $testClient;
+    private $facilityRecord;
 
     /**
      * @var FacilityFixtureManager
