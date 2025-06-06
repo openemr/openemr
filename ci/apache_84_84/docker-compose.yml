@@ -3,6 +3,7 @@ services:
     extends:
       file: ../compose-shared.yml
       service: mysql
+    image: mysql:8.4
     command:
     - mysqld
     - --character-set-server=utf8mb4
