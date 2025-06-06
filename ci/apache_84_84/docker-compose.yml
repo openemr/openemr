@@ -1,7 +1,17 @@
 services:
   mysql:
     extends:
-      file: ../common-mysql84.yml
+      file: ../compose-shared.yml
+      service: mysql
+    command:
+    - mysqld
+    - --character-set-server=utf8mb4
+    healthcheck:
+      disable: true  
   openemr:
     extends:
-      file: ../common-apache84.yml
+      file: ../compose-shared.yml
+      service: openemr
+    image: openemr/openemr:flex-3.21
+    depends_on:
+    - mysql
