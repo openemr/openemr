@@ -1,18 +1,8 @@
+include:
+  - ../compose-shared-apache.yml
+  - ../compose-shared-mysql.yml
 services:
   mysql:
-    extends:
-      file: ../compose-shared.yml
-      service: mysql
     image: mysql:8.4
-    command:
-    - mysqld
-    - --character-set-server=utf8mb4
-    healthcheck:
-      disable: true
   openemr:
-    extends:
-      file: ../compose-shared.yml
-      service: openemr
     image: openemr/openemr:flex-3.20
-    depends_on:
-    - mysql

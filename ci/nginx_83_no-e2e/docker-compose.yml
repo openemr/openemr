@@ -1,15 +1,8 @@
+include:
+  - ../compose-shared-nginx.yml
+  - ../compose-shared-mariadb.yml
 services:
   mysql:
-    extends:
-      file: ../compose-shared-nginx.yml
-      service: mysql
     image: mariadb:11.4
   openemr:
-    extends:
-      file: ../compose-shared-nginx.yml
-      service: openemr
     image: openemr/dev-php-fpm:8.3
-  nginx:
-    extends:
-      file: ../compose-shared-nginx.yml
-      service: nginx

@@ -1,11 +1,8 @@
+include:
+  - ../compose-shared-apache.yml
+  - ../compose-shared-mariadb.yml
 services:
   mysql:
-    extends:
-      file: ../compose-shared.yml
-      service: mysql
     image: mariadb:10.5
   openemr:
-    extends:
-      file: ../compose-shared.yml
-      service: openemr
     image: openemr/openemr:flex-3.20
