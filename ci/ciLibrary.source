@@ -53,14 +53,14 @@ dc() {
 
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-        dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
+        dc -f "ci/${WEBSERVER_TEMPLATE}" -f "ci/${DATABASE_TEMPLATE}" -f "ci/${DOCKER_DIR}/docker-compose.yml" exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
     else
-        dc exec --workdir "${OPENEMR_DIR}" openemr "$@"
+        dc -f "ci/${WEBSERVER_TEMPLATE}" -f "ci/${DATABASE_TEMPLATE}" -f "ci/${DOCKER_DIR}/docker-compose.yml" exec --workdir "${OPENEMR_DIR}" openemr "$@"
     fi
 }
 
 dockers_env_start() {
-    dc up --detach
+    dc -f "ci/${WEBSERVER_TEMPLATE}" -f "ci/${DATABASE_TEMPLATE}" -f "ci/${DOCKER_DIR}/docker-compose.yml" up --detach
 }
 
 actions_chmod() {

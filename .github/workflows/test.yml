@@ -35,6 +35,10 @@ jobs:
             IFS=: read -r database db < <(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
             IFS=_ read -r webserver php _ <<< "${docker_dir}"
 
+            # collect docker-compose.yml templates that will be used in the docker compose up merge
+            webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
+            database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
+
             # If docker_dir ends with "_no-e2e", we want to skip the e2e tests for this configuration.
             [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
 
@@ -61,8 +65,10 @@ jobs:
                 "e2e_enabled": "%s",
                 "openemr_dir": "%s",
                 "php": "%s",
-                "webserver": "%s"
-            }\n' "$chromium_install" "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver"
+                "webserver": "%s",
+                "webserver_template": "%s",
+                "database_template": "%s"
+            }\n' "$chromium_install" "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver" "$webserver_template" "$database_template"
         done | {
             printf 'configurations='
             jq -cs .
@@ -82,6 +88,8 @@ jobs:
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_83_116' && 'true' || 'false' }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
+      WEBSERVER_TEMPLATE: ${{ matrix.configurations.webserver_template }}
+      DATABASE_TEMPLATE: ${{ matrix.configurations.database_template }}
     steps:
     - uses: actions/checkout@v4
     - name: Install PHP
