@@ -36,8 +36,8 @@ jobs:
             IFS=_ read -r webserver php _ <<< "${docker_dir}"
 
             # collect docker-compose.yml templates that will be used in the docker compose up merge
-            webserver-template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
-            database-template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
+            webserver_template=$(yq '.x-includes.webserver-template' "ci/${docker_dir}/docker-compose.yml")
+            database_template=$(yq '.x-includes.database-template' "ci/${docker_dir}/docker-compose.yml")
 
             # If docker_dir ends with "_no-e2e", we want to skip the e2e tests for this configuration.
             [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
@@ -112,7 +112,7 @@ jobs:
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source
-        dockers_env_start ${{ matrix.configurations.webserver-template }} ${{ matrix.configurations.database-template }}
+        dockers_env_start ${{ matrix.configurations.webserver_template }} ${{ matrix.configurations.database_template }}
     - name: Wait for MySQL to initialize
       if: ${{ matrix.configurations.database == 'mysql' }}
       run: |

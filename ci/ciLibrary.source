@@ -60,10 +60,10 @@ _exec() {
 }
 
 dockers_env_start() {
-    local webserver-template="$1"
-    local database-template="$2"
+    local webserver_template="$1"
+    local database_template="$2"
 
-    docker compose -f "${webserver-template}" -f "${database-template}" -f "ci/${DOCKER_DIR}/docker-compose.yml" up --detach
+    docker compose -f "${webserver_template}" -f "${database_template}" -f "ci/${DOCKER_DIR}/docker-compose.yml" up --detach
 }
 
 actions_chmod() {
