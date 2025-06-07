@@ -70,6 +70,94 @@ The CI process uses several important environment variables:
 - `OPENEMR_DIR`: The directory containing OpenEMR inside the Docker container
 - `CHROMIUM_INSTALL`: Commands to install ChromeDriver for E2E tests
 
+### Docker Compose Extension System
+
+The CI system uses Docker Compose's extension feature to maintain DRY (Don't Repeat Yourself) configuration across multiple test environments. This is implemented through shared base configurations that individual test environments extend and customize.
+
+#### How It Works
+
+1. **Shared Configuration Files**:
+   - `compose-shared.yml`: Contains the base configuration for Apache-based setups with common services and settings.
+   - `compose-shared-nginx.yml`: Contains the base configuration for Nginx-based setups, with specific Nginx service configuration.
+
+2. **Individual Test Environment Setup**:
+   Each test directory (e.g., `apache_83_116`) has its own `docker-compose.yml` that:
+   - Extends the appropriate shared configuration using the `extends` directive
+   - Overrides specific values as needed (like database or PHP versions)
+
+3. **Extension Pattern**:
+   ```yaml
+   services:
+     mysql:
+       extends:
+         file: ../compose-shared.yml     # Path to the shared configuration
+         service: mysql                  # The service to extend
+       image: mariadb:11.6              # Override the image version
+     openemr:
+       extends:
+         file: ../compose-shared.yml
+         service: openemr
+       image: openemr/openemr:flex-3.20 # Override the image version
+   ```
+
+#### Adding a New Configuration
+
+To add a new test configuration using the extension system:
+
+1. Decide if your new environment needs Apache or Nginx:
+   - For Apache-based environments, extend `compose-shared.yml`
+   - For Nginx-based environments, extend `compose-shared-nginx.yml`
+
+2. Create a new directory following the naming convention:
+   ```
+   {webserver}_{phpversion}[_{dbversion}][_no-e2e]
+   ```
+
+3. Create a `docker-compose.yml` file in the new directory:
+
+   **For Apache environments**:
+   ```yaml
+   services:
+     mysql:
+       extends:
+         file: ../compose-shared.yml
+         service: mysql
+       image: mariadb:<version>        # Specify your MariaDB/MySQL version
+     openemr:
+       extends:
+         file: ../compose-shared.yml
+         service: openemr
+       image: openemr/openemr:<tag>    # Specify your PHP version
+   ```
+
+   **For Nginx environments**:
+   ```yaml
+   services:
+     mysql:
+       extends:
+         file: ../compose-shared-nginx.yml
+         service: mysql
+       image: mariadb:<version>        # Specify your MariaDB/MySQL version
+     openemr:
+       extends:
+         file: ../compose-shared-nginx.yml
+         service: openemr
+       image: openemr/dev-php-fpm:<php-version>
+     nginx:
+       extends:
+         file: ../compose-shared-nginx.yml
+         service: nginx
+   ```
+
+4. Customize any additional settings specific to your configuration as needed.
+
+#### Modifying Shared Configurations
+
+When updating the shared configuration files:
+- Changes to `compose-shared.yml` and `compose-shared-nginx.yml` will affect all test environments that extend them
+- Make sure your changes are backward compatible or update the individual environment files as needed
+- Test the changes across multiple environments to ensure they work correctly
+
 ### Troubleshooting CI
 
 If tests are failing in CI but passing locally, check:

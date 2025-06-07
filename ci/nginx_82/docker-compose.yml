@@ -1,44 +1,15 @@
 services:
   mysql:
-    restart: always
+    extends:
+      file: ../compose-shared-nginx.yml
+      service: mysql
     image: mariadb:11.4
-    command: ['mariadbd','--character-set-server=utf8mb4']
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-    healthcheck:
-      test:
-      - CMD
-      - /usr/local/bin/healthcheck.sh
-      - --su-mysql
-      - --connect
-      - --innodb_initialized
-      start_period: 1m
-      start_interval: 10s
-      interval: 1m
-      timeout: 5s
-      retries: 3
   openemr:
-    restart: always
+    extends:
+      file: ../compose-shared-nginx.yml
+      service: openemr
     image: openemr/dev-php-fpm:8.2
-    environment:
-      OPENEMR_BASE_URL_API: "https://nginx"
-      OPENEMR_BASE_URL_E2E: "http://nginx"
-    volumes:
-    - ../../:/usr/share/nginx/html/openemr
-    - ./php.ini:/usr/local/etc/php/php.ini:ro
-    depends_on:
-      mysql:
-        condition: service_healthy
   nginx:
-    restart: always
-    image: openemr/dev-nginx
-    ports:
-    - 80:80
-    - 443:443
-    volumes:
-    - ../../:/usr/share/nginx/html/openemr
-    - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    - ../nginx/dummy-cert:/etc/nginx/dummy-cert:ro
-    - ../nginx/dummy-key:/etc/nginx/dummy-key:ro
-    depends_on:
-    - openemr
+    extends:
+      file: ../compose-shared-nginx.yml
+      service: nginx
