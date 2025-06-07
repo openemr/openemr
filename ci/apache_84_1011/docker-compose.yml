@@ -1,11 +1,9 @@
+x-includes:
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mariadb.yml"
+
 services:
   mysql:
-    extends:
-      file: ../compose-shared.yml
-      service: mysql
     image: mariadb:10.11
   openemr:
-    extends:
-      file: ../compose-shared.yml
-      service: openemr
     image: openemr/openemr:flex-3.21
