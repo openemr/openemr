@@ -25,7 +25,7 @@ class ConnectorApi
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Orders/v1/SearchOrderStatus";
         $params = [];
-// Initialize an empty params array
+        // Initialize an empty params array
 
         if (!empty($originalOrderNumber)) {
             $params['originalOrderNumber'] = $originalOrderNumber;
@@ -73,7 +73,6 @@ class ConnectorApi
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Orders/v1/GetPendingResults";
         $params = [];
-// Initialize an empty params array
 
         if (!empty($labAccountNumber)) {
             $params['labAccountNumber'] = $labAccountNumber;
@@ -97,6 +96,7 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
 
     public static function sendOrder($labGuid, $labAccountNumber, $orderNumber, $patientId, $hl7)
     {
@@ -126,7 +126,25 @@ class ConnectorApi
         $url = $api_server . "/api/Route/v1/CreateRoute";
         return ConnectorApi::postData($url, $data);
     }
-
+    public static function getRoutesFromDorn()
+    {
+        $api_server = ConnectorApi::getServerInfo();
+        $url = $api_server . "/api/Route/v1/GetRoutesFromDorn";
+        $returnData = ConnectorApi::getData($url);
+        return $returnData;
+    }
+    
+    public static function deleteRoutesFromDorn($labGuid, $labAccountNumber)
+    {
+        $payload = [
+            'LabGuid'      => $labGuid,
+            'AccountNumber'=> $labAccountNumber
+        ];
+        $api_server = ConnectorApi::getServerInfo();
+        $url = $api_server . "/api/Route/v1/DeleteRoute";
+        $returnData = ConnectorApi::postData($url, $payload);
+        return $returnData;
+    }
     public static function getLab($labGuid)
     {
         $api_server = ConnectorApi::getServerInfo();
