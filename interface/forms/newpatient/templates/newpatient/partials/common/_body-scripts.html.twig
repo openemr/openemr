@@ -20,6 +20,10 @@
         });
     })(window);
 </script>
+
+{# Load Bootstrap bundle to enable dismissible alerts and other JS components #}
+<script src="{{ webroot }}/public/assets/bootstrap/js/bootstrap.bundle.min.js?v={{ v_js_includes }}"></script>
+
 {# TODO: It seems like this should be put in a module for this form #}
 {% if textTemplatesEnabled %}
     {# NOTE this is the Nation Notes integration / implementation to launch the templates when double clicking on the encounter reason textfield #}
