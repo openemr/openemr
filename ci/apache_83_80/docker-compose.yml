@@ -1,6 +1,7 @@
-include:
-  - ../compose-shared-apache.yml
-  - ../compose-shared-mysql.yml
+x-includes:
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mysql.yml"
+
 services:
   mysql:
     image: mysql:8.0

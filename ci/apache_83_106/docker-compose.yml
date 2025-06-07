@@ -1,6 +1,7 @@
-include:
-  - ../compose-shared-apache.yml
-  - ../compose-shared-mariadb.yml
+x-includes:
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mariadb.yml"
+
 services:
   mysql:
     image: mariadb:10.6
