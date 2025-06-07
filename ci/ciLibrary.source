@@ -52,10 +52,13 @@ dc() {
 }
 
 _exec() {
+    local webserver_template="$1"
+    local database_template="$2"
+
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-        dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
+        dc -f "../${webserver_template}" -f "../${database_template}" -f "docker-compose.yml" exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
     else
-        dc exec --workdir "${OPENEMR_DIR}" openemr "$@"
+        dc -f "../${webserver_template}" -f "../${database_template}" -f "docker-compose.yml" exec --workdir "${OPENEMR_DIR}" openemr "$@"
     fi
 }
 
@@ -63,7 +66,7 @@ dockers_env_start() {
     local webserver_template="$1"
     local database_template="$2"
 
-    docker compose -f "ci/${webserver_template}" -f "ci/${database_template}" -f "ci/${DOCKER_DIR}/docker-compose.yml" up --detach
+    dc -f "../${webserver_template}" -f "../${database_template}" -f "docker-compose.yml" up --detach
 }
 
 actions_chmod() {
@@ -108,17 +111,20 @@ phpcov() {
 }
 
 install_configure() {
+    local webserver_template="$1"
+    local database_template="$2"
+
     actions_chmod 0666 sites/default/sqlconf.php
     actions_chmod -R 0777 sites/default/documents
     sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-    _exec php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
-    _exec rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
-    _exec mysql -u openemr --password="openemr" -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
-    _exec mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
-    _exec mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
-    _exec mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
-    _exec mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
-    _exec mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
+    _exec "$webserver_template" "$database_template" php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
+    _exec "$webserver_template" "$database_template" rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
+    _exec "$webserver_template" "$database_template" mysql -u openemr --password="openemr" -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
+    _exec "$webserver_template" "$database_template" mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
+    _exec "$webserver_template" "$database_template" mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
+    _exec "$webserver_template" "$database_template" mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
+    _exec "$webserver_template" "$database_template" mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
+    _exec "$webserver_template" "$database_template" mysql -u openemr --password="openemr" -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
 }
 
 build_test_e2e() {

@@ -121,7 +121,7 @@ jobs:
     - name: Install and configure
       run: |
         . ci/ciLibrary.source
-        install_configure
+        install_configure ${{ matrix.configurations.webserver_template }} ${{ matrix.configurations.database_template }}
     - name: Prepare for coverage reporting
       if: ${{ env.ENABLE_COVERAGE == 'true' }}
       run: |
