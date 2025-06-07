@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;

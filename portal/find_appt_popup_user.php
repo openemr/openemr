@@ -25,10 +25,14 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
+use OpenEMR\Common\Session\SessionUtil;
+
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 //
 
 //landing page definition -- where to go if something goes wrong
@@ -39,7 +43,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
