@@ -53,7 +53,6 @@
  *         used prior to database connection, so beware of that.
  *      b. Incorporated debug/error logging.
  *      c. Added support for predis redis sentinel mode for session storage.
- *      d. Added debug/error logging.
  *
  *
  * @package   OpenEMR
