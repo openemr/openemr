@@ -85,7 +85,7 @@ abstract class DecisionSupportInterventionEntity
         $this->type = $type;
     }
 
-    protected function populateServiceWithFhirQuestionnaireForType(string $serviceType, string $questionnaire, string $response = null)
+    protected function populateServiceWithFhirQuestionnaireForType(string $serviceType, string $questionnaire, ?string $response = null)
     {
 
         $questionnaire = json_decode($questionnaire, true);

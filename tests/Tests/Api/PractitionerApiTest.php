@@ -26,6 +26,7 @@ class PractitionerApiTest extends TestCase
      */
     private $testClient;
     private $fixtureManager;
+    private $practitionerRecord;
 
     protected function setUp(): void
     {

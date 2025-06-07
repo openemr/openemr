@@ -184,7 +184,7 @@ abstract class BaseFixtureManager
 
     private function isFunctionCall($value)
     {
-        return preg_match("/[a-zA-Z]+\(['a-zA-Z_0-9\-]*\)/", $value) === 1;
+        return preg_match("/[a-zA-Z]+\(['a-zA-Z_0-9\-]*\)/", $value ?? '') === 1;
     }
 
     private function isForeignReference(array $reference)
