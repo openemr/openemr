@@ -46,7 +46,7 @@ The CI runs several different test suites sequentially:
 
 ### Code Coverage
 
-Code coverage reporting is enabled only for the `apache_83_116` configuration. When enabled, it:
+Code coverage reporting is enabled only for the `apache_84_114` configuration. When enabled, it:
 - Configures Xdebug for coverage collection
 - Merges coverage data from all test suites
 - Generates Clover XML and HTML coverage reports
@@ -57,7 +57,7 @@ Code coverage reporting is enabled only for the `apache_83_116` configuration. W
 To add a new test configuration:
 
 1. Create a new directory following the naming convention `webserver_phpversion_dbversion`.
-2. Add a `docker-compose.yml` file with the appropriate MySQL/MariaDB and OpenEMR services.
+2. Add a `docker-compose.yml` file with the appropriate MySQL/MariaDB and OpenEMR services (see below `Adding a New Configuration` section).
 3. Ensure the database service is named `mysql` for compatibility with the test scripts.
 4. If you want to skip E2E tests for this configuration, add `_no-e2e` suffix to the directory name.
 
@@ -69,6 +69,8 @@ The CI process uses several important environment variables:
 - `ENABLE_COVERAGE`: Whether to enable code coverage reporting (true/false)
 - `OPENEMR_DIR`: The directory containing OpenEMR inside the Docker container
 - `CHROMIUM_INSTALL`: Commands to install ChromeDriver for E2E tests
+- `WEBSERVER_TEMPLATE`: The Docker Compose template for the web server configuration (Apache or Nginx)
+- `DATABASE_TEMPLATE`: The Docker Compose template for the database configuration (MariaDB or MySQL)
 
 ### Docker Compose Extension System
 
@@ -87,12 +89,12 @@ The CI system uses Docker Compose's multi-file composition (otherwise known as c
    - Shows which 2 base configurations (a webserver and a database) to use
    - Select the specific database version and PHP versions
 
-3. **Extension Pattern**:
+3. **docker-compose.yml Pattern**:
    ```yaml
-   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     webserver-template: "compose-shared-apache.yml"  # Show the web server template (apache or nginx)
+     webserver-template: "compose-shared-apache.yml"  # Show the web server template (Apache or Nginx)
      database-template: "compose-shared-mariadb.yml"  # Show the database template (MariaDB or MySQL)
 
    services:
@@ -123,10 +125,10 @@ To add a new test configuration:
 
    **For Apache environments with MariaDB**:
    ```yaml
-   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     webserver-template: "compose-shared-apache.yml"  # Show the apache web server template
+     webserver-template: "compose-shared-apache.yml"  # Show the Apache web server template
      database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
 
    services:
@@ -138,10 +140,10 @@ To add a new test configuration:
 
    **For Apache environments with MySQL**:
    ```yaml
-   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     webserver-template: "compose-shared-apache.yml"  # Show the apache web server template
+     webserver-template: "compose-shared-apache.yml"  # Show the Apache web server template
      database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
 
    services:
@@ -153,10 +155,10 @@ To add a new test configuration:
 
    **For Nginx environments with MariaDBL**:
    ```yaml
-   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     webserver-template: "compose-shared-nginx.yml"   # Show the nginx web server template
+     webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
 
    services:
@@ -168,10 +170,10 @@ To add a new test configuration:
 
    **For Nginx environments with MySQL**:
    ```yaml
-   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
    x-includes:
-     webserver-template: "compose-shared-nginx.yml"   # Show the nginx web server template
+     webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
 
    services:
