@@ -48,7 +48,7 @@ composer_github_auth() {
 # Technically dc is a calculator command in linux,
 # but it's rarely used in the same context as docker compose.
 dc() {
-    docker compose -f "ci/${WEBSERVER_TEMPLATE}" -f "ci/${DATABASE_TEMPLATE}" -f "ci/${DOCKER_DIR}/docker-compose.yml" --project-directory "ci/${DOCKER_DIR}" "$@"
+    docker compose -f "ci/${WEBSERVER_TEMPLATE}" -f "ci/${DATABASE_TEMPLATE}" -f "ci/${DOCKER_DIR}/docker-compose.yml" "$@"
 }
 
 _exec() {
