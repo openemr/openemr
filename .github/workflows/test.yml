@@ -86,7 +86,7 @@ jobs:
     env:
       CHROMIUM_INSTALL: ${{ matrix.configurations.chromium_install }}
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
-      ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_83_116' && 'true' || 'false' }}
+      ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
       WEBSERVER_TEMPLATE: ${{ matrix.configurations.webserver_template }}
       DATABASE_TEMPLATE: ${{ matrix.configurations.database_template }}
