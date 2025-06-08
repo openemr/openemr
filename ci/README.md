@@ -72,41 +72,47 @@ The CI process uses several important environment variables:
 
 ### Docker Compose Extension System
 
-The CI system uses Docker Compose's extension feature to maintain DRY (Don't Repeat Yourself) configuration across multiple test environments. This is implemented through shared base configurations that individual test environments extend and customize.
+The CI system uses Docker Compose's multi-file composition (otherwise known as compose file merging) to maintain DRY (Don't Repeat Yourself) configuration across multiple test environments. This is implemented through shared base configurations that individual test environments use.
 
 #### How It Works
 
 1. **Shared Configuration Files**:
-   - `compose-shared.yml`: Contains the base configuration for Apache-based setups with common services and settings.
-   - `compose-shared-nginx.yml`: Contains the base configuration for Nginx-based setups, with specific Nginx service configuration.
+   - `compose-shared-apache.yml`: Contains the base configuration for Apache-based setups with database specific items not included.
+   - `compose-shared-nginx.yml`: Contains the base configuration for Nginx-based setups with database specific items not included.
+   - `compose-shared-mariadb.yml`: Contains MariaDB specific items.
+   - `compose-shared-mysql.yml`: Contains MySQL specific items.
 
 2. **Individual Test Environment Setup**:
    Each test directory (e.g., `apache_83_116`) has its own `docker-compose.yml` that:
-   - Extends the appropriate shared configuration using the `extends` directive
-   - Overrides specific values as needed (like database or PHP versions)
+   - Shows which 2 base configurations (a webserver and a database) to use
+   - Select the specific database version and PHP versions
 
 3. **Extension Pattern**:
    ```yaml
+   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   #  multi-file composition command line commands.
+   x-includes:
+     webserver-template: "compose-shared-apache.yml"  # Show the web server template (apache or nginx)
+     database-template: "compose-shared-mariadb.yml"  # Show the database template (MariaDB or MySQL)
+
    services:
      mysql:
-       extends:
-         file: ../compose-shared.yml     # Path to the shared configuration
-         service: mysql                  # The service to extend
-       image: mariadb:11.6              # Override the image version
+       image: mariadb:11.4                            # Specify MariaDB/MySQL version
      openemr:
-       extends:
-         file: ../compose-shared.yml
-         service: openemr
-       image: openemr/openemr:flex-3.20 # Override the image version
+       image: openemr/openemr:flex-3.21               # Specify PHP version
    ```
 
 #### Adding a New Configuration
 
-To add a new test configuration using the extension system:
+To add a new test configuration:
 
 1. Decide if your new environment needs Apache or Nginx:
-   - For Apache-based environments, extend `compose-shared.yml`
-   - For Nginx-based environments, extend `compose-shared-nginx.yml`
+   - For Apache-based environments, will use `compose-shared-apache.yml`
+   - For Nginx-based environments, will use `compose-shared-nginx.yml`
+
+2. Decide if your new environment needs MariaDB or MySQL:
+   - For MariaDB, will use `compose-shared-mariadb.yml`
+   - For MySQL, will use `compose-shared-mysql.yml`
 
 2. Create a new directory following the naming convention:
    ```
@@ -115,38 +121,64 @@ To add a new test configuration using the extension system:
 
 3. Create a `docker-compose.yml` file in the new directory:
 
-   **For Apache environments**:
+   **For Apache environments with MariaDB**:
    ```yaml
+   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   #  multi-file composition command line commands.
+   x-includes:
+     webserver-template: "compose-shared-apache.yml"  # Show the apache web server template
+     database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
+
    services:
      mysql:
-       extends:
-         file: ../compose-shared.yml
-         service: mysql
-       image: mariadb:<version>        # Specify your MariaDB/MySQL version
+       image: mariadb:<version>                       # Specify MariaDB version
      openemr:
-       extends:
-         file: ../compose-shared.yml
-         service: openemr
-       image: openemr/openemr:<tag>    # Specify your PHP version
+       image: openemr/openemr:<tag>                   # Specify PHP version
    ```
 
-   **For Nginx environments**:
+   **For Apache environments with MySQL**:
    ```yaml
+   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   #  multi-file composition command line commands.
+   x-includes:
+     webserver-template: "compose-shared-apache.yml"  # Show the apache web server template
+     database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
+
    services:
      mysql:
-       extends:
-         file: ../compose-shared-nginx.yml
-         service: mysql
-       image: mariadb:<version>        # Specify your MariaDB/MySQL version
+       image: mysql:<version>                         # Specify MySQL version
      openemr:
-       extends:
-         file: ../compose-shared-nginx.yml
-         service: openemr
-       image: openemr/dev-php-fpm:<php-version>
-     nginx:
-       extends:
-         file: ../compose-shared-nginx.yml
-         service: nginx
+       image: openemr/openemr:<tag>                   # Specify PHP version
+   ```
+
+   **For Nginx environments with MariaDBL**:
+   ```yaml
+   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   #  multi-file composition command line commands.
+   x-includes:
+     webserver-template: "compose-shared-nginx.yml"   # Show the nginx web server template
+     database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
+
+   services:
+     mysql:
+       image: mariadb:<version>                         # Specify MariaDB version
+     openemr:
+       image: openemr/dev-php-fpm:<php-version>       # Specify PHP version
+   ```
+
+   **For Nginx environments with MySQL**:
+   ```yaml
+   # Note these x-includes are not actually seen or used by docker compose and are instead utilized by scripting to build the
+   #  multi-file composition command line commands.
+   x-includes:
+     webserver-template: "compose-shared-nginx.yml"   # Show the nginx web server template
+     database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
+
+   services:
+     mysql:
+       image: mysql:<version>                         # Specify MySQL version
+     openemr:
+       image: openemr/dev-php-fpm:<php-version>       # Specify PHP version
    ```
 
 4. Customize any additional settings specific to your configuration as needed.
@@ -154,7 +186,7 @@ To add a new test configuration using the extension system:
 #### Modifying Shared Configurations
 
 When updating the shared configuration files:
-- Changes to `compose-shared.yml` and `compose-shared-nginx.yml` will affect all test environments that extend them
+- Changes to `compose-shared-apache.yml`, `compose-shared-nginx.yml`, `compose-shared-mariadb.yml`, and  `compose-shared-mysql.yml` will affect all test environments that use them
 - Make sure your changes are backward compatible or update the individual environment files as needed
 - Test the changes across multiple environments to ensure they work correctly
 
@@ -170,7 +202,8 @@ If tests are failing in CI but passing locally, check:
 To debug a specific configuration, you can run the same Docker Compose setup locally using:
 
 ```bash
-docker compose --project-directory "ci/apache_83_116" up
+docker compose -f "ci/compose-shared-apache.yml" -f "compose-shared-mariadb.yml" -f "ci/apache_83_116/docker-compose.yml" up
 ```
 
 Replace `apache_83_116` with the configuration directory you want to test.
+Replace `compose-shared-apache.yml` and `compose-shared-mariadb.yml` with the `x-includes` values that are included in the above docker-compose.yml file.
