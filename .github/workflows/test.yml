@@ -88,8 +88,7 @@ jobs:
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
-      WEBSERVER_TEMPLATE: ${{ matrix.configurations.webserver_template }}
-      DATABASE_TEMPLATE: ${{ matrix.configurations.database_template }}
+      COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
     - uses: actions/checkout@v4
     - name: Install PHP
@@ -111,6 +110,10 @@ jobs:
       run: |
         . ci/ciLibrary.source
         ccda_build
+    - name: Docker Compose Config Output
+      run: |
+        . ci/ciLibrary.source
+        dc config
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source

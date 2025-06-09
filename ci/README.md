@@ -69,8 +69,7 @@ The CI process uses several important environment variables:
 - `ENABLE_COVERAGE`: Whether to enable code coverage reporting (true/false)
 - `OPENEMR_DIR`: The directory containing OpenEMR inside the Docker container
 - `CHROMIUM_INSTALL`: Commands to install ChromeDriver for E2E tests
-- `WEBSERVER_TEMPLATE`: The Docker Compose template for the web server configuration (Apache or Nginx)
-- `DATABASE_TEMPLATE`: The Docker Compose template for the database configuration (MariaDB or MySQL)
+- `COMPOSE_FILE`: The Docker Compose COMPOSE_FILE environment variable is set to store the templates for the multi-file composition. The first file is the template for the web server configuration (Apache or Nginx). The second file is the template for the database configuration (MariaDB or MySQL). The third file is the template for the PHP version and MariaDB/MySQL version.
 
 ### Docker Compose Extension System
 
@@ -204,7 +203,7 @@ If tests are failing in CI but passing locally, check:
 To debug a specific configuration, you can run the same Docker Compose setup locally using:
 
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "compose-shared-mariadb.yml" -f "ci/apache_83_116/docker-compose.yml" up
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_83_116/docker-compose.yml" up
 ```
 
 Replace `apache_83_116` with the configuration directory you want to test.

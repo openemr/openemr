@@ -3,6 +3,8 @@ services:
     command:
     - mariadbd
     - --character-set-server=utf8mb4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
     healthcheck:
       test:
       - CMD

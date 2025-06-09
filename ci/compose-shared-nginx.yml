@@ -1,10 +1,5 @@
 services:
-  mysql:
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
   openemr:
-    restart: always
     environment:
       OPENEMR_BASE_URL_API: "https://nginx"
       OPENEMR_BASE_URL_E2E: "http://nginx"
@@ -12,7 +7,6 @@ services:
     - ../:/usr/share/nginx/html/openemr
     - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro
   nginx:
-    restart: always
     image: openemr/dev-nginx
     ports:
     - 80:80
