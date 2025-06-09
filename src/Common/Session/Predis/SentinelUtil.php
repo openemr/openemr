@@ -21,12 +21,12 @@ use Predis\Client;
 
 class SentinelUtil
 {
-    private static $sentinelCa = 'predis-sentinel-ca';
-    private static $sentinelCert = 'predis-sentinel-cert';
-    private static $sentinelKey = 'predis-sentinel-key';
-    private static $masterCa = 'predis-master-ca';
-    private static $masterCert = 'predis-master-cert';
-    private static $masterKey = 'predis-master-key';
+    private static $sentinelCa = 'redis-sentinel-ca';
+    private static $sentinelCert = 'redis-sentinel-cert';
+    private static $sentinelKey = 'redis-sentinel-key';
+    private static $masterCa = 'redis-master-ca';
+    private static $masterCert = 'redis-master-cert';
+    private static $masterKey = 'redis-master-key';
 
     private int $ttl;
     private string $sessionStorageMode;
@@ -64,44 +64,44 @@ class SentinelUtil
         }
 
         // required for listing of the sentinels (string delimited by |||)
-        $predisSentinels = getenv('PREDIS_SENTINELS', true) ?? null;
+        $predisSentinels = getenv('REDIS_SENTINELS', true) ?? null;
         if (empty($predisSentinels)) {
-            $this->logger->errorLogCaller("PREDIS_SENTINELS environment variable is not set.");
-            throw new \Exception("PREDIS_SENTINELS environment variable is not set.");
+            $this->logger->errorLogCaller("REDIS_SENTINELS environment variable is not set.");
+            throw new \Exception("REDIS_SENTINELS environment variable is not set.");
         }
         $this->predisSentinels = explode('|||', $predisSentinels);
         if (empty($this->predisSentinels)) {
-            $this->logger->errorLogCaller("PREDIS_SENTINELS unable to explode any elements using the ||| delimiter.");
-            throw new \Exception("PREDIS_SENTINELS unable to explode any elements using the ||| delimiter.");
+            $this->logger->errorLogCaller("REDIS_SENTINELS unable to explode any elements using the ||| delimiter.");
+            throw new \Exception("REDIS_SENTINELS unable to explode any elements using the ||| delimiter.");
         }
 
         // optional and will default to 'mymaster' if not provided
-        $this->predisMaster = getenv('PREDIS_MASTER', true) ?? 'mymaster';
+        $this->predisMaster = getenv('REDIS_MASTER', true) ?? 'mymaster';
 
         // optional if have a password for sentinels
-        $this->predisSentinelsPassword = getenv('PREDIS_SENTINELS_PASSWORD', true) ?? null;
+        $this->predisSentinelsPassword = getenv('REDIS_SENTINELS_PASSWORD', true) ?? null;
 
         // optional if have a password for master/replicates
-        $this->predisMasterPassword = getenv('PREDIS_MASTER_PASSWORD', true) ?? null;
+        $this->predisMasterPassword = getenv('REDIS_MASTER_PASSWORD', true) ?? null;
 
         // optional if using TLS
-        $predisTls = getenv('PREDIS_TLS', true) ?? null;
+        $predisTls = getenv('REDIS_TLS', true) ?? null;
         $this->predisTls = ($predisTls === 'yes');
 
         // optional if using TLS with X509 certificate
-        $predisX509 = getenv('PREDIS_X509', true) ?? null;
+        $predisX509 = getenv('REDIS_X509', true) ?? null;
         $this->predisX509 = ($predisX509 === 'yes');
         // note that TLS needs to be turned on if X509 is turned on
         if ($this->predisX509 && !$this->predisTls) {
-            $this->logger->errorLogCaller("PREDIS_TLS must be set to 'yes' if PREDIS_X509 is set to 'yes'.");
-            throw new \Exception("PREDIS_TLS environment variable must be set to 'yes' if PREDIS_X509 is set to 'yes'.");
+            $this->logger->errorLogCaller("REDIS_TLS must be set to 'yes' if REDIS_X509 is set to 'yes'.");
+            throw new \Exception("REDIS_TLS environment variable must be set to 'yes' if REDIS_X509 is set to 'yes'.");
         }
 
         // optional. If using TLS, then this is required.
-        $this->predisSentinelCertKeyPath = getenv('PREDIS_TLS_CERT_KEY_PATH', true) ?? null;
+        $this->predisSentinelCertKeyPath = getenv('REDIS_TLS_CERT_KEY_PATH', true) ?? null;
         if ($this->predisTls && empty($this->predisSentinelCertKeyPath)) {
-            $this->logger->errorLogCaller("PREDIS_TLS_CERT_KEY_PATH environment variable is required when PREDIS_TLS is set to 'yes'.");
-            throw new \Exception("PREDIS_TLS_CERT_KEY_PATH environment variable is required when PREDIS_TLS is set to 'yes'.");
+            $this->logger->errorLogCaller("REDIS_TLS_CERT_KEY_PATH environment variable is required when REDIS_TLS is set to 'yes'.");
+            throw new \Exception("REDIS_TLS_CERT_KEY_PATH environment variable is required when REDIS_TLS is set to 'yes'.");
         }
 
         // collect pertinent certificate files and ensure they are readable
