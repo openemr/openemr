@@ -358,7 +358,6 @@ class ConnectorApi
         if (property_exists($data, 'access_token')) {
             $token = $data->access_token;
         }
-
         return $token;
     }
 }
