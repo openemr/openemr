@@ -1,22 +1,12 @@
 services:
-  mysql:
-    extends:
-      file: ./compose-shared.yml
-      service: mysql
   openemr:
-    restart: always
-    image: openemr/dev-php-fpm:8.2
     environment:
       OPENEMR_BASE_URL_API: "https://nginx"
       OPENEMR_BASE_URL_E2E: "http://nginx"
     volumes:
     - ../:/usr/share/nginx/html/openemr
     - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro
-    depends_on:
-      mysql:
-        condition: service_healthy
   nginx:
-    restart: always
     image: openemr/dev-nginx
     ports:
     - 80:80

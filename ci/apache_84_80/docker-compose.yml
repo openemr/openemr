@@ -1,19 +1,9 @@
+x-includes:
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mysql.yml"
+
 services:
   mysql:
-    extends:
-      file: ../compose-shared.yml
-      service: mysql
     image: mysql:8.0
-    command:
-    - mysqld
-    - --character-set-server=utf8mb4
-    - --default-authentication-plugin=mysql_native_password
-    healthcheck:
-      disable: true
   openemr:
-    extends:
-      file: ../compose-shared.yml
-      service: openemr
     image: openemr/openemr:flex-3.21
-    depends_on:
-    - mysql

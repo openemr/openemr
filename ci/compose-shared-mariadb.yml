@@ -1,7 +1,5 @@
 services:
   mysql:
-    restart: always
-    image: mariadb:10.6
     command:
     - mariadbd
     - --character-set-server=utf8mb4
@@ -20,16 +18,6 @@ services:
       timeout: 5s
       retries: 3
   openemr:
-    restart: always
-    image: openemr/openemr:flex-3.20
-    ports:
-    - 80:80
-    - 443:443
-    volumes:
-    - ../:/var/www/localhost/htdocs/openemr
-    environment:
-      FORCE_NO_BUILD_MODE: "yes"
-      EMPTY: "yes"
     depends_on:
       mysql:
         condition: service_healthy
