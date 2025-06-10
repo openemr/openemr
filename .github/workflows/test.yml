@@ -74,7 +74,7 @@ jobs:
             jq -cs .
         } >> "$GITHUB_OUTPUT"
     outputs:
-        configurations: ${{ steps.docker-dirs.outputs.configurations }}
+      configurations: ${{ steps.docker-dirs.outputs.configurations }}
   build:
     name: PHP ${{ matrix.configurations.php }} - ${{ matrix.configurations.webserver }} - ${{ matrix.configurations.database }} ${{ matrix.configurations.db }}
     runs-on: ubuntu-22.04
