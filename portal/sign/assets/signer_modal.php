@@ -10,13 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+use OpenEMR\Common\Session\SessionUtil;
+
+// this script is used by both the patient portal and main openemr; below does authorization.
+// Need access to classes, so run autoloader now instead of in globals.php.
+$GLOBALS['already_autoloaded'] = true;
+require_once(__DIR__ . "/../../../vendor/autoload.php");
+SessionUtil::portalSessionStart();
 
 $is_portal = (isset($_SESSION['patient_portal_onsite_two']) && $_SESSION['authUser'] == 'portal-user') ? 1 : $_GET['isPortal'];
 
 if (empty($is_portal)) {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    SessionUtil::portalSessionCookieDestroy();
 } else {
     //landing page definition -- where to go if something goes wrong
     $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
@@ -24,7 +29,7 @@ if (empty($is_portal)) {
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $pid = $_SESSION['pid'];
     } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');
         exit;
     }
