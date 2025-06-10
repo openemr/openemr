@@ -206,7 +206,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
-                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), 'Provider Qualifier Code'); ?>
+                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), xlt('Provider Qualifier Code'), ' ', '', '', '', null, false, '', true); ?>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
