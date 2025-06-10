@@ -152,7 +152,7 @@ To add a new test configuration:
        image: openemr/openemr:<tag>                   # Specify PHP version
    ```
 
-   **For Nginx environments with MariaDBL**:
+   **For Nginx environments with MariaDB**:
    ```yaml
    # Note these x-includes are not actually seen or used by Docker Compose and are instead utilized by scripting to build the
    #  multi-file composition command line commands.
@@ -200,11 +200,29 @@ If tests are failing in CI but passing locally, check:
 3. Web server configuration differences
 4. Path differences between container environments
 
-To debug a specific configuration, you can run the same Docker Compose setup locally using:
+### Debugging Configurations
 
+-For below commands:
+  - Replace `apache_84_114` with the configuration directory you want to test.
+  - Replace `compose-shared-apache.yml` and `compose-shared-mariadb.yml` with the `x-includes` values that are included in the main docker-compose.yml file.
+  - Run the below commands from the base openemr directory.
+
+You can view the fully merged configuration file with the following `config` command:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_83_116/docker-compose.yml" up
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" config
 ```
 
-Replace `apache_83_116` with the configuration directory you want to test.
-Replace `compose-shared-apache.yml` and `compose-shared-mariadb.yml` with the `x-includes` values that are included in the above docker-compose.yml file.
+You can also run the same Docker Compose setup locally:
+```bash
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
+```
+
+You can go directly into the OpenEMR testing container:
+```bash
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
+```
+
+You can shut down the Docker Compose setup:
+```bash
+docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
+```
