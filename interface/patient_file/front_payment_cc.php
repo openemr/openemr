@@ -18,6 +18,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use Stripe\Refund;
 use Stripe\Terminal\ConnectionToken;
 use Stripe\Terminal\Location;
 
@@ -66,9 +67,10 @@ if ($_POST['mode'] == 'Stripe') {
         "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
 
     $facilityData = sqlQuery("SELECT " .
-        "f.name, f.federal_ein " .
+        "f.name, f.federal_ein, u.fname AS d_fname, u.lname AS d_lname, u.mname AS d_mname, u.npi AS d_npi " .
         "FROM facility AS f " .
         "LEFT OUTER JOIN form_encounter AS fe ON f.id = fe.facility_id " .
+        "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id " .
         "WHERE fe.encounter = ? LIMIT 1", array($encounter));
 
     $userData = sqlQuery("SELECT " .
@@ -81,17 +83,20 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
     $transaction['token'] = $_POST['stripeToken'];
-    $transaction['description'] = $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'];
+    $description = ($facilityData['d_lname'] ? ($facilityData['d_lname'] . ' ' . $facilityData['d_fname'] . ' ' . $facilityData['d_mname']) :
+        $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname']) . ' - Chart Id: ' .$pd['pubpid'];
+    $transaction['description'] = $description;
     $transaction['metadata'] = [
-        'Patient' => $pd['lname'] . ' ' . $pd['fname'] . ' ' . $pd['mname'],
-        'Patient Id' => $pd['pubpid'],
-        'Doctor Name' => $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'],
-        'Doctor Tax Id' => $userData['federaltaxid'],
         'Facility Name' => $facilityData['name'],
-        'Facility Tax Id' => $facilityData['federal_ein'],
-        //'MRN' => $pd['pubpid'],
-        'Invoice Items (date encounter)' => $_POST['encs'],
-        'Invoice Total' => $transaction['amount']
+        'Facility Id' => $facilityData['federal_ein'],
+        'Doctor Name' => $facilityData['d_lname'] ? ($facilityData['d_lname'] . ' ' . $facilityData['d_fname'] . ' ' . $facilityData['d_mname']) : null,
+        'Doctor NPI' => $facilityData['d_npi'],
+        'Chart Id' => $pd['pubpid'],
+        'Invoice Number' => $pd['pubpid'] . '.' . $encounter,
+        'Invoice Total' => $transaction['amount'],
+        'User Id' => $_SESSION['authUserID'],
+        'User Name' => $userData['lname'] . ' ' . $userData['fname'] . ' ' . $userData['mname'],
+        'Residen EHR Id' => $dbase
     ];
     try {
         $response = $pay->submitPaymentToken($transaction);
@@ -214,5 +219,34 @@ if ($_GET['mode'] == 'terminal_create') {
     } catch (\Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
+    }
+}
+
+if ($_POST['mode'] == 'RefundStripe') {
+    try {
+        $cryptoGen = new CryptoGen();
+        $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+        Stripe::setApiKey($apiKey);
+        $refund = Refund::create([
+            'charge' => $_POST['refundCharge'],
+            'amount' => $_POST['refundAmount'] * 100,
+            'reason' => 'requested_by_customer'
+        ]);
+
+        if (!$refund->id) {
+            echo json_encode(['status' => false, 'message' => $refund->error->message], JSON_THROW_ON_ERROR);;
+            exit();
+        } else {
+            echo json_encode(['status' => true, 'message' => 'Refund Successfully.',
+                'data' => [
+                    'refund_id' => $refund->id,
+                    'amount' => $refund->amount / 100,
+                    'status' => $refund->status,
+                ]], JSON_THROW_ON_ERROR);
+            exit();
+        }
+
+    } catch (\Exception $ex) {
+        echo json_encode(['status' => false, 'message' => $ex->getMessage()]);
     }
 }

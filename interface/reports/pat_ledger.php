@@ -205,6 +205,9 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
                 $description .= ' - ';
             }
 
+            //split the source to check if the transaction has refund or not.
+            $exp_source = explode(';', $ref);
+            $ref = (count($exp_source) == 2) ? $exp_source[1] : $ref;
             $description .= $ref;
         }
 
