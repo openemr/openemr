@@ -14,15 +14,15 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
- use OpenEMR\Common\Acl\AclMain;
- use OpenEMR\Common\Csrf\CsrfUtils;
- use OpenEMR\Common\Twig\TwigContainer;
- use OpenEMR\Core\Header;
- use OpenEMR\Modules\Dorn\ConnectorApi;
- use OpenEMR\Modules\Dorn\models\CreateRouteFromPrimaryViewModel;
- use OpenEMR\Modules\Dorn\DisplayHelper;
- use OpenEMR\Modules\Dorn\LabRouteSetup;
- use OpenEMR\Modules\Dorn\AddressBookAddEdit;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
+use OpenEMR\Modules\Dorn\ConnectorApi;
+use OpenEMR\Modules\Dorn\models\CreateRouteFromPrimaryViewModel;
+use OpenEMR\Modules\Dorn\DisplayHelper;
+use OpenEMR\Modules\Dorn\LabRouteSetup;
+use OpenEMR\Modules\Dorn\AddressBookAddEdit;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
@@ -44,7 +44,7 @@ if (!empty($_POST)) {
     }
     //lets lookup the lab information we want to add a route for!
     $routeData = CreateRouteFromPrimaryViewModel::loadByPost($_POST);
-    $apiResponse =  ConnectorApi::createRoute($routeData);//create the route on dorn, we have all we need to do so
+    $apiResponse =  ConnectorApi::createRoute($routeData); //create the route on dorn, we have all we need to do so
     if ($apiResponse->isSuccess) {
         $ppid = 0;
         $uid = 0;
@@ -86,51 +86,202 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
 <!DOCTYPE html>
 <html>
 <head>
-        <?php Header::setupHeader(['opener']);?>
-        <title><?php echo xlt("Edit or Add Procedure Provider") ?></title>
-    </head>
-    <body class="container-fluid">
+    <?php Header::setupHeader(['opener']);?>
+    <title><?php echo xlt("Edit or Add Procedure Provider") ?></title>
+    <style>
+      .required-field {
+        color: red;
+      }
+      .form-section {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+      .form-section h5 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+    </style>
+</head>
+<body class="container-fluid">
     <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-12">
+                <h2><?php echo xlt("DORN Lab Route Configuration") ?></h2>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input type="hidden" name="form_labGuid" value="<?php echo attr($labGuid); ?>" />
             </div>
-        </div>        
+        </div>
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="form_primaries"><?php echo xlt("Select NPI") ?>:</label>
-                    <select id="form_primaries" name="form_primaries">
-                        <?php
-                        foreach ($primaryInfos as $pInfo) {
-                            ?>
-                            <option <?php echo DisplayHelper::SelectOption($_POST['form_primaries'] ?? '', $pInfo->npi ?? '') ?>  value='<?php echo attr($pInfo->npi) ?>' ><?php echo text($pInfo->primaryName); ?> (<?php echo text($pInfo->npi); ?>)</option>
-                            <?php
-                        }
-                        ?>
-                    </select>
+        <!-- Customer Account Information Section -->
+        <div class="form-section">
+            <h5><?php echo xlt("Customer Account Information") ?></h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_customerAccountNumber"><?php echo xlt("Customer Account Number") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_customerAccountNumber" name="form_customerAccountNumber"
+                            value="<?php echo isset($_POST['form_customerAccountNumber']) ? attr($_POST['form_customerAccountNumber']) : '' ?>"
+                            required/>
+                        <small class="form-text text-muted"><?php echo xlt("Your unique customer account identifier") ?></small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_clientSiteId"><?php echo xlt("Client Site ID") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_clientSiteId" name="form_clientSiteId"
+                            value="<?php echo isset($_POST['form_clientSiteId']) ? attr($_POST['form_clientSiteId']) : '' ?>"
+                            required/>
+                        <small class="form-text text-muted"><?php echo xlt("Unique identifier for your client site") ?></small>
+                    </div>
                 </div>
             </div>
+        </div>
 
-       </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="form_labAcctNumber"><?php echo xlt("Lab Account Number") ?>:</label>
-                    <input type="text" class="form-control" id="form_labAcctNumber" name="form_labAcctNumber" value="<?php echo isset($_POST['form_labAcctNumber']) ? attr($_POST['form_labAcctNumber']) : '' ?>"/>
-                </div>              
-            </div>
-       </div>
-       <div class="row">
-            <div class="col-sm-6">
-                <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Save") ?></button>
-                <?php
-                    echo text($message);
-                ?>
+        <!-- Provider Information Section -->
+        <div class="form-section">
+            <h5><?php echo xlt("Provider Information") ?></h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_primaries"><?php echo xlt("Select NPI") ?> <span class="required-field">*</span>:</label>
+                        <select id="form_primaries" name="form_primaries" class="form-control" required>
+                            <option value=""><?php echo xlt("-- Select Provider --") ?></option>
+                            <?php
+                            foreach ($primaryInfos as $pInfo) {
+                                ?>
+                                <option <?php echo DisplayHelper::SelectOption($_POST['form_primaries'] ?? '', $pInfo->npi ?? '') ?>  value='<?php echo attr($pInfo->npi) ?>' ><?php echo text($pInfo->primaryName); ?> (<?php echo text($pInfo->npi); ?>)</option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                        <small class="form-text text-muted"><?php echo xlt("National Provider Identifier for the ordering provider") ?></small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_labAcctNumber"><?php echo xlt("Lab Account Number") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_labAcctNumber" name="form_labAcctNumber"
+                            value="<?php echo isset($_POST['form_labAcctNumber']) ? attr($_POST['form_labAcctNumber']) : '' ?>"
+                            required/>
+                        <small class="form-text text-muted"><?php echo xlt("Your account number with the laboratory") ?></small>
+                    </div>
+                </div>
             </div>
         </div>
-     
-    </body>
+
+        <div class="form-section">
+            <h5><?php echo xlt("End User License Agreement (EULA)") ?></h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_eulaVersion"><?php echo xlt("EULA Version") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_eulaVersion" name="form_eulaVersion"
+                            value="<?php echo isset($_POST['form_eulaVersion']) ? attr($_POST['form_eulaVersion']) : '2024-08-28' ?>"
+                            required/>
+                        <small class="form-text text-muted"><?php echo xlt("Version of the EULA being accepted") ?></small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_eulaAccepterFullName"><?php echo xlt("EULA Accepter Full Name") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_eulaAccepterFullName" name="form_eulaAccepterFullName"
+                            value="<?php echo isset($_POST['form_eulaAccepterFullName']) ? attr($_POST['form_eulaAccepterFullName']) : '' ?>"
+                            required/>
+                        <small class="form-text text-muted"><?php echo xlt("Full name of the person accepting the EULA") ?></small>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_eulaAcceptanceDateTimeUtc"><?php echo xlt("EULA Acceptance Date & Time (UTC)") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_eulaAcceptanceDateTimeUtc" name="form_eulaAcceptanceDateTimeUtc"
+                            value="<?php echo isset($_POST['form_eulaAcceptanceDateTimeUtc']) ? attr($_POST['form_eulaAcceptanceDateTimeUtc']) : date('Y-m-d\TH:i:s.v\Z') ?>"
+                            required/>
+                        <small class="form-text text-muted"><?php echo xlt("Date and time when the EULA was accepted (UTC timezone)") ?></small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="form_eulaAcceptance" name="form_eulaAcceptance" required>
+                            <label class="form-check-label" for="form_eulaAcceptance">
+                                <strong><?php echo xlt("I accept the End User License Agreement") ?> <span class="required-field">*</span></strong>
+                            </label>
+                        </div>
+                        <small class="form-text text-muted"><?php echo xlt("You must accept the EULA to proceed with route creation") ?></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php if (!empty($labGuid)) { ?>
+            <!--<div class="form-section">
+                <h5><?php /*echo xlt("Lab Information") */?></h5>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label><?php /*echo xlt("Lab GUID") */?>:</label>
+                            <input type="text" class="form-control" value="<?php /*echo attr($labGuid); */?>" readonly/>
+                            <small class="form-text text-muted"><?php /*echo xlt("Unique identifier for the selected laboratory") */?></small>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+        <?php } ?>
+        <!-- Submit Section -->
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="submit" name="SubmitButton" class="btn btn-primary btn-save">
+                    <?php echo xlt("Create Lab Route") ?>
+                </button>
+                <button type="button" class="btn btn-secondary btn-cancel ml-2" onclick="window.close();">
+                    <?php echo xlt("Cancel") ?>
+                </button>
+                <?php if (!empty($message)) { ?>
+                    <div class="alert alert-info mt-3">
+                        <?php echo text($message); ?>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+
+        <script>
+            // Auto-populate current UTC datetime
+            document.addEventListener('DOMContentLoaded', function() {
+                const now = new Date();
+                const utcDateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+                const isoString = utcDateTime.toISOString().slice(0, 16);
+
+                const dateTimeInput = document.getElementById('form_eulaAcceptanceDateTimeUtc');
+                if (!dateTimeInput.value) {
+                    dateTimeInput.value = isoString;
+                }
+            });
+
+            // Form validation
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const requiredFields = document.querySelectorAll('input[required], select[required]');
+                let hasErrors = false;
+
+                requiredFields.forEach(function(field) {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        hasErrors = true;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+
+                if (hasErrors) {
+                    e.preventDefault();
+                    alert('<?php echo xlt("Please fill in all required fields") ?>');
+                }
+            });
+        </script>
+
+</body>
 </html>

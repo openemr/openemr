@@ -44,7 +44,6 @@ $provider_id = getProviderIdOfEncounter($encounter);
 $row = array(
     'provider_id' => $provider_id,
     'date_ordered' => date('Y-m-d'),
-    //'date_collected' => date('Y-m-d H:i'),
 );
 
 if ($_POST['bn_save_ereq'] ?? null) { //labcorp
@@ -219,22 +218,25 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         $set_array_temp[] = $formid;
         sqlStatement($query, $set_array_temp);
         $gbl_lab = get_lab_name($ppid);
+        $order_date = oeFormatShortDate($_POST['form_date_ordered'] ?? '');
         $tmp = $_POST['procedure_type_names'] ?: $formid;
-        $lab_title = $gbl_lab_title . "-$tmp";
+        $lab_title = $gbl_lab_title . "-$tmp-$formid-$order_date";
         $query = "UPDATE forms SET form_name = ? WHERE encounter = ? AND form_id = ? AND formdir = ?";
         sqlStatement($query, array($lab_title, $encounter, $formid, 'procedure_order'));
     } else {
         $query = "INSERT INTO procedure_order SET $sets";
         $formid = sqlInsert($query, $set_array);
         $gbl_lab = get_lab_name($ppid);
+        $order_date = oeFormatShortDate($_POST['form_date_ordered'] ?? '');
         $tmp = $_POST['procedure_type_names'] ?: $formid;
-        $lab_title = $gbl_lab_title . "-$tmp";
+        $lab_title = $gbl_lab_title . "-$tmp-$formid-$order_date";
         addForm($encounter, $lab_title, $formid, "procedure_order", $pid, $userauthorized);
         $mode = 'update';
         $viewmode = true;
     }
 
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($ppid)) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
+    $lab_name = str_replace(' ', '_', get_lab_name($ppid ?? 0));
+    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
         file_put_contents($log_file, $order_log);
@@ -436,6 +438,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         } else { // drop through if no errors..
             if ($isDorn) {
                 $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
+                // Generate HL7 order using the DornLabEvent.
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
                 $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
                 // TODO: Generate Barcode may be used for requisition printing.
@@ -456,6 +459,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
                 } else {
                     // Default lab. Add more labs here.
+                    error_log("in the default lab");
                     require_once(__DIR__ . "/../../orders/gen_hl7_order.inc.php");
                     $alertmsg = gen_hl7_order($formid, $hl7);
                 }
@@ -465,6 +469,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 if (empty($_POST['bn_save_ereq'])) {
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
+                        // Send HL7 order using the DornLabEvent.
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
                         $alertmsg .= $event->getMessagesAsString('Send Order: ', true);
                     } else {
@@ -507,18 +512,17 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
                     }
                 }
-                file_put_contents($log_file, $order_log);
             } else {
                 $order_data .= "\n" . xlt("Transmit failed. See Order Log for details.");
-                $alertmsg .= "\n" . xlt("Transmit failed. Lab response") . ': ' . $alertmsg . xlt("Failed HL7 Content") .  ":\n" . $hl7 . "\n";
+                $alertmsg .= "\n" . xlt("Transmit failed. Lab response") . ': ' . $alertmsg . xlt("Failed HL7 Content") . ":\n" . $hl7 . "\n";
                 if ($order_log) {
                     $alertmsg = $order_log . "\n" . $alertmsg;
                     $order_log = $alertmsg; // persist log
                 } else {
                     $order_log = $alertmsg;
                 }
-                file_put_contents($log_file, $order_log);
             }
+            file_put_contents($log_file, $order_log);
         }
 
         unset($_POST['bn_xmit']);
@@ -557,7 +561,8 @@ $account = $location['facility_code'] ?? '';
 $account_name = $location['name'] ?? '';
 $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($row['lab_id'])) . "/logs/";
+    $lab_name = str_replace(' ', '_', get_lab_name($row['lab_id']));
+    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
@@ -1100,7 +1105,7 @@ if (!empty($row['lab_id'])) {
 $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
-$title = array(xl('Order for'), $name, $date);
+$title = array(xl('Order for'), $name, $formid ? xl('Order Id') . ' ' . text($formid) : xl('New Order'));
 $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
 $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 ?>
@@ -1340,7 +1345,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
                                         </button>
                                     <?php } elseif ($gbl_lab === 'clarity') {
-                                        echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/clarity/ereq_form.php?debug=1&formid=" . attr_url($formid) . "'>" . xlt("Manual eREQ") . "</a>";
+                                        echo "<a class='btn btn-outline-primary' target='_blank' href='$rootdir/procedure_tools/ereqs/ereq_universal_form.php?debug=1&formid=" . attr_url($formid) . "'>" . xlt("Manual eREQ") . "</a>";
                                     }
                                     ?>
                                 </div>
