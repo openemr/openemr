@@ -174,7 +174,18 @@ class AuthorizationService
             LEFT JOIN  `module_prior_authorizations` mpa ON pd.pid = mpa.pid " . "
             LEFT JOIN `insurance_data` ins ON  `ins`.`pid` = `pd`.`pid` " . "
             ORDER BY pd.lname";
-        return sqlStatement($sql);
+        // return sqlStatement($sql);
+        $result = sqlStatement($sql);
+
+        if (!$result) {
+            return false;
+        }
+
+        $authorizations = [];
+        while ($row = sqlFetchArray($result)) {
+            $authorizations[] = $row;
+        }
+        return $authorizations;
     }
 
     public static function registerFacility(): false|array
