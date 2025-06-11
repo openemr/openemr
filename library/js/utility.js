@@ -613,5 +613,14 @@ function isValidEmail(emailAddress) {
 }
 
 function normalizeToFilename(str) {
-    return str.replace(/[<>:"/\\|?*]/g, '').replace(/[\x00-\x1f\x80-\x9f]/g, '').replace(/[\s\.,\(\)\[\]]/g, '_').replace(/[&+]/g, 'and').replace(/_+/g, '_').replace(/^_|_$/g, '').toLowerCase().substring(0, 100);
+    return str
+    .replace(/[<>:"/\\|?*]/g, '') // Remove illegal filename characters
+    .replace(/[\u0000-\u001F\u0080-\u009F]/g, '') // Control characters range
+    .replace(/[\s.,()[\]]/g, '_') // Replace spaces and punctuation with underscore
+    .replace(/[&+]/g, 'and') // Replace & and + with "and"
+    .replace(/_+/g, '_') // Collapse multiple underscores
+    .replace(/^_|_$/g, '') // Trim leading/trailing underscores
+    .toLowerCase()
+    .substring(0, 100); // Limit length
 }
+
