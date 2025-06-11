@@ -393,6 +393,7 @@ function checkPasswordStrength(inputElement) {
         }
     }
 }
+
 /*
 * Universal async BS alert message with promise
 * Note the use of new javaScript translate function xl().
@@ -447,25 +448,23 @@ async function syncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 }
 
 /* Handy function to set values in globals user_settings table */
-if (typeof persistUserOption !== "function") {
-    const persistUserOption = function (option, value) {
-        return $.ajax({
-            url: top.webroot_url + "/library/ajax/user_settings.php",
-            type: 'post',
-            contentType: 'application/x-www-form-urlencoded',
-            data: {
-                csrf_token_form: top.csrf_token_js,
-                target: option,
-                setting: value
-            },
-            beforeSend: function () {
-                top.restoreSession();
-            },
-            error: function (jqxhr, status, errorThrown) {
-                console.log(errorThrown);
-            }
-        });
-    };
+async function persistUserOption(option, value) {
+    return $.ajax({
+        url: top.webroot_url + "/library/ajax/user_settings.php",
+        type: 'post',
+        contentType: 'application/x-www-form-urlencoded',
+        data: {
+            csrf_token_form: top.csrf_token_js,
+            target: option,
+            setting: value
+        },
+        beforeSend: function () {
+            top.restoreSession();
+        },
+        error: function (jqxhr, status, errorThrown) {
+            console.log(errorThrown);
+        }
+    });
 }
 
 /**
@@ -522,29 +521,31 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
     };
 }
 
-(function(window, oeSMART) {
-    oeSMART.initLaunch = function(webroot, csrfToken) {
+(function (window, oeSMART) {
+    oeSMART.initLaunch = function (webroot, csrfToken) {
         // allows this to be lazy defined
-        let xl = window.top.xl || function(text) { return text; };
+        let xl = window.top.xl || function (text) {
+            return text;
+        };
         let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
         for (let launch of smartLaunchers) {
-                launch.addEventListener('click', function (evt) {
-                    let node = evt.target;
-                    let intent = node.dataset.intent;
-                    let clientId = node.dataset.clientId;
-                    if (!intent || !clientId) {
-                        console.error("mising intent parameter or client-id parameter");
-                        return;
-                    }
+            launch.addEventListener('click', function (evt) {
+                let node = evt.target;
+                let intent = node.dataset.intent;
+                let clientId = node.dataset.clientId;
+                if (!intent || !clientId) {
+                    console.error("mising intent parameter or client-id parameter");
+                    return;
+                }
 
-                    let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                        + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                        + "&csrf_token=" + encodeURIComponent(csrfToken);
-                    let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
-                    // we allow external dialog's  here because that is what a SMART app is
-                    let height = window.top.innerHeight; // do our full height here
-                    dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
-                });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
+                    + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
+                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
+                // we allow external dialog's  here because that is what a SMART app is
+                let height = window.top.innerHeight; // do our full height here
+                dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
+            });
         }
 
         let dsiHelpNodes = document.querySelectorAll(".smart-launch-dsi-info");
@@ -583,9 +584,11 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
                 let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
                 // we allow external dialog's  here because that is what a SMART app is
                 let height = window.top.innerHeight; // do our full height here
-                dlgopen(url, 'smartDsiEditSource', 'modal-full', height, '', title, {allowExternal: false, onClose: function() {
-                    window.top.removeEventListener('message', windowMessageHandler);
-                }});
+                dlgopen(url, 'smartDsiEditSource', 'modal-full', height, '', title, {
+                    allowExternal: false, onClose: function () {
+                        window.top.removeEventListener('message', windowMessageHandler);
+                    }
+                });
             });
         }
     };
@@ -607,4 +610,8 @@ function isValidEmail(emailAddress) {
     } else {
         return false;
     }
+}
+
+function normalizeToFilename(str) {
+    return str.replace(/[<>:"/\\|?*]/g, '').replace(/[\x00-\x1f\x80-\x9f]/g, '').replace(/[\s\.,\(\)\[\]]/g, '_').replace(/[&+]/g, 'and').replace(/_+/g, '_').replace(/^_|_$/g, '').toLowerCase().substring(0, 100);
 }
