@@ -611,11 +611,18 @@ function isValidEmail(emailAddress) {
         return false;
     }
 }
-
 function normalizeToFilename(str) {
+    const controlCharsRegex = new RegExp(
+        '[' +
+        String.fromCharCode(0) + '-' + String.fromCharCode(31) +
+        String.fromCharCode(128) + '-' + String.fromCharCode(159) +
+        ']',
+        'g'
+    );
+
     return str
     .replace(/[<>:"/\\|?*]/g, '') // Remove illegal filename characters
-    .replace(/[\u0000-\u001F\u0080-\u009F]/g, '') // Control characters range
+    .replace(controlCharsRegex, '') // Remove control characters
     .replace(/[\s.,()[\]]/g, '_') // Replace spaces and punctuation with underscore
     .replace(/[&+]/g, 'and') // Replace & and + with "and"
     .replace(/_+/g, '_') // Collapse multiple underscores
@@ -623,4 +630,3 @@ function normalizeToFilename(str) {
     .toLowerCase()
     .substring(0, 100); // Limit length
 }
-
