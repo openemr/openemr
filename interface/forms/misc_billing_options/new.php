@@ -131,7 +131,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 10 D. EPSDT Referral Code'); ?></label>
+                                <label for="box10d"><?php echo xlt('Box 10 D. Claim Codes (Designated by NUCC)'); ?></label>
                                 <input type="text" class="form-control" name="medicaid_referral_code" id="box10d"
                                     value="<?php echo attr($obj["medicaid_referral_code"] ?? ''); ?>" />
                             </div>
@@ -248,7 +248,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-10)'); ?>:</label>
+                                <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
                                 <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
                                     value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
                             </div>
