@@ -101,18 +101,42 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         <div class="form-group">
                             <label for="employment_related"><?php echo xlt('Box 10 A. Employment related'); ?>:</label>
                             <select name="employment_related" id="employment_related" class="form-control">
-                                <option value="" <?php if (empty($obj['employment_related']) || !in_array($obj['employment_related'], ['0', '1'])) { echo "selected"; } ?>>-- <?php echo xlt('Select'); ?> --</option>
-                                <option value="1" <?php if (!empty($obj['employment_related']) && $obj['employment_related'] == "1") { echo "selected"; } ?>><?php echo xlt('Yes'); ?></option>
-                                <option value="0" <?php if (isset($obj['employment_related']) && $obj['employment_related'] == "0") { echo "selected"; } ?>><?php echo xlt('No'); ?></option>
+                                <option value="" <?php
+                                if (empty($obj['employment_related']) || !in_array($obj['employment_related'], ['0', '1'])) {
+                                    echo "selected";
+                                }
+                                ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                <option value="1" <?php
+                                if (!empty($obj['employment_related']) && $obj['employment_related'] == "1") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('Yes'); ?></option>
+                                <option value="0" <?php
+                                if (isset($obj['employment_related']) && $obj['employment_related'] == "0") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('No'); ?></option>
                             </select>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
                                 <label for="auto_accident"><?php echo xlt('Box 10 B. Auto Accident'); ?>:</label>
                                 <select name="auto_accident" id="auto_accident" class="form-control">
-                                    <option value="" <?php if (empty($obj['auto_accident']) || !in_array($obj['auto_accident'], ['0', '1'])) { echo "selected"; } ?>>-- <?php echo xlt('Select'); ?> --</option>
-                                    <option value="1" <?php if (!empty($obj['auto_accident']) && $obj['auto_accident'] == "1") { echo "selected"; } ?>><?php echo xlt('Yes'); ?></option>
-                                    <option value="0" <?php if (isset($obj['auto_accident']) && $obj['auto_accident'] == "0") { echo "selected"; } ?>><?php echo xlt('No'); ?></option>
+                                    <option value="" <?php
+                                    if (empty($obj['auto_accident']) || !in_array($obj['auto_accident'], ['0', '1'])) {
+                                        echo "selected";
+                                    }
+                                    ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                    <option value="1" <?php
+                                    if (!empty($obj['auto_accident']) && $obj['auto_accident'] == "1") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php
+                                    if (isset($obj['auto_accident']) && $obj['auto_accident'] == "0") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('No'); ?></option>
                                 </select>
                             </div>
                             <div class="col-md">
@@ -124,9 +148,21 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         <div class="form-group">
                             <label for="other_accident"><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
                             <select name="other_accident" id="other_accident" class="form-control">
-                                <option value="" <?php if (empty($obj['other_accident']) || !in_array($obj['other_accident'], ['0', '1'])) { echo "selected"; } ?>>-- <?php echo xlt('Select'); ?> --</option>
-                                <option value="1" <?php if (!empty($obj['other_accident']) && $obj['other_accident'] == "1") { echo "selected"; } ?>><?php echo xlt('Yes'); ?></option>
-                                <option value="0" <?php if (isset($obj['other_accident']) && $obj['other_accident'] == "0") { echo "selected"; } ?>><?php echo xlt('No'); ?></option>
+                                <option value="" <?php
+                                if (empty($obj['other_accident']) || !in_array($obj['other_accident'], ['0', '1'])) {
+                                    echo "selected";
+                                }
+                                ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                <option value="1" <?php
+                                if (!empty($obj['other_accident']) && $obj['other_accident'] == "1") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('Yes'); ?></option>
+                                <option value="0" <?php
+                                if (isset($obj['other_accident']) && $obj['other_accident'] == "0") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('No'); ?></option>
                             </select>
                         </div>
                         <div class="form-row mt-3">
@@ -235,9 +271,21 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <div class="col-md">
                                 <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
                                 <select name="outside_lab" id="outside_lab" class="form-control">
-                                    <option value="" <?php if (empty($obj['outside_lab']) || !in_array($obj['outside_lab'], ['0', '1'])) { echo "selected"; } ?>>-- <?php echo xlt('Select'); ?> --</option>
-                                    <option value="1" <?php if (!empty($obj['outside_lab']) && $obj['outside_lab'] == "1") { echo "selected"; } ?>><?php echo xlt('Yes'); ?></option>
-                                    <option value="0" <?php if (isset($obj['outside_lab']) && $obj['outside_lab'] == "0") { echo "selected"; } ?>><?php echo xlt('No'); ?></option>
+                                    <option value="" <?php
+                                    if (empty($obj['outside_lab']) || !in_array($obj['outside_lab'], ['0', '1'])) {
+                                        echo "selected";
+                                    }
+                                    ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                    <option value="1" <?php
+                                    if (!empty($obj['outside_lab']) && $obj['outside_lab'] == "1") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php
+                                    if (isset($obj['outside_lab']) && $obj['outside_lab'] == "0") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('No'); ?></option>
                                 </select>
                             </div>
                             <div class="col-md">
