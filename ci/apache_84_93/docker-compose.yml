@@ -1,0 +1,9 @@
+x-includes:
+  webserver-template: "compose-shared-apache.yml"
+  database-template: "compose-shared-mysql.yml"
+
+services:
+  mysql:
+    image: mysql:9.3
+  openemr:
+    image: openemr/openemr:flex-3.21
