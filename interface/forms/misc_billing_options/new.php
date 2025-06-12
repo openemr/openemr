@@ -233,15 +233,15 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
-                                <input type="checkbox" name="outside_lab" id="outside_lab" value="1"
-                                    <?php
-                                    if (!empty($obj['outside_lab']) && ($obj['outside_lab'] == "1")) {
-                                        echo "checked";
-                                    } ?> />
+                                <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
+                                <select name="outside_lab" id="outside_lab" class="form-control">
+                                    <option value="" <?php if (empty($obj['outside_lab']) || !in_array($obj['outside_lab'], ['0', '1'])) { echo "selected"; } ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                    <option value="1" <?php if (!empty($obj['outside_lab']) && $obj['outside_lab'] == "1") { echo "selected"; } ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php if (isset($obj['outside_lab']) && $obj['outside_lab'] == "0") { echo "selected"; } ?>><?php echo xlt('No'); ?></option>
+                                </select>
                             </div>
                             <div class="col-md">
-                                <label><?php echo xlt('Amount Charged'); ?>:</label>
+                                <label for="lab_amount"><?php echo xlt('Amount Charged'); ?>:</label>
                                 <input type="text" size="7" class="form-control" name="lab_amount" id="lab_amount"
                                     value="<?php echo attr($obj["lab_amount"] ?? ''); ?>" />
                             </div>
