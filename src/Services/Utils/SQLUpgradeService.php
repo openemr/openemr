@@ -657,9 +657,39 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
+            } elseif (preg_match('/^#IfMBOEncounterNeeded/', $line)) {
+                $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
+                if (sqlNumRows($emptyMBOEncounters) > 0) {
+                    while ($mBORow = sqlFetchArray($emptyMBOEncounters)) {
+                        $pids[] = $mBORow['pid'];
+                    }
+                    $encStatement = "SELECT `encounter` from `form_encounter` WHERE `pid` IN (" . implode(',', array_map('intval', $pids)) . ")";
+                    $encounters = sqlStatementNoLog($encStatement);
+                    $this->echo("<p class='text-info'>Linking encounters to misc billing options forms.</p>\n");
+                    $this->flush_echo();
+                    while ($row = sqlFetchArray($encounters)) {
+                        $mboquery = sqlQueryNoLog("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
+                          INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
+                          `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
+                          `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($row['encounter']));
+                        if (!empty($mboquery['id'])) {
+                            $formid = (int) $mboquery['id'];
+                            sqlStatementNoLog("UPDATE `form_misc_billing_options` SET `encounter` = ? WHERE `id` = ?", [$row['encounter'], $formid]);
+                        }
+                    }
+                    $this->echo("<p class='text-success'>Completed linking encounters to misc billing options forms.</p>\n");
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
             } elseif (preg_match('/^#EndIf/', $line)) {
                 $skipping = false;
             }
+
             if (preg_match('/^#SpecialSql/', $line)) {
                 $special = true;
                 $line = " ";
