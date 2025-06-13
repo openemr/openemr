@@ -1648,15 +1648,10 @@ class FormROS extends ORDataObject
     }
     function toString($html = false)
     {
-        $string .= "\n"
-            . "ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        $string = "\n" . "ID: " . $this->id . "\n";
+        return $html ? nl2br($string) : $string;
     }
+
     function persist()
     {
         parent::persist();

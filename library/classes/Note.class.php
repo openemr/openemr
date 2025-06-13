@@ -114,19 +114,14 @@ class Note extends ORDataObject
      */
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "FID: " . $this->foreign_id . "\n"
         . "note: " . $this->note . "\n"
         . "date: " . $this->date . "\n"
         . "owner: " . $this->owner . "\n"
         . "revision: " . $this->revision . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     /**#@+

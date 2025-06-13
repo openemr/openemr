@@ -265,19 +265,14 @@ class Pharmacy extends ORDataObject
 
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "Name: " . $this->name . "\n"
         . "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
         . "Email:" . $this->email . "\n"
         . "Address: " . $this->address->toString($html) . "\n"
         . "Method: " . $this->transmit_method_array[$this->transmit_method];
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     function totalPages()
