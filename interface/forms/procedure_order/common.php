@@ -53,9 +53,30 @@ if ($_POST['bn_save_ereq'] ?? null) { //labcorp
 $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid));
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
+$eReqForm = '';
+function saveEreq($pid, $form_id, $mpdfData)
+{
+    $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array("LabCorp"));
+    if (!$category['id']) {
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array('Lab Report'));
+    }
+    $unique = date('y-m-d-His', time());
+    $filename = "ereq_" . $unique . "_order_" . $form_id . ".pdf";
+    $d = new Document();
+    $good = $d->createDocument($pid, $category['id'], $filename, "application/pdf", $mpdfData);
+    if (!empty($good)) {
+        return $good;
+    }
+    $unique = date('y-m-d-H:i:s', time());
+    $documentationOf = "$unique";
+    sqlStatement(
+        "UPDATE documents SET documentationOf = ?, list_id = ? WHERE id = ?",
+        array($documentationOf, $form_id, $d->id)
+    );
 
-
-function isDornLab($ppid)
+    return $good;
+}
+function isDornLab($ppid): bool
 {
     $sql = "SHOW TABLES LIKE 'mod_dorn_routes'";
     $result = sqlQuery($sql);
@@ -74,6 +95,9 @@ function isDornLab($ppid)
 function get_lab_name($id): string
 {
     global $gbl_lab_title, $gbl_lab, $gbl_client_acct, $gbl_use_codes;
+    if (empty($id)) {
+        $id = 1;
+    }
     $tmp = sqlQuery("SELECT name, send_fac_id as clientid, npi FROM procedure_providers Where ppid = ?", array($id));
     $gbl_lab = $tmp['name'] ?? '';
     $gbl_lab = stripos($tmp['name'] ?? '', 'quest') !== false ? 'quest' : $gbl_lab;
@@ -150,7 +174,6 @@ $req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
-//
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -441,9 +464,6 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 // Generate HL7 order using the DornLabEvent.
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
                 $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
-                // TODO: Generate Barcode may be used for requisition printing.
-                /*$ed->dispatch($event, DornLabEvent::GEN_BARCODE);
-                $alertmsg .= $event->getMessagesAsString('Generate Barcode: ', true);*/
             } else {
                 if ($gbl_lab === 'ammon' || $gbl_lab === 'clarity') {
                     require_once(__DIR__ . "/../../procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php");
@@ -460,6 +480,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 } else {
                     // Default lab. Add more labs here.
                     error_log("in the default lab");
+                    require_once(__DIR__ . "/../../procedure_tools/ereqs/ereq_universal_form.php");
                     require_once(__DIR__ . "/../../orders/gen_hl7_order.inc.php");
                     $alertmsg = gen_hl7_order($formid, $hl7);
                 }
@@ -469,9 +490,27 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 if (empty($_POST['bn_save_ereq'])) {
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
-                        // Send HL7 order using the DornLabEvent.
+                        $alertmsg = '';
+                            // Send HL7 order using the DornLabEvent.
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
-                        $alertmsg .= $event->getMessagesAsString('Send Order: ', true);
+                        $test = $dornSendOrderResponse = $event->getSendOrderResponse();
+                        if (!$dornSendOrderResponse->isSuccess) {
+                            $alertmsg = $dornSendOrderResponse->responseMessage ?? $dornSendOrderResponse;
+                        }
+                        $eReqForm = $dornSendOrderResponse->orders[0]->requisitionDocumentBase64     ?? '';
+                        if (!empty($eReqForm)) {
+                            $eReqForm = base64_decode($eReqForm);
+                            if (empty($eReqForm)) {
+                                $alertmsg .= "\n" . xlt("Error decoding eReq PDF document.");
+                            } else {
+                                $error_save = saveEreq($pid, $formid, $eReqForm);
+                                if (empty($error_save)) {
+                                    $order_log .= "\n" . xlt("Order Requisition PDF Document saved successfully.");
+                                } else {
+                                    $alertmsg .= "\n" . xlt("Error saving eReq PDF document.") . ': ' . $error_save;
+                                }
+                            }
+                        }
                     } else {
                         $alertmsg = send_hl7_order($ppid, $hl7);
                     }
@@ -505,7 +544,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     }
                 } else {
                     $savereq = false;
-                    if ($gbl_lab === 'labcorp' && $isDorn === false) {
+                    if ($gbl_lab !== 'quest') {
                         // Manual requisition
                         $order_log .= "\n" . date('Y-m-d H:i') . " " .
                             xlt("Generating requisition based on order HL7 content") . "...\n" . $hl7 . "\n";
@@ -514,7 +553,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 }
             } else {
                 $order_data .= "\n" . xlt("Transmit failed. See Order Log for details.");
-                $alertmsg .= "\n" . xlt("Transmit failed. Lab response") . ': ' . $alertmsg . xlt("Failed HL7 Content") . ":\n" . $hl7 . "\n";
+                $alertmsg .= "\n" . xlt("Transmit failed. Lab response") . ': ' . $alertmsg . "\n" . xlt("Failed HL7 Content for Review") . ":\n" . $hl7 . "\n";
                 if ($order_log) {
                     $alertmsg = $order_log . "\n" . $alertmsg;
                     $order_log = $alertmsg; // persist log
@@ -561,6 +600,7 @@ $account = $location['facility_code'] ?? '';
 $account_name = $location['name'] ?? '';
 $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
+    $isDorn = isDornLab($row['lab_id']) ?? false;
     $lab_name = str_replace(' ', '_', get_lab_name($row['lab_id']));
     $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
 
@@ -590,7 +630,6 @@ if (!empty($row['lab_id'])) {
         var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
         var refreshForm = <?php echo js_escape($reload_url); ?>;
 
-
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
@@ -600,7 +639,6 @@ if (!empty($row['lab_id'])) {
                 return;
             }
         });
-
 
         function processSubmit(od) { // not used yet
             $("#form_order_abn").val(od.order_abn);
@@ -1114,6 +1152,49 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
         <div class="page-header text-center">
             <h3><?php echo text(implode(" ", $title)); ?></h3>
         </div>
+        <?php
+
+        $oparr = array();
+        if ($formid) {
+            $opres = sqlStatement(
+                "SELECT " .
+                "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
+                "pc.reason_code, pc.reason_description, pc.reason_status, pc.reason_date_low, pc.reason_date_high, " .
+                "pc.diagnoses, pc.procedure_order_title, pc.transport, pc.procedure_type, " .
+                // In case of duplicate procedure codes this gets just one.
+                "(SELECT pt.procedure_type_id FROM procedure_type AS pt WHERE " .
+                "(pt.procedure_type LIKE 'ord%' OR pt.procedure_type LIKE 'for%' OR pt.procedure_type LIKE 'pro%') AND pt.lab_id = ? AND " .
+                "pt.procedure_code = pc.procedure_code ORDER BY " .
+                "pt.activity DESC, pt.procedure_type_id LIMIT 1) AS procedure_type_id " .
+                "FROM procedure_order_code AS pc " .
+                "WHERE pc.procedure_order_id = ? " .
+                "ORDER BY pc.procedure_order_seq",
+                array($row['lab_id'], $formid)
+            );
+            while ($oprow = sqlFetchArray($opres)) {
+                $oparr[] = $oprow;
+            }
+            $reqres = $opres = sqlStatement(
+                "Select id, url, documentationOf From documents where foreign_id = ? And list_id = ? Order By id",
+                array($pid, $formid)
+            );
+            $req = array();
+            while ($oprow = sqlFetchArray($reqres)) {
+                $doc_type = stripos($oprow['url'], 'ABN') ? 'ABN' : 'REQ';
+                if ($gbl_lab === "labcorp") {
+                    $doc_type = "eREQ";
+                }
+                $this_req = $req_url . $oprow['id'];
+                $this_name = $oprow['documentationOf'];
+                $this_name = $this_name && $this_name !== "ABN" ? ($doc_type . '_' . $this_name) : $doc_type;
+                $req[] = array('url' => $this_req, 'type' => $doc_type, 'name' => $this_name);
+            }
+            $req_count = count($req);
+        }
+        if (empty($oparr)) {
+            $oparr[] = array('procedure_name' => '');
+        }
+        ?>
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -1339,7 +1420,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <a class='btn btn-success ml-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php
-                                    if ($gbl_lab === "labcorp") { ?>
+                                    if ($row['order_psc'] && !$isDorn) { ?>
                                         <button type="submit" class="btn btn-outline-primary btn-save"
                                             name='bn_save_ereq' id='bn_save_ereq' value="save_ereq"
                                             onclick='transmitting = false;'><?php echo xlt('Manual eREQ'); ?>
@@ -1404,46 +1485,6 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         // that may occur for each of the multiple procedure requests within the same order.
                         // procedure_order_seq serves a similar need for uniqueness at the database level.
 
-                        $oparr = array();
-                        if ($formid) {
-                            $opres = sqlStatement(
-                                "SELECT " .
-                                "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
-                                "pc.reason_code, pc.reason_description, pc.reason_status, pc.reason_date_low, pc.reason_date_high, " .
-                                "pc.diagnoses, pc.procedure_order_title, pc.transport, pc.procedure_type, " .
-                                // In case of duplicate procedure codes this gets just one.
-                                "(SELECT pt.procedure_type_id FROM procedure_type AS pt WHERE " .
-                                "(pt.procedure_type LIKE 'ord%' OR pt.procedure_type LIKE 'for%' OR pt.procedure_type LIKE 'pro%') AND pt.lab_id = ? AND " .
-                                "pt.procedure_code = pc.procedure_code ORDER BY " .
-                                "pt.activity DESC, pt.procedure_type_id LIMIT 1) AS procedure_type_id " .
-                                "FROM procedure_order_code AS pc " .
-                                "WHERE pc.procedure_order_id = ? " .
-                                "ORDER BY pc.procedure_order_seq",
-                                array($row['lab_id'], $formid)
-                            );
-                            while ($oprow = sqlFetchArray($opres)) {
-                                $oparr[] = $oprow;
-                            }
-                            $reqres = $opres = sqlStatement(
-                                "Select id, url, documentationOf From documents where foreign_id = ? And list_id = ? Order By id",
-                                array($pid, $formid)
-                            );
-                            $req = array();
-                            while ($oprow = sqlFetchArray($reqres)) {
-                                $doc_type = stripos($oprow['url'], 'ABN') ? 'ABN' : 'REQ';
-                                if ($gbl_lab === "labcorp") {
-                                    $doc_type = "eREQ";
-                                }
-                                $this_req = $req_url . $oprow['id'];
-                                $this_name = $oprow['documentationOf'];
-                                $this_name = $this_name && $this_name !== "ABN" ? ($doc_type . '_' . $this_name) : $doc_type;
-                                $req[] = array('url' => $this_req, 'type' => $doc_type, 'name' => $this_name);
-                            }
-                            $req_count = count($req);
-                        }
-                        if (empty($oparr)) {
-                            $oparr[] = array('procedure_name' => '');
-                        }
                         ?>
 
                         <?php
