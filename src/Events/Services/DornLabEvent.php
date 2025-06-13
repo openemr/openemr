@@ -24,6 +24,7 @@ class DornLabEvent extends Event
     private ?string $hl7;
     private ?string $reqStr;
     private array $messages = [];
+    private $sendOrderResponse;
 
     public function __construct($formid, $ppid, ?string &$hl7 = null, ?string &$reqStr = null)
     {
@@ -31,6 +32,16 @@ class DornLabEvent extends Event
         $this->formid = $formid;
         $this->hl7 = &$hl7;
         $this->reqStr = &$reqStr;
+    }
+
+    public function setSendOrderResponse($response): void
+    {
+        $this->sendOrderResponse = $response;
+    }
+
+    public function getSendOrderResponse()
+    {
+        return $this->sendOrderResponse;
     }
 
     public function getPpid(): int
@@ -62,8 +73,8 @@ class DornLabEvent extends Event
     }
 
     /**
-     * @param string $prefix  String to prepend if there are any messages
-     * @param bool   $clear   If true, clears the messages array after building the string
+     * @param string $prefix String to prepend if there are any messages
+     * @param bool   $clear  If true, clears the messages array after building the string
      * @return string
      */
     public function getMessagesAsString(string $prefix = '', bool $clear = false): string
