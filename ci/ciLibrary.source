@@ -60,7 +60,7 @@ _exec() {
 }
 
 dockers_env_start() {
-    dc up --detach
+    dc up --detach --wait --wait-timeout 300
 }
 
 actions_chmod() {
