@@ -53,13 +53,21 @@ class MiscBillingOptions
 
     public function generateDateQualifierSelect($name, $options, $obj)
     {
-        echo     "<select name='" . attr($name) . "'>";
+        $current_value = $obj[$name] ?? null;
+        echo     "<select name='" . attr($name) . "' class='form-control'>"; // Added form-control for consistent styling
+        // Add a blank/default option
+        echo "<option value=''";
+        if (empty($current_value)) {
+            echo " selected";
+        }
+        echo ">" . text(xl('-- Select --')) . "</option>";
+
         for ($idx = 0; $idx < count($options); $idx++) {
             echo "<option value='" . attr($options[$idx][1]) . "'";
-            if (!empty($obj[$name]) && ($obj[$name] == $options[$idx][1])) {
+            // Ensure that current_value is not null and matches the option value
+            if (!empty($current_value) && ($current_value == $options[$idx][1])) {
                 echo " selected";
             }
-
             echo ">" . text($options[$idx][0]) . "</option>";
         }
 

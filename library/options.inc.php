@@ -236,10 +236,17 @@ function generate_select_list(
 
             $optionValue = attr($lrow ['option_id']);
 
+            // If $currvalue is explicitly an empty string, it should select the empty option,
+            // overriding any database default for the list (unless ignore_default is true).
+            // If $currvalue is null (truly not set), then a list's is_default can apply.
             if (
-                (strlen($currvalue ?? '') == 0 && $lrow['is_default'] && !$ignore_default) ||
+                ($currvalue === null && $lrow['is_default'] && !$ignore_default) ||
                 (strlen($currvalue ?? '') > 0 && in_array($lrow['option_id'], $selectedValues))
             ) {
+                // Deselect the initial empty option if a real selection is made.
+                if (!$multiple && $_options[0]['value'] === '' && $_options[0]['isSelected']) {
+                    $_options[0]['isSelected'] = false;
+                }
                 $got_selected = true;
                 $isSelected = true;
             }

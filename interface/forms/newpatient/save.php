@@ -177,6 +177,73 @@ if ($mode == 'new') {
 
 setencounter($encounter);
 
+// Check the global setting before attempting to auto-create the form
+if (!empty($GLOBALS['cfg_enable_auto_hcfa_misc_opts'])) {
+    // Automatically create and save a 'Miscellaneous Billing Options HCFA' form
+    // with Resubmission Code defaulted to '1'.
+    if ($mode == 'new') { // Ensure this only runs for new encounters
+        // Prepare data for form_misc_billing_options
+        // Most fields can be left to their database defaults or set to empty/null initially,
+        // but ensure essential linking fields and the target default are set.
+        $miscBillingOptionsData = [
+            'pid' => $pid,
+            'user' => $_SESSION['authUser'] ?? '', // Or derive appropriately
+            'groupname' => $_SESSION['authProvider'] ?? '', // Or derive appropriately
+            'authorized' => $userauthorized ?? 1, // Ensure this variable is available or set a default
+            'activity' => 1, // Typically means active
+            'date' => date('Y-m-d H:i:s'), // Current timestamp
+            'medicaid_resubmission_code' => '1', // Default Resubmission Code
+            // Initialize other fields as empty or null to avoid warnings/errors if they have NOT NULL constraints without defaults
+            'employment_related' => null,
+            'auto_accident' => null,
+            'accident_state' => null,
+            'other_accident' => null,
+            'outside_lab' => null,
+            'medicaid_referral_code' => null,
+            'epsdt_flag' => null,
+            'provider_id' => null,
+            'provider_qualifier_code' => null,
+            'lab_amount' => null,
+            'is_unable_to_work' => '0',
+            'onset_date' => null,
+            'date_initial_treatment' => null,
+            'off_work_from' => null,
+            'off_work_to' => null,
+            'is_hospitalized' => '0',
+            'hospitalization_date_from' => null,
+            'hospitalization_date_to' => null,
+            'medicaid_original_reference' => null,
+            'prior_auth_number' => null,
+            'replacement_claim' => '0', // Default to 'New Claim'
+            'icn_resubmission_number' => null,
+            'box_14_date_qual' => null,
+            'box_15_date_qual' => null,
+            'comments' => '',
+        ];
+
+        // Construct SET part of SQL query
+        $setClauses = [];
+        foreach ($miscBillingOptionsData as $key => $value) {
+            $setClauses[] = "`" . $key . "` = ?";
+        }
+        $sets = implode(', ', $setClauses);
+        $values = array_values($miscBillingOptionsData);
+
+        $newMiscBillingOptionsId = sqlInsert(
+            "INSERT INTO `form_misc_billing_options` SET $sets",
+            $values
+        );
+
+        if ($newMiscBillingOptionsId) {
+            addForm($encounter, "Misc Billing Options", $newMiscBillingOptionsId, "misc_billing_options", $pid, ($userauthorized ?? 1));
+            // Optional: Log success or handle errors if $newMiscBillingOptionsId is false/0
+        } else {
+            // Optional: Log error for failure to insert into form_misc_billing_options
+            // error_log("Failed to automatically create Misc Billing Options for encounter: $encounter, PID: $pid");
+        }
+    }
+} // This is the closing brace for the new if condition checking the global
+
 // Update the list of issues associated with this encounter.
 // always delete the issues for this encounter
 $patientIssueService = new PatientIssuesService();

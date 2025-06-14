@@ -1181,6 +1181,13 @@ $GLOBALS_METADATA = array(
             xl('This will hide billing features throughout the program.')
         ),
 
+        'cfg_enable_auto_hcfa_misc_opts' => array(
+            xl('Set Default Value for Box 22 in CMS-1500 to "1"'),
+            'bool',
+            '1', // Default to enabled
+            xl('If checked, the Miscellaneous Billing Options HCFA form will be automatically created and saved with Resubmission Code 1 when a new encounter is made.')
+        ),
+
         'force_billing_widget_open' => array(
             xl('Force Billing Widget Open'),
             'bool',                           // data type
