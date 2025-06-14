@@ -1,10 +1,115 @@
 version: 2
 updates:
-- package-ecosystem: github-actions
-  directory: /
-  open-pull-requests-limit: 5
-  schedule:
-    interval: weekly
-  labels:
-  - dependencies
-  - github-actions
+  # PHP dependencies
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "php"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      symfony:
+        patterns:
+          - "symfony/*"
+        update-types:
+          - "minor"
+          - "patch"
+      laminas:
+        patterns:
+          - "laminas/*"
+        update-types:
+          - "minor"
+          - "patch"
+      development:
+        patterns:
+          - "phpunit/*"
+          - "phpstan/*"
+          - "friendsofphp/*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Don't update major versions automatically
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+        
+  # JavaScript dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "javascript"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      jquery-bootstrap:
+        patterns:
+          - "jquery"
+          - "jquery-*"
+          - "bootstrap"
+          - "@popperjs/core"
+        update-types:
+          - "minor"
+          - "patch"
+      ui-components:
+        patterns:
+          - "datatables.net*"
+          - "select2"
+          - "chart.js"
+          - "summernote"
+        update-types:
+          - "minor"
+          - "patch"
+      testing:
+        patterns:
+          - "jest"
+          - "@types/jest"
+          - "jest-*"
+        update-types:
+          - "minor"
+          - "patch"
+      build-tools:
+        patterns:
+          - "gulp*"
+          - "eslint*"
+          - "stylelint*"
+          - "prettier"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Don't update major versions automatically
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # Specific packages to keep stable
+      - dependency-name: "bootstrap"
+        versions: ["5.x", "6.x"] # Stay on Bootstrap 4 for compatibility
+      - dependency-name: "angular"
+        versions: [">1.8.x"] # Legacy AngularJS, don't update
+          
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    open-pull-requests-limit: 5
