@@ -45,13 +45,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     protected OemrUI $oemrUI;
 
-    protected function getOemrUiInstance($oemrSettings = array())
+    protected function getOemrUiInstance($oemrSettings = array ())
     {
         if (!isset($this->oemrUI)) {
             $this->oemrUI = new OemrUI($oemrSettings);
         }
         return $this->oemrUI;
     }
+
     /**
      * TwigExtension constructor.
      * @param GlobalsService $globals
@@ -66,11 +67,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getGlobals(): array
     {
         return [
-            'assets_dir' => $this->globals['assets_static_relative'],
-            'srcdir' => $this->globals['srcdir'],
-            'rootdir' => $this->globals['rootdir'],
-            'webroot' => $this->globals['webroot'],
-            'assetVersion' => $this->globals['v_js_includes'],
+            'assets_dir' => $this -> globals['assets_static_relative'],
+            'srcdir' => $this -> globals['srcdir'],
+            'rootdir' => $this -> globals['rootdir'],
+            'webroot' => $this -> globals['webroot'],
+            'assetVersion' => $this -> globals['v_js_includes'],
             'session' => $_SESSION,
         ];
     }
@@ -80,7 +81,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return [
             // can be used like {% if is numeric %}...{% endif %}
             new TwigTest('numeric', function ($value) {
-                return is_numeric($value); })
+                return is_numeric($value);
+            })
         ];
     }
 
@@ -89,8 +91,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return [
             new TwigFunction(
                 'setupHeader',
-                function ($assets = array()) {
-                    return Header::setupHeader($assets);
+                function ($assets = array ()) {
+                    return Header ::setupHeader($assets);
                 }
             ),
 
@@ -128,10 +130,24 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     $ignore_default = array_key_exists('ignore_default', $opts) ? $opts['ignore_default'] : '';
                     $include_inactive = array_key_exists('include_inactive', $opts) ? $opts['include_inactive'] : '';
                     $tabIndex = array_key_exists('tabIndex', $opts) ? $opts['tabIndex'] : false;
-                    return generate_select_list($name, $list, $value, $title, $empty_name, $class, $onchange, $tag_id, $custom_attributes, $multiple, $backup_list, $ignore_default, $include_inactive, $tabIndex);
+                    return generate_select_list(
+                        $name,
+                        $list,
+                        $value,
+                        $title,
+                        $empty_name,
+                        $class,
+                        $onchange,
+                        $tag_id,
+                        $custom_attributes,
+                        $multiple,
+                        $backup_list,
+                        $ignore_default,
+                        $include_inactive,
+                        $tabIndex
+                    );
                 }
             ),
-
             new TwigFunction(
                 'tabRow',
                 function ($formType, $result1, $result2) {
@@ -140,7 +156,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
-
             new TwigFunction(
                 'tabData',
                 function ($formType, $result1, $result2) {
@@ -149,7 +164,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return ob_get_clean();
                 }
             ),
-
             new TwigFunction(
                 'imageWidget',
                 function ($id, $category) {
@@ -160,12 +174,15 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'fireEvent',
-                function ($eventName, $eventData = array()) {
-                    if (empty($this->kernel)) {
+                function ($eventName, $eventData = array ()) {
+                    if (empty($this -> kernel)) {
                         return '';
                     }
                     ob_start();
-                    $this->kernel->getEventDispatcher()->dispatch(new GenericEvent($eventName, $eventData), $eventName);
+                    $this -> kernel -> getEventDispatcher() -> dispatch(
+                        new GenericEvent($eventName, $eventData),
+                        $eventName
+                    );
                     return ob_get_clean();
                 }
             ),
@@ -175,18 +192,27 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject)));
+                    return sprintf(
+                        '<input type="hidden" name="%s" value="%s">',
+                        $fieldName,
+                        attr(CsrfUtils ::collectCsrfToken($subject))
+                    );
                 }
             ),
             new TwigFunction(
                 'csrfTokenRaw',
                 function ($subject = 'default') {
-                    return CsrfUtils::collectCsrfToken($subject);
+                    return CsrfUtils ::collectCsrfToken($subject);
                 }
             ),
             new TwigFunction(
                 'jqueryDateTimePicker',
-                function ($domSelector, $datetimepicker_timepicker = true, $datetimepicker_showseconds = true, $datetimepicker_formatInput = true) {
+                function (
+                    $domSelector,
+                    $datetimepicker_timepicker = true,
+                    $datetimepicker_showseconds = true,
+                    $datetimepicker_formatInput = true
+                ) {
                     ob_start();
                     // In the event we need to pass the this objecto to the datetimepicker, we cannot use quotations because `this` would not be a string
                     $selector = ($domSelector == "this") ? $domSelector : "\"$domSelector\"";
@@ -208,21 +234,21 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // UI and those events can be added again and again everytime the class is instantiated so it assumes
             // its a singleton, so we'll treat it as a singleton here, but its annoying.
             new TwigFunction('oemrUiContainerClass', function (array $oemr_settings) {
-                $oemrUi = $this->getOemrUiInstance($oemr_settings);
-                $heading =  $oemrUi->oeContainer();
+                $oemrUi = $this -> getOemrUiInstance($oemr_settings);
+                $heading = $oemrUi -> oeContainer();
                 return $heading;
             }),
             new TwigFunction('oemrUiPageHeading', function (array $oemr_settings) {
-                $oemrUi = $this->getOemrUiInstance($oemr_settings);
-                $heading =  $oemrUi->pageHeading(false);
+                $oemrUi = $this -> getOemrUiInstance($oemr_settings);
+                $heading = $oemrUi -> pageHeading(false);
                 return $heading;
             }),
             new TwigFunction(
                 'oemrUiBelowContainerDiv',
                 function ($oemr_settings) {
-                    $oemrUi = $this->getOemrUiInstance($oemr_settings);
+                    $oemrUi = $this -> getOemrUiInstance($oemr_settings);
                     ob_start();
-                    $oemrUi->oeBelowContainerDiv();
+                    $oemrUi -> oeBelowContainerDiv();
                     return ob_get_clean();
                 }
             ),
@@ -237,26 +263,27 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction(
                 'aclCore',
                 function ($section, $value, $user = '', $return_value = '') {
-                    return AclMain::aclCheckCore($section, $value, $user, $return_value);
+                    return AclMain ::aclCheckCore($section, $value, $user, $return_value);
                 }
             ),
             new TwigFunction(
                 'getLogo',
                 function (string $type, string $filename = "logo.*") {
                     $ls = new LogoService();
-                    return $ls->getLogo($type, $filename);
+                    return $ls -> getLogo($type, $filename);
                 }
             ),
             new TwigFunction(
                 'getListItemTitle',
                 function (string $list, $option) {
-                    return LayoutsUtils::getListItemTitle($list, $option);
+                    return LayoutsUtils ::getListItemTitle($list, $option);
                 }
             )
-            ,new TwigFunction(
+            ,
+            new TwigFunction(
                 'getAssetCacheParamRaw',
                 function () {
-                    return CacheUtils::getAssetCacheParamRaw();
+                    return CacheUtils ::getAssetCacheParamRaw();
                 }
             )
         ];
@@ -391,7 +418,27 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter(
                 'addCacheParam',
                 function ($path) {
-                    return CacheUtils::addAssetCacheParamToPath($path);
+                    return CacheUtils ::addAssetCacheParamToPath($path);
+                }
+            ),
+            new TwigFilter(
+                'pad',
+                function ($string, $length, $pad_string = ' ', $pad_type = 'right') {
+                    $padTypeConstant = STR_PAD_RIGHT; // Default to right padding
+
+                    if (strtolower($pad_type) === 'left') {
+                        $padTypeConstant = STR_PAD_LEFT;
+                    } elseif (strtolower($pad_type) === 'both') {
+                        $padTypeConstant = STR_PAD_BOTH;
+                    }
+
+                    return str_pad($string, $length, $pad_string, $padTypeConstant);
+                }
+            ),
+            new TwigFilter(
+                'match',
+                function ($subject, $pattern) {
+                    return preg_match($pattern, $subject);
                 }
             )
         ];
