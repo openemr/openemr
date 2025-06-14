@@ -86,13 +86,9 @@ class FormEvaluation extends ORDataObject
     function toString($html = false)
     {
         $string = "\n" . "ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
+
     function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {

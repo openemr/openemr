@@ -363,7 +363,7 @@ class InsuranceCompany extends ORDataObject
 
     public function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "Name: " . $this->name . "\n"
         . "Attn:" . $this->attn . "\n"
@@ -371,11 +371,6 @@ class InsuranceCompany extends ORDataObject
         . "ALT Payer ID:" . $this->alt_cms_id . "\n"
         //. "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
         . "Address: " . $this->address->toString($html) . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 }

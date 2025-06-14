@@ -112,15 +112,10 @@ class FormVitals extends ORDataObject
 
     public function toString($html = false)
     {
-        $string = "\n"
-            . "ID: " . $this->id . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        }
-
-        return $string;
+        $string = "\n" . "ID: " . $this->id . "\n";
+        return $html ? nl2br($string) : $string;
     }
+
     public function set_id($id)
     {
         if (!empty($id) && is_numeric($id)) {
