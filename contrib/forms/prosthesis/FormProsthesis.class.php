@@ -46,6 +46,7 @@ class FormProsthesis extends ORDataObject
     var $purpose_array  = array("pain_reduction" => "Pain Reduction", "offload_involved_area" => "Offload invloved Area", "immobilize" => "Immobilize",
                         "limit_motion" => "Limit Motion", "accomodation" => "Accomodation", "reduce_edema" => "Reduce Edema",
                         "facilitate_healing" => "Facilitate Healing", "other" => "Other");
+    var $purpose_other;
     var $notes;
     var $goals_discussed;
     var $use_reviewed;
@@ -56,7 +57,7 @@ class FormProsthesis extends ORDataObject
     var $wear_hours;
     var $plan_to_order;
     var $plan_to_order_date;
-    var $receiveded_product;
+    var $received_product;
     var $received_product_date;
     var $given_instructions;
     var $patient_understands;
