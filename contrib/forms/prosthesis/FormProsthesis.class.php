@@ -1,6 +1,6 @@
 <?php
 
-use OpenEMR\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Prosthesis
