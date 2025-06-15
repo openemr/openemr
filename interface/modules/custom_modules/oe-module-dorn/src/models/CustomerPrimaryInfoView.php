@@ -34,6 +34,7 @@ class CustomerPrimaryInfoView
     {
         $model = new CustomerPrimaryInfoView();
         $model->primaryId = $postData["form_primaryId"];
+        $model->accountNumber = $postData["form_account_number"];
         $model->npi = $postData["form_npi"];
         $model->primaryName = $postData["form_name"];
         $model->primaryPhone = $postData["form_phone"];

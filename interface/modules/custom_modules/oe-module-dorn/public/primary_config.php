@@ -38,7 +38,6 @@ if (!empty($_POST)) {
     }
 }
 
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -52,14 +51,22 @@ if (!empty($_POST)) {
         top.restoreSession();
         var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
         let scriptTitle = 'primary_config_edit.php?npi=' + encodeURIComponent(npi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
+        dlgopen(scriptTitle, '_blank', 600, 750, false, addTitle, {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
+            ]
+        });
     }
 
     function doedclick_add() {
         top.restoreSession();
         var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
         let scriptTitle = 'primary_config_edit.php?csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
+        dlgopen(scriptTitle, '_blank', 600, 750, false, addTitle, {
+            buttons: [
+                {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
+            ]
+        });
     }
 </script>
 <body>
