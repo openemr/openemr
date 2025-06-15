@@ -109,7 +109,8 @@ if (!empty($_POST)) {
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
+                                        <button type="submit" name="SubmitButton" class="btn btn-primary" onclick="$('#loading').removeClass(('d-none'));"><?php echo xlt("Submit") ?></button>
+                                        <i class="fa fa-gear fa-spin fa-2x text-primary d-none" id="loading" role="status" aria-hidden="true"></i>
                                     </div>
                                 </div>
                             </form>

@@ -32,16 +32,12 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 $labGuid = "";
 $message = "";
 
-if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!empty($_REQUEST)) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
-
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
     //lets lookup the lab information we want to add a route for!
     $routeData = CreateRouteFromPrimaryViewModel::loadByPost($_POST);
     $apiResponse =  ConnectorApi::createRoute($routeData); //create the route on dorn, we have all we need to do so
@@ -81,6 +77,8 @@ if (!empty($_POST)) {
     }
 }
 
+$isEula = ($_GET['isEula'] ?? false) == 'true';
+
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
 ?>
 <!DOCTYPE html>
@@ -118,13 +116,12 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
 
         <!-- Customer Account Information Section -->
         <div class="form-section">
-            <h5><?php echo xlt("Customer Account Information") ?></h5>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="form_customerAccountNumber"><?php echo xlt("Customer Account Number") ?> <span class="required-field">*</span>:</label>
-                        <input type="text" class="form-control" id="form_customerAccountNumber" name="form_customerAccountNumber"
-                            value="<?php echo isset($_POST['form_customerAccountNumber']) ? attr($_POST['form_customerAccountNumber']) : '' ?>"
+                        <label for="form_customerAcctNumber"><?php echo xlt("Customer Account Number") ?> <span class="required-field">*</span>:</label>
+                        <input type="text" class="form-control" id="form_customerAccountNumber" name="form_customerAcctNumber"
+                            value="<?php echo isset($_POST['form_customerAcctNumber']) ? attr($_POST['form_customerAcctNumber']) : '' ?>"
                             required/>
                         <small class="form-text text-muted"><?php echo xlt("Your unique customer account identifier") ?></small>
                     </div>
@@ -143,7 +140,6 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
 
         <!-- Provider Information Section -->
         <div class="form-section">
-            <h5><?php echo xlt("Provider Information") ?></h5>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -172,9 +168,8 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
                 </div>
             </div>
         </div>
-
+        <?php if ($isEula) { ?>
         <div class="form-section">
-            <h5><?php echo xlt("End User License Agreement (EULA)") ?></h5>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -208,7 +203,7 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
                 <div class="col-md-6">
                     <div class="form-group">
                         <div class="form-check mt-4">
-                            <input class="form-check-input" type="checkbox" id="form_eulaAcceptance" name="form_eulaAcceptance" required>
+                            <input class="form-check-input" type="checkbox" checked id="form_eulaAcceptance" name="form_eulaAcceptance" required>
                             <label class="form-check-label" for="form_eulaAcceptance">
                                 <strong><?php echo xlt("I accept the End User License Agreement") ?> <span class="required-field">*</span></strong>
                             </label>
@@ -218,19 +213,19 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
                 </div>
             </div>
         </div>
+        <?php }  ?>
         <?php if (!empty($labGuid)) { ?>
-            <!--<div class="form-section">
-                <h5><?php /*echo xlt("Lab Information") */?></h5>
+            <div class="form-section">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label><?php /*echo xlt("Lab GUID") */?>:</label>
-                            <input type="text" class="form-control" value="<?php /*echo attr($labGuid); */?>" readonly/>
-                            <small class="form-text text-muted"><?php /*echo xlt("Unique identifier for the selected laboratory") */?></small>
+                            <label><?php echo xlt("Lab GUID") ?>:</label>
+                            <input type="text" class="form-control" value="<?php echo attr($labGuid); ?>" readonly/>
+                            <small class="form-text text-muted"><?php echo xlt("Unique identifier for the selected laboratory") ?></small>
                         </div>
                     </div>
                 </div>
-            </div>-->
+            </div>
         <?php } ?>
         <!-- Submit Section -->
         <div class="row">
@@ -250,18 +245,6 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
         </div>
 
         <script>
-            // Auto-populate current UTC datetime
-            document.addEventListener('DOMContentLoaded', function() {
-                const now = new Date();
-                const utcDateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
-                const isoString = utcDateTime.toISOString().slice(0, 16);
-
-                const dateTimeInput = document.getElementById('form_eulaAcceptanceDateTimeUtc');
-                if (!dateTimeInput.value) {
-                    dateTimeInput.value = isoString;
-                }
-            });
-
             // Form validation
             document.querySelector('form').addEventListener('submit', function(e) {
                 const requiredFields = document.querySelectorAll('input[required], select[required]');
@@ -278,7 +261,7 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
 
                 if (hasErrors) {
                     e.preventDefault();
-                    alert('<?php echo xlt("Please fill in all required fields") ?>');
+                    alert(<?php echo xlj("Please fill in all required fields") ?>);
                 }
             });
         </script>

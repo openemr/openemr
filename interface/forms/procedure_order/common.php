@@ -165,6 +165,18 @@ function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq
     }
     return $output;
 }
+function normalizeDirectoryName(string $input): string
+{
+    $normalized = $input;
+    $normalized = str_replace(' ', '_', $normalized);
+    $normalized = str_replace(['&', '+'], 'and', $normalized);
+    $normalized = preg_replace('/[^A-Za-z0-9_-]/', '', $normalized);
+    $normalized = preg_replace('/_+/', '_', $normalized);
+    $normalized = trim($normalized, '_-');
+    $normalized = strtolower($normalized);
+
+    return $normalized;
+}
 
 // do not change from $_REQUEST.
 $formid = (int)($_REQUEST['id'] ?? 0);
@@ -258,7 +270,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         $viewmode = true;
     }
 
-    $lab_name = str_replace(' ', '_', get_lab_name($ppid ?? 0));
+    $lab_name = normalizeDirectoryName(get_lab_name($ppid ?? 0));
     $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
@@ -458,7 +470,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $alertmsg = '';
             }
             file_put_contents($log_file, $order_log);
-        } else { // drop through if no errors..
+        } else { // drop through if no errors.
             if ($isDorn) {
                 $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                 // Generate HL7 order using the DornLabEvent.
@@ -491,23 +503,25 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                     if ($isDorn) {
                         $event = new DornLabEvent($formid, $ppid, $hl7, $reqStr);
                         $alertmsg = '';
-                            // Send HL7 order using the DornLabEvent.
                         $ed->dispatch($event, DornLabEvent::SEND_ORDER);
-                        $test = $dornSendOrderResponse = $event->getSendOrderResponse();
-                        if (!$dornSendOrderResponse->isSuccess) {
-                            $alertmsg = $dornSendOrderResponse->responseMessage ?? $dornSendOrderResponse;
+                        $orderResponse = $event->getSendOrderResponse();
+                        if (!$orderResponse->isSuccess) {
+                            $alertmsg = $orderResponse->responseMessage ?? $orderResponse;
                         }
-                        $eReqForm = $dornSendOrderResponse->orders[0]->requisitionDocumentBase64     ?? '';
-                        if (!empty($eReqForm)) {
-                            $eReqForm = base64_decode($eReqForm);
-                            if (empty($eReqForm)) {
-                                $alertmsg .= "\n" . xlt("Error decoding eReq PDF document.");
-                            } else {
-                                $error_save = saveEreq($pid, $formid, $eReqForm);
-                                if (empty($error_save)) {
-                                    $order_log .= "\n" . xlt("Order Requisition PDF Document saved successfully.");
+                        if (!empty($_POST['form_order_psc'] ?? '')) {
+                            // todo: check if more than one requisition document can be returned
+                            $eReqForm = $orderResponse->orders[0]->requisitionDocumentBase64 ?? '';
+                            if (!empty($eReqForm)) {
+                                $eReqForm = base64_decode($eReqForm);
+                                if (empty($eReqForm)) {
+                                    $alertmsg .= "\n" . xlt("Error decoding eReq PDF document.");
                                 } else {
-                                    $alertmsg .= "\n" . xlt("Error saving eReq PDF document.") . ': ' . $error_save;
+                                    $error_save = saveEreq($pid, $formid, $eReqForm);
+                                    if (empty($error_save)) {
+                                        $order_log .= "\n" . xlt("Order Requisition PDF Document saved successfully.");
+                                    } else {
+                                        $alertmsg .= "\n" . xlt("Error saving eReq PDF document.") . ': ' . $error_save;
+                                    }
                                 }
                             }
                         }
@@ -601,7 +615,7 @@ $account_name = $location['name'] ?? '';
 $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $isDorn = isDornLab($row['lab_id']) ?? false;
-    $lab_name = str_replace(' ', '_', get_lab_name($row['lab_id']));
+    $lab_name = normalizeDirectoryName(get_lab_name($row['lab_id']));
     $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
 
     if (!is_dir($log_file)) {
