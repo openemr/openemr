@@ -332,6 +332,7 @@ use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Search\SearchQueryConfig;
 
 // Note some Http clients may not send auth as json so a function
