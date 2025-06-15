@@ -29,7 +29,7 @@ if (stripos(PHP_OS, 'WIN') === 0) {
 
 $OE_SITES_BASE = "$webserver_root/sites";
 
-function sqlQuery($statement, $link)
+function adminSqlQuery($statement, $link)
 {
     $row = mysqli_fetch_array(mysqli_query($link, $statement), MYSQLI_ASSOC);
     return $row;
@@ -130,16 +130,16 @@ function sqlQuery($statement, $link)
                                 echo "  <td colspan='3' class='text-danger'>" . htmlspecialchars($errmsg, ENT_NOQUOTES) . "</td>\n";
                             } else {
                                 // Get site name for display.
-                                $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
+                                $row = adminSqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
                                 $openemr_name = $row ? $row['gl_value'] : '';
 
                                 // Get version indicators from the database.
-                                $row = sqlQuery("SHOW TABLES LIKE 'version'", $dbh);
+                                $row = adminSqlQuery("SHOW TABLES LIKE 'version'", $dbh);
                                 if (empty($row)) {
                                     $openemr_version = 'Unknown';
                                     $database_version = 0;
                                 } else {
-                                    $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
+                                    $row = adminSqlQuery("SELECT * FROM version LIMIT 1", $dbh);
                                     $database_patch_txt = "";
                                     if (!(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0) {
                                         $database_patch_txt = " (" . $row['v_realpatch'] . ")";

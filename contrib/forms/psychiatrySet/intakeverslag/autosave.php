@@ -80,4 +80,4 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_intakeverslag
 //$timestamp = mysql_result($result, 0);
 
 //output timestamp
-echo txl('Last Saved') . ': ' . text($result['autosave_datetime']);
+echo xl('Last Saved') . ': ' . text($result['autosave_datetime']);

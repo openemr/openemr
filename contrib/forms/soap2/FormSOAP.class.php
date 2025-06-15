@@ -32,7 +32,7 @@ class FormSOAP extends ORDataObject
     var $authorized;
     var $activity;
     var $subjective;
-    //var $objective;
+    var $objective;
     var $assessment;
     var $general;
     var $heent;
@@ -145,6 +145,7 @@ class FormSOAP extends ORDataObject
     {
         return $this->objective;
     }
+
     function set_objective($data)
     {
         if (!empty($data)) {
