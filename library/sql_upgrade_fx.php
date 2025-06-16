@@ -140,5 +140,6 @@
 function upgradeFromSqlFile($filename, $path = '')
 {
     $sqlUpgradeService = new \OpenEMR\Services\Utils\SQLUpgradeService();
-    $sqlUpgradeService->upgradeFromSqlFile($filename, $path);
+    if($sqlUpgradeService)
+        $sqlUpgradeService->upgradeFromSqlFile($filename, $path);
 } // end function
