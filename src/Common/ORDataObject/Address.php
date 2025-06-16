@@ -90,12 +90,7 @@ class Address extends ORDataObject implements \JsonSerializable
         . $this->line2 . "\n"
         . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
         . $this->country . "\n";
-
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     function set_id($id)

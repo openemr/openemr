@@ -196,15 +196,11 @@ class PhoneNumber extends ORDataObject
 
     function toString($html = false)
     {
-        $string .= "\n"
+        $string = "\n"
         . "ID: " . $this->id . "\n"
         . "FID: " . $this->foreign_id . "\n"
         . $this->country_code . " (" . $this->area_code . ") " . $this->prefix . "-" . $this->number . " " . $this->type_array[$this->type];
-        if ($html) {
-            return nl2br($string);
-        } else {
-            return $string;
-        }
+        return $html ? nl2br($string) : $string;
     }
 
     function persist($fid = "")

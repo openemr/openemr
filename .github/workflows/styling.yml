@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: PHP
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: CSS
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install npm package
         uses: actions/setup-node@v4
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: JS
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install npm package
         uses: actions/setup-node@v4

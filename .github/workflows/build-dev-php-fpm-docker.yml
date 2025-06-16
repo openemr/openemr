@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:pre-build-dev-85 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm"
           tags: openemr/dev-php-fpm:pre-build-dev-85
