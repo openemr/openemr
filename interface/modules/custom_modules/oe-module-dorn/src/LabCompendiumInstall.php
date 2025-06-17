@@ -93,7 +93,7 @@ class LabCompendiumInstall
             $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code) 
             VALUES (?, ?, ?, ?, ?, ?)";
 
-            $sqlArr = array($parentId, $item->name, $lab_id, 'ord', $item->code, $item->loinc);
+            $sqlArr = array($parentId, $item->name ?? '', $lab_id ?? '', 'ord', $item->code ?? '', $item->loinc ?? '');
             $id = sqlInsert($sql, $sqlArr);
         }
 
@@ -112,7 +112,7 @@ class LabCompendiumInstall
         self::echoLi(xlt("Loading result"));
         $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code) 
         VALUES (?, ?, ?, ?, ?, ?)";
-        $sqlArr = array($parentId, $component->name, $lab_id, 'res', $component->code, $component->loinc);
+        $sqlArr = array($parentId, $component->name ?? '', $lab_id ?? '', 'res', $component->code ?? '', $component->loinc ?? '');
         $id = sqlInsert($sql, $sqlArr);
     }
 
@@ -157,7 +157,7 @@ class LabCompendiumInstall
             );
         } else { // update record
             sqlStatement(
-                "UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ? WHERE lab_id = ? AND procedure_code = ? AND question_code = ?, options = ?, maxsize = ?",
+                "UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?  WHERE lab_id = ? AND procedure_code = ? AND question_code = ?",
                 array(
                     $aoeCount,
                     $question,
@@ -165,11 +165,11 @@ class LabCompendiumInstall
                     $required,
                     "",
                     $activity,
+                    $options,
+                    $maxSize,
                     $lab_id,
                     $pcode,
                     $qcode,
-                    $options,
-                    $maxSize
                 )
             );
         }

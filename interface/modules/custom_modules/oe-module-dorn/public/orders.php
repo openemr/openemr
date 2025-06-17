@@ -65,7 +65,7 @@ if (!empty($_POST)) {
         });
     });
 </script>
-<body>
+<body class="container-fluid">
     <div class="row">
         <div class="col">
             <?php
@@ -85,7 +85,7 @@ if (!empty($_POST)) {
                                     <div class="col-md-4">
                                         <select name="form_primaryId">
                                             <?php foreach ($primaryInfos as $primaryInfo) {
-                                                $selected = $primaryInfo->primaryId === $_GET['form_primaryId'] ? "selected" : "";
+                                                $selected = $primaryInfo->primaryId === $_POST['form_primaryId'] ? "selected" : "";
                                                 ?>
                                                 <option value='<?php echo attr($primaryInfo->primaryId); ?>' <?php echo $selected; ?>>
                                                     <?php echo text($primaryInfo->primaryName); ?>
@@ -116,7 +116,8 @@ if (!empty($_POST)) {
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
+                                        <button type="submit" name="SubmitButton" class="btn btn-primary mb-1" onclick="$('#loading').removeClass(('d-none'));"><?php echo xlt("Submit") ?></button>
+                                        <i class="fa fa-gear fa-spin fa-2x text-primary d-none" id="loading" role="status" aria-hidden="true"></i>
                                     </div>
                                 </div>
                             </form>
@@ -133,6 +134,7 @@ if (!empty($_POST)) {
                                     <thead>
                                     <tr>
                                         <th scope="col"><?php echo xlt("Lab Name") ?></th>
+                                        <th scope="col"><?php echo xlt("Create Date") ?></th>
                                         <th scope="col"><?php echo xlt("Order Number") ?></th>
                                         <th scope="col"><?php echo xlt("Order Status") ?></th>
                                         <th scope="col"><?php echo xlt("Is Pending") ?></th>
@@ -144,6 +146,7 @@ if (!empty($_POST)) {
                                         ?>
                                         <tr>
                                             <td scope="row"><?php echo text($data->labName); ?></td>
+                                            <td scope="row"><?php echo text(date('Y-m-d H:i:s', strtotime($data->createdDateTimeUtc))); ?></td>
                                             <td scope="row"><?php echo text($data->orderNumber); ?></td>
                                             <td scope="row"><?php echo text($data->orderStatusLong); ?></td>
                                             <td scope="row"><?php echo text($data->isPending); ?></td>

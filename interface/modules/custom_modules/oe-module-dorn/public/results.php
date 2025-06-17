@@ -109,7 +109,8 @@ if (!empty($_POST)) {
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
+                                        <button type="submit" name="SubmitButton" class="btn btn-primary mb-1" onclick="$('#loading').removeClass(('d-none'));"><?php echo xlt("Submit") ?></button>
+                                        <i class="fa fa-gear fa-spin fa-2x text-primary d-none" id="loading" role="status" aria-hidden="true"></i>
                                     </div>
                                 </div>
                             </form>
@@ -122,13 +123,15 @@ if (!empty($_POST)) {
                                 echo xlt("No results found");
                             } else {
                                 ?>
-                                <table class="table">
+                                <table class="table table-striped table-hover">
                                     <thead>
                                     <tr>
+                                        <th scope="col"><?php echo xlt("Lab Name") ?></th>
                                         <th scope="col"><?php echo xlt("AccountNumber") ?></th>
+                                        <th scope="col"><?php echo xlt("Create Date(Utc)") ?></th>
+                                        <th scope="col"><?php echo xlt("OrderNumber") ?></th>
                                         <th scope="col"><?php echo xlt("Status") ?></th>
                                         <th scope="col"><?php echo xlt("Has Abnormal Flags") ?></th>
-                                        <th scope="col"><?php echo xlt("Lab Name") ?></th>
                                         <th scope="col"><?php echo xlt("Actions") ?></th>
                                     </tr>
                                     </thead>
@@ -137,10 +140,12 @@ if (!empty($_POST)) {
                                     foreach ($datas as $data) {
                                         ?>
                                         <tr>
+                                            <td scope="row"><?php echo text($data->labName); ?></td>
                                             <td scope="row"><?php echo text($data->accountNumber); ?></td>
+                                            <td scope="row"><?php echo text(date('Y-m-d H:i:s', strtotime($data->createdDateTimeUtc))); ?></td>
+                                            <td scope="row"><?php echo text($data->orderNumber); ?></td>
                                             <td scope="row"><?php echo text($data->status); ?></td>
                                             <td scope="row"><?php echo text($data->hasAbnormalFlags); ?></td>
-                                            <td scope="row"><?php echo text($data->labName); ?></td>
                                             <td scope="row">
                                                 <button type="button" class="btn btn-primary" onclick="getResults(<?php echo attr_js($data->resultGuid); ?>)"><?php echo xlt('Retrieve Results'); ?></button>
 
