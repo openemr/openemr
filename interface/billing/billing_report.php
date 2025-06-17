@@ -640,6 +640,16 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         );
                         $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id,billing.user";
                         $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down,text";
+                        $combined = array_map(null, $TPSCriteriaDisplayMaster, explode(",", $TPSCriteriaKeyMaster), explode(",", $TPSCriteriaDataTypeMaster));
+usort($combined, function($a, $b) {
+    return strcmp($a[0], $b[0]);
+});
+$TPSCriteriaDisplayMaster = array_column($combined, 0);
+$TPSCriteriaKeyMaster = implode(",", array_column($combined, 1));
+$TPSCriteriaDataTypeMaster = implode(",", array_column($combined, 2));
+                   
+                   
+                   
                     } else {
                         $TPSCriteriaDisplayMaster = array(
                             xl("Date of Service"),
@@ -659,6 +669,13 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         );
                         $TPSCriteriaKeyMaster = "form_encounter.date,billing.date,claims.process_time,claims.target,patient_data.fname," . "form_encounter.pid,claims.payer_id,form_encounter.encounter,insurance_data.provider,billing.id,billing.billed," . "billing.authorized,form_encounter.last_level_billed,billing.x12_partner_id";
                         $TPSCriteriaDataTypeMaster = "datetime,datetime,datetime,radio,text_like," . "text,include,text,radio,radio,radio," . "radio_like,radio,query_drop_down";
+                        $combined = array_map(null, $TPSCriteriaDisplayMaster, explode(",", $TPSCriteriaKeyMaster), explode(",", $TPSCriteriaDataTypeMaster));
+usort($combined, function($a, $b) {
+    return strcmp($a[0], $b[0]);
+});
+$TPSCriteriaDisplayMaster = array_column($combined, 0);
+$TPSCriteriaKeyMaster = implode(",", array_column($combined, 1));
+$TPSCriteriaDataTypeMaster = implode(",", array_column($combined, 2));
                     }
                         // The below section is needed if there is any 'radio' or 'radio_like' type in the $TPSCriteriaDataTypeMaster
                         // $TPSCriteriaDisplayRadioMaster,$TPSCriteriaRadioKeyMaster ==>For each radio data type this pair comes.
