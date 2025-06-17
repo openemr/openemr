@@ -28,9 +28,17 @@ services:
     volumes:
     - ../../:/var/www/localhost/htdocs/openemr
     environment:
-      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+      FORCE_NO_BUILD_MODE: "yes"
+      OPENEMR_SETTING_couchdb_dbase: example
+      OPENEMR_SETTING_couchdb_host: couchdb
+      OPENEMR_SETTING_couchdb_pass: password
+      OPENEMR_SETTING_couchdb_port: 6984
+      OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
+      OPENEMR_SETTING_couchdb_user: admin
     depends_on:
+      couchdb:
+        condition: service_started
       mysql:
         condition: service_healthy
   ##
@@ -72,3 +80,12 @@ services:
     build:
       context: onc-certification-g10-test-kit
       dockerfile: Dockerfile.terminology
+  couchdb:
+    restart: always
+    image: couchdb
+    ports:
+    - 5984:5984
+    - 6984:6984
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
