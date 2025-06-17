@@ -75,10 +75,11 @@ initialize_openemr() {
         . ci/ciLibrary.source
         main_build
         ccda_build
+        cd -
         dockers_env_start
         install_configure
+        echo 'OpenEMR initialized'
     )
-    echo 'OpenEMR initialized'
 }
 
 main() {
