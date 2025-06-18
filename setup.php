@@ -53,10 +53,17 @@ $allow_multisite_setup = false;
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the cloning setup procedure.
 $allow_cloning_setup = false;
+
+// Include standard libraries/classes
+require_once dirname(__FILE__) . "/vendor/autoload.php";
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\RandomGenUtils;
+
 if (!$allow_cloning_setup && !empty($_REQUEST['clone_database'])) {
-    require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionStart();
-    OpenEMR\Common\Session\SessionUtil::setupScriptSessionCookieDestroy();
+    SessionUtil::setupScriptSessionStart();
+    SessionUtil::setupScriptSessionCookieDestroy();
     die("To turn on support for cloning setup, need to edit this script and change \$allow_cloning_setup to true. After you are done setting up the cloning, ensure you change \$allow_cloning_setup back to false or remove this script altogether");
 }
 
@@ -111,13 +118,6 @@ function recursive_writable_directory_test($dir)
         return 0;
     }
 }
-
-// Include standard libraries/classes
-require_once dirname(__FILE__) . "/vendor/autoload.php";
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 $installer = new Installer($_REQUEST);
