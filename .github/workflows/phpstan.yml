@@ -1,0 +1,37 @@
+name: PHPStan
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+permissions:
+  contents: read
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Composer Cache
+      uses: actions/cache@v4
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+    - uses: php-actions/composer@v6
+      with:
+        php_extensions: gd soap zip
+    - name: Gather PHP Paths
+      id: gather-php-paths
+      run: |
+        # Gather all the directories that contain PHP files and all the root level php files, too.
+        {
+          printf 'paths='
+          git ls-files '*.php' | awk -v ORS=' ' -F / '!$2 { print; next; } !s[$1]++ { print $1 }'
+        } >> "$GITHUB_OUTPUT"
+    - uses: php-actions/phpstan@v3
+      with:
+        path: ${{ steps.gather-php-paths.outputs.paths }}
