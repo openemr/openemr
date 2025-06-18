@@ -53,6 +53,7 @@ class MiscBillingOptions
 
     public function generateDateQualifierSelect($name, $options, $obj)
     {
+    /* ai generated code by google-labs-jules starts */
         $current_value = $obj[$name] ?? null;
         echo     "<select name='" . attr($name) . "' class='form-control'>"; // Added form-control for consistent styling
         // Add a blank/default option
@@ -66,6 +67,7 @@ class MiscBillingOptions
             echo "<option value='" . attr($options[$idx][1]) . "'";
             // Ensure that current_value is not null and matches the option value
             if (!empty($current_value) && ($current_value == $options[$idx][1])) {
+/* ai gen'ed code ends */
                 echo " selected";
             }
             echo ">" . text($options[$idx][0]) . "</option>";
