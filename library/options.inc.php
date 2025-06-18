@@ -239,7 +239,7 @@ function generate_select_list(
             // If $currvalue is explicitly an empty string, it should select the empty option,
             // overriding any database default for the list (unless ignore_default is true).
             // If $currvalue is null (truly not set), then a list's is_default can apply.
-            // ai generated code by google-labs-jules starts 
+            // ai generated code by google-labs-jules starts
             if (
                 ($currvalue === null && $lrow['is_default'] && !$ignore_default) ||
                 (strlen($currvalue ?? '') > 0 && in_array($lrow['option_id'], $selectedValues))
