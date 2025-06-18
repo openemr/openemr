@@ -30,13 +30,14 @@ services:
     - ../../src:/var/www/localhost/htdocs/openemr/src
     - ../../templates:/var/www/localhost/htdocs/openemr/templates
     - ./docker_data/sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
+    - ../../portal:/var/www/localhost/htdocs/openemr/portal
       #- ./docker_data/nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
       #- ./docker_data/vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
       #- ./docker_data/ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ./docker_data/logvolume:/var/log/www
     - ./docker_data/couchdbvolume:/couchdb/data
-    - /etc/letsencrypt/live/openemrdev.shoprideon.com/fullchain.pem:/etc/letsencrypt/live/openemrdev.shoprideon.com/fullchain.pem:ro
-    - /etc/letsencrypt/live/openemrdev.shoprideon.com/privkey.pem:/etc/letsencrypt/live/openemrdev.shoprideon.com/privkey.pem:ro
+    - /etc/letsencrypt/live/neocarex.shoprideon.com/fullchain.pem:/etc/letsencrypt/live/neocarex.shoprideon.com/fullchain.pem:ro
+    - /etc/letsencrypt/live/neocarex.shoprideon.com/privkey.pem:/etc/letsencrypt/live/neocarex.shoprideon.com/privkey.pem:ro
     environment:
       DEBUG_COLORS: "true"
       TERM: xterm-256color
