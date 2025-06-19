@@ -363,7 +363,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 }
                 await parent.asyncLoadFrame('ens1', 'enc', 'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
                 await parent.activateTabByName('pat', true);
-                
+
             } catch (error) {
                 console.error('Failed to process patient:', error);
             }
@@ -908,7 +908,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             }
 
             if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
-                billCodesList($list);
+                BillingReport::billCodesList($list);
             }
             ?>
             <div class="table-responsive">

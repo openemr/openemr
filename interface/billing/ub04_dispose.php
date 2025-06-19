@@ -68,11 +68,11 @@ function get_payer_defaults($payerid)
     }
 }
 
-function savePayerTemplate($payerid, $ubo4id)
+function savePayerTemplate($payerid, $ub04id)
 {
     $ub04id = json_encode($ub04id);
     sqlStatement("update insurance_companies set claim_template = ? where id = ?", array(
-        $ubo4id,
+        $ub04id,
         $payerid
     ));
 }

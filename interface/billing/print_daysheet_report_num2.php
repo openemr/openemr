@@ -155,7 +155,7 @@ if ($code_type === 'all') {
 }
 
 if (isset($_GET["mode"]) && $_GET["mode"] === 'bill') {
-    billCodesList($list);
+    BillingReport::billCodesList($list);
 }
 
 $res_count = 0;
