@@ -37,14 +37,14 @@ if (!empty($_POST)) {
         $saveData = CustomerPrimaryInfoView::loadByPost($_POST);
         $response = ConnectorApi::savePrimaryInfo($saveData);
         $npi = $_POST["form_npi"];
-        if (!$response) {
+        if ($response !== true) {
             echo "<span class='alert alert-danger mx-3'>" . xlt("Error saving primary information: ") . text($response->message) . "</span>";
         } else {
             echo "<span class='alert alert-success mx-3'>" . xlt("Primary information saved successfully") . "</span>";
         }
     }
 } else {
-    $npi = $_REQUEST['npi'];
+    $npi = $_REQUEST['npi'] ?? "";
 }
 
 if ($npi) {
@@ -74,16 +74,6 @@ if ($npi) {
                             <label class="col-form-label" for="form_primaryId"><?php echo xlt('Primary ID'); ?>:</label>
                         </div>
                         <input type='text' readonly name='form_primaryId' id='form_primaryId' value='<?php echo attr($data->primaryId ?? ''); ?>' class='form-control' />
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="clearfix">
-                        <div class="label-div">
-                            <label class="col-form-label" for="form_npi"><?php echo xlt('Account Number'); ?><span class="required-field"> *</span>:</label>
-                        </div>
-                        <input type='text' required name='form_account_number' id='form_account_number'  value='<?php echo attr($data->accountNumber ?? ''); ?>' class='form-control' />
                     </div>
                 </div>
             </div>

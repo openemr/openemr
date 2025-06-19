@@ -145,7 +145,7 @@ if (!empty($_POST)) {
     function installCompendiumClick(labGuid) {
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
         let scriptTitle = 'compendium_install.php?labGuid=' + encodeURIComponent(labGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
-        dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
+        dlgopen(scriptTitle, '_blank', 500, 650, false, addTitle);
     }
 </script>
 <body class="container-fluid">
