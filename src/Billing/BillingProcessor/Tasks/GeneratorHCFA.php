@@ -38,7 +38,6 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
      */
     protected $batch;
 
-
     /**
      * This function is called by the BillingProcessor before the main
      * claim loop starts.
@@ -49,9 +48,6 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
      */
     public function setup(array $context)
     {
-        // This is to tell our execute method not to create a new page the first claim
-        $this->createNewPage = false;
-
         // Instantiate mainly for the filename creation
         $this->batch = new BillingClaimBatch('.txt');
     }
