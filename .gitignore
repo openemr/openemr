@@ -34,7 +34,4 @@ ccdaservice/node_modules
 .phpunit.result.cache
 coverage/js-unit
 
-<<<<<<< HEAD
-=======
 public/images/logos/custom/*
->>>>>>> d11e3347b (modules setup and UI changes)
