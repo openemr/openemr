@@ -36,6 +36,10 @@ services:
       OPENEMR_SETTING_couchdb_port: 6984
       OPENEMR_SETTING_couchdb_ssl_allow_selfsigned: 1
       OPENEMR_SETTING_couchdb_user: admin
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
     depends_on:
       couchdb:
         condition: service_started
