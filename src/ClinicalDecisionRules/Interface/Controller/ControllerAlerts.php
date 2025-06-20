@@ -19,9 +19,8 @@
 //
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
-use OpenEMR\ClinicalDecisionRules\Interface\stdClass;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager;
 
 class ControllerAlerts extends BaseController
 {
@@ -36,7 +35,7 @@ class ControllerAlerts extends BaseController
         // Instantiating object if does not exist to avoid
         //    "creating default object from empty value" warning.
         if (!isset($this->viewBean)) {
-            $this->viewBean = new stdClass();
+            $this->viewBean = new \stdClass();
         }
 
         $this->viewBean->rules = $c->populate();
@@ -92,7 +91,7 @@ class ControllerAlerts extends BaseController
         // Instantiating object if does not exist to avoid
         //    "creating default object from empty value" warning.
         if (!isset($this->viewBean)) {
-            $this->viewBean = new stdClass();
+            $this->viewBean = new \stdClass();
         }
 
         $this->forward("listactmgr");
