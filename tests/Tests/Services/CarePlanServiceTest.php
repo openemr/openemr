@@ -13,8 +13,8 @@ namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Tests\Fixtures\CarePlanFixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * CarePlan Service Tests
