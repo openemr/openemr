@@ -7,19 +7,22 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * FHIR Allergy Intolerance Service Query Tests
  *
- * @coversDefaultClass \OpenEMR\Services\FHIR\FhirAllergyIntoleranceService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+#[CoversClass(FhirAllergyIntoleranceService::class)]
 class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 {
     /**
@@ -89,7 +92,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     /**
      * PHPUnit Data Provider for FHIR AllergyIntolerance searches
      */
-    public static function searchParameterPatientReferenceDataProvider()
+    public static function searchParameterPatientReferenceDataProvider(): array
     {
         return [
             ['patient', "Patient/:uuid1"],
@@ -109,11 +112,10 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     }
 
     /**
-     * Tests getAll queries
-     * @covers ::getAll
-     * @covers ::searchForOpenEMRRecords
-     * @dataProvider searchParameterPatientReferenceDataProvider
-     */
+    * Tests getAll queries
+    */
+    #[Test]
+    #[DataProvider('searchParameterPatientReferenceDataProvider')]
     public function testGetAllPatientReference($parameterName, $parameterValue)
     {
         $pubpid = FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
@@ -137,9 +139,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     /**
      * Tests getAll queries for the _id search parameter.  Since we can't combine a dataProvider with our test fixture
      * installation, we run this test separately
-     * @covers ::getAll
-     * @covers ::searchForOpenEMRRecords
      */
+    #[Test]
     public function testGetAllWithUuid()
     {
         $select = "SELECT `uuid` FROM `lists` WHERE `type`='allergy' LIMIT 1";
@@ -151,8 +152,8 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
 
     /**
      * Uses the getAll method so we can't pass unless that is working.
-     * @covers ::getOne
      */
+    #[Test]
     public function testGetOne()
     {
         $actualResult = $this->fhirService->getAll([]);
@@ -168,9 +169,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $this->assertEquals($expectedId, $actualId);
     }
 
-       /**
-     * @covers ::getOne with an invalid uuid
-     */
+    #[Test]
     public function testGetOneInvalidUuid()
     {
         $actualResult = $this->fhirService->getOne('not-a-uuid');
