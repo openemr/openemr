@@ -143,6 +143,16 @@ class Rule
     var $groups;
 
     /**
+     * @var RuleTargets
+     */
+    var $targets;
+
+    /**
+     * @var RuleActions
+     */
+    var $actions;
+
+    /**
      * User provided feedback on an applied rule instance
      * @return void
      */
