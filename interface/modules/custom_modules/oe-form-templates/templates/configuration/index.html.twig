@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ "Form Templates"|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body>
+    <div class="container mt-2 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <h1>Form Template Engine</h1>
+            </div>
+        </div>
+        <nav class="navbar navbar-expand-lg bg-light mt-2 mb-3">
+            <div class="collapse navbar-collapse ml-auto">
+                <ul class="navbar-nav ml-0">
+                    <li class="nav-item">
+                        <a href="{{ mod_index }}?controller=configuration&action=new" class="btn btn-add btn-primary active">{{ "New Template"|xlt }}</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-responsive table-hover">
+                    <thead>
+                        <tr>
+                            <th>Template Name</th>
+                            <th>Target Form</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in templates %}
+                            <tr>
+                                <td>{{ t.display_name }}</td>
+                                <td>{{ t.form_display_name }}</td>
+                                <td>Action Buttons</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+</script>
+</html>
