@@ -236,10 +236,19 @@ function generate_select_list(
 
             $optionValue = attr($lrow ['option_id']);
 
+            // If $currvalue is explicitly an empty string, it should select the empty option,
+            // overriding any database default for the list (unless ignore_default is true).
+            // If $currvalue is null (truly not set), then a list's is_default can apply.
+            // ai generated code by google-labs-jules starts
             if (
-                (strlen($currvalue ?? '') == 0 && $lrow['is_default'] && !$ignore_default) ||
+                ($currvalue === null && $lrow['is_default'] && !$ignore_default) ||
                 (strlen($currvalue ?? '') > 0 && in_array($lrow['option_id'], $selectedValues))
             ) {
+                // Deselect the initial empty option if a real selection is made.
+                if (!$multiple && $_options[0]['value'] === '' && $_options[0]['isSelected']) {
+                    $_options[0]['isSelected'] = false;
+                }
+                //  ai gen'ed code ends
                 $got_selected = true;
                 $isSelected = true;
             }
@@ -4449,7 +4458,7 @@ function generate_layout_validation($form_id)
                     echo
                     " if (f.$fldname.selectedIndex <= 0) {\n" .
                     "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-                    "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
+                    "       errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                     " }\n";
                     break;
                 case 27: // radio buttons
@@ -4468,13 +4477,13 @@ function generate_layout_validation($form_id)
                 case 15:
                     echo
                     " if (trimlen(f.$fldname.value) == 0) {\n" .
-                    "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
-                    "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','var(--danger)'); } ); " .
-                    "  		$('#" . $fldname . "').attr('style','background: var(--danger)'); \n" .
-                    "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
+                    "       if (f.$fldname.focus) f.$fldname.focus();\n" .
+                    "       $('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','var(--danger)'); } ); " .
+                    "       $('#" . $fldname . "').attr('style','background: var(--danger)'); \n" .
+                    "       errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                     " } else { " .
-                    " 		$('#" . $fldname . "').attr('style',''); " .
-                    "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
+                    "       $('#" . $fldname . "').attr('style',''); " .
+                    "       $('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
                     " } \n";
                     break;
                 case 36: // multi select

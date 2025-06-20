@@ -97,42 +97,83 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
-                        <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br /><br /></span>
+/* ai generated code by google-labs-jules starts */                        
+                        <span class="text"><?php echo xlt('Select Yes/No where appropriate'); ?><br /><br /></span>
                         <div class="form-group">
-                            <label><?php echo xlt('Box 10 A. Employment related'); ?>:
-                                <input type="checkbox" name="employment_related" id="box10a" value="1"
-                                    <?php
-                                    if (!empty($obj['employment_related']) && ($obj['employment_related'] == "1")) {
-                                        echo "checked";
-                                    } ?> />
-                            </label>
+                            <label for="employment_related"><?php echo xlt('Box 10 A. Employment related'); ?>:</label>
+                            <select name="employment_related" id="employment_related" class="form-control">
+                                <option value="" <?php
+                                if (empty($obj['employment_related']) || !in_array($obj['employment_related'], ['0', '1'])) {
+                                    echo "selected";
+                                }
+                                ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                <option value="1" <?php
+                                if (!empty($obj['employment_related']) && $obj['employment_related'] == "1") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('Yes'); ?></option>
+                                <option value="0" <?php
+                                if (isset($obj['employment_related']) && $obj['employment_related'] == "0") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('No'); ?></option>
+                            </select>
+/* ai gen'ed code ends */
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 10 B. Auto Accident'); ?>:</label>
-                                <input type="checkbox" name="auto_accident" id="box10b" value="1"
-                                    <?php
-                                    if (!empty($obj['auto_accident']) && ($obj['auto_accident'] == "1")) {
-                                        echo "checked";
-                                    } ?> />
+/* ai generated code by google-labs-jules starts */
+                                <label for="auto_accident"><?php echo xlt('Box 10 B. Auto Accident'); ?>:</label>
+                                <select name="auto_accident" id="auto_accident" class="form-control">
+                                    <option value="" <?php
+                                    if (empty($obj['auto_accident']) || !in_array($obj['auto_accident'], ['0', '1'])) {
+                                        echo "selected";
+                                    }
+                                    ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                    <option value="1" <?php
+                                    if (!empty($obj['auto_accident']) && $obj['auto_accident'] == "1") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php
+                                    if (isset($obj['auto_accident']) && $obj['auto_accident'] == "0") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('No'); ?></option>
+                                </select>
                             </div>
                             <div class="col-md">
-                                <label><?php echo xlt('State'); ?>:</label>
+                                <label for="box10bstate"><?php echo xlt('State'); ?>:</label>
+/* ai gen'ed code ends */
                                 <input type="text" class="form-control" name="accident_state" id="box10bstate" size="1"
                                     value="<?php echo attr($obj["accident_state"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-group">
-                            <label><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
-                            <input type="checkbox" name="other_accident" id="box10c" value="1"
-                                <?php
-                                if (!empty($obj['other_accident']) && ($obj['other_accident'] == "1")) {
-                                    echo "checked";
-                                } ?> />
+/* ai generated code by google-labs-jules starts */
+                            <label for="other_accident"><?php echo xlt('Box 10 C. Other Accident'); ?>:</label>
+                            <select name="other_accident" id="other_accident" class="form-control">
+                                <option value="" <?php
+                                if (empty($obj['other_accident']) || !in_array($obj['other_accident'], ['0', '1'])) {
+                                    echo "selected";
+                                }
+                                ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                <option value="1" <?php
+                                if (!empty($obj['other_accident']) && $obj['other_accident'] == "1") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('Yes'); ?></option>
+                                <option value="0" <?php
+                                if (isset($obj['other_accident']) && $obj['other_accident'] == "0") {
+                                    echo "selected";
+                                }
+                                ?>><?php echo xlt('No'); ?></option>
+                            </select>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 10 D. EPSDT Referral Code'); ?></label>
+                                <label for="box10d"><?php echo xlt('Box 10 D. Claim Codes (Designated by NUCC)'); ?></label>
+/* ai gen'ed code ends */
                                 <input type="text" class="form-control" name="medicaid_referral_code" id="box10d"
                                     value="<?php echo attr($obj["medicaid_referral_code"] ?? ''); ?>" />
                             </div>
@@ -206,7 +247,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-group">
                             <label class="form-inline"><?php echo xlt('Box 17. Provider Qualifier'); ?>:</label>
-                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), 'Provider Qualifier Code'); ?>
+/* ai generated code by google-labs-jules starts */
+                            <?php echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', ($obj["provider_qualifier_code"] ?? null), xlt('Provider Qualifier Code'), ' ', '', '', '', null, false, '', true); ?>
+/* ai gen'ed code ends */
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
@@ -234,22 +277,36 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
-                                <input type="checkbox" name="outside_lab" id="outside_lab" value="1"
-                                    <?php
-                                    if (!empty($obj['outside_lab']) && ($obj['outside_lab'] == "1")) {
-                                        echo "checked";
-                                    } ?> />
+/* ai generated code by google-labs-jules starts */
+                                <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?>:</label>
+                                <select name="outside_lab" id="outside_lab" class="form-control">
+                                    <option value="" <?php
+                                    if (empty($obj['outside_lab']) || !in_array($obj['outside_lab'], ['0', '1'])) {
+                                        echo "selected";
+                                    }
+                                    ?>>-- <?php echo xlt('Select'); ?> --</option>
+                                    <option value="1" <?php
+                                    if (!empty($obj['outside_lab']) && $obj['outside_lab'] == "1") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php
+                                    if (isset($obj['outside_lab']) && $obj['outside_lab'] == "0") {
+                                        echo "selected";
+                                    }
+                                    ?>><?php echo xlt('No'); ?></option>
+                                </select>
                             </div>
                             <div class="col-md">
-                                <label><?php echo xlt('Amount Charged'); ?>:</label>
+                                <label for="lab_amount"><?php echo xlt('Amount Charged'); ?>:</label>
                                 <input type="text" size="7" class="form-control" name="lab_amount" id="lab_amount"
                                     value="<?php echo attr($obj["lab_amount"] ?? ''); ?>" />
                             </div>
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('Box 22. Medicaid Resubmission Code (ICD-10)'); ?>:</label>
+                                <label for="medicaid_resubmission_code"><?php echo xlt('Box 22. Resubmission Code'); ?>:</label>
+/* ai gen'ed code ends */
                                 <input type="text" class="form-control" name="medicaid_resubmission_code" id="medicaid_resubmission_code"
                                     value="<?php echo attr($obj["medicaid_resubmission_code"] ?? ''); ?>" />
                             </div>
