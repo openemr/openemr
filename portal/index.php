@@ -587,7 +587,6 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             <?php if (($GLOBALS['secondary_portal_logo_position'] ?? null) == 'second') { ?>
                 <?php if ($GLOBALS['show_portal_primary_logo'] ?? null) { ?>
                     <div class="img-fluid text-center" style="margin-bottom: -3rem !important;"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
-                    <div class="img-fluid text-center" style="margin-bottom: -3rem !important;"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                 <?php } ?>
                 <?php if ($GLOBALS['extra_portal_logo_login'] ?? null) { ?>
                     <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
