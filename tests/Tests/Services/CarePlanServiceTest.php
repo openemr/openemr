@@ -12,12 +12,7 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\CarePlanService;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\CarePlanFixtureManager;
-use OpenEMR\Tests\Fixtures\FormFixtureManager;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\PractitionerService;
-use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -38,6 +33,11 @@ class CarePlanServiceTest extends TestCase
      * @var CarePlanService
      */
     private $service;
+
+    /**
+     * @var CarePlanFixture
+     */
+    private $fixture;
 
     /**
      * @var CarePlanFixtureManager

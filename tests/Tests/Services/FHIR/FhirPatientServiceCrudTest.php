@@ -2,15 +2,16 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixtures\FixtureManager;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Patient Service Crud Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -18,6 +19,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
+#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceCrudTest extends TestCase
 {
     private $fixtureManager;
@@ -47,11 +50,7 @@ class FhirPatientServiceCrudTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * Tests a successful insert operation
-     * @covers ::insert
-     * @covers ::insertOpenEMRRecord
-     */
+    #[Test]
     public function testInsert()
     {
         $this->fhirPatientFixture->setId(null);
@@ -64,11 +63,7 @@ class FhirPatientServiceCrudTest extends TestCase
         $this->assertIsString($dataResult['uuid']);
     }
 
-    /**
-     * Tests an insert operation where an error occurs
-     * @covers ::insert
-     * @covers ::insertOpenEMRRecord
-     */
+    #[Test]
     public function testInsertWithErrors()
     {
         $this->fhirPatientFixture->name = [];
@@ -77,11 +72,7 @@ class FhirPatientServiceCrudTest extends TestCase
         $this->assertEquals(0, count($processingResult->getData()));
     }
 
-    /**
-     * Tests a successful update operation
-     * @covers ::update
-     * @covers ::updateOpenEMRRecord
-     */
+    #[Test]
     public function testUpdate()
     {
         $this->fhirPatientFixture->setId(null);
@@ -104,11 +95,7 @@ class FhirPatientServiceCrudTest extends TestCase
         $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }
 
-    /**
-     * Tests an update operation where an error occurs
-     * @covers ::update
-     * @covers ::updateOpenEMRRecord
-     */
+    #[Test]
     public function testUpdateWithErrors()
     {
         $actualResult = $this->fhirPatientService->update('bad-uuid', $this->fhirPatientFixture);
