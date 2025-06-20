@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>{{ 'History and Physical Note'|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{'History and Physical Note'|xlt}}</h2>
+                <form name="history_physical" method="post" action="{{ FORM_ACTION | attr }}/interface/forms/history_physical/save.php" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw()|attr }}" />
+                    <fieldset>
+                        <legend>{{ 'Transcript' | xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group" >
+                                <textarea name="transcript" class="form-control" cols="60" rows="6" onkeyup="top.isFormEdit = true;">{{ data.get_transcript()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'History and Physical' | xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="history_physical" class="form-control" cols="60" rows="6" onkeyup="top.isFormEdit = true;">{{ data.get_history_physical()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Plan'|xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isFormEdit = true;">{{ data.get_plan()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Remarks'|xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="remarks" class="form-control" cols="60" rows="6" onkeyup="top.isFormEdit = true;">{{ data.get_remarks()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-primary btn-save" name="Submit">{{ 'Save'|xlt }}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel" id="btnClose">{{ 'Cancel'|xlt }}</button>
+                        </div>
+                        <input type="hidden" name="id" value="{{ data.get_id()|attr }}" />
+                        <input type="hidden" name="activity" value="{{ data.get_activity()|attr }}" />
+                        <input type="hidden" name="pid" value="{{ data.get_pid()|attr }}" />
+                        <input type="hidden" name="process" value="true" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const close = function() {
+            if (top.isFormEdit === true) {
+                dlgopen('', '', 450, 125, '', '<div class="text-danger">{{'Warning'|xlt}}</div>',
+                    {
+                    type: 'Alert',
+                    html: '<p>{{'Do you want to close the tabs?'|xla}}</p>',
+                    buttons: [
+                        { text: '{{'Cancel'|xla}}', close: true, style: 'default btn-sm' },
+                        { text: '{{'Close'|xla}}', close: true, style: 'danger btn-sm', click: closeForm },
+                    ],
+                    allowDrag: false,
+                    allowResize: false,
+                });
+            } else {
+                top.restoreSession();
+                location.href = 'javascript:parent.closeTab(window.name, false)';
+            }
+        }
+
+        const closeForm = function() {
+            top.isFormEdit = false;
+            top.restoreSession();
+            location.href = 'javascript:parent.closeTab(window.name, false)';
+        }
+        $('#btnClose').click(close);
+    </script>
+
+</body>
+</html>
