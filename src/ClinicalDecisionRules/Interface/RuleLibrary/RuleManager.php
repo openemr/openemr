@@ -333,23 +333,6 @@ class RuleManager
 
     /**
      * @param string $guid
-     * @return array of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargetActionGroup
-     */
-    function getRuleTargetActionGroups($rule)
-    {
-        $criterion = $this->getRuleTargetCriteria($rule);
-        $actions = $this->getRuleAction($rule);
-        if (sizeof($criterion) > 0) {
-            $criteria = $criterion[0];
-            $criteria->guid = $guid;
-            return $criterion[0];
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $guid
      * @return RuleCriteria
      */
     function getRuleTargetCriteria($rule, $guid)

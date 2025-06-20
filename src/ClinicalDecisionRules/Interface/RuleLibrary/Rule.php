@@ -29,14 +29,15 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets;
  */
 class Rule
 {
-    public $ruleTypes;
+    private RuleActions $actions;
+    private RuleTargets $targets;
     public $id;
+    public $ruleTypes;
     public string $title;
 
     /**
      * US Regulation 170.315(b)(11)(iv)(A)(1)
-     * @var string Bibliographic citation of the intervention (clinical research or
-    guideline) that the rule is based on
+     * @var string Bibliographic citation of the intervention (clinical research or guideline) that the rule is based on
      */
     public string $bibliographic_citation;
 
@@ -325,18 +326,19 @@ class Rule
     }
 
     /**
-     *
      * @param RuleTargets $ruleTargets
+     * @return void
      */
-    function setRuleTargets($ruleTargets)
+    function setRuleTargets(RuleTargets $ruleTargets): void
     {
         $this->targets = $ruleTargets;
     }
 
     /**
      * @param RuleActions $actions
+     * @return void
      */
-    function setRuleActions($actions)
+    function setRuleActions(RuleActions $actions): void
     {
         $this->actions = $actions;
     }
