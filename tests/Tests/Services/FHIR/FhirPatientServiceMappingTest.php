@@ -2,18 +2,16 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
-use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
-use OpenEMR\Services\PatientService;
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixtures\FixtureManager;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Patient Service Mapping Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -21,6 +19,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
+#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceMappingTest extends TestCase
 {
     private $fixtureManager;
@@ -157,9 +157,7 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertTrue($matchFound);
     }
 
-    /**
-     * @covers ::parseOpenEMRRecord
-     */
+    #[Test]
     public function testParseOpenEMRRecord()
     {
         $this->patientFixture['uuid'] = $this->fixtureManager->getUnregisteredUuid();
@@ -214,9 +212,8 @@ class FhirPatientServiceMappingTest extends TestCase
         }
         return (string)$codeValue;
     }
-    /**
-     * @covers ::parseFhirResource
-     */
+
+    #[Test]
     public function testParseFhirResource()
     {
         $actualResult = $this->fhirPatientService->parseFhirResource($this->fhirPatientFixture);

@@ -12,12 +12,13 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
+#[CoversClass(EncounterService::class)]
 class EncounterServiceTest extends TestCase
 {
     /**
@@ -29,6 +30,11 @@ class EncounterServiceTest extends TestCase
      * @var EncounterFixtureManager
      */
     private $fixtureManager;
+
+    /**
+     * @var EncounterFixture
+     */
+    private $fixture;
 
     protected function setUp(): void
     {
@@ -42,9 +48,7 @@ class EncounterServiceTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::getOne
-     */
+    #[Test]
     public function testGetOne()
     {
         $this->fixtureManager->installFixtures();
@@ -59,11 +63,7 @@ class EncounterServiceTest extends TestCase
         $this->assertNotNull($resultData);
     }
 
-    /**
-     * Ran into a bug where the bound patient id was not being checked correctly.  This test case verifies that the patient
-     * binding for the uuid on the service is correctly set and returns valid data.
-     * @cover ::search
-     */
+    #[Test]
     public function testSearchWithBoundPatientUUID()
     {
         $this->fixtureManager->installFixtures();
