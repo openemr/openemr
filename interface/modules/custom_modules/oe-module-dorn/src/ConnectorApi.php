@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\Dorn;
 
 use DateTime;
+use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
@@ -231,7 +232,6 @@ class ConnectorApi
         return $returnData;
     }
 
-
     public static function getData($url)
     {
         $headers = ConnectorApi::buildHeader();
@@ -242,7 +242,6 @@ class ConnectorApi
         $result = curl_exec($ch);
         curl_close($ch);
         if ($result === false) {
-            $error = curl_error($ch);
             error_log('cURL error: ' . curl_error($ch));
         }
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -270,7 +269,6 @@ class ConnectorApi
         $result = curl_exec($ch);
         curl_close($ch);
         if ($result === false) {
-            $error = curl_error($ch);
             error_log('cURL error: ' . curl_error($ch));
         }
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -367,7 +365,6 @@ class ConnectorApi
         $result = curl_exec($ch);
         curl_close($ch);
         if ($result === false) {
-            $error = curl_error($ch);
             error_log('cURL error: ' . curl_error($ch));
         }
         $data = json_decode($result);

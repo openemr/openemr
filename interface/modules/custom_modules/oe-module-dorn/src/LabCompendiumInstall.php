@@ -22,7 +22,9 @@ class LabCompendiumInstall
      */
     protected static function echoLi(string $msg): void
     {
-        echo '<li>' . text($msg) . '</li>' . "\n";
+        echo '<li>' . text($msg) . '</li>';
+        ob_flush();
+        flush();
     }
 
     public static function install($labGuid)
@@ -39,9 +41,9 @@ class LabCompendiumInstall
                 }
             }
             ConnectorApi::setCompendiumLastUpdate($labGuid);
-            self::echoLi("Compendium has been updated for lab: " . text($compendiumResponse->compendium->labName));
+            self::echoLi("Compendium has been updated for lab: " . ($compendiumResponse->compendium->labName));
         } else {
-            self::echoLi("Error Getting Compendium! " . text($compendiumResponse->responseMessage));
+            self::echoLi("Error Getting Compendium! " . ($compendiumResponse->responseMessage));
         }
     }
 
@@ -71,7 +73,6 @@ class LabCompendiumInstall
 
         $sqlArr = array($id, $compendium->labName, $lab_id, 'grp', 'Ordering Tests');
         $id = sqlInsert($sql, $sqlArr);
-
 
         return $id;
     }
@@ -109,7 +110,6 @@ class LabCompendiumInstall
 
     public static function loadResult($component, $parentId, $lab_id)
     {
-        self::echoLi(xlt("Loading result"));
         $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code) 
         VALUES (?, ?, ?, ?, ?, ?)";
         $sqlArr = array($parentId, $component->name ?? '', $lab_id ?? '', 'res', $component->code ?? '', $component->loinc ?? '');
@@ -124,7 +124,7 @@ class LabCompendiumInstall
         $required = $aoe->answerRequired;
         $activity = 1;
         $maxSize = 15;
-        $options = "+" . LabCompendiumInstall::formatAnswers($aoe->answers);
+        $options = LabCompendiumInstall::formatAnswers($aoe->answers, $aoe->verboseAnswers) ?: null;
 
         // check for existing record
         $qrow = sqlQuery(
@@ -135,7 +135,6 @@ class LabCompendiumInstall
                 $qcode
             )
         );
-
 
         // new record
         if (empty($qrow ['procedure_code'])) {
@@ -175,12 +174,15 @@ class LabCompendiumInstall
         }
     }
 
-    public static function formatAnswers($answers): string
+    public static function formatAnswers($answers, $v_answers): string
     {
         $returnValue = "";
-        foreach ($answers as $answer) {
-            $value = $answer . ":" . $answer;
-            $returnValue .= ";" . $value;
+        foreach ($answers as $k => $answer) {
+            if (empty($v_answers[$k] ?? '')) {
+                $v_answers[$k] = $answer; // if no verbose answer, use the answer as the verbose answer
+            }
+            $value = $v_answers[$k] . ":" . $answer;
+            $returnValue .= $value . ";";
         }
         return $returnValue;
     }
