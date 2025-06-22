@@ -2,14 +2,15 @@
 
 namespace OpenEMR\Tests\Services;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Patient Service Tests
- * @coversDefaultClass OpenEMR\Services\PatientService
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -17,6 +18,8 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
+#[CoversClass(PatientService::class)]
 class PatientServiceTest extends TestCase
 {
     /**
@@ -37,18 +40,14 @@ class PatientServiceTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * @covers ::getFreshPid
-     */
+    #[Test]
     public function testGetFreshPid()
     {
         $actualValue = $this->patientService->getFreshPid();
         $this->assertGreaterThan(0, $actualValue);
     }
 
-    /**
-     * @covers ::insert when the data is invalid
-     */
+    #[Test]
     public function testInsertFailure()
     {
         $this->patientFixture["fname"] = "";
@@ -65,9 +64,7 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(3, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::insert when the data is valid
-     */
+    #[Test]
     public function testInsertSuccess()
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
@@ -86,9 +83,7 @@ class PatientServiceTest extends TestCase
         $this->assertFalse($actualResult->hasInternalErrors());
     }
 
-    /**
-     * @covers ::update when the data is not valid
-     */
+    #[Test]
     public function testUpdateFailure()
     {
         $this->patientService->insert($this->patientFixture);
@@ -104,9 +99,7 @@ class PatientServiceTest extends TestCase
         $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::update when the data is valid
-     */
+    #[Test]
     public function testUpdateSuccess()
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
@@ -130,10 +123,7 @@ class PatientServiceTest extends TestCase
         $this->assertEquals("555-111-4444", $result["phone_home"]);
     }
 
-    /**
-     * @cover ::getOne
-     * @cover ::getAll
-     */
+    #[Test]
     public function testPatientQueries()
     {
         $this->fixtureManager->installPatientFixtures();

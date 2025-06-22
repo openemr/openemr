@@ -3,14 +3,16 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Patient Service Query Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -18,6 +20,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
+#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceQueryTest extends TestCase
 {
     private $fixtureManager;
@@ -57,10 +61,7 @@ class FhirPatientServiceQueryTest extends TestCase
         }
     }
 
-    /**
-     * PHPUnit Data Provider for FHIR patient searches
-     */
-    public static function searchParameterDataProvider()
+    public static function searchParameter(): array
     {
 
         return [
@@ -133,8 +134,6 @@ class FhirPatientServiceQueryTest extends TestCase
             ['birthdate', 'ge1977-05'], // search by year, month
             ['birthdate', 'ge1977-05-02'], // search by year, month, day
 
-
-
             // range searches for dates.
 
             ['email', 'info@pennfirm.com'],
@@ -155,10 +154,7 @@ class FhirPatientServiceQueryTest extends TestCase
         ];
     }
 
-    /**
-     * PHPUnit Data Provider for FHIR patient searches
-     */
-    public static function searchParameterCompoundDataProvider()
+    public static function searchParameterCompound(): array
     {
         return [
             ['birthdate', 'le1960-01-01', 'name:contains', 'lias'], // check operators and comparators work combined
@@ -171,12 +167,8 @@ class FhirPatientServiceQueryTest extends TestCase
         ];
     }
 
-    /**
-     * Tests getAll queries
-     * @covers ::getAll
-     * @covers ::searchForOpenEMRRecords
-     * @dataProvider searchParameterDataProvider
-     */
+    #[Test]
+    #[DataProvider('searchParameter')]
     public function testGetAll($parameterName, $parameterValue)
     {
         $fhirSearchParameters = [$parameterName => $parameterValue];
@@ -184,12 +176,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->assertGetAllSearchResults($processingResult);
     }
 
-    /**
-     * Tests getAll queries for the _id search parameter.  Since we can't combine a dataProvider with our test fixture
-     * installation, we run this test separately
-     * @covers ::getAll
-     * @covers ::searchForOpenEMRRecords
-     */
+    #[Test]
     public function testGetAllWithUuid()
     {
         $select = "SELECT `uuid` FROM `patient_data` WHERE `pubpid`=?";
@@ -200,12 +187,8 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->assertGetAllSearchResults($processingResult);
     }
 
-    /**
-     * Tests getAll compound search queries
-     * @covers ::getAll
-     * @covers ::searchForOpenEMRRecords
-     * @dataProvider searchParameterCompoundDataProvider
-     */
+    #[Test]
+    #[DataProvider('searchParameterCompound')]
     public function testGetAllCompound($parameter1, $parameter1Value, $parameter2, $parameter2Value)
     {
         $fhirSearchParameters = [$parameter1 => $parameter1Value, $parameter2 => $parameter2Value];
@@ -213,10 +196,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->assertGetAllSearchResults($processingResult);
     }
 
-    /**
-     * Uses the getAll method so we can't pass unless that is working.
-     * @covers ::getOne
-     */
+    #[Test]
     public function testGetOne()
     {
         $actualResult = $this->fhirPatientService->getAll([]);
@@ -232,9 +212,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->assertEquals($expectedId, $actualId);
     }
 
-       /**
-     * @covers ::getOne with an invalid uuid
-     */
+    #[Test]
     public function testGetOneInvalidUuid()
     {
         $actualResult = $this->fhirPatientService->getOne('not-a-uuid');

@@ -2,15 +2,15 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
-use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\Services\FHIR\FhirPractitionerService;
+use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
+use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Practitioner Service Crud Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -18,6 +18,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+#[CoversClass(FhirPractitionerService::class)]
 class FhirPractitionerServiceCrudTest extends TestCase
 {
     private $fixtureManager;
@@ -46,11 +48,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * Tests a successful insert operation
-     * @covers ::insert
-     * @covers ::insertOpenEMRRecord
-     */
+    #[Test]
     public function testInsert()
     {
         $this->fhirPractitionerFixture->setId(null);
@@ -63,11 +61,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertIsString($dataResult['uuid']);
     }
 
-    /**
-     * Tests an insert operation where an error occurs
-     * @covers ::insert
-     * @covers ::insertOpenEMRRecord
-     */
+    #[Test]
     public function testInsertWithErrors()
     {
         $this->fhirPractitionerFixture->name = []; // clear the names TODO: I don't like this public accessor, can we fix it?s
@@ -76,11 +70,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertEquals(0, count($processingResult->getData()));
     }
 
-    /**
-     * Tests a successful update operation
-     * @covers ::update
-     * @covers ::updateOpenEMRRecord
-     */
+    #[Test]
     public function testUpdate()
     {
         $this->fhirPractitionerFixture->setId(null);
@@ -103,11 +93,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
         $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }
 
-    /**
-     * Tests an update operation where an error occurs
-     * @covers ::update
-     * @covers ::updateOpenEMRRecord
-     */
+    #[Test]
     public function testUpdateWithErrors()
     {
         $actualResult = $this->fhirPractitionerService->update('bad-uuid', $this->fhirPractitionerFixture);

@@ -12,17 +12,12 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\CarePlanService;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\CarePlanFixtureManager;
-use OpenEMR\Tests\Fixtures\FormFixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\PractitionerService;
-use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
- * Practitioner Service Tests
- * @coversDefaultClass OpenEMR\Services\PractitionerService
+ * CarePlan Service Tests
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -30,12 +25,19 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+#[CoversClass(CarePlanService::class)]
 class CarePlanServiceTest extends TestCase
 {
     /**
      * @var CarePlanService
      */
     private $service;
+
+    /**
+     * @var CarePlanFixture
+     */
+    private $fixture;
 
     /**
      * @var CarePlanFixtureManager
@@ -54,17 +56,13 @@ class CarePlanServiceTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::getOne
-     */
+    #[Test]
     public function testGetOne()
     {
         $this->markTestIncomplete("This test is not implemented");
     }
 
-    /**
-     * @cover ::getSurrogateKeyForRecord
-     */
+    #[Test]
     public function testGetSurrogateKeyForRecord()
     {
         // we are going to use the old care plan
