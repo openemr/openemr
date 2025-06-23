@@ -19,22 +19,19 @@ define("EVENT_OTHER", 4);
 
 
 /**
- * class FormHpTjePrimary
- *
+ * class FormSOAP
  */
 class FormSOAP extends ORDataObject
 {
+    protected string $_table = 'form_soap';
+
     /**
-     *
      * @access public
      */
 
-
     /**
-     *
      * static
      */
-    var $id;
     var $date;
     var $pid;
     var $user;
@@ -47,30 +44,14 @@ class FormSOAP extends ORDataObject
     var $plan;
 
     /**
-     * Constructor sets all Form attributes to their default value
+     * Set Form attributes to their default value
+     *
+     * @return void
      */
-
-    function __construct($id = "", $_prefix = "")
+    protected function init(): void
     {
-        if (is_numeric($id)) {
-            $this->id = $id;
-        } else {
-            $id = "";
-            $this->date = date("Y-m-d H:i:s");
-        }
-
-        $this->_table = "form_soap";
         $this->activity = 1;
         $this->pid = $GLOBALS['pid'];
-        if ($id != "") {
-            $this->populate();
-            //$this->date = $this->get_date();
-        }
-    }
-    function populate()
-    {
-        parent::populate();
-        //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
     function toString($html = false)
@@ -79,16 +60,6 @@ class FormSOAP extends ORDataObject
         return $html ? nl2br($string) : $string;
     }
 
-    function set_id($id)
-    {
-        if (!empty($id) && is_numeric($id)) {
-            $this->id = $id;
-        }
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {

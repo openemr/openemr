@@ -18,9 +18,12 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Address extends ORDataObject implements \JsonSerializable
 {
-    var $id;
+    protected string $_table = 'addresses';
+
     var $foreign_id;
     var $line1;
     var $line2;
@@ -37,13 +40,23 @@ class Address extends ORDataObject implements \JsonSerializable
 
     /**
      * Constructor sets all Address attributes to their default value
+     *
+     * @param int|null $id
+     * @param string $foreign_id
      */
-    function __construct($id = "", $foreign_id = "")
+    function __construct(?int $id = null, mixed $foreign_id = "")
     {
-        parent::__construct("addresses");
-
-        $this->id = $id;
+        parent::__construct($id);
         $this->foreign_id = $foreign_id;
+    }
+
+    /**
+     * Initialize the address object with default values.
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
         $this->line1 = "";
         $this->line2 = "";
         $this->city = "";
@@ -52,10 +65,8 @@ class Address extends ORDataObject implements \JsonSerializable
         $this->plus_four = "";
         $this->district = "";
         $this->country = "USA";
-        if ($id != "") {
-            $this->populate();
-        }
     }
+
     static function factory_address($foreign_id = "")
     {
         $sqlArray = array();
@@ -93,14 +104,6 @@ class Address extends ORDataObject implements \JsonSerializable
         return $html ? nl2br($string) : $string;
     }
 
-    function set_id($id)
-    {
-        $this->id = $id;
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
     function set_foreign_id($fid)
     {
         $this->foreign_id = $fid;
@@ -233,8 +236,6 @@ class Address extends ORDataObject implements \JsonSerializable
         return $this;
     }
 
-
-
     /**
      * Specify data which should be serialized to JSON
      * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -258,5 +259,4 @@ class Address extends ORDataObject implements \JsonSerializable
             "country" => $this->get_country()
         ];
     }
-// end of Address
 }

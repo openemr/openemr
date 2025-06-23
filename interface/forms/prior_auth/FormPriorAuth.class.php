@@ -10,27 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class PriorAuth
- *
  */
 class FormPriorAuth extends ORDataObject
 {
-    /**
-     *
-     * @access public
-     */
-
-
+    protected string $_table = 'form_prior_auth';
 
     /**
-     *
      * @access private
      */
-
-    var $id;
     var $pid;
     var $activity;
     var $date;
@@ -40,31 +31,19 @@ class FormPriorAuth extends ORDataObject
     var $date_to;
 
     /**
-     * Constructor sets all Form attributes to their default value
+     * Set Form attributes to their default value
+     *
+     * @return void
      */
 
-    function __construct($id = "", $_prefix = "")
+    protected function init(): void
     {
-        parent::__construct();
-
-        $this->_table = "form_prior_auth";
-
-        if (is_numeric($id)) {
-            $this->id = $id;
-        } else {
-            $id = "";
-        }
-
         $this->pid = $GLOBALS['pid'];
         $this->activity = 1;
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";
         $this->date_from = date("Y-m-d");
         $this->date_to = null;
-
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
     function __toString()
@@ -72,16 +51,6 @@ class FormPriorAuth extends ORDataObject
         return "ID: " . $this->id . "\n";
     }
 
-    function set_id($id)
-    {
-        if (!empty($id) && is_numeric($id)) {
-            $this->id = $id;
-        }
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
@@ -150,4 +119,3 @@ class FormPriorAuth extends ORDataObject
         $this->date_to = $dt;
     }
 }
-// end of Form

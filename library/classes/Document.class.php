@@ -29,12 +29,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Document extends ORDataObject
 {
+    public const TABLE_NAME = 'documents';
+    protected string $_table = self::TABLE_NAME;
+
     /**
      * @var EventDispatcherInterface $eventDispatcher
      */
     private $eventDispatcher;
-
-    public const TABLE_NAME = "documents";
 
     /**
      * Use the native filesystem to store files at
@@ -60,12 +61,6 @@ class Document extends ORDataObject
      * Date format for the expires field
      */
     public const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
-
-    /*
-    *   Database unique identifier
-    *   @public id
-    */
-    public $id;
 
     /**
      * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
@@ -222,22 +217,15 @@ class Document extends ORDataObject
     public $deleted;
 
     /**
-     * Constructor sets all Document attributes to their default value
-     * @param int $id optional existing id of a specific document, if omitted a "blank" document is created
+     * Set Document attributes to their default value
+     *
+     * @return void
      */
-    public function __construct($id = "")
+    protected function init(): void
     {
-        //call the parent constructor so we have a _db to work with
-        parent::__construct();
-
-        //shore up the most basic ORDataObject bits
-        $this->id = $id;
-        $this->_table = self::TABLE_NAME;
-
-        //load the enum type from the db using the parent helper function,
-        //this uses psuedo-class variables so it is really cheap
+        // load the enum type from the db using the parent helper function,
+        // this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
-
         $this->type = $this->type_array[0] ?? '';
         $this->size = 0;
         $this->date = date("Y-m-d H:i:s");
@@ -251,11 +239,6 @@ class Document extends ORDataObject
         $this->encounter_check = "";
         $this->encrypted = 0;
         $this->deleted = 0;
-
-        if ($id != "") {
-            $this->populate();
-        }
-
         $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }
 
@@ -437,15 +420,12 @@ class Document extends ORDataObject
 
         return $documents;
     }
+
     public static function getDocumentForUuid($uuid)
     {
         $sql = "SELECT id from " . escape_table_name(self::TABLE_NAME) . " WHERE uuid = ?";
         $id = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue($sql, 'id', [UuidRegistry::uuidToBytes($uuid)]);
-        if (!empty($id)) {
-            return new Document($id);
-        } else {
-            return null;
-        }
+        return empty($id) ? null : new Document($id);
     }
 
     /**
@@ -493,19 +473,6 @@ class Document extends ORDataObject
         . "encounter_id: " . $this->encounter_id . "\n"
         . "encounter_check: " . $this->encounter_check . "\n";
         return $html ? nl2br($string) : $string;
-    }
-
-    /**#@+
-    *   Getter/Setter methods used by reflection to affect object in persist/poulate operations
-    *   @param mixed new value for given attribute
-    */
-    function set_id($id)
-    {
-        $this->id = $id;
-    }
-    function get_id()
-    {
-        return $this->id;
     }
 
     /**

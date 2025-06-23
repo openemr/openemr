@@ -3,36 +3,51 @@
 /**
  * class ORDataObject
  *
+ * Base class for all data objects in OpenEMR
+ *
+ * @package OpenEMR\Common\ORDataObject
+ * @author Various
+ * @copyright Copyright (c) 2022-2025
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\ORDataObject;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-class ORDataObject
+abstract class ORDataObject
 {
+    /** @var string The table name - subclasses must override this property */
+    protected string $_table = '';
+
+    /** @var string The table prefix - subclasses may override this property */
+    protected string $_prefix = '';
+
+    /** @var int|null The ID of the object */
+    protected ?int $id;
+
     // TODO: @adunsulag at some point we need to set this default to false
     // currently most objects assume we need to save when we call persist
     private $_isObjectModified = true;
     private $_throwExceptionOnError = false;
-    protected $_prefix;
-    protected $_table;
     public $_db; // Need to be public so can access from C_Document class
 
-    public function __construct($table = null, $prefix = null)
+    /**
+     * Constructor for ORDataObject
+     *
+     * This constructor should be called by all subclasses.
+     * Subclasses should define their $_table and $_prefix properties directly rather than passing them to this constructor.
+     *
+     * @param int|null $id
+     */
+    public function __construct(?int $id = null)
     {
         // default is to just die in SQL
         $this->setThrowExceptionOnError(false);
-        // TODO: with testing we could probably remove the isset... but we will leave this here until there are more
-        // unit tests saying this doesn't break subclass constructors
-        if (isset($table)) {
-            $this->_table = $table;
-        }
-        if (isset($prefix)) {
-            $this->_prefix = $prefix;
-        }
-
         $this->_db = $GLOBALS['adodb']['db'];
+        $this->set_id($id);
+        $this->init();
+        $this->populate();
     }
 
     public function markObjectModified()
@@ -109,10 +124,31 @@ class ORDataObject
         return true;
     }
 
-    public function populate()
+    /**
+     * Initializes the object with default values.
+     * Afterwards, populate() is called to load data from the database.
+     *
+     * @return void
+     */
+    protected function init(): void
     {
+    }
+
+    /**
+     * Initializes the object with data from the database.
+     * init() is called first to set default values.
+     * This method is only used when the object is instantiated with an id.
+     *
+     * @return void
+     */
+    protected function populate(): void
+    {
+        $id = $this->get_id();
+        if (empty($id)) {
+            return;
+        }
         $sql = "SELECT * from " . escape_table_name($this->_prefix . $this->_table) . " WHERE id = ?";
-        $results = sqlQuery($sql, [strval($this->get_id())]);
+        $results = sqlQuery($sql, [strval($id)]);
         $this->populate_array($results);
     }
 
@@ -224,4 +260,27 @@ class ORDataObject
 
         return $ar;
     }
-} // end of ORDataObject
+
+    /**
+     * Get the object's id
+     *
+     * @return int|null The id of the object
+     */
+    public function get_id(): ?int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set the object's id, validating that it's numeric
+     *
+     * This implementation enforces that the id is numeric
+     *
+     * @param int|null $id The id to set
+     * @return void
+     */
+    public function set_id(?int $id): void
+    {
+        $this->id = $id;
+    }
+}

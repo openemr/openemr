@@ -16,15 +16,18 @@ define("TRANSMIT_ERX", 4);
 
 /**
  * class Pharmacy
- *
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Address;
 
+/**
+ * class Pharmacy
+ */
 class Pharmacy extends ORDataObject
 {
-    var $id;
+    protected string $_table = 'pharmacies';
+
     var $name;
     var $phone_numbers;
     var $address;
@@ -37,40 +40,39 @@ class Pharmacy extends ORDataObject
     var $ncpdp;
 
     /**
-     * Constructor sets all Prescription attributes to their default value
+     * Set Prescription attributes to their default value
+     *
+     * @return void
      */
-    function __construct($id = "", $prefix = "")
+    protected function init(): void
     {
-        $this->id = $id;
         $this->state = $this->getState();
         $this->name = "";
         $this->email = "";
         $this->transmit_method = 1;
         $this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"), xl("Transmit"), xl("eRx"));
-        $this->_table = "pharmacies";
-        $phone  = new PhoneNumber();
+        $phone = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
-        $this->phone_numbers = array($phone);
         $this->address = new Address();
-        if ($id != "") {
-            $this->populate();
-        }
+        $this->phone_numbers = array($phone);
     }
 
-    function set_id($id = "")
+    /**
+     * Set up if an id is provided
+     *
+     * @return void
+     */
+    protected function populate(): void
     {
-        $this->id = $id;
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
-    function set_form_id($id = "")
-    {
-        if (!empty($id)) {
-            $this->populate($id);
+        parent::populate();
+        $id = $this->get_id();
+        if (empty($id)) {
+            return;
         }
+        $this->address = Address::factory_address($id);
+        $this->phone_numbers = PhoneNumber::factory_phone_numbers($id);
     }
+
     function set_fax_id($id)
     {
         $this->id = $id;
@@ -200,12 +202,6 @@ class Pharmacy extends ORDataObject
         }
 
         return "";
-    }
-    function populate()
-    {
-        parent::populate();
-        $this->address = Address::factory_address($this->id);
-        $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
     }
 
     function persist()

@@ -18,17 +18,18 @@ define("TYPE_CELL", 3);
 define("TYPE_EMERGENCY", 4);
 define("TYPE_FAX", 5);
 
+/**
+ * class Address
+ */
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Address
- *
  */
-
-use OpenEMR\Common\ORDataObject\ORDataObject;
-
 class PhoneNumber extends ORDataObject
 {
-    var $id;
+    protected string $_table = "phone_numbers";
+
     var $foreign_id;
     var $country_code;
     var $area_code;
@@ -39,19 +40,28 @@ class PhoneNumber extends ORDataObject
 
     /**
      * Constructor sets all attributes to their default value
+     *
+     * @param int|null $id
+     * @param string $foreign_id
      */
-    function __construct($id = "", $foreign_id = "")
+    function __construct(?int $id = null, $foreign_id = "")
     {
-        $this->id = $id;
+        parent::__construct($id);
         $this->foreign_id = $foreign_id;
+    }
+
+    /**
+     * Initialize the phone number object with default values.
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
         $this->country_code = "+1";
         $this->prefix = "";
         $this->number = "";
         $this->type = TYPE_HOME;
         $this->_table = "phone_numbers";
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
     static function factory_phone_numbers($foreign_id = "")
@@ -76,16 +86,6 @@ class PhoneNumber extends ORDataObject
         }
 
         return $phone_numbers;
-    }
-
-    function set_id($id)
-    {
-        $this->id = $id;
-    }
-
-    function get_id()
-    {
-        return $this->id;
     }
 
     function foreign_id($id)
