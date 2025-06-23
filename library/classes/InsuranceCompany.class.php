@@ -20,12 +20,11 @@ use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * class Insurance Company
- *
  */
-
 class InsuranceCompany extends ORDataObject
 {
-    var $id;
+    protected string $_table = 'insurance_companies';
+
     var $name;
     var $phone_numbers;
     var $attn;
@@ -37,25 +36,25 @@ class InsuranceCompany extends ORDataObject
     var $x12_default_eligibility_id;
     var $inactive;
     var $InsuranceCompany;
-    /*
-    *   OpenEMR can use this value to determine special formatting for the specified type of payer.
-    *   It is the key to the array returned by the InsuranceCompanyService
-    *   getInsuranceTypes and getInsuranceClaimTypes methods.
-    *   @var int Holds constant for type of payer
-    */
+    /**
+     * OpenEMR can use this value to determine special formatting for the specified type of payer.
+     * It is the key to the array returned by the InsuranceCompanyService
+     * getInsuranceTypes and getInsuranceClaimTypes methods.
+     * @var int Holds constant for type of payer
+     */
     var $ins_type_code;
 
-    /*
-    *   Array used to populate select dropdowns or other form elements
-    *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceTypes() method.
-    */
+    /**
+     * Array used to populate select dropdowns or other form elements
+     * It is the value of the array returned by the InsuranceCompanyService->getInsuranceTypes() method.
+     */
     var $ins_type_code_array;
 
-    /*
-    *   Array used with electronic claim submissions and
-    *   corresponds with $ins_type_code_array
-    *   It is the value of the array returned by the InsuranceCompanyService->getInsuranceClaimTypes() method.
-    */
+    /**
+     * Array used with electronic claim submissions and
+     * corresponds with $ins_type_code_array
+     * It is the value of the array returned by the InsuranceCompanyService->getInsuranceClaimTypes() method.
+     */
     var $ins_claim_type_array;
 
     var $address;
@@ -74,48 +73,34 @@ class InsuranceCompany extends ORDataObject
 
     /**
      * Constructor sets all Insurance Company attributes to their default value
+     *
+     * @param int|null $id
+     * @param InsuranceCompanyService|null $insuranceCompanyService
      */
-    public function __construct($id = "", $prefix = "", ?InsuranceCompanyService $insuranceCompanyService = null)
+    public function __construct(?int $id = null, ?InsuranceCompanyService $insuranceCompanyService = null)
     {
-        $this->id = $id;
+        $this->InsuranceCompany = $insuranceCompanyService ?? new InsuranceCompanyService();
+        parent::__construct($id);
+    }
+
+    /**
+     * Initializes the Insurance Company object with default values.
+     *
+     * @return void
+     */
+    protected function init(): void
+    {
         $this->name = "";
-        $this->_table = "insurance_companies";
         $phone = new PhoneNumber();
         $phone->set_type(TYPE_WORK);
         $fax = new PhoneNumber();
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
-        if ($insuranceCompanyService === null) {
-            $this->InsuranceCompany = new InsuranceCompanyService();
-        } else {
-            $this->InsuranceCompany = $insuranceCompanyService;
-        }
         $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypesCached();
         $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
-        if ($id != "") {
-            $this->populate();
-        }
-
         $this->X12Partner = new X12Partner();
         $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSopCached();
-    }
-
-    public function set_id($id = "")
-    {
-        $this->id = $id;
-    }
-    public function get_id()
-    {
-        return $this->id;
-    }
-
-    // special function that the html forms use to prepopulate which allows for partial edits and wizard functionality
-    public function set_form_id($id = "")
-    {
-        if (!empty($id)) {
-            $this->populate($id);
-        }
     }
 
     public function set_address($aobj)
@@ -316,11 +301,18 @@ class InsuranceCompany extends ORDataObject
         return $xa[$this->get_x12_default_eligibility_id()];
     }
 
-    public function populate()
+    /**
+     * @return void
+     */
+    protected function populate(): void
     {
         parent::populate();
-        $this->address = Address::factory_address($this->id);
-        $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
+        $id = $this->get_id();
+        if (empty($id)) {
+            return;
+        }
+        $this->address = Address::factory_address($id);
+        $this->phone_numbers = PhoneNumber::factory_phone_numbers($id);
     }
 
     public function persist()
