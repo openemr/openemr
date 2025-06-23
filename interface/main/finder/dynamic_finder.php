@@ -315,6 +315,8 @@ $loading = "";
             if (newpid.length === 0) {
                 return;
             }
+            //VEHR setting pid via cookies
+            document.cookie = "pid_vehr = " + encodeURIComponent(newpid) + ";path=/";
             if (document.myform.form_new_window.checked) {
                 openNewTopWindow(newpid);
             }
