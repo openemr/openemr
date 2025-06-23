@@ -312,7 +312,7 @@ function related_codes_are_used()
  * Convert a code type id (ct_id) to the key string (ct_key)
  *
  * @param  integer $id
- * @return string
+ * @return string|null
  */
 function convert_type_id_to_key($id)
 {
@@ -322,6 +322,7 @@ function convert_type_id_to_key($id)
             return $key;
         }
     }
+    return null;
 }
 
 /**
@@ -333,12 +334,7 @@ function convert_type_id_to_key($id)
 function check_is_code_type_justify($key)
 {
     global $code_types;
-
-    if (!empty($code_types[$key]['just'])) {
-          return true;
-    } else {
-        return false;
-    }
+    return !empty($code_types[$key]['just']);
 }
 
 /**
