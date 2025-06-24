@@ -330,11 +330,11 @@ class AclController extends AbstractActionController
         }
 
         $output_string .= '<ul>';
-        foreach ($tempList as $groupID => $tempListRow) {
+        foreach ($tempList as $tempListRow) {
             $output_string .= '<li ' . $li_class . ' id="li_' . $id . $tempListRow['group_id'] . '-0" style="' . $visibility . '"><div class="' . $escapeHtml($dragabble) . '" id="' . $id . $tempListRow['group_id'] . '-0" >' . $escapeHtml($tempListRow['group_name']) . '</div>';
             if (!empty($tempListRow['items'])) {
                 $output_string .= '<ul>';
-                foreach ($tempListRow['items'] as $key => $itemRow) {
+                foreach ($tempListRow['items'] as $itemRow) {
                      $output_string .= '<li ' . $li_class . ' id="li_' . $id . $itemRow['group_id'] . '-' . $itemRow['user_id'] . '" style="' . $visibility . '"><div class="' . $escapeHtml($dragabble) . '" id="' . $id . $itemRow['group_id'] . '-' . $itemRow['user_id'] . '">' . $escapeHtml($itemRow['display_name']) . '</div></li>';
                 }
 

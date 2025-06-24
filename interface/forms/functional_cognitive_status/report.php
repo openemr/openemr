@@ -40,7 +40,7 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
             </thead>
             <tbody>
             <?php
-            foreach ($data as $key => $value) {
+            foreach ($data as $value) {
                 ?>
                 <tr>
                     <td class="border p-1"><span class=text><?php echo text($value['code']); ?></span></td>

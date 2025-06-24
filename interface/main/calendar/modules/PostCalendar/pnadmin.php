@@ -783,7 +783,7 @@ function postcalendar_admin_clearCache()
 
     if (!file_exists($tpl->compile_dir)) {
         $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' doesn't exist!<br />";
-    } elseif (!is_writeable($tpl->compile_dir)) {
+    } elseif (!is_writable($tpl->compile_dir)) {
         $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br />";
     }
 
@@ -861,7 +861,7 @@ function postcalendar_admin_testSystem()
         $error .= " compile dir doesn't exist! [" . text($tpl->compile_dir) . "]<br />";
     } else {
         // dir exists -> check if it's writeable
-        if (!is_writeable($tpl->compile_dir)) {
+        if (!is_writable($tpl->compile_dir)) {
             $error .= " compile dir not writeable! [" . text($tpl->compile_dir) . "]<br />";
         }
     }

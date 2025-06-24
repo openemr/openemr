@@ -1124,7 +1124,7 @@ class edih_x12_file
             $idval = '';
             $idlen = 1;
             //
-            foreach ($srch['array'] as $key => $seg) {
+            foreach ($srch['array'] as $seg) {
                 $idx++;
                 //
                 $test_str = substr($seg, 0, 3);
@@ -1498,7 +1498,7 @@ class edih_x12_file
                     $this->message[] = 'edih_x12_slice() did not find ST02 ' . text($stn);
                     return $ret_ar;
                 } else {
-                    $stpos = $stpos + 1;
+                    $stpos += 1;
                 }
 
                 $sepos = strpos($srchstr, $seg_se, $stpos);

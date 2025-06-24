@@ -188,7 +188,7 @@ if (!empty($_GET)) {
                                             $ename .= "-" . $data[$i];
                                         }
                                         $ename_list[$j] = $ename;
-                                        $j = $j + 1;
+                                        $j += 1;
                                     }
                                     $res1 = sqlStatement("select distinct event from extended_log order by event ASC");
                                     // $j=0; // This can't be right!  -- Rod 2013-08-23
@@ -206,7 +206,7 @@ if (!empty($_GET)) {
                                             $ename_list[$j] = $events;
                                         }
 
-                                        $j = $j + 1;
+                                        $j += 1;
                                     }
                                     $ename_list = array_unique($ename_list);
                                     $ename_list = array_merge($ename_list);

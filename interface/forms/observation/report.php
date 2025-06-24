@@ -39,7 +39,7 @@ function observation_report($pid, $encounter, $cols, $id)
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Unit') . "</span></td>
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>" . xlt('Date') . "</span></td>
             </tr>";
-        foreach ($data as $key => $value) {
+        foreach ($data as $value) {
             if ($value['code'] == 'SS003') {
                 if ($value['ob_value'] == '261QE0002X') {
                     $value['ob_value'] = 'Emergency Care';

@@ -258,7 +258,7 @@ class GenericRouter implements IRouter
 
                 // put the url together:
                 foreach ($keyArr as $urlPiece) {
-                    $url = $url . ($urlPiece != '' ? "/$urlPiece" : '');
+                    $url .= $urlPiece != '' ? "/$urlPiece" : '';
                 }
 
                 // no route, just a request method? RESTful to add a trailing slash:

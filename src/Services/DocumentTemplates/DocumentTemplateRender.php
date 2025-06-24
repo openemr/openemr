@@ -131,7 +131,7 @@ class DocumentTemplateRender
         $edata = $this->doSubs($edata, $formData);
         if (!$isLegacy) {
             // ony inserts when a new template is fetched.
-            $edata = $edata . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+            $edata .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
         }
         if ($this->html_flag) { // return raw minified html template
             $html = trim(str_replace(["\r\n", "\r", "\n"], '', $edata));

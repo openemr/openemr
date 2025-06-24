@@ -70,7 +70,7 @@ class EDI270
         $ISA[14] = str_pad($X12info['x12_isa14'], 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
         $ISA[15] = str_pad($X12info['x12_isa15'], 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
         $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
-        $ISA['Created'] = $ISA['Created'] . "*";
+        $ISA['Created'] .= "*";
         $ISA['Created'] = $ISA ['Created'] . $compEleSep . $segTer;
 
         return trim($ISA['Created']);
@@ -90,7 +90,7 @@ class EDI270
         $GS[7] = "X";                   // Responsible Agency Code Accredited Standards Committee X12 ]
         $GS[8] = "005010X279A1";            // Version Release / Industry[ Identifier Code Query 005010X279A1
         $GS['Created'] = implode('*', $GS);         // Data Element Separator
-        $GS['Created'] = $GS ['Created'] . $segTer;  // change the information in the tag or change the tag
+        $GS['Created'] .= $segTer;  // change the information in the tag or change the tag
         return trim($GS['Created']);
     }
 
@@ -103,7 +103,7 @@ class EDI270
         $ST[2] = "000000003";                       // Transaction Set Control Number - Must match SE's
         $ST[3] = "005010X279A1";                    // Standard 005010X279A1 in $ST[3]
         $ST['Created'] = implode('*', $ST);             // Data Element Separator
-        $ST['Created'] = $ST ['Created'] . $segTer;
+        $ST['Created'] .= $segTer;
         return trim($ST['Created']);
     }
 
@@ -120,7 +120,7 @@ class EDI270
         $BHT[4] = str_pad(date('Ymd'), 8, " ");           // Date Transaction Set Created
         $BHT[5] = str_pad(date('Hi'), 4, " ");            // Time Transaction Set Created no space after and 1300 is plenty
         $BHT['Created'] = implode('*', $BHT);           // Data Element Separator
-        $BHT['Created'] = $BHT ['Created'] . $segTer;
+        $BHT['Created'] .= $segTer;
         return trim($BHT['Created']);
     }
 
@@ -145,7 +145,7 @@ class EDI270
             $HL[4] = 0;                 // 0 no Additional Subordinate in the Hierarchical Structure.
         }
         $HL['Created'] = implode('*', $HL);         // Data Element Separator
-        $HL['Created'] = $HL ['Created'] . $segTer;
+        $HL['Created'] .= $segTer;
         return trim($HL['Created']);
     }
 
@@ -201,7 +201,7 @@ class EDI270
             $NM1[9] = $row['policy_number'];    // Identification Code
         }
         $NM1['Created'] = implode('*', $NM1);               // Data Element Separator
-        $NM1['Created'] = $NM1['Created'] . $segTer;
+        $NM1['Created'] .= $segTer;
         return trim($NM1['Created']);
     }
 
@@ -218,7 +218,7 @@ class EDI270
             $REF[2] = $row['pid'];                  // Patient Account No.
         }
         $REF['Created'] = implode('*', $REF);  // Data Element Separator
-        $REF['Created'] = $REF['Created'] . $segTer;
+        $REF['Created'] .= $segTer;
         return trim($REF['Created']);
     }
 
@@ -232,7 +232,7 @@ class EDI270
         $TRN[3] = "9000000000";                 // Originating Company ID � must be 10 positions in length
         $TRN[4] = $refiden;                     // Additional Entity Identifier (i.e. Subdivision)
         $TRN['Created'] = implode('*', $TRN); // Data Element Separator
-        $TRN['Created'] = $TRN['Created'] . $segTer;
+        $TRN['Created'] .= $segTer;
         return trim($TRN['Created']);
     }
 
@@ -245,7 +245,7 @@ class EDI270
         $DMG[2] = $row['dob'];                      // Subscriber's Birth date
         $DMG[3] = strtoupper($row['sex'][0]);
         $DMG['Created'] = implode('*', $DMG);  // Data Element Separator
-        $DMG['Created'] = $DMG['Created'] . $segTer;
+        $DMG['Created'] .= $segTer;
         return trim($DMG['Created']);
     }
 
@@ -272,7 +272,7 @@ class EDI270
             $DTP[3] = $dtp_date;  // Date of Service
         }
         $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
-        $DTP['Created'] = $DTP['Created'] . $segTer;
+        $DTP['Created'] .= $segTer;
         return trim($DTP['Created']);
     }
 
@@ -283,7 +283,7 @@ class EDI270
         $EQ[0] = "EQ";                                     // Subscriber Eligibility or Benefit Inquiry Information
         $EQ[1] = "30";                                     // Service Type Code
         $EQ['Created'] = implode('*', $EQ);                 // Data Element Separator
-        $EQ['Created'] = $EQ['Created'] . $segTer;
+        $EQ['Created'] .= $segTer;
         return trim($EQ['Created']);
     }
 
@@ -295,7 +295,7 @@ class EDI270
         $SE[1] = $segmentcount;                     // Segment Count
         $SE[2] = "000000003";                       // Transaction Set Control Number - Must match ST's
         $SE['Created'] = implode('*', $SE);    // Data Element Separator
-        $SE['Created'] = $SE['Created'] . $segTer;
+        $SE['Created'] .= $segTer;
         return trim($SE['Created']);
     }
 
@@ -307,7 +307,7 @@ class EDI270
         $GE[1] = "1";                           // Number of included Transaction Sets
         $GE[2] = "2";                           // Group Control Number
         $GE['Created'] = implode('*', $GE); // Data Element Separator
-        $GE['Created'] = $GE['Created'] . $segTer;
+        $GE['Created'] .= $segTer;
         return trim($GE['Created']);
     }
 
@@ -319,7 +319,7 @@ class EDI270
         $IEA[1] = "1";                          // Number of included Functional Groups
         $IEA[2] = "000000001";                  // Interchange Control Number
         $IEA['Created'] = implode('*', $IEA);
-        $IEA['Created'] = $IEA['Created'] . $segTer;
+        $IEA['Created'] .= $segTer;
         return trim($IEA['Created']);
     }
 
@@ -364,7 +364,7 @@ class EDI270
                 // For Provider Segment
                 $PATEDI .= self::createHL($row, 2, $X12info, $segTer, $compEleSep);
                 $PATEDI .= self::createNM1($row, '1P', $X12info, $segTer, $compEleSep);  // 5010 no longer uses FA
-                $nHlCounter = $nHlCounter + 2;
+                $nHlCounter += 2;
                 $segmentcount = 6; // segment counts - start from ST
             }
             // For Subscriber Segment
@@ -375,13 +375,13 @@ class EDI270
             $PATEDI .= self::createDMG($row, $X12info, $segTer, $compEleSep);
             $PATEDI .= self::createDTP($row, '291', $X12info, $segTer, $compEleSep);
             $PATEDI .= self::createEQ($row, $X12info, $segTer, $compEleSep);
-            $segmentcount = $segmentcount + 6;
-            $nHlCounter = $nHlCounter + 1;
-            $rowCount = $rowCount + 1;
-            $trcNo = $trcNo + 1;
-            $refiden = $refiden + 1;
+            $segmentcount += 6;
+            $nHlCounter += 1;
+            $rowCount += 1;
+            $trcNo += 1;
+            $refiden += 1;
             if ($rowCount == count($res)) {
-                $segmentcount = $segmentcount + 1;
+                $segmentcount += 1;
                 $PATEDI .= self::createSE($row, $segmentcount, $X12info, $segTer, $compEleSep);
                 $PATEDI .= self::createGE($row, $X12info, $segTer, $compEleSep);
                 $PATEDI .= self::createIEA($row, $X12info, $segTer, $compEleSep);
@@ -552,7 +552,7 @@ class EDI270
         <tbody>";
 
         foreach ($res as $row) {
-            $i = $i + 1;
+            $i += 1;
             // what the heck is below for... looks abandoned.
             $elig = array();
             $elig[0] = $row['facility_name'];              // Inquiring Provider Name  calendadr
@@ -936,7 +936,7 @@ class EDI270
         $target = $GLOBALS['edi_271_file_path'];
         $log = "";
         // not sure if want to save yet
-        $target = $target . time();
+        $target .= time();
 
         $responses = explode("\n", $content);
         if (empty($responses)) {

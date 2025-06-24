@@ -78,7 +78,7 @@ class RxList
         $tokens = $this->parseToTokens($page);
         $hash = $this->tokensToHash($tokens);
         if (!empty($hash)) {
-            foreach ($hash as $index => $data) {
+            foreach ($hash as $data) {
                 unset($my_data);
                 foreach ($data as $k => $v) {
                     $my_data[$k] = $v;

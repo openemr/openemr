@@ -263,7 +263,7 @@ class QuestionnaireService extends BaseService
         $repeatingFormNames = [];
         $this->walkQuestionnaireForms(
             $q,
-            function ($parents, $item) use (&$forms, &$formDisplayNames, &$repeatingFormNames, &$repeatingFormPaths, &$formDisplayPaths) {
+            function ($parents, $item) use (&$forms, &$formDisplayNames, &$repeatingFormNames, &$repeatingFormPaths, &$formDisplayPaths): void {
                 $fieldName = $this->getFieldName($item);
                 $parent = end($parents);
                 $instrumentName = $this->getInstrumentName($parent, $item);

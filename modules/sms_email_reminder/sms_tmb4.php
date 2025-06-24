@@ -156,7 +156,7 @@ class sms
         /* Make sure that the connection succeded */
         if ($out) {
             /* Send the request */
-            fputs($out, $http_header);
+            fwrite($out, $http_header);
 
             /* Get the response */
             while (!feof($out)) {

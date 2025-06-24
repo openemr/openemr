@@ -207,7 +207,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
             $data['state'] = !empty($activeAddress->getState()) ? $activeAddress->getState()->getValue() : null;
         }
 
-        foreach ($fhirResource['identifier'] as $index => $identifier) {
+        foreach ($fhirResource['identifier'] as $identifier) {
             if ($identifier['system'] == FhirCodeSystemConstants::HL7_IDENTIFIER_TYPE_TABLE) {
                 if (empty($data['cms_id'])) {
                     $data['cms_id'] = $identifier['value'];

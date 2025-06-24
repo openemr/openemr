@@ -313,7 +313,7 @@ if (!isset($_GET['render_group_assignments'])) {
                 <div id="edit-groups" class='control-group mx-1 border-left border-right'>
                     <?php
                     $result = $templateService->getPatientsByAllGroups();
-                    foreach ($group_list as $group => $groups) {
+                    foreach ($group_list as $groups) {
                         $group_esc = attr($groups['option_id']);
                         $groups_esc = attr($groups['option_id']);
                         echo "<h5 class='bg-dark text-light text-center' data-toggle='collapse' data-target='#$group_esc' role='button'><i class='fa fa-eye mr-1'></i>" . text($groups['title']) . "</h5>\n";
@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     echo "<h5 class='text-center bg-dark text-light p-1 mt-1 mb-0'>" . $active_text . text($profiles['title']) .
                         "<i class='fa fa-eye float-right my-1 mr-2' data-toggle='collapse' data-target='#$profile_esc' role='button'></i></h5>\n";
                     echo "<ul id='$profile_esc' class='list-group-flush m-1 p-1 show' data-profile='$profile_esc' data-active='$active_esc'>\n";
-                    foreach ($profile_items_list as $grp_profile => $groups) {
+                    foreach ($profile_items_list as $groups) {
                         foreach ($groups as $group) {
                             $group_esc = attr($group['member_of']);
                             $title = $group_list[$group['member_of']]['title'] ?: $group['member_of'];

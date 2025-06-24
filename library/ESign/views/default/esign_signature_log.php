@@ -41,7 +41,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
             );
         } ?>
         
-        <?php foreach ($this->signatures as $count => $signature) { ?>
+        <?php foreach ($this->signatures as $signature) { ?>
         <div class="esign-log-row esign-log-row-container <?php echo text($signature->getClass()); ?>">
             
             <?php if ($signature->getAmendment()) { ?>

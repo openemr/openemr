@@ -91,8 +91,8 @@ $PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
-    $config_mpdf['margin_top'] = $config_mpdf['margin_top'] * 1.5;
-    $config_mpdf['margin_bottom'] = $config_mpdf['margin_bottom'] * 1.5;
+    $config_mpdf['margin_top'] *= 1.5;
+    $config_mpdf['margin_bottom'] *= 1.5;
     $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
     $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
@@ -508,7 +508,7 @@ if ($fs && (isset($LBF_SERVICES_SECTION) || isset($LBF_DIAGS_SECTION))) {
 
 if ($fs && isset($LBF_SERVICES_SECTION)) {
     $s = '';
-    foreach ($fs->serviceitems as $lino => $li) {
+    foreach ($fs->serviceitems as $li) {
         // Skip diagnoses; those would be in the Diagnoses section below.
         if ($code_types[$li['codetype']]['diag']) {
             continue;
@@ -534,7 +534,7 @@ if ($fs && isset($LBF_SERVICES_SECTION)) {
 if ($fs && isset($LBF_PRODUCTS_SECTION)) {
     $s = '';
     $fs->loadProductItems();
-    foreach ($fs->productitems as $lino => $li) {
+    foreach ($fs->productitems as $li) {
         $s .= "  <tr>\n";
         $s .= "   <td class='text'>" . text($li['code_text']) . "&nbsp;</td>\n";
         $s .= "   <td class='text' align='right'>" . text($li['units']) . "&nbsp;</td>\n";
@@ -555,7 +555,7 @@ if ($fs && isset($LBF_PRODUCTS_SECTION)) {
 
 if ($fs && isset($LBF_DIAGS_SECTION)) {
     $s = '';
-    foreach ($fs->serviceitems as $lino => $li) {
+    foreach ($fs->serviceitems as $li) {
         // Skip anything that is not a diagnosis; those are in the Services section above.
         if (!$code_types[$li['codetype']]['diag']) {
             continue;

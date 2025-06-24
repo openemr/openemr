@@ -201,7 +201,7 @@ foreach ($insurance as $row) {
                                     </div>
                                 </div>
                                 <div id="eligibility-benefits-<?php echo(attr($index)); ?>" class="tab-pane">
-                                 
+
                                     <div class="row">
                                         <div class="col">
                 <?php
@@ -240,7 +240,7 @@ foreach ($insurance as $row) {
                                     </div>
                                 </div>     
                             </div>
-  
+
                 <?php
             }//end foreach eligibility
         }//else results

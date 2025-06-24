@@ -530,7 +530,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
   // in the report storing/tracking engine.
     $options_modified = $options;
     if (!empty($options_modified['labs_manual'])) {
-        $options_modified['labs_manual'] = $options_modified['labs_manual'] / $totalNumberBatches;
+        $options_modified['labs_manual'] /= $totalNumberBatches;
     }
 
   // Prepare the database to track/store results
@@ -2719,7 +2719,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
             $data = substr_replace($data, '', -2);
         } else {
-            $compSql = $compSql . "? ";
+            $compSql .= "? ";
         }
 
         if ($whereTables == "" && strpos($table, 'form_') !== false) {
@@ -2841,7 +2841,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
         $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
         $result_data = substr_replace($result_data, '', -2);
     } else {
-        $compSql = $compSql . "? ";
+        $compSql .= "? ";
     }
 
     $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .

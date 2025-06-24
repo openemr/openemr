@@ -1579,7 +1579,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         'docDate' => $dateDoc,
                                     ];
                                     $advDirArr[] = $tmp;
-                                    $limitCounter = $limitCounter + 1;
+                                    $limitCounter += 1;
                                     $counterFlag = true;
                                 }
                             }

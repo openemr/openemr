@@ -44,7 +44,7 @@ function care_plan_report($pid, $encounter, $cols, $id): void
             </thead>
             <tbody>
             <?php
-            foreach ($data as $key => $value) { ?>
+            foreach ($data as $value) { ?>
                 <tr>
                     <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
                     <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>

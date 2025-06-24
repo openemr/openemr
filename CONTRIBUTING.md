@@ -198,11 +198,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-parserror'
       ```
-    - To dry run Rector changes (this takes several minutes):
+    - To dry run Rector changes:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools rector-dry-run'
       ```
-    - To process Rector changes (this takes several minutes):
+    - To process Rector changes:
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools rector-process'
       ```

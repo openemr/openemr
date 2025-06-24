@@ -59,15 +59,15 @@ class MapperController extends AbstractActionController
         $tosave     = $request->getPost('tosave');
 
         $components = explode('|***|', $tosave);
-        foreach ($components as $key => $value) {
+        foreach ($components as $value) {
             $sections       = explode('|**|', $value);
             $component_name     = array_shift($sections);
 
-            foreach ($sections as $key_1 => $value_1) {
+            foreach ($sections as $value_1) {
                 $forms      = explode('|*|', $value_1);
                 $section_name   = array_shift($forms);
 
-                foreach ($forms as $key_2 => $value_2) {
+                foreach ($forms as $value_2) {
                     $value_2    = trim($value_2);
                     $sub_id     = '';
                     $form_dir   = '';

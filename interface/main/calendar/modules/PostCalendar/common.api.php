@@ -782,5 +782,5 @@ function pc_clean($s)
     // we only want to break at spaces to allow for
     // correct interpretation of special characters
     $tmp = explode(' ', $s);
-    return join("'+' ", $tmp);
+    return implode("'+' ", $tmp);
 }

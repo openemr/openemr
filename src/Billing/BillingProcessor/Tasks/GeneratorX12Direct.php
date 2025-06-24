@@ -273,7 +273,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function completeToFile(array $context)
     {
-        $this->finish($context, function ($context) {
+        $this->finish($context, function ($context): void {
 
             // Get the created_batches from the finish method
             $created_batches = $context['created_batches'];
@@ -315,7 +315,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
     public function completeToScreen(array $context)
     {
-        $this->finish($context, function ($context) {
+        $this->finish($context, function ($context): void {
 
             // Get the format_bat string from the finish method
             $format_bat = $context['format_bat'];

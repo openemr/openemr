@@ -64,7 +64,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
         if (array_key_exists('file', $csvdata)) {
             //
             $fidx = 0;
-            foreach ($csvdata['file'] as $key => $csvfile) {
+            foreach ($csvdata['file'] as $csvfile) {
                 //
                 $oe = ( $fidx % 2 == 1 ) ? 'fodd' : 'feven';
                 $cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';

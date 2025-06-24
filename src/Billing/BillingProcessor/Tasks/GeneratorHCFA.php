@@ -170,7 +170,7 @@ class GeneratorHCFA extends AbstractGenerator implements GeneratorInterface, Gen
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This uses our parent's method to print the JS that automatically initiates
             // the download of this file, after the screen bill_log messages have printed
             $this->printDownloadClaimFileJS($this->batch->getBatFilename());

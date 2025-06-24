@@ -34,10 +34,10 @@ class TelehealthPatientValidator extends PatientValidator
         // instead of optional because we cannot send a telehealth invitation without a valid email address.
         $this->validator->context(
             self::TELEHEALTH_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
+                    function ($rules): void {
                         foreach ($rules as $key => $chain) {
                             // email is required for the telehealth insert
                             if ($key == "email") {

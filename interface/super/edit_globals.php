@@ -236,7 +236,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     sqlStatementNoLog('SET autocommit=0');
     sqlStatementNoLog('START TRANSACTION');
     $i = 0;
-    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+    foreach ($GLOBALS_METADATA as $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
             /* Multiple choice fields - do not compare , overwrite */

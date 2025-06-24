@@ -141,7 +141,7 @@ class HTML_TreeMenu
 
                     // In an XML, all the attributes are saved in an array, but since they might be
                     // used as the parameters, we simply extract them here if we handle an XML-structure
-                    if ($isXMLStruct && sizeof($aNode['attributes'])) {
+                    if ($isXMLStruct && count($aNode['attributes'])) {
                         foreach ($aNode['attributes'] as $key => $val) {
                             if (!$aNode[$key]) { // dont overwrite existing values
                                 $aNode[$key] = $val;

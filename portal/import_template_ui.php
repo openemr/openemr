@@ -842,7 +842,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                             }
                             $template_list = substr($template_list, 0, -2);
                             $profile_esc = attr($profile);
-                            foreach ($group_items_list as $key => $groups) {
+                            foreach ($group_items_list as $groups) {
                                 foreach ($groups as $group) {
                                     if (is_array($group)) {
                                         $group_list_text .= $group_list[$group['member_of']]['title'] . ', ';
@@ -954,7 +954,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                     foreach ($patient_templates as $name => $templates) {
                         $count = 0;
                         $fetched_groups = $fetch_pid = null;
-                        foreach ($templates as $c => $t) {
+                        foreach ($templates as $t) {
                             if (is_array($t)) {
                                 $fetch_pid = $t[0]['pid'];
                                 if (empty($fetched_groups)) {

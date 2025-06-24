@@ -77,7 +77,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         $options = array();
         $stmts = sqlStatement("SHOW TABLES");
         for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
-            foreach ($row as $key => $value) {
+            foreach ($row as $value) {
                 array_push($options, array("id" => $value, "label" => xl($value)));
             }
         }

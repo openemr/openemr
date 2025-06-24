@@ -544,7 +544,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                     continue;
                 }
 
-                foreach ($val as $idx => $nf) {
+                foreach ($val as $nf) {
                     // check if the file has already been stored
                     // a matching file name will not be replaced
                     $nfb = basename($nf);
@@ -565,20 +565,20 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                 }
             } elseif ($key == 'reject') {
                 $prc_htm .= "<li><bd>Reject:</bd></li>" . PHP_EOL;
-                foreach ($val as $idx => $nf) {
+                foreach ($val as $nf) {
                     $prc_htm .= "<li>" . text($nf['name']) . "</li>" . PHP_EOL;
                     $prc_htm .= "<li> --" . text($nf['comment']) . "</li>" . PHP_EOL;
                 }
             } elseif ($key == 'remark') {
                 $rmk_htm .= "<p><bd>Remarks:</bd><br />" . PHP_EOL;
-                foreach ($val as $idx => $r) {
+                foreach ($val as $r) {
                     $rmk_htm .= text($r) . "<br />" . PHP_EOL;
                 }
 
                 $rmk_htm .= "</p>" . PHP_EOL;
             } else {
                 $prc_htm .= "<li>" . text($key) . " type not stored</li>" . PHP_EOL;
-                foreach ($val as $idx => $nf) {
+                foreach ($val as $nf) {
                     $prc_htm .= "<li>" . text(basename($nf)) . "</li>" . PHP_EOL;
                 }
             }

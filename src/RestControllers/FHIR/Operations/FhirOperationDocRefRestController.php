@@ -50,7 +50,7 @@ class FhirOperationDocRefRestController
         try {
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
             $bundleEntries = array();
-            foreach ($processingResult->getData() as $index => $searchResult) {
+            foreach ($processingResult->getData() as $searchResult) {
                 // we actually need to truncate off the operation
                 $bundleEntry = [
                     'fullUrl' => $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
