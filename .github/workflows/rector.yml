@@ -13,12 +13,14 @@ jobs:
   rector:
     name: Rector PHP Analysis
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         # setting the ref enables stefanzweifel/git-auto-commit-action to commit changes
         ref: ${{ github.head_ref }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -49,7 +51,8 @@ jobs:
         key: ${{ runner.os }}-rector-${{ github.run_id }}
         restore-keys: ${{ runner.os }}-rector-
 
-    - run: mkdir -p /tmp/rector
+    - name: Create Rector cache directory
+      run: mkdir -p /tmp/rector
 
     - name: Run Rector
       run: vendor/bin/rector process
@@ -58,3 +61,4 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v6
       with:
         commit_message: 'auto(*.php): rector changes'
+        token: ${{ secrets.GITHUB_TOKEN }}
