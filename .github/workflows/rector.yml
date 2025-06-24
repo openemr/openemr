@@ -17,8 +17,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      # with:
-        # don't specify ref - let it auto-detect
+      with:
+        # use the merge commit which github automatically creates
+        ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -59,4 +60,3 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v6
       with:
         commit_message: 'auto(*.php): rector changes'
-        token: ${{ secrets.GITHUB_TOKEN }}
