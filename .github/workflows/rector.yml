@@ -17,9 +17,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        # use the merge commit which github automatically creates
-        ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -55,13 +52,3 @@ jobs:
 
     - name: Run Rector
       run: vendor/bin/rector process
-
-    - name: Add and Commit Changes
-      uses: stefanzweifel/git-auto-commit-action@v6
-      with:
-        commit_message: "auto(*.php): rector changes"
-        repository: .
-        branch: ${{ github.head_ref }}
-        push_options: '--force-with-lease'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
