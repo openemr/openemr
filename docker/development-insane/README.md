@@ -9,7 +9,7 @@ Docker Environment. See below for instructions of use of the Insane Development 
 [docker](https://www.docker.com/get-docker) and
 [compose](https://docs.docker.com/compose/install/) for your system. Also, make
 sure you have a [fork](https://help.github.com/articles/fork-a-repo/) of OpenEMR.
-- If you want to set up the base services(e.g. git, docker, docker-compose, openemr-cmd) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
+- If you want to set up the base services(e.g. git, docker, docker compose, openemr-cmd) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
 - If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
 - If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
 - If you want to migrator the running docker environment, please try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator)
@@ -23,13 +23,13 @@ There are 2 different schools of thought on where to run the docker from.
 scripts in your editor)
 ```bash
 $ cd openemr/docker/development-insane
-$ docker-compose up -d
+$ docker compose up -d
 ```
 - Option 2. Run the docker from a separate directory that is synchronized with your git
 repository. For example, if used /var/www/openemr.
 ```bash
  $ cd /var/www/openemr/docker/development-insane
- $ docker-compose up -d
+ $ docker compose up -d
 ```
 - At this time, I highly recommend option 2 since running OpenEMR will change
 scripts, add files, add cache files, thus making it very tough to track your
@@ -111,8 +111,8 @@ different github branch. This is done by first running a command or script
 to delete and replace the synchronized directory (ie. remove the /var/www/openemr
 directory) and then restart the development docker:
 ```bash
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 #### Updating Dockers
