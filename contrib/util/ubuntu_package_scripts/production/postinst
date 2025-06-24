@@ -42,6 +42,7 @@
 # the debian-policy package
 
 # Source debconf library.
+# shellcheck disable=SC1091
 . /usr/share/debconf/confmodule
 
 case "$1" in

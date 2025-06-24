@@ -32,6 +32,7 @@
 # the debian-policy package
 
 # Source debconf library.
+# shellcheck disable=SC1091
 . /usr/share/debconf/confmodule
 
 case "$1" in
@@ -84,7 +85,7 @@ case "$1" in
       }
 
       #function to collect variables from config files
-      # 1st param is variable name, 2nd param is filename 
+      # 1st param is variable name, 2nd param is filename
       collect_var () {
          echo $(grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi")
       }

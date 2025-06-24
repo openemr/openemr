@@ -20,6 +20,7 @@
 # DUMMY CONFIG FILE
 
 # Source debconf library.
+# shellcheck disable=SC1091
 . /usr/share/debconf/confmodule
 
 # Dummy script to allow prompting within other maintainer scripts
