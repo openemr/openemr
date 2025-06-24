@@ -56,14 +56,14 @@ INSTALL_DATABASE=openemr
 #Standardized echo function to send to only log file
 #  requires one parameter (string)
 log_only () {
-   echo "`date`: $1" >> $LOG
+   echo "$(date): $1" >> $LOG
 }
 
 #Standardized exit function to be used when unable to install the openemr package
 #  requires one parameter (string with reason for exiting)
 unable_exit () {
-   echo "`date`: $1" >> $LOG
-   echo "`date`: EXITING.........." >> $LOG
+   echo "$(date): $1" >> $LOG
+   echo "$(date): EXITING.........." >> $LOG
    exit 1
 }
 
@@ -97,7 +97,7 @@ check_mysql () {
       USE=root
    fi
 
-   if [ "`mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`" == "$2" ]; then
+   if [ "$(mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$")" == "$2" ]; then
       return 0
    else
       return 1
@@ -107,7 +107,7 @@ check_mysql () {
 #function to collect variables from config files
 # 1st param is variable name, 2nd param is filename
 collect_var () {
-   echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
+   echo $(grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi")
 }
 
 #function to check database before preparing to upgrade

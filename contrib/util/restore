@@ -18,7 +18,7 @@ DLGCMD=""
 NOBUTTONS=""
 DEFAULTNO=""
 LEFT=""
-if [ ! -z "$DISPLAY" -a ! -z "`which Xdialog`" ]; then
+if [ ! -z "$DISPLAY" -a ! -z "$(which Xdialog)" ]; then
   DLGCMD="Xdialog"
   NOBUTTONS="--no-buttons"
   DEFAULTNO="--default-no"
@@ -56,7 +56,7 @@ dlg_info() {
 dlg_fselect() {
   if [ ! -z "$DLGCMD" ]; then
     exec 3>&1
-    RESULT=`$DLGCMD --title 'OpenEMR Restore' --backtitle "$1" $NOBUTTONS --fselect $HOME/ 0 70 2>&1 1>&3`
+    RESULT=$($DLGCMD --title 'OpenEMR Restore' --backtitle "$1" $NOBUTTONS --fselect $HOME/ 0 70 2>&1 1>&3)
     CODE=$?
     exec 3>&-
     if [ $CODE -eq 0 ]; then
@@ -95,14 +95,14 @@ dlg_yesno() {
     shift
   done
   read -e -p "$1 [N/y] " RESULT
-  RESULT=`expr "$RESULT" : "[yY]"`
+  RESULT=$(expr "$RESULT" : "[yY]")
   return 0
 }
 
 dlg_input() {
   if [ ! -z "$DLGCMD" ]; then
     exec 3>&1
-    RESULT=`$DLGCMD --title 'OpenEMR Restore' $LEFT --inputbox "$1" 0 0 2>&1 1>&3`
+    RESULT=$($DLGCMD --title 'OpenEMR Restore' $LEFT --inputbox "$1" 0 0 2>&1 1>&3)
     CODE=$?
     exec 3>&-
     if [ $CODE -eq 0 ]; then
@@ -173,12 +173,12 @@ fi
 OEDIR=/var/www/openemr
 
 # Get the Site ID, it should be the only site backed up.
-SITEID=`ls -1 sites | head -n 1`
+SITEID=$(ls -1 sites | head -n 1)
 
 # Get various parameters from the extracted files.
-OEDBNAME=`grep '^\$dbase' sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
-OEDBUSER=`grep '^\$login' sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
-OEDBPASS=`grep '^\$pass'  sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
+OEDBNAME=$(grep '^\$dbase' sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2)
+OEDBUSER=$(grep '^\$login' sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2)
+OEDBPASS=$(grep '^\$pass'  sites/$SITEID/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2)
 
 dlg_yesno "Do you want to specify site ID, locations or database names for the restore?"
 
@@ -206,7 +206,7 @@ fi
 # The following sanity checks are an attempt to avoid disastrous results
 # from mistakes in entry of directory path names.
 
-TRASH=`expr "$OEDIR" : "[/]"`
+TRASH=$(expr "$OEDIR" : "[/]")
 if [ $TRASH -ne 1 ]; then
   dlg_msg "Error: The OpenEMR directory path '$OEDIR' does not start with '/'."
   exit 1
@@ -232,7 +232,7 @@ dlg_msg "If you have a particular requirement for the UTF-8 collation to use, " 
   "Enter 'none' if you do not want UTF-8."
 dlg_input "UTF-8 collation [$COLLATE]? "
 if [ ! -z "$RESULT" ]; then COLLATE="$RESULT"; fi
-TRASH=`expr "$COLLATE" : "[uU]"`
+TRASH=$(expr "$COLLATE" : "[uU]")
 if [ $TRASH -ne 1 ]; then
   COLLATE=""
 fi
