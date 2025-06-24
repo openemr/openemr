@@ -39,26 +39,26 @@ case "$1" in
 
       #constants and paths
       LOGDIR=/var/log/openemr
-      LOG=$LOGDIR/install
+      LOG=${LOGDIR}/install
       CONFIGDIR=/etc/openemr
-      CONFIG=$CONFIGDIR/openemr.conf
+      CONFIG=${CONFIGDIR}/openemr.conf
       TMPDIR=/tmp/openemr-tmp
       WEB=/var/www
-      OPENEMR=$WEB/openemr
-      SITEDIR=$OPENEMR/sites
+      OPENEMR=${WEB}/openemr
+      SITEDIR=${OPENEMR}/sites
 
       #Standardized echo function to send to only log file
       #  requires one parameter (string)
       log_only () {
-         echo "$(date): $1" >> $LOG
+         echo "$(date): $1" >> ${LOG}
       }
 
       #Standardized exit function to be used when unable to uninstall the
       #openemr package
       #  requires one parameter (string with reason for exiting)
       unable_exit () {
-         echo "$(date): $1" >> $LOG
-         echo "$(date): EXITING.........." >> $LOG
+         echo "$(date): $1" >> ${LOG}
+         echo "$(date): EXITING.........." >> ${LOG}
          exit 1
       }
 
@@ -76,7 +76,7 @@ case "$1" in
             USE=root
          fi
 
-         if [ "$(mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$")" == "$2" ]; then
+         if [ "$(mysql -u "${USE}" -h "${HOST}" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$")" == "$2" ]; then
             return 0
          else
             return 1
@@ -98,22 +98,22 @@ case "$1" in
          db_input "$2" "$1" || true
          db_go || true
          db_get "$1"
-         local input_value="$RET"
+         local input_value="${RET}"
          db_set "$1" ""
          db_fset "$1" seen false
          local __result=$3
-         eval $__result="'$input_value'"
+         eval ${__result}="'${input_value}'"
       }
 
       #Confirm that user really wants to uninstall
       prompt_input openemr/confirm_remove critical ret_result
-      if [ "$ret_result" == "no" ]; then
+      if [ "${ret_result}" == "no" ]; then
          unable_exit "You have chosen to not uninstall the OpenEMR package."
       fi
 
       #collect the mysql root password
       MPASS=""
-      if check_mysql "$MPASS" "mysql"; then
+      if check_mysql "${MPASS}" "mysql"; then
          log_only "Passed the mysql check loop"
       else
          #the blank initial mysql password didn't work, so prompt for password
@@ -121,14 +121,14 @@ case "$1" in
          COUNTDOWN=1
          while true; do
             prompt_input openemr/mysql_p_remove_${COUNTDOWN} critical ret_result
-            MPASS="$ret_result"
-            if check_mysql "$MPASS" "mysql"; then
+            MPASS="${ret_result}"
+            if check_mysql "${MPASS}" "mysql"; then
                #the mysql root password works, so can exit loop
                log_only "Passed the mysql check loop"
                break
             else
                #the mysql root password did not work
-               if [ "$COUNTDOWN" -ge "3" ]; then
+               if [ "${COUNTDOWN}" -ge "3" ]; then
                   prompt_input openemr/unable_remove critical ret_result
                   unable_exit "OpenEMR removal attempt failed (can try again when you know the mysql root password)"
                fi
@@ -138,40 +138,40 @@ case "$1" in
       fi
 
       #collect scripting information from config file
-      PROCESS=$(collect_var process $CONFIG)
-      PLAN=$(collect_var plan $CONFIG)
+      PROCESS=$(collect_var process ${CONFIG})
+      PLAN=$(collect_var plan ${CONFIG})
 
-      for dir in $(find $SITEDIR/* -maxdepth 0 -type d ); do
+      for dir in $(find ${SITEDIR}/* -maxdepth 0 -type d ); do
          #collect sitename
-         SITENAME=$(basename "$dir")
+         SITENAME=$(basename "${dir}")
 
          # Collect database information from sqlconf.php file
-         SQLLOCATION=$(collect_var \$host $SITEDIR/$SITENAME/sqlconf.php)
-         SQLUSER=$(collect_var \$login $SITEDIR/$SITENAME/sqlconf.php)
-         SQLPASSWORD=$(collect_var \$pass $SITEDIR/$SITENAME/sqlconf.php)
-         SQLDATABASE=$(collect_var \$dbase $SITEDIR/$SITENAME/sqlconf.php)
+         SQLLOCATION=$(collect_var \$host ${SITEDIR}/${SITENAME}/sqlconf.php)
+         SQLUSER=$(collect_var \$login ${SITEDIR}/${SITENAME}/sqlconf.php)
+         SQLPASSWORD=$(collect_var \$pass ${SITEDIR}/${SITENAME}/sqlconf.php)
+         SQLDATABASE=$(collect_var \$dbase ${SITEDIR}/${SITENAME}/sqlconf.php)
 
          #remove openemr mysql database (ensure the database exists)
-         if check_mysql "$MPASS" "$SQLDATABASE"; then
-            mysqladmin -f -u root -h "$SQLLOCATION" --password="$MPASS" drop "$SQLDATABASE" >> $LOG 2>&1
-            log_only "Removed OpenEMR MySQL database: $SQLDATABASE"
+         if check_mysql "${MPASS}" "${SQLDATABASE}"; then
+            mysqladmin -f -u root -h "${SQLLOCATION}" --password="${MPASS}" drop "${SQLDATABASE}" >> ${LOG} 2>&1
+            log_only "Removed OpenEMR MySQL database: ${SQLDATABASE}"
          fi
 
          #remove openemr mysql user
-         mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;" >> $LOG 2>&1
-         log_only "Removed OpenEMR MySQL user: $SQLUSER"
+         mysql -f -u root -h "${SQLLOCATION}" --password="${MPASS}" -e "DELETE FROM mysql.user WHERE User = '${SQLUSER}';FLUSH PRIVILEGES;" >> ${LOG} 2>&1
+         log_only "Removed OpenEMR MySQL user: ${SQLUSER}"
       done
 
       #remove etc directory
-      rm -rf $CONFIGDIR
+      rm -rf ${CONFIGDIR}
       log_only "Removed OpenEMR etc directory"
 
       #remove rest of web directory
-      rm -rf $OPENEMR
+      rm -rf ${OPENEMR}
       log_only "Finished removing OpenEMR web directory"
 
       #remove tmp directory
-      rm -fr $TMPDIR
+      rm -fr ${TMPDIR}
       log_only "Removed OpenEMR tmp directory"
 
       #removes the configuration section for OpenEMR in Apache config file (deprecated, but keeping for older packages)

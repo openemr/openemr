@@ -29,12 +29,12 @@ coverage_args=(
 
 composer_github_auth() {
     githubToken=$(base64 --decode <<< MjE2OTcwOGE2MmM5ZWRiMzA3NGFmNGVjMmZkOGE0MWY2YzVkMDJhZgo=)
-    githubTokenRateLimitRequest=$(curl -H "Authorization: token $githubToken" https://api.github.com/rate_limit)
-    githubTokenRateLimit=$(jq '.rate.remaining' <<< "$githubTokenRateLimitRequest")
-    echo "Number of github api requests remaining is $githubTokenRateLimit"
+    githubTokenRateLimitRequest=$(curl -H "Authorization: token ${githubToken}" https://api.github.com/rate_limit)
+    githubTokenRateLimit=$(jq '.rate.remaining' <<< "${githubTokenRateLimitRequest}")
+    echo "Number of github api requests remaining is ${githubTokenRateLimit}"
     if (( githubTokenRateLimit > 500 )); then
         echo 'Trying to use composer github api token'
-        if composer config --global --auth github-oauth.github.com "$githubToken"; then
+        if composer config --global --auth github-oauth.github.com "${githubToken}"; then
             echo "github composer token worked"
         else
             echo "github composer token did not work"
@@ -135,9 +135,9 @@ phpunit() {
 # Coverage is not handled for api or e2e tests.
 build_test() {
     local testsuite="$1"
-    local -a args=( --testsuite "$testsuite" )
+    local -a args=( --testsuite "${testsuite}" )
     shift
-    case "$testsuite" in
+    case "${testsuite}" in
         api) phpunit "${args[@]}" "$@"
              return
              ;;
