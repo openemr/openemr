@@ -36,7 +36,7 @@ LOGDIR=/var/log/openemr
 case "$1" in
    remove)
       #remove log directory
-      rm -rf $LOGDIR
+      rm -rf ${LOGDIR}
       # Remove db prompt stuff.
       db_purge
       exit 0
