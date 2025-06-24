@@ -81,7 +81,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
 {
     global $var_index;
     $var_index++;
-    $balance = $charges - $ptpaid - $inspaid;
+    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
@@ -176,35 +176,42 @@ if (!empty($_POST['form_save'])) {
 
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source'] ?? ''); // check number not always entered
+    $form_source = trim($_POST['form_source'] ?? ''); // Check number not always entered
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno
+    // Check if Check Number is needed and provided
+    if (($form_method == 'check_payment' || $form_method == 'bank_draft') && empty($form_source)) {
+        echo "<script>alert('" . htmlspecialchars(xl('Check or Reference Number is required'), ENT_QUOTES) . "');</script>";
+        // Optionally, you might want to redirect back or stop further processing
+        return; // Stop processing as check number is required but not provided
+    }
+
+    // Update the invoice_refno
     sqlStatement(
         "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
         array($invoice_refno, $encounter, $form_pid)
     );
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-            $payment_id = sqlInsert(
-                "insert into ar_session set " .
-                "payer_id = ?" .
-                ", patient_id = ?" .
-                ", user_id = ?" .
-                ", closed = ?" .
-                ", reference = ?" .
-                ", check_date =  now() , deposit_date = now() " .
-                ",  pay_total = ?" .
-                ", payment_type = 'patient'" .
-                ", description = ?" .
-                ", adjustment_code = 'pre_payment'" .
-                ", post_to_date = now() " .
-                ", payment_method = ?",
-                array(0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method)
-            );
+        $payment_id = sqlInsert(
+            "insert into ar_session set " .
+            "payer_id = ?" .
+            ", patient_id = ?" .
+            ", user_id = ?" .
+            ", closed = ?" .
+            ", reference = ?" .
+            ", check_date = now(), deposit_date = now()" .
+            ", pay_total = ?" .
+            ", payment_type = 'patient'" .
+            ", description = ?" .
+            ", adjustment_code = 'pre_payment'" .
+            ", post_to_date = now()" .
+            ", payment_method = ?",
+            array(0, $form_pid, $_SESSION['authUserID'], 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method)
+        );
 
-         frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
+        frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp); // Insertion to 'payments' table.
     }
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
@@ -844,6 +851,7 @@ function validate(notSubmit = false) {
     let ok = -1;
     top.restoreSession();
     issue = 'no';
+
     // prevent an empty form submission
     let flgempty = true;
     for (let i = 0; i < f.elements.length; ++i) {
@@ -862,14 +870,17 @@ function validate(notSubmit = false) {
         alert(<?php echo xlj('A Payment is Required!. Please input a payment line item entry.'); ?>);
         return false;
     }
-    // continue validation.
-    if (((document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'check_payment' ||
-            document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value == 'bank_draft') &&
-            document.getElementById('check_number').value == '')) {
+
+    // Ensure the Check or Reference Number is filled when required
+    var paymentMethod = document.getElementById('form_method').options[document.getElementById('form_method').selectedIndex].value;
+    if ((paymentMethod == 'check_payment' || paymentMethod == 'bank_draft') &&
+        !document.getElementById('check_number').value.trim()) {
         alert(<?php echo xlj('Please Fill the Check or Reference Number'); ?>);
         document.getElementById('check_number').focus();
         return false;
     }
+
+    // continue with other validations
     if (document.getElementById('radio_type_of_payment_self1').checked == false &&
         document.getElementById('radio_type_of_payment1').checked == false &&
         document.getElementById('radio_type_of_payment2').checked == false &&
@@ -877,14 +888,14 @@ function validate(notSubmit = false) {
         alert(<?php echo xlj('Please Select Type Of Payment.'); ?>);
         return false;
     }
+
     if (document.getElementById('radio_type_of_payment_self1').checked == true ||
         document.getElementById('radio_type_of_payment1').checked == true) {
         for (var i = 0; i < f.elements.length; ++i) {
             var elem = f.elements[i];
             var ename = elem.name;
-            if (ename.indexOf('form_upay[0') == 0) //Today is this text box.
-            {
-                if (elem.value * 1 > 0) {//A warning message, if the amount is posted with out encounter.
+            if (ename.indexOf('form_upay[0') == 0) {
+                if (elem.value * 1 > 0) {
                     if (confirm(<?php echo xlj('If patient has appointment click OK to create encounter otherwise, cancel this and then create an encounter for today visit.'); ?>)) {
                         ok = 2;
                     } else {
@@ -897,14 +908,13 @@ function validate(notSubmit = false) {
         }
     }
 
-    if (document.getElementById('radio_type_of_payment1').checked == true){//CO-PAY
+    if (document.getElementById('radio_type_of_payment1').checked == true) {
         var total = 0;
         for (var i = 0; i < f.elements.length; ++i) {
             var elem = f.elements[i];
             var ename = elem.name;
-            if (ename.indexOf('form_upay[0]') == 0) {//Today is this text box.
-                if (f.form_paytotal.value * 1 != elem.value * 1) {//Total CO-PAY is not posted against today
-                //A warning message, if the amount is posted against an old encounter.
+            if (ename.indexOf('form_upay[0]') == 0) {
+                if (f.form_paytotal.value * 1 != elem.value * 1) {
                     if (confirm(<?php echo xlj('You are posting against an old encounter?'); ?>)) {
                         ok = 1;
                     } else {
@@ -915,8 +925,7 @@ function validate(notSubmit = false) {
                 break;
             }
         }
-    }//Co Pay
-    else if (document.getElementById('radio_type_of_payment2').checked == true) {//Invoice Balance
+    } else if (document.getElementById('radio_type_of_payment2').checked == true) {
         for (var i = 0; i < f.elements.length; ++i) {
             var elem = f.elements[i];
             var ename = elem.name;
@@ -929,9 +938,11 @@ function validate(notSubmit = false) {
             }
         }
     }
+
     if (notSubmit) {
         return true;
     }
+
     if (ok === -1) {
         if (confirm(<?php echo xlj('Would you like to save?'); ?>)) {
             return true;
@@ -942,6 +953,7 @@ function validate(notSubmit = false) {
     }
     return ok;
 }
+
 
 function cursor_pointer() { //Point the cursor to the latest encounter(Today)
     var f = document.forms[0];
