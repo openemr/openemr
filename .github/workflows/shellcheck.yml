@@ -46,7 +46,7 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup PHP with cs2pr
       uses: shivammathur/setup-php@v2
       with:
