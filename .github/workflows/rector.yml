@@ -59,4 +59,9 @@ jobs:
     - name: Add and Commit Changes
       uses: stefanzweifel/git-auto-commit-action@v6
       with:
-        commit_message: 'auto(*.php): rector changes'
+        commit_message: "auto(*.php): rector changes"
+        repository: .
+        branch: ${{ github.head_ref }}
+        push_options: '--force-with-lease'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
