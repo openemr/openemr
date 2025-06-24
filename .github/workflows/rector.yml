@@ -7,6 +7,7 @@ on:
 
 permissions:
     contents: write
+    pull-requests: write
 
 jobs:
   rector:
@@ -16,7 +17,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
         # setting the ref enables stefanzweifel/git-auto-commit-action to commit changes
         ref: ${{ github.head_ref }}
 
@@ -30,7 +30,7 @@ jobs:
     - name: Get composer cache directory
       id: composer-cache
       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      
+
     - name: Cache dependencies
       uses: actions/cache@v3
       with:
