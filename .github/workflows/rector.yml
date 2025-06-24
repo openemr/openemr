@@ -50,5 +50,9 @@ jobs:
     - name: Create Rector cache directory
       run: mkdir -p /tmp/rector
 
-    - name: Run Rector
-      run: vendor/bin/rector process
+    - name: Rector Dry Run
+      run: |
+        if ! vendor/bin/rector process --dry-run; then
+          echo "Rector failed!"
+          exit 1
+        fi
