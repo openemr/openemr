@@ -1,0 +1,229 @@
+{# Twig
+*****************************************************************************
+Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others
+Copyright (C) 2019 Jerry Padgett <sjpadgett@gmail.com>
+Copyright (C) 2022 Stephen Nielson <stephen@nielson.org>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+***************************************************************************** #}
+{% include ("calendar/" ~ TPL_NAME ~ "/views/header.html.twig") %}
+
+{# Values used in setting timeslot and event heights
+/* if you change these be sure to change their matching values in
+ * the CSS for the calendar, found in interface/themes/ajax_calendar.css
+ */
+#}
+{% set timeslotHeightVal=20 %}
+{% set timeslotHeightUnit="px" %}
+
+{%  include ("calendar/" ~ TPL_NAME ~ "/views/_common-javascript.html.twig") %}
+
+<div id="wrapper">
+    <form name='theform' id='theform' action='index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic=' method='post' onsubmit='return top.restoreSession()'>
+      <input type="hidden" name="viewtype" value="day">
+      <input type="hidden" name="Date" value="{{ Date|attr }}">
+      <div class="container-fluid sticky-top">
+        <div id="topToolbarRight" class="bgcolor2">
+            {% include "calendar/" ~ TPL_NAME ~ "/views/_menu-toggle.html.twig" with {IS_TODAY: IS_TODAY, viewtype: viewtype, Date:Date} %}
+
+            <div id="dateNAV">
+
+               <a id='prevday' href='{{ PREV_DAY_URL }}' onclick='top.restoreSession()' title='{{ "Previous Day"|xla }}'>
+                        <i class='fa {{ chevron_icon_left|attr}} chevron_color'></i>
+               </a>
+                {{ TODAY_DATE_NAV_HEADER|text }}
+               <a id='nextday' href='{{ NEXT_DAY_URL }}' onclick='top.restoreSession()' title='{{ "Next Day"|xla  }}'>
+                        <i class= 'fa {{ chevron_icon_right|attr}} chevron_color'></i>
+               </a>
+            </div>
+            {% include "calendar/" ~ TPL_NAME ~ "/views/_view-picker.html.twig" with {activeView:'day', Date: Date} %}
+        </div> <!-- end topToolbarRight -->
+    </div>
+    <div class="sticky-top">
+        {% set DOWCalendar = generateDOWCalendar(Date, DOWlist) %}
+        {% set caldateFormatted = caldateFormatted ~ ' ' ~ cYear %}
+        {% include ("calendar/" ~ TPL_NAME ~ "/views/_sidebar-bottom-left.html.twig")
+            with {Date: Date, prevMonth: prevMonth, prevMonthFormatted: prevMonthFormatted, nextMonth: nextMonth,
+            nextMonthFormatted: nextMonthFormatted, DOWlist: DOWlist, DOWCalendar: DOWCalendar, caldateFormatted: caldateFormatted
+            , A_SHORT_DAY_NAMES: A_SHORT_DAY_NAMES,
+            facilitySelectorList: facilitySelectorList, providerSelectorList: providerSelectorList, pc_facility: pc_facility, facilities: facilities} %}
+    </div>
+
+    <div class="page-content-wrapper">
+        <div class="container-fluid calsearch_body">
+            <div id="bigCal" class='show-empty-td'>
+                {# used in debugging #}
+{#                {% for date,events in A_EVENTS %}#}
+{#                    {{ date }} =  {% for oneE in events %}{{ oneE|json_encode|text }}<br/><br/>{% endfor %}#}
+{#                {% endfor %}#}
+{#                <hr class="w-100" />#}
+
+
+                <div class='table-responsive'>
+                    <table class='table border-0'>
+
+                    {#// output the TD with the times DIV#}
+                        <tr>
+                            {% include ("calendar/" ~ TPL_NAME ~ "/views/_timeslots.html.twig") with { times: times, providers: providers, Date: Date} %}
+
+
+                            {# This loops once for each provider to be displayed. #}
+                            {% for provider in providers %}
+
+                            {#    // to specially handle the IN/OUT events I'm doing something new here#}
+                            {#    // for each IN event it will have a duration lasting until the next#}
+                            {#    // OUT event or until the end of the day#}
+                            {% set tmpTime = times[0] %}
+                            {% set calStartMin = (tmpTime['hour'] * 60) + tmpTime['minute'] %}
+                            {% set tmpTime = times[times|length-1] %}
+                            {% set calEndMin = (tmpTime['hour'] * 60) + tmpTime['minute'] %}
+                            {% set provfl = provider['fname'] ~ ' ' ~ provider['lname'] %}
+
+                            {#    having a 'title' for the TD makes the date appear by the mouse pointer#}
+                            {#    this is nice when all you see are times on the left side and no head#}
+                            {#    row with the dates or day-of-week (DOW)#}
+                            {% if is_weekend_day(caldate | date('w')) %}
+                                {% set classForWeekend = 'weekend-day' %}
+                            {% else %}
+                                {% set classForWeekend = 'work-day' %}
+                            {% endif %}
+                            <td class='schedule {{ classForWeekend }}' title='{{ provfl|trim|attr }}'
+                                date='{{ caldate| date("Ymd") }}' provider='{{ provider['id']|attr }}'>
+                                <div class='providerheader providerday'>{{ provfl|trim|text }}
+                                    <a class='providerXbtn userClose' data-username='{{ provider['username']|trim|attr}}'></a>
+                                </div>
+                                <div class='calendar_day'>
+
+                                    {#    For each event...#}
+                                    {#    output a TD with an inner containing DIV positioned 'relative'#}
+                                    {#    within that DIV we place our event DIVs using 'absolute' positioning#}
+                                    {% for date,events in A_EVENTS %}
+                                    {{  renderProviderTimeSlots(times, events, interval, provider, provider['id'], calEndMin, calStartMin
+                                    , timeformat, openhour, closehour, timeslotHeightVal, timeslotHeightUnit, date, viewtype) }}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+<script>
+    var tsHeight= {{ timeslotHeightVal|js_escape }};
+    var tsHeightNum={{ timeslotHeightVal|js_escape}};
+
+    function providerXclick(e) {
+        var username=$(this).data('username');
+        if (username=='__PC_ALL__') {
+            $("#pc_username option:gt(0)").prop("selected", true);
+        } else {
+            $("#pc_username option[value="+username+"]").prop("selected", false);
+            // $(this).closest('td').remove();
+        }
+        ChangeProviders($("#pc_username"));
+    }
+
+    $(function () {
+        setupDirectTime();
+        $("#pc_username").change(function() { ChangeProviders(this); });
+        $("#pc_facility").change(function() { ChangeProviders(this); });
+        //$("#dayview").click(function() { ChangeView(this); });
+        $("#weekview").click(function() { ChangeView(this); });
+        $("#monthview").click(function() { ChangeView(this); });
+        //$("#yearview").click(function() { ChangeView(this); });
+        $(".tdDatePicker").click(function() { ChangeDate(this); });
+        $("#datePicker .tdDatePicker").mouseover(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#datePicker .tdDatePicker").mouseout(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#printview").click(function() { PrintView(this); });
+        $(".event").dblclick(function() { EditEvent(this); });
+        $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
+        $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        $(".tdMonthName-small").click(function() {
+
+            dpCal = $("#datePicker > table");
+            mp = $("#monthPicker");
+            mp.width(dpCal.width());
+            mp.toggle();
+        });
+
+        //$('div.providerheader').find('*').css('font-size', $('div.providerheader:first').css('font-size')).addClass(' mx-1 p-0 border-0 align-middle');
+        $('.providerXbtn').on('click', providerXclick);
+
+    });
+
+    /* edit an existing event */
+    var EditEvent = function(eObj) {
+        //alert ('editing '+eObj.id);
+        // split the object ID into date and event ID
+        objID = eObj.id;
+        var parts = new Array();
+        parts = objID.split("-");
+        editing_group = $(eObj).hasClass("groups");
+        if(editing_group){
+            oldGroupEvt(parts[0], parts[1], parts[2]);
+            return true;
+        }
+        // call the oldEvt function to bring up the event editor
+        oldEvt(parts[0], parts[1], parts[2]);
+        return true;
+    };
+
+    /* change the current date based upon what the user clicked in
+     * the datepicker DIV
+     */
+    var ChangeDate = function(eObj) {
+        var baseURL = {{ JAVASCRIPT_BASE_URL|js_escape }};
+        var newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
+        document.location.href=newURL;
+    };
+
+    /* pop up a window to print the current view
+     */
+    var PrintView = function (eventObject) {
+        var printURL = {{ generatePrintURL(template_view|default(''), 'day', Date, pc_username|default(''), category|default(''), topic|default(''))|json_encode }};
+        window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
+        return false;
+    };
+
+    /* change the provider(s)
+     */
+    var ChangeProviders = function (eventObject) {
+        $('#theform').submit();
+    };
+
+    /* change the calendar view */
+    var ChangeView = function (eventObject) {
+        if (eventObject.id == "dayview") {
+            $("#viewtype").val('day');
+        }
+        else if (eventObject.id == "weekview") {
+            $("#viewtype").val('week');
+        }
+        else if (eventObject.id == "monthview") {
+            $("#viewtype").val('month');
+        }
+        else if (eventObject.id == "yearview") {
+            $("#viewtype").val('year');
+        }
+        $('#theform').submit();
+    };
+
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+---
+# Custom assets for OpenEMR
+# This file adds the modal accessibility fix to all pages
+assets:
+    modal-accessibility-fix:
+        basePath: '%webroot%/library/js/'
+        script: modal-accessibility-fix.js
+        autoload: true

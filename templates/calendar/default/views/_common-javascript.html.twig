@@ -1,0 +1,151 @@
+<script>
+    // This is called from the event editor popup.
+    function refreshme() {
+        try {
+            top.restoreSession();
+            // Make sure we're selecting the correct form - theform is the standard name
+            var form = document.getElementById('theform');
+            if (form) {
+                form.submit();
+            } else if (document.forms[0]) {
+                document.forms[0].submit();
+            } else {
+                console.error("No form found to submit for refresh");
+                // Fallback: Just reload the page if no form is found
+                window.location.reload();
+            }
+        } catch(e) {
+            console.error("Error in refreshme function:", e);
+            // Fallback if any error occurs
+            window.location.reload();
+        }
+    }
+
+    function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+        dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
+            '&starttimeh=' + encodeURIComponent(starttimeh) + '&starttimem=' + encodeURIComponent(starttimem) +
+            '&date=' + encodeURIComponent(eventdate) + '&userid=' + encodeURIComponent(providerid) + '&catid=' + encodeURIComponent(catid)
+            ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+    }
+
+    function oldEvt(eventdate, eventid, pccattype) {
+        dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
+    }
+
+    function oldGroupEvt(eventdate, eventid, pccattype){
+        top.restoreSession();
+        dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
+    }
+
+    function goPid(pid) {
+        top.restoreSession();
+        top.RTop.location = '../../patient_file/summary/demographics.php'
+            + '?set_pid=' + encodeURIComponent(pid);
+    }
+
+    function goGid(gid) {
+        top.restoreSession();
+        top.RTop.location = '{{ rootdir }}/therapy_groups/index.php'
+            + '?method=groupDetails&group_id=' + encodeURIComponent(gid);
+    }
+
+    function GoToToday(theForm){
+        var todays_date = new Date();
+        var theMonth = todays_date.getMonth() + 1;
+        theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
+        theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
+        top.restoreSession();
+        theForm.submit();
+    }
+    function ShowImage(src)
+    {
+        var img = document.getElementById('popupImage');
+        var div = document.getElementById('popup');
+        img.src = src;
+        div.style.display = "block";
+    }
+    function HideImage()
+    {
+        document.getElementById('popup').style.display = "none";
+    }
+    /* edit an existing event */
+    var EditEvent = function(eObj) {
+        // if have hiddenevent class do nothing
+        if (eObj.classList.contains('hiddenevent'))
+            return true;
+        //alert ('editing '+eObj.id);
+        // split the object ID into date and event ID
+        objID = eObj.id;
+        var parts = new Array();
+        parts = objID.split("-");
+        editing_group = $(eObj).hasClass("groups");
+        if(editing_group){
+            oldGroupEvt(parts[0], parts[1], parts[2]);
+            return true;
+        }
+        // call the oldEvt function to bring up the event editor
+        oldEvt(parts[0], parts[1], parts[2]);
+        return true;
+    }
+
+    /* change the provider(s)
+     */
+    var ChangeProviders = function (eventObject) {
+        $('#theform').submit();
+    };
+
+    /* change the calendar view
+     */
+    var ChangeView = function (eventObject) {
+        if (eventObject.id == "dayview") {
+            $("#viewtype").val('day');
+        }
+        else if (eventObject.id == "weekview") {
+            $("#viewtype").val('week');
+        }
+        else if (eventObject.id == "monthview") {
+            $("#viewtype").val('month');
+        }
+        else if (eventObject.id == "yearview") {
+            $("#viewtype").val('year');
+        } else {
+            console.error("Failed to find eventobject with id", eventObject);
+            return;
+        }
+        top.restoreSession();
+        $('#theform').submit();
+    };
+
+
+    /* pop up a window to print the current view
+     */
+    var PrintView = function (eventObject) {
+        printURL = {{ JAVASCRIPT_PRINT_URL|json_encode }};
+        window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
+        return false;
+    }
+
+    /* change the current date based upon what the user clicked in
+     * the datepicker DIV
+     */
+    var ChangeDate = function(eObj) {
+        baseURL = {{ JAVASCRIPT_BASE_URL|js_escape }};
+        newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
+        document.location.href=newURL;
+    }
+
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    // handle the view picker, updating the view where its needed
+    // @see _view-picker.html.twig
+    $(".calendar-view-picker").click(function(evt) {
+        if ($(this).hasClass('btn-active')) {
+            evt.preventDefault();
+            return; // nothing to do here
+        }
+        // otherwise let's change the view here
+        ChangeView(evt.currentTarget);
+    });
+</script>

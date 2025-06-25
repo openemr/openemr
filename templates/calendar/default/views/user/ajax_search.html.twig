@@ -1,0 +1,191 @@
+{# Twig template converted from Smarty #}
+{% include 'calendar/default/views/header.html.twig' %}
+
+{# we want to include our stylesheet for this view #}
+<link rel="stylesheet" href="{{ webroot }}{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+
+<script src="{{ webroot }}{{ assets_static_relative }}/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+
+<!-- main navigation -->
+{# Load the Language Definitions #}
+{# config_load file="lang.$USER_LANG" - handled by Twig extensions #}
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12">
+            <h2>{{ "Searching for appointments"|xlt }}</h2>
+        </div>
+        <div class="col-12">
+            <!-- search parameters -->
+            &nbsp;
+            <a href='{{ webroot }}/interface/main/main_info.php' class='menu text-decoration-none' onclick='top.restoreSession()'>
+            {{ "Return to calendar"|xlt }}</a>
+                <form name="theform" id="theform" action="{{ FORM_ACTION }}" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
+                    <!-- Keywords -->
+                    <div class="form-group">
+                        <label for="pc_keywords">{{ "Keywords"|xlt }}:</label>
+                        <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="{{ pc_keywords|default('')|attr }}" />
+                    </div>
+                    <!-- Condition -->
+                    <div class="form-row">
+                        <div class="col">
+                            <select class="form-control" name="pc_keywords_andor">
+                                <option value="AND">{{ "AND"|xlt }}</option>
+                                <option value="OR">{{ "OR"|xlt }}</option>
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            {{ "In"|xlt }}:
+                        </div>
+                        <div class="col">
+                            <select class="form-control" name="pc_category">
+                                <option value="">{{ "Any Category"|xlt }}</option>
+                                {{ CATEGORY_OPTIONS|raw }}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Topic -->
+                    {% if USE_TOPICS %}
+                    <div class="form-group">
+                        <select name="pc_topic">
+                            <option value="">{{ "_PC_SEARCH_ANY_TOPIC"|xlt }}</option>
+                            {{ TOPIC_OPTIONS|raw }}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <br />
+                    <!-- Between -->
+                    <div class="form-row">
+                        <div class="col">
+                            <label for="start">{{ "Between"|xlt }}:</label>
+                            <input type="text" class='form-control datepicker' name="start" id="start" value="{{ DATE_START|attr }}" size="10"/>
+                        </div>
+                        <div class="col">
+                            <label for="end">&nbsp;</label>
+                            <input type="text" class='form-control datepicker' name="end" id="end" value="{{ DATE_END|attr }}" size="10"/>
+                        </div>
+                    </div>
+                    <br />
+                    <!-- For At -->
+                    <div class="form-row">
+                        <div class="col">
+                            <label for="provider_id">{{ "For"|xlt }}</label>
+                            <select class="form-control" name="provider_id" id="provider_id">
+                                {{ PROVIDER_OPTIONS|raw }}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="pc_facility">{{ "At"|xlt }}</label>
+                            <select class="form-control" name="pc_facility" id="pc_facility">
+                                {{ FACILITY_OPTIONS|raw }}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Submit -->
+                    <button class="btn btn-primary mt-2 btn-search" type="submit" name="submit" id="submit" value="{{ "Submit"|xla }}">{{ "Search"|xlt }}</button>
+                    <div class="d-none" id="calsearch_status">
+                        <img src='{{ webroot }}/interface/pic/ajax-loader.gif'> {{ "Searching..."|xlt }}
+                    </div>
+                </form>
+            <!-- end of search parameters -->
+
+            {% if SEARCH_PERFORMED is defined %}
+            <div class="mt-3">
+                <!-- Table Header -->
+                <div class="table-responsive" class="head">
+                    <table class="table">
+                        <tr class="table-active">
+                            <th>{{ "Date"|xlt }}-{{ "Time"|xlt }}</th>
+                            <th>{{ "Provider"|xlt }}</th>
+                            <th>{{ "Category"|xlt }}</th>
+                            <th>{{ "Patient"|xlt }}</th>
+                        </tr>
+                    </table>
+                </div>
+                <!-- Table Result -->
+                <div class="table-responsive">
+                    <table class="table">
+                    {% for eDate, date_events in A_EVENTS %}
+                        {% set eventdate = eDate|slice(0, 4) ~ eDate|slice(5, 2) ~ eDate|slice(8, 2) %}
+                        {% for event in date_events %}
+                            {# pick up some demographic info about the provider #}
+                            {% set provinfo = getProviderInfo(event.aid) %}
+                            {% set eData = event.eid ~ "~" ~ eventdate %}
+                            {% set trTitle = "Click to edit this event"|xl %}
+                            <tr class='calsearch_event' id='{{ eData|attr }}' title='{{ trTitle|attr }}'>
+                                {# date and time #}
+                                {% set eDatetime = eDate ~ " " ~ event.startTime %}
+                                <td>
+                                    {{ eDatetime|date("Y-m-d h:i a")|text }}
+                                </td>
+                                {# provider #}
+                                <td>{{ event.provider_name|text }}
+                                {% set imgtitle = provinfo.fname ~ " " ~ "contact info"|xl ~ ":\n" %}
+                                {% set imgtitle = imgtitle ~ provinfo.phonew1 ~ "\n" ~ provinfo.street ~ "\n" ~ provinfo.city ~ " " ~ provinfo.state %}
+                                <img class="provinfo" src="{{ images_static_relative }}/info.png" title="{{ imgtitle|attr }}" />
+                                </td>
+                                {# category #}
+                                <td>
+                                    {{ event.catname|text }}
+                                </td>
+                                {# patient #}
+                                <td>
+                                    {{ event.patient_name|text }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            {# No events for this date #}
+                            {% if loop.parent.loop.first and loop.first %}
+                                <tr><td colspan='4' class='text-center'>{{ "No Results"|xlt }}</td></tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan='4' class='text-center'>{{ "No Results"|xlt }}</td></tr>
+                    {% endfor %}
+                    </table>
+                </div>  <!-- end results-data DIV -->
+            </div>  <!-- end outer results DIV -->
+            {% endif %}  {# end of SEARCH_PERFORMED #}
+        </div>
+    </div>
+</div>
+
+<script>
+// jQuery stuff to make the page a little easier to use
+
+$(function () {
+    $("#pc_keywords").focus();
+    $("#theform").submit(function() { return SubmitForm(this); });
+    $(".calsearch_event").click(function() { EditEvent(this); });
+
+    {% set datetimepicker_timepicker = false %}
+    {% set datetimepicker_showseconds = false %}
+    {% set datetimepicker_formatInput = false %}
+    $('.datepicker').datetimepicker({
+        {{ datetimepickerJsConfig|raw }}
+        ,format: 'm/d/Y'
+    });
+});
+
+// open a pop up to edit the event
+// parts[] ==>  0=eventID
+const EditEvent = function (eObj) {
+    objID = eObj.id;
+    const parts = objID.split("~");
+    dlgopen('add_edit_event.php?date=' + encodeURIComponent(parts[1]) + '&eid=' + encodeURIComponent(parts[0]), '_blank', 780, 675);
+}
+
+// show the 'searching...' status and submit the form
+const SubmitForm = function(eObj) {
+    $("submit").css("disabled", "true");
+    $("#calsearch_status").removeClass('d-none')
+    return top.restoreSession();
+}
+
+function goPid(pid) {
+    top.restoreSession();
+    top.RTop.location = '../../patient_file/summary/demographics.php' + '?set_pid=' + encodeURIComponent(pid);
+}
+</script>
+
+{% include 'calendar/default/views/footer.html.twig' %}

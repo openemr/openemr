@@ -1,0 +1,15 @@
+<td id='times'><div class='table-responsive'><table class='table'>
+    <tr class='empty-td'><td>&nbsp;</td></tr>
+    {% for slottime in times %}
+        {% set startampm = (slottime['mer']) == "pm" ? 2 : 1 %}
+        {% set starttimeh = slottime['hour'] %}
+        {% set disptimeh = (starttimeh > 12) ? (starttimeh - timeformat) : starttimeh %}
+        {% set starttimem = slottime['minute'] %}
+        {% set slotendmins = starttimeh * 60 + starttimem + interval %}
+        {% set providerid = providers[0]['id'] %}
+        <tr><td class='timeslot'>
+            <a href='javascript:newEvt({{ startampm|attr_js }},{{ starttimeh|attr_js }},{{ starttimem|attr_js }},{{ Date|attr_js }},{{ providerid|attr_js }},0)'
+               title='{{ "New Appointment"|xla }}' alt='{{ "New Appointment"|xla }}'>{{ disptimeh|text }}:{{ starttimem|text }}</a>
+        </td></tr>
+    {% endfor %}
+</table></div></td>

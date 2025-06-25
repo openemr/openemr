@@ -193,10 +193,7 @@ function postcalendar_userapi_buildView($args)
         $pc_month_names = [_CALJAN,_CALFEB,_CALMAR,_CALAPR,_CALMAY,_CALJUN,
             _CALJUL,_CALAUG,_CALSEP,_CALOCT,_CALNOV,_CALDEC];
 
-        $pc_short_day_names = [_CALSUNDAYSHORT, _CALMONDAYSHORT,
-            _CALTUESDAYSHORT, _CALWEDNESDAYSHORT,
-            _CALTHURSDAYSHORT, _CALFRIDAYSHORT,
-            _CALSATURDAYSHORT];
+        $pc_short_day_names = ['0' => xl('Sun'), '1' => xl('Mon'), '2' => xl('Tue'), '3' => xl('Wed'), '4' => xl('Thu'), '5' => xl('Fri'), '6' => xl('Sat')];
 
         $pc_long_day_names = [_CALSUNDAY, _CALMONDAY,
             _CALTUESDAY, _CALWEDNESDAY,
@@ -284,6 +281,8 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         //  Setup the starting and ending date ranges for pcGetEvents()
         //=================================================================
+        $starting_date = date('m/d/Y');
+        $ending_date = date('m/d/Y');
         switch ($viewtype) {
             case 'day':
                 $starting_date = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_day, $the_year));
@@ -433,7 +432,7 @@ function postcalendar_userapi_buildView($args)
             'view',
             ['tplview' => $template_view,
             'viewtype' => 'day',
-            'Date' => $prev_day,
+            'Date' => date("Ymd", strtotime($prev_day)),
             'pc_username' => $pc_username,
             'pc_category' => $category,
             'pc_topic' => $topic]
@@ -445,7 +444,7 @@ function postcalendar_userapi_buildView($args)
             'view',
             ['tplview' => $template_view,
             'viewtype' => 'day',
-            'Date' => $next_day,
+            'Date' => date("Ymd", strtotime($next_day)),
             'pc_username' => $pc_username,
             'pc_category' => $category,
             'pc_topic' => $topic]
@@ -566,16 +565,75 @@ function postcalendar_userapi_buildView($args)
         $tpl->assign_by_ref('WEEK_END_DATE', $week_view_end);
         $tpl->assign_by_ref('MONTH_START_DATE', $month_view_start);
         $tpl->assign_by_ref('MONTH_END_DATE', $month_view_end);
+        $tpl->assign('NEXT_MONTH_DATE', $next_month);
         $tpl->assign_by_ref('TODAY_DATE', $today_date);
         $tpl->assign_by_ref('DATE', $Date);
+        $tpl->assign('DATE_TIMESTAMP', strtotime($Date));
+        $tpl->assign('IS_TODAY', $Date == date('Ymd'));
         $tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__, 'user', 'submit'));
         $tpl->assign_by_ref('intervals', $intervals);
+        $tpl->assign("openhour", $GLOBALS['schedule_start']);
+        $tpl->assign("closehour", $GLOBALS['schedule_end']);
+
+        if ($GLOBALS['time_display_format'] == 1) {
+            $tpl->assign('timeformat', 12);
+        } else {
+            $tpl->assign('timeformat', 0);
+        }
+
+        ;
+
+        $tpl->assign('JAVASCRIPT_BASE_URL', pnModURL(__POSTCALENDAR__,'user','view',
+            array('tplview'=>($template_view ?? ''),
+                'viewtype'=>$viewtype,
+                'Date'=> '~REPLACEME~',
+                'pc_username'=>($pc_username ?? ''),
+                'pc_category'=>($category ?? ''),
+                'pc_topic'=>($topic ?? ''))));
+        $tpl->assign('JAVASCRIPT_PRINT_URL', pnModURL(__POSTCALENDAR__,'user','view',
+            array('tplview'=>($template_view ?? ''),
+                'viewtype'=>$viewtype,
+                'Date'=> $Date,
+                'print'=> 1,
+                'pc_username'=>($pc_username ?? ''),
+                'pc_category'=>($category ?? ''),
+                'pc_topic'=>($topic ?? ''))));
+
+        pnModURL(__POSTCALENDAR__,'user','view', array('tplview'=>($template_view ?? ''),
+                'viewtype'=>$viewtype,
+                'Date'=> '~REPLACEME~',
+                'pc_username'=>($pc_username ?? ''),
+                'pc_category'=>($category ?? ''),
+                'pc_topic'=>($topic ?? '')));
+
+        // setup the variables needed for the top left calendar preview selector
+        postcalendar_userapi_monthly_calendar_selector_vars($tpl, $eventsByDate, $Date, $provinfo, $times);
+
+        postcalendar_userapi_selector_provider_vars($tpl, $provinfo);
+
+        if ($viewtype == 'day') {
+            if (!empty($eventsByDate)) {
+                postcalendar_userapi_day_view_setup_vars($tpl, $eventsByDate);
+            }
+        } else if ($viewtype == 'month') {
+            postcalendar_userapi_month_view_setup_vars($tpl, $eventsByDate, $Date, $provinfo, $times);
+        }
     };
 
     //=================================================================
     //  Parse the template
     //=================================================================
-    $template = "$template_name/views/$viewtype/$template_view_load.html";
+    // Check for Twig template first, then fall back to Smarty
+    $twig_template = "calendar/$template_name/views/$viewtype/$template_view_load.html.twig";
+    $smarty_template = "$template_name/views/$viewtype/$template_view_load.html";
+    
+    // Try Twig template first
+    if ($tpl->twig && $tpl->twig->getLoader()->exists($twig_template)) {
+        $template = $twig_template;
+    } else {
+        $template = $smarty_template;
+    }
+    
     if (!$print) {
             $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
             $output .= $tpl->fetch($template, $cacheid);    // cache id
@@ -594,6 +652,421 @@ function postcalendar_userapi_buildView($args)
     //  Return the output
     //=================================================================
     return $output;
+}
+
+function postcalendar_userapi_selector_provider_vars($tpl, $providers)
+{
+    $facilitySelectorList = [];
+    $providerSelectorList = [];
+
+    // ==============================
+    // FACILITY FILTERING (lemonsoftware)
+    /*********************************************************************
+    $facilities = getFacilities();
+     *********************************************************************/
+    if (!empty($_SESSION['authorizeduser']) && ($_SESSION['authorizeduser'] == 1)) {
+        $facilities = getFacilities();
+    } else {
+        $facilities = getUserFacilities($_SESSION['authUserID']); // from users_facility
+        if (count($facilities) == 1)
+            OpenEMR\Common\Session\SessionUtil::setSession('pc_facility', key($facilities));
+    }
+    /********************************************************************/
+    if (count($facilities) > 1) {
+        if (!$GLOBALS['restrict_user_facility']) {
+            $facilitySelectorList[] = ["value" => 0, 'color' => ''
+                , 'selected' => !$_SESSION['pc_facility'], 'text' => xlt('All Facilities')];
+        }
+        foreach ($facilities as $fa) {
+            $facilitySelectorList[] = ['value' => $fa['id'], 'color' => $fa['color']
+                , 'selected' => $_SESSION['pc_facility'] == $fa['id'], 'text' => $fa['name']];
+        }
+    } else {
+        $facilitySelectorList[] = ['value' => $facilities[key($facilities)]['id'], 'color' => $facilities[key($facilities)]['color']
+            , 'selected' => true, 'text' => $facilities[key($facilities)]['name']];
+    }
+
+    //FACILITY FILTERING (CHEMED)
+    if ($_SESSION['pc_facility']) {
+        $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+    } else {
+        $provinfo = getProviderInfo();
+    }
+
+    $providerUsernames = [];
+    foreach ($providers as $provider)
+    {
+        $providerUsernames[$provider['username']] = $provider['username'];
+    }
+
+    // Check if "All Users" should be selected
+    // This happens when no providers are selected, or when __PC_ALL__ is explicitly selected
+    $pc_username = $_SESSION['pc_username'] ?? '';
+    
+    $allUsersSelected = false;
+    
+    if (empty($pc_username) || 
+        (is_array($pc_username) && empty($pc_username)) || 
+        $pc_username === '__PC_ALL__' ||
+        empty($providerUsernames)) {
+        $allUsersSelected = true;
+    }
+
+    $providerSelectorList[] = ['value' => '__PC_ALL__', 'text' => xlt("All Users"), 'selected' => $allUsersSelected];
+    foreach ($provinfo as $doc) {
+        $username = $doc['username'];
+        $providerSelectorList[] = [
+            'value' => $username
+            , 'selected' => !$allUsersSelected && isset($providerUsernames[$username])
+            , 'text' => $doc['lname'] . ', ' . $doc['fname']
+        ];
+    }
+
+    $tpl->assign('facilitySelectorList', $facilitySelectorList);
+    $tpl->assign('providerSelectorList', $providerSelectorList);
+    $tpl->assign('pc_facility', $_SESSION['pc_facility']);
+    $tpl->assign('facilities', $facilities); // Add raw facilities array for backward compatibility
+}
+
+function postcalendar_userapi_monthly_calendar_selector_vars($tpl, $eventsByDate, $Date, $provinfo, $times)
+{
+    $DOWlist = array();
+    $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
+    // bound check and auto-correction
+    if ($tmpDOW < 0 || $tmpDOW > 6) {
+        pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', '0');
+        $tmpDOW = 0;
+    }
+    while (count($DOWlist) < 7) {
+        array_push($DOWlist, $tmpDOW);
+        $tmpDOW++;
+        if ($tmpDOW > 6) {
+            $tmpDOW = 0;
+        }
+    }
+    $tpl->assign('DOWlist', $DOWlist);
+
+    $atmp = array_keys($eventsByDate);
+    $caldate = strtotime($atmp[0]);
+    list ($year, $month, $day) = explode(" ", date('Y m d', $caldate));
+    $startdate = strtotime($year . $month . "01");
+    $enddate = strtotime($year . $month . date("t", $startdate) . " 23:59");
+    while (date('w', $startdate) != $DOWlist[0]) {
+        $startdate -= 60 * 60 * 24;
+    }
+    while (date('w', $enddate) != $DOWlist[6]) {
+        $enddate += 60 * 60 * 24;
+    }
+
+    // we need to get the names to put at the header for the month
+    $dowCount = 0;
+    $defaultDate = "";
+    $dowListNames = [];
+    foreach ($eventsByDate as $date => $events) {
+        if ($defaultDate == "") $defaultDate = date("Ymd", strtotime($date));
+        $dowListNames[] = date("D", strtotime($date));
+        if ($dowCount++ == 6) { break; }
+    }
+    $tpl->assign("dowListNames", $dowListNames);
+
+
+    // first we need to setup our start and end time which are used in the weekly / monthly view
+    $calStartMin = ($times[0]['hour'] * 60) + $times[0]['minute'];
+    $tmpTime = $times[count($times)-1];
+    $calEndMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
+
+    // we need to organize our calendars by providers for the monthly main view
+    $calendarsByProvider = [];
+    foreach ($provinfo as $provider) {
+        $providerCalendar = [
+            'provider' => [
+                'id' => $provider['id']
+                ,'fname' => $provider['fname']
+                ,'lname' => $provider['lname']
+            ]
+            ,'calendar' => []
+        ];
+
+        $week = [];
+
+        // now we setup the variables for the main view
+        foreach ($eventsByDate as $date => $events) {
+
+            $dateAsTime = strtotime($date);
+            $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
+
+            $gotoURL = pnModURL(__POSTCALENDAR__, 'user', 'view',
+                array('tplview' => ($template_view ?? null),
+                    'viewtype' => 'day',
+                    'Date' => date("Ymd", strtotime($date)),
+                    'pc_username' => ($pc_username ?? null),
+                    'pc_category' => ($category ?? null),
+                    'pc_topic' => ($topic ?? null)));
+            $classForWeekend = is_weekend_day(date('w', strtotime($date))) ? 'weekend-day' : 'work-day';
+            $day = [
+                'title' => xl("Go to ") . date('d M Y', strtotime($date))
+                , 'text' => date('d', strtotime($date))
+                , 'url' => $gotoURL
+                , 'class' => $classForWeekend
+                , 'events' => []
+            ];
+
+            if (date("w", $dateAsTime) == $DOWlist[0]) {
+                $week = [];
+            }
+
+            // now add all of our events for the day
+            foreach ($events as $event) {
+                if ($provider['id'] != $event['aid'] && $event['aid'] != 0) {
+                    continue;
+                }
+
+                // Omit IN and OUT events to reduce clutter in this month view
+                if (($event['catid'] == 2) || ($event['catid'] == 3)) {
+                    continue;
+                }
+                // specially handle all-day events
+                if ($event['alldayevent'] == 1) {
+                    $tmpTime = $times[0];
+                    if (strlen($tmpTime['hour']) < 2) { $tmpTime['hour'] = "0".$tmpTime['hour']; }
+                    if (strlen($tmpTime['minute']) < 2) { $tmpTime['minute'] = "0".$tmpTime['minute']; }
+                    $event['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
+                    $event['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
+                }
+                $day['events'][] = $event;
+            }
+            $week[] = $day;
+            // end of week row
+            if (date('w', $dateAsTime) == $DOWlist[6]) {
+                $providerCalendar['calendar'][] = $week;
+            }
+        }
+        $calendarsByProvider[] = $providerCalendar;
+    }
+    $tpl->assign("calendarsByProvider", $calendarsByProvider);
+}
+
+function postcalendar_userapi_day_view_setup_vars($tpl, $eventsByDate)
+{
+
+    $atmp = array_keys($eventsByDate);
+    $calDate = strtotime($atmp[0]);
+    $tpl->assign("TODAY_DATE_NAV_HEADER", dateformat($calDate, true));
+    $tpl->assign("firstEventDFY", date("d F Y", strtotime($atmp[0])));
+    $tpl->assign("firstEventDayOfWeek", date("l", strtotime($atmp[0])));
+    $tpl->assign('caldate', $calDate);
+    $tpl->assign('caldateFormatted', date('F', $calDate));
+    $cMonth =  date("m", $calDate);
+    $cYear = date("Y", $calDate);
+    $cDay = date("d", $calDate);
+    $tpl->assign('cMonth',$cMonth);
+    $tpl->assign('cYear', $cYear);
+    $tpl->assign('cDay', $cDay);
+    $prevMonth = postcalendar_userapi_day_view_calculate_previous_month($cDay, $cMonth, $cYear);
+    $nextMonth = postcalendar_userapi_day_view_calculate_next_month($cDay, $cMonth, $cYear);
+    $tpl->assign('prevMonth', $prevMonth);
+    $tpl->assign('prevMonthFormatted', date("F", strtotime($prevMonth)));
+
+    $tpl->assign('nextMonth', $nextMonth);
+    $tpl->assign('nextMonthFormatted', date("F", strtotime($nextMonth)));
+}
+
+// TODO: @adunsulag why don't we just use php date functions with an INTERVAL 1 MONTH and let php do this?
+// what about using this stuff?
+/*
+ * $prev_month = Date_Calc::beginOfPrevMonth(1, $the_month, $the_year, '%Y%m%d');
+    $next_month = Date_Calc::beginOfNextMonth(1, $the_month, $the_year, '%Y%m%d');
+ */
+function postcalendar_userapi_day_view_calculate_previous_month($cDay, $cMonth, $cYear)
+{
+    $pDay = $cDay;
+    $pMonth = $cMonth - 1;
+    $pYear = $cYear;
+    if ($pMonth < 1) {
+        $pMonth = 12;
+        $pYear = $cYear - 1;
+    }
+    while (! checkdate($pMonth, $pDay, $pYear)) { $pDay = $pDay - 1; }
+    return sprintf("%d%02d%02d",$pYear,$pMonth,$pDay);
+}
+
+// TODO: @adunsulag why don't we just use php date functions with an INTERVAL 1 MONTH and let php do this?
+function postcalendar_userapi_day_view_calculate_next_month($cDay, $cMonth, $cYear)
+{
+    $nDay = $cDay;
+    $nMonth = $cMonth + 1;
+    $nYear = $cYear;
+    if ($nMonth > 12) {
+        $nMonth = 1;
+        $nYear = $cYear + 1;
+    }
+    while (! checkdate($nMonth, $nDay, $nYear)) { $nDay = $nDay - 1; }
+    return sprintf("%d%02d%02d",$nYear,$nMonth,$nDay);
+}
+
+function postcalendar_userapi_month_view_setup_vars($tpl, $eventsByDate, $Date, $provinfo, $times)
+{
+    // This function sets up template variables for the month view
+    // It combines functionality from both day_view_setup_vars and monthly_calendar_selector_vars
+    
+    // First, set up basic date information
+    $atmp = array_keys($eventsByDate);
+    if (empty($atmp)) {
+        // If no events, use the provided Date parameter
+        $calDate = strtotime($Date);
+    } else {
+        $calDate = strtotime($atmp[0]);
+    }
+    
+    // Assign basic date variables
+    $tpl->assign("TODAY_DATE_NAV_HEADER", dateformat($calDate, true));
+    $tpl->assign('caldate', $calDate);
+    $tpl->assign('caldateFormatted', date('F Y', $calDate));
+    $tpl->assign('Month', date('Y-m-d', $calDate)); // Add Month variable for header display
+    $cMonth = date("m", $calDate);
+    $cYear = date("Y", $calDate);
+    $cDay = date("d", $calDate);
+    $tpl->assign('cMonth', $cMonth);
+    $tpl->assign('cYear', $cYear);
+    $tpl->assign('cDay', $cDay);
+    
+    // Calculate previous and next months
+    $prevMonth = date('Ym01', strtotime('-1 month', strtotime($Date)));
+    $nextMonth = date('Ym01', strtotime('+1 month', strtotime($Date)));
+    $tpl->assign('prevMonth', $prevMonth);
+    $tpl->assign('prevMonthFormatted', date("F Y", strtotime($prevMonth . '01')));
+    $tpl->assign('nextMonth', $nextMonth);
+    $tpl->assign('nextMonthFormatted', date("F Y", strtotime($nextMonth . '01')));
+    
+    // Set default selected provider to the logged-in user if no provider is selected
+    if (isset($_SESSION['authUserID']) && !isset($_REQUEST['pc_username'])) {
+        // Find the provider matching the logged-in user
+        foreach ($provinfo as $provider) {
+            if ($provider['id'] == $_SESSION['authUserID']) {
+                $tpl->assign('selectedProvider', $provider);
+                // Set displayProviders = true to ensure the provider header shows
+                $tpl->assign('displayProviders', true);
+                break;
+            }
+        }
+    }
+    
+    // Now incorporate the necessary parts from monthly_calendar_selector_vars
+    $DOWlist = array();
+    $tmpDOW = pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek');
+    // bound check and auto-correction
+    if ($tmpDOW < 0 || $tmpDOW > 6) {
+        pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek', '0');
+        $tmpDOW = 0;
+    }
+    while (count($DOWlist) < 7) {
+        array_push($DOWlist, $tmpDOW);
+        $tmpDOW++;
+        if ($tmpDOW > 6) {
+            $tmpDOW = 0;
+        }
+    }
+    $tpl->assign('DOWlist', $DOWlist);
+    
+    // Set up the calendar structure
+    list ($year, $month, $day) = explode(" ", date('Y m d', $calDate));
+    $startdate = strtotime($year . $month . "01");
+    $enddate = strtotime($year . $month . date("t", $startdate) . " 23:59");
+    while (date('w', $startdate) != $DOWlist[0]) {
+        $startdate -= 60 * 60 * 24;
+    }
+    while (date('w', $enddate) != $DOWlist[6]) {
+        $enddate += 60 * 60 * 24;
+    }
+    
+    // Get day of week names for header
+    $dowCount = 0;
+    $defaultDate = "";
+    $dowListNames = [];
+    foreach ($eventsByDate as $date => $events) {
+        if ($defaultDate == "") $defaultDate = date("Ymd", strtotime($date));
+        $dowListNames[] = date("D", strtotime($date));
+        if ($dowCount++ == 6) { break; }
+    }
+    $tpl->assign("dowListNames", $dowListNames);
+
+    // Set up start and end times
+    $calStartMin = ($times[0]['hour'] * 60) + $times[0]['minute'];
+    $tmpTime = $times[count($times)-1];
+    $calEndMin = ($tmpTime['hour'] * 60) + $tmpTime['minute'];
+    
+    // Organize calendars by provider
+    $calendarsByProvider = [];
+    foreach ($provinfo as $provider) {
+        $providerCalendar = [
+            'provider' => [
+                'id' => $provider['id']
+                ,'fname' => $provider['fname']
+                ,'lname' => $provider['lname']
+            ]
+            ,'calendar' => []
+        ];
+        
+        $week = [];
+        
+        // Set up the calendar days
+        foreach ($eventsByDate as $date => $events) {
+            $dateAsTime = strtotime($date);
+            $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
+            
+            $gotoURL = pnModURL(
+                __POSTCALENDAR__,
+                'user',
+                'view',
+                array('tplview' => ($template_view ?? null),
+                'viewtype' => 'day',
+                'Date' => date("Ymd", strtotime($date)),
+                'pc_username' => ($pc_username ?? null),
+                'pc_category' => ($category ?? null),
+                'pc_topic' => ($topic ?? null))
+            );
+            $classForWeekend = is_weekend_day(date('w', strtotime($date))) ? 'weekend-day' : 'work-day';
+            $day = [
+                'title' => xl("Go to ") . date('d M Y', strtotime($date))
+                , 'text' => date('d', strtotime($date))
+                , 'url' => $gotoURL
+                , 'class' => $classForWeekend
+                , 'events' => []
+            ];
+            
+            if (date("w", $dateAsTime) == $DOWlist[0]) {
+                $week = [];
+            }
+            
+            // Add events for the day
+            foreach ($events as $event) {
+                if ($provider['id'] != $event['aid'] && $event['aid'] != 0) {
+                    continue;
+                }
+                
+                // Omit IN and OUT events to reduce clutter in this month view
+                if (($event['catid'] == 2) || ($event['catid'] == 3)) {
+                    continue;
+                }
+                // Handle all-day events
+                if ($event['alldayevent'] == 1) {
+                    $tmpTime = $times[0];
+                    if (strlen($tmpTime['hour']) < 2) { $tmpTime['hour'] = "0".$tmpTime['hour']; }
+                    if (strlen($tmpTime['minute']) < 2) { $tmpTime['minute'] = "0".$tmpTime['minute']; }
+                    $event['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
+                    $event['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
+                }
+                $day['events'][] = $event;
+            }
+            $week[] = $day;
+            // End of week row
+            if (date('w', $dateAsTime) == $DOWlist[6]) {
+                $providerCalendar['calendar'][] = $week;
+            }
+        }
+        $calendarsByProvider[] = $providerCalendar;
+    }
+    $tpl->assign("calendarsByProvider", $calendarsByProvider);
 }
 
 /**
@@ -625,7 +1098,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
     $cattable   =  $pntable['postcalendar_categories'];
-//RM add address
+
     $sql = "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, a.pc_title, " .
     "a.pc_time, a.pc_hometext, a.pc_eventDate, a.pc_duration, a.pc_endDate, " .
     "a.pc_startTime, a.pc_recurrtype, a.pc_recurrfreq, a.pc_recurrspec, " .
@@ -635,8 +1108,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.fname,' ',pd.lname) as patient_name, " .
-    "concat(u2.fname, ' ', u2.lname) as owner_name,  " .
-    "concat (pd.street, ',', pd.street_line_2) as patient_address,"  . "pd.DOB as patient_dob, " .
+    "concat(u2.fname, ' ', u2.lname) as owner_name, pd.DOB as patient_dob, " .
     "a.pc_facility" .
     "FROM  $table AS a " .
     "LEFT JOIN $cattable AS b ON b.pc_catid = a.pc_catid " .
@@ -661,10 +1133,6 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     if (!empty($s_topic)) {
         $sql .= "AND ($s_topic) ";
-    }
-
-    if (!empty($collide_etime) && !empty($collide_stime)) {
-        $sql .= "AND NOT ((pc_endTime <= '" . pnVarPrepForStore($collide_stime) . "') OR (pc_startTime >= '" . pnVarPrepForStore($collide_etime) . "')) AND pc_endTime IS NOT NULL ";
     }
 
     if (!empty($category)) {
@@ -702,11 +1170,25 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     for ($i = 0; !$result->EOF; $result->MoveNext()) {
         // get the results from the query
-        //RM include address
         if (isset($tmp)) {
             unset($tmp);
+<<<<<<< HEAD
         } $tmp = [];
         [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
+=======
+        } $tmp = array();
+        list($tmp['eid'],          $tmp['uname'],         $tmp['catid'],
+         $tmp['title'],        $tmp['time'],          $tmp['hometext'],
+         $tmp['eventDate'],    $tmp['duration'],      $tmp['endDate'],
+         $tmp['startTime'],    $tmp['recurrtype'],    $tmp['recurrfreq'],
+         $tmp['recurrspec'],   $tmp['topic'],         $tmp['alldayevent'],
+         $tmp['location'],     $tmp['conttel'],       $tmp['contname'],
+         $tmp['contemail'],    $tmp['website'],       $tmp['fee'],
+         $tmp['sharing'],      $tmp['prefcatid'],     $tmp['catcolor'],
+         $tmp['catname'],      $tmp['catdesc'],       $tmp['pid'],
+         $tmp['aid'],          $tmp['provider_name'], $tmp['patient_name'],
+         $tmp['owner_name'],   $tmp['patient_dob'],   $tmp['facility'])   = $result->fields;
+>>>>>>> 7851c2cb2 (show time!)
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -755,9 +1237,11 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['patient_name'] = $tmp['patient_name'];
         $events[$i]['provider_name'] = $tmp['provider_name'];
         $events[$i]['owner_name']  = $tmp['owner_name'];
-        $events[$i]['patient_address'] = $tmp['patient_address']; //RM
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
+<<<<<<< HEAD
         $events[$i]['patient_age'] = date("Y") - substr(((string) $tmp['patient_dob']), 0, 4);
+=======
+>>>>>>> 7851c2cb2 (show time!)
         $events[$i]['facility']    = getfacility($tmp['facility']);
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
@@ -892,7 +1376,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u2.fname, ' ', u2.lname) as owner_name, " .
-    "concat (pd.street, ', ', pd.street_line_2) as patient_address," .
     "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
     "tg.group_name, tg.group_type, tg.group_status " .
     "FROM $table AS a " .
@@ -908,8 +1391,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
-    $calFilter = $calFilterEvent->getCustomWhereFilter();
+    $calFilter = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE)->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 
   //==================================
@@ -1023,6 +1505,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // get the results from the query
         if (isset($tmp)) {
             unset($tmp);
+<<<<<<< HEAD
         } $tmp = [];
         [
             $tmp['eid'],
@@ -1067,6 +1550,22 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['group_type'],
             $tmp['group_status'],
         ] = $result->fields;
+=======
+        } $tmp = array();
+        list($tmp['eid'],          $tmp['uname'],       $tmp['catid'],
+         $tmp['title'],        $tmp['time'],        $tmp['hometext'],
+         $tmp['eventDate'],    $tmp['duration'],    $tmp['endDate'],
+         $tmp['startTime'],    $tmp['recurrtype'],  $tmp['recurrfreq'],
+         $tmp['recurrspec'],   $tmp['topic'],       $tmp['alldayevent'],
+         $tmp['location'],     $tmp['conttel'],     $tmp['contname'],
+         $tmp['contemail'],    $tmp['website'],     $tmp['fee'],
+         $tmp['sharing'],      $tmp['prefcatid'],   $tmp['catcolor'],
+         $tmp['catname'],      $tmp['catdesc'],     $tmp['pid'],
+         $tmp['apptstatus'],   $tmp['aid'],         $tmp['provider_name'],
+         $tmp['patient_name'], $tmp['owner_name'],  $tmp['patient_dob'],
+         $tmp['facility'],     $tmp['pubpid'],      $tmp['gid'],
+         $tmp['group_name'],   $tmp['group_type'],  $tmp['group_status']) = $result->fields;
+>>>>>>> 7851c2cb2 (show time!)
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1109,7 +1608,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['patient_name'] = $tmp['patient_name'];
         $events[$i]['provider_name'] = $tmp['provider_name'];
         $events[$i]['owner_name']  = $tmp['owner_name'];
-        $events[$i]['patient_address'] = $tmp['patient_address']; //RM
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
         $events[$i]['patient_age'] = getPatientAge($tmp['patient_dob']);
         $events[$i]['facility']    = getFacility($tmp['facility']);
@@ -1204,6 +1702,14 @@ function getBlockTime($time)
     return strval($blocknum);
 }
 
+function fillBlocks($date, &$days)
+{
+    // Initialize blocks array for the given date if it doesn't exist
+    if (!isset($days[$date]['blocks'])) {
+        $days[$date]['blocks'] = array();
+    }
+}
+
 /*==========================
  * Gather up all the Events matching the arguements
  * Arguements can be:
@@ -1287,16 +1793,19 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event = new CalendarUserGetEventsFilter();
     $event->setEventsByDays($days);
     $event->setViewType($viewtype);
-    $event->setKeywords($s_keywords);
-    $event->setCategory($s_category);
-    $event->setStartDate($start_date);
-    $event->setEndDate($end_date);
+    $event->setKeywords($s_keywords ?? null);
+    $event->setCategory($s_category ?? null);
+    $event->setStartDate($start_date ?? null);
+    $event->setEndDate($end_date ?? null);
     $event->setProviderID($providerID ?? $provider_id ?? null);
-
+    
     $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    
+    // Get the filtered days from the event result
     if ($result instanceof CalendarUserGetEventsFilter) {
         $days = $result->getEventsByDays();
     }
+    
     return $days;
 }
 
@@ -1356,15 +1865,9 @@ function calculateEvents($days, $events, $viewtype)
                 if (isset($days[$event['eventDate']])) {
                     array_push($days[$event['eventDate']], $event);
                     if ($viewtype == "week") {
-                        //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
                         fillBlocks($eventD, $days);
-                        //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
                         $gbt = getBlockTime($eventS);
                         $days[$eventD]['blocks'][$gbt][$eventD][] = $event;
-                        //echo "event is: " . print_r($days[$eventD]['blocks'][$gbt],true) . " <br />";
-                        //echo "begin printing blocks for $eventD<br />";
-                        //print_r($days[$eventD]['blocks']);
-                        //echo "end printing blocks<br />";
                     }
                 }
                 break;
@@ -1422,12 +1925,8 @@ function calculateEvents($days, $events, $viewtype)
 
                         if ($viewtype == "week") {
                             fillBlocks($occurance, $days);
-                            //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
                             $gbt = getBlockTime($eventS);
                             $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
-                            //echo "begin printing blocks for $eventD<br />";
-                            //print_r($days[$occurance]['blocks']);
-                            //echo "end printing blocks<br />";
                         }
                     }
 
@@ -1464,7 +1963,6 @@ function calculateEvents($days, $events, $viewtype)
                 $nm = $esM;
                 $ny = $esY;
                 $nd = $esD;
-
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1; // Added by epsdky 2016.
                 }
@@ -1474,7 +1972,6 @@ function calculateEvents($days, $events, $viewtype)
                 // (for rt2 appointments set prior to fix it remains unchanged). This can be done
                 // since $nd has no influence past the mktime functions - epsdky 2016.
 
-                // make us current
                 while ($ny < $cy) {
                     $occurance = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
                     [$ny, $nm, $nd] = explode('-', $occurance);
@@ -1507,7 +2004,6 @@ function calculateEvents($days, $events, $viewtype)
 
                         if ($viewtype == "week") {
                             fillBlocks($occurance, $days);
-                            //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
                             $gbt = getBlockTime($eventS);
                             $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
                         }
@@ -1521,6 +2017,7 @@ function calculateEvents($days, $events, $viewtype)
     } // <- end of foreach($events as $event)
     return $days;
 }
+<<<<<<< HEAD
 
 function fillBlocks($td, $ar): void
 {
@@ -1533,3 +2030,5 @@ function fillBlocks($td, $ar): void
             $ar[strval($td)]['blocks']["all_day"] = [];
     }
 }
+=======
+>>>>>>> 7851c2cb2 (show time!)
