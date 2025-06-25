@@ -195,11 +195,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
     - To dry run Rector changes:
       ```sh
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools rector-dry-run'
+      docker compose exec openemr /root/devtools rector-dry-run
       ```
     - To process Rector changes:
       ```sh
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools rector-process'
+      docker compose exec openemr /root/devtools rector-process
       ```
     - To run unit testing:
       ```sh
