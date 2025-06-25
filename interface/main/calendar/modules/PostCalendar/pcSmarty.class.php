@@ -1,5 +1,12 @@
 <?php
 
+use Twig\Environment;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\PostCalendar\PostCalendarTwigExtensions;
+
+// The PostCalendarTwigExtensions class is now autoloaded via PSR-4
+// require_once __DIR__ . "/pnincludes/PostCalendarTwigExtensions.php";
+
 /**
  *  $Id$
  *
@@ -30,12 +37,119 @@ require_once(__DIR__ . '/../../../../../library/smarty_legacy/smarty/Smarty_Lega
 
 class pcSmarty extends Smarty_Legacy
 {
+    private $twigVars = [];
+
+    /**
+     * @var \Twig\Environment
+     */
+    public $twig;
+
+    /**
+     * @var TwigContainer
+     */
+    private $twigContainer;
+
+    public function getVar($varName) {
+        return $this->_tpl_vars[$varName] ?? null;
+    }
+    public function assign($tpl_var, $value = null)
+    {
+        parent::assign($tpl_var, $value);
+        $this->_tpl_vars[$tpl_var] = $value;
+    }
+
+    public function assign_by_ref($tpl_var, &$value)
+    {
+        parent::assign_by_ref($tpl_var, $value);
+        $this->_tpl_vars[$tpl_var] = &$value;
+    }
+
+    public function fetch($resource_name, $cache_id = null, $compile_id = null, $display = false)
+    {
+        // Convert legacy template path to Twig template path
+        $viewtype = '';
+        $template_view = '';
+
+        // Extract viewtype and template_view from the resource_name
+        // Original pattern that works for some cases
+        if (preg_match('|([^/]+)/views/([^/]+)/([^\.]+)\.html|', $resource_name, $matches)) {
+            $template_name = $matches[1];
+            $viewtype = $matches[2];
+            $template_view = $matches[3];
+
+            // Map to new Twig template path
+            $twig_template = "calendar/default/views/$viewtype/$template_view.html.twig";
+
+            // Check if the template exists
+            if ($this->twig->getLoader()->exists($twig_template)) {
+                return $this->twig->render($twig_template, $this->_tpl_vars);
+            }
+        }
+        // Handle the case where resource_name is just a viewtype and template
+        // This pattern handles paths like "day/default.html" or "month/default.html"
+        elseif (preg_match('|^([^/]+)/([^\.]+)\.html$|', $resource_name, $matches)) {
+            $viewtype = $matches[1];
+            $template_view = $matches[2];
+
+            // Map to new Twig template path
+            $twig_template = "calendar/default/views/$viewtype/$template_view.html.twig";
+
+            // Check if the template exists
+            if ($this->twig->getLoader()->exists($twig_template)) {
+                return $this->twig->render($twig_template, $this->_tpl_vars);
+            }
+        }
+        // Handle the case for user directory templates
+        elseif (preg_match('|^user/([^\.]+)\.html$|', $resource_name, $matches)) {
+            $template_view = $matches[1];
+
+            // Map to new Twig template path for user directory
+            $twig_template = "calendar/default/views/user/$template_view.html.twig";
+
+            // Check if the template exists
+            if ($this->twig->getLoader()->exists($twig_template)) {
+                return $this->twig->render($twig_template, $this->_tpl_vars);
+            }
+        }
+        // Handle the case for direct Twig template names
+        // This is a fallback for any direct Twig template references
+        elseif (strpos($resource_name, '.html.twig') !== false) {
+            $twig_template = $resource_name;
+
+            // Check if the template exists
+            if ($this->twig->getLoader()->exists($twig_template)) {
+                return $this->twig->render($twig_template, $this->_tpl_vars);
+            }
+        }
+
+        // Fallback to legacy Smarty if Twig template not found
+        return parent::fetch($resource_name, $cache_id, $compile_id, $display);
+    }
+
+    public function display($resource_name, $cache_id = null, $compile_id = null)
+    {
+        echo $this->fetch($resource_name, $cache_id, $compile_id, true);
+    }
+
     function __construct()
     {
+        $this->_tpl_vars = [];
+
+        $this->twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+        $this->twig = $this->twigContainer->getTwig();
+
+        $this->twig->addExtension(new PostCalendarTwigExtensions());
+        // probably need to add a twig extension to handle all of the original smarty functions
+
         global $bgcolor1,$bgcolor2,$bgcolor3,$bgcolor4,$bgcolor5,$bgcolor6,$textcolor1,$textcolor2;
 
         // call constructor
         parent::__construct();
+
+        // Always assign authUserID from session to make it available in all templates
+        if (isset($_SESSION['authUserID'])) {
+            $this->assign('authUserID', $_SESSION['authUserID']);
+        }
 
         // gather module information
         $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -95,6 +209,11 @@ class pcSmarty extends Smarty_Legacy
         $this->assign('24HOUR_TIME', _SETTING_TIME_24HOUR);
         $this->assign_by_ref('MODULE_NAME', $pcDisplayName);
         $this->assign_by_ref('MODULE_DIR', $pcDir);
+
+        // get some of our globals out
+        $this->assign('translate_appt_categories', $GLOBALS['translate_appt_categories']);
+        $this->assign('session_language_choice', $_SESSION['language_choice']);
+
         //=================================================================
         //  Find out what Template we're using
         //=================================================================
@@ -117,5 +236,15 @@ class pcSmarty extends Smarty_Legacy
         $this->assign('TPL_IMAGE_PATH', $GLOBALS['rootdir'] . "/main/calendar/modules/$pcDir/pntemplates/$template_name/images");
         $this->assign('TPL_ROOTDIR', $GLOBALS['rootdir']);
         $this->assign('TPL_STYLE_PATH', "modules/$pcDir/pntemplates/$template_name/style");
+
+        // we are storing all common PostCalendar pieces here
+        $this->assign_by_ref('language_direction', $_SESSION['language_direction']);
+
+
+        $this->assign('chevron_icon_left', $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right');
+        $this->assign('chevron_icon_right', $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left');
+        $this->assign('Date', postcalendar_getDate());
+
+        $this->assign('DATE_STR_CURRENT', date('Ymd'));
     }
 }
