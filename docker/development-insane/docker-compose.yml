@@ -7,7 +7,7 @@
 # Brief instructions on how to use (for fuller instructions and examples,
 #  see the document at contrib/util/docker/README.md):
 #   1. go to contrib/util/docker directory
-#   2. docker-compose up -d
+#   2. docker compose up -d
 #   3. Choose one of any of the following links:
 #        http://localhost:8082 (with Alpine 3.15 (Apache and PHP 8.0))
 #        http://localhost:8083 (with Alpine 3.17 (Apache and PHP 8.1))
@@ -64,8 +64,8 @@
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
-#     1. docker-compose down -v
-#     2. docker-compose up -d
+#     1. docker compose down -v
+#     2. docker compose up -d
 #    Can see databases via http://localhost:8200
 #
 services:
