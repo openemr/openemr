@@ -57,7 +57,7 @@ class FhirImmunizationRestController
     {
         $processingResult = $this->fhirImmunizationService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
-        foreach ($processingResult->getData() as $index => $searchResult) {
+        foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
                 'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult

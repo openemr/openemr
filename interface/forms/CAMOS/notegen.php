@@ -153,7 +153,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         <body>
     <div class='paddingdiv'>
         <?php
-        foreach ($output as $datekey => $dailynote) {
+        foreach ($output as $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
                 preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
                 $pid = $matches[1];
@@ -225,7 +225,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                     print "<br/>";
                     print "<span class='heading'>" . xlt("Calories") . "</span><br/>";
                     print "<br/>";
-                    foreach ($notecontents['calories'] as $calories => $value) {
+                    foreach ($notecontents['calories'] as $value) {
                         print text($value['content']) . ' - ' . text($value['item']) . ' - ' . text($value['date']) . "<br/>";
                         $sum += $value['content'];
                     }
@@ -269,7 +269,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         $pdf->selectFont('Helvetica');
         $pdf->ezSetCmMargins(3, 1, 1, 1);
         $first = 1;
-        foreach ($output as $datekey => $dailynote) {
+        foreach ($output as $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
                 preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
                 $pid = $matches[1];
@@ -343,7 +343,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                     $pdf->ezText("", 8);
                     $pdf->ezText(xl("Calories"), 12);
                     $pdf->ezText("", 8);
-                    foreach ($notecontents['calories'] as $calories => $value) {
+                    foreach ($notecontents['calories'] as $value) {
                         $pdf->ezText($value['content'] . ' - ' . $value['item'] . ' - ' . $value['date'], 8);
                         $sum += $value['content'];
                     }

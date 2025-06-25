@@ -462,8 +462,8 @@ class Claim
             // Find out if this payer paid anything at all on this claim.  This will
             // help us allocate any unknown patient responsibility amounts.
             $thispaidanything = 0;
-            foreach ($this->invoice as $codekey => $codeval) {
-                foreach ($codeval['dtl'] as $key => $value) {
+            foreach ($this->invoice as $codeval) {
+                foreach ($codeval['dtl'] as $value) {
                     // plv exists to indicate the payer level.
                     if (isset($value['plv']) && $value['plv'] == $insnumber) {
                         $thispaidanything += $value['pmt'];
@@ -556,8 +556,8 @@ class Claim
 
         //
         $amount = 0;
-        foreach ($this->invoice as $codekey => $codeval) {
-            foreach ($codeval['dtl'] as $key => $value) {
+        foreach ($this->invoice as $codeval) {
+            foreach ($codeval['dtl'] as $value) {
                 // plv exists to indicate the payer level.
 
                 if (!isset($value['pmt'])) {
@@ -578,7 +578,7 @@ class Claim
     public function invoiceTotal()
     {
         $amount = 0;
-        foreach ($this->invoice as $codekey => $codeval) {
+        foreach ($this->invoice as $codeval) {
             $amount += $codeval['chg'];
         }
 

@@ -160,7 +160,7 @@ class PatientServiceTest extends TestCase
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 
-        foreach ($actualResult->getData() as $index => $patientRecord) {
+        foreach ($actualResult->getData() as $patientRecord) {
             $this->assertArrayHasKey("fname", $resultData);
             $this->assertArrayHasKey("lname", $resultData);
             $this->assertArrayHasKey("sex", $resultData);

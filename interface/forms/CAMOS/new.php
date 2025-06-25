@@ -750,7 +750,7 @@ if (substr($_POST['hidden_mode'] ?? '', 0, 5) == 'clone') {
     echo "f2.textarea_content.value = '';\n";
 //  echo "f2.textarea_content.value += '/* count = ".count($clone_data_array)."*/\\n$break\\n';";
     echo "f2.textarea_content.value += '/* count = " . count($clone_data_array) . "*/\\n$break\\n';";
-    foreach ($clone_data_array as $key => $val) {
+    foreach ($clone_data_array as $val) {
         echo "f2.textarea_content.value = f2.textarea_content.value + " . js_escape($val) . " + \"\\n" . $break . "\\n\"" . ";\n";
     }
 }
@@ -1314,7 +1314,7 @@ function searchName($string)
     }
 
     if (count($data) > 0) {
-        $ret = join(" or pid = ", $data);
+        $ret = implode(" or pid = ", $data);
         $ret = " and (pid = " . $ret . ") ";
     }
 

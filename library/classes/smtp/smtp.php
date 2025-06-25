@@ -126,7 +126,7 @@ class smtp_class
 	{
 		if($this->debug)
 			$this->OutputDebug("C $line");
-		if(!@fputs($this->connection,"$line\r\n"))
+		if(!@fwrite($this->connection,"$line\r\n"))
 		{
 			$this->SetDataAccessError("it was not possible to send a line to the SMTP server");
 			return(0);
@@ -140,7 +140,7 @@ class smtp_class
 		{
 			if($this->debug)
 				$this->OutputDebug("C $data");
-			if(!@fputs($this->connection,$data))
+			if(!@fwrite($this->connection,$data))
 			{
 				$this->SetDataAccessError("it was not possible to send data to the SMTP server");
 				return(0);

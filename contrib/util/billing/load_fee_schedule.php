@@ -39,7 +39,7 @@ $header = $reader->getHeader();
 $insurance_company_id = $argv[4];
 $effective_date = $argv[5] ?? '';
 $records = $reader->getRecords($header);
-foreach ($records as $offset => $record) {
+foreach ($records as $record) {
     if (trim($record['type'] ?? '') == "VT") {
         $sched_plan = trim($record['plan'] ?? '');
         $sched_code = trim($record['code'] ?? '');

@@ -244,7 +244,7 @@ function printHTML($res, $res2, $data)
         for ($j = 0; $j < $linesPerPage; $j++) {
             if ($rowData = array_shift($data)) {
                 echo "<tr>";
-                foreach ($rowData as $key => $value) {
+                foreach ($rowData as $value) {
                     //shading of cells
                     if ($j == 0) {
                         echo "<td>";

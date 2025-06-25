@@ -133,7 +133,7 @@ class xmltoarray_parser_htmlfix
 
                     case 'open':
                         $name = $values[$i]['tag'];
-                        $size = isset($child[$name]) ? sizeof($child[$name]) : 0;
+                        $size = isset($child[$name]) ? count($child[$name]) : 0;
                         $child[$name][$size] = $this->_struct_to_array($values, $i);
                         break;
 

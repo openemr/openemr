@@ -504,7 +504,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
         $urlargs[] = "func=$func";
     }
 
-    $urlargs = join('&', $urlargs);
+    $urlargs = implode('&', $urlargs);
     $url = "index.php?$urlargs";
 
 

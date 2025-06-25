@@ -189,13 +189,13 @@ class PatientMenuRole extends MenuRole
                     <ul class="navbar-nav">
         EOT;
         echo $str_top . "\r\n";
-        foreach ($menu_restrictions as $key => $value) {
+        foreach ($menu_restrictions as $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
                 $class = isset($value->class) ? $value->class : '';
                 $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id ?? $value->label) . '" class="nav-link dropdown-toggle text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
                 $list .= '<ul class="dropdown-menu">';
-                foreach ($value->children as $children_key => $children_value) {
+                foreach ($value->children as $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = $children_value->class ?? '';
                     $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';

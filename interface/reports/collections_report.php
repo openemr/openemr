@@ -215,7 +215,7 @@ function endPatient($ptrow)
         echo sprintf("%-9s\n", " ");
 
         if (empty($_POST['form_without'])) {
-            foreach ($encounters as $key => $item) {
+            foreach ($encounters as $item) {
                 sqlStatement("UPDATE form_encounter SET in_collection = 1 WHERE encounter = ?", [$item]);
             }
         }

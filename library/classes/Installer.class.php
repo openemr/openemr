@@ -360,7 +360,7 @@ class Installer
                     continue;
             }
 
-            $query = $query . $line;          // Check for full query
+            $query .= $line;          // Check for full query
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                     $query = rtrim($query, ";");
@@ -602,7 +602,7 @@ $config = 1; /////////////
         }
         $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
         require(dirname(__FILE__) . '/../globals.inc.php');
-        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+        foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                 if (is_array($fldtype) || substr($fldtype, 0, 2) !== 'm_') {

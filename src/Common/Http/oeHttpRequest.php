@@ -89,7 +89,7 @@ class oeHttpRequest extends oeHttp
 
     public function bodyFormat($format)
     {
-        return $this->tap($this, function ($request) use ($format) {
+        return $this->tap($this, function ($request) use ($format): void {
             $this->bodyFormat = $format;
         });
     }
@@ -97,7 +97,7 @@ class oeHttpRequest extends oeHttp
     /* Currently supporting authorization_code grant. Resource grant(password+) will come soon.*/
     public function withOAuth($credentials = [], $endpoints = [], $grant_type = 'authorization_code')
     {
-        return $this->tap($this, function ($request) use ($credentials, $endpoints) {
+        return $this->tap($this, function ($request) use ($credentials, $endpoints): void {
             $this->setAuthBase($endpoints['token_uri']); // required
             $this->setRedirect($endpoints['redirect_uri']); // required
             $this->setAuthOptions([
@@ -113,7 +113,7 @@ class oeHttpRequest extends oeHttp
     public function reAuth()
     {
         $this->apiOAuth = true;
-        return $this->tap($this, function ($request) {
+        return $this->tap($this, function ($request): void {
             $this->initOAuthClient();
         });
     }
@@ -180,7 +180,7 @@ class oeHttpRequest extends oeHttp
 
     protected function parseQueryParams($url)
     {
-        return $this->tap([], function (&$query) use ($url) {
+        return $this->tap([], function (&$query) use ($url): void {
             parse_str(parse_url($url, PHP_URL_QUERY), $query);
         });
     }

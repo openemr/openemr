@@ -475,7 +475,7 @@ class InstModuleTable
                             WHERE m.mod_id=? AND fld_type=?";
         $res = $this->applicationTable->zQuery($sql, array($mod_id, $type));
         if ($res) {
-            foreach ($res as $key => $m) {
+            foreach ($res as $m) {
                 $mod = new InstModule();
                 $mod->exchangeArray($m);
                 array_push($all, $mod);
@@ -499,7 +499,7 @@ class InstModuleTable
                         GROUP BY id ";
         $res = $this->applicationTable->zQuery($sql);
         if ($res) {
-            foreach ($res as $key => $m) {
+            foreach ($res as $m) {
                 $mod = new InstModule();
                 $mod->exchangeArray($m);
                 array_push($all, $mod);
@@ -527,7 +527,7 @@ class InstModuleTable
                     ORDER BY gag.id";
         $res = $this->applicationTable->zQuery($sql);
         if ($res) {
-            foreach ($res as $key => $m) {
+            foreach ($res as $m) {
                 $all[$m['group_id']][$m['id']] = $m['user'];
             }
         }
@@ -548,7 +548,7 @@ class InstModuleTable
                     AND username<>''";
         $res = $this->applicationTable->zQuery($sql);
         if ($res) {
-            foreach ($res as $key => $m) {
+            foreach ($res as $m) {
                 $all[$m['username']] = $m['USER'];
             }
         }
@@ -566,7 +566,7 @@ class InstModuleTable
                   ORDER BY fld_type ";
         $res = $this->applicationTable->zQuery($sql, array($mod_id));
         if ($res) {
-            foreach ($res as $key => $m) {
+            foreach ($res as $m) {
                 $all[$m['fld_type']] = $m['cnt'];
             }
         }
@@ -588,7 +588,7 @@ class InstModuleTable
 
         $sql = "SELECT * FROM gacl_aco_map WHERE section_value=?";
         $MapRes = $this->applicationTable->zQuery($sql, array($aco));
-        foreach ($MapRes as $key => $MapRow) {
+        foreach ($MapRes as $MapRow) {
             $sqlSelect = "SELECT acl_id,value,CONCAT_WS(' ',fname,mname,lname) AS user
                             FROM gacl_aro_map
                             LEFT OUTER JOIN users
@@ -596,7 +596,7 @@ class InstModuleTable
                             WHERE active=1 AND acl_id=?";
             $aroRes = $this->applicationTable->zQuery($sqlSelect, array($MapRow['acl_id']));
             $i = 0;
-            foreach ($aroRes as $k => $aroRow) {
+            foreach ($aroRes as $aroRow) {
                 $arr[$MapRow['value']][$i]['acl_id'] = $aroRow['acl_id'];
                 $arr[$MapRow['value']][$i]['value'] = $aroRow['value'];
                 $arr[$MapRow['value']][$i]['user'] = $aroRow['user'];

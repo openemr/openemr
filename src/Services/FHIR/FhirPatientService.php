@@ -597,7 +597,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $data['DOB'] = (string)$fhirResource->getBirthDate();
         $data['sex'] = (string)$fhirResource->getGender();
 
-        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirResource->getIdentifier() as $identifier) {
             $type = $identifier->getType();
             $validCodes = ['SS' => 'ss', 'PT' => 'pubpid'];
             $coding = $type->getCoding() ?? [];

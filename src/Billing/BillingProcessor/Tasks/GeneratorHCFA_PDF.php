@@ -194,7 +194,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
         // If we are just validating, the output should be a PDF presented
         // to the user, but we don't save to the edi/ directory.
         // This just writes to a tmp file, serves to user and then removes tmp file
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This is the callback function passed to the logger, called when the
             // result screen is finished rendering. This prints some JS that will
             // start the download of the 'temporary' HCFA pdf after messages have been printed to the
@@ -224,7 +224,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory
-        $this->logger->setLogCompleteCallback(function () {
+        $this->logger->setLogCompleteCallback(function (): void {
             // This uses our parent's method to print the JS that automatically initiates
             // the download of this file, after the screen bill_log messages have printed
             $this->printDownloadClaimFileJS($this->batch->getBatFilename());

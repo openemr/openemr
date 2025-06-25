@@ -1,0 +1,58 @@
+name: Rector PHP Analysis
+
+on:
+  pull_request:
+    branches:
+    - master
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+  rector:
+    name: Rector PHP Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Rector Cache
+      uses: actions/cache@v4
+      with:
+        path: /tmp/rector
+        key: ${{ runner.os }}-rector-${{ github.run_id }}
+        restore-keys: ${{ runner.os }}-rector-
+
+    - name: Create Rector cache directory
+      run: mkdir -p /tmp/rector
+
+    - name: Rector Dry Run
+      run: |
+        if ! vendor/bin/rector process --dry-run --no-progress-bar --no-diffs; then
+          echo "Rector failed!"
+          exit 1
+        fi

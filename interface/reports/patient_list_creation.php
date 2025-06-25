@@ -927,7 +927,7 @@ if (!empty($_POST['form_refresh'])) {
         $patient_arr = [];
         while ($row = sqlFetchArray($result)) {
             $report_data = [];
-            foreach (array_keys($search_options[$srch_option]["cols"]) as $report_item_name_key => $report_item_name) {
+            foreach (array_keys($search_options[$srch_option]["cols"]) as $report_item_name) {
                 array_push($report_data, $row[$report_item_name]);
             }
             array_push($report_data_arr, $report_data);
@@ -989,7 +989,7 @@ if (!empty($_POST['form_refresh'])) {
                     </tr>
         <?php }
 
-        foreach ($report_data_arr as $report_data_key => $report_data) {
+        foreach ($report_data_arr as $report_data) {
             if (!$csv) { ?>
                     <tr style="font-size:15px;">
             <?php }
@@ -1027,7 +1027,7 @@ if (!empty($_POST['form_refresh'])) {
                     case "prc_diagnoses":
                         if (!$csv && $report_value != '') {
                             $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
-                            foreach (explode(';', $report_value) as $code_index => $code) {
+                            foreach (explode(';', $report_value) as $code) {
                                 $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                             }
                             $report_value_print .= '</ul>';

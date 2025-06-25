@@ -157,7 +157,7 @@ function smarty_function_html_table($params, &$smarty)
     }
     $output .= "</tbody>\n";
     $output .= "</table>\n";
-    
+
     return $output;
 }
 
@@ -167,7 +167,7 @@ function smarty_function_html_table_cycle($name, $var, $no) {
     } else {
         $ret = $var[$no % count($var)];
     }
-    
+
     return ($ret) ? ' '.$ret : '';
 }
 

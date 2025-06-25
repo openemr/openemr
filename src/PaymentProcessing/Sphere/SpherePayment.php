@@ -94,14 +94,14 @@ class SpherePayment
 
         if ($this->front == 'patient') {
             // Add specific parameters for patient front to the $mainUrl
-            $this->mainUrl = $this->mainUrl . '&hide_ticket=y&cvc_help=y&avs=y&postal=y&fulladdress=y&show_email=y';
+            $this->mainUrl .= '&hide_ticket=y&cvc_help=y&avs=y&postal=y&fulladdress=y&show_email=y';
         } else { //$this->front == 'clinic'
             // Add specific parameters for clinic front (both phone and retail) to the $mainUrl
             $operatorEntry = (new UserService())->getCurrentlyLoggedInUser();
             $operatorName = $operatorEntry['fname'] . " " . $operatorEntry['lname'];
             $mainUrlEnd = '&hide_ticket=y&hide_trxoperator=y&trxoperator=' . urlencode($operatorName);
-            $this->mainUrl = $this->mainUrl . $mainUrlEnd;
-            $this->mainUrlRetail = $this->mainUrlRetail . $mainUrlEnd;
+            $this->mainUrl .= $mainUrlEnd;
+            $this->mainUrlRetail .= $mainUrlEnd;
         }
     }
 

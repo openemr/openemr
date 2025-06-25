@@ -30,7 +30,7 @@ $today = strtotime(date('Y/m/d'));
 $hasAlerts = false;
 
 // mulitply $updateDelay by 1000 to get miliseconds
-$updateDelay = $updateDelay * 1000;
+$updateDelay *= 1000;
 
 //-----------------------------------------------------------------------------
 // HANDLE AJAX TO MARK REMINDERS AS READ

@@ -57,7 +57,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 
         if ($ruleCriteriaType->code == RuleCriteriaType::lifestyle) {
             $type = $exploded[1];
-            return new RuleCriteriaLifestyle($type, sizeof($exploded) > 2 ? $exploded[2] : null);
+            return new RuleCriteriaLifestyle($type, count($exploded) > 2 ? $exploded[2] : null);
         }
 
         if ($ruleCriteriaType->code == RuleCriteriaType::custom_bucket) {

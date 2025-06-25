@@ -366,7 +366,7 @@ if ($iter["portal_user"]) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
+    for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];
     }
 
@@ -612,7 +612,7 @@ foreach ($list_acl_groups as $value) {
             $fres = $facilityService->getAllBillingLocations();
             if ($fres) {
                 $billResults = [];
-                for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
+                for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                     $billResults[$iter2] = $fres[$iter2];
                 }
 

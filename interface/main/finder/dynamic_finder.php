@@ -371,7 +371,7 @@ $loading = "";
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
-    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event) {
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event): void {
         if ($event->getPageId() !== 'dynamic_finder') {
             return;
         }
@@ -450,7 +450,7 @@ function rp()
     }
     $pd_sql .= " FROM patient_data WHERE pid = ?";
     $pd_data = [];
-    foreach ($rp as $k => $v) {
+    foreach ($rp as $v) {
         $pd_data[] = sqlQuery($pd_sql, $v['pid']);
     }
     return ['headers' => $headers, 'rp' => $pd_data];

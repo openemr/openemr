@@ -45,7 +45,7 @@ abstract class RuleCriteriaFactory
     {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
-        foreach ($strategyMap as $key => $value) {
+        foreach ($strategyMap as $value) {
             $criteriaType = $value->resolveRuleCriteriaType($method, $methodDetail, $ruleValue);
             if ($criteriaType != null) {
                 return $criteriaType;

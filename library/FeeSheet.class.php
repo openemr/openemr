@@ -660,7 +660,7 @@ class FeeSheet
             // "Basic Units" is the quantity from the product template and is the number of
             // inventory items in the package that the template represents.
             // Units seen by the user should be inventory units divided by template quantity.
-            $units = $units / $this->getBasicUnits($drug_id, $selector);
+            $units /= $this->getBasicUnits($drug_id, $selector);
         }
 
         $drow = sqlQuery("SELECT name, related_code FROM drugs WHERE drug_id = ?", array($drug_id));
@@ -969,7 +969,7 @@ class FeeSheet
 
                 if ($code_type == 'COPAY') {
                     if ($fee < 0) {
-                        $fee = $fee * -1;
+                        $fee *= -1;
                     }
                     if ($id) {
                         // editing copay in ar_session

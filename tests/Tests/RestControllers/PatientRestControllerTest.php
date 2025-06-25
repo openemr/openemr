@@ -160,7 +160,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));
 
-        foreach ($searchResult["data"] as $index => $searchResult) {
+        foreach ($searchResult["data"] as $searchResult) {
             $this->assertEquals("90210", $searchResult["postal_code"]);
         }
     }

@@ -129,7 +129,7 @@ function smarty_function_html_select_time($params, &$smarty)
             $html_result .= ' ' . $all_extra;
         }
         $html_result .= '>'."\n";
-        
+
         $html_result .= smarty_function_html_options(array('output'          => $minutes,
                                                            'values'          => $minutes,
                                                            'selected'      => $selected,
@@ -149,7 +149,7 @@ function smarty_function_html_select_time($params, &$smarty)
         } else {
             $html_result .= '"' . $prefix . 'Second"';
         }
-        
+
         if (null !== $second_extra){
             $html_result .= ' ' . $second_extra;
         }
@@ -157,7 +157,7 @@ function smarty_function_html_select_time($params, &$smarty)
             $html_result .= ' ' . $all_extra;
         }
         $html_result .= '>'."\n";
-        
+
         $html_result .= smarty_function_html_options(array('output'          => $seconds,
                                                            'values'          => $seconds,
                                                            'selected'      => $selected,
@@ -173,7 +173,7 @@ function smarty_function_html_select_time($params, &$smarty)
         } else {
             $html_result .= '"' . $prefix . 'Meridian"';
         }
-        
+
         if (null !== $meridian_extra){
             $html_result .= ' ' . $meridian_extra;
         }
@@ -181,7 +181,7 @@ function smarty_function_html_select_time($params, &$smarty)
             $html_result .= ' ' . $all_extra;
         }
         $html_result .= '>'."\n";
-        
+
         $html_result .= smarty_function_html_options(array('output'          => array('AM', 'PM'),
                                                            'values'          => array('am', 'pm'),
                                                            'selected'      => strtolower(strftime('%p', $time)),

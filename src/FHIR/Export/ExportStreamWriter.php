@@ -71,10 +71,10 @@ class ExportStreamWriter
 
             // need to make sure we don't have a newline on the last record
             if ($this->hasWrittenBytes) {
-                fputs($this->stream, "\n");
-                fputs($this->stream, $data);
+                fwrite($this->stream, "\n");
+                fwrite($this->stream, $data);
             } else {
-                fputs($this->stream, $data);
+                fwrite($this->stream, $data);
                 $this->hasWrittenBytes = true;
             }
 

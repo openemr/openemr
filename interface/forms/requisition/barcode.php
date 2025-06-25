@@ -26,7 +26,7 @@ if (in_array(strtolower($code_type), array("code128", "code128b"))) {
     for ($X = 1; $X <= strlen($text); $X++) {
         $activeKey = substr($text, ($X - 1), 1);
         $code_string .= $code_array[$activeKey];
-        $chksum = ($chksum + ($code_values[$activeKey] * $X));
+        $chksum += $code_values[$activeKey] * $X;
     }
     $code_string .= $code_array[$code_keys[($chksum - (intval($chksum / 103) * 103))]];
 
@@ -41,7 +41,7 @@ if (in_array(strtolower($code_type), array("code128", "code128b"))) {
     for ($X = 1; $X <= strlen($text); $X++) {
         $activeKey = substr($text, ($X - 1), 1);
         $code_string .= $code_array[$activeKey];
-        $chksum = ($chksum + ($code_values[$activeKey] * $X));
+        $chksum += $code_values[$activeKey] * $X;
     }
     $code_string .= $code_array[$code_keys[($chksum - (intval($chksum / 103) * 103))]];
 
@@ -100,7 +100,7 @@ if (in_array(strtolower($code_type), array("code128", "code128b"))) {
     // Pad the edges of the barcode
     $code_length = 20;
 for ($i = 1; $i <= strlen($code_string); $i++) {
-    $code_length = $code_length + (int)(substr($code_string, ($i - 1), 1));
+    $code_length += (int)(substr($code_string, ($i - 1), 1));
 }
 
 if (strtolower($orientation) == "horizontal") {

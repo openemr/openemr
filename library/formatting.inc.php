@@ -228,7 +228,7 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
             mktime(0, 0, 0, $dobMonth, $dobDay, $dobYear);
         $days  = intval($secs / (24 * 60 * 60));
         $weeks = intval($days / 7);
-        $days  = $days % 7;
+        $days %= 7;
         $age   = "$weeks " . ($weeks == 1 ? xl('week') : xl('weeks')) .
              " $days " . ($days  == 1 ? xl('day') : xl('days'));
     } else {

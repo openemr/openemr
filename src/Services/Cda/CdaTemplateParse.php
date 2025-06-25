@@ -423,7 +423,7 @@ class CdaTemplateParse
             $this->templateData['field_name_value_array']['encounter'][$i]['represented_organization_telecom'] = $entry['encounter']['participant']['participantRole']['telecom'] ?? '';
             // encounter diagnosis to issues list
             if (count($entry['encounter']['entryRelationship'] ?? []) > 1 && !empty($entry['encounter']['entryRelationship'][0]['act'])) {
-                foreach ($entry['encounter']['entryRelationship'] as $k => $act) {
+                foreach ($entry['encounter']['entryRelationship'] as $act) {
                     $code = $this->codeService->resolveCode(
                         $act['act']['entryRelationship']['observation']['value']['code'] ?? '',
                         ($act['act']['entryRelationship']['observation']['value']['codeSystemName'] ?? '') ?: $act['act']['entryRelationship']['observation']['value']['codeSystem'] ?? '',
@@ -927,7 +927,7 @@ class CdaTemplateParse
     public function allergy($component)
     {
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchAllergyIntoleranceObservation($value);
             }
         } else {
@@ -939,7 +939,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchMedicationData($value);
             }
         } else {
@@ -951,7 +951,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchMedicalProblemData($value);
             }
         } else {
@@ -963,7 +963,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchImmunizationData($value);
             }
         } else {
@@ -993,7 +993,7 @@ class CdaTemplateParse
         $component['section']['text'] = '';
 
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchLabResultData($value);
             }
         } else {
@@ -1098,10 +1098,10 @@ class CdaTemplateParse
             $value = $entry['observation']['entryRelationship'] ?? null;
             if (!empty($value)) {
                 // find the result template
-                foreach ($entry['observation'] as $key => $find_value) {
+                foreach ($entry['observation'] as $find_value) {
                     // check if a ccda result template
                     $flag = false;
-                    foreach ($find_value as $key1 => $val) {
+                    foreach ($find_value as $val) {
                         if (is_array($val)) {
                             if ($val['templateId'][0]['root'] == '2.16.840.1.113883.10.20.22.4.2') {
                                 $flag = true;
@@ -1156,7 +1156,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchVitalSignData($value);
             }
         } else {
@@ -1273,7 +1273,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchSocialHistoryData($value);
             }
         } else {
@@ -1316,7 +1316,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if (($component['section']['entry'][0] ?? '')) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchEncounterPerformed($value);
             }
         } else {
@@ -1333,7 +1333,7 @@ class CdaTemplateParse
             $component['section']['text'] = null;
         }
         if (!empty($component['section']['entry'][0])) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchCarePlanData($value, $component['section']['text']);
             }
         } elseif (empty($component['section']['entry']) && !empty($component['section']['text'])) {
@@ -1616,7 +1616,7 @@ class CdaTemplateParse
         }
 
         if (isset($progressNotes['clinical_notes']) && is_array($progressNotes['clinical_notes'])) {
-            foreach ($progressNotes['clinical_notes'] as $key => $note) {
+            foreach ($progressNotes['clinical_notes'] as $note) {
                 $this->templateData['field_name_value_array']['clinical_notes'][$i]['encounter_root'] = $note['encounter_root'] ?? '';
                 $this->templateData['field_name_value_array']['clinical_notes'][$i]['encounter_extension'] = $note['encounter_extension'] ?? ''; // reference to the encounter
                 $this->templateData['field_name_value_array']['clinical_notes'][$i]['plan_type'] = $note['plan_type'] ?? '';
@@ -1661,7 +1661,7 @@ class CdaTemplateParse
         }
         $ccnt = 0;
         if ($component['section']['entry'][0] ?? '') {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 if (!empty($component['section']['text'][$ccnt])) {
                     $this->fetchFunctionalCognitiveStatusData($value, $component['section']['text'][$ccnt]);
                 }
@@ -1706,7 +1706,7 @@ class CdaTemplateParse
                 $i += count($this->templateData['field_name_value_array']['functional_cognitive_status']);
             }
 
-            foreach ($entry['organizer']['component'] as $k => $fscomponent) {
+            foreach ($entry['organizer']['component'] as $fscomponent) {
                 // patient self-status @todo why am I sending an independent status by default.
                 if (($fscomponent["observation"]["templateId"]["root"] ?? null) == "2.16.840.1.113883.10.20.22.4.128") {
                     continue;
@@ -1733,7 +1733,7 @@ class CdaTemplateParse
     public function referral($component)
     {
         if ($component['section']['entry'][0] ?? '') {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchReferralData($value);
             }
         } else {
@@ -1745,7 +1745,7 @@ class CdaTemplateParse
     {
         if (!empty($referral_data['text']['paragraph']) && is_array($referral_data['text']['paragraph'])) {
             $i = 1;
-            foreach ($referral_data['text']['paragraph'] as $key => $value) {
+            foreach ($referral_data['text']['paragraph'] as $value) {
                 if ($value) {
                     $this->templateData['field_name_value_array']['referral'][$i]['body'] = preg_replace('/\s+/', ' ', $value);
                     $this->templateData['entry_identification_array']['referral'][$i] = $i;
@@ -1770,7 +1770,7 @@ class CdaTemplateParse
     {
         $component['section']['text'] = '';
         if ($component['section']['entry'][0]) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchDischargeMedicationsData($value);
             }
         } else {
@@ -1817,7 +1817,7 @@ class CdaTemplateParse
     public function dischargeSummary($component)
     {
         if ($component['section']['entry'][0]) {
-            foreach ($component['section']['entry'] as $key => $value) {
+            foreach ($component['section']['entry'] as $value) {
                 $this->fetchDischargeSummaryData($value);
             }
         } else {

@@ -182,7 +182,7 @@ if (isset($_POST["mode"])) {
                                 $rowMoneyGot = sqlFetchArray($resMoneyGot);
                                 $PatientPay = $rowMoneyGot['PatientPay'];
 
-                                $Copay = $Copay + $PatientPay;
+                                $Copay += $PatientPay;
                             }
                             //payer_type!=0, supports both mapped and unmapped code_type in ar_activity
                             $resMoneyGot = sqlStatement(

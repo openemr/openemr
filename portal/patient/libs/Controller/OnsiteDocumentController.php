@@ -311,7 +311,7 @@ class OnsiteDocumentController extends AppBasePortalController
                 $template_raw = $templateRender->fetchTemplateDocument($onsitedocument->FilePath)['template_content'];
                 // if versioned then is new templating.
                 if ($version == 'New') {
-                    $template_raw = $template_raw . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+                    $template_raw .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
                 }
                 $onsitedocument->FullDocument = $template_raw; // persist original for life of document.
 
@@ -356,7 +356,7 @@ class OnsiteDocumentController extends AppBasePortalController
                     $existing_template = $purify->purify($existing);
                     // since this is a flatten document won't need to track legacy or not.
                     if (!$hasVersion) {
-                        $existing_template = $existing_template . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+                        $existing_template .= "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
                     }
                 }
             } elseif (!empty($this->SafeGetVal($json, 'fullDocument'))) { // test if an unexpected document is sent.

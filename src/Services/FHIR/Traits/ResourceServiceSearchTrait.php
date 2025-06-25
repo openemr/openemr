@@ -97,7 +97,7 @@ trait ResourceServiceSearchTrait
         $newSortOrder = [];
         $sortFields = explode(',', $sort);
         $searchFactory = $this->getSearchFieldFactory();
-        foreach ($sortFields as $key => $sortField) {
+        foreach ($sortFields as $sortField) {
             $isDescending = ($sortField[0] ?? '') === '-';
             if ($isDescending) {
                 $sortField = substr($sortField, 1);

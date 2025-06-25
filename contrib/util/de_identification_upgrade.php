@@ -100,7 +100,7 @@ function upgradeFromSqlFile_de($filename)
             $query .= "\n";
         }
 
-        $query = $query . $line;
+        $query .= $line;
 
         if (substr($query, -1) == '$') {
             $query = rtrim($query, '$');
