@@ -11,12 +11,6 @@ on:
     - '**.source'
     - '.github/workflows/shellcheck.yml'
     - '.shellcheckrc'
-    - contrib/util/restore
-    - contrib/util/ubuntu_package_scripts/production/config
-    - contrib/util/ubuntu_package_scripts/production/postinst
-    - contrib/util/ubuntu_package_scripts/production/postrm
-    - contrib/util/ubuntu_package_scripts/production/preinst
-    - contrib/util/ubuntu_package_scripts/production/prerm
     - docker/library/dockers/dev-php-fpm/data/docker-php-entrypoint
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-configure
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-enable
@@ -30,12 +24,6 @@ on:
     - '**.source'
     - '.github/workflows/shellcheck.yml'
     - '.shellcheckrc'
-    - contrib/util/restore
-    - contrib/util/ubuntu_package_scripts/production/config
-    - contrib/util/ubuntu_package_scripts/production/postinst
-    - contrib/util/ubuntu_package_scripts/production/postrm
-    - contrib/util/ubuntu_package_scripts/production/preinst
-    - contrib/util/ubuntu_package_scripts/production/prerm
     - docker/library/dockers/dev-php-fpm/data/docker-php-entrypoint
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-configure
     - docker/library/dockers/dev-php-fpm/data/docker-php-ext-enable
@@ -67,13 +55,6 @@ jobs:
         files: |
           **.sh
           **.source
-          .env.example
-          contrib/util/restore
-          contrib/util/ubuntu_package_scripts/production/config
-          contrib/util/ubuntu_package_scripts/production/postinst
-          contrib/util/ubuntu_package_scripts/production/postrm
-          contrib/util/ubuntu_package_scripts/production/preinst
-          contrib/util/ubuntu_package_scripts/production/prerm
           docker/library/dockers/dev-php-fpm/data/docker-php-entrypoint
           docker/library/dockers/dev-php-fpm/data/docker-php-ext-configure
           docker/library/dockers/dev-php-fpm/data/docker-php-ext-enable
@@ -106,12 +87,6 @@ jobs:
           files_to_check+=(
             **/*.sh
             **/*.source
-            contrib/util/restore
-            contrib/util/ubuntu_package_scripts/production/config
-            contrib/util/ubuntu_package_scripts/production/postinst
-            contrib/util/ubuntu_package_scripts/production/postrm
-            contrib/util/ubuntu_package_scripts/production/preinst
-            contrib/util/ubuntu_package_scripts/production/prerm
             docker/library/dockers/dev-php-fpm/data/docker-php-entrypoint
             docker/library/dockers/dev-php-fpm/data/docker-php-ext-configure
             docker/library/dockers/dev-php-fpm/data/docker-php-ext-enable
