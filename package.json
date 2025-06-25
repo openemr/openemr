@@ -72,7 +72,7 @@
     "angular": "1.8.3",
     "angular-sanitize": "1.8.3",
     "angular-summernote": "0.8.1",
-    "backbone": "1.6.0",
+    "backbone": "1.6.1",
     "bootstrap": "4.6.2",
     "bootswatch": "4.6.2",
     "chart.js": "4.4.8",
