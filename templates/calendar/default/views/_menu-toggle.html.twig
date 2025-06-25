@@ -1,0 +1,11 @@
+<div id="functions">
+    <a id="menu-toggle" href="#" class="btn btn-outline-dark"><i class="fas fa-bars"></i></a>
+    <input type="hidden" name="jumpdate" id="jumpdate" value="" />
+    <input type="hidden" name="viewtype" id="viewtype" value="{{ viewtype|attr }}" />
+    <a href='#' title='{{ "New Appointment"|xla }}' onclick='newEvt(1, 9, 00, {{ Date|attr_js }}, 0, 0)' class='btn btn-primary'><i class='fa fa-plus'></i></a>
+    <a href='#' title='{{ "Search Appointment"|xla }}'
+       onclick='top.restoreSession();location="index.php?module=PostCalendar&func=search&twig=1"' class='btn btn-primary'><i class='fa fa-search'></i></a>
+    {% if IS_TODAY == false %}
+        <a href='#' name='bnsubmit' value='{{ "Today"|xla }}' onClick='GoToToday(theform);' class='btn btn-primary'>{{ 'Today'|xla }}</a>
+    {% endif %}
+</div>
