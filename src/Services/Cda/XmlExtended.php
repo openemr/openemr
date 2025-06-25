@@ -40,7 +40,7 @@ class XmlExtended extends Xml implements ReaderInterface
         $this->directory = dirname($filename);
 
         set_error_handler(
-            function ($error, $message = '') use ($filename) {
+            function ($error, $message = '') use ($filename): void {
                 throw new Exception\RuntimeException(
                     sprintf('Error reading XML file "%s": %s', $filename, $message),
                     $error
@@ -72,7 +72,7 @@ class XmlExtended extends Xml implements ReaderInterface
         $this->reader->XML($string, null, LIBXML_XINCLUDE | LIBXML_COMPACT | LIBXML_PARSEHUGE);
         $this->directory = null;
         set_error_handler(
-            function ($error, $message = '') {
+            function ($error, $message = ''): void {
                 throw new Exception\RuntimeException(
                     sprintf('Error reading XML string: %s', $message),
                     $error

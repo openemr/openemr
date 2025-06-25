@@ -396,9 +396,9 @@ class Header
             $v = $GLOBALS['v_js_includes'];
             // need to handle header elements that may already have a ? in the parameter.
             if (strrpos($path, "?") !== false) {
-                $path = $path . "&v={$v}";
+                $path .= "&v={$v}";
             } else {
-                $path = $path . "?v={$v}";
+                $path .= "?v={$v}";
             }
         }
         return str_replace("%path%", $path, $template);

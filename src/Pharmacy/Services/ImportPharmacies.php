@@ -74,8 +74,8 @@ class ImportPharmacies
 
         $pharmacyObj = json_decode($body, true, 512, 0);
         $i = 0;
-        foreach ($pharmacyObj as $obj => $value) {
-            foreach ($value as $key => $show) {
+        foreach ($pharmacyObj as $value) {
+            foreach ($value as $show) {
                 /*********************Skip duplicates*******************/
                 $npi = $show['number'];
                 if (self::entryCheck($npi) === true) {
@@ -115,7 +115,7 @@ class ImportPharmacies
      */
     private function findNcpdp($identifiers)
     {
-        foreach ($identifiers as $identifier => $value) {
+        foreach ($identifiers as $value) {
             if ($value['desc'] == 'Other') {
                 return $value['identifier'];
             }

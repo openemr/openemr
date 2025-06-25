@@ -143,7 +143,7 @@ function fetch_reminders($pid, $appt_date)
 
     array_multisort($seq_due, SORT_DESC, $seq_cat, SORT_ASC, $seq_act, SORT_ASC, $rems_out);
     $rems = array();
-    foreach ($rems_out as $ix => $rem) {
+    foreach ($rems_out as $rem) {
         $rems[$rem['due_txt']] .= (isset($rems[$rem['due_txt']]) ? ', ' : '') .
             $rem['act_txt'] . ' ' . $rem['cat_txt'];
     }

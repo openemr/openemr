@@ -188,7 +188,7 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals(0, count($searchResult["internalErrors"]));
         $this->assertGreaterThan(1, count($searchResult["data"]));
 
-        foreach ($searchResult["data"] as $index => $searchResult) {
+        foreach ($searchResult["data"] as $searchResult) {
             $this->assertEquals("0123456789", $searchResult["facility_npi"]);
         }
     }

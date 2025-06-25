@@ -125,7 +125,7 @@ class CapabilityFhirTest extends TestCase
 
         $smartExtensions = $this->getExtensionList($restDef['security'], "http://fhir-registry.smarthealthit.org/StructureDefinition/capabilities");
         $enabledCapabilities = [];
-        foreach ($smartExtensions as $index => $extension) {
+        foreach ($smartExtensions as $extension) {
             $enabledCapabilities[] = $extension['valueCode'];
         }
 
@@ -149,7 +149,7 @@ class CapabilityFhirTest extends TestCase
     {
         $list = [];
         if (!empty($capabilityStatementRestDefinition['extension'])) {
-            foreach ($capabilityStatementRestDefinition['extension'] as $index => $extension) {
+            foreach ($capabilityStatementRestDefinition['extension'] as $extension) {
                 if ($extension['url'] == $extensionUri) {
                     $list[] = $extension;
                 }

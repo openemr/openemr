@@ -59,8 +59,8 @@ if ($PDF_FAX) {
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     // special settings for patient custom report that are necessary for mpdf
-    $config_mpdf['margin_top'] = $config_mpdf['margin_top'] * 1.5;
-    $config_mpdf['margin_bottom'] = $config_mpdf['margin_bottom'] * 1.5;
+    $config_mpdf['margin_top'] *= 1.5;
+    $config_mpdf['margin_bottom'] *= 1.5;
     $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
     $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
@@ -123,7 +123,7 @@ function postToGet($arin)
     $getstring = "";
     foreach ($arin as $key => $val) {
         if (is_array($val)) {
-            foreach ($val as $k => $v) {
+            foreach ($val as $v) {
                 $getstring .= attr_url($key . "[]") . "=" . attr_url($v) . "&";
             }
         } else {
@@ -217,7 +217,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     <div class="container">
         <div id="report_custom w-100">  <!-- large outer DIV -->
             <?php
-            if (sizeof($_GET) > 0) {
+            if (count($_GET) > 0) {
                 $ar = $_GET;
             } else {
                 $ar = $_POST;
@@ -296,7 +296,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
 
                             //echo json_encode(json_encode($array_key_id));
-                            if (sizeof($form_id_arr) > 0) {
+                            if (count($form_id_arr) > 0) {
                                 $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '" . implode("','", $form_id_arr) . "') AND formdir IN ( '" . implode("','", $form_dir_arr) . "')";
                                 $arr = sqlStatement($query);
                                 echo "<select multiple size='4' class='form-control' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
@@ -539,7 +539,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                     if ($key == "documents") {
                         echo "<hr />";
                         echo "<div class='text documents'>";
-                        foreach ($val as $valkey => $valvalue) {
+                        foreach ($val as $valvalue) {
                             $document_id = $valvalue;
                             if (!is_numeric($document_id)) {
                                 continue;
@@ -690,7 +690,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                         if ($auth_med) {
                             echo "<hr />";
                             echo "<div class='text documents'>";
-                            foreach ($val as $valkey => $poid) {
+                            foreach ($val as $poid) {
                                 if (empty($GLOBALS['esign_report_show_only_signed'])) {
                                     echo '<h4>' . xlt('Procedure Order') . ':</h4>';
                                     echo "<br />\n";
@@ -882,7 +882,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                     echo $tmp_file;
                     exit();
                 } else {
-                    if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+                    if (!empty($archive_name) && count($staged_docs) > 0) {
                         $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
                         header('Content-Description: File Transfer');
                         header('Content-Transfer-Encoding: binary');

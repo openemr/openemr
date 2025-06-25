@@ -151,7 +151,7 @@ class FacilityServiceTest extends TestCase
         $this->assertNotNull($actualResult);
         $this->assertEquals(2, count($actualResult->getData()));
 
-        foreach ($actualResult->getData() as $index => $facilityRecord) {
+        foreach ($actualResult->getData() as $facilityRecord) {
             $this->assertArrayHasKey("name", $resultData);
             $this->assertArrayHasKey("uuid", $resultData);
             $this->assertEquals("0123456789", $facilityRecord["facility_npi"]);

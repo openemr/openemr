@@ -139,7 +139,7 @@ function rxnorm_import($is_windows_flag)
     sqlStatementNoLog("START TRANSACTION");
     $data = explode(";", $data_load);
     foreach ($data as $val) {
-        foreach ($rx_info as $key => $value) {
+        foreach ($rx_info as $value) {
             $file_name = $value['origin'];
             $replacement = $dir . "/" . $file_name;
 

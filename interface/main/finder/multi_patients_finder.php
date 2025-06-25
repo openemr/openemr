@@ -141,7 +141,7 @@ if (isset($_GET['patients'])) {
             <tbody id="searchResults">
             <?php
             if (isset($_GET['patients'])) {
-                foreach ($results as $index => $result) {
+                foreach ($results as $result) {
                     echo '<tr id="row' . attr($result['pid']) . '">' .
                             '<td>' . text($result['lname']) . ', ' . text($result['fname']) . '</td>' .
                             '<td>' . text($result['phone_home']) . '</td>' .

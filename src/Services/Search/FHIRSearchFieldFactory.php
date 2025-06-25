@@ -236,7 +236,7 @@ class FHIRSearchFieldFactory
         // the logical AND of everything.
         $composite = new CompositeSearchField($definition->getName(), $fhirSearchValues, $isAnd);
         $modifiers = $this->extractFieldModifiers($fhirSearchField);
-        foreach ($definition->getMappedFields() as $key => $field) {
+        foreach ($definition->getMappedFields() as $field) {
             // for token types we want to make if we have a system we are only going to the key
 
             // for now let's treat everything as a string...

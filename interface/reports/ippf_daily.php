@@ -386,7 +386,7 @@ if ($_POST['form_submit']) {
 
     $encount = 0;
 
-    foreach ($areport as $key => $varr) {
+    foreach ($areport as $varr) {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
         genStartRow("bgcolor='" . attr($bgcolor) . "'");
         genAnyCell($varr[0], false, 'detail');

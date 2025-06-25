@@ -70,7 +70,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($allergy_array as $key => $value) {
+        foreach ($allergy_array as $value) {
             $active = 1;
 
             $allergy_begdate_value = null;
@@ -251,7 +251,7 @@ class CdaTemplateImportDispose
             }
         }
 
-        foreach ($care_plan_array as $key => $value) {
+        foreach ($care_plan_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             $end_date = $value['end_date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
             $low_date = $value['reason_date_low'] ? date("Y-m-d H:i:s", $this->str_to_time($value['reason_date_low'])) : null;
@@ -332,7 +332,7 @@ class CdaTemplateImportDispose
                 $newid = 1;
             }
         }
-        foreach ($clinical_note_array as $key => $value) {
+        foreach ($clinical_note_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             // encounters already created or should have been created
             // all newly created encounters get stored to a static array
@@ -379,7 +379,7 @@ class CdaTemplateImportDispose
         }
         $encounter_for_billing = 0;
         $appTable = new ApplicationTable();
-        foreach ($proc_array as $key => $value) {
+        foreach ($proc_array as $value) {
             $procedure_date_value = null;
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
                 $procedure_date_value = !empty($value['date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
@@ -597,7 +597,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($enc_array as $key => $value) {
+        foreach ($enc_array as $value) {
             $encounter_id = $appTable->generateSequenceID();
 
             $value['provider_npi'] = $value['provider_npi'] ?? '';
@@ -840,7 +840,7 @@ class CdaTemplateImportDispose
             $ct_id = $val['ct_id'];
         }
 
-        foreach ($imm_array as $key => $value) {
+        foreach ($imm_array as $value) {
             //provider
             $value['provider_npi'] = $value['provider_npi'] ?? '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
@@ -1109,7 +1109,7 @@ class CdaTemplateImportDispose
 
         $appTable = new ApplicationTable();
         $oid_route = $unit_option_id = $oidu_unit = '';
-        foreach ($pres_array as $key => $value) {
+        foreach ($pres_array as $value) {
             $active = 1;
             if (empty($value['enddate'])) {
                 $value['enddate'] = (null);
@@ -1425,7 +1425,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($med_pblm_array as $key => $value) {
+        foreach ($med_pblm_array as $value) {
             $activity = 1;
 
             if (!empty($value['begdate']) && $revapprove == 0) {
@@ -1615,7 +1615,7 @@ class CdaTemplateImportDispose
             $pro_name = xlt('Qrda Lab');
         }
         $appTable = new ApplicationTable();
-        foreach ($lab_results as $key => $value) {
+        foreach ($lab_results as $value) {
             $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             $value['proc_text'] = $value['proc_text'] ?? (xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date'])));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
@@ -1733,7 +1733,7 @@ class CdaTemplateImportDispose
             }
         }
 
-        foreach ($functional_cognitive_status_array as $key => $value) {
+        foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
                 $date = $carecoordinationTable->formatDate($value['date']);
             } else {
@@ -1784,7 +1784,7 @@ class CdaTemplateImportDispose
                 $newid = 1;
             }
         }
-        foreach ($functional_cognitive_status_array as $key => $value) {
+        foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
                 $date = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             } else {
@@ -1851,7 +1851,7 @@ class CdaTemplateImportDispose
         }
 
         $appTable = new ApplicationTable();
-        foreach ($arr_referral as $key => $value) {
+        foreach ($arr_referral as $value) {
             $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array(date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $_SESSION["userauthorized"] ?? ''));
             if ($res) {
@@ -1906,7 +1906,7 @@ class CdaTemplateImportDispose
             return;
         }
         $appTable = new ApplicationTable();
-        foreach ($vitals_array as $key => $value) {
+        foreach ($vitals_array as $value) {
             if (!empty($value['date']) && $revapprove == 0) {
                 $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             } elseif (!empty($value['date']) && $revapprove == 1) {
@@ -2337,7 +2337,7 @@ class CdaTemplateImportDispose
         if (empty($arr_file)) {
             return;
         }
-        foreach ($arr_file as $key => $value) {
+        foreach ($arr_file as $value) {
             $exist = sqlQuery("SELECT id  FROM `documents` WHERE `foreign_id` = ? AND `hash` = ? LIMIT 1", array($pid, $value['hash']));
             if (!empty($exist['id'])) {
                 error_log(xlt("Skipping import. Document exists already. File Name") . ': ' . text($value['file_name']) . ' Hash: ' . text($value['hash']));

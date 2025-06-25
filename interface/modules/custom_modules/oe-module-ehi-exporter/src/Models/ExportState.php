@@ -263,7 +263,7 @@ class ExportState
             $sequenceNo = (int)($primaryKey->attributes()['sequenceNumberInPK'] ?? 0);
             $pkBySequence[$sequenceNo] = $columnName;
         }
-        foreach ($pkBySequence as $sequenceNo => $columnName) {
+        foreach ($pkBySequence as $columnName) {
             // since we add the sequence by integer, it will be in order and we can add the primary keys here so we create our hashes properly.
             $tableDef->addPrimaryKey($columnName);
         }

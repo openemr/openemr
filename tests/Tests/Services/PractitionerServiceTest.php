@@ -150,7 +150,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 
-        foreach ($actualResult->getData() as $index => $practitionerRecord) {
+        foreach ($actualResult->getData() as $practitionerRecord) {
             $this->assertArrayHasKey("fname", $resultData);
             $this->assertArrayHasKey("lname", $resultData);
             $this->assertArrayHasKey("uuid", $resultData);

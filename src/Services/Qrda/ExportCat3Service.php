@@ -235,7 +235,7 @@ class ExportCat3Service
         foreach ($patients as $patient) {
             $patientsById[$patient->id->value] = $patient;
         }
-        foreach ($results as $key => $result) {
+        foreach ($results as $result) {
             $resultPatient = $patientsById[$result[0]->patient_id->value] ?? new Patient();
             $innerResult = $result[0]->getInnerResult();
 

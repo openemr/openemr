@@ -25,7 +25,7 @@ class PrintProperty
                 echo("</div>");
                 echo("<div class='col' style='" . attr($style)  . "' >");
             if ($ending == "%") {
-                $propertyValue = $propertyValue * 100;
+                $propertyValue *= 100;
             }
             echo text($qualifier . $propertyValue . $ending);
                  echo("</div>");

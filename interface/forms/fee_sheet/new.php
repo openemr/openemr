@@ -961,7 +961,7 @@ $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('for Encounter on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 $title = array(xl('Fee Sheet for'), text($name), text($date));
-$heading =  join(" ", $title);
+$heading =  implode(" ", $title);
 ?>
 <?php
 $arrOeUiSettings = array(
@@ -1382,7 +1382,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // whose Delete checkbox is checked.
                                     //
                                 if (!empty($_POST['bill'])) {
-                                    foreach ($_POST['bill'] as $key => $iter) {
+                                    foreach ($_POST['bill'] as $iter) {
                                         if (!empty($iter["id"])) {
                                             continue; // skip if it came from the database
                                         }
@@ -1496,7 +1496,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // whose Delete checkbox is checked.
                                     //
                                 if (!empty($_POST['prod'])) {
-                                    foreach ($_POST['prod'] as $key => $iter) {
+                                    foreach ($_POST['prod'] as $iter) {
                                         if ($iter["sale_id"]) {
                                             continue; // skip if it came from the database
                                         }

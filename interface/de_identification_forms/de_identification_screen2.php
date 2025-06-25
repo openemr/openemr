@@ -70,7 +70,7 @@ if ($_POST["all"]) {
     }
 
     if ($_POST["billing_data"]) {
-        $include_tables = $include_tables . "billing#payments";
+        $include_tables .= "billing#payments";
     }
 }
 

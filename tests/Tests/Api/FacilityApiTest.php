@@ -167,7 +167,7 @@ class FacilityApiTest extends TestCase
         $searchResults = $responseBody["data"];
         $this->assertGreaterThan(1, $searchResults);
 
-        foreach ($searchResults as $index => $searchResult) {
+        foreach ($searchResults as $searchResult) {
             $this->assertEquals("0123456789", $searchResult["facility_npi"]);
         }
     }

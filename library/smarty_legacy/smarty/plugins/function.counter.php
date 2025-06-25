@@ -45,7 +45,7 @@ function smarty_function_counter($params, &$smarty)
     if (isset($counter['assign'])) {
         $smarty->assign($counter['assign'], $counter['count']);
     }
-    
+
     if (isset($params['print'])) {
         $print = (bool)$params['print'];
     } else {
@@ -61,7 +61,7 @@ function smarty_function_counter($params, &$smarty)
     if (isset($params['skip'])) {
         $counter['skip'] = $params['skip'];
     }
-    
+
     if (isset($params['direction'])) {
         $counter['direction'] = $params['direction'];
     }
@@ -70,9 +70,9 @@ function smarty_function_counter($params, &$smarty)
         $counter['count'] -= $counter['skip'];
     else
         $counter['count'] += $counter['skip'];
-    
+
     return $retval;
-    
+
 }
 
 /* vim: set expandtab: */

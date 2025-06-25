@@ -615,7 +615,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <div class="container-xl card-body">
                         HTML;
 
-                        for ($i = 1; $i <= sizeof($insurance_info); $i++) {
+                        for ($i = 1; $i <= count($insurance_info); $i++) {
                             $result3 = $insurance_info[$i];
                             ?>
                         <div class="row p-3">

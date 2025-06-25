@@ -64,7 +64,7 @@ foreach ($encs_result as $key => $value) {
     }
 }
 $output = $output ?? '';
-foreach ($result as $key => $value) {
+foreach ($result as $value) {
     $output .= ($value ?? '') . ", ";
 }
 echo "pid list \n";

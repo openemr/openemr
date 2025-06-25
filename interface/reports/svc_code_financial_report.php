@@ -304,7 +304,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
             $orow = -1;
 
-    foreach ($rows as $key => $row) {
+    foreach ($rows as $row) {
         $print = '';
         $csv = '';
 

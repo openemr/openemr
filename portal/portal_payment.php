@@ -331,7 +331,7 @@ if ($_POST['form_save'] ?? '') {
                         if (round($Remainder, 2) != 0 && $amount != 0) {
                             if ($amount - $Remainder >= 0) {
                                 $insert_value = $Remainder;
-                                $amount = $amount - $Remainder;
+                                $amount -= $Remainder;
                             } else {
                                 $insert_value = $amount;
                                 $amount = 0;
@@ -1150,7 +1150,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 
             ksort($encs, SORT_NUMERIC);
 
-            foreach ($encs as $key => $value) {
+            foreach ($encs as $value) {
                 $enc = $value['encounter'];
                 $reason = $value['reason'];
                 $dispdate = $value['date'];

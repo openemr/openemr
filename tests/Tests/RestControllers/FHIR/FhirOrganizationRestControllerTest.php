@@ -121,7 +121,7 @@ class FhirOrganizationRestControllerTest extends TestCase
         $actualResults = $this->fhirOrganizationController->getAll($searchParams);
         $this->assertNotEmpty($actualResults);
 
-        foreach ($actualResults->getEntry() as $index => $bundleEntry) {
+        foreach ($actualResults->getEntry() as $bundleEntry) {
             $this->assertObjectHasProperty('fullUrl', $bundleEntry);
             $this->assertObjectHasProperty('resource', $bundleEntry);
         }

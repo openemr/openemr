@@ -169,7 +169,7 @@ class PatientApiTest extends TestCase
         $searchResults = $responseBody["data"];
         $this->assertGreaterThan(1, $searchResults);
 
-        foreach ($searchResults as $index => $searchResult) {
+        foreach ($searchResults as $searchResult) {
             $this->assertEquals("90210", $searchResult["postal_code"]);
         }
     }

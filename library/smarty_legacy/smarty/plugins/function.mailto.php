@@ -73,7 +73,7 @@ function smarty_function_mailto($params, &$smarty)
                 if (!empty($value))
                     $mail_parms[] = $var.'='.str_replace($search,$replace,rawurlencode($value));
                 break;
-                
+
             case 'subject':
             case 'newsgroups':
                 $mail_parms[] = $var.'='.rawurlencode($value);
@@ -125,10 +125,10 @@ function smarty_function_mailto($params, &$smarty)
         $_ret .= "}\n";
         $_ret .= "//-->\n";
         $_ret .= "</script>\n";
-        
+
         return $_ret;
-        
-        
+
+
     } elseif ($encode == 'hex') {
 
         preg_match('!^(.*)(\?.*)$!',$address,$match);

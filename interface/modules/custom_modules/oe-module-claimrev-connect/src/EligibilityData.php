@@ -75,34 +75,34 @@ class EligibilityData
 
         $sqlarr = array($status);
         if ($updateLastChecked) {
-            $sql = $sql . ",last_checked = NOW() ";
+            $sql .= ",last_checked = NOW() ";
         }
         if ($response_json != null) {
-            $sql = $sql . " ,response_json = ?";
+            $sql .= " ,response_json = ?";
             array_push($sqlarr, $response_json);
         }
         if ($request_json != null) {
-            $sql = $sql . " ,request_json = ?";
+            $sql .= " ,request_json = ?";
             array_push($sqlarr, $request_json);
         }
         if ($responseMessage != null) {
-            $sql = $sql . " ,response_message = ?";
+            $sql .= " ,response_message = ?";
             array_push($sqlarr, $responseMessage);
         }
         if ($raw271 != null) {
-                $sql = $sql . " ,raw271 = ? ";
+                $sql .= " ,raw271 = ? ";
                 array_push($sqlarr, $raw271);
         }
         if ($eligibility_json != null) {
-            $sql = $sql . " ,eligibility_json = ?";
+            $sql .= " ,eligibility_json = ?";
             array_push($sqlarr, $eligibility_json);
         }
         if ($individual_json != null) {
-            $sql = $sql . " ,individual_json = ?";
+            $sql .= " ,individual_json = ?";
             array_push($sqlarr, $individual_json);
         }
 
-        $sql = $sql . " WHERE id = ?";
+        $sql .= " WHERE id = ?";
         array_push($sqlarr, $id);
         sqlStatement($sql, $sqlarr);
     }
@@ -124,10 +124,10 @@ class EligibilityData
             $ary = array($pid);
 
         if ($pr != "") {
-            $query = $query . " AND i.type = ?";
+            $query .= " AND i.type = ?";
             array_push($ary, $pr);
         }
-            $query = $query . " order by i.date desc LIMIT 1";
+            $query .= " order by i.date desc LIMIT 1";
 
             $res = sqlStatement($query, $ary);
             return $res;
@@ -267,7 +267,7 @@ class EligibilityData
         $ary = array($pid);
 
         if ($pr != "") {
-            $query = $query . " AND i.type = ?";
+            $query .= " AND i.type = ?";
             array_push($ary, $pr);
         }
         $res = sqlStatement($query, $ary);

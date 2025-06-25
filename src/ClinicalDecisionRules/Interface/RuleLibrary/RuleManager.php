@@ -223,7 +223,7 @@ class RuleManager
         $criterion = $this->gatherCriteria($rule, $stmt, $this->filterCriteriaFactory);
         $ruleFilters = new RuleFilters();
         $rule->setRuleFilters($ruleFilters);
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             foreach ($criterion as $criteria) {
                 $ruleFilters->add($criteria);
             }
@@ -269,7 +269,7 @@ class RuleManager
             $this->targetCriteriaFactory
         );
         $ruleTargetGroups = array();
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             foreach ($criterion as $criteria) {
                 if (!isset($ruleTargetGroups[$criteria->groupId])) {
                     $ruleTargetGroups[$criteria->groupId] = new RuleTargets();
@@ -319,7 +319,7 @@ class RuleManager
             $stmt,
             $this->filterCriteriaFactory
         );
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             $criteria = $criterion[0];
             $criteria->guid = $guid;
             return $criterion[0];
@@ -368,7 +368,7 @@ class RuleManager
             $stmt,
             $this->targetCriteriaFactory
         );
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             $criteria = $criterion[0];
             $criteria->guid = $guid;
             return $criteria;
@@ -389,7 +389,7 @@ class RuleManager
             $stmt,
             $this->targetCriteriaFactory
         );
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             $criteria = $criterion[0];
             return $criterion[0];
         }

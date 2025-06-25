@@ -49,7 +49,7 @@ class CoverageValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 if (!$context instanceof OpenEMRParticleValidator) {
                     throw new \RuntimeException("CoverageValidator requires an instance of OpenEMRParticleValidator");
                 }
@@ -221,10 +221,10 @@ class CoverageValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
+                    function ($rules): void {
                         foreach ($rules as $key => $chain) {
                             if ($key !== 'type') {
                                 $chain->required(false);
@@ -241,7 +241,7 @@ class CoverageValidator extends BaseValidator
 
         $this->validator->context(
             self::DATABASE_SWAP_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required("uuid", "Coverage UUID")->callback(function ($value) {
                     return $this->validateId("uuid", "insurance_data", $value, true);
                 })->uuid();

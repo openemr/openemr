@@ -511,7 +511,7 @@ function printData($retar, $key, $sep, $date_format)
 {
     //$retar[$key]
     if (@array_key_exists($key, $retar)) {
-        $length = sizeof($retar[$key]);
+        $length = count($retar[$key]);
         for ($iter = $length; $iter >= 1; $iter--) {
             if ($retar[$key][$iter]["value"] != "0000-00-00 00:00:00") {
                 print text($retar[$key][$iter]["value"]) . " (" . text(oeFormatSDFT(strtotime($retar[$key][$iter]["date"]))) . ")$sep";
@@ -533,7 +533,7 @@ function printRecDataOne($data_array, $recres, $N)
     print "<table><tr>\n";
     $count = 0;
     foreach ($data_array as $akey => $aval) {
-        if (!empty($recres[$akey]) && sizeof($recres[$akey]) > 0 && ($recres[$akey][1]["value"] != "0000-00-00 00:00:00")) {
+        if (!empty($recres[$akey]) && count($recres[$akey]) > 0 && ($recres[$akey][1]["value"] != "0000-00-00 00:00:00")) {
             if ($count == $N) {
                 print "</tr><tr>\n";
                 $count = 0;
@@ -553,7 +553,7 @@ function printDataOne($retar, $key, $sep, $date_format)
 {
     //this function supports the printRecDataOne function above
     if (@array_key_exists($key, $retar)) {
-        $length = sizeof($retar[$key]);
+        $length = count($retar[$key]);
         if ($retar[$key][$length]["value"] != "0000-00-00 00:00:00") {
             $tmp = $retar[$key][$length]["value"];
             if (strstr($key, 'DOB')) {

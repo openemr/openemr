@@ -233,7 +233,7 @@ if (isset($_REQUEST['filter'])) {
     $filter = array();
     $filter_key = array();
     foreach ($_REQUEST['filter'] as $var) {
-        $var = $var + 0;
+        $var += 0;
         array_push($filter, $var);
         $var_key = convert_type_id_to_key($var);
         array_push($filter_key, $var_key);
@@ -667,7 +667,7 @@ if ($fend > ($count ?? null)) {
             <div class="col-md-2">
                 <select name='filter[]' class="form-control form-control-sm" multiple='multiple'>
                     <?php
-                    foreach ($code_types as $key => $value) {
+                    foreach ($code_types as $value) {
                         echo "<option value='" . attr($value['id']) . "'";
                         if (isset($filter) && in_array($value['id'], $filter)) {
                             echo " selected";
@@ -765,7 +765,7 @@ if ($fend > ($count ?? null)) {
             $count++;
 
             $has_fees = false;
-            foreach ($code_types as $key => $value) {
+            foreach ($code_types as $value) {
                 if ($value['id'] == $iter['code_type']) {
                     $has_fees = $value['fee'];
                     break;

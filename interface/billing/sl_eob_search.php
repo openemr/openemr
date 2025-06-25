@@ -521,7 +521,7 @@ if (
             $line['bill_date'] = $bdrow['bill_date'];
             $stmt['lines'][] = $line;
             $stmt['amount'] = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-            $stmt['ins_paid'] = $stmt['ins_paid'] + ($value['ins'] ?? null);
+            $stmt['ins_paid'] += $value['ins'] ?? null;
         }
 
         // Record that this statement was run.

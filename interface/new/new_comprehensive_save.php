@@ -84,7 +84,7 @@ if (!empty($addressFieldsToSave)) {
     // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
     // address information
     // TODO: how are error messages supposed to display if the save fails?
-    foreach ($addressFieldsToSave as $field => $addressFieldData) {
+    foreach ($addressFieldsToSave as $addressFieldData) {
         // if we need to save other kinds of addresses we could do that here with our field column...
         $contactService = new ContactService();
         $contactService->saveContactsForPatient($pid, $addressFieldData);

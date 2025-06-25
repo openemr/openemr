@@ -157,7 +157,7 @@ trait QuestionnaireTraits
         } elseif (is_object($fhirObjectOrArray)) {
             $a = $fhirObjectOrArray->jsonSerialize();
             $a = json_decode(json_encode($a), true);
-            $handle = function (&$a) use (&$handle) {
+            $handle = function (&$a) use (&$handle): void {
                 foreach ($a as $key => &$value) {
                     if (gettype($key) === 'string' && $key[0] === '_') {
                         unset($a[$key]);

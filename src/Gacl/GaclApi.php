@@ -3864,7 +3864,7 @@ class GaclApi extends Gacl {
 			}
 
 			// Loop the queries and return.
-			foreach ($query as $key => $value){
+			foreach ($query as $value){
 					$result = $this->db->Execute($value);
 			}
 

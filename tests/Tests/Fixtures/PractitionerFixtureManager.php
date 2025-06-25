@@ -82,7 +82,7 @@ class PractitionerFixtureManager
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
 
-        foreach ($fixtures as $index => $fixture) {
+        foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
             $sqlBinds = array();
 

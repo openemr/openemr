@@ -37,7 +37,7 @@ class BillingReport
         $query_part = '';
         $query_part2 = '';
         if (isset($_REQUEST['final_this_page_criteria'])) {
-            foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
+            foreach ($_REQUEST['final_this_page_criteria'] as $criteria_value) {
                 //---------------------------------------------------------
                 if (strpos($criteria_value, "billing.billed|=|1") !== false) {
                     $billstring .= ' AND ' . "billing.billed = '1'";

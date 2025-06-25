@@ -30,7 +30,7 @@ class Module
     {
         // TODO: it needs to be documented why we want to inject the current_controller and current_action here..
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller = $e->getTarget();
             $controller->layout('immunization/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();

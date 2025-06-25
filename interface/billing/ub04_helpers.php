@@ -69,7 +69,7 @@ function lookup_codes($group, $term)
     global $ub04_codes;
     $gotem = array();
 
-    foreach ($ub04_codes as $k => $v) {
+    foreach ($ub04_codes as $v) {
         if ($v['code_group'] != $group) {
             continue;
         }

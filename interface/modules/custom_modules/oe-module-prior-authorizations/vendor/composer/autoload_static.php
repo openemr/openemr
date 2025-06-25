@@ -26,7 +26,7 @@ class ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8
 
     public static function getInitializer(ClassLoader $loader)
     {
-        return \Closure::bind(function () use ($loader) {
+        return \Closure::bind(function () use ($loader): void {
             $loader->prefixLengthsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit5ac827bf40622181f7ba27e2c5b800a8::$classMap;

@@ -38,7 +38,7 @@ class FixtureManagerTest extends TestCase
          "sex", "status", "drivers_license");
 
         $message = "Patient is missing";
-        foreach ($expectedFields as $index => $expectedField) {
+        foreach ($expectedFields as $expectedField) {
             $this->assertArrayHasKey($expectedField, $patientFixture, $message . " " . $expectedField);
         }
 
@@ -94,7 +94,7 @@ class FixtureManagerTest extends TestCase
         $this->assertNotNull($fhirPatientFixture['birthDate']);
 
         $this->assertGreaterThanOrEqual(1, count($fhirPatientFixture['address']));
-        foreach ($fhirPatientFixture['address'] as $index => $address) {
+        foreach ($fhirPatientFixture['address'] as $address) {
             $this->assertGreaterThanOrEqual(1, count($address['line']));
             $this->assertNotNull($address['city']);
             $this->assertNotNull($address['state']);
@@ -111,7 +111,7 @@ class FixtureManagerTest extends TestCase
         $this->assertIsArray($patientFixtures);
         $this->assertGreaterThan(0, count($patientFixtures));
 
-        foreach ($patientFixtures as $index => $patientFixture) {
+        foreach ($patientFixtures as $patientFixture) {
             $this->assertPatientFields($patientFixture);
         }
     }
@@ -154,7 +154,7 @@ class FixtureManagerTest extends TestCase
         $actualCount = count($fhirPatientFixtures);
         $this->assertGreaterThanOrEqual(0, $actualCount);
 
-        foreach ($fhirPatientFixtures as $index => $fhirPatientFixture) {
+        foreach ($fhirPatientFixtures as $fhirPatientFixture) {
             $this->assertFhirPatientFields($fhirPatientFixture);
         }
     }
