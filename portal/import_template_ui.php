@@ -832,7 +832,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                                 continue;
                             }
                             $total = 0;
-                            foreach ($profile_items_list as $key => $files) {
+                            foreach ($profile_items_list as $files) {
                                 $total += count($files ?? []);
                                 foreach ($files as $file) {
                                     if (is_array($file)) {

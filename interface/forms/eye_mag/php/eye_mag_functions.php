@@ -2658,7 +2658,7 @@ function show_PMSFH_report($PMSFH)
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
-    foreach ($PMSFH[0]['ROS'] as $key => $value) {
+    foreach ($PMSFH[0]['ROS'] as $value) {
         if (($value['display'] ?? '') == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2669,7 +2669,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    foreach ($PMSFH[0]['FH'] as $key => $value) {
+    foreach ($PMSFH[0]['FH'] as $value) {
         if ($value['display'] == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;

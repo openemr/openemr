@@ -1312,7 +1312,7 @@ function make_insurance() {
                                 ksort($encs, SORT_NUMERIC);
                                 $gottoday = false;
                                 //Bringing on top the Today always
-                                foreach ($encs as $key => $value) {
+                                foreach ($encs as $value) {
                                     $dispdate = $value['date'];
                                     if (strcmp($dispdate, $today) == 0 && !$gottoday) {
                                         $gottoday = true;

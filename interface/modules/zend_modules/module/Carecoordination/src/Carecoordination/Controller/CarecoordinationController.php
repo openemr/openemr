@@ -625,70 +625,70 @@ class CarecoordinationController extends AbstractActionController
                     $temp .= '<div><table class="narr_table" border="1" width="100%">
  <thead><tr class="narr_tr">
  <th class="narr_th" align="right">' . Listener::z_xlt('Date / Time') . ': </th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<th class="narr_th">' . ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd') . '</th>';
                     }
 
                     $temp .= '</tr></thead><tbody>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Temperature') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['temperature']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Diastolic') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['bpd']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Systolic') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['bps']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Head Circumference') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['head_circ']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Pulse') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['pulse']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Height') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['height']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Oxygen Saturation') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['oxygen_saturation']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Breath') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['breath']) . '</td>';
                     }
 
                     $temp .= '</tr>
  <tr class="narr_tr">
     <th class="narr_th" align="left">' . Listener::z_xlt('Weight') . '</th>';
-                    foreach ($vitals_audit['vital_sign'] as $key => $val) {
+                    foreach ($vitals_audit['vital_sign'] as $val) {
                         $temp .= '<td>' . CommonPlugin::escape($val['weight']) . '</td>';
                     }
 
