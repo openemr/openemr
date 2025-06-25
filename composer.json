@@ -58,7 +58,7 @@
         "php81_bc/strftime": "0.7.6",
         "php-http/discovery": "1.20.0",
         "psr/log": "3.0.2",
-        "ramsey/uuid": "4.7.6",
+        "ramsey/uuid": "4.8.1",
         "ringcentral/ringcentral-php": "3.0.4",
         "robthree/twofactorauth": "3.0.2",
         "rospdf/pdf-php": "0.12.67",
