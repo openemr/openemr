@@ -407,7 +407,7 @@ function rp()
     }
     $date_cols = [];
     $datetime_cols = [];
-    foreach ($pd_dtCols as $k => $v) {
+    foreach ($pd_dtCols as $v) {
         if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
         } else if ($v['data_type'] == "date") {
@@ -416,7 +416,7 @@ function rp()
     }
     // Build SQL statement to pull desired columns from patient_data table...
     $pd_sql = "SELECT pid";
-    foreach ($headers as $k => $v) {
+    foreach ($headers as $v) {
         $pd_sql .= ', ';
         $col_name = $v['option_id'];
         $dt_format = '';

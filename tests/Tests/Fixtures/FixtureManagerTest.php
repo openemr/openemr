@@ -64,7 +64,7 @@ class FixtureManagerTest extends TestCase
         $this->assertEquals(2, count($actualIdentifiers));
 
         $actualIdentifierCodes = array();
-        foreach ($actualIdentifiers as $index => $actualIdentifier) {
+        foreach ($actualIdentifiers as $actualIdentifier) {
             $actualCode = $actualIdentifier['type']['coding'][0]['code'];
             array_push($actualIdentifierCodes, $actualCode);
         }
@@ -84,7 +84,7 @@ class FixtureManagerTest extends TestCase
         $this->assertGreaterThanOrEqual(1, count($actualName['prefix']));
 
         $this->assertGreaterThanOrEqual(1, count($fhirPatientFixture['telecom']));
-        foreach ($fhirPatientFixture['telecom'] as $index => $telecom) {
+        foreach ($fhirPatientFixture['telecom'] as $telecom) {
             $this->assertNotNull($telecom['system']);
             $this->assertNotNull($telecom['value']);
             $this->assertNotNull($telecom['use']);
