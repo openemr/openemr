@@ -48,7 +48,7 @@ jobs:
 
     - name: Rector Dry Run
       run: |
-        if ! vendor/bin/rector process --dry-run --no-progress-bar --no-diffs; then
+        if ! vendor/bin/rector process --dry-run; then
           echo "Rector failed!"
           exit 1
         fi
