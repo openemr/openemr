@@ -22,7 +22,7 @@
         "google/apiclient": "2.18.2",
         "guzzlehttp/guzzle": "7.9.3",
         "html2text/html2text": "4.3.2",
-        "kamermans/guzzle-oauth2-subscriber": "1.1.0",
+        "kamermans/guzzle-oauth2-subscriber": "1.1.1",
         "knplabs/knp-snappy": "1.5.1",
         "laminas/laminas-config": "3.10.1",
         "laminas/laminas-db": "2.20.0",

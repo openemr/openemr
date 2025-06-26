@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b791c2757c884581e2cece0de89a059b",
+    "content-hash": "d7181e04cf2a4609b263237542a63e2a",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1651,16 +1651,16 @@
         },
         {
             "name": "kamermans/guzzle-oauth2-subscriber",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kamermans/guzzle-oauth2-subscriber.git",
-                "reference": "16f2fb28fa6803c519c6339ff6270cdd7a365abf"
+                "reference": "7c311987ce7dcb6bfcd8320cc64588ad8fca075a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/16f2fb28fa6803c519c6339ff6270cdd7a365abf",
-                "reference": "16f2fb28fa6803c519c6339ff6270cdd7a365abf",
+                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/7c311987ce7dcb6bfcd8320cc64588ad8fca075a",
+                "reference": "7c311987ce7dcb6bfcd8320cc64588ad8fca075a",
                 "shasum": ""
             },
             "require": {
@@ -1692,9 +1692,9 @@
             ],
             "support": {
                 "issues": "https://github.com/kamermans/guzzle-oauth2-subscriber/issues",
-                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.1.0"
+                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.1.1"
             },
-            "time": "2024-05-02T18:45:14+00:00"
+            "time": "2025-05-13T19:40:57+00:00"
         },
         {
             "name": "knplabs/knp-snappy",
