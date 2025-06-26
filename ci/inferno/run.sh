@@ -78,8 +78,25 @@ initialize_openemr() {
         cd -
         dockers_env_start
         install_configure
+	openemr-cmd pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+	openemr-cmd rs 2025-06-25-inferno-baseline
         echo 'OpenEMR initialized'
     )
+}
+run_testsuite() {
+    local -x DOCKER_DIR=inferno
+    local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+    (
+        cd -P "$(git rev-parse --show-toplevel)"
+        . ci/ciLibrary.source
+	cd -
+	phpunit --testsuite certification -c $OPENEMR_DIR/phpunit.xml
+	echo 'Certification Tests Executed'
+    )
+}
+
+fix_redis_permissions() {
+     docker run --rm -v $PWD/onc-certification-g10-test-kit/data/redis:/data redis chown -R redis:redis /data
 }
 
 main() {
@@ -106,6 +123,8 @@ main() {
     initialize_inferno
     check_inferno
     initialize_openemr
+    fix_redis_permissions
+    run_testsuite
 }
 
 main "$@"

@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Tests\Api\HIT1\US_Core_311;
+namespace OpenEMR\Tests\Certification\HIT1\US_Core_311;
 
 use GuzzleHttp\Client;
 use OpenEMR\Tests\Api\ApiTestClient;
@@ -64,7 +64,6 @@ class InfernoSinglePatientAPITest extends TestCase
 //    }
 
     public function testCapabilityStatement() {
-
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'capability_statement');
         $this->assertResultsPassed($response['results'],
             "Capability Statement test failed",

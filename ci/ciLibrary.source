@@ -111,6 +111,7 @@ install_configure() {
         cd "$(git rev-parse --show-toplevel)"
         sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
     )
+    _exec cp /var/www/localhost/htdocs/auto_configure.php /root/
     _exec php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
     _exec rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
     _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
