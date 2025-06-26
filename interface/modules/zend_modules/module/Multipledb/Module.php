@@ -52,7 +52,7 @@ class Module
         $events = $manager->getEventManager();
         $sharedEvents = $events->getSharedManager();
 
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
             // @see https://framework.zend.com/apidoc/2.0/classes/Laminas.Mvc.Controller.Plugin.Layout.html

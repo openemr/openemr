@@ -2,18 +2,16 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
-use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
-use OpenEMR\Services\PatientService;
-use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixtures\FixtureManager;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Patient Service Mapping Tests
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -21,6 +19,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
+
+#[CoversClass(FhirPatientService::class)]
 class FhirPatientServiceMappingTest extends TestCase
 {
     private $fixtureManager;
@@ -112,7 +112,7 @@ class FhirPatientServiceMappingTest extends TestCase
     {
         $matchFound = false;
 
-        foreach ($actualTelecoms as $index => $actualTelecom) {
+        foreach ($actualTelecoms as $actualTelecom) {
             if (
                 $expectedSystem == $actualTelecom->getSystem()->getValue() &&
                 $expectedUse == $actualTelecom->getUse()->getValue() &&
@@ -136,7 +136,7 @@ class FhirPatientServiceMappingTest extends TestCase
     private function assertFhirPatientIdentifier($expectedCode, $expectedValue, $actualIdentifiers)
     {
         $matchFound = false;
-        foreach ($actualIdentifiers as $index => $actualIdentifier) {
+        foreach ($actualIdentifiers as $actualIdentifier) {
             $type = $actualIdentifier->getType();
             if (isset($type) && empty($type->getCoding())) {
                 continue;
@@ -157,9 +157,7 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertTrue($matchFound);
     }
 
-    /**
-     * @covers ::parseOpenEMRRecord
-     */
+    #[Test]
     public function testParseOpenEMRRecord()
     {
         $this->patientFixture['uuid'] = $this->fixtureManager->getUnregisteredUuid();
@@ -184,7 +182,7 @@ class FhirPatientServiceMappingTest extends TestCase
             return $matchingEntries;
         }
 
-        foreach ($fhirPatientResource->getTelecom() as $index => $telecomEntry) {
+        foreach ($fhirPatientResource->getTelecom() as $telecomEntry) {
             if ($telecomEntry->getSystem() == $telecomSystem && $telecomEntry->getUse() == $telecomUse) {
                 array_push($matchingEntries, $telecomEntry);
             }
@@ -202,7 +200,7 @@ class FhirPatientServiceMappingTest extends TestCase
     {
         $codeValue = null;
 
-        foreach ($fhirPatientResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirPatientResource->getIdentifier() as $identifier) {
             if (empty($identifier->getType()->getCoding())) {
                 continue;
             }
@@ -214,9 +212,8 @@ class FhirPatientServiceMappingTest extends TestCase
         }
         return (string)$codeValue;
     }
-    /**
-     * @covers ::parseFhirResource
-     */
+
+    #[Test]
     public function testParseFhirResource()
     {
         $actualResult = $this->fhirPatientService->parseFhirResource($this->fhirPatientFixture);

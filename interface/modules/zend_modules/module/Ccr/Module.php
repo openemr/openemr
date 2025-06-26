@@ -34,7 +34,7 @@ class Module
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller = $e->getTarget();
             $controller->layout('ccr/layout/layout');
                 $route = $controller->getEvent()->getRouteMatch();

@@ -1046,7 +1046,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 ,'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
-            foreach ($split_codes as $key => $single_code) {
+            foreach ($split_codes as $single_code) {
                 $code = $code_text = $code_rx = $code_text_rx = $code_snomed = $code_text_snomed = $reaction_text = $reaction_code = '';
                 $get_code_details = explode(':', $single_code);
 
@@ -1236,7 +1236,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 ,'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
-            foreach ($split_codes as $key => $single_code) {
+            foreach ($split_codes as $single_code) {
                 $get_code_details = explode(':', $single_code);
                 $code_type = $get_code_details[0];
                 $code_type = ($code_type == 'SNOMED' || $code_type == 'SNOMED-CT') ? "SNOMED CT" : "ICD-10-CM";
@@ -1332,7 +1332,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 ,'time' => $row['modifydate']
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, null);
-            foreach ($split_codes as $key => $single_code) {
+            foreach ($split_codes as $single_code) {
                 $get_code_details = explode(':', $single_code);
                 $code_type = $get_code_details[0];
                 $code_type = ($code_type == 'SNOMED' || $code_type == 'SNOMED-CT') ? "SNOMED CT" : "ICD-10-CM";
@@ -1914,7 +1914,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $progress_notes .= "<progressNotes>";
         if (!empty($result)) {
             foreach ($result as $row) {
-                foreach ($row as $key => $value) {
+                foreach ($row as $value) {
                     $progress_notes .= "<item>" . xmlEscape($value) . "</item>";
                 }
             }
@@ -3007,7 +3007,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             if ($formTables_details[0] == 1) {//Fetching the values from an HTML form
                 if (!$formTables_details[1]) {//Fetching the complete form
                     foreach ($form_ids as $row) {//Fetching the values of each forms
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             ob_start();
                             if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
                                 include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
@@ -3043,13 +3043,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             } elseif ($formTables_details[0] == 2) {//Fetching the values from an LBF form
                 if (!$formTables_details[1]) {//Fetching the complete LBF
                     foreach ($form_ids as $row) {
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             //This section will be used to fetch complete LBF. This has to be completed. We are working on this.
                         }
                     }
                 } elseif (!$formTables_details[3]) {//Fetching the complete group from an LBF
                     foreach ($form_ids as $row) {//Fetching the values of each encounters
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             ob_start();
                             ?>
                             <table>
@@ -3064,7 +3064,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 } else {
                     $formid_list = "";
                     foreach ($form_ids as $row) {//Fetching the values of each forms
-                        foreach ($row as $key => $value) {
+                        foreach ($row as $value) {
                             if ($formid_list) {
                                 $formid_list .= ',';
                             }
@@ -3082,7 +3082,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                     $field_ids = explode(',', $formTables_details[3]);
                     $fields_str = '';
-                    foreach ($field_ids as $key => $value) {
+                    foreach ($field_ids as $value) {
                         if ($fields_str != '') {
                             $fields_str .= ",";
                         }
@@ -3551,14 +3551,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $code = '';
         for ($i = 0, $iMax = strlen($encrypted); $i <= $iMax;) {
             $code .= $encrypted[$i];
-            $i = $i + 2;
+            $i += 2;
         }
 
         $encrypted = $code;
         $code = '';
         for ($i = 0, $iMax = strlen($encrypted); $i <= $iMax;) {
             $code .= $encrypted[$i];
-            $i = $i + 2;
+            $i += 2;
         }
 
         $code = strtoupper(substr($code, 0, 6));

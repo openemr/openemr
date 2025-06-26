@@ -84,7 +84,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
     public function populateResourceMappingUuidsForAll()
     {
         $resourcePathList = [];
-        foreach (self::COLUMN_MAPPINGS as $column => $mapping) {
+        foreach (self::COLUMN_MAPPINGS as $mapping) {
             // TODO: @adunsulag make this a single function call so we can be more effecient
             $resourcePath = $this->getResourcePathForCode($mapping['code']);
             UuidMapping::createMissingResourceUuids('Observation', 'history_data', $resourcePath);

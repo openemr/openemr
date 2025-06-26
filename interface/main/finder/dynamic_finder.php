@@ -371,7 +371,7 @@ $loading = "";
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
-    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event) {
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event): void {
         if ($event->getPageId() !== 'dynamic_finder') {
             return;
         }
@@ -407,7 +407,7 @@ function rp()
     }
     $date_cols = [];
     $datetime_cols = [];
-    foreach ($pd_dtCols as $k => $v) {
+    foreach ($pd_dtCols as $v) {
         if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
         } else if ($v['data_type'] == "date") {
@@ -416,7 +416,7 @@ function rp()
     }
     // Build SQL statement to pull desired columns from patient_data table...
     $pd_sql = "SELECT pid";
-    foreach ($headers as $k => $v) {
+    foreach ($headers as $v) {
         $pd_sql .= ', ';
         $col_name = $v['option_id'];
         $dt_format = '';
@@ -450,7 +450,7 @@ function rp()
     }
     $pd_sql .= " FROM patient_data WHERE pid = ?";
     $pd_data = [];
-    foreach ($rp as $k => $v) {
+    foreach ($rp as $v) {
         $pd_data[] = sqlQuery($pd_sql, $v['pid']);
     }
     return ['headers' => $headers, 'rp' => $pd_data];

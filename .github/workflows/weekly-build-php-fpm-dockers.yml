@@ -25,7 +25,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.0 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-0"
           tags: openemr/dev-php-fpm:8.0
@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.0-redis docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-0-redis"
           tags: openemr/dev-php-fpm:8.0-redis
@@ -71,7 +71,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.1 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-1"
           tags: openemr/dev-php-fpm:8.1
@@ -94,7 +94,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.1-redis docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-1-redis"
           tags: openemr/dev-php-fpm:8.1-redis
@@ -117,7 +117,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.2 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-2"
           tags: openemr/dev-php-fpm:8.2
@@ -140,7 +140,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.2-redis docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-2-redis"
           tags: openemr/dev-php-fpm:8.2-redis
@@ -163,7 +163,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.3 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-3"
           tags: openemr/dev-php-fpm:8.3
@@ -186,7 +186,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.3-redis docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-3-redis"
           tags: openemr/dev-php-fpm:8.3-redis
@@ -209,7 +209,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.4 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-4"
           tags: openemr/dev-php-fpm:8.4
@@ -232,7 +232,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.4-redis docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-4-redis"
           tags: openemr/dev-php-fpm:8.4-redis
@@ -255,7 +255,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.5 docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-5"
           tags: openemr/dev-php-fpm:8.5
@@ -278,7 +278,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push dev-php-fpm:8.5-redis docker
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-5-redis"
           tags: openemr/dev-php-fpm:8.5-redis

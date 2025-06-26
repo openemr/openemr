@@ -156,7 +156,7 @@ class CcrTable extends AbstractTableGateway
         }
 
         $detail_query = substr($detail_query, 0, -1);
-        $detail_query = $detail_query . ';';
+        $detail_query .= ';';
         $appTable->zQuery($detail_query, $detail_query_array);
         return $audit_master_id;
     }

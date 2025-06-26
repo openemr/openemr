@@ -39,7 +39,7 @@ if (!empty($form_id)) {
     }
 // add a version to template
     if (stripos($prepared_doc, 'portal_version') === false) {
-        $prepared_doc = $prepared_doc . "<input style='display: none;' id='portal_version' name='portal_version' type='hidden' value='New' />\n";
+        $prepared_doc .= "<input style='display: none;' id='portal_version' name='portal_version' type='hidden' value='New' />\n";
     }
 }
 echo $prepared_doc;

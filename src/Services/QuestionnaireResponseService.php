@@ -162,7 +162,7 @@ class QuestionnaireResponseService extends BaseService
         $instanceCount = 0;
         $repeatingForms = array_fill_keys($this->repeatingForms, true);
 
-        $parseItems = function ($parent) use (&$parseItems, &$fieldNames, &$data, &$instanceCount, $repeatingForms) {
+        $parseItems = function ($parent) use (&$parseItems, &$fieldNames, &$data, &$instanceCount, $repeatingForms): void {
             foreach ($parent->getItem() as $item) {
                 $answers = $item->getAnswer();
                 $fieldText = $this->getText($item);

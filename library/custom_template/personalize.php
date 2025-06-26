@@ -35,7 +35,7 @@ function Insert_Rows($id, $order = ""): void
 if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     $topersonalized = $_REQUEST['topersonalized'];
     $personalized = $_REQUEST['personalized'];
-    foreach ($topersonalized as $key => $value) {
+    foreach ($topersonalized as $value) {
         $arr = explode("|", $value);
         $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));
         if (sqlNumRows($res)) {
@@ -48,7 +48,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     }
 
     //Add new Categories
-    foreach ($personalized as $key => $value) {
+    foreach ($personalized as $value) {
         $arr = explode("|", $value);
         if ($arr[1]) {
             $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($arr[0], $_SESSION['authUserID']));

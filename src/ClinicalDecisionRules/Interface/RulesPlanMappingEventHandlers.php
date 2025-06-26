@@ -198,12 +198,12 @@ class RulesPlanMappingEventHandlers
     public static function submitChanges($plan_id, $added_rules, $removed_rules)
     {
         //add
-        if (sizeof($added_rules) > 0) {
+        if (count($added_rules) > 0) {
             self::addRulesToPlan($plan_id, $added_rules);
         }
 
         //remove
-        if (sizeof($removed_rules) > 0) {
+        if (count($removed_rules) > 0) {
             self::removeRulesFromPlan($plan_id, $removed_rules);
         }
     }
@@ -252,7 +252,7 @@ class RulesPlanMappingEventHandlers
             $plan_id += 1;
         }
 
-        $plan_id = $plan_id . '_plan';
+        $plan_id .= '_plan';
 
         return $plan_id;
     }

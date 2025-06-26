@@ -73,7 +73,7 @@
           </div>
         </div>
         <!-- form used to open a new top level window when a patient row is clicked -->
-        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site={{ session.side_id|attr_url }}'>
+        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site={{ session.site_id|attr_url }}'>
             {{ csrfToken('', 'csrf_token_form') }}
             <input type='hidden' name='patientID' value='0'/>
         </form>

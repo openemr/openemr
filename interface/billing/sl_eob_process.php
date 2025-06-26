@@ -361,7 +361,7 @@ function era_callback(&$out)
 
         // create array of cpts and mods for complex matching
         $codes_arr_keys = array_keys($codes);
-        foreach ($codes_arr_keys as $key => $value) {
+        foreach ($codes_arr_keys as $value) {
             $tmp = explode(":", $value);
             $count = count($tmp) - 1;
             $cpt = $tmp[0];
@@ -386,7 +386,7 @@ function era_callback(&$out)
             if (!$prev) {
                 if (!$svc['mod']) {
                     if (in_array($svc['code'], $cpts ?? [])) {
-                        foreach ($cpts as $k => $v) {
+                        foreach ($cpts as $v) {
                             if ($v == $codekey) {
                                 $codekey = $cpt . ':' . implode(':', $mods[$v] ?? []);
                             }

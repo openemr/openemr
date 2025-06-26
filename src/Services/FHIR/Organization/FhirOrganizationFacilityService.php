@@ -291,7 +291,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
             }
         }
 
-        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
                 $data['facility_npi'] = (string)$identifier->getValue() ?? null;
             }

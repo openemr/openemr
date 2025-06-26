@@ -29,7 +29,7 @@ class Module implements AutoloaderProviderInterface
 
     public function init(ModuleManager $mm)
     {
-        $mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $mm->getEventManager()->getSharedManager()->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller             = $e->getTarget();
             $route                      = $controller->getEvent()->getRouteMatch();
             $controller_name    = $route->getParam('controller');

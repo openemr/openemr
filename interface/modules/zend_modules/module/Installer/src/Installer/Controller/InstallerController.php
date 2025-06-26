@@ -124,7 +124,7 @@ class InstallerController extends AbstractActionController
             }
         }
         // do not show registered modules in the unregistered list
-        if (sizeof($allModules) > 0) {
+        if (count($allModules) > 0) {
             foreach ($allModules as $modules) {
                 $key = array_search($modules->modDirectory, $inDirLaminas);
                 if ($key !== false) {
@@ -448,7 +448,7 @@ class InstallerController extends AbstractActionController
 
         //GET MODULE ACL SECTION FROM A FUNCTION IN CONFIGURATION MODEL CLASS
         $aclArray = $this->getInstallerTable()->getModuleAclSections($moduleDirectory);
-        if (sizeof($aclArray) > 0) {
+        if (count($aclArray) > 0) {
             $this->getInstallerTable()->insertAclSections($aclArray, $moduleDirectory, $modId);
         } else {
             $this->getInstallerTable()->deleteACLSections($modId);

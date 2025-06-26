@@ -100,7 +100,7 @@ abstract class BaseFixtureManager
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
 
-        foreach ($fixtures as $index => $fixture) {
+        foreach ($fixtures as $fixture) {
             $sqlColumnValues = "";
             $sqlBinds = array();
 
@@ -109,7 +109,7 @@ abstract class BaseFixtureManager
                     $fragment = $this->getQueryForForeignReference($fieldValue);
                     $sqlColumnValues .= $field . " = " . $fragment->getFragment() . ", ";
                     $sqlBinds = array_merge($sqlBinds, $fragment->getBoundValues());
-                } else if ($this->isFunctionCall($fieldValue)) {
+                } elseif ($this->isFunctionCall($fieldValue)) {
                     $sqlColumnValues .= $field . " = ?, ";
                     $fieldValue = $this->getValueFromFunction($fieldValue);
                     array_push($sqlBinds, $fieldValue);
@@ -174,7 +174,7 @@ abstract class BaseFixtureManager
             } else {
                 throw new \BadMethodCallException("uuid(table_name) function is missing table name");
             }
-        } else if ($functionName === "generateId") {
+        } elseif ($functionName === "generateId") {
             return QueryUtils::generateId();
         } else {
             throw new \BadMethodCallException("Function could not be interpreted from fixture: " . $value);

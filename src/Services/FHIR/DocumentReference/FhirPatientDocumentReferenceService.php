@@ -174,7 +174,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['codes'])) {
-            foreach ($dataRecord['codes'] as $code => $codeableConcept) {
+            foreach ($dataRecord['codes'] as $codeableConcept) {
                 $docReference->addCategory(UtilsService::createCodeableConcept($codeableConcept));
             }
         } else {

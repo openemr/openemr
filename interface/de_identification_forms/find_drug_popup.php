@@ -176,7 +176,7 @@ function check_search_str()
         $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
-              $row_count = $row_count + 1;
+              $row_count += 1;
               $itercode = $row['drug_id'];
               $itertext = ucfirst(strtolower(trim($row['name'])));
             ?>

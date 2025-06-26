@@ -25,9 +25,9 @@ if ($_POST['ccrAction'] == 'generate') {
     if (isset($_POST['show_date'])) {
         $set = "on";
         $start = $_POST['Start'];
-        $start = $start . " 00:00:00";
+        $start .= " 00:00:00";
         $end = $_POST['End'];
-        $end = $end . " 23:59:59";
+        $end .= " 23:59:59";
     }
 }
 

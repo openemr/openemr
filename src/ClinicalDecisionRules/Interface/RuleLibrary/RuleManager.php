@@ -223,7 +223,7 @@ class RuleManager
         $criterion = $this->gatherCriteria($rule, $stmt, $this->filterCriteriaFactory);
         $ruleFilters = new RuleFilters();
         $rule->setRuleFilters($ruleFilters);
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             foreach ($criterion as $criteria) {
                 $ruleFilters->add($criteria);
             }
@@ -232,9 +232,6 @@ class RuleManager
 
     private function fillRuleTargetActionGroups($rule)
     {
-        $stmt = sqlStatement(self::SQL_RULE_TARGET, array($rule->id));
-        $criterion = $this->gatherCriteria($rule, $stmt, $this->targetCriteriaFactory);
-
         $ruleTargetGroups = $this->fetchRuleTargetCriteria($rule);
         $ruleActionGroups = $this->fetchRuleActions($rule);
         $groups = array();
@@ -272,7 +269,7 @@ class RuleManager
             $this->targetCriteriaFactory
         );
         $ruleTargetGroups = array();
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             foreach ($criterion as $criteria) {
                 if (!isset($ruleTargetGroups[$criteria->groupId])) {
                     $ruleTargetGroups[$criteria->groupId] = new RuleTargets();
@@ -322,7 +319,7 @@ class RuleManager
             $stmt,
             $this->filterCriteriaFactory
         );
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             $criteria = $criterion[0];
             $criteria->guid = $guid;
             return $criterion[0];
@@ -332,17 +329,28 @@ class RuleManager
     }
 
     /**
+     * @param Rule $rule
      * @param string $guid
-     * @return array of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargetActionGroup
+     * @return array RuleTargetActionGroup|null
      */
-    function getRuleTargetActionGroups($rule)
+    function getRuleTargetActionGroups($rule, $guid)
     {
-        $criterion = $this->getRuleTargetCriteria($rule);
-        $actions = $this->getRuleAction($rule);
-        if (sizeof($criterion) > 0) {
-            $criteria = $criterion[0];
-            $criteria->guid = $guid;
-            return $criterion[0];
+        $criterion = $this->getRuleTargetCriteria($rule, $guid);
+        $actions = $this->getRuleAction($rule, $guid);
+
+        if ($criterion || $actions) {
+            $group = new RuleTargetActionGroup();
+            if ($criterion) {
+                $targets = new RuleTargets();
+                $targets->add($criterion);
+                $group->setRuleTargets($targets);
+            }
+            if ($actions) {
+                $actionGroup = new RuleActions();
+                $actionGroup->add($actions);
+                $group->setRuleActions($actionGroup);
+            }
+            return $group;
         }
 
         return null;
@@ -360,7 +368,7 @@ class RuleManager
             $stmt,
             $this->targetCriteriaFactory
         );
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             $criteria = $criterion[0];
             $criteria->guid = $guid;
             return $criteria;
@@ -381,7 +389,7 @@ class RuleManager
             $stmt,
             $this->targetCriteriaFactory
         );
-        if (sizeof($criterion) > 0) {
+        if (count($criterion) > 0) {
             $criteria = $criterion[0];
             return $criterion[0];
         }

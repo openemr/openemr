@@ -3857,14 +3857,14 @@ class GaclApi extends Gacl {
 			// Get all the table names and loop
 			$tableNames = $this->db->MetaTables('TABLES');
 			$query = array();
-			foreach ($tableNames as $key => $value){
+			foreach ($tableNames as $value){
 					if (in_array($value, $tablesToClear) ) {
 							$query[] = 'TRUNCATE TABLE '.$value.';';
 					}
 			}
 
 			// Loop the queries and return.
-			foreach ($query as $key => $value){
+			foreach ($query as $value){
 					$result = $this->db->Execute($value);
 			}
 

@@ -1426,7 +1426,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     }
 
                     // append segments to html
-                    foreach ($lx_ar as $key => $val) {
+                    foreach ($lx_ar as $val) {
                         $str_html .= $val['lx'];
                         $str_html .= $val['clp'];
                     }
@@ -1526,7 +1526,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                             // quantity elem 4, 7, 10, 13, 16, 19
                             $cq =  ($v) ? $v : "";
                             if ($cq && strcmp($cq, '1') > 0) {
-                                $cav = $cav * $cq;
+                                $cav *= $cq;
                             }
                         }
                     }

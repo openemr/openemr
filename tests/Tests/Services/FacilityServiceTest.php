@@ -2,14 +2,14 @@
 
 namespace OpenEMR\Tests\Services;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Facility Service Tests
- * @coversDefaultClass OpenEMR\Services\FacilityService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -17,6 +17,8 @@ use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+#[CoversClass(FacilityService::class)]
 class FacilityServiceTest extends TestCase
 {
     /**
@@ -41,9 +43,7 @@ class FacilityServiceTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @covers ::insert when the data is invalid
-     */
+    #[Test]
     public function testInsertFailure()
     {
         $this->facilityFixture["name"] = "A";
@@ -59,9 +59,7 @@ class FacilityServiceTest extends TestCase
         $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::insert when the data is valid
-     */
+    #[Test]
     public function testInsertSuccess()
     {
         $actualResult = $this->facilityService->insert($this->facilityFixture);
@@ -80,9 +78,7 @@ class FacilityServiceTest extends TestCase
         $this->assertFalse($actualResult->hasInternalErrors());
     }
 
-    /**
-     * @covers ::update when the data is not valid
-     */
+    #[Test]
     public function testUpdateFailure()
     {
         $this->facilityService->insert($this->facilityFixture);
@@ -98,9 +94,7 @@ class FacilityServiceTest extends TestCase
         $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::update when the data is valid
-     */
+    #[Test]
     public function testUpdateSuccess()
     {
         $actualResult = $this->facilityService->insert($this->facilityFixture);
@@ -124,10 +118,7 @@ class FacilityServiceTest extends TestCase
         $this->assertEquals("help@pennfirm.com", $result["email"]);
     }
 
-    /**
-     * @cover ::getOne
-     * @cover ::getAll
-     */
+    #[Test]
     public function testFacilityQueries()
     {
         $this->fixtureManager->installFacilityFixtures();
@@ -160,7 +151,7 @@ class FacilityServiceTest extends TestCase
         $this->assertNotNull($actualResult);
         $this->assertEquals(2, count($actualResult->getData()));
 
-        foreach ($actualResult->getData() as $index => $facilityRecord) {
+        foreach ($actualResult->getData() as $facilityRecord) {
             $this->assertArrayHasKey("name", $resultData);
             $this->assertArrayHasKey("uuid", $resultData);
             $this->assertEquals("0123456789", $facilityRecord["facility_npi"]);

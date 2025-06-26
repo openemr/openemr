@@ -30,7 +30,7 @@ class PractitionerValidator extends BaseValidator
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->required("fname", "First Name")->lengthBetween(2, 255);
                 $context->required("lname", 'Last Name')->lengthBetween(2, 255);
                 $context->required("npi", "NPI")->numeric()->lengthBetween(10, 15);
@@ -47,11 +47,11 @@ class PractitionerValidator extends BaseValidator
         // update validations copied from insert
         $this->validator->context(
             self::DATABASE_UPDATE_CONTEXT,
-            function (Validator $context) {
+            function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
+                    function ($rules): void {
+                        foreach ($rules as $chain) {
                             $chain->required(false);
                         }
                     }

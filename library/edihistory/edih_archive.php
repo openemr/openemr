@@ -55,7 +55,7 @@ function edih_archive_report($period = '')
 
     //
     $str_html .= "<h3>Report on edi files using archive date " . text($strdt) . "</h3>" . PHP_EOL;
-    foreach ($params as $key => $param) {
+    foreach ($params as $param) {
         $old_ct = 0;
         $clm_ct = 0;
         $dir_ct = 0;
@@ -1125,7 +1125,7 @@ function edih_archive_main($period)
     }
 
     //
-    foreach ($params as $k => $p) {
+    foreach ($params as $p) {
         //
         $ft = $p['type'];  // could be $k
         //

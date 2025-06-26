@@ -255,7 +255,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             }
         }
 
-        foreach ($fhirResource->getIdentifier() as $index => $identifier) {
+        foreach ($fhirResource->getIdentifier() as $identifier) {
             if ((string)$identifier->getSystem() == FhirCodeSystemConstants::PROVIDER_NPI) {
                 $data['npi'] = (string)$identifier->getValue() ?? null;
             }

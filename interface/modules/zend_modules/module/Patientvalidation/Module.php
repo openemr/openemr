@@ -56,7 +56,7 @@ class Module
         $events = $manager->getEventManager();
         $sharedEvents = $events->getSharedManager();
 
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e): void {
             $controller = $e->getTarget();
             //$controller->layout()->setVariable('status', null);
             $controller->layout('layout/layout.phtml');

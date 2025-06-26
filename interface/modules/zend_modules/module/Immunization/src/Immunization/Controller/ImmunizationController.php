@@ -591,7 +591,7 @@ class ImmunizationController extends AbstractActionController
                                 if ($last_key > 4) {
                                     $key_val = $last_key + 1;
                                 } else {
-                                    $key_val = $key_val + 1;
+                                    $key_val += 1;
                                 }
                             } else {
                                 $key_val = $key_obs + 1;
@@ -626,7 +626,7 @@ class ImmunizationController extends AbstractActionController
                                     if ($last_key == 4) {
                                         $key_val = $last_key + 1;
                                     } else {
-                                        $key_val = $key_val + 1;
+                                        $key_val += 1;
                                     }
                                 } else {
                                     $key_val = $last_key + 1;
@@ -662,7 +662,7 @@ class ImmunizationController extends AbstractActionController
                                     if ($last_key == 5) {
                                         $key_val = $last_key + 1;
                                     } else {
-                                        $key_val = $key_val + 1;
+                                        $key_val += 1;
                                     }
                                 } else {
                                     $key_val = $last_key + 1;

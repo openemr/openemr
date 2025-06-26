@@ -265,7 +265,7 @@ class AclExtended
                 // because processing of first hit is unique
                 //This will also deal with an empty $arr_group_titles array
                 // removing user from all groups unless 'admin'
-                $counter = $counter + 1;
+                $counter += 1;
                 //create user full name field
                 if ($middle_name) {
                     $full_name = $first_name . " " . $middle_name . " " . $last_name;
@@ -507,7 +507,7 @@ class AclExtended
         $acl_data = $gacl->get_acl($acl_id[0]);
         $aco_count = 0;
         foreach ($acl_data['aco'] as $key => $value) {
-            $aco_count = $aco_count + count($acl_data['aco'][$key]);
+            $aco_count += count($acl_data['aco'][$key]);
         }
         return $aco_count;
     }
@@ -652,7 +652,7 @@ class AclExtended
             foreach ($list_aco_objects[$key] as $value2) {
                 if (!array_key_exists($key, $active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
                     if ($counter == 0) {
-                        $counter = $counter + 1;
+                        $counter += 1;
                         $aco_section_data = $gacl->get_section_data($key, 'ACO');
                         $aco_section_title = $aco_section_data[3];
 

@@ -113,7 +113,7 @@ function postToGet($arin)
     $getstring = "";
     foreach ($arin as $key => $val) {
         if (is_array($val)) {
-            foreach ($val as $k => $v) {
+            foreach ($val as $v) {
                 $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
             }
         } else {
@@ -512,7 +512,7 @@ input[type="radio"] {
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
 <?php
-if (sizeof($_GET) > 0) {
+if (count($_GET) > 0) {
     $ar = $_GET;
 } else {
     $ar = $_POST;
@@ -749,7 +749,7 @@ foreach ($ar as $key => $val) {
         if ($key == "documents") {
             echo "<hr />";
             echo "<div class='text documents'>";
-            foreach ($val as $valkey => $valvalue) {
+            foreach ($val as $valvalue) {
                 $document_id = $valvalue;
                 if (!is_numeric($document_id)) {
                     continue;
@@ -872,7 +872,7 @@ foreach ($ar as $key => $val) {
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
-                foreach ($val as $valkey => $poid) {
+                foreach ($val as $poid) {
                     echo "<h1>" . xlt('Procedure Order') . ":</h1>";
                     echo "<br />\n";
                     // Need to move the inline styles from this function to the stylesheet, but until
@@ -1037,7 +1037,7 @@ if ($PDF_OUTPUT) {
 
     if ($PDF_OUTPUT == 1) {
         try {
-            if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+            if (!empty($archive_name) && count($staged_docs) > 0) {
                 $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');

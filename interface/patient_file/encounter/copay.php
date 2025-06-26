@@ -83,7 +83,7 @@ document.copay_form.codeH.value="";
 <input type="radio" name="payment_method" value="insurance"><?php echo xlt('insurance'); ?>
 <?php
 if ($ret = getInsuranceCompanies($pid)) {
-    if (sizeof($ret) > 0) {
+    if (count($ret) > 0) {
         echo "<select name='insurance_company'>\n";
         foreach ($ret as $iter) {
             $plan_name = trim($iter['plan_name']);

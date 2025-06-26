@@ -2,14 +2,14 @@
 
 namespace OpenEMR\Tests\Services;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Practitioner Service Tests
- * @coversDefaultClass OpenEMR\Services\PractitionerService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -17,6 +17,8 @@ use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+#[CoversClass(PractitionerService::class)]
 class PractitionerServiceTest extends TestCase
 {
     /**
@@ -38,9 +40,7 @@ class PractitionerServiceTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * @covers ::insert when the data is invalid
-     */
+    #[Test]
     public function testInsertFailure()
     {
         $this->practitionerFixture["fname"] = "A";
@@ -57,9 +57,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertEquals(3, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::insert when the data is valid
-     */
+    #[Test]
     public function testInsertSuccess()
     {
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
@@ -78,9 +76,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertFalse($actualResult->hasInternalErrors());
     }
 
-    /**
-     * @covers ::update when the data is not valid
-     */
+    #[Test]
     public function testUpdateFailure()
     {
         $this->practitionerService->insert($this->practitionerFixture);
@@ -96,9 +92,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
-    /**
-     * @covers ::update when the data is valid
-     */
+    #[Test]
     public function testUpdateSuccess()
     {
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
@@ -122,10 +116,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertEquals("help@pennfirm.com", $result["email"]);
     }
 
-    /**
-     * @cover ::getOne
-     * @cover ::getAll
-     */
+    #[Test]
     public function testPractitionerQueries()
     {
         $this->fixtureManager->installPractitionerFixtures();
@@ -159,7 +150,7 @@ class PractitionerServiceTest extends TestCase
         $this->assertNotNull($actualResult);
         $this->assertGreaterThan(1, count($actualResult->getData()));
 
-        foreach ($actualResult->getData() as $index => $practitionerRecord) {
+        foreach ($actualResult->getData() as $practitionerRecord) {
             $this->assertArrayHasKey("fname", $resultData);
             $this->assertArrayHasKey("lname", $resultData);
             $this->assertArrayHasKey("uuid", $resultData);

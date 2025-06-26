@@ -372,7 +372,7 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
                 // Add prices for this drug ID and selector.
                 foreach ($iter['price'] as $key => $value) {
                     if ($value) {
-                         $value = $value + 0;
+                         $value += 0;
                          sqlStatement(
                              "INSERT INTO prices ( " .
                              "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .

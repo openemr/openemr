@@ -77,7 +77,7 @@ function generate_csv($sql_result)
             reset($row);
         }
 
-        foreach ($row as $key => $value) {
+        foreach ($row as $value) {
             $line .= csvEscape($value) . ",";
         }
 

@@ -38,7 +38,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     global $earlier;
 
     if ($type == "canvas") {
-        $zone = $zone . "_canvas";
+        $zone .= "_canvas";
     }
 
     $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
@@ -2289,7 +2289,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
         if (empty($mention_FH)) { ?>
                 <span href="#PMH_anchor" onclick="alter_issue2('0','FH','');" style="text-align:right;"><?php echo xlt("Negative"); ?></span><br />
                 <?php
-                $counter = $counter + 3;
+                $counter += 3;
         }
 
         echo $close_table;
@@ -2333,7 +2333,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     <span href="#PMH_anchor"
                     onclick="alter_issue2('0','SOCH','');" style="text-align:right;"><?php echo xlt("Not documented"); ?></span><br />
                     <?php
-                    $counter = $counter + 2;
+                    $counter += 2;
                 }
 
                 echo $close_table;
@@ -2562,7 +2562,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     </span><br />
     <?php
     $mention_SOCH = 0;
-    foreach ($PMSFH[0]['SOCH'] as $k => $item) {
+    foreach ($PMSFH[0]['SOCH'] as $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
         onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
@@ -2658,7 +2658,7 @@ function show_PMSFH_report($PMSFH)
     }
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
-    foreach ($PMSFH[0]['ROS'] as $key => $value) {
+    foreach ($PMSFH[0]['ROS'] as $value) {
         if (($value['display'] ?? '') == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2669,7 +2669,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    foreach ($PMSFH[0]['FH'] as $key => $value) {
+    foreach ($PMSFH[0]['FH'] as $value) {
         if ($value['display'] == '') {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2680,7 +2680,7 @@ function show_PMSFH_report($PMSFH)
         }
     }
 
-    foreach ($PMSFH[0]['SOCH'] as $key => $value) {
+    foreach ($PMSFH[0]['SOCH'] as $value) {
         if (($value['display'] == '') || ($value['display'] == 'not_applicable')) {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
@@ -2861,7 +2861,7 @@ function show_PMSFH_report($PMSFH)
     <br />
     <?php
     $mention_PSOCH = 0;
-    foreach ($PMSFH[0]['SOCH'] as $k => $item) {
+    foreach ($PMSFH[0]['SOCH'] as $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
             $mention_PSOCH++;
@@ -4398,7 +4398,7 @@ function start_your_engines($FIELDS)
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
-                foreach ($positives[$amihere['location']] as $k => $v) {
+                foreach ($positives[$amihere['location']] as $v) {
                     if (preg_match("/\b$term\b/", $v)) {
                         $within_array = 'yes';
                         break;
@@ -4465,7 +4465,7 @@ function start_your_engines($FIELDS)
                             //is the patient diabetic?
                             //search medical_problem for DM
                             $within_array = "";
-                            foreach ($PMSFH[0]['PMH'] as $k => $v) {
+                            foreach ($PMSFH[0]['PMH'] as $v) {
                                 if (stripos($v['codedesc'], "diabetes")) {
                                     $DM_code = $v['codedesc'];
                                     $within_array = 'yes';
@@ -5255,7 +5255,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                             }
                         }
                         if (!empty($GONIO[$i]['list'])) {
-                            $GONIO = chop(($GONIO[$i]['list']), ",");
+                            $GONIO = rtrim(($GONIO[$i]['list']), ",");
                         }
                         if ($count == 0) {
                             $gonios = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
@@ -5303,7 +5303,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         }
                     }
 
-                    $DISCS_chart = chop(($DISCS_chart ?? ''), ",");
+                    $DISCS_chart = rtrim(($DISCS_chart ?? ''), ",");
                     if ($count == 0) {
                         $cups = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                     }

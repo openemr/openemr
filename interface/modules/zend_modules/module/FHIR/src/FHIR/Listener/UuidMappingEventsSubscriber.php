@@ -119,7 +119,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
         }
 
         $this->fhirSocialObservationResourcePaths = [];
-        foreach (FhirObservationSocialHistoryService::COLUMN_MAPPINGS as $column => $mapping) {
+        foreach (FhirObservationSocialHistoryService::COLUMN_MAPPINGS as $mapping) {
             $resourcePath = $this->getSocialResourcePathForCode($mapping['code']);
             $this->fhirSocialObservationResourcePaths[$resourcePath] = $resourcePath;
         }
@@ -133,7 +133,7 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
         }
 
         $this->fhirVitalObservationResourcePaths = [];
-        foreach (FhirObservationVitalsService::COLUMN_MAPPINGS as $column => $mapping) {
+        foreach (FhirObservationVitalsService::COLUMN_MAPPINGS as $mapping) {
             $resourcePath = $this->getVitalsResourcePathForCode($mapping['code']);
             $this->fhirVitalObservationResourcePaths[$resourcePath] = $resourcePath;
         }
