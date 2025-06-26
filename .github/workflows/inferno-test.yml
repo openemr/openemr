@@ -1,0 +1,67 @@
+name: Inferno Certification Test
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+permissions:
+    contents: read
+
+jobs:
+    inferno_certification_test:
+        runs-on: ubuntu-22.04
+        name: Inferno Certification Test
+        timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.4'
+                  extensions: mbstring, xml, ctype, json, tokenizer, openssl, pdo, pdo_mysql
+
+            - name: Install npm package
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Log Docker info
+              run: |
+                  docker --version
+                  docker compose version
+
+            - name: Make run.sh executable
+              run: chmod +x ci/inferno/run.sh
+
+            - name: Run Inferno Certification Tests
+              working-directory: ci/inferno
+              run: |
+                  set -e
+                  echo "Starting Inferno certification test suite..."
+                  ./run.sh
+                  echo "Inferno certification tests completed successfully"
+
+            - name: Cleanup Docker resources
+              if: always()
+              run: |
+                  docker compose -f ci/inferno/docker-compose.yml down -v || true
+                  docker system prune -f || true
+
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: inferno-test-results
+                  path: |
+                      ci/inferno/test-results/
+                      ci/inferno/logs/
+                  if-no-files-found: ignore

@@ -99,7 +99,15 @@ fix_redis_permissions() {
      docker run --rm -v $PWD/onc-certification-g10-test-kit/data/redis:/data redis chown -R redis:redis /data
 }
 
+cleanup() {
+    echo 'Performing cleanup...'
+    docker compose down -v || true
+    echo 'Cleanup completed'
+}
+
 main() {
+    # Set up trap for cleanup on exit
+    trap cleanup EXIT
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
     # BuildKit accepts platform arguments.
@@ -112,12 +120,24 @@ main() {
     else
       use_cloned_files=0
     fi
-    docker compose pull
-    docker compose build
+    echo 'Pulling Docker images...'
+    if ! docker compose pull; then
+        echo 'ERROR: Failed to pull Docker images'
+        exit 1
+    fi
+    echo 'Building Docker images...'
+    if ! docker compose build; then
+        echo 'ERROR: Failed to build Docker images'
+        exit 1
+    fi
     if (( ! use_cloned_files )); then
       initialize_terminology
       # A second build is needed after the terminology initialization
-      docker compose build
+      echo 'Rebuilding Docker images after terminology initialization...'
+      if ! docker compose build; then
+          echo 'ERROR: Failed to rebuild Docker images'
+          exit 1
+      fi
     fi
 
     initialize_inferno
@@ -125,6 +145,16 @@ main() {
     initialize_openemr
     fix_redis_permissions
     run_testsuite
+
+    # Run the test suite and capture exit code
+    if run_testsuite; then
+        echo 'SUCCESS: All Inferno certification tests completed successfully!'
+        exit 0
+    else
+        local exit_code=$?
+        echo "FAILURE: Inferno certification tests failed with exit code: $exit_code"
+        exit $exit_code
+    fi
 }
 
 main "$@"
