@@ -1,0 +1,26 @@
+
+<div id="rc-container" class="d-flex flex-row align-items-center justify-content-between">
+    <div id="rc-header">
+        <script>
+            if ('setSinkId' in HTMLMediaElement.prototype) {
+                HTMLMediaElement.prototype.setSinkId = function(deviceId) {
+                    return new Promise((resolve, reject) => {
+                        if (deviceId && typeof deviceId === 'string') {
+                            // Simulate setting the sink ID
+                            console.log(`Setting sink ID to: ${deviceId}`);
+                            resolve();
+                        } else {
+                            reject(new Error('Invalid device ID'));
+                        }
+                    });
+                };
+            }
+            (function () {
+                const rcs = document.createElement("script");
+                rcs.src = "{{ moduleBaseUrl }}/public/js/adapter.js?clientId={{ clientId }}&clientSecret={{ clientSecret }}&jwt={{ jwt }}";
+                const rcs0 = document.getElementsByTagName("script")[0];
+                rcs0.parentNode.insertBefore(rcs, rcs0);
+            })();
+        </script>
+    </div>
+</div>
