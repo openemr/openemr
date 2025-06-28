@@ -53,9 +53,9 @@ dc() {
 
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-        dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR}" openemr "$@"
+        dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR?}" openemr "$@"
     else
-        dc exec --workdir "${OPENEMR_DIR}" openemr "$@"
+        dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
 }
 
@@ -119,7 +119,7 @@ install_configure() {
 }
 
 build_test_e2e() {
-    _exec sh -c "${CHROMIUM_INSTALL};
+    _exec sh -c "${CHROMIUM_INSTALL?};
                  export PANTHER_NO_SANDBOX=1;
                  export PANTHER_CHROME_ARGUMENTS=--disable-dev-shm-usage;
                  php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e \
@@ -144,6 +144,7 @@ build_test() {
         e2e) build_test_e2e "$@"
              return
              ;;
+        *) :;;
     esac
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         args+=(
