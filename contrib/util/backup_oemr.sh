@@ -18,29 +18,29 @@ newerthan='2005-01-01'
 file=$(date +%F)
 
 #get the content from the mysql database
-mysqldump -u ${dbuser} -p${dbpass} --databases ${db} > ${workdir}${file}.sql.bak
+mysqldump -u "${dbuser}" -p"${dbpass}" --databases "${db}" > "${workdir}""${file}".sql.bak
 
 # compress the file
-bzip2 ${workdir}${file}.sql.bak
+bzip2 "${workdir}""${file}".sql.bak
 
 #get the content from the postgres database
-pg_dumpall -U ${pguser} > ${workdir}${file}postgres.bak
+pg_dumpall -U "${pguser}" > "${workdir}""${file}"postgres.bak
 
 # compress the file
-bzip2 ${workdir}${file}postgres.bak
+bzip2 "${workdir}""${file}"postgres.bak
 
 # get all the files on the site
 # we are using bzip2 here
-tar -N ${newerthan} -jcf ${workdir}${file}openemr.tar.bzip2 ${installdir}
+tar -N "${newerthan}" -jcf "${workdir}""${file}"openemr.tar.bzip2 "${installdir}"
 
 # create a disk image
 label=$(date +%y%m%d)
-mkisofs -J -R -V ${label} -o ${tempdir}image.iso ${workdir}
+mkisofs -J -R -V "${label}" -o "${tempdir}"image.iso "${workdir}"
 
 #burn it
-cdrecord -dao -v -data -eject ${tempdir}image.iso
+cdrecord -dao -v -data -eject "${tempdir}"image.iso
 
 #delete the original files
-rm -rf ${workdir}*
+rm -rf "${workdir}"*
 
 exit 0

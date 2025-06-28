@@ -110,5 +110,5 @@ for module in ${modules}; do
 done
 
 if [ "${pm}" = 'apk' ] && [ -n "${apkDel}" ]; then
-	apk del ${apkDel}
+	apk del "${apkDel}"
 fi
