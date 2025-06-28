@@ -15,12 +15,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once(__DIR__ . "/../../../globals.php");
 /*
  This module uses an abstract class to arbitrate and dispatch
  API calls to different vendor services for both the fax and sms type on a per-call basis.
  To add new vendors, just follow and use the existing dispatching flow
  for an existing service type and vendor service.
  */
+
 
 use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
@@ -36,6 +38,7 @@ $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
 $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
 $allowSMSButtons = ($GLOBALS['oesms_send'] ?? null);
 $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
+$allowVoice = ($GLOBALS['oe_enable_voice'] ?? null);
 
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
@@ -53,6 +56,13 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
  * @global EventDispatcher $dispatcher Injected by the OpenEMR module loader;
  */
 $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+
+function getTwigNamespaces(): array
+{
+    return [
+        'oe-module-faxsms' => __DIR__ . '/templates',
+    ];
+}
 
 // Add menu items
 function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
@@ -299,6 +309,6 @@ if ($allowSMSButtons) {
     $eventDispatcher->addListener(SendSmsEvent::JAVASCRIPT_READY_SMS_POST, 'oe_module_faxsms_sms_render_javascript_post_load');
 }
 
-if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail)) {
-    (new NotificationEventListener())->subscribeToEvents($eventDispatcher);
+if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail || $allowVoice)) {
+    (new NotificationEventListener($eventDispatcher, $GLOBALS['kernel']))->subscribeToEvents();
 }

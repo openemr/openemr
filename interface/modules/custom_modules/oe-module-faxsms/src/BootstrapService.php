@@ -12,13 +12,27 @@
 
 namespace OpenEMR\Modules\FaxSMS;
 
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Kernel;
+
 /**
  * Companion to event bootstrapping
  */
 class BootstrapService
 {
+    const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
+    const MODULE_NAME = "oe-module-ehi-exporter";
+    public \Twig\Environment $twig;
+
     public function __construct()
     {
+        $kernel = $GLOBALS['kernel'] ?? null;
+        if (empty($kernel)) {
+            $kernel = new Kernel();
+        }
+        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
+        $twigEnv = $twig->getTwig();
+        $this->twig = $twigEnv;
     }
 
     /**
@@ -31,10 +45,11 @@ class BootstrapService
         $vendors['oesms_send'] = '';
         $vendors['oerestrict_users'] = '';
         $vendors['oe_enable_email'] = '';
+        $vendors['oe_enable_voice'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
-            array("oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email')
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?)",
+            array("oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice')
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -54,7 +69,8 @@ class BootstrapService
                        ('oefax_enable_sms', '0'),
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
-                       ('oe_enable_email', '0')"
+                       ('oe_enable_email', '0'),
+                       ('oe_enable_voice', '0')"
         );
     }
 
@@ -71,6 +87,7 @@ class BootstrapService
         $items['oesms_send'] = $vendors['allow_dialog'] ?? '';
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
+        $items['oe_enable_voice'] = $vendors['voice_vendor'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
@@ -140,5 +157,15 @@ class BootstrapService
             return json_decode($globals['credentials'], true) ?? [];
         }
         return [];
+    }
+
+    private function getPublicPath()
+    {
+        return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+    }
+
+    public function getTemplatePath()
+    {
+        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 }

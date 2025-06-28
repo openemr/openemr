@@ -10,12 +10,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+//header("Permissions-Policy: speaker=(self)");
+//header("Feature-Policy: speaker 'self'");
+
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+
+$assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
@@ -32,6 +37,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
+    <!--<script src="./public/WebPhoneService.js"></script>-->
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -81,9 +87,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         });
 
         <?php
-        // modal_size: 'modal-sm', 'modal-md', 'modal-lg', 'modal-xl'
-        // modal_height: dialog height in pixels. Default is 775
-        // modal_size_height: 'full' or 'auto'
         $param = array(
             'is_universal' => 1,
             'modal_size' => 'modal-mlg',
@@ -91,9 +94,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             'modal_size_height' => 'full',
             'type' => 'email'
         );
-        $GLOBALS['kernel']->
-        getEventDispatcher()->
-        dispatch(
+        $GLOBALS['kernel']->getEventDispatcher()->dispatch(
             new SendNotificationEvent($pid ?? 0, $param),
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
         );
@@ -657,6 +658,57 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             return false;
         }
 
+        function rc_enable_popup() {
+            //alert('RC Testing...');
+            $(".rc_enable_popup_btn_loader").addClass('fa fa-spinner fa-spin');
+
+            let actionUrl = 'install?type=' + serviceType;
+            let data = [];
+            return $.post(actionUrl,
+                {}, function () {
+                }, 'json').done(function (data) {
+                console.log(data);
+                $(".rc_enable_popup_btn_loader").removeClass('fa fa-spinner fa-spin');
+                if (data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+                if (data.msg) {
+                    $(".rc_enable_popup_btn_loader").html(data.msg);
+                }
+            });
+            $(".rc_enable_popup_btn_loader").removeClass('fa fa-spinner fa-spin');
+        }
+
+        function makeRingoutCall(callTo, callFrom = '', id = '') {
+            $(".brand").addClass('fa fa-spinner fa-spin');
+            let actionUrl = (serviceType === 'fax') ? 'makeRingoutCall?type=fax' : 'makeRingoutCall?type=sms';
+            let data = [];
+            $.post(actionUrl, {
+                'toPhone': callTo,
+                'fromPhone': callFrom,
+                'id': id,
+            }, null, 'json').done(function (data) {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+                if (data && data.error) {
+                    alertMsg(data.error);
+                    return false;
+                }
+                if (data.msg) {
+                    $(".rc_test_call_loader").html(data.msg);
+                }
+                if (id) {
+                    $("." + id).empty().append(data);
+                }
+            }).fail(function (xhr, status, error) {
+                const message = `Error: ${error || 'Request to make call failed with Unknown error!'}`;
+                alertMsg(message, 10000);
+                console.error('Request failed: ', status, error);
+            }).always(function () {
+                $(".brand").removeClass('fa fa-spinner fa-spin');
+            });
+        }
+
         // drop bucket
         const queueMsg = '' + <?php echo xlj('Fax Queue. Drop files or Click here for Fax Contact form.') ?>;
         Dropzone.autoDiscover = false;
@@ -726,8 +778,10 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             });
         });
     </script>
+
 </head>
 <body class="body_top">
+    <!--<iframe src="library/rc_phone_widget.php" style="width: 100%; height: 100%;"></iframe>-->
     <div class="sticky-top">
         <nav class="navbar navbar-expand-xl navbar-light bg-light">
             <div class="container">
@@ -803,6 +857,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         <li class="nav-item sms-hide email-hide etherfax" role="tab">
                             <a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a>
                         </li>
+                        <li class="nav-item" role="presentation"><a class="nav-link" href="#rc_settings" aria-controls="rc_settings" role="tab" data-toggle="tab"><?php echo xlt("Ring Central Incoming Settings") ?></a></li>
+                        <li class="nav-item" role="presentation"><a class="nav-link" href="#rc_call_control" aria-controls="rc_call_control" role="tab" data-toggle="tab"><?php echo xlt("Ring Central Call Control") ?></a></li>
                         <?php if ($serviceType == 'email') { ?>
                             <?php
                             $param = ['is_universal' => 1, 'type' => 'email'];
@@ -992,7 +1048,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                     <?php }
                     if ($service == '1') { ?>
                         <div class="tab-content">
-                            <?php  if ($serviceType == 'fax') { ?>
+                            <?php if ($serviceType == 'fax') { ?>
                                 <div class="tab-pane fade in active" id="received">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-striped" id="rcvdetails">
@@ -1039,29 +1095,29 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                     </div>
                                 </div>
                             <?php } else { ?>
-                            <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped" id="rcvdetails">
-                                        <thead>
-                                        <tr>
-                                            <th><?php echo xlt("Date") ?></th>
-                                            <th><?php echo xlt("Status") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
-                                            <th><?php echo xlt("To") ?></th>
-                                            <th><?php echo xlt("Result") ?></th>
-                                            <th><?php echo xlt("Message") ?></th>
-                                            <th><?php echo xlt("Actions") ?></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td><?php echo xlt("No Items Try Refresh") ?></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                                <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="rcvdetails">
+                                            <thead>
+                                            <tr>
+                                                <th><?php echo xlt("Date") ?></th>
+                                                <th><?php echo xlt("Status") ?></th>
+                                                <th><?php echo xlt("From") ?></th>
+                                                <th><?php echo xlt("To") ?></th>
+                                                <th><?php echo xlt("Result") ?></th>
+                                                <th><?php echo xlt("Message") ?></th>
+                                                <th><?php echo xlt("Actions") ?></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td><?php echo xlt("No Items Try Refresh") ?></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                             <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
+                                <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-striped" id="sent-details">
                                             <thead>
@@ -1083,7 +1139,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                                         </table>
                                     </div>
                                 </div>
-                             <div role="tabpanel" class="container-fluid tab-pane fade" id="messages">
+                                <div role="tabpanel" class="container-fluid tab-pane fade" id="messages">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-striped" id="msgdetails">
                                             <thead>

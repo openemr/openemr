@@ -224,7 +224,7 @@ abstract class AppDispatch
      * @param string $type
      * @return void
      */
-    static function setApiService(string $type): void
+    static function setApiService($type): void
     {
         try {
             if (empty($type)) {
@@ -280,6 +280,13 @@ abstract class AppDispatch
                 case 4:
                     return new EmailClient();
             }
+        } elseif ($type == 'voice') {
+            switch ($s) {
+                case 0:
+                    break;
+                case 6:
+                    return new VoiceClient();
+            }
         }
 
         http_response_code(404);
@@ -305,6 +312,9 @@ abstract class AppDispatch
         }
         if (self::$_apiModule == 'email') {
             return $GLOBALS['oe_enable_email'] ?? null;
+        }
+        if (self::$_apiModule == 'voice') {
+            return $GLOBALS['oe_enable_voice'] ?? null;
         }
 
         http_response_code(404);
@@ -446,6 +456,7 @@ abstract class AppDispatch
             '3' => '_etherfax',
             '4' => '_email',
             '5' => '_clickatell',
+            '6' => '_voice',
             default => null,
         };
     }
@@ -504,7 +515,34 @@ abstract class AppDispatch
             array($this->authUser, $vendor, $encrypted)
         );
     }
+    public function getVoiceCredentials(): mixed
+    {
+        $vendor = '_voice';
+        $this->authUser = (int)$this->getSession('authUserID');
+        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+            $this->authUser = 0;
+        }
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
 
+        if (empty($credentials)) {
+            return array(
+                'extension' => '',
+                'phone' => '',
+                'smsNumber' => '',
+                'appKey' => '',
+                'appSecret' => '',
+                'server' => '',
+                'portal' => '',
+                'production' => '',
+                'jwt' => ''
+            );
+        } else {
+            $credentials = $credentials['credentials'];
+        }
+
+        $decrypt = $this->crypto->decryptStandard($credentials);
+        return json_decode($decrypt, true);
+    }
     /**
      * Common credentials storage between services
      * the service class will set specific credential.
