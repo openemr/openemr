@@ -16,7 +16,8 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class X12Partner extends ORDataObject
 {
-    var $id;
+    protected string $_table = 'x12_partners';
+
     var $name;
     var $x12_submitter_id;
     var $x12_submitter_name;
@@ -55,14 +56,12 @@ class X12Partner extends ORDataObject
     var $x12_attachment_endpoint;
 
     /**
-     * Constructor sets all Insurance attributes to their default value
+     * Set all Insurance attributes to their default value
+     *
+     * @return void
      */
-
-    function __construct($id = "", $prefix = "")
+    protected function init(): void
     {
-        parent::__construct();
-        $this->id = $id;
-        $this->_table = "x12_partners";
         $this->processing_format_array = $this->_load_enum("processing_format", false);
         $this->processing_format = isset($this->processing_format_array[0]) ? $this->processing_format_array[0] : null;
         //most recent x12 version mandated by HIPAA and CMS
@@ -72,9 +71,6 @@ class X12Partner extends ORDataObject
         $this->x12_isa07 = "ZZ";
         $this->x12_isa14 = "0";
         $this->x12_dtp03 = "A";
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
     function x12_partner_factory()
@@ -89,18 +85,6 @@ class X12Partner extends ORDataObject
         }
 
         return $partners;
-    }
-
-    function get_id()
-    {
-        return $this->id;
-    }
-
-    function set_id($id)
-    {
-        if (is_numeric($id)) {
-            $this->id = $id;
-        }
     }
 
     function get_name()

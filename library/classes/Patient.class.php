@@ -11,14 +11,17 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
 
 /**
  * class Patient
- *
  */
-
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\ORDataObject\Traits\IdFieldTrait;
 
+/**
+ * class Patient
+ */
 class Patient extends ORDataObject
 {
-    var $id;
+    protected string $_table = 'patient_data';
+
     var $pubpid;
     var $lname;
     var $mname;
@@ -28,42 +31,45 @@ class Patient extends ORDataObject
     var $provider;
 
     /**
-     * Constructor sets all Prescription attributes to their default value
+     * Set Prescription attributes to their default value
+     *
+     * @return void
      */
-    function __construct($id = "")
+    protected function init(): void
     {
-        $this->id = $id;
-        $this->_table = "patient_data";
         $this->pubpid = "";
         $this->lname = "";
         $this->mname = "";
         $this->fname = "";
         $this->dob   = "";
         $this->provider = new Provider();
-        $this->populate();
     }
-    function populate()
+
+    /**
+     * @return void
+     */
+    protected function populate(): void
     {
-        if (!empty($this->id)) {
-            $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
-                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, " .
-                "pubpid " .
-                "FROM " . escape_table_name($this->_table) . " " .
-                "WHERE pid = ?", [$this->id]);
-            if (is_array($res)) {
-                $this->pubpid = $res['pubpid'];
-                $this->lname = $res['lname'];
-                $this->mname = $res['mname'];
-                $this->fname = $res['fname'];
-                $this->provider = new Provider($res['providerID']);
-                $this->date_of_birth = $res['date_of_birth'];
-            }
+        parent::populate();
+        $id = $this->get_id();
+        if (empty($id)) {
+            return;
+        }
+        $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
+            "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, " .
+            "pubpid " .
+            "FROM " . escape_table_name($this->_table) . " " .
+            "WHERE pid = ?", [$id]);
+        if (is_array($res)) {
+            $this->pubpid = $res['pubpid'];
+            $this->lname = $res['lname'];
+            $this->mname = $res['mname'];
+            $this->fname = $res['fname'];
+            $this->provider = new Provider($res['providerID']);
+            $this->date_of_birth = $res['date_of_birth'];
         }
     }
-    function get_id()
-    {
-        return $this->id;
-    }
+
     function get_pubpid()
     {
         return $this->pubpid;
