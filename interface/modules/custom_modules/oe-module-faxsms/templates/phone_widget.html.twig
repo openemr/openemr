@@ -17,7 +17,7 @@
             }
             (function () {
                 const rcs = document.createElement("script");
-                rcs.src = "{{ moduleBaseUrl }}/public/js/adapter.js?clientId={{ clientId }}&clientSecret={{ clientSecret }}&jwt={{ jwt }}";
+                rcs.src = "https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/adapter.js?enableNoiseReductionSetting=1&enableSideWidget=1&clientId={{ clientId }}&clientSecret={{ clientSecret }}&jwt={{ jwt }}";
                 const rcs0 = document.getElementsByTagName("script")[0];
                 rcs0.parentNode.insertBefore(rcs, rcs0);
             })();
