@@ -48,7 +48,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     $params[] = $val;
 
-    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL OR `Deleted` = '') AND Business_Name LIKE ?";
+    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL) AND Business_Name LIKE ?";
 
     $weno_coverage = $_GET['coverage'] ?? false ?: '';
     $weno_state = $_GET['weno_state'] ?? false ?: '';
@@ -113,7 +113,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
-    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL OR `Deleted` = '')";
+    $sql = "SELECT Business_Name, state, ncpdp_safe, city, address_line_1 " . "FROM weno_pharmacy WHERE (`Deleted` IS NULL)";
 
     $weno_coverage = $_GET['coverage'] ?: '';
     $weno_state = $_GET['weno_state'] ?: '';
