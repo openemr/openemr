@@ -140,11 +140,11 @@ trait VoiceFunctionsTrait
     public function install()
     {
         try {
-            $token = $GLOBALS['ringcentral_voice_token'] ?? 'changeme';
+            $token = $_SESSION['ringcentral_voice_token'] ?? 'changeme';
             if ($token == 'changeme') {
                 // Generate secure token
                 $token = bin2hex(random_bytes(16));
-                sqlStatement("REPLACE INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('ringcentral_voice_token', '', ?)", [$token]);
+                $_SESSION['ringcentral_voice_token'] = $token;
             }
             // Webhook endpoint
             $this->webhookUrl = $this->getWebhookUrl($token);

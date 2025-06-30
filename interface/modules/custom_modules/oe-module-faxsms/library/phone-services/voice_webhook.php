@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-error_log("RingCentral webhook accessed at " . date('Y-m-d H:i:s'));
+local_log("RingCentral webhook accessed at " . date('Y-m-d H:i:s'));
 
 // Handle RingCentral validation token
 $validationToken = $_SERVER['HTTP_VALIDATION_TOKEN'] ?? '';
@@ -19,20 +19,18 @@ if (!empty($validationToken)) {
     header('Content-Type: text/plain');
     echo $validationToken;
     http_response_code(200);
-    error_log("RingCentral validation token returned: {$validationToken}");
+    local_log("RingCentral validation token returned: {$validationToken}");
     exit;
 }
 
 // Security: Verify webhook token
 $ignoreAuth = true; // Ignore OpenEMR authentication for this webhook
 require_once(__DIR__ . '/../../../../../globals.php');
-$expectedToken = sqlQuery(
-    "SELECT gl_value FROM globals WHERE gl_name = 'ringcentral_voice_token'"
-)['gl_value'] ?? '';
 
+$expectedToken = $_SESSION['ringcentral_voice_token'] ?? '';
 $providedToken = $_GET['token'] ?? '';
 if (empty($expectedToken) || $providedToken !== $expectedToken) {
-    error_log("RingCentral webhook: Invalid or missing token");
+    local_log("RingCentral webhook: Invalid or missing token");
     http_response_code(403);
     exit('Forbidden');
 }
@@ -42,16 +40,19 @@ $body = file_get_contents('php://input');
 $data = json_decode($body, true);
 
 if (json_last_error() !== JSON_ERROR_NONE) {
-    error_log("RingCentral webhook: Invalid JSON payload");
+    local_log("RingCentral webhook: Invalid JSON payload");
     http_response_code(400);
     exit('Bad Request');
 }
+
+// Log the event for debugging
+//local_log("RingCentral webhook event received: " . json_encode($data, JSON_PRETTY_PRINT));
 
 // Process the event
 try {
     processRingCentralEvent($data);
 } catch (Exception $e) {
-    error_log("RingCentral webhook processing error: " . $e->getMessage());
+    local_log("RingCentral webhook processing error: " . $e->getMessage());
     // Still return 200 to prevent RingCentral from retrying
 }
 
@@ -76,7 +77,7 @@ function processRingCentralEvent($event): void
     } elseif (preg_match('#^/restapi/v1\.0/account/\d+/extension/\d+/recording$#', $eventType)) {
         handleRecording($event);
     } else {
-        error_log("RingCentral: Unhandled event type: {$eventType}");
+        local_log("RingCentral: Unhandled event type: {$eventType}");
     }
 }
 
@@ -92,7 +93,7 @@ function handleTelephonySession($event): void
     $telephonySessionId = $sessionData['telephonySessionId'] ?? '';
     $eventTime = $sessionData['eventTime'] ?? '';
 
-    error_log("Processing telephony session: {$sessionId} ({$telephonySessionId})");
+    local_log("Processing telephony session: {$sessionId} ({$telephonySessionId})");
 
     foreach ($parties as $party) {
         $direction = $party['direction'] ?? '';
@@ -104,8 +105,63 @@ function handleTelephonySession($event): void
         $partyId = $party['id'] ?? '';
         $extensionId = $party['extensionId'] ?? '';
 
-        error_log("Call Event - Direction: {$direction}, Status: {$status}, From: {$fromNumber} ({$fromName}), To: {$toNumber} ({$toName}), Party: {$partyId}");
+        local_log("Call Event - Direction: {$direction}, Status: {$status}, From: {$fromNumber} ({$fromName}), To: {$toNumber} ({$toName}), Party: {$partyId}");
 
+        // Store call information in database
+        // Uncomment the following line to enable database storage
+        // Note: Ensure the ringcentral_call_events table has all necessary columns
+        // This is commented out to prevent database writes in this example
+        /*storeCallEvent([
+            'session_id' => $sessionId,
+            'telephony_session_id' => $telephonySessionId,
+            'party_id' => $partyId,
+            'extension_id' => $extensionId,
+            'direction' => $direction,
+            'status' => $status,
+            'from_number' => $fromNumber,
+            'from_name' => $fromName,
+            'to_number' => $toNumber,
+            'to_name' => $toName,
+            'event_time' => $eventTime,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'raw_data' => json_encode($event)
+        ]);*/
+/*
+TODO: Add to modules upgrade and table.sql in module the following SQL to create the ringcentral_call_events table
+ * and ringcentral_voicemails table if they do not exist.
+ * Make sure to run this SQL in your OpenEMR database setup script or manually.
+ *
+CREATE TABLE IF NOT EXISTS `ringcentral_call_events` (
+     `id` int(11) NOT NULL AUTO_INCREMENT,
+     `session_id` varchar(255) DEFAULT NULL,
+     `direction` varchar(20) DEFAULT NULL,
+     `status` varchar(50) DEFAULT NULL,
+     `from_number` varchar(20) DEFAULT NULL,
+     `to_number` varchar(20) DEFAULT NULL,
+     `timestamp` datetime DEFAULT NULL,
+     `raw_data` text DEFAULT NULL,
+     `telephony_session_id` varchar(255) DEFAULT NULL,
+     `party_id` varchar(255) DEFAULT NULL,
+     `extension_id` varchar(255) DEFAULT NULL,
+     `from_name` varchar(255) DEFAULT NULL,
+     `to_name` varchar(255) DEFAULT NULL,
+     `event_time` datetime DEFAULT NULL,
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `session_id` (`session_id`),
+     KEY `idx_session_id` (`session_id`),
+     KEY `idx_timestamp` (`timestamp`)
+) ENGINE=InnoDB COMMENT='RingCentral Call Events';
+
+CREATE TABLE IF NOT EXISTS `ringcentral_voicemails` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message_id VARCHAR(255) UNIQUE,
+    from_number VARCHAR(20),
+    received_date DATETIME,
+    transcription TEXT,
+    raw_data TEXT,
+    INDEX idx_from_number (from_number)
+) ENGINE=InnoDB COMMENT='RingCentral Voicemails';
+*/
         // Handle specific call states
         switch ($status) {
             case 'Setup':
@@ -127,7 +183,7 @@ function handleTelephonySession($event): void
                 handleCallOffHold($sessionId, $partyId);
                 break;
             default:
-                error_log("Unhandled call status: {$status}");
+                local_log("Unhandled call status: {$status}");
         }
     }
 }
@@ -141,7 +197,7 @@ function handlePresenceEvent($event): void
     $telephonyStatus = $presenceData['telephonyStatus'] ?? '';
     $activeCalls = $presenceData['activeCalls'] ?? [];
 
-    error_log("Presence Event - Telephony Status: {$telephonyStatus}, Active Calls: " . count($activeCalls));
+    local_log("Presence Event - Telephony Status: {$telephonyStatus}, Active Calls: " . count($activeCalls));
 
     foreach ($activeCalls as $call) {
         $direction = $call['direction'] ?? '';
@@ -149,7 +205,7 @@ function handlePresenceEvent($event): void
         $toNumber = $call['to'] ?? '';
         $sessionId = $call['sessionId'] ?? '';
 
-        error_log("Active Call - Direction: {$direction}, From: {$fromNumber}, To: {$toNumber}");
+        local_log("Active Call - Direction: {$direction}, From: {$fromNumber}, To: {$toNumber}");
     }
 }
 
@@ -163,11 +219,12 @@ function handleMessageStore($event): void
     $messageId = $messageData['id'] ?? '';
     $fromNumber = $messageData['from']['phoneNumber'] ?? '';
 
-    error_log("Message Event - Type: {$messageType}, ID: {$messageId}, From: {$fromNumber}");
+    local_log("Message Event - Type: {$messageType}, ID: {$messageId}, From: {$fromNumber}");
 
     switch ($messageType) {
         case 'VoiceMail':
-            handleNewVoicemail($messageId, $fromNumber, $messageData);
+            // TODO: Uncomment the following line to handle new voicemails
+            //handleNewVoicemail($messageId, $fromNumber, $messageData);
             break;
         case 'Fax':
             handleNewFax($messageId, $fromNumber, $messageData);
@@ -184,10 +241,43 @@ function handleRecording($event): void
     $recordingId = $recordingData['id'] ?? '';
     $status = $recordingData['status'] ?? '';
 
-    error_log("Recording Event - ID: {$recordingId}, Status: {$status}");
+    local_log("Recording Event - ID: {$recordingId}, Status: {$status}");
 
     if ($status === 'Completed') {
         downloadAndStoreRecording($recordingId);
+    }
+}
+
+/**
+ * Store call event in database
+ */
+function storeCallEvent($callData): void
+{
+    try {
+        // Use all available columns now that we know the table structure
+        sqlStatement(
+            "INSERT INTO ringcentral_call_events 
+             (session_id, telephony_session_id, party_id, extension_id, direction, status, 
+              from_number, from_name, to_number, to_name, event_time, timestamp, raw_data) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                $callData['session_id'],
+                $callData['telephony_session_id'],
+                $callData['party_id'],
+                $callData['extension_id'],
+                $callData['direction'],
+                $callData['status'],
+                $callData['from_number'],
+                $callData['from_name'],
+                $callData['to_number'],
+                $callData['to_name'],
+                $callData['event_time'],
+                $callData['timestamp'],
+                $callData['raw_data']
+            ]
+        );
+    } catch (Exception $e) {
+        local_log("Failed to store call event: " . $e->getMessage());
     }
 }
 
@@ -197,7 +287,7 @@ function handleRecording($event): void
 function handleIncomingCall($fromNumber, $toNumber, $sessionId, $direction): void
 {
     if ($direction === 'Inbound') {
-        error_log("Processing incoming call from {$fromNumber} to {$toNumber}");
+        local_log("Processing incoming call from {$fromNumber} to {$toNumber}");
 
         // Look up patient by phone number
         $patient = sqlQuery(
@@ -206,13 +296,13 @@ function handleIncomingCall($fromNumber, $toNumber, $sessionId, $direction): voi
         );
 
         if ($patient) {
-            error_log("Incoming call from known patient: " . $patient['fname'] . ' ' . $patient['lname']);
+            local_log("Incoming call from known patient: " . $patient['fname'] . ' ' . $patient['lname']);
             // Could create automatic encounter, send notification to provider, etc.
         } else {
-            error_log("Incoming call from unknown number: {$fromNumber}");
+            local_log("Incoming call from unknown number: {$fromNumber}");
         }
     } else {
-        error_log("Processing outgoing call from {$fromNumber} to {$toNumber}");
+        local_log("Processing outgoing call from {$fromNumber} to {$toNumber}");
     }
 }
 
@@ -221,7 +311,7 @@ function handleIncomingCall($fromNumber, $toNumber, $sessionId, $direction): voi
  */
 function handleCallInProgress($sessionId, $partyId): void
 {
-    error_log("Call {$sessionId} (party {$partyId}) is proceeding");
+    local_log("Call {$sessionId} (party {$partyId}) is proceeding");
     // Update call status, prepare for recording if needed, etc.
 }
 
@@ -230,7 +320,7 @@ function handleCallInProgress($sessionId, $partyId): void
  */
 function handleCallAnswered($sessionId, $partyId): void
 {
-    error_log("Call {$sessionId} (party {$partyId}) was answered");
+    local_log("Call {$sessionId} (party {$partyId}) was answered");
     // Start call timer, begin recording if configured, etc.
 }
 
@@ -239,7 +329,7 @@ function handleCallAnswered($sessionId, $partyId): void
  */
 function handleCallEnded($sessionId, $partyId): void
 {
-    error_log("Call {$sessionId} (party {$partyId}) has ended");
+    local_log("Call {$sessionId} (party {$partyId}) has ended");
     // Finalize call record, stop recording, calculate duration, etc.
 }
 
@@ -248,7 +338,7 @@ function handleCallEnded($sessionId, $partyId): void
  */
 function handleCallOnHold($sessionId, $partyId): void
 {
-    error_log("Call {$sessionId} (party {$partyId}) placed on hold");
+    local_log("Call {$sessionId} (party {$partyId}) placed on hold");
 }
 
 /**
@@ -256,7 +346,7 @@ function handleCallOnHold($sessionId, $partyId): void
  */
 function handleCallOffHold($sessionId, $partyId): void
 {
-    error_log("Call {$sessionId} (party {$partyId}) taken off hold");
+    local_log("Call {$sessionId} (party {$partyId}) taken off hold");
 }
 
 /**
@@ -264,7 +354,7 @@ function handleCallOffHold($sessionId, $partyId): void
  */
 function handleNewVoicemail($messageId, $fromNumber, $messageData): void
 {
-    error_log("New voicemail from {$fromNumber}, message ID: {$messageId}");
+    local_log("New voicemail from {$fromNumber}, message ID: {$messageId}");
 
     // Store voicemail information
     try {
@@ -273,7 +363,7 @@ function handleNewVoicemail($messageId, $fromNumber, $messageData): void
             [$messageId, $fromNumber, json_encode($messageData)]
         );
     } catch (Exception $e) {
-        error_log("Failed to store voicemail: " . $e->getMessage());
+        local_log("Failed to store voicemail: " . $e->getMessage());
     }
 }
 
@@ -282,7 +372,7 @@ function handleNewVoicemail($messageId, $fromNumber, $messageData): void
  */
 function handleNewFax($messageId, $fromNumber, $messageData): void
 {
-    error_log("New fax from {$fromNumber}, message ID: {$messageId}");
+    local_log("New fax from {$fromNumber}, message ID: {$messageId}");
     // Process fax, store in document management, etc.
 }
 
@@ -291,6 +381,12 @@ function handleNewFax($messageId, $fromNumber, $messageData): void
  */
 function downloadAndStoreRecording($recordingId): void
 {
-    error_log("Processing completed recording: {$recordingId}");
+    local_log("Processing completed recording: {$recordingId}");
     // Could download recording file and store it in OpenEMR's document system
+}
+
+function local_log($message): void
+{
+    // Custom logging function to handle event logging
+    //error_log("[RingCentral] " . $message);
 }

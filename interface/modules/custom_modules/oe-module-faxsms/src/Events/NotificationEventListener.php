@@ -87,7 +87,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $this->eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, [$this, 'notificationButton']);
         $this->eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, [$this, 'notificationDialogFunction']);
         if ($this->isVoiceEnabled) {
-            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderPhoneWidget']);
+            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_PRE, [$this, 'renderPhoneWidget']);
         }
     }
 
@@ -99,7 +99,6 @@ class NotificationEventListener implements EventSubscriberInterface
         $loginCred = $clientApp->getCredentials();
         $moduleBaseUrl = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
-            'moduleBaseUrl' => $moduleBaseUrl,
             'clientId' => urlencode($loginCred['appKey']),
             'clientSecret' => urlencode($loginCred['appSecret']),
             'jwt' => urlencode($loginCred['jwt']),

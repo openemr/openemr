@@ -12,27 +12,13 @@
 
 namespace OpenEMR\Modules\FaxSMS;
 
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Kernel;
-
 /**
  * Companion to event bootstrapping
  */
 class BootstrapService
 {
-    const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
-    const MODULE_NAME = "oe-module-ehi-exporter";
-    public \Twig\Environment $twig;
-
     public function __construct()
     {
-        $kernel = $GLOBALS['kernel'] ?? null;
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
     }
 
     /**
@@ -157,15 +143,5 @@ class BootstrapService
             return json_decode($globals['credentials'], true) ?? [];
         }
         return [];
-    }
-
-    private function getPublicPath()
-    {
-        return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
-    }
-
-    public function getTemplatePath()
-    {
-        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 }

@@ -15,7 +15,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../../globals.php");
 /*
  This module uses an abstract class to arbitrate and dispatch
  API calls to different vendor services for both the fax and sms type on a per-call basis.

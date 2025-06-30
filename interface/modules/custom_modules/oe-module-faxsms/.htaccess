@@ -1,5 +1,6 @@
 ##
 ## ACCESS RULES FOR API
+
 RewriteEngine On
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 
