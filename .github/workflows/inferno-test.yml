@@ -42,6 +42,13 @@ jobs:
             - name: Make run.sh executable
               run: chmod +x ci/inferno/run.sh
 
+            - name: Install OpenEMR-cmd
+              run: |
+                mkdir ~/bin
+                curl -L https://raw.githubusercontent.com/openemr/openemr-devops/master/utilities/openemr-cmd/openemr-cmd > ~/bin/openemr-cmd
+                chmod +x ~/bin/openemr-cmd
+                # add the command to default path so will be found and run.sh can still be used locally
+
             - name: Run Inferno Certification Tests
               working-directory: ci/inferno
               run: |
@@ -53,7 +60,7 @@ jobs:
             - name: Cleanup Docker resources
               if: always()
               run: |
-                  docker compose -f ci/inferno/docker-compose.yml down -v || true
+                  docker compose -f ci/inferno/compose.yml down -v || true
                   docker system prune -f || true
 
             - name: Upload test results

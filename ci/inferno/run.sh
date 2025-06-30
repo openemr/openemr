@@ -78,8 +78,8 @@ initialize_openemr() {
         cd -
         dockers_env_start
         install_configure
-	openemr-cmd pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-	openemr-cmd rs 2025-06-25-inferno-baseline
+	~/bin/openemr-cmd pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+	~/bin/openemr-cmd rs 2025-06-25-inferno-baseline
         echo 'OpenEMR initialized'
     )
 }
@@ -144,7 +144,6 @@ main() {
     check_inferno
     initialize_openemr
     fix_redis_permissions
-    run_testsuite
 
     # Run the test suite and capture exit code
     if run_testsuite; then

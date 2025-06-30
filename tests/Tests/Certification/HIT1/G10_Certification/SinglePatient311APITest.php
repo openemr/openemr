@@ -7,7 +7,7 @@ use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Api\HIT1\G10_Certification\Test;
 use PHPUnit\Framework\TestCase;
 
-class SinglePatientAPITest extends TestCase
+class SinglePatient311APITest extends TestCase
 {
     // Alice Jones (96506861-511f-4f6d-bc97-b65a78cf1995),
     // Jeremy Bates (96891ab2-01ad-49f9-9958-cdad71bd33c1),
@@ -113,7 +113,7 @@ class SinglePatientAPITest extends TestCase
         }
         if ($testsFailed > 0) {
             echo "Detailed Test Results:\n\n";
-            $this->renderResults($response['results'], "Single patient API tests did not pass");
+            $this->renderResults($response['results'], "Single patient API tests did not pass", []);
         }
         $this->assertEquals(0, $testsFailed, "Single API Test Failed.  Total tests failed " . $testsFailed . " out of " . $testsTotal . " tests run. Please see above for details.");
     }
