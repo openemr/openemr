@@ -40,6 +40,10 @@ services:
       MYSQL_ROOT_PASS: root
       MYSQL_USER: openemr
       MYSQL_PASS: openemr
+      ENABLE_COVERAGE: "true"
+      OPENEMR_COVERAGE_DIR: "coverage"
+      XDEBUG_ON: 1
+      XDEBUG_MODE: coverage
     depends_on:
       couchdb:
         condition: service_started

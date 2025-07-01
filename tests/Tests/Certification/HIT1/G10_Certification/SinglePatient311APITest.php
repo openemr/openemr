@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Api\HIT1\G10_Certification\Test;
+use OpenEMR\Tools\Coverage\CoverageHelper;
 use PHPUnit\Framework\TestCase;
 
 class SinglePatient311APITest extends TestCase
@@ -97,8 +98,11 @@ class SinglePatient311APITest extends TestCase
         $response = json_decode($response, true);
         return $response;
     }
+
     #[Test]
     public function testSingleApiRun() {
+        // we will use the filesystem to write out the test run settings so that we can see them in the code coverage report
+        $coverageId = CoverageHelper::setCurrentCoverageId(__CLASS__,);
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'single_patient_api', 'smart_auth_info');
         // useful for debugging the unit test...
 //        $response = $this->getFakeTestGroupResponse();
@@ -117,6 +121,7 @@ class SinglePatient311APITest extends TestCase
         if ($testsFailed > 0) {
             echo "Detailed Test Results:\n\n";
             $this->renderResults($response['results'], "Single patient API tests did not pass", [
+                // TODO: @adunsulag remove these skips as they aren't needed anymore I believe.
                 // we skip the standalone auth TLS test for now as the unit test environment does not support TLS
                 'us_core_v311-us_core_v311_fhir_api-us_core_v311_capability_statement-standalone_auth_tls'
                 // we skip the overall group failure test as the sub test failing triggers the group failure

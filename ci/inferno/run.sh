@@ -91,6 +91,7 @@ run_testsuite() {
         . ci/ciLibrary.source
 	cd -
 	phpunit --testsuite certification -c $OPENEMR_DIR/phpunit.xml
+	merge_coverage
 	echo 'Certification Tests Executed'
     )
 }
@@ -144,10 +145,13 @@ main() {
     check_inferno
     initialize_openemr
     fix_redis_permissions
+    configure_coverage
 
     # Run the test suite and capture exit code
     if run_testsuite; then
         echo 'SUCCESS: All Inferno certification tests completed successfully!'
+	merge_coverage
+	echo 'Coverage Merged'
         exit 0
     else
         local exit_code=$?
