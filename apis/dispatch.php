@@ -29,6 +29,10 @@ use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Telemetry\TelemetryService;
 use Psr\Http\Message\ResponseInterface;
 
+if (getenv('ENABLE_COVERAGE')) {
+    // setup our code coverage
+}
+
 $gbl = RestConfig::GetInstance();
 $restRequest = new HttpRestRequest($gbl, $_SERVER);
 $routes = array();

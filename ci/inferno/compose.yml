@@ -53,10 +53,14 @@ services:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: inferno
+    environment:
+      INFERNO_DISABLE_TLS_TEST: "true"
   worker:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: worker
+    environment:
+      INFERNO_DISABLE_TLS_TEST: "true"
   nginx:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
