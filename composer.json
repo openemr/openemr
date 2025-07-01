@@ -74,7 +74,7 @@
         "symfony/http-client": "6.4.19",
         "symfony/http-foundation": "6.4.22",
         "symfony/yaml": "6.4.21",
-        "twig/twig": "3.20.0",
+        "twig/twig": "3.21.1",
         "vlucas/phpdotenv": "5.6.2",
         "waryway/php-traits-library": "1.0.4",
         "yubico/u2flib-server": "1.0.2",
