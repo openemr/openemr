@@ -12,7 +12,6 @@ TEMPLATE_LOCATION=${EHI_ROOT_FILE}/layout/
 DOC_OUTPUT=../Documentation/EHI_Export/docs/
 JAR_FILES=${EHI_ROOT_FILE}/jars
 TYPE=mariadb
-MYSQL_CONNECTOR=${JAR_FILES}/mysql-connector-j-8.1.0.jar
 MARIADB_CONNECTOR=${JAR_FILES}/mariadb-java-client-3.4.1.jar
 JAVA_CONNECTOR=${MARIADB_CONNECTOR}
 
