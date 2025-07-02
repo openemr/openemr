@@ -4,6 +4,6 @@ x-includes:
 
 services:
   mysql:
-    image: mariadb:11.4
+    image: mariadb:11.8
   openemr:
     image: openemr/dev-php-fpm:8.5

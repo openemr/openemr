@@ -4,6 +4,6 @@ x-includes:
 
 services:
   mysql:
-    image: mariadb:11.4
+    image: mariadb:11.8
   openemr:
-    image: openemr/openemr:flex-3.18
+    image: openemr/openemr:flex-3.22-php-8.3

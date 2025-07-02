@@ -6,4 +6,4 @@ services:
   mysql:
     image: mysql:9.3
   openemr:
-    image: openemr/openemr:flex-3.21
+    image: openemr/openemr:flex-3.22-php-8.4
