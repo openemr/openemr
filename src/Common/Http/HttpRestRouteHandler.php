@@ -304,12 +304,15 @@ class HttpRestRouteHandler
             if (
                 $restRequest->getResource() == 'version'
                 || $restRequest->getResource() == 'product'
-                || $restRequest->isLocalApi() // skip security check if its a local api
+                || $restRequest->isLocalApi() // skip security check if it's a local api
             ) {
                 return true;
             }
             // ensure correct user role type for the non-fhir routes
-            if (($restRequest->getApiType() === 'oemr') && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
+            if (($restRequest->getApiType() === 'oemr')
+                && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))
+                && (($restRequest->getRequestUserRole() !== 'system') || ($scopeType !== 'system')))
+            {
                 (new SystemLogger())->debug("checkSecurity() - not allowing patient role to access oemr api");
                 $psrFactory = new Psr17Factory();
                 $config::destroySession();
