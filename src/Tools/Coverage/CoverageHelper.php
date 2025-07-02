@@ -72,7 +72,7 @@ class CoverageHelper
     // the long running tests will need to be run serially.
     public static function setCurrentCoverageId(string $className)
     {
-        $coverageId = self::resolveCoverageId($className);
+        $coverageId = self::resolveCoverageId($className, "");
         file_put_contents("/tmp/oe_php_coverage_settings",  $coverageId);
     }
 

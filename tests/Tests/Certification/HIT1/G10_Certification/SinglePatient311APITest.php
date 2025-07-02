@@ -182,20 +182,20 @@ class SinglePatient311APITest extends TestCase
         }
     }
 
-    protected function getTestInputs(string $credentialsKeyName, string $accessToken): array{
+    protected function getTestInputs(string $credentialsKeyName, array $credentialsArray): array{
         if (self::TEST_SUITE == self::TEST_SUITE_G10_CERTIFICATION) {
             return [
                 ['name' => 'url', 'value' => self::$baseUrl . '/apis/default/fhir'],
                 ['name' => 'patient_id', 'value' => self::PATIENT_ID_PRIMARY],
 //                ['name' => 'patient_ids', 'value' => self::PATIENT_IDS],
                 ['name' => 'additional_patient_ids', 'value' => self::ADDITIONAL_PATIENT_IDS],
-                ['name' => $credentialsKeyName, 'value' => ['access_token' => $accessToken]]
+                ['name' => $credentialsKeyName, 'value' => $credentialsArray]
             ];
         } else {
             return [
                 ['name' => 'url', 'value' => self::$baseUrl . '/apis/default/fhir'],
                 ['name' => 'patient_ids', 'value' => self::PATIENT_IDS],
-                ['name' => $credentialsKeyName, 'value' => ['access_token' => $accessToken]]
+                ['name' => $credentialsKeyName, 'value' => $credentialsArray]
             ];
         }
     }
@@ -203,11 +203,18 @@ class SinglePatient311APITest extends TestCase
 
     protected function getTestGroupResponse(string $testGroupId, $credentialsKeyName = 'smart_credentials'): array
     {
-        $accessToken = self::$testClient->getAccessToken();
         $testRunData = [
             'test_session_id' => self::$sessionId,
             'test_group_id' => $testGroupId,
-            'inputs' => $this->getTestInputs($credentialsKeyName, $accessToken)
+            'inputs' => $this->getTestInputs($credentialsKeyName,
+                [
+                    'access_token' => self::$testClient->getAccessToken()
+                    , 'refresh_token' => self::$testClient->getRefreshToken()
+                    , 'client_id' => self::$testClient->getClientId()
+                    , 'client_secret' => self::$testClient->getClientSecret()
+                    , 'token_url' => self::$baseUrl . self::$testClient::OAUTH_TOKEN_ENDPOINT
+                ]
+                )
         ];
         $testRunResponse = self::$infernoClient->post('test_runs', [
             'json' => $testRunData

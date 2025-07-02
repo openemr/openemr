@@ -80,6 +80,7 @@ initialize_openemr() {
         install_configure
 	~/bin/openemr-cmd pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
 	~/bin/openemr-cmd rs 2025-06-25-inferno-baseline
+        configure_coverage
         echo 'OpenEMR initialized'
     )
 }
@@ -145,13 +146,10 @@ main() {
     check_inferno
     initialize_openemr
     fix_redis_permissions
-    configure_coverage
 
     # Run the test suite and capture exit code
     if run_testsuite; then
         echo 'SUCCESS: All Inferno certification tests completed successfully!'
-	merge_coverage
-	echo 'Coverage Merged'
         exit 0
     else
         local exit_code=$?
