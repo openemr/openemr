@@ -213,6 +213,7 @@ class SinglePatient311APITest extends TestCase
                     , 'client_id' => self::$testClient->getClientId()
                     , 'client_secret' => self::$testClient->getClientSecret()
                     , 'token_url' => self::$baseUrl . self::$testClient::OAUTH_TOKEN_ENDPOINT
+                    , 'auth_type' => 'asymmetric'
                 ]
                 )
         ];

@@ -14,13 +14,13 @@ clone_files() {
     INFERNO_FILES_DIR="inferno-files/files"
     TARGET_DIR="onc-certification-g10-test-kit"
 
-    if [[ -d "$INFERNO_FILES_DIR" && "$(ls -A $INFERNO_FILES_DIR 2>/dev/null)" ]]; then
-        echo "Copying files from $INFERNO_FILES_DIR to $TARGET_DIR..."
-        cp -r "$INFERNO_FILES_DIR/"* "$TARGET_DIR/"
+    if [[ -d "${INFERNO_FILES_DIR}" ]] && ls -A ${INFERNO_FILES_DIR} 2>/dev/null; then
+        echo "Copying files from ${INFERNO_FILES_DIR} to ${TARGET_DIR}..."
+        cp -r "${INFERNO_FILES_DIR}/"* "${TARGET_DIR}/"
         return 0
     fi
 
-    echo "WARNING: $INFERNO_FILES_DIR directory is empty or missing."
+    echo "WARNING: ${INFERNO_FILES_DIR} directory is empty or missing."
     echo 'You may not have access to the private repository.'
     echo 'The process may take several hours to download all required terminology files.'
     return 1
@@ -45,13 +45,13 @@ check_inferno() {
     local is_healthy=1
 
     while IFS= read -r line; do
-        [[ "$line" =~ .*Expected\ codes:\ ([0-9]+)\ Actual\ codes:\ ([0-9]+).* ]] || continue
+        [[ "${line}" =~ .*Expected\ codes:\ ([0-9]+)\ Actual\ codes:\ ([0-9]+).* ]] || continue
         expected="${BASH_REMATCH[1]}"
         actual="${BASH_REMATCH[2]}"
         (( actual >= expected )) && continue
-        echo "ISSUE: $line (Actual codes less than Expected)"
+        echo "ISSUE: ${line} (Actual codes less than Expected)"
         is_healthy=0
-    done <<< "$output"
+    done <<< "${output}"
 
     if (( ! is_healthy )); then
         echo 'ERROR: Terminology check failed - some Actual codes are insufficient'
@@ -71,7 +71,8 @@ initialize_openemr() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
     (
-        cd -P "$(git rev-parse --show-toplevel)"
+    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
+	cd -P "${repo_root}"
         . ci/ciLibrary.source
         main_build
         ccda_build
@@ -82,23 +83,24 @@ initialize_openemr() {
 	~/bin/openemr-cmd rs 2025-06-25-inferno-baseline
         configure_coverage
         echo 'OpenEMR initialized'
-    )
+    ) || exit 1
 }
 run_testsuite() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
     (
-        cd -P "$(git rev-parse --show-toplevel)"
+    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
+	cd -P "${repo_root}"
         . ci/ciLibrary.source
 	cd -
-	phpunit --testsuite certification -c $OPENEMR_DIR/phpunit.xml
+	phpunit --testsuite certification -c ${OPENEMR_DIR}/phpunit.xml
 	merge_coverage
 	echo 'Certification Tests Executed'
-    )
+    ) || exit 1
 }
 
 fix_redis_permissions() {
-     docker run --rm -v $PWD/onc-certification-g10-test-kit/data/redis:/data redis chown -R redis:redis /data
+     docker run --rm -v ${PWD}/onc-certification-g10-test-kit/data/redis:/data redis chown -R redis:redis /data
 }
 
 cleanup() {
@@ -148,14 +150,13 @@ main() {
     fix_redis_permissions
 
     # Run the test suite and capture exit code
+    
     if run_testsuite; then
-        echo 'SUCCESS: All Inferno certification tests completed successfully!'
-        exit 0
-    else
         local exit_code=$?
         echo "FAILURE: Inferno certification tests failed with exit code: $exit_code"
         exit $exit_code
     fi
+    echo 'SUCCESS: All Inferno certification tests completed successfully!'
 }
 
 main "$@"
