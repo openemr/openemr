@@ -19,7 +19,7 @@
         "digitickets/lalit": "3.4.0",
         "dompdf/dompdf": "3.1.0",
         "ezyang/htmlpurifier": "4.18.0",
-        "google/apiclient": "2.18.2",
+        "google/apiclient": "2.18.3",
         "guzzlehttp/guzzle": "7.9.3",
         "html2text/html2text": "4.3.2",
         "kamermans/guzzle-oauth2-subscriber": "1.1.1",
