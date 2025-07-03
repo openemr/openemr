@@ -14,7 +14,7 @@ This document outlines the plan for integrating Google Cloud Identity Platform (
 
 ## Phase 2: Backend Implementation - OIDC Flow
 
-- [ ] **Create new routes in `_rest_routes.inc.php`:**
+- [x] **Create new routes in `_rest_routes.inc.php`:**
   - [ ] `/authorize/google`: To initiate the GCIP authentication flow.
   - [ ] `/callback/google`: To handle the callback from GCIP.
 - [ ] **Modify `src/RestControllers/AuthorizationController.php`:**
