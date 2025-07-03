@@ -242,7 +242,7 @@ class AuthorizationController
                 'logo_uri' => null,
                 'redirect_uris' => null,
                 'post_logout_redirect_uris' => null,
-                'token_endpoint_auth_method' => array('client_secret_basic', 'client_secret_post'),
+                'token_endpoint_auth_method' => array('client_secret_basic', 'client_secret_post', 'private_key_jwt'),
                 'policy_uri' => null,
                 'tos_uri' => null,
                 'jwks_uri' => null,
