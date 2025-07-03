@@ -296,4 +296,20 @@ class ClientRepository implements ClientRepositoryInterface
         }
         return true;
     }
+
+    public function persist(ClientEntity $client)
+    {
+        $sql = "UPDATE `oauth_clients` SET `identity_provider` = ?, `google_client_id` = ?, `google_client_secret` = ? WHERE `client_id` = ?";
+        $params = [
+            $client->getIdentityProvider(),
+            $client->getGoogleClientId(),
+            $client->getGoogleClientSecret(),
+            $client->getIdentifier()
+        ];
+        $res = sqlStatement($sql, $params);
+        if ($res === false) {
+            throw new \RuntimeException("Failed to save oauth_clients. Check logs for sql error");
+        }
+        return true;
+    }
 }

@@ -42,7 +42,24 @@
                             {{ "This client is currently disabled"|xlt }}
                         </div>
                     {% endif %}
-                    <form>
+                    <form method="POST" action="{{ updateAction|attr }}">
+                        <div class="form-group">
+                            <label for="identity_provider">{{ "Identity Provider"|xlt }}</label>
+                            <select id="identity_provider" name="identity_provider" class="form-control">
+                                <option value="local" {% if client.getIdentityProvider() == 'local' %}selected{% endif %}>{{ "Local"|xlt }}</option>
+                                <option value="google" {% if client.getIdentityProvider() == 'google' %}selected{% endif %}>{{ "Google"|xlt }}</option>
+                            </select>
+                        </div>
+                        <div id="google-settings" {% if client.getIdentityProvider() != 'google' %}style="display: none;"{% endif %}>
+                            <div class="form-group">
+                                <label for="google_client_id">{{ "Google Client ID"|xlt }}</label>
+                                <input type="text" id="google_client_id" name="google_client_id" class="form-control" value="{{ client.getGoogleClientId()|text }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="google_client_secret">{{ "Google Client Secret"|xlt }}</label>
+                                <input type="text" id="google_client_secret" name="google_client_secret" class="form-control" value="{{ client.getGoogleClientSecret()|text }}">
+                            </div>
+                        </div>
                         {% for key,setting in formValues %}
                             {% if setting.type == 'text' %}
                                 {% include "interface/smart/admin-client/partials/text-input.html.twig"
@@ -55,7 +72,17 @@
                                     with {key: key, setting: setting} %}
                             {% endif %}
                         {% endfor %}
+                        <button type="submit" class="btn btn-primary">{{ "Save"|xlt }}</button>
                     </form>
+                    <script>
+                        document.getElementById('identity_provider').addEventListener('change', function () {
+                            if (this.value === 'google') {
+                                document.getElementById('google-settings').style.display = 'block';
+                            } else {
+                                document.getElementById('google-settings').style.display = 'none';
+                            }
+                        });
+                    </script>
                 </div>
                 <div class="col-6">
                     <label>{{ "Scopes"|xlt }}</label>
