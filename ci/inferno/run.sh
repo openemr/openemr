@@ -81,7 +81,7 @@ initialize_openemr() {
         install_configure
 	~/bin/openemr-cmd pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
 	~/bin/openemr-cmd rs 2025-06-25-inferno-baseline
-        configure_coverage
+        #configure_coverage
         echo 'OpenEMR initialized'
     ) || exit 1
 }
@@ -94,7 +94,7 @@ run_testsuite() {
         . ci/ciLibrary.source
 	cd -
 	phpunit --testsuite certification -c ${OPENEMR_DIR}/phpunit.xml
-	merge_coverage
+	#merge_coverage
 	echo 'Certification Tests Executed'
     ) || exit 1
 }
