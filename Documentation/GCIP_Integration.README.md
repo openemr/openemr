@@ -49,5 +49,16 @@ This document outlines the plan for integrating Google Cloud Identity Platform (
 - [x] **Update Developer Documentation:**
   - [x] Document the new GCIP integration feature.
   - [x] Provide instructions on how to configure and use it.
-- [ ] **Update User Documentation:**
+- [x] **Update User Documentation:**
   - [ ] Explain how to use the GCIP login feature.
+
+## Phase 6: Security and Audit Logging
+
+- [x] **Security:**
+  - [x] Remove `google_client_secret` from the client management UI.
+  - [x] Encrypt `google_client_secret` in the database.
+- [x] **Audit Logging:**
+  - [x] Log GCIP configuration changes (create, update, delete).
+  - [x] Log GCIP login attempts, successes, and failures.
+  - [x] Log new user provisioning via GCIP.
+
