@@ -11,18 +11,16 @@ usage() {
 	echo "       $0 --ini-name 0-apc.ini apcu apc"
 	echo
 	echo 'Possible values for module-name:'
-	find -maxdepth 1 \
-			-type f \
-			-name '*.so' \
-			-exec basename '{}' ';' \
-		| sort \
-		| xargs
+    printf '%s\n' *.so | sed 's/\.so$//' | xargs
 	echo
 	echo 'Some of the above modules are already compiled into PHP; please check'
 	echo 'the output of "php -i" to see which modules are already loaded.'
 }
 
-opts="$(getopt -o 'h?' --long 'help,ini-name:' -- "$@" || { usage >&2 && false; })"
+if ! opts="$(getopt -o 'h?' --long 'help,ini-name:' -- "$@")"; then
+    usage >&2
+    false
+fi
 eval set -- "${opts}"
 
 iniName=
@@ -30,7 +28,7 @@ while true; do
 	flag="$1"
 	shift
 	case "${flag}" in
-		--help|-h|'-?') usage && exit 0 ;;
+		--help|-h|'-?') usage; exit;;
 		--ini-name) iniName="$1" && shift ;;
 		--) break ;;
 		*)
@@ -110,5 +108,5 @@ for module in ${modules}; do
 done
 
 if [ "${pm}" = 'apk' ] && [ -n "${apkDel}" ]; then
-	apk del ${apkDel}
+	apk del "${apkDel}"
 fi
