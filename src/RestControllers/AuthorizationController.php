@@ -589,6 +589,12 @@ class AuthorizationController
     public function redirectToGoogle(AuthorizationRequest $authRequest): void
     {
         $client = $authRequest->getClient();
+        $this->logger->info(
+            "Redirecting to Google for GCIP authentication",
+            [
+                'client_id' => $client->getIdentifier(),
+            ]
+        );
         $clientId = $client->getGoogleClientId();
         $redirectUri = $this->authBaseFullUrl . '/callback/google';
         $scope = implode(' ', array_map(fn($s) => $s->getIdentifier(), $authRequest->getScopes()));
@@ -641,6 +647,13 @@ class AuthorizationController
 
         $authRequestData = json_decode($_SESSION['authRequestSerial'] ?? '', true);
         if (empty($authRequestData) || $authRequestData['outer']['state'] !== $state) {
+            $this->logger->error(
+                "Invalid state parameter in GCIP callback",
+                [
+                    'state' => $state,
+                    'expected_state' => $authRequestData['outer']['state'] ?? null,
+                ]
+            );
             throw new OAuthServerException('Invalid state parameter', 0, 'invalid_request', 400);
         }
 
@@ -648,6 +661,13 @@ class AuthorizationController
         $client = $clientRepository->getClientEntity($authRequestData['client']['identifier']);
 
         if (empty($client) || $client->getIdentityProvider() !== 'google') {
+            $this->logger->error(
+                "Invalid client or identity provider for GCIP callback",
+                [
+                    'client_id' => $authRequestData['client']['identifier'],
+                    'identity_provider' => $client->getIdentityProvider() ?? null,
+                ]
+            );
             throw new OAuthServerException('Invalid client or identity provider', 0, 'invalid_client', 400);
         }
 
@@ -655,20 +675,37 @@ class AuthorizationController
         $redirectUri = $this->authBaseFullUrl . '/callback/google';
 
         $httpClient = new Client();
-        $tokenResponse = $httpClient->post($tokenUrl, [
-            'form_params' => [
-                'code' => $code,
-                'client_id' => $client->getGoogleClientId(),
-                'client_secret' => $client->getGoogleClientSecret(),
-                'redirect_uri' => $redirectUri,
-                'grant_type' => 'authorization_code',
-            ],
-        ]);
+        try {
+            $tokenResponse = $httpClient->post($tokenUrl, [
+                'form_params' => [
+                    'code' => $code,
+                    'client_id' => $client->getGoogleClientId(),
+                    'client_secret' => $client->getGoogleClientSecret(),
+                    'redirect_uri' => $redirectUri,
+                    'grant_type' => 'authorization_code',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error(
+                "Failed to exchange authorization code for access token",
+                [
+                    'client_id' => $client->getIdentifier(),
+                    'exception' => $e->getMessage(),
+                ]
+            );
+            throw new OAuthServerException('Failed to exchange authorization code for access token', 0, 'invalid_grant', 400);
+        }
 
         $tokenData = json_decode($tokenResponse->getBody()->__toString(), true);
 
         $idToken = $tokenData['id_token'] ?? null;
         if (empty($idToken)) {
+            $this->logger->error(
+                "Missing ID token in GCIP callback",
+                [
+                    'client_id' => $client->getIdentifier(),
+                ]
+            );
             throw new OAuthServerException('Missing ID token', 0, 'invalid_request', 400);
         }
 
@@ -677,11 +714,27 @@ class AuthorizationController
         $idTokenPayload = json_decode(base64_decode($idTokenParts[1]), true);
 
         if ($idTokenPayload['aud'] !== $client->getGoogleClientId() || $idTokenPayload['nonce'] !== $authRequestData['nonce']) {
+            $this->logger->error(
+                "Invalid ID token in GCIP callback",
+                [
+                    'client_id' => $client->getIdentifier(),
+                    'audience' => $idTokenPayload['aud'],
+                    'expected_audience' => $client->getGoogleClientId(),
+                    'nonce' => $idTokenPayload['nonce'],
+                    'expected_nonce' => $authRequestData['nonce'],
+                ]
+            );
             throw new OAuthServerException('Invalid ID token', 0, 'invalid_token', 400);
         }
 
         $userEmail = $idTokenPayload['email'] ?? null;
         if (empty($userEmail)) {
+            $this->logger->error(
+                "User email not found in ID token",
+                [
+                    'client_id' => $client->getIdentifier(),
+                ]
+            );
             throw new OAuthServerException('User email not found in ID token', 0, 'invalid_token', 400);
         }
 
@@ -695,7 +748,22 @@ class AuthorizationController
             // For now, we'll just create a basic user with the email as username
             $newUserId = $userRepository->createUser($userEmail, $idTokenPayload['given_name'] ?? '', $idTokenPayload['family_name'] ?? '');
             $user = $userRepository->getUserEntityByIdentifier($newUserId);
+            $this->logger->info(
+                "New user provisioned via GCIP",
+                [
+                    'user_id' => $user->getIdentifier(),
+                    'email' => $userEmail,
+                ]
+            );
         }
+
+        $this->logger->info(
+            "User successfully authenticated via GCIP",
+            [
+                'user_id' => $user->getIdentifier(),
+                'client_id' => $client->getIdentifier(),
+            ]
+        );
 
         // Reconstruct AuthorizationRequest and complete the flow
         $authRequest = new AuthorizationRequest();
