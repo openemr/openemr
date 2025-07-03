@@ -268,7 +268,7 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setDSIType(intval($client_record['dsi_type'] ?? 0));
         $client->setIdentityProvider($client_record['identity_provider'] ?? 'local');
         $client->setGoogleClientId($client_record['google_client_id']);
-        $client->setGoogleClientSecret($client_record['google_client_secret']);
+        $client->setGoogleClientSecret($this->cryptoGen->decryptStandard($client_record['google_client_secret']));
         return $client;
     }
 
@@ -299,11 +299,19 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function persist(ClientEntity $client)
     {
+        $googleClientSecret = $client->getGoogleClientSecret();
+        if (!empty($googleClientSecret)) {
+            $googleClientSecret = $this->cryptoGen->encryptStandard($googleClientSecret);
+        } else {
+            $existingClient = $this->getClientEntity($client->getIdentifier());
+            $googleClientSecret = $existingClient->getGoogleClientSecret();
+        }
+
         $sql = "UPDATE `oauth_clients` SET `identity_provider` = ?, `google_client_id` = ?, `google_client_secret` = ? WHERE `client_id` = ?";
         $params = [
             $client->getIdentityProvider(),
             $client->getGoogleClientId(),
-            $client->getGoogleClientSecret(),
+            $googleClientSecret,
             $client->getIdentifier()
         ];
         $res = sqlStatement($sql, $params);

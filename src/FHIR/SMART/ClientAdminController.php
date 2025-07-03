@@ -269,10 +269,20 @@ class ClientAdminController
 
         $client->setIdentityProvider($identityProvider);
         $client->setGoogleClientId($googleClientId);
-        $client->setGoogleClientSecret($googleClientSecret);
+        if (!empty($googleClientSecret)) {
+            $client->setGoogleClientSecret($googleClientSecret);
+        }
 
         try {
             $this->clientRepo->persist($client);
+            $this->logger->info(
+                "GCIP configuration updated for client: " . $client->getIdentifier(),
+                [
+                    'client_id' => $client->getIdentifier(),
+                    'identity_provider' => $client->getIdentityProvider(),
+                    'google_client_id' => $client->getGoogleClientId(),
+                ]
+            );
             $message = xl('Client updated successfully');
             $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
             header("Location: " . $url);

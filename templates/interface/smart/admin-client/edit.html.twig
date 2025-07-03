@@ -57,7 +57,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="google_client_secret">{{ "Google Client Secret"|xlt }}</label>
-                                <input type="text" id="google_client_secret" name="google_client_secret" class="form-control" value="{{ client.getGoogleClientSecret()|text }}">
+                                <input type="password" id="google_client_secret" name="google_client_secret" class="form-control" value="">
                             </div>
                         </div>
                         {% for key,setting in formValues %}
