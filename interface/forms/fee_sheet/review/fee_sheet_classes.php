@@ -72,10 +72,9 @@ class code_info
  */
 class procedure extends code_info
 {
-/**  ai generated code by google-labs-jules starts  */
-    function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $ndc_info = '', $selected = true)
-/**  ai generated code by google-labs-jules end  */
-    {
+    // ai generated code by google-labs-jules starts
+    function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $ndc_info = '', $selected = true) {
+    // ai generated code by google-labs-jules end
         parent::__construct($c, $ct, $desc, $selected);
         $this->fee = $fee;
         $this->justify = $justify;
