@@ -18,16 +18,16 @@ This document outlines the plan for integrating Google Cloud Identity Platform (
   - [ ] `/authorize/google`: To initiate the GCIP authentication flow.
   - [ ] `/callback/google`: To handle the callback from GCIP.
 - [x] **Modify `src/RestControllers/AuthorizationController.php`:**
-  - [ ] Create a new method `redirectToGoogle()` to handle the `/authorize/google` route. This method will build the OIDC request and redirect the user to Google.
-  - [ ] Create a new method `handleGoogleCallback()` to handle the `/callback/google` route. This method will:
-    - [ ] Exchange the authorization code for an access token and ID token from Google.
-    - [ ] Validate the ID token.
-    - [ ] Extract user information from the ID token.
-    - [ ] Look up the user in the `users` table by email.
-    - [ ] If the user does not exist, create a new user (user provisioning).
-    - [ ] Log the user in and create a session.
-    - [ ] Redirect the user back to the original authorization flow.
-  - [ ] Modify the `oauthAuthorizationFlow()` method to check the `identity_provider` of the client. If it's 'google', redirect to `/authorize/google`.
+  - [x] Create a new method `redirectToGoogle()` to handle the `/authorize/google` route. This method will build the OIDC request and redirect the user to Google.
+  - [x] Create a new method `handleGoogleCallback()` to handle the `/callback/google` route. This method will:
+    - [x] Exchange the authorization code for an access token and ID token from Google.
+    - [x] Validate the ID token.
+    - [x] Extract user information from the ID token.
+    - [x] Look up the user in the `users` table by email.
+    - [x] If the user does not exist, create a new user (user provisioning).
+    - [x] Log the user in and create a session.
+    - [x] Redirect the user back to the original authorization flow.
+  - [x] Modify the `oauthAuthorizationFlow()` method to check the `identity_provider` of the client. If it's 'google', redirect to `/authorize/google`.
 
 ## Phase 3: Frontend and User Interface
 

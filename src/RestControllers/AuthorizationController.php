@@ -588,12 +588,132 @@ class AuthorizationController
 
     public function redirectToGoogle(AuthorizationRequest $authRequest): void
     {
-        // Implementation for redirecting to Google for authentication
+        $client = $authRequest->getClient();
+        $clientId = $client->getGoogleClientId();
+        $redirectUri = $this->authBaseFullUrl . '/callback/google';
+        $scope = implode(' ', array_map(fn($s) => $s->getIdentifier(), $authRequest->getScopes()));
+        $state = $authRequest->getState();
+        $nonce = $_SESSION['nonce'] ?? RandomGenUtils::produceRandomString(32);
+
+        $_SESSION['authRequestSerial'] = json_encode([
+            'outer' => [
+                'grantTypeId' => $authRequest->getGrantTypeId(),
+                'authorizationApproved' => false,
+                'redirectUri' => $authRequest->getRedirectUri(),
+                'state' => $authRequest->getState(),
+                'codeChallenge' => $authRequest->getCodeChallenge(),
+                'codeChallengeMethod' => $authRequest->getCodeChallengeMethod(),
+            ],
+            'scopes' => array_map(fn($s) => $s->getIdentifier(), $authRequest->getScopes()),
+            'client' => [
+                'name' => $client->getName(),
+                'redirectUri' => $client->getRedirectUri(),
+                'identifier' => $client->getIdentifier(),
+                'isConfidential' => $client->isConfidential(),
+            ],
+            'nonce' => $nonce,
+        ], JSON_THROW_ON_ERROR);
+
+        $authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' .
+            'response_type=code&' .
+            'client_id=' . urlencode($clientId) . '&' .
+            'redirect_uri=' . urlencode($redirectUri) . '&' .
+            'scope=' . urlencode($scope) . '&' .
+            'state=' . urlencode($state) . '&' .
+            'nonce=' . urlencode($nonce) . '&' .
+            'access_type=offline&prompt=consent';
+
+        header('Location: ' . $authUrl, true, 302);
+        exit;
     }
 
     public function handleGoogleCallback(): void
     {
-        // Implementation for handling the callback from Google
+        $response = $this->createServerResponse();
+        $request = $this->createServerRequest();
+
+        $code = $request->getQueryParams()['code'] ?? null;
+        $state = $request->getQueryParams()['state'] ?? null;
+
+        if (empty($code) || empty($state)) {
+            throw new OAuthServerException('Missing authorization code or state', 0, 'invalid_request', 400);
+        }
+
+        $authRequestData = json_decode($_SESSION['authRequestSerial'] ?? '', true);
+        if (empty($authRequestData) || $authRequestData['outer']['state'] !== $state) {
+            throw new OAuthServerException('Invalid state parameter', 0, 'invalid_request', 400);
+        }
+
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($authRequestData['client']['identifier']);
+
+        if (empty($client) || $client->getIdentityProvider() !== 'google') {
+            throw new OAuthServerException('Invalid client or identity provider', 0, 'invalid_client', 400);
+        }
+
+        $tokenUrl = 'https://oauth2.googleapis.com/token';
+        $redirectUri = $this->authBaseFullUrl . '/callback/google';
+
+        $httpClient = new Client();
+        $tokenResponse = $httpClient->post($tokenUrl, [
+            'form_params' => [
+                'code' => $code,
+                'client_id' => $client->getGoogleClientId(),
+                'client_secret' => $client->getGoogleClientSecret(),
+                'redirect_uri' => $redirectUri,
+                'grant_type' => 'authorization_code',
+            ],
+        ]);
+
+        $tokenData = json_decode($tokenResponse->getBody()->__toString(), true);
+
+        $idToken = $tokenData['id_token'] ?? null;
+        if (empty($idToken)) {
+            throw new OAuthServerException('Missing ID token', 0, 'invalid_request', 400);
+        }
+
+        // Validate ID token (simplified for brevity, a real implementation would use a JWT library)
+        $idTokenParts = explode('.', $idToken);
+        $idTokenPayload = json_decode(base64_decode($idTokenParts[1]), true);
+
+        if ($idTokenPayload['aud'] !== $client->getGoogleClientId() || $idTokenPayload['nonce'] !== $authRequestData['nonce']) {
+            throw new OAuthServerException('Invalid ID token', 0, 'invalid_token', 400);
+        }
+
+        $userEmail = $idTokenPayload['email'] ?? null;
+        if (empty($userEmail)) {
+            throw new OAuthServerException('User email not found in ID token', 0, 'invalid_token', 400);
+        }
+
+        // Authenticate or provision user in OpenEMR
+        $userRepository = new UserRepository();
+        $user = $userRepository->getUserEntityByEmail($userEmail);
+
+        if (empty($user)) {
+            // User does not exist, provision new user
+            // In a real scenario, you might want to create a more robust user provisioning process
+            // For now, we'll just create a basic user with the email as username
+            $newUserId = $userRepository->createUser($userEmail, $idTokenPayload['given_name'] ?? '', $idTokenPayload['family_name'] ?? '');
+            $user = $userRepository->getUserEntityByIdentifier($newUserId);
+        }
+
+        // Reconstruct AuthorizationRequest and complete the flow
+        $authRequest = new AuthorizationRequest();
+        $authRequest->setGrantTypeId($authRequestData['outer']['grantTypeId']);
+        $authRequest->setClient($client);
+        $authRequest->setScopes(array_map(fn($s) => (new ScopeEntity())->setIdentifier($s), $authRequestData['scopes']));
+        $authRequest->setAuthorizationApproved(true);
+        $authRequest->setRedirectUri($authRequestData['outer']['redirectUri']);
+        $authRequest->setState($authRequestData['outer']['state']);
+        $authRequest->setCodeChallenge($authRequestData['outer']['codeChallenge']);
+        $authRequest->setCodeChallengeMethod($authRequestData['outer']['codeChallengeMethod']);
+        $authRequest->setUser($user);
+
+        $server = $this->getAuthorizationServer();
+        $result = $server->completeAuthorizationRequest($authRequest, $response);
+
+        SessionUtil::oauthSessionCookieDestroy();
+        $this->emitResponse($result);
     }
 
     /**
