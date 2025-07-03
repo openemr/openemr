@@ -213,7 +213,9 @@ class SinglePatient311APITest extends TestCase
                     , 'client_id' => self::$testClient->getClientId()
                     , 'client_secret' => self::$testClient->getClientSecret()
                     , 'token_url' => self::$baseUrl . self::$testClient::OAUTH_TOKEN_ENDPOINT
-                    , 'auth_type' => 'asymmetric'
+                    // shared secret of client_secret is used for symmetric auth
+                    // for asymmetric auth, we would use the public key of the registed JWKS
+                    , 'auth_type' => 'symmetric'
                 ]
                 )
         ];

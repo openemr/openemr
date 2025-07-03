@@ -14,7 +14,7 @@ clone_files() {
     INFERNO_FILES_DIR="inferno-files/files"
     TARGET_DIR="onc-certification-g10-test-kit"
 
-    if [[ -d "${INFERNO_FILES_DIR}" ]] && ls -A ${INFERNO_FILES_DIR} 2>/dev/null; then
+    if [[ -d "${INFERNO_FILES_DIR}" ]] && ls -A "${INFERNO_FILES_DIR}" 2>/dev/null; then
         echo "Copying files from ${INFERNO_FILES_DIR} to ${TARGET_DIR}..."
         cp -r "${INFERNO_FILES_DIR}/"* "${TARGET_DIR}/"
         return 0
@@ -153,8 +153,8 @@ main() {
     
     if run_testsuite; then
         local exit_code=$?
-        echo "FAILURE: Inferno certification tests failed with exit code: $exit_code"
-        exit $exit_code
+        echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
+        exit "${exit_code}"
     fi
     echo 'SUCCESS: All Inferno certification tests completed successfully!'
 }
