@@ -11,31 +11,20 @@
  */
 
 /**
- * class
- *
+ * class FormROS
  */
-
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
+/**
+ * class FormROS
+ */
 class FormROS extends ORDataObject
 {
-    /**
-     *
-     * @access public
-     */
-
+    protected string $_table = 'form_ros';
 
     /**
-     *
-     * static
-     */
-
-    /**
-     *
      * @access private
      */
-
-    var $id;
     var $date;
     var $date_of_onset;
     var $pid;
@@ -179,41 +168,18 @@ class FormROS extends ORDataObject
     var $hai_status = "N/A";
 
     /**
-     * Constructor sets all Form attributes to their default value
+     * Set Form attributes to their default value
+     *
+     * @return void
      */
-
-    function __construct($id = "", $_prefix = "")
+    protected function init(): void
     {
-        if (is_numeric($id)) {
-            $this->id = $id;
-        } else {
-            $id = "";
-        }
-
         $this->date = date("Y-m-d H:i:s");
         $this->date_of_onset = date("Y-m-d");
-        $this->_table = "form_ros";
 
         $this->pid = $GLOBALS['pid'];
-        if ($id != "") {
-            $this->populate();
-        }
-    }
-    function populate()
-    {
-        parent::populate();
     }
 
-    function set_id($id)
-    {
-        if (!empty($id) && is_numeric($id)) {
-            $this->id = $id;
-        }
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
     function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
@@ -1656,4 +1622,4 @@ class FormROS extends ORDataObject
     {
         parent::persist();
     }
-}   // end of Form
+}

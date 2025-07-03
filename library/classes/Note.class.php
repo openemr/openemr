@@ -10,62 +10,47 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Note extends ORDataObject
 {
-    /*
-    *   Database unique identifier
-    *   @var id
-    */
-    var $id;
-
-    /*
-    *   DB unique identifier reference to some other table, this is not unique in the notes table
-    *   @var int
-    */
+    protected string $_table = 'notes';
+    /**
+     * DB unique identifier reference to some other table, this is not unique in the notes table
+     * @var int
+     */
     var $foreign_id;
 
-    /*
-    *   Narrative comments about whatever object is represented by the foreign id this note is associated with
-    *   @var string upto 255 character string
-    */
+    /**
+     * Narrative comments about whatever object is represented by the foreign id this note is associated with
+     * @var string upto 255 character string
+     */
     var $note;
 
-    /*
-    *   Foreign key identifier of who initially persisited the note,
-    *   potentially ownership could be changed but that would be up to an external non-document object process
-    *   @var int
-    */
+    /**
+     * Foreign key identifier of who initially persisited the note,
+     * potentially ownership could be changed but that would be up to an external non-document object process
+     * @var int
+     */
     var $owner;
 
-    /*
-    *   Date the note was first persisted
-    *   @var date
-    */
+    /**
+     * Date the note was first persisted
+     * @var date
+     */
     var $date;
 
-    /*
-    *   Timestamp of the last time the note was changed and persisted, auto maintained by DB, manually change at your own peril
-    *   @var int
-    */
+    /**
+     * Timestamp of the last time the note was changed and persisted, auto maintained by DB, manually change at your own peril
+     * @var int
+     */
     var $revision;
 
     /**
-     * Constructor sets all Note attributes to their default value
-     * @param int $id optional existing id of a specific note, if omitted a "blank" note is created
+     * Set Note attributes to their default value
+     *
+     * @return void
      */
-    function __construct($id = "")
+    protected function init(): void
     {
-        //call the parent constructor so we have a _db to work with
-        parent::__construct();
-
-        //shore up the most basic ORDataObject bits
-        $this->id = $id;
-        $this->_table = "notes";
-
         $this->note = "";
         $this->date = date("Y-m-d H:i:s");
-
-        if ($id != "") {
-            $this->populate();
-        }
     }
 
     /**
@@ -124,18 +109,6 @@ class Note extends ORDataObject
         return $html ? nl2br($string) : $string;
     }
 
-    /**#@+
-    *   Getter/Setter methods used by reflection to affect object in persist/poulate operations
-    *   @param mixed new value for given attribute
-    */
-    function set_id($id)
-    {
-        $this->id = $id;
-    }
-    function get_id()
-    {
-        return $this->id;
-    }
     function set_foreign_id($fid)
     {
         $this->foreign_id = $fid;
