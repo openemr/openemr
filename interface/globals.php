@@ -294,8 +294,10 @@ if (file_exists("{$webserver_root}/.env")) {
 $GLOBALS["log_level"] = "OFF";
 
 try {
+    // we inject the eventDispatcher if we have one setup already
+    // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
-    $GLOBALS["kernel"] = new Kernel();
+    $GLOBALS["kernel"] = new Kernel($eventDispatcher ?? null);
 } catch (\Exception $e) {
     error_log(errorLogEscape($e->getMessage()));
     die();
