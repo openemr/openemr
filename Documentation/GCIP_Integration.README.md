@@ -17,7 +17,7 @@ This document outlines the plan for integrating Google Cloud Identity Platform (
 - [x] **Create new routes in `_rest_routes.inc.php`:**
   - [ ] `/authorize/google`: To initiate the GCIP authentication flow.
   - [ ] `/callback/google`: To handle the callback from GCIP.
-- [ ] **Modify `src/RestControllers/AuthorizationController.php`:**
+- [x] **Modify `src/RestControllers/AuthorizationController.php`:**
   - [ ] Create a new method `redirectToGoogle()` to handle the `/authorize/google` route. This method will build the OIDC request and redirect the user to Google.
   - [ ] Create a new method `handleGoogleCallback()` to handle the `/callback/google` route. This method will:
     - [ ] Exchange the authorization code for an access token and ID token from Google.

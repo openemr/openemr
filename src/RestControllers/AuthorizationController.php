@@ -542,6 +542,11 @@ class AuthorizationController
             // Validate the HTTP request and return an AuthorizationRequest object.
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
             $authRequest = $server->validateAuthorizationRequest($request);
+            $client = $authRequest->getClient();
+            if ($client->getIdentityProvider() === 'google') {
+                $this->redirectToGoogle($authRequest);
+                return;
+            }
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() auth request validated, csrf,scopes,client_id setup");
             $_SESSION['csrf'] = $authRequest->getState();
             $_SESSION['scopes'] = $request->getQueryParams()['scope'];
@@ -579,6 +584,16 @@ class AuthorizationController
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));
         }
+    }
+
+    public function redirectToGoogle(AuthorizationRequest $authRequest): void
+    {
+        // Implementation for redirecting to Google for authentication
+    }
+
+    public function handleGoogleCallback(): void
+    {
+        // Implementation for handling the callback from Google
     }
 
     /**
