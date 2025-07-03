@@ -9,7 +9,7 @@ This document outlines the plan for integrating Google Cloud Identity Platform (
   - [ ] Add `google_client_id` column (VARCHAR(255), nullable).
   - [ ] Add `google_client_secret` column (VARCHAR(255), nullable).
   - [ ] Create a new SQL patch file for this change.
-- [ ] **Add Global Configuration:**
+- [x] **Add Global Configuration:**
   - [ ] Introduce a new global setting in `library/globals.inc.php` to enable/disable the GCIP integration feature.
 
 ## Phase 2: Backend Implementation - OIDC Flow
