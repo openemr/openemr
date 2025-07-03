@@ -186,13 +186,13 @@ function create_procs($req_pid, $req_encounter, $procs)
             "modifier,  units,      fee,        ndc_info, " .
             "justify,   notecodes" .
             ") values ";
-    // ai generated code by google-labs-jules starts
+    /** ai generated code by google-labs-jules starts */
     $param = "(NOW(),?,?,?," . // date, encounter, code_type, code
             "?,?,?,?," .     // code_text,pid,authorized,user
             "?,1,0,?," .     // groupname,activity,billed,provider_id
             "?,?,?,?," .     // modifier, units, fee, ndc_info
             "?,'')";        // justify, notecodes
-    // ai generated code by google-labs-jules end
+    /** ai generated code by google-labs-jules end */
     foreach ($procs as $proc) {
         $insert_params = array();
         array_push($insert_params, $req_encounter);
@@ -291,9 +291,9 @@ function common_diagnoses($limit = 10)
 function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures)
 {
     $param = array($encounter);
-    // ai generated code by google-labs-jules starts
+    /** ai generated code by google-labs-jules starts */
     $sql = "SELECT code,code_type,code_text,fee,modifier,justify,units,ndc_info,ct_diag,ct_fee,ct_mod "
-    // ai generated code by google-labs-jules end
+    /** ai generated code by google-labs-jules end */
           . " FROM billing, code_types as ct "
           . " WHERE encounter=? AND billing.activity>0 AND ct.ct_key=billing.code_type "
           . " ORDER BY id";
@@ -309,14 +309,14 @@ function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures)
             $justify = $res['justify'];
             $modifiers = $res['modifier'];
             $units = $res['units'];
-            // ai generated code by google-labs-jules starts
+            /** ai generated code by google-labs-jules starts */
             $ndc_info = $res['ndc_info'];
-            // ai generated code by google-labs-jules end
+            /** ai generated code by google-labs-jules end */
             $selected = true;
             $mod_size = $res['ct_mod'];
-            // ai generated code by google-labs-jules starts
+            /** ai generated code by google-labs-jules starts */
             $procedures[] = new procedure($code, $code_type, $code_text, $fee, $justify, $modifiers, $units, $mod_size, $ndc_info, $selected);
-            // ai generated code by google-labs-jules end
+            /** ai generated code by google-labs-jules end */
         }
     }
 }

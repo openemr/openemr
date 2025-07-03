@@ -95,10 +95,10 @@ if ($task == 'add_diags') {
             $proc->justify,
             $proc->modifiers,
             $proc->units,
-            // ai generated code by google-labs-jules starts
+            /** ai generated code by google-labs-jules starts */
             0, // mod_size
             $proc->ndc_info ?? '' // ndc_info
-            // ai generated code by google-labs-jules end
+            /** ai generated code by google-labs-jules end */
         );
     }
 
