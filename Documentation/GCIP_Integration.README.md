@@ -31,23 +31,23 @@ This document outlines the plan for integrating Google Cloud Identity Platform (
 
 ## Phase 3: Frontend and User Interface
 
-- [ ] **Modify Client Registration/Management UI:**
-  - [ ] Add fields to the client management UI to configure the GCIP settings (`identity_provider`, `google_client_id`, `google_client_secret`).
-- [ ] **Modify Login Page:**
-  - [ ] The login page should seamlessly redirect to Google for authentication when a client is configured to use GCIP.
+- [x] **Modify Client Registration/Management UI:**
+  - [x] Add fields to the client management UI to configure the GCIP settings (`identity_provider`, `google_client_id`, `google_client_secret`).
+- [x] **Modify Login Page:**
+  - [x] The login page should seamlessly redirect to Google for authentication when a client is configured to use GCIP.
 
 ## Phase 4: Testing
 
-- [ ] **Unit Tests:**
-  - [ ] Write unit tests for the new methods in `AuthorizationController`.
+- [x] **Unit Tests:**
+  - [x] Write unit tests for the new methods in `AuthorizationController`.
   - [ ] Research and understand the existing testing framework.
 - [ ] **Integration Tests:**
   - [ ] Create an integration test that simulates the entire GCIP login flow.
 
 ## Phase 5: Documentation
 
-- [ ] **Update Developer Documentation:**
-  - [ ] Document the new GCIP integration feature.
-  - [ ] Provide instructions on how to configure and use it.
+- [x] **Update Developer Documentation:**
+  - [x] Document the new GCIP integration feature.
+  - [x] Provide instructions on how to configure and use it.
 - [ ] **Update User Documentation:**
   - [ ] Explain how to use the GCIP login feature.
