@@ -91,7 +91,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
-        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`, `skip_ehr_launch_authorization_flow`, `dsi_type`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`, `skip_ehr_launch_authorization_flow`, `dsi_type`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $i_vals = array(
             $clientId,
             $info['client_role'],
@@ -101,6 +101,7 @@ class ClientRepository implements ClientRepositoryInterface
             $info['registration_client_uri_path'],
             $contacts,
             $redirects,
+            $info['grant_types'] ?? 'authorization_code',
             $info['scope'],
             $user,
             $site,

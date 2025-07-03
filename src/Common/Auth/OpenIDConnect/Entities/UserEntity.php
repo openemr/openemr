@@ -29,6 +29,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
 
     public function getClaims()
     {
+        $claims = [];
         $claimsType = (!empty($_REQUEST['grant_type']) && ($_REQUEST['grant_type'] === 'client_credentials')) ? 'client' : 'oidc';
         if ($claimsType === 'oidc') {
             $uuidToUser = new UuidUserAccount($this->identifier);
@@ -85,7 +86,6 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         }
         if ($claimsType === 'client') {
             $claims = [
-                'fhirUser' => $fhirUser,
                 'api:fhir' => true,
                 'api:oemr' => true,
                 'api:port' => true,
