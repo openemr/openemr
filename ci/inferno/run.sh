@@ -151,7 +151,7 @@ main() {
 
     # Run the test suite and capture exit code
     
-    if run_testsuite; then
+    if ! run_testsuite; then
         local exit_code=$?
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"
         exit "${exit_code}"

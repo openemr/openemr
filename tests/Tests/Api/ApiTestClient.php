@@ -114,7 +114,7 @@ class ApiTestClient
         ];
         if ($authResponse->getStatusCode() == 200) {
             $responseBody = json_decode($authResponse->getBody());
-            $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
+            $this->setBearer("Bearer " . $responseBody->access_token);
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
             $this->refresh_token = $responseBody->refresh_token ?? null;
