@@ -24,13 +24,13 @@ trait BaseTrait
 {
     private function base(): void
     {
-        $useGrid = getenv("USE_SELENIUM_GRID", true) ?? "false";
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
 
         if ($useGrid === "true") {
             // Use Selenium Grid (consistent testing environment with goal of stability)
             $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
-            $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://openemr";
-            $forceHeadless = getenv("FORCE_HEADLESS", true) ?? "false";
+            $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
 
             $capabilities = DesiredCapabilities::chrome();
 
@@ -59,9 +59,8 @@ trait BaseTrait
             $this->client->manage()->timeouts()->implicitlyWait(30);
             $this->client->manage()->timeouts()->pageLoadTimeout(60);
         } else {
-            // Use local ChromeDriver (not a consistent testing environment, which is thus not stable)
-            $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
-            $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
+            // Use local ChromeDriver (not a consistent testing environment, which is thus not stable, good luck :) )
+            $this->client = static::createPantherClient(['external_base_uri' => "http://localhost"]);
             $this->client->manage()->window()->maximize();
         }
     }

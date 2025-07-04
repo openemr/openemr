@@ -2,7 +2,7 @@ services:
   openemr:
     environment:
       OPENEMR_BASE_URL_API: "https://nginx"
-      OPENEMR_BASE_URL_E2E: "http://nginx"
+      SELENIUM_BASE_URL: "http://nginx"
     volumes:
     - ../:/usr/share/nginx/html/openemr
     - ./nginx/php.ini:/usr/local/etc/php/php.ini:ro

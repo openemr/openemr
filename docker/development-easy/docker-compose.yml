@@ -60,9 +60,10 @@ services:
       XDEBUG_CLIENT_HOST: host.docker.internal
       GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
       GITHUB_COMPOSER_TOKEN_ENCODED: ZWU5YWIwZWNiM2ZlN2I4YThlNGQ0ZWZiNjMyNDQ5MjFkZTJhMTY2OQo=
-      USE_SELENIUM_GRID: "true"
+      SELENIUM_USE_GRID: "true"
       SELENIUM_HOST: selenium
-      FORCE_HEADLESS: "false"
+      SELENIUM_FORCE_HEADLESS: "false"
+      SELENIUM_BASE_URL: "http://openemr"
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
       OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
       OPENEMR_SETTING_oauth_password_grant: 3
@@ -103,7 +104,7 @@ services:
     image: selenium/standalone-chrome:134.0-chromedriver-134.0-grid-4.31.0-20250414    # Pinned to Chrome 134 and grid 4.31
     ports:
     - 4444:4444    # Selenium WebDriver interface
-    - 7900:7900    # VNC port for viewing browser during tests (to work, will require FORCE_HEADLESS to be "false" in openemr service)
+    - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
     environment:
       SE_VNC_PASSWORD: openemr123
       SE_SCREEN_WIDTH: 1920
@@ -111,7 +112,7 @@ services:
       SE_SCREEN_DEPTH: 24
       SE_START_XVFB: true
     volumes:
-      - /dev/shm:/dev/shm
+    - /dev/shm:/dev/shm
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
       start_period: 30s
