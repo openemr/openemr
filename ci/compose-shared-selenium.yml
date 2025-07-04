@@ -1,3 +1,4 @@
+services:
   selenium:
     image: selenium/standalone-chrome:134.0-chromedriver-134.0-grid-4.31.0-20250414    # Pinned to Chrome 134 and grid 4.31
     ports:
@@ -8,7 +9,7 @@
       SE_SCREEN_DEPTH: 24
       SE_START_XVFB: true
     volumes:
-      - /dev/shm:/dev/shm
+    - /dev/shm:/dev/shm
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
       start_period: 30s

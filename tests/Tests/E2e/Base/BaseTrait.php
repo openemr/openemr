@@ -25,10 +25,10 @@ trait BaseTrait
     private function base(): void
     {
         $useGrid = getenv("USE_SELENIUM_GRID", true) ?? "false";
-        $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
 
         if ($useGrid === "true") {
             // Use Selenium Grid (consistent testing environment with goal of stability)
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
             $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://openemr";
             $forceHeadless = getenv("FORCE_HEADLESS", true) ?? "false";
 
