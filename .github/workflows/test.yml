@@ -88,7 +88,7 @@ jobs:
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
-      COMPOSE_FILE: "ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
+      COMPOSE_FILE: "ci/compose-shared-selenium.yml:ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
     - uses: actions/checkout@v4
     - name: Install PHP

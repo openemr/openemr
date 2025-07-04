@@ -14,17 +14,56 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
+use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
     private function base(): void
     {
-        $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
-        $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
-        $this->client->manage()->window()->maximize();
+        $useGrid = getenv("USE_SELENIUM_GRID", true) ?? "false";
+        $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+
+        if ($useGrid === "true") {
+            // Use Selenium Grid (consistent testing environment with goal of stability)
+            $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://openemr";
+            $forceHeadless = getenv("FORCE_HEADLESS", true) ?? "false";
+
+            $capabilities = DesiredCapabilities::chrome();
+
+            $chromeArgs = [
+                '--window-size=1920,1080',  // Matches SE_SCREEN_WIDTH/HEIGHT
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ];
+
+            // Add headless if forced (but VNC won't work in headless mode)
+            if ($forceHeadless === "true") {
+                $chromeArgs[] = '--headless';
+            }
+
+            $capabilities->setCapability('goog:chromeOptions', [
+                'args' => $chromeArgs
+            ]);
+
+            $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+            $capabilities->setCapability('pageLoadStrategy', 'normal');
+
+            $seleniumUrl = "http://$seleniumHost:4444/wd/hub";
+            $this->client = Client::createSeleniumClient($seleniumUrl, $capabilities, $e2eBaseUrl);
+
+            $this->client->manage()->timeouts()->implicitlyWait(30);
+            $this->client->manage()->timeouts()->pageLoadTimeout(60);
+        } else {
+            // Use local ChromeDriver (not a consistent testing environment, which is thus not stable)
+            $e2eBaseUrl = getenv("OPENEMR_BASE_URL_E2E", true) ?: "http://localhost";
+            $this->client = static::createPantherClient(['external_base_uri' => $e2eBaseUrl]);
+            $this->client->manage()->window()->maximize();
+        }
     }
 
     private function switchToIFrame(string $xpath): void

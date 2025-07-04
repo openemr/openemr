@@ -213,6 +213,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker compose exec openemr /root/devtools e2e-test
       ```
+      - (You can actually view the e2e tests in real-time by going to [http://localhost:7900](http://localhost:7900) with password 'openemr123'.)
     - To run services testing:
       ```sh
       docker compose exec openemr /root/devtools services-test
