@@ -9,6 +9,7 @@ use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
 use PHPUnit\Framework\Attributes\Test;
+
 use function microtime;
 use function register_shutdown_function;
 
@@ -22,7 +23,8 @@ use function register_shutdown_function;
  */
 class CoverageHelper
 {
-    public static function createTargetedCodeCoverage(string $shutdownExportBasePath) {
+    public static function createTargetedCodeCoverage(string $shutdownExportBasePath)
+    {
         // empty filter so we want coverage on EVERYTHING
         $filter = new Filter();
         $coverage = new CodeCoverage((new Selector())->forLineCoverage($filter), $filter);
@@ -42,10 +44,9 @@ class CoverageHelper
      * @param $shutdownExportBasePath - Directory where the coverage report will be dumped
      */
     public static function createCoverageForDirectories(
-        array  $dirs,
+        array $dirs,
         string $shutdownExportBasePath,
-    ): CodeCoverage
-    {
+    ): CodeCoverage {
         // Determine from what directories we want coverage to be collected
         $filter = new Filter();
         foreach ($dirs as $dir) {
@@ -73,7 +74,7 @@ class CoverageHelper
     public static function setCurrentCoverageId(string $className)
     {
         $coverageId = self::resolveCoverageId($className, "");
-        file_put_contents("/tmp/oe_php_coverage_settings",  $coverageId);
+        file_put_contents("/tmp/oe_php_coverage_settings", $coverageId);
     }
 
     public static function getCurrentCoverageId(): string
@@ -117,5 +118,4 @@ class CoverageHelper
 
         return '';
     }
-
 }

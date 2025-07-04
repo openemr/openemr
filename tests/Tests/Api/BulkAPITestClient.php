@@ -54,8 +54,12 @@ class BulkAPITestClient extends ApiTestClient
         }
 
         $oauthTokenUrl = $this->baseUrl . $authURL . '/token';
-        $assertion = ClientCredentialsAssertionGenerator::generateAssertion($privateKey, $publicKey, $oauthTokenUrl,
-            $this->client_id);
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $privateKey,
+            $publicKey,
+            $oauthTokenUrl,
+            $this->client_id
+        );
         $authBody = [
             "client_assertion_type" => CustomClientCredentialsGrant::OAUTH_JWT_CLIENT_ASSERTION_TYPE,
             "client_assertion" => $assertion,

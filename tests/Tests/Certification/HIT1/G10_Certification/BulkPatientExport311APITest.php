@@ -20,7 +20,7 @@ class BulkPatientExport311APITest extends TestCase
     const DEFAULT_FHIR_GROUP_ID = "96509824-1cf5-4eb5-8107-700e24f26b14";
     // note inferno documentation has these as lowercase values but they MUST be uppercase in the test inputs
     const ENCRYPTION_ALGORITHM_RS384 = 'RS384';
-    CONST ENCRYPTION_ALGORITHM_ES384 = 'ES384';
+    const ENCRYPTION_ALGORITHM_ES384 = 'ES384';
 
     public static function setUpBeforeClass(): void
     {
@@ -34,13 +34,14 @@ class BulkPatientExport311APITest extends TestCase
 //        return $response;
 //    }
 
-    private function getInfernoJWKS() {
+    private function getInfernoJWKS()
+    {
             self::$testClient = new BulkAPITestClient(self::$baseUrl);
             self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
             $jwksResponse = self::$infernoClient->get('/custom/g10_certification/.well-known/jwks.json');
-            if ($jwksResponse->getStatusCode() !== 200) {
-                throw new \RuntimeException("Failed to retrieve JWKS from Inferno. Status code: " . $jwksResponse->getStatusCode());
-            }
+        if ($jwksResponse->getStatusCode() !== 200) {
+            throw new \RuntimeException("Failed to retrieve JWKS from Inferno. Status code: " . $jwksResponse->getStatusCode());
+        }
             $jwks = json_decode($jwksResponse->getBody());
             return $jwks;
     }
@@ -57,7 +58,8 @@ class BulkPatientExport311APITest extends TestCase
 //        $this->assertCount(4, $data['member'], "Expected 3 members in the group");
 //    }
     #[Test]
-    public function testBulkPatientExport() {
+    public function testBulkPatientExport()
+    {
         // for now this uses the admin user to authenticate
         // TODO: @adunsulag need to implement this using a test practitioner user so we can test the inferno single patient API from a regular provider
         self::$testClient = new BulkAPITestClient(self::$baseUrl);
@@ -87,7 +89,8 @@ class BulkPatientExport311APITest extends TestCase
         $this->assertEquals(0, $testsFailed, "Bulk Patient Export API Test Failed.  Total tests failed " . $testsFailed . " out of " . $testsTotal . " tests run. Please see above for details.");
     }
 
-    protected function getTestInputs(string $clientId, string $credentialsKeyName): array{
+    protected function getTestInputs(string $clientId, string $credentialsKeyName): array
+    {
         // bulk_server_url
         // group_id
         // bulk_patient_ids_in_group (optional)

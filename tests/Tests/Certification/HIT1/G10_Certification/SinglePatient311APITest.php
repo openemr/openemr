@@ -15,7 +15,8 @@ class SinglePatient311APITest extends TestCase
 {
     use G10ApiTestTrait;
 
-    private function getFakeTestGroupResponse() : array {
+    private function getFakeTestGroupResponse(): array
+    {
         $response = file_get_contents(__DIR__ . '/../../../data/single_patient_api_test_run_20250624.json');
         $response = json_decode($response, true);
         return $response;
@@ -32,10 +33,13 @@ class SinglePatient311APITest extends TestCase
     }
 
     #[Test]
-    public function testSingleApiRun() {
+    public function testSingleApiRun()
+    {
         // we will use the filesystem to write out the test run settings so that we can see them in the code coverage report
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'g10_single_patient_api',
-            $this->getTestInputs('smart_auth_info'));
+        $response = $this->getTestGroupResponse(
+            $this->getTestSuitePrefix() . 'g10_single_patient_api',
+            $this->getTestInputs('smart_auth_info')
+        );
         // useful for debugging the unit test...
 //        $response = $this->getFakeTestGroupResponse();
         $this->assertNotEmpty($response['results'], "Test run results are empty for single patient API tests");
@@ -63,7 +67,8 @@ class SinglePatient311APITest extends TestCase
         $this->assertEquals(0, $testsFailed, "Single API Test Failed.  Total tests failed " . $testsFailed . " out of " . $testsTotal . " tests run. Please see above for details.");
     }
 
-    protected function getTestInputs(string $credentialsKeyName): array{
+    protected function getTestInputs(string $credentialsKeyName): array
+    {
         $credentialsArray = [
             'access_token' => self::$testClient->getAccessToken()
             , 'refresh_token' => self::$testClient->getRefreshToken()
@@ -90,5 +95,4 @@ class SinglePatient311APITest extends TestCase
             ];
         }
     }
-
 }

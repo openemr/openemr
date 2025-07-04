@@ -84,14 +84,15 @@ trait G10ApiTestTrait
     private static function getDisplayName(string $test_id): string
     {
         if (isset(self::$idMap[$test_id])) {
-            return (self::$idMap[$test_id]['short_id'] ?? '') .'.' . self::$idMap[$test_id]['title'] ?? ' Unknown Test';
+            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . self::$idMap[$test_id]['title'] ?? ' Unknown Test';
         }
         return $test_id;
     }
 
 
 
-    protected function getTestSuitePrefix() {
+    protected function getTestSuitePrefix()
+    {
         if (self::TEST_SUITE === self::TEST_SUITE_US_CORE_V311) {
             return 'us_core_v311-us_core_v311_fhir_api-us_core_v311_';
         } else if (self::TEST_SUITE === self::TEST_SUITE_G10_CERTIFICATION) {
@@ -100,7 +101,8 @@ trait G10ApiTestTrait
             throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
         }
     }
-    protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = array()) : void {
+    protected function renderResults(array $results, string $assertMessage, array $testIdsToSkipFailures = array()): void
+    {
         foreach ($results as $result) {
             $failMessage = '';
             if ($result['result'] === 'skip' || $result['result'] === 'pass' || $result['result'] === 'omit') {
@@ -176,8 +178,7 @@ trait G10ApiTestTrait
                 if ($status === 'done') {
                     break;
                 }
-            }
-            catch (ServerException $exception) {
+            } catch (ServerException $exception) {
                 (new SystemLogger())->errorLogCaller("Server exception occurred ", [$exception->getMessage()]);
                 if ($errorCount++ >= $maxErrorRetries) {
                     throw $exception;

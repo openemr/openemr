@@ -30,8 +30,10 @@ use OpenEMR\Telemetry\TelemetryService;
 use Psr\Http\Message\ResponseInterface;
 use OpenEMR\Tools\Coverage\CoverageHelper;
 
-if (getenv('ENABLE_COVERAGE')
-    && !empty(getenv('OPENEMR_COVERAGE_DIR'))) {
+if (
+    getenv('ENABLE_COVERAGE')
+    && !empty(getenv('OPENEMR_COVERAGE_DIR'))
+) {
     // setup our code coverage
     ini_set('memory_limit', '1024M');
     $basedir = __DIR__ . '/../' . getenv('OPENEMR_COVERAGE_DIR');

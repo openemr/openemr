@@ -9,13 +9,14 @@ use Ramsey\Uuid\Uuid;
 
 class ClientCredentialsAssertionGenerator
 {
-    public static function generateAssertion(Key $privateKey, Key $publicKey, string $oauthTokenUrl, string $clientId): string {
+    public static function generateAssertion(Key $privateKey, Key $publicKey, string $oauthTokenUrl, string $clientId): string
+    {
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
             $privateKey,
             $publicKey
-        // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
+            // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 
         $jti = Uuid::uuid4();
