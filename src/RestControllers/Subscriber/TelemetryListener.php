@@ -7,6 +7,7 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Telemetry\TelemetryService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
+use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class TelemetryListener implements EventSubscriberInterface
@@ -19,7 +20,7 @@ class TelemetryListener implements EventSubscriberInterface
         ];
     }
 
-    public function onRequestTerminated(FinishRequestEvent $event) {
+    public function onRequestTerminated(TerminateEvent $event) {
         $request = $event->getRequest();
         try {
             $userRole = $request->attributes->get('userRole', 'UNKNOWN');

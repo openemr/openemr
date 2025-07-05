@@ -23,6 +23,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
             // this is a local api request, so we should process it
             return true;
         }
+        return false;
     }
 
     /**

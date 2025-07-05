@@ -17,60 +17,13 @@
 // below brings in autoloader
 require_once "../vendor/autoload.php";
 
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
-use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
-use OpenEMR\RestControllers\Subscriber\ExceptionHandlerListener;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Core\OEHttpKernel;
-use OpenEMR\RestControllers\Subscriber\RoutesExtensionListener;
-use OpenEMR\RestControllers\Subscriber\SessionCleanupListener;
-use Symfony\Component\HttpFoundation\RequestStack;
-
+use OpenEMR\RestControllers\ApiApplication;
 // create the Request object
-$request = HttpRestRequest::createFromGlobals();
-$eventDispatcher = new EventDispatcher();
-// need to handle request finish and session cleanup listeners first before any other listeners
-$eventDispatcher->addSubscriber(new ExceptionHandlerListener());
-// this listener will handle the telemetry data collection at the end of the request
-$eventDispatcher->addSubscriber(new TelemetryListener());
-// this listener will handle the session cleanup at the end of the request unless its a local api request
-$eventDispatcher->addSubscriber(new SessionCleanupListener());
-
-// site setup will handle the site id, db connection, and globals setup
-$eventDispatcher->addSubscriber(new SiteSetupListener());
-// TODO: @adunsulag if we can use the security component here eventually, or rename this to be AuthenticationListener
-$eventDispatcher->addSubscriber(new AuthorizationListener());
-$eventDispatcher->addSubscriber(new RoutesExtensionListener());
-
-// handle conversion of controller objects to request responses (json, text, etc).
-$eventDispatcher->addSubscriber(new ViewRendererListener());
-
-// create your controller and argument resolvers
-$controllerResolver = new ControllerResolver();
-$argumentResolver = new ArgumentResolver();
-$kernel = new OEHttpKernel($eventDispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
-// actually execute the kernel, which turns the request into a response
-// by dispatching events, calling a controller, and returning the response
-// events dispatched are:
-//   kernel.request -> RequestEvent
-//   kernel.controller -> ControllerEvent
-//   kernel.controller_arguments -> ControllerArgumentsEvent
-//   kernel.view -> ViewEvent
-//   kernel.response -> ResponseEvent
-//   kernel.finish_request -> FinishRequestEvent
-//   kernel.exception -> ExceptionEvent
 try {
-
-    $response = $kernel->handle($request);
-
-    // send the headers and echo the content
-    $response->send();
-
-    // trigger the kernel.terminate event
-    $kernel->terminate($request, $response);
+    $request = HttpRestRequest::createFromGlobals();
+    $apiApplication = new ApiApplication();
+    $apiApplication->run($request);
 
 } catch (\Throwable $e) {
     // TODO: handle exceptions properly

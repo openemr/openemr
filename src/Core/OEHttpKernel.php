@@ -21,6 +21,7 @@ class OEHttpKernel extends HttpKernel
         if (empty($this->logger)) {
             $this->logger = new SystemLogger();
         }
+        return $this->logger;
     }
     public function setSystemLogger(SystemLogger $logger) : void {
         $this->logger = $logger;

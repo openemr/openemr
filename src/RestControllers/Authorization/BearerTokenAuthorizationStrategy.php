@@ -10,6 +10,7 @@ use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\System\System;
 use OpenEMR\Services\TrustedUserService;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +34,13 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private CryptKey $publicKey;
 
-    public function __construct()
+    public function __construct(SystemLogger $logger = null)
     {
+        if ($logger) {
+            $this->setLogger($logger);
+        } else {
+            $this->logger = new SystemLogger();
+        }
     }
 
     public function setLogger(SystemLogger $logger): void
@@ -240,7 +246,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $this->logger->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
         } elseif ($userRole == 'patient') {
             $_SESSION['pid'] = $user['pid'] ?? null;
-            $this->logger->debug("dispatch.php request setup for patient role", ['patient' => $puuidStringCheck]);
+            $this->logger->debug("dispatch.php request setup for patient role", ['patient' => $_SESSION['pid']]);
         } elseif ($userRole === 'system') {
             $_SESSION['authUser'] = $user["username"] ?? null;
             $_SESSION['authUserID'] = $user["id"] ?? null;

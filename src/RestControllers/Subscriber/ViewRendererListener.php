@@ -2,7 +2,7 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
-use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ViewRendererListener implements EventSubscriberInterface
 {
 
-    public function getSubscribedEvents() : array
+    public static function getSubscribedEvents() : array
     {
         return [
             KernelEvents::VIEW => [['onViewEvent', 50]]

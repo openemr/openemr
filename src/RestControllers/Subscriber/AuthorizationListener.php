@@ -5,6 +5,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
@@ -60,7 +61,11 @@ class AuthorizationListener implements EventSubscriberInterface
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/OperationDefinition');
             $this->addAuthorizationStrategy($skipAuthorizationStrategy);
-            $this->addAuthorizationStrategy(new BearerTokenAuthorizationStrategy($this->getLogger()));
+            // TODO: @adunsulag not sure I like instantiating the ServerConfig here, perhaps we need to do this in a different way?
+            $serverConfig = new ServerConfig();
+            $bearerTokenAuthorizationStrategy = new BearerTokenAuthorizationStrategy($this->getLogger());
+            $bearerTokenAuthorizationStrategy->setPublicKey($serverConfig->getPublicRestKey());
+            $this->addAuthorizationStrategy($bearerTokenAuthorizationStrategy);
         }
         // This method is intended to return the list of authorization strategies.
         // Implementation details would depend on the specific requirements of the application.
