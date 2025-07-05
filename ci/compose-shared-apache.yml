@@ -8,6 +8,7 @@ services:
     environment:
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+      SELENIUM_BASE_URL: "http://openemr"
     healthcheck:
       test:
       - CMD

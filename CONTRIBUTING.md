@@ -30,7 +30,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
 	- (optional) If you want to set up the base services(e.g. git, docker, docker compose, openemr-cmd, minkube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
     - (optional) It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
-2. `cd openemr/docker/development-easy` (if you are running this on Raspberry Pi, then instead do `cd openemr/docker/development-easy-arm32` or `cd openemr/docker/development-easy-arm64`)
+2. `cd openemr/docker/development-easy`
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
     - (optional) If you want to troubleshoot with the below steps easier, please also [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for your system
     - (optional) If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
@@ -167,7 +167,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           docker compose exec openemr /root/devtools register-oauth2-client-demo https://eleven.openemr.io/a/openemr
           ```
 3. <a name="other_php_versions"></a>Testing other PHP versions.
-    - The standard `flex` docker used in the easy development environments is PHP 8.4. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.2, then just need to change it to `image: openemr/openemr:flex-3.18`. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.20`.
+    - The standard `flex` docker used in the easy development environments is PHP 8.4. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.2, then just need to change it to `image: openemr/openemr:flex-3.22-php-8.2`. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.22-php-8.3`.
 4. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
@@ -213,6 +213,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       docker compose exec openemr /root/devtools e2e-test
       ```
+      - (You can actually view the e2e tests in real-time by going to [http://localhost:7900](http://localhost:7900) with password 'openemr123'.)
     - To run services testing:
       ```sh
       docker compose exec openemr /root/devtools services-test

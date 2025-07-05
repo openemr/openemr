@@ -90,6 +90,9 @@ trait UserAddTrait
         $newUser['lname'] = UserTestData::LASTNAME;
         $newUser['adminPass'] = LoginTestData::password;
         $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
+
+        sleep(5); // wait for the form to be ready
+
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
         // assert the new user is in the database
