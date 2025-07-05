@@ -106,7 +106,7 @@ class HttpRestRequest extends Request implements \Stringable
     /**
      * @var boolean
      */
-    private $isLocalApi;
+    private $isLocalApi = false;
 
     /**
      * The kind of REST api request this object represents
@@ -511,8 +511,27 @@ class HttpRestRequest extends Request implements \Stringable
         return $this->patientRequest === true;
     }
 
+    public function isFhirRequest(): bool
+    {
+        return stripos(strtolower($this->getPathInfo()), "/fhir/") !== false;
+    }
+
+    public function isPortalRequest(): bool
+    {
+        return stripos(strtolower($this->getPathInfo()), "/portal/") !== false;
+    }
+
+    public function isStandardApiRequest(): bool
+    {
+        return stripos(strtolower($this->getPathInfo()), "/api/") !== false;
+    }
+
     public function isFhir()
     {
+        if (!isset($this->apiType) && $this->isFhirRequest()) {
+            // if we don't have an api type set, then we assume its a fhir request
+            $this->setApiType('fhir');
+        }
         return $this->getApiType() === 'fhir';
     }
 
@@ -536,6 +555,23 @@ class HttpRestRequest extends Request implements \Stringable
     public function setRequestPath(string $requestPath)
     {
         throw new \RuntimeException("Feature not implemented yet");
+    }
+
+    public function getRequestPathWithoutSite() {
+        // This will return the request path without the site prefix
+        $pathInfo = $this->getPathInfo();
+        if (empty($pathInfo)) {
+            return null; // no path info available
+        }
+        if (empty($this->requestSite)) {
+            return $pathInfo; // no site prefix set, return full path
+        }
+
+        $endOfPath = strpos($pathInfo, '/', 1);
+        if ($endOfPath === false) {
+            return $pathInfo; // no site prefix found
+        }
+        return substr($pathInfo, $endOfPath);
     }
 
     public function getRequestPath(): ?string

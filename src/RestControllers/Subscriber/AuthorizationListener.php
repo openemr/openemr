@@ -89,7 +89,7 @@ class AuthorizationListener implements EventSubscriberInterface
      */
     public function onRestApiSecurityCheck(RestApiSecurityCheckEvent $event): RestApiSecurityCheckEvent
     {
-        $request = $event->getRequest();
+        $request = $event->getRestRequest();
         if ($event->shouldSkipSecurityCheck()) {
             // If the event indicates that security checks should be skipped, we don't do any further processing.
             return $event;

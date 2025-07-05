@@ -15,6 +15,7 @@
 namespace OpenEMR\RestControllers\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\Capability;
 
 class SMARTConfigurationController
@@ -27,6 +28,7 @@ class SMARTConfigurationController
     public function __construct(\OpenEMR\RestControllers\AuthorizationController $authServer)
     {
         $this->authServer = $authServer;
+        $this->serverConfig = new ServerConfig();
     }
 
     public function getConfig(): array
@@ -52,9 +54,9 @@ class SMARTConfigurationController
          */
 
         $config = [
-            "authorization_endpoint" => $authServer->getAuthorizeUrl(),
-            "token_endpoint" => $authServer->getTokenUrl(),
-            "registration_endpoint" => $authServer->getRegistrationUrl(),
+            "authorization_endpoint" => $this->serverConfig->getAuthorizeUrl(),
+            "token_endpoint" => $this->serverConfig->getTokenUrl(),
+            "registration_endpoint" => $this->serverConfig->getRegistrationUrl(),
             "scopes_supported" => [
                 $scopesSupported
             ],
@@ -69,7 +71,7 @@ class SMARTConfigurationController
             ],
             // we don't support a management endpoint right now
             //    "management_endpoint" => "https://ehr.example.com/user/manage",
-            "introspection_endpoint" => $authServer->getIntrospectionUrl(),
+            "introspection_endpoint" => $this->serverConfig->getIntrospectionUrl(),
             // we don't revoke tokens right now
             //    "revocation_endpoint" => "https://ehr.example.com/user/revoke",
             "capabilities" => Capability::SUPPORTED_CAPABILITIES,

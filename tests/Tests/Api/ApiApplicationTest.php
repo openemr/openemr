@@ -2,18 +2,18 @@
 
 namespace OpenEMR\Tests\Api;
 
-use Mi2\Framework\App;
 use Nyholm\Psr7\Uri;
 use OpenEMR\RestControllers\ApiApplication;
 use OpenEMR\Common\Http\HttpRestRequest;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ApiApplicationTest extends TestCase
 {
     public function testRunWithSkippedRoute() {
         // simple test for running the application for now just to do a simple smoke test
         $httpRestRequest = new HttpRestRequest();
+        // don't do event audit logging for now with phpunit tests until we can mock the ip address logging
+        $httpRestRequest->attributes->set("skipResponseLogging", true);
         // note that mod_rewrite will change the request of http://localhost/apis/default/fhir/metadata to http://localhost/dispatch.php/default/fhir/metadata
         // resulting in symfony getting the request path to /default/fhir/metadata
         $restRequest = $httpRestRequest->withUri(new Uri("http://localhost/default/fhir/metadata"))

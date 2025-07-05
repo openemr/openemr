@@ -8,6 +8,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEHttpKernel;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -35,6 +36,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
         if (!$request instanceof HttpRestRequest) {
             return; // If the request is not an instance of HttpRestRequest, we cannot proceed with route extension.
         }
+        // TODO: @adunsulag should we break this out into a separate listener method?  IE a CORS listener?
         if ($request->getRequestMethod() === 'OPTIONS') {
             // If the request is an OPTIONS request, we can return an initial response.
             $response = $this->getInitialResponse($request);
@@ -43,7 +45,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
         }
 
         // handle each type of request separately
-        if ($request->isFhir()) {
+        if ($request->isFhirRequest()) {
             $this->processFhirRequest($request, $kernel);
         } else if ($request->isPatientRequest()) {
             $this->processPatientRequest($request, $kernel);
@@ -85,23 +87,23 @@ class RoutesExtensionListener implements EventSubscriberInterface
 
     private function dispatch(OEHttpKernel $kernel, $routes, HttpRestRequest $dispatchRestRequest, SystemLogger $logger)
     {
-        $logger->debug(
+        $logger->error(
             "HttpRestRouteHandler::dispatch() start request",
             ['resource' => $dispatchRestRequest->getResource(), 'method' => $dispatchRestRequest->getRequestMethod()
                 , 'user' => $dispatchRestRequest->getRequestUserUUID(), 'role' => $dispatchRestRequest->getRequestUserRole()
                 , 'client' => $dispatchRestRequest->getClientId(), 'apiType' => $dispatchRestRequest->getApiType()
-                , 'route' => $dispatchRestRequest->getRequestPath()
+                , 'route' => $dispatchRestRequest->getRequestPathWithoutSite()
                 , 'queryParams' => $dispatchRestRequest->getQueryParams()
             ]
         );
 
-        $route = $dispatchRestRequest->getRequestPath();
-        $request_method = $dispatchRestRequest->getRequestMethod();
+        $dispatchRestRequestPath = $dispatchRestRequest->getRequestPathWithoutSite();
+        $dispatchRestRequestMethod = $dispatchRestRequest->getRequestMethod();
 
         try {
             // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
             foreach ($routes as $routePath => $routeCallback) {
-                $parsedRoute = new HttpRestParsedRoute($dispatchRestRequest->getRequestMethod(), $dispatchRestRequest->getRequestPath(), $routePath);
+                $parsedRoute = new HttpRestParsedRoute($dispatchRestRequestMethod, $dispatchRestRequestPath, $routePath);
                 if ($parsedRoute->isValid()) {
                     $dispatchRestRequest->setResource($parsedRoute->getResource());
                     if ($parsedRoute->isOperation()) {
@@ -116,7 +118,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
                     }
 
                     // make sure our scopes pass the security checks
-                    $response = $this->checkSecurity($dispatchRestRequest);
+                    $response = $this->checkSecurity($kernel, $dispatchRestRequest);
                     if ($response instanceof ResponseInterface) {
                         // if the response is a ResponseInterface then we need to set it on the event
                         $logger->debug(self::class . "::dispatch() security check failed", ["route" => $routePath]);
@@ -251,5 +253,6 @@ class RoutesExtensionListener implements EventSubscriberInterface
         if ($checkedRestApiSecurityCheckEvent->hasSecurityCheckFailedResponse()) {
             return $checkedRestApiSecurityCheckEvent->getSecurityCheckFailedResponse();
         }
+        return null; // No response means the security check passed
     }
 }

@@ -154,4 +154,25 @@ class ServerConfig
         }
         return $webServerRoot . "/sites/" . $site . "/documents/certificates/oapublic.key";
     }
+    public function getOauthAuthorizationUrl() : string
+    {
+        return $this->oauthAddress . "/oauth2/" . $this->getSiteId();
+    }
+    public function getTokenUrl() : string
+    {
+        return $this->getOauthAuthorizationUrl() . "/token";
+    }
+
+    public function getAuthorizeUrl() : string
+    {
+        return $this->getOauthAuthorizationUrl() . "/authorize";
+    }
+    public function getRegistrationUrl() : string
+    {
+        return $this->getOauthAuthorizationUrl() . "/register";
+    }
+    public function getIntrospectionUrl() : string
+    {
+        return $this->getOauthAuthorizationUrl() . "/introspect";
+    }
 }

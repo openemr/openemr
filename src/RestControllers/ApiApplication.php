@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
 use OpenEMR\RestControllers\Subscriber\TelemetryListener;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
@@ -56,27 +57,36 @@ class ApiApplication
      */
     public function run(HttpRestRequest $request) : ?Response{
         $eventDispatcher = $this->getDispatcher();
-// need to handle request finish and session cleanup listeners first before any other listeners
+
+        // need to handle request finish and session cleanup listeners first before any other listeners
         $eventDispatcher->addSubscriber(new ExceptionHandlerListener());
-// this listener will handle the telemetry data collection at the end of the request
+
+        // this listener will handle the telemetry data collection at the end of the request
         $eventDispatcher->addSubscriber(new TelemetryListener());
-// this listener will handle the session cleanup at the end of the request unless its a local api request
+
+        // log all api responses (unless its a local api request)
+        $eventDispatcher->addSubscriber(new ApiResponseLoggerListener());
+
+        // this listener will handle the session cleanup at the end of the request unless its a local api request
         $eventDispatcher->addSubscriber(new SessionCleanupListener());
 
-// site setup will handle the site id, db connection, and globals setup
+        // site setup will handle the site id, db connection, and globals setup
         $eventDispatcher->addSubscriber(new SiteSetupListener());
-// TODO: @adunsulag if we can use the security component here eventually, or rename this to be AuthenticationListener
-        $eventDispatcher->addSubscriber(new AuthorizationListener());
-//        $eventDispatcher->addSubscriber(new RoutesExtensionListener());
 
-// handle conversion of controller objects to request responses (json, text, etc).
+        // TODO: @adunsulag if we can use the security component here eventually, or rename this to be AuthenticationListener
+        $eventDispatcher->addSubscriber(new AuthorizationListener());
+
+        // handle all the routes and controllers
+        $eventDispatcher->addSubscriber(new RoutesExtensionListener());
+
+        // handle conversion of controller response objects to request responses (json, text, etc).
         $eventDispatcher->addSubscriber(new ViewRendererListener());
 
-// create your controller and argument resolvers
         $controllerResolver = new ControllerResolver();
         $argumentResolver = new ArgumentResolver();
         $kernel = new OEHttpKernel($eventDispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
-// actually execute the kernel, which turns the request into a response
+
+        // actually execute the kernel, which turns the request into a response
 // by dispatching events, calling a controller, and returning the response
 // events dispatched are:
 //   kernel.request -> RequestEvent

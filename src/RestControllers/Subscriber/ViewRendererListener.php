@@ -18,7 +18,7 @@ class ViewRendererListener implements EventSubscriberInterface
         ];
     }
 
-    public function onViewEvent(ViewEvent $event) : Response
+    public function onViewEvent(ViewEvent $event) : void
     {
         $result = $event->getControllerResult();
 

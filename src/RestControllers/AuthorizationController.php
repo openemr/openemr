@@ -1423,6 +1423,7 @@ class AuthorizationController
 
     /**
      * Returns the authentication server token Url endpoint
+     * @deprecated Use ServerConfig::getTokenUrl()
      * @return string
      */
     public function getTokenUrl()
@@ -1459,6 +1460,7 @@ class AuthorizationController
 
     /**
      * Returns the authentication server authorization url to use for oauth authentication
+     * @deprecated Use ServerConfig::getAuthorizeUrl()
      * @return string
      */
     public function getAuthorizeUrl()
@@ -1477,6 +1479,7 @@ class AuthorizationController
 
     /**
      * Returns the authentication server registration url to use for client app / api registration
+     * @deprecated Use ServerConfig::getIntrospectionUrl()
      * @return string
      */
     public function getRegistrationUrl()
@@ -1495,6 +1498,7 @@ class AuthorizationController
 
     /**
      * Returns the authentication server introspection url to use for checking tokens
+     * @deprecated Use ServerConfig::getIntrospectionUrl()
      * @return string
      */
     public function getIntrospectionUrl()
