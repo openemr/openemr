@@ -34,7 +34,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private CryptKey $publicKey;
 
-    public function __construct(SystemLogger $logger = null)
+    public function __construct(?SystemLogger $logger = null)
     {
         if ($logger) {
             $this->setLogger($logger);
@@ -294,6 +294,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     {
         $publicKey = $this->getPublicKey();
         try {
+            // TODO: @adunsulag not sure about the performance of this, but we need to ensure that the access token is verified
             // if we there's a key problem need to catch the exception
             $server = new ResourceServer(
                 $accessTokenRepository,

@@ -5,6 +5,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 use OpenEMR\Common\Session\SessionUtil;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
+use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class SessionCleanupListener implements EventSubscriberInterface
@@ -16,7 +17,7 @@ class SessionCleanupListener implements EventSubscriberInterface
         ];
     }
 
-    public function onRequestTerminated(FinishRequestEvent $event): void
+    public function onRequestTerminated(TerminateEvent $event): void
     {
         if (!$event->getRequest()->attributes->has('is_local_api')) {
             SessionUtil::apiSessionCookieDestroy();

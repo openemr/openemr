@@ -92,13 +92,13 @@ class ApiApplication
         if ($this->responseMode === self::RESPONSE_MODE_RETURN) {
             // trigger the kernel.terminate event
             $kernel->terminate($request, $response);
-
             return $response; // Return the response object to the caller
         }
         else {
             $response->send();
             // trigger the kernel.terminate event
             $kernel->terminate($request, $response);
+            return null; // No response object to return, as the response has been sent directly
         }
     }
 }

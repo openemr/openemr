@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class SkipAuthorizationStrategy implements IAuthorizationStrategy
@@ -26,9 +27,13 @@ class SkipAuthorizationStrategy implements IAuthorizationStrategy
         if ($request->getMethod() === 'OPTIONS' && $this->skipOptionsMethod) {
             return true;
         }
-
+        $pathInfo = $request->getPathInfo();
+        $sitePath = "/" . $request->getRequestSite();
+        if (str_starts_with($pathInfo, $sitePath)) {
+            $pathInfo = substr($pathInfo, strlen($sitePath));
+        }
         foreach ($this->skipRoutes as $route) {
-            if (str_starts_with($route, $request->getPathInfo())) {
+            if (str_starts_with($route, $pathInfo)) {
                 return true;
             }
         }

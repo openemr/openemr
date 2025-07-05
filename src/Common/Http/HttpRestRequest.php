@@ -634,6 +634,9 @@ class HttpRestRequest extends Request implements \Stringable
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         $clonedRequest = clone $this;
+        if (!$preserveHost) {
+            $clonedRequest->headers->set('HOST', $uri->getHost());
+        }
         $clonedRequest->server->set('REQUEST_URI', $uri->getPath() . '?' . $uri->getQuery());
         $clonedRequest->prepareRequestUri();
         $clonedRequest->resource = null;

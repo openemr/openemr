@@ -25,8 +25,8 @@ class ExceptionHandlerListener implements EventSubscriberInterface
         // we can log the exception, return a custom response, etc.
         $exception = $event->getThrowable();
         if ($event->getKernel() instanceof OEHttpKernel) {
-            $event->getKernel()->getSystemLogger()->error("ExceptionHandlerListener exception " . $exception->getMessage()
-                , ['trace' => $exception->getTraceAsString()]);
+//            $event->getKernel()->getSystemLogger()->error("ExceptionHandlerListener exception " . $exception->getMessage()
+//                , ['trace' => $exception->getTraceAsString()]);
         }
         $code = 500; // Default to 500 Internal Server Error
         if ($exception instanceof HttpException) {

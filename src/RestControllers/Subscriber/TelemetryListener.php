@@ -30,7 +30,6 @@ class TelemetryListener implements EventSubscriberInterface
                 'eventUrl' => $request->getRequestMethod() . ' ' . $request->getPathInfo(),
                 'eventTarget' => $userRole,
             ]);
-            exit;
         } catch (\Exception $e) {
             $kernel = $event->getKernel();
             if ($kernel instanceof OEHttpKernel) {

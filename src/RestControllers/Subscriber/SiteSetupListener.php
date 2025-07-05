@@ -4,6 +4,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEHttpKernel;
@@ -58,7 +59,10 @@ class SiteSetupListener implements EventSubscriberInterface
 
         // set the site
         $_GET['site'] = $siteId; // for legacy purposes
-
+        if ($event->getRequest() instanceof HttpRestRequest) {
+            // TODO: @adunsulag couldn't this just be stored in the attributes instead of subclass checking this?
+            $event->getRequest()->setRequestSite($siteId);
+        }
         // make sure the API keys are setup.  It would be better if this was all pre-generated at the time of installation
         // but we'll do this for now until we can set that up
         // TODO: figure out a way to generate oauth keys at time of installation
