@@ -119,10 +119,7 @@ install_configure() {
 }
 
 build_test_e2e() {
-    _exec sh -c "${CHROMIUM_INSTALL?};
-                 export PANTHER_NO_SANDBOX=1;
-                 export PANTHER_CHROME_ARGUMENTS=--disable-dev-shm-usage;
-                 php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e \
+    _exec sh -c "php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e \
                                                              --testdox"
 }
 
