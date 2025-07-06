@@ -93,7 +93,7 @@
     "flot": "4.2.6",
     "hotkeys-js": "3.13.14",
     "i18next": "24.2.3",
-    "i18next-browser-languagedetector": "8.0.2",
+    "i18next-browser-languagedetector": "8.2.0",
     "i18next-xhr-backend": "3.2.2",
     "interactjs": "1.10.27",
     "jquery": "3.7.1",
