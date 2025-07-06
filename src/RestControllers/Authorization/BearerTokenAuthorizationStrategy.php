@@ -9,6 +9,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Services\TrustedUserService;
@@ -219,15 +220,17 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $request->attributes->set('tokenId', $tokenId);
 
         if ($request instanceof HttpRestRequest) {
+            $request->setAccessTokenScopes($attributes['oauth_scopes']);
             $request->setAccessTokenId($tokenId);
             $request->setRequestUserRole($userRole);
-            $request->setRequestUser($user);
+            $request->setRequestUser($userId, $user);
             $request->setClientId($clientId);
         }
+        return true;
     }
 
 
-    private function setupSessionForUserRole(string $userRole, array $user, RequestEvent $request): void
+    private function setupSessionForUserRole(string $userRole, array $user, HttpRestRequest $request): void
     {
         // Set user ID in the session
         $_SESSION['userId'] = $user['uuid'];
@@ -307,34 +310,35 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $raw = $server->validateAuthenticatedRequest($psrRequest);
         } catch (OAuthServerException $exception) {
             $this->getLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
-            throw $exception;
+            throw new HttpException(401, $exception->getMessage(), $exception);
         } catch (\Exception $exception) {
             if ($exception instanceof LogicException) {
                 $this->getLogger()->error(
                     "BearerTokenAuthorizationStrategy::verifyAccessToken() LogicException, likely oauth2 public key is missing, corrupted, or misconfigured",
                     ["message" => $exception->getMessage()]
                 );
-                throw new OAuthServerException("Invalid access token", 0, 'invalid_token', 401);
+                throw new HttpException(500, "Server Error", $exception);
             } else {
                 $this->getLogger()->error(
                     "BearerTokenAuthorizationStrategy::verifyAccessToken() Exception", ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
                 // do NOT reveal what happened at the server level if we have a server exception
-                throw new OAuthServerException("Server Error", 0, 'unknown_error', 500);
+                throw new HttpException(500, "Server Error", $exception);
             }
         }
 
         return $raw;
     }
 
-    private function isValidRequestForUserRole(Request $request, string $userRole)
+    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole)
     {
         $resource = $request->getPathInfo();
         if (
             // fhir routes are the default and can send openid/fhirUser w/ authorization_code, or no scopes at all
             // with Client Credentials, so we only reject requests for standard or portal if the correct scope is not
             // sent.
-            (self::is_api_request($resource) && !in_array('api:oemr', $GLOBALS['oauth_scopes'])) ||
-            (self::is_portal_request($resource) && !in_array('api:port', $GLOBALS['oauth_scopes']))
+            // TODO: @adunsulag can replace a bunch of these methods with methods in the request object.
+            (self::is_api_request($resource) && !in_array('api:oemr', $oauthScopes)) ||
+            (self::is_portal_request($resource) && !in_array('api:port', $oauthScopes))
         ) {
             $this->getLogger()->errorLogCaller("api call with token that does not cover the requested route");
             throw new HttpException(403, "OpenEMR Error: API call failed due to insufficient permissions for the requested resource.");
@@ -355,6 +359,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $this->getLogger()->error("OpenEMR Error: api failed because user role does not have access to the resource", ['resource' => $resource, 'userRole' => $userRole]);
             throw new HttpException(403, "OpenEMR Error: API call failed due to insufficient permissions for the requested resource.");
         }
+        return true;
     }
 
     public static function is_portal_request($resource): bool

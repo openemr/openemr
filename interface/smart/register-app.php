@@ -31,7 +31,6 @@ use OpenEMR\Services\DecisionSupportInterventionService;
 // not sure if we need the site id or not...
 $ignoreAuth = true;
 require_once("../globals.php");
-require_once("./../../_rest_config.php");
 
 // exit if fhir api is not turned on
 if (empty($GLOBALS['rest_fhir_api'])) {
@@ -70,11 +69,13 @@ switch ($GLOBALS['login_page_layout']) {
 // TODO: adunsulag find out where our openemr name comes from
 $openemr_name = $openemr_name ?? '';
 
-$scopeRepo = new ScopeRepository(RestConfig::GetInstance());
+$scopeRepo = new ScopeRepository();
 $scopes = $scopeRepo->getCurrentSmartScopes();
 // TODO: adunsulag there's gotta be a better way for this url...
-$fhirRegisterURL = AuthorizationController::getAuthBaseFullURL() . AuthorizationController::getRegistrationPath();
-$audienceUrl = (new ServerConfig())->getFhirUrl();
+$serverConfig = new ServerConfig();
+$fhirRegisterURL = $serverConfig->getRegistrationUrl();
+$audienceUrl = $serverConfig->getFhirUrl();
+
 
 $dsiService = new DecisionSupportInterventionService();
 $evidenceService = $dsiService->getEmptyService(ClientEntity::DSI_TYPE_EVIDENCE);

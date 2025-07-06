@@ -12,6 +12,7 @@
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Tests\MockRestConfig;
 use PHPUnit\Framework\TestCase;
 
@@ -26,8 +27,11 @@ class ScopeRepositoryTest extends TestCase
     {
         $mock = new MockRestConfig();
         $mock::$systemScopesEnabled = true;
-
-        $this->scopeRepository = new ScopeRepository($mock);
+        $mock = $this->createMock(ServerConfig::class);
+        $mock->method('areSystemScopesEnabled')
+            ->willReturn(true);
+        $this->scopeRepository = new ScopeRepository();
+        $this->scopeRepository->setServerConfig($mock);
 
         $noopCallback = function (): void { };
         $standardResources = ['facility, patient'];

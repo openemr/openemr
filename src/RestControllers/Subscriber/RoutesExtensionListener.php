@@ -48,7 +48,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
         if ($request->isFhirRequest()) {
             $this->processFhirRequest($request, $kernel);
         } else if ($request->isPatientRequest()) {
-            $this->processPatientRequest($request, $kernel);
+            $this->processPatientPortalRequest($request, $kernel);
         } else {
             $this->processStandardRequest($request, $kernel);
         }
@@ -74,15 +74,43 @@ class RoutesExtensionListener implements EventSubscriberInterface
             $request = $this->normalizeFhirSearchRequest($request);
         }
         // TODO: this is where we can differentiate between different FHIR versions or profiles
-        $fhirRoutes = include __DIR__ . '/../../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php';
+        $routes = include __DIR__ . '/../../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php';
 
         // This method is intended to handle the request and extend routes.
         // Implementation details would depend on the specific requirements of the application.
         // For example, you might want to add custom routes or modify existing ones.
-        $restApiCreateEvent = new RestApiCreateEvent([], $fhirRoutes, [], $request);
+        $restApiCreateEvent = new RestApiCreateEvent([], $routes, [], $request);
         $restApiCreateEvent = $kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
-        $fhirRoutes = $restApiCreateEvent->getFHIRRouteMap();
-        return $this->dispatch($kernel, $fhirRoutes, $request, $kernel->getSystemLogger());
+        $routes = $restApiCreateEvent->getFHIRRouteMap();
+        return $this->dispatch($kernel, $routes, $request, $kernel->getSystemLogger());
+    }
+
+    private function processStandardRequest(HttpRestRequest $request, OEHttpKernel $kernel)
+    {
+        // TODO: this is where we can differentiate between different FHIR versions or profiles
+        $routes = include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php';
+
+        // This method is intended to handle the request and extend routes.
+        // Implementation details would depend on the specific requirements of the application.
+        // For example, you might want to add custom routes or modify existing ones.
+        $restApiCreateEvent = new RestApiCreateEvent($routes, [], [], $request);
+        $restApiCreateEvent = $kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
+        $routes = $restApiCreateEvent->getRouteMap();
+        return $this->dispatch($kernel, $routes, $request, $kernel->getSystemLogger());
+    }
+
+    private function processPatientPortalRequest(HttpRestRequest $request, OEHttpKernel $kernel)
+    {
+        // TODO: this is where we can differentiate between different FHIR versions or profiles
+        $routes = include __DIR__ . '/../../../apis/routes/_rest_routes_portal.inc.php';
+
+        // This method is intended to handle the request and extend routes.
+        // Implementation details would depend on the specific requirements of the application.
+        // For example, you might want to add custom routes or modify existing ones.
+        $restApiCreateEvent = new RestApiCreateEvent([], [], $routes, $request);
+        $restApiCreateEvent = $kernel->getEventDispatcher()->dispatch($restApiCreateEvent, RestApiCreateEvent::EVENT_HANDLE, 10);
+        $routes = $restApiCreateEvent->getPortalRouteMap();
+        return $this->dispatch($kernel, $routes, $request, $kernel->getSystemLogger());
     }
 
     private function dispatch(OEHttpKernel $kernel, $routes, HttpRestRequest $dispatchRestRequest, SystemLogger $logger)

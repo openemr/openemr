@@ -397,7 +397,7 @@ class AuthorizationController
             return;
         }
 
-        $scopeRepo = new ScopeRepository($this->restConfig);
+        $scopeRepo = new ScopeRepository();
         $scopeRepo->setRequestScopes($scopeString);
         foreach ($requestScopes as $scope) {
             $validScope = $scopeRepo->getScopeEntityByIdentifier($scope);
@@ -591,7 +591,7 @@ class AuthorizationController
     public function getAuthorizationServer($includeAuthGrantRefreshToken = true): AuthorizationServer
     {
         $protectedClaims = ['profile', 'email', 'address', 'phone'];
-        $scopeRepository = new ScopeRepository($this->restConfig);
+        $scopeRepository = new ScopeRepository();
         $claims = $scopeRepository->getSupportedClaims();
         $customClaim = [];
         foreach ($claims as $claim) {
@@ -622,7 +622,7 @@ class AuthorizationController
         $authServer = new AuthorizationServer(
             new ClientRepository(),
             new AccessTokenRepository(),
-            new ScopeRepository($this->restConfig),
+            new ScopeRepository(),
             new CryptKey($this->privateKey, $this->passphrase),
             $this->oaEncryptionKey,
             $responseType

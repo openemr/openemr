@@ -116,7 +116,7 @@ class AuthorizationListener implements EventSubscriberInterface
                 // not allowing patient userrole write for fhir
                 throw new AccessDeniedException("patient", "demo", "Patient user role is not allowed to write FHIR resources.");
             }
-        } elseif (($restRequest->getApiType() === 'oemr') || ($restRequest->getApiType() === 'port')) {
+        } elseif (($restRequest->isStandardApiRequest()) || ($restRequest->isPortalRequest())) {
             // don't do any checks on our open non-fhir resources
             if (
                 $restRequest->getResource() == 'version'
@@ -126,27 +126,28 @@ class AuthorizationListener implements EventSubscriberInterface
                 return $event;
             }
             // ensure correct user role type for the non-fhir routes
-            if (($restRequest->getApiType() === 'oemr') && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
+            if (($restRequest->isStandardApiRequest()) && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
                 // TODO: should we allow system role to access oemr api?
                 // TODO: @adunsulag need to figure out if there is a better ACL section for this
                 throw new AccessDeniedException("patient", "demo", "not allowing patient or system role to access oemr api");
             }
-            if (($restRequest->getApiType() === 'port') && (($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient'))) {
+            if (($restRequest->isPortalRequest()) && (($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient'))) {
                 throw new AccessDeniedException("patient", "demo", "not allowing non-patient role to access port api");
             }
         } else {
             throw new AccessDeniedException("patient", "demo", "not allowing invalid role");
         }
-        if (empty($restRequest->getResource())) {
+        if (empty($event->getResource())) {
             $scope = $scopeType;
         } else {
             // Resource scope check
-            $scope = $scopeType . '/' . $restRequest->getResource() . '.' . $restRequest->getPermission();
+            $scope = $scopeType . '/' . $event->getResource() . '.' . $event->getPermission();
         }
         // check access token scopes
-        if ($restRequest->requestHasScope($scope)) {
+        if (!$restRequest->requestHasScope($scope)) {
             throw new AccessDeniedException($scopeType, $restRequest->getResource(), "scope not in access token", ['scope' => $scope, 'scopes_granted' => $restRequest->getAccessTokenScopes()]);
         }
+        return $event;
     }
 
     public function addAuthorizationStrategy(IAuthorizationStrategy $strategy): void

@@ -75,7 +75,7 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
                 'user_id' => $userId,
                 'patient_id' => $patientId,
                 'method' => $method,
-                'request' => $GLOBALS['resource'],
+                'request' => $request->getResource() ?? '',
                 'request_url' => $url,
                 'request_body' => $requestBody,
                 'response' => $logResponse

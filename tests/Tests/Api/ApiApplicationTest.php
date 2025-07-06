@@ -3,12 +3,16 @@
 namespace OpenEMR\Tests\Api;
 
 use Nyholm\Psr7\Uri;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\RestControllers\ApiApplication;
 use OpenEMR\Common\Http\HttpRestRequest;
 use PHPUnit\Framework\TestCase;
 
 class ApiApplicationTest extends TestCase
 {
+    const SITE_DEFAULT = 'default';
+
     public function testRunWithSkippedRoute() {
         // simple test for running the application for now just to do a simple smoke test
         $httpRestRequest = new HttpRestRequest();
@@ -16,7 +20,7 @@ class ApiApplicationTest extends TestCase
         $httpRestRequest->attributes->set("skipResponseLogging", true);
         // note that mod_rewrite will change the request of http://localhost/apis/default/fhir/metadata to http://localhost/dispatch.php/default/fhir/metadata
         // resulting in symfony getting the request path to /default/fhir/metadata
-        $restRequest = $httpRestRequest->withUri(new Uri("http://localhost/default/fhir/metadata"))
+        $restRequest = $httpRestRequest->withUri(new Uri("http://localhost/" . self::SITE_DEFAULT . "/fhir/metadata"))
             ->withMethod('GET');
         $application = new ApiApplication();
         $application->setResponseMode(ApiApplication::RESPONSE_MODE_RETURN);
@@ -25,4 +29,38 @@ class ApiApplicationTest extends TestCase
         $this->assertNotNull($response, "Expected response to be not null");
         $this->assertEquals(200, $response->getStatusCode(), "Expected response status code to be 200 Response: " . $response->getContent());
     }
+
+//    public function testRunWithAuthenticatedRoute() {
+//
+//        // I don't like it but for now we need to access the db in order to create an access token for the authenticated route
+//        $this->getValidAccessToken();
+//
+//
+//        // simple test for running the application for now just to do a simple smoke test
+//        $httpRestRequest = new HttpRestRequest();
+//        // don't do event audit logging for now with phpunit tests until we can mock the ip address logging
+//        $httpRestRequest->attributes->set("skipResponseLogging", true);
+//        // note that mod_rewrite will change the request of http://localhost/apis/default/fhir/metadata to http://localhost/dispatch.php/default/fhir/metadata
+//        // resulting in symfony getting the request path to /default/fhir/metadata
+//        $restRequest = $httpRestRequest->withUri(new Uri("http://localhost/default/fhir/metadata"))
+//            ->withMethod('GET');
+//        $application = new ApiApplication();
+//        $application->setResponseMode(ApiApplication::RESPONSE_MODE_RETURN);
+//        $response = $application->run($restRequest);
+//
+//        $this->assertNotNull($response, "Expected response to be not null");
+//        $this->assertEquals(200, $response->getStatusCode(), "Expected response status code to be 200 Response: " . $response->getContent());
+//    }
+//
+//    private function getValidAccessToken($scopes = 'api:fhir fhirUser user/Patient.read')
+//    {
+//
+//        $skipAuth = true;
+//        require_once(__DIR__ . '../../../interface/globals.php');
+//        $clientRepository = new ClientRepository();
+//        $client = new ClientEntity();
+//        $client->setClientId('test-client-id');
+//        $client->setClientRole('private');
+//        $clientRepository->insertNewClient($client->getIdentifier(), $clientInfo, self::SITE_DEFAULT);
+//    }
 }

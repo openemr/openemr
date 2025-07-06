@@ -175,4 +175,9 @@ class ServerConfig
     {
         return $this->getOauthAuthorizationUrl() . "/introspect";
     }
+
+    public function areSystemScopesEnabled()
+    {
+        return $GLOBALS['rest_system_scopes_api'] === '1';
+    }
 }

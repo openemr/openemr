@@ -19,20 +19,16 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
 use OpenEMR\FHIR\SMART\Capability;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementImplementation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
-
-require_once(__DIR__ . '/../../../_rest_config.php');
 
 
 /**
@@ -43,10 +39,6 @@ class FhirMetaDataRestController
     private $fhirService;
     private $fhirValidate;
     private $restHelper;
-    /**
-     * @var \RestConfig
-     */
-    private $restConfig;
     private ServerConfig $config;
 
     public function __construct()
@@ -59,7 +51,6 @@ class FhirMetaDataRestController
 
     protected function buildCapabilityStatement(): FHIRCapabilityStatement
     {
-        $gbl = $this->restConfig;
         // TODO: @adunsulag we need to centralize the route inclusion and figure out how to handle the profiles...
         $routes = include $this->config->getWebServerRoot() . "/apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php";
         $capabilityStatement = new FHIRCapabilityStatement();

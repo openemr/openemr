@@ -21,8 +21,6 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use OpenEMR\Validators\ProcessingResult;
 
-require_once(__DIR__ . '/../../../_rest_config.php');
-
 /**
  * Supports REST interactions with the FHIR practitioner resource
  */

@@ -3,6 +3,8 @@
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Session\SessionUtil;
 
+// TODO: this class should be moved to a controller object that we can test to make sure it works properly
+
 if ($oauthdisc !== true) {
     $message = xlt("Error. Not authorized");
     SessionUtil::oauthSessionCookieDestroy();
@@ -15,7 +17,7 @@ if (!empty($GLOBALS['oauth_password_grant'])) {
     $passwordGrantString = '"password",';
 }
 // PHP is a fickle beast!
-$scopeRepository = new ScopeRepository(RestConfig::GetInstance());
+$scopeRepository = new ScopeRepository();
 $claims_array = $scopeRepository->getSupportedClaims();
 $claims = json_encode($claims_array, JSON_PRETTY_PRINT);
 

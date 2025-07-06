@@ -44,8 +44,8 @@ class FacilityApiTest extends TestCase
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFixtures();
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+//        $this->testClient->cleanupRevokeAuth();
+//        $this->testClient->cleanupClient();
     }
 
     #[Test]
@@ -135,6 +135,8 @@ class FacilityApiTest extends TestCase
     #[Test]
     public function testGetOne(): void
     {
+        var_dump($this->testClient->getAccessToken());
+
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
