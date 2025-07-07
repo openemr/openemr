@@ -2535,7 +2535,7 @@ return array(
      */
     "GET /api/practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new PractitionerRestController())->getAll($request->query->all(), $request);
+        $return = (new PractitionerRestController())->getAll($request, $request->query->all());
         return $return;
     },
 

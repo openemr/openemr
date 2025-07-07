@@ -64,6 +64,7 @@ class PractitionerRestController
     /**
      * Fetches a single practitioner resource by id.
      * @param $uuid- The practitioner uuid identifier in string format.
+     * @param HttpRestRequest $request - The HTTP request object.
      */
     public function getOne($uuid, HttpRestRequest $request)
     {
@@ -78,8 +79,10 @@ class PractitionerRestController
 
     /**
      * Returns practitioner resources which match an optional search criteria.
+     * @param HttpRestRequest $request - The HTTP request object.
+     * @param array $search - An array of search fields to filter the results.
      */
-    public function getAll($search = array(), HttpRestRequest $request)
+    public function getAll(HttpRestRequest $request, $search = array())
     {
         $validSearchFields = $this->practitionerService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->getAll($validSearchFields);
@@ -89,6 +92,7 @@ class PractitionerRestController
     /**
      * Process a HTTP POST request used to create a practitioner record.
      * @param $data - array of practitioner fields.
+     * @param HttpRestRequest $request - The HTTP request object.
      * @return a 201/Created status code and the practitioner identifier if successful.
      */
     public function post($data, HttpRestRequest $request)
@@ -102,6 +106,7 @@ class PractitionerRestController
      * Processes a HTTP PATCH request used to update an existing practitioner record.
      * @param $uuid - The practitioner uuid identifier in string format.
      * @param $data - array of practitioner fields (full resource).
+     * @param HttpRestRequest $request - The HTTP request object.
      * @return a 200/Ok status code and the practitioner resource.
      */
     public function patch($uuid, $data, HttpRestRequest $request)
