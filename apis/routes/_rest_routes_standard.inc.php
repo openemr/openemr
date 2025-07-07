@@ -223,7 +223,7 @@ return array(
      */
     "GET /api/facility" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FacilityRestController())->getAll($_GET, $request);
+        $return = (new FacilityRestController())->getAll($request, $_GET);
         return $return;
     },
 

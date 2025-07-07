@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use Nyholm\Psr7\Response;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -55,7 +56,7 @@ class FacilityRestController
      * @param $uuid - The facility uuid identifier in string format.
      * @param HttpRestRequest $request - The HTTP request object.
      */
-    public function getOne($uuid, HttpRestRequest $request)
+    public function getOne($uuid, HttpRestRequest $request) : Response
     {
         $processingResult = $this->facilityService->getOne($uuid);
 
@@ -69,8 +70,9 @@ class FacilityRestController
     /**
      * Returns facility resources which match an optional search criteria.
      * @param HttpRestRequest $request - The HTTP request object.
+     * @param array $search - An array of search fields to filter the results.
      */
-    public function getAll($search = array(), HttpRestRequest $request )
+    public function getAll(HttpRestRequest $request, $search = array()) : Response
     {
         $validSearchFields = $this->facilityService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->getAll($validSearchFields);
@@ -83,7 +85,7 @@ class FacilityRestController
      * @param HttpRestRequest $request - The HTTP request object.
      * @return a 201/Created status code and the facility identifier if successful.
      */
-    public function post($data, HttpRestRequest $request)
+    public function post($data, HttpRestRequest $request) : Response
     {
         $filteredData = $this->facilityService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->insert($filteredData);
@@ -97,7 +99,7 @@ class FacilityRestController
      * @param HttpRestRequest $request - The HTTP request object.
      * @return a 200/Ok status code and the facility resource.
      */
-    public function patch($uuid, $data, HttpRestRequest $request)
+    public function patch($uuid, $data, HttpRestRequest $request) : Response
     {
         $filteredData = $this->facilityService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->update($uuid, $filteredData);
