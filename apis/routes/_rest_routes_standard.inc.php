@@ -1,6 +1,5 @@
 <?php
 
-use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
@@ -222,10 +221,9 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/facility" => function () {
+    "GET /api/facility" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FacilityRestController())->getAll($_GET);
-        RestConfig::apiLog($return);
+        $return = (new FacilityRestController())->getAll($_GET, $request);
         return $return;
     },
 
@@ -258,10 +256,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/facility/:fuuid" => function ($fuuid) {
+    "GET /api/facility/:fuuid" => function ($fuuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new FacilityRestController())->getOne($fuuid);
-        RestConfig::apiLog($return);
+        $return = (new FacilityRestController())->getOne($fuuid, $request);
+
         return $return;
     },
 
@@ -410,10 +408,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      * )
      */
-    "POST /api/facility" => function () {
+    "POST /api/facility" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new FacilityRestController())->post($data);
+        $return = (new FacilityRestController())->post($data, $request);
         RestConfig::apiLog($return, $data);
         return $return;
     },
@@ -571,10 +569,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/facility/:fuuid" => function ($fuuid) {
+    "PUT /api/facility/:fuuid" => function ($fuuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return =  (new FacilityRestController())->patch($fuuid, $data);
+        $return =  (new FacilityRestController())->patch($fuuid, $data, $request);
         RestConfig::apiLog($return, $data);
         return $return;
     },
@@ -766,11 +764,11 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient" => function () {
+    "GET /api/patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
         $config = SearchQueryConfig::createConfigFromQueryParams($_GET);
-        $return = (new PatientRestController())->getAll($_GET, $config);
-        RestConfig::apiLog($return);
+        $return = (new PatientRestController())->getAll($_GET, $config, $request);
+
         return $return;
     },
 
@@ -931,10 +929,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "POST /api/patient" => function () {
+    "POST /api/patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new PatientRestController())->post($data);
+        $return = (new PatientRestController())->post($data, $request);
         RestConfig::apiLog($return, $data);
         return $return;
     },
@@ -1167,10 +1165,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/patient/:puuid" => function ($puuid) {
+    "PUT /api/patient/:puuid" => function ($puuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new PatientRestController())->put($puuid, $data);
+        $return = (new PatientRestController())->put($puuid, $data, $request);
         RestConfig::apiLog($return, $data);
         return $return;
     },
@@ -1204,10 +1202,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:puuid" => function ($puuid) {
+    "GET /api/patient/:puuid" => function ($puuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
-        $return = (new PatientRestController())->getOne($puuid);
-        RestConfig::apiLog($return);
+        $return = (new PatientRestController())->getOne($puuid, $request);
+
         return $return;
     },
 
@@ -1243,7 +1241,7 @@ return array(
     "GET /api/patient/:puuid/encounter" => function ($puuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $return = (new EncounterRestController())->getAll($puuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1707,7 +1705,7 @@ return array(
     "GET /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $return = (new EncounterRestController())->getOne($puuid, $euuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1752,7 +1750,7 @@ return array(
     "GET /api/patient/:pid/encounter/:eid/soap_note" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new EncounterRestController())->getSoapNotes($pid, $eid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1993,7 +1991,7 @@ return array(
     "GET /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new EncounterRestController())->getVitals($pid, $eid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2047,7 +2045,7 @@ return array(
     "GET /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid) {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new EncounterRestController())->getVital($pid, $eid, $vid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2101,7 +2099,7 @@ return array(
     "GET /api/patient/:pid/encounter/:eid/soap_note/:sid" => function ($pid, $eid, $sid) {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new EncounterRestController())->getSoapNote($pid, $eid, $sid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2535,10 +2533,9 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/practitioner" => function () {
+    "GET /api/practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new PractitionerRestController())->getAll($_GET);
-        RestConfig::apiLog($return);
+        $return = (new PractitionerRestController())->getAll($request->query->all(), $request);
         return $return;
     },
 
@@ -2571,10 +2568,9 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/practitioner/:pruuid" => function ($pruuid) {
+    "GET /api/practitioner/:pruuid" => function ($pruuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $return = (new PractitionerRestController())->getOne($pruuid);
-        RestConfig::apiLog($return);
+        $return = (new PractitionerRestController())->getOne($pruuid, $request);
         return $return;
     },
 
@@ -2820,11 +2816,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "POST /api/practitioner" => function () {
+    "POST /api/practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new PractitionerRestController())->post($data);
-        RestConfig::apiLog($return, $data);
+        $return = (new PractitionerRestController())->post($data, $request);
         return $return;
     },
 
@@ -3250,11 +3245,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/practitioner/:pruuid" => function ($pruuid) {
+    "PUT /api/practitioner/:pruuid" => function ($pruuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new PractitionerRestController())->patch($pruuid, $data);
-        RestConfig::apiLog($return, $data);
+        $return = (new PractitionerRestController())->patch($pruuid, $data, $request);
         return $return;
     },
 
@@ -3335,7 +3329,7 @@ return array(
     "GET /api/medical_problem" => function () {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new ConditionRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3371,7 +3365,7 @@ return array(
     "GET /api/medical_problem/:muuid" => function ($muuid) {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new ConditionRestController())->getOne($muuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3407,7 +3401,6 @@ return array(
     "GET /api/patient/:puuid/medical_problem" => function ($puuid) {
         RestConfig::authorization_check("encounters", "notes");
         $return = (new ConditionRestController())->getAll(['puuid' => $puuid]);
-        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -3452,7 +3445,7 @@ return array(
     "GET /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ConditionRestController())->getAll(['puuid' => $puuid, 'condition_uuid' => $muuid]);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3628,7 +3621,7 @@ return array(
     "DELETE /api/patient/:puuid/medical_problem/:muuid" => function ($puuid, $muuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ConditionRestController())->delete($puuid, $muuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3709,7 +3702,7 @@ return array(
     "GET /api/allergy" => function () {
         RestConfig::authorization_check("patients", "med");
         $return = (new AllergyIntoleranceRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3745,7 +3738,7 @@ return array(
     "GET /api/allergy/:auuid" => function ($auuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new AllergyIntoleranceRestController())->getOne($auuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3781,7 +3774,7 @@ return array(
     "GET /api/patient/:puuid/allergy" => function ($puuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid]);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3826,7 +3819,7 @@ return array(
     "GET /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new AllergyIntoleranceRestController())->getAll(['lists.pid' => $puuid, 'lists.id' => $auuid]);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4001,7 +3994,7 @@ return array(
     "DELETE /api/patient/:puuid/allergy/:auuid" => function ($puuid, $auuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new AllergyIntoleranceRestController())->delete($puuid, $auuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4037,7 +4030,7 @@ return array(
     "GET /api/patient/:pid/medication" => function ($pid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->getAll($pid, "medication");
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4212,7 +4205,7 @@ return array(
     "GET /api/patient/:pid/medication/:mid" => function ($pid, $mid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->getOne($pid, "medication", $mid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4257,7 +4250,7 @@ return array(
     "DELETE /api/patient/:pid/medication/:mid" => function ($pid, $mid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->delete($pid, $mid, "medication");
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4293,7 +4286,7 @@ return array(
     "GET /api/patient/:pid/surgery" => function ($pid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->getAll($pid, "surgery");
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4338,7 +4331,7 @@ return array(
     "GET /api/patient/:pid/surgery/:sid" => function ($pid, $sid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->getOne($pid, "surgery", $sid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4383,7 +4376,7 @@ return array(
     "DELETE /api/patient/:pid/surgery/:sid" => function ($pid, $sid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->delete($pid, $sid, "surgery");
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4550,7 +4543,7 @@ return array(
     "GET /api/patient/:pid/dental_issue" => function ($pid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->getAll($pid, "dental");
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4595,7 +4588,7 @@ return array(
     "GET /api/patient/:pid/dental_issue/:did" => function ($pid, $did) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->getOne($pid, "dental", $did);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4640,7 +4633,7 @@ return array(
     "DELETE /api/patient/:pid/dental_issue/:did" => function ($pid, $did) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ListRestController())->delete($pid, $did, "dental");
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4806,7 +4799,7 @@ return array(
     "GET /api/patient/:pid/appointment" => function ($pid) {
         RestConfig::authorization_check("patients", "appt");
         $return = (new AppointmentRestController())->getAllForPatient($pid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4941,7 +4934,7 @@ return array(
     "GET /api/appointment" => function () {
         RestConfig::authorization_check("patients", "appt");
         $return = (new AppointmentRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4977,7 +4970,7 @@ return array(
     "GET /api/appointment/:eid" => function ($eid) {
         RestConfig::authorization_check("patients", "appt");
         $return = (new AppointmentRestController())->getOne($eid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5022,7 +5015,7 @@ return array(
     "DELETE /api/patient/:pid/appointment/:eid" => function ($pid, $eid) {
         RestConfig::authorization_check("patients", "appt");
         $return = (new AppointmentRestController())->delete($eid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5067,7 +5060,7 @@ return array(
     "GET /api/patient/:pid/appointment/:eid" => function ($pid, $eid) {
         RestConfig::authorization_check("patients", "appt");
         $return = (new AppointmentRestController())->getOne($eid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5103,7 +5096,7 @@ return array(
     "GET /api/list/:list_name" => function ($list_name) {
         RestConfig::authorization_check("lists", "default");
         $return = (new ListRestController())->getOptions($list_name);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5400,7 +5393,7 @@ return array(
     "GET /api/user" => function () {
         RestConfig::authorization_check("admin", "users");
         $return = (new UserRestController())->getAll($_GET);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5436,7 +5429,7 @@ return array(
     "GET /api/user/:uuid" => function ($uuid) {
         RestConfig::authorization_check("admin", "users");
         $return = (new UserRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5462,7 +5455,7 @@ return array(
      */
     "GET /api/version" => function () {
         $return = (new VersionRestController())->getOne();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5488,7 +5481,7 @@ return array(
      */
     "GET /api/product" => function () {
         $return = (new ProductRegistrationRestController())->getOne();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5514,7 +5507,7 @@ return array(
      */
     "GET /api/insurance_company" => function () {
         $return = (new InsuranceCompanyRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5549,7 +5542,7 @@ return array(
      */
     "GET /api/insurance_company/:iid" => function ($iid) {
         $return = (new InsuranceCompanyRestController())->getOne($iid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5575,7 +5568,7 @@ return array(
      */
     "GET /api/insurance_type" => function () {
         $return = (new InsuranceCompanyRestController())->getInsuranceTypes();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5798,7 +5791,7 @@ return array(
      */
     "POST /api/patient/:pid/document" => function ($pid) {
         $return = (new DocumentRestController())->postWithPath($pid, $_GET['path'], $_FILES['document']);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5842,7 +5835,7 @@ return array(
      */
     "GET /api/patient/:pid/document" => function ($pid) {
         $return = (new DocumentRestController())->getAllAtPath($pid, $_GET['path']);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5886,7 +5879,7 @@ return array(
      */
     "GET /api/patient/:pid/document/:did" => function ($pid, $did) {
         $return = (new DocumentRestController())->downloadFile($pid, $did);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5940,7 +5933,7 @@ return array(
 
         // Try to get the data. The service layer will handle non-existent UUIDs.
         $return = (new EmployerRestController())->getAll($searchParams);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5980,7 +5973,7 @@ return array(
             $searchParams['puuid'] = $request->getPatientUUIDString();
         }
         $return = (new InsuranceRestController())->getAll($searchParams);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6039,7 +6032,7 @@ return array(
         $insuranceUuid = $request->getQueryParam('uuid');
 
         $return = (new InsuranceRestController())->operationSwapInsurance($puuid, $type, $insuranceUuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6077,7 +6070,7 @@ return array(
             $puuid = $request->getPatientUUIDString();
         }
         $return = (new InsuranceRestController())->getOne($uuid, $puuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6495,7 +6488,7 @@ return array(
         RestConfig::authorization_check("patients", "trans");
         $cont = new TransactionRestController();
         $return = (new TransactionRestController())->GetPatientTransactions($pid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6770,7 +6763,7 @@ return array(
     "DELETE /api/patient/:pid/message/:mid" => function ($pid, $mid) {
         RestConfig::authorization_check("patients", "notes");
         $return = (new MessageRestController())->delete($pid, $mid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7049,7 +7042,7 @@ return array(
     "GET /api/immunization" => function () {
         RestConfig::authorization_check("patients", "med");
         $return = (new ImmunizationRestController())->getAll($_GET);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7085,7 +7078,7 @@ return array(
     "GET /api/immunization/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ImmunizationRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7112,7 +7105,7 @@ return array(
     "GET /api/procedure" => function () {
         RestConfig::authorization_check("patients", "med");
         $return = (new ProcedureRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7148,7 +7141,7 @@ return array(
     "GET /api/procedure/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new ProcedureRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7175,7 +7168,7 @@ return array(
     "GET /api/drug" => function () {
         RestConfig::authorization_check("patients", "med");
         $return = (new DrugRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7211,7 +7204,7 @@ return array(
     "GET /api/drug/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new DrugRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7238,7 +7231,7 @@ return array(
     "GET /api/prescription" => function () {
         RestConfig::authorization_check("patients", "med");
         $return = (new PrescriptionRestController())->getAll();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -7274,7 +7267,7 @@ return array(
     "GET /api/prescription/:uuid" => function ($uuid) {
         RestConfig::authorization_check("patients", "med");
         $return = (new PrescriptionRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     }
 );

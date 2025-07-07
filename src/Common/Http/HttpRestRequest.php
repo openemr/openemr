@@ -28,7 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HttpRestRequest extends Request implements \Stringable
 {
-
     /**
      * @var \RestConfig
      */
@@ -153,7 +152,6 @@ class HttpRestRequest extends Request implements \Stringable
         $contentEncoding = $this->encodings;
         // let's decode the gzip content if we can
         if (!empty($contentEncoding) && $contentEncoding[0] === "gzip") {
-
             $stream = new GzipDecodeStream($this->getContent(true));
         } else {
             $stream = $this->getContent(true);
@@ -205,7 +203,7 @@ class HttpRestRequest extends Request implements \Stringable
      * @param $headerName The name of the header to check
      * @return bool true if the header exists, false otherwise.
      */
-    public function hasHeader($headerName) : bool
+    public function hasHeader($headerName): bool
     {
         return $this->headers->has($headerName);
     }
@@ -310,7 +308,7 @@ class HttpRestRequest extends Request implements \Stringable
         return array_values($this->accessTokenScopes);
     }
 
-    public function requestHasScope($scope) : bool
+    public function requestHasScope($scope): bool
     {
         return isset($this->accessTokenScopes[$scope]);
     }
@@ -498,11 +496,12 @@ class HttpRestRequest extends Request implements \Stringable
     }
 
     /**
+     * @deprecated use getMethod() instead
      * @return string
      */
     public function getRequestMethod(): ?string
     {
-        return $this->method;
+        return $this->getMethod();
     }
 
 
@@ -557,7 +556,8 @@ class HttpRestRequest extends Request implements \Stringable
         throw new \RuntimeException("Feature not implemented yet");
     }
 
-    public function getRequestPathWithoutSite() {
+    public function getRequestPathWithoutSite()
+    {
         // This will return the request path without the site prefix
         $pathInfo = $this->getPathInfo();
         if (empty($pathInfo)) {
@@ -662,7 +662,7 @@ class HttpRestRequest extends Request implements \Stringable
         return $clonedRequest;
     }
 
-    public function getUri() :  string
+    public function getUri(): string
     {
         return $this->requestUri;
     }

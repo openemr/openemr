@@ -4,6 +4,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
@@ -11,11 +12,10 @@ use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
 use OpenEMR\RestControllers\Authorization\SkipAuthorizationStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use OpenEMR\Common\Logging\SystemLogger;
-use Symfony\Component\HttpFoundation\Request;
 
 class AuthorizationListener implements EventSubscriberInterface
 {
@@ -145,7 +145,7 @@ class AuthorizationListener implements EventSubscriberInterface
         }
         // check access token scopes
         if (!$restRequest->requestHasScope($scope)) {
-            throw new AccessDeniedException($scopeType, $restRequest->getResource(), "scope not in access token", ['scope' => $scope, 'scopes_granted' => $restRequest->getAccessTokenScopes()]);
+            throw new AccessDeniedException($scopeType, $restRequest->getResource(), "scope " . $scope . " not in access token");
         }
         return $event;
     }

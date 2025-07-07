@@ -10,6 +10,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\Config\ServerConfig;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -28,12 +29,14 @@ class SiteSetupListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST => [['onKernelRequest', 50]]
+            // this needs to happen fairly early on before anything else in the lifecycle
+            KernelEvents::REQUEST => [['onKernelRequest', 100]]
         ];
     }
 
     public static function getValidSiteFromPath(string $pathInfo): ?string
     {
+        // TODO: we need to figure out the web root from the request
         if (empty($pathInfo)) {
             $pathInfo = "/default/"; // default to "default" site if path is empty
         }
@@ -45,12 +48,52 @@ class SiteSetupListener implements EventSubscriberInterface
         return $siteId;
     }
 
+    public static function getWebroot()
+    {
+
+        // TODO: this is copied from globals.php, we need to figure out how to share this code even though we don't have the autoload defined yet...
+        // Is this windows or non-windows? Create a boolean definition.
+        if (!defined('IS_WINDOWS')) {
+            define('IS_WINDOWS', (stripos(PHP_OS, 'WIN') === 0));
+        }
+
+// The webserver_root and web_root are now automatically collected.
+// If not working, can set manually below.
+// Auto collect the full absolute directory path for openemr.
+        $webserver_root = dirname(__FILE__, 2);
+        if (IS_WINDOWS) {
+            //convert windows path separators
+            $webserver_root = str_replace("\\", "/", $webserver_root);
+        }
+
+// Collect the apache server document root (and convert to windows slashes, if needed)
+        $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
+        if (IS_WINDOWS) {
+            //convert windows path separators
+            $server_document_root = str_replace("\\", "/", $server_document_root);
+        }
+
+// Auto collect the relative html path, i.e. what you would type into the web
+// browser after the server address to get to OpenEMR.
+// This removes the leading portion of $webserver_root that it has in common with the web server's document
+// root and assigns the result to $web_root. In addition to the common case where $webserver_root is
+// /var/www/openemr and document root is /var/www, this also handles the case where document root is
+// /var/www/html and there is an Apache "Alias" command that directs /openemr to /var/www/openemr.
+        $web_root = substr($webserver_root, strspn($webserver_root ^ $server_document_root, "\0"));
+// Ensure web_root starts with a path separator
+        if (preg_match("/^[^\/]/", $web_root)) {
+            $web_root = "/" . $web_root;
+        }
+        return $web_root;
+    }
+
     public function onKernelRequest(RequestEvent $event)
     {
         // we need to identify the site id for the request
         $pathInfo = $event->getRequest()->getPathInfo();
         $siteId = self::getValidSiteFromPath($pathInfo);
         if (empty($siteId)) {
+            // TODO: @adunsulag do we need to do a 401 when its an oauth2 request?
             // we don't use system logger here because we don't have access to our database that configures the logging
             error_log("OpenEMR Error - api site error, so forced exit " . "siteId: $siteId, pathInfo: $pathInfo");
             throw new HttpException(400, "OpenEMR Error: api site error, so forced exit.  Please ensure that the site is set up correctly in the OpenEMR configuration.");
@@ -59,6 +102,7 @@ class SiteSetupListener implements EventSubscriberInterface
 
         // set the site
         $_GET['site'] = $siteId; // for legacy purposes
+        $isOauth2Request = $this->checkForOauth2Request($event->getRequest());
         if ($event->getRequest() instanceof HttpRestRequest) {
             // TODO: @adunsulag couldn't this just be stored in the attributes instead of subclass checking this?
             $event->getRequest()->setRequestSite($siteId);
@@ -71,9 +115,14 @@ class SiteSetupListener implements EventSubscriberInterface
             $ignoreAuth = false;
         } else {
             $ignoreAuth = true;
-            // Will start the api OpenEMR session/cookie.
-            // TODO: we need to figure out where we can get web root from
-            SessionUtil::apiSessionStart('');
+            // Will start the api OpenEMR session/cookie, if its oauth2 it uses a different session cookie
+            if ($isOauth2Request) {
+                SessionUtil::oauthSessionStart(self::getWebroot());
+                $event->getRequest()->attributes->set('is_oauth2_request', true);
+            } else {
+                // for non-oauth2 requests, we use the api session
+                SessionUtil::apiSessionStart(self::getWebroot());
+            }
         }
 
         // Set $sessionAllowWrite to true here for following reasons:
@@ -98,9 +147,17 @@ class SiteSetupListener implements EventSubscriberInterface
                 $oauth2KeyConfig = new OAuth2KeyConfig($GLOBALS['OE_SITE_DIR']);
                 $oauth2KeyConfig->configKeyPairs();
             }
-        }
-        catch (\OAuth2KeyException $e) {
+        } catch (\OAuth2KeyException $e) {
             throw new HttpException(500, $e->getMessage(), $e);
         }
+    }
+
+    private function checkForOauth2Request(Request $request): bool
+    {
+        if (!($request instanceof HttpRestRequest)) {
+            return false;
+        }
+        $path = $request->getBasePath();
+        return str_ends_with($path, "/oauth2/");
     }
 }

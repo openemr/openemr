@@ -667,7 +667,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         // we need to make sure the 'site:' and any other server context vars are permitted
         $serverScopes = $this->getServerScopes();
-        $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopesSupported));
+        $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopes_dict));
         (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         $scopesEvent = new RestApiScopeEvent();
@@ -690,6 +690,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         $scopesSupported = $this->apiScopes();
         asort($scopesSupported);
+        $scopesSupported = array_combine($scopesSupported, $scopesSupported);
         $serverScopes = $this->getServerScopes();
         $scopesSupported = array_keys(array_merge($oidc, $serverScopes, $scopesSupported));
 

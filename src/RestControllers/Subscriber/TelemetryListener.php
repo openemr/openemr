@@ -12,7 +12,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class TelemetryListener implements EventSubscriberInterface
 {
-
     public static function getSubscribedEvents()
     {
         return [
@@ -20,7 +19,8 @@ class TelemetryListener implements EventSubscriberInterface
         ];
     }
 
-    public function onRequestTerminated(TerminateEvent $event) {
+    public function onRequestTerminated(TerminateEvent $event)
+    {
         $request = $event->getRequest();
         try {
             $userRole = $request->attributes->get('userRole', 'UNKNOWN');

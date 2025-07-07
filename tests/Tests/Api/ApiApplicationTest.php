@@ -13,7 +13,8 @@ class ApiApplicationTest extends TestCase
 {
     const SITE_DEFAULT = 'default';
 
-    public function testRunWithSkippedRoute() {
+    public function testRunWithSkippedRoute()
+    {
         // simple test for running the application for now just to do a simple smoke test
         $httpRestRequest = new HttpRestRequest();
         // don't do event audit logging for now with phpunit tests until we can mock the ip address logging

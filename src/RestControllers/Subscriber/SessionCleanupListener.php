@@ -30,5 +30,3 @@ class SessionCleanupListener implements EventSubscriberInterface
         }
     }
 }
-
-

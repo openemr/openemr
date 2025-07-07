@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
@@ -52,50 +53,54 @@ class FacilityRestController
     /**
      * Fetches a single facility resource by id.
      * @param $uuid - The facility uuid identifier in string format.
+     * @param HttpRestRequest $request - The HTTP request object.
      */
-    public function getOne($uuid)
+    public function getOne($uuid, HttpRestRequest $request)
     {
         $processingResult = $this->facilityService->getOne($uuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
-            return RestControllerHelper::handleProcessingResult($processingResult, 404);
+            return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 404);
         }
 
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 
     /**
      * Returns facility resources which match an optional search criteria.
+     * @param HttpRestRequest $request - The HTTP request object.
      */
-    public function getAll($search = array())
+    public function getAll($search = array(), HttpRestRequest $request )
     {
         $validSearchFields = $this->facilityService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->getAll($validSearchFields);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 
     /**
      * Process a HTTP POST request used to create a facility record.
      * @param $data - array of facility fields.
+     * @param HttpRestRequest $request - The HTTP request object.
      * @return a 201/Created status code and the facility identifier if successful.
      */
-    public function post($data)
+    public function post($data, HttpRestRequest $request)
     {
         $filteredData = $this->facilityService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->insert($filteredData);
-        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 201);
     }
 
     /**
      * Processes a HTTP PUT request used to update an existing facility record.
      * @param $puuidString - The facility uuid identifier in string format.
      * @param $data - array of facility fields (full resource).
+     * @param HttpRestRequest $request - The HTTP request object.
      * @return a 200/Ok status code and the facility resource.
      */
-    public function patch($uuid, $data)
+    public function patch($uuid, $data, HttpRestRequest $request)
     {
         $filteredData = $this->facilityService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->update($uuid, $filteredData);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 }

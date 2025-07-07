@@ -48,27 +48,27 @@ class ServerConfig
      * Returns the URL for the server's fhir endpoint.  This is often used for the audience or issuer URL as well.
      * @return string
      */
-    public function getFhirUrl() : string
+    public function getFhirUrl(): string
     {
         return $this->getBaseApiUrl() . "/fhir";
     }
 
-    public function getStandardApiUrl() : string
+    public function getStandardApiUrl(): string
     {
         return $this->getBaseApiUrl() . "/api";
     }
 
-    public function getInternalBaseApiUrl() : string
+    public function getInternalBaseApiUrl(): string
     {
         return $this->webRoot . '/apis/' . $this->siteId;
     }
 
-    public function getBaseApiUrl() : string
+    public function getBaseApiUrl(): string
     {
         return $this->oauthAddress . $this->getInternalBaseApiUrl();
     }
 
-    public function getFhir3rdPartyAppRequirementsDocument() : string
+    public function getFhir3rdPartyAppRequirementsDocument(): string
     {
         return $this->oauthAddress . $this->webRoot . "/FHIR_README.md#3rd-party-smart-apps";
     }
@@ -130,7 +130,7 @@ class ServerConfig
     /**
      * @return string
      */
-    public function getWebServerRoot() : string
+    public function getWebServerRoot(): string
     {
         return $this->webServerRoot;
     }
@@ -154,24 +154,24 @@ class ServerConfig
         }
         return $webServerRoot . "/sites/" . $site . "/documents/certificates/oapublic.key";
     }
-    public function getOauthAuthorizationUrl() : string
+    public function getOauthAuthorizationUrl(): string
     {
         return $this->oauthAddress . "/oauth2/" . $this->getSiteId();
     }
-    public function getTokenUrl() : string
+    public function getTokenUrl(): string
     {
         return $this->getOauthAuthorizationUrl() . "/token";
     }
 
-    public function getAuthorizeUrl() : string
+    public function getAuthorizeUrl(): string
     {
         return $this->getOauthAuthorizationUrl() . "/authorize";
     }
-    public function getRegistrationUrl() : string
+    public function getRegistrationUrl(): string
     {
         return $this->getOauthAuthorizationUrl() . "/register";
     }
-    public function getIntrospectionUrl() : string
+    public function getIntrospectionUrl(): string
     {
         return $this->getOauthAuthorizationUrl() . "/introspect";
     }

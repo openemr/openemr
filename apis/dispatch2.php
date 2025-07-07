@@ -24,7 +24,6 @@ try {
     $request = HttpRestRequest::createFromGlobals();
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
-
 } catch (\Throwable $e) {
     // TODO: handle exceptions properly
     error_log($e->getMessage());

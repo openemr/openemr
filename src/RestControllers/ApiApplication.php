@@ -3,6 +3,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
+use OpenEMR\RestControllers\Subscriber\CORSListener;
+use OpenEMR\RestControllers\Subscriber\OAuth2AuthorizationListener;
 use OpenEMR\RestControllers\Subscriber\TelemetryListener;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
@@ -34,17 +36,20 @@ class ApiApplication
 
     private EventDispatcher $dispatcher;
 
-    public function setDispatcher(EventDispatcher $dispatcher) {
+    public function setDispatcher(EventDispatcher $dispatcher)
+    {
         $this->dispatcher = $dispatcher;
     }
 
-    public function getDispatcher() {
+    public function getDispatcher()
+    {
         if (!isset($this->dispatcher)) {
             $this->dispatcher = new EventDispatcher();
         }
         return $this->dispatcher;
     }
-    public function setResponseMode(int $responseMode) {
+    public function setResponseMode(int $responseMode)
+    {
         // This method is for setting the response mode if needed.
         // It can be used to handle specific response modes like JSON, XML, etc.
         // Currently, it does not do anything as the response mode is handled in the ViewRendererListener.
@@ -55,7 +60,8 @@ class ApiApplication
      * @return void
      * @throws \Exception
      */
-    public function run(HttpRestRequest $request) : ?Response{
+    public function run(HttpRestRequest $request): ?Response
+    {
         $eventDispatcher = $this->getDispatcher();
 
         // need to handle request finish and session cleanup listeners first before any other listeners
@@ -72,6 +78,12 @@ class ApiApplication
 
         // site setup will handle the site id, db connection, and globals setup
         $eventDispatcher->addSubscriber(new SiteSetupListener());
+
+        // CORS listener will handle the CORS headers and preflight requests, needs to be added early on
+        $eventDispatcher->addSubscriber(new CORSListener());
+
+        $oauth2AuthorizationStrategy = new OAuth2AuthorizationListener();
+        $eventDispatcher->addSubscriber($oauth2AuthorizationStrategy);
 
         // TODO: @adunsulag if we can use the security component here eventually, or rename this to be AuthenticationListener
         $eventDispatcher->addSubscriber(new AuthorizationListener());
@@ -103,8 +115,7 @@ class ApiApplication
             // trigger the kernel.terminate event
             $kernel->terminate($request, $response);
             return $response; // Return the response object to the caller
-        }
-        else {
+        } else {
             $response->send();
             // trigger the kernel.terminate event
             $kernel->terminate($request, $response);

@@ -33,7 +33,6 @@ use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-
 // also a handy place to add utility methods
 // TODO before v6 release: refactor http_response_code(); for psr responses.
 //

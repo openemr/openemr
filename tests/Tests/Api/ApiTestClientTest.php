@@ -4,6 +4,7 @@ namespace OpenEMR\Tests\Api;
 
 use OpenEMR\Tests\Api\ApiTestClient;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Test cases for the OpenEMR Api Test Client
@@ -358,7 +359,7 @@ class ApiTestClientTest extends TestCase
         $this->client->setBearer($responseBody->access_token);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
-        $this->assertEquals(401, $actualResponse->getStatusCode());
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);

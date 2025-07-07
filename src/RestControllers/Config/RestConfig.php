@@ -20,7 +20,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-
 // also a handy place to add utility methods
 // TODO before v6 release: refactor http_response_code(); for psr responses.
 //

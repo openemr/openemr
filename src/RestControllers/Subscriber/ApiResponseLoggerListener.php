@@ -30,7 +30,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
         ];
     }
 
-    public function onRequestTerminated(TerminateEvent $event) {
+    public function onRequestTerminated(TerminateEvent $event)
+    {
         $response = $event->getResponse();
         $request = $event->getRequest();
         if (!$request instanceof HttpRestRequest) {
@@ -40,10 +41,12 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
 
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
         //  and when api log option is set
-        if (!$request->isLocalApi() &&
+        if (
+            !$request->isLocalApi() &&
             // we don't log unit test pieces.
-            !$request->attributes->has("skipResponseLogging")
-            && $GLOBALS['api_log_option']) {
+            !$request->attributes->has("skipResponseLogging") &&
+            $GLOBALS['api_log_option']
+        ) {
             if ($GLOBALS['api_log_option'] == 1) {
                 // Do not log the response and requestBody
                 $logResponse = '';
@@ -83,11 +86,21 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             if ($patientId === 0) {
                 $patientId = null; //entries in log table are blank for no patient_id, whereas in api_log are 0, which is why above $api value uses 0 when empty
             }
-            $this->getEventAuditLogger()->recordLogItem(1, $event, ($_SESSION['authUser'] ?? '')
-                , ($_SESSION['authProvider'] ?? ''), 'api log', $patientId, $category, 'open-emr'
-                , null, null, '', $api);
+            $this->getEventAuditLogger()->recordLogItem(
+                1,
+                $event,
+                ($_SESSION['authUser'] ?? ''),
+                ($_SESSION['authProvider'] ?? ''),
+                'api log',
+                $patientId,
+                $category,
+                'open-emr',
+                null,
+                null,
+                '',
+                $api
+            );
         }
-
     }
 
     /**

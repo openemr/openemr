@@ -12,8 +12,9 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\Psr17Factory;
 use Http\Message\Encoding\GzipEncodeStream;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -33,6 +34,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class RestControllerHelper
 {
@@ -199,6 +201,7 @@ class RestControllerHelper
      * @param  $successStatusCode        - The HTTP status code to return for a successful operation that completes without error.
      * @param  $isMultipleResultResponse - Indicates if the response contains multiple results.
      * @return array[]
+     * @deprecated use createProcessingResultResponse() instead.
      */
     public static function handleProcessingResult(ProcessingResult $processingResult, $successStatusCode, $isMultipleResultResponse = false): array
     {
@@ -246,6 +249,58 @@ class RestControllerHelper
         }
 
         return $httpResponseBody;
+    }
+
+    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false)
+    {
+        $httpResponseBody = [
+            "validationErrors" => [],
+            "internalErrors" => [],
+            "data" => [],
+            "links" => []
+        ];
+        $statusCode = $successStatusCode;
+        if (!$processingResult->isValid()) {
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+        } elseif ($processingResult->hasInternalErrors()) {
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+        } else {
+            $dataResult = $processingResult->getData();
+            $recordsCount = count($dataResult);
+            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
+
+            if (!$isMultipleResultResponse) {
+                $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
+            } else {
+                $pagination = $processingResult->getPagination();
+                // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
+                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($request->server->get('REDIRECT_URL', ''));
+                $getParams = $request->query->all();
+                // cleanup _limit and _offset
+                unset($getParams['_limit']);
+                unset($getParams['_offset']);
+                // cleanup a mod_rewrite piece so the URL is nicer.
+                if (isset($getParams['_REWRITE_COMMAND'])) {
+                    unset($getParams['_REWRITE_COMMAND']);
+                }
+                $queryParams = http_build_query($getParams);
+
+                $pagination->setSearchUri($bundleUrl . '?' . $queryParams);
+                $httpResponseBody['links'] = $processingResult->getPagination()->getLinks();
+            }
+
+            $httpResponseBody["data"] = $dataResult;
+        }
+        // TODO: Do we want to use JsonResponse here? makes it hard to interoperate with other PSR-7 implementations if we go w/ symfony internally
+        $psrFactory = new Psr17Factory();
+        $response = $psrFactory->createResponse($statusCode)
+            ->withHeader("Content-Type", "application/json")
+            ->withBody($psrFactory->createStream(json_encode($httpResponseBody)));
+        return $response;
     }
 
     /**

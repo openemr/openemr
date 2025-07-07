@@ -22,11 +22,17 @@ class RoutesExtensionListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::REQUEST => [['onKernelRequest', 50]]
+            KernelEvents::REQUEST => [['onKernelRequest', 40]]
         ];
     }
     public function onKernelRequest(RequestEvent $event)
     {
+        if ($event->hasResponse()) {
+            // If the event already has a response, we do not need to process it further.
+            // This can happen if a previous listener has already handled the request.
+            return;
+        }
+
         $request = $event->getRequest();
         $kernel = $event->getKernel();
         if (!$kernel instanceof OEHttpKernel) {
@@ -36,13 +42,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
         if (!$request instanceof HttpRestRequest) {
             return; // If the request is not an instance of HttpRestRequest, we cannot proceed with route extension.
         }
-        // TODO: @adunsulag should we break this out into a separate listener method?  IE a CORS listener?
-        if ($request->getRequestMethod() === 'OPTIONS') {
-            // If the request is an OPTIONS request, we can return an initial response.
-            $response = $this->getInitialResponse($request);
-            $event->setResponse($response);
-            return;
-        }
+        // CORS request is handled by a separate listener, so we do not need to handle it here.
 
         // handle each type of request separately
         if ($request->isFhirRequest()) {
@@ -164,7 +164,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
                     $routeControllerParameters[] = $dispatchRestRequest; // add in the request object to everything
 
                     // set the _controller attribute for the kernel to handle, gives other listeners a chance to modify things as needed
-                    $dispatchRestRequest->attributes->set("_controller", function() use ($routeCallback, $routeControllerParameters) {
+                    $dispatchRestRequest->attributes->set("_controller", function () use ($routeCallback, $routeControllerParameters) {
                         return $routeCallback(...$routeControllerParameters);
                     });
                     return;
@@ -176,7 +176,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
             $logger->errorLogCaller(
                 $exception->getMessage(),
                 [
-                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getRequiredSection()
+                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getSubCategory()
                     , 'clientId' => $dispatchRestRequest->getClientId()
                     , 'userUUID' => $dispatchRestRequest->getRequestUserUUIDString()
                     , 'userType' => $dispatchRestRequest->getRequestUserRole()
@@ -184,13 +184,15 @@ class RoutesExtensionListener implements EventSubscriberInterface
                 ]
             );
             throw new HttpException(Response::HTTP_UNAUTHORIZED, "Unauthorized", $exception);
-        } catch (Exception $exception) {
-            $logger->errorLogCaller($exception->getMessage(),
+        } catch (\Throwable $exception) {
+            $logger->errorLogCaller(
+                $exception->getMessage(),
                 [
                     'clientId' => $dispatchRestRequest->getClientId()
                     , 'userUUID' => $dispatchRestRequest->getRequestUserUUIDString()
                     , 'userType' => $dispatchRestRequest->getRequestUserRole()
                     , 'path' => $dispatchRestRequest->getRequestURI()
+                    ,'trace' => $exception->getTraceAsString()
                 ]
             );
             throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, "System error occurred", $exception);
@@ -231,25 +233,6 @@ class RoutesExtensionListener implements EventSubscriberInterface
         }
         $normalizedRequest->setQueryParams($queryVars);
         return $normalizedRequest;
-    }
-
-    private function getInitialResponse(HttpRestRequest $request) : Response {
-        // This method is intended to return an initial response.
-        // Implementation details would depend on the specific requirements of the application.
-        // For example, you might want to return a default response or an error response.
-        $response = new Response('', Response::HTTP_OK, [
-            'Access-Control-Allow-Credentials' => 'true',
-            "Access-Control-Allow-Headers" => "origin, authorization, accept, content-type, content-encoding, x-requested-with",
-            "Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS"
-        ]);
-        $origins = $request->getHeader('Origin');
-        if (!empty($origins)) {
-            // TODO: @adunsulag should we allow all origins or just the first one?
-            $response->headers->set("Access-Control-Allow-Origin", $origins[0]);
-        }
-        $response->setContent('');
-        $response->setStatusCode(Response::HTTP_OK);
-        return $response;
     }
 
     private function checkSecurity(OEHttpKernel $kernel, HttpRestRequest $restRequest)

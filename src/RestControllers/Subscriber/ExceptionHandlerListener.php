@@ -12,21 +12,23 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExceptionHandlerListener implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents() : array
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::EXCEPTION => 'onExceptionEvent',
         ];
     }
 
-    public function onExceptionEvent(ExceptionEvent $event) : void
+    public function onExceptionEvent(ExceptionEvent $event): void
     {
         // this is where we handle exceptions that occur during the request
         // we can log the exception, return a custom response, etc.
         $exception = $event->getThrowable();
         if ($event->getKernel() instanceof OEHttpKernel) {
-            $event->getKernel()->getSystemLogger()->error("ExceptionHandlerListener exception " . $exception->getMessage()
-                , ['trace' => $exception->getTraceAsString()]);
+            $event->getKernel()->getSystemLogger()->error(
+                "ExceptionHandlerListener exception " . $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString()]
+            );
         }
         $code = 500; // Default to 500 Internal Server Error
         if ($exception instanceof HttpException) {

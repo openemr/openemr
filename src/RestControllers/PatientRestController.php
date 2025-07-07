@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\SearchQueryConfig;
@@ -51,10 +52,10 @@ class PatientRestController
      * @param $data - array of patient fields.
      * @return a 201/Created status code and the patient identifier if successful.
      */
-    public function post($data)
+    public function post($data, HttpRestRequest $request)
     {
         $processingResult = $this->patientService->insert($data);
-        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 201);
     }
 
     /**
@@ -63,31 +64,31 @@ class PatientRestController
      * @param $data - array of patient fields (full resource).
      * @return a 200/Ok status code and the patient resource.
      */
-    public function put($puuidString, $data)
+    public function put($puuidString, $data, HttpRestRequest $request)
     {
         $processingResult = $this->patientService->update($puuidString, $data);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 
     /**
      * Fetches a single patient resource by id.
      * @param $puuidString - The patient uuid identifier in string format.
      */
-    public function getOne($puuidString)
+    public function getOne($puuidString, HttpRestRequest $request)
     {
         $processingResult = $this->patientService->getOne($puuidString);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
-            return RestControllerHelper::handleProcessingResult($processingResult, 404);
+            return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 404);
         }
 
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 
     /**
      * Returns patient resources which match an optional search criteria.
      */
-    public function getAll(array $search, SearchQueryConfig $config)
+    public function getAll(array $search, SearchQueryConfig $config, HttpRestRequest $request)
     {
         $validSearchFields = array_filter(
             $search,
@@ -97,6 +98,6 @@ class PatientRestController
             ARRAY_FILTER_USE_KEY
         );
         $processingResult = $this->patientService->getAll($validSearchFields, true, null, $config);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 }

@@ -14,16 +14,19 @@ class OEHttpKernel extends HttpKernel
     private SystemLogger $logger;
 
 
-    public function getEventDispatcher() : ?\Symfony\Component\EventDispatcher\EventDispatcherInterface{
+    public function getEventDispatcher(): ?\Symfony\Component\EventDispatcher\EventDispatcherInterface
+    {
         return $this->dispatcher;
     }
-    public function getSystemLogger() : ?SystemLogger {
+    public function getSystemLogger(): ?SystemLogger
+    {
         if (empty($this->logger)) {
             $this->logger = new SystemLogger();
         }
         return $this->logger;
     }
-    public function setSystemLogger(SystemLogger $logger) : void {
+    public function setSystemLogger(SystemLogger $logger): void
+    {
         $this->logger = $logger;
     }
 }

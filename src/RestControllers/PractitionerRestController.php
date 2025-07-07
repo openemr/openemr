@@ -13,6 +13,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
@@ -64,25 +65,25 @@ class PractitionerRestController
      * Fetches a single practitioner resource by id.
      * @param $uuid- The practitioner uuid identifier in string format.
      */
-    public function getOne($uuid)
+    public function getOne($uuid, HttpRestRequest $request)
     {
         $processingResult = $this->practitionerService->getOne($uuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
-            return RestControllerHelper::handleProcessingResult($processingResult, 404);
+            return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 404);
         }
 
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 
     /**
      * Returns practitioner resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    public function getAll($search = array(), HttpRestRequest $request)
     {
         $validSearchFields = $this->practitionerService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->getAll($validSearchFields);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 
     /**
@@ -90,11 +91,11 @@ class PractitionerRestController
      * @param $data - array of practitioner fields.
      * @return a 201/Created status code and the practitioner identifier if successful.
      */
-    public function post($data)
+    public function post($data, HttpRestRequest $request)
     {
         $filteredData = $this->practitionerService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->insert($filteredData);
-        return RestControllerHelper::handleProcessingResult($processingResult, 201);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 201);
     }
 
     /**
@@ -103,10 +104,10 @@ class PractitionerRestController
      * @param $data - array of practitioner fields (full resource).
      * @return a 200/Ok status code and the practitioner resource.
      */
-    public function patch($uuid, $data)
+    public function patch($uuid, $data, HttpRestRequest $request)
     {
         $filteredData = $this->practitionerService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->update($uuid, $filteredData);
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
     }
 }

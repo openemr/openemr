@@ -51,7 +51,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
             new Sha384(),
             InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
             InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
-        // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
+            // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 
         $now   = new \DateTimeImmutable();
@@ -82,7 +82,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $testClient = new ClientEntity();
         $testClient->setIdentifier(self::TEST_CLIENT_ID);
         $testClient->setUserId(1);
-        
+
         $tokenId = "some-valid-token-id";
         $accessToken = new AccessTokenEntity();
         $accessToken->setIdentifier($tokenId);

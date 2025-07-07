@@ -11,7 +11,6 @@ use OpenEMR\Core\OEHttpKernel;
 
 class AuthorizationListenerTest extends TestCase
 {
-
     public function testGetSubscribedEvents()
     {
         $this->markTestIncomplete("Need to implement test for getSubscribedEvents method in AuthorizationListener");
@@ -84,7 +83,6 @@ class AuthorizationListenerTest extends TestCase
         $this->assertGreaterThan(0, $authListener->getAuthorizationStrategies(), "Authorization strategies should be initialized and not empty");
         $authListener->clearAuthorizationStrategies();
         $this->assertEmpty($authListener->getAuthorizationStrategies(), "Authorization strategies should be empty after clearing");
-
     }
 
     public function testAddAuthorizationStrategy()

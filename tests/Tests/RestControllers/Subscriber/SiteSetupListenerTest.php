@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\HeaderBag;
 
 class SiteSetupListenerTest extends TestCase
 {
-
     #[Test]
     public function testOnKernelRequest()
     {
@@ -77,7 +76,8 @@ class SiteSetupListenerTest extends TestCase
         $this->markTestIncomplete("Need to implement test for no site ID handling in SiteSetupListener");
     }
 
-    public function testOnKernelRequestValidCSRFToken() {
+    public function testOnKernelRequestValidCSRFToken()
+    {
         $this->markTestIncomplete("Need to implement test for valid CSRF token handling in SiteSetupListener");
     }
 

@@ -16,7 +16,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
     {
     }
 
-    public function shouldProcessRequest(Request $request) : bool
+    public function shouldProcessRequest(Request $request): bool
     {
         if ($request->headers->has("APICSRFTOKEN")) {
             $request->attributes->set("_is_local_api", true);
@@ -31,7 +31,8 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
      * @return bool
      * @throw UnauthorizedHttpException if the request is not authorized
      */
-    public function authorizeRequest(Request $request) : bool {
+    public function authorizeRequest(Request $request): bool
+    {
         // for legacy purposes
         $GLOBALS['is_local_api'] = true;
         // need to check for csrf match when using api locally

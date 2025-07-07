@@ -18,7 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+
 use function collectIpAddresses;
+
 class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 {
     private AccessTokenRepository $accessTokenRepository;
@@ -134,7 +136,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $this->uuidUserAccountFactory;
     }
 
-    protected function createAccessTokenRepository() : AccessTokenRepository
+    protected function createAccessTokenRepository(): AccessTokenRepository
     {
         // This method is intended to create and return an instance of AccessTokenRepository.
         // Implementation details would depend on the specific requirements of the application.
@@ -320,7 +322,9 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 throw new HttpException(500, "Server Error", $exception);
             } else {
                 $this->getLogger()->error(
-                    "BearerTokenAuthorizationStrategy::verifyAccessToken() Exception", ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+                    "BearerTokenAuthorizationStrategy::verifyAccessToken() Exception",
+                    ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                );
                 // do NOT reveal what happened at the server level if we have a server exception
                 throw new HttpException(500, "Server Error", $exception);
             }

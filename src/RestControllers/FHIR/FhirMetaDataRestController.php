@@ -30,7 +30,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 
-
 /**
  * Supports REST interactions with the FHIR METADATA
  */

@@ -89,6 +89,8 @@ class ScopeRepositoryTest extends TestCase
 
         $diff = array_diff($expectedScopes, $validatorArray);
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr' should return standard scopes");
+        $this->assertContains('user/patient.read', $validatorArray, "user/patient.read should be in standard api scopes");
+        $this->assertContains('user/allergy.read', $validatorArray, "user/allergy.read should be in standard api scopes");
     }
 
     public function testBuildScopeValidatorArrayForStandardPortalApiScopeRequest(): void
@@ -117,6 +119,17 @@ class ScopeRepositoryTest extends TestCase
         $this->assertEquals([], $diff, "OpenEMR api scope of 'api:port' should return standard scopes");
     }
 
+    public function testBuildScopeValidatorArrayCombinedScopesReturnsEverything() {
+        $scopeRepository = $this->scopeRepository;
+        $expectedScopes = $scopeRepository->getCurrentSmartScopes();
+        $expectedScopes = array_merge($expectedScopes, $scopeRepository->getCurrentStandardScopes());
+
+        $scopeRepository->setRequestScopes("api:oemr api:port api:fhir");
+        $validatorArray = array_keys($scopeRepository->buildScopeValidatorArray());
+        $diff = array_diff($expectedScopes, $validatorArray);
+        $this->assertEquals([], $diff, "OpenEMR api scope of 'api:oemr api:port api:fhir' should return all scopes");
+    }
+
 
     public function testGetScopeEntityByIdentifierHasExportOperations(): void
     {
@@ -132,5 +145,31 @@ class ScopeRepositoryTest extends TestCase
 
         $scopeEntity = $scopeRepository->getScopeEntityByIdentifier('system/*.$export');
         $this->assertNotEmpty($scopeEntity, "system/*.\$export not found in FHIR route map");
+    }
+
+    public function testGetCurrentSmartScopes() {
+        $scopeRepository = $this->scopeRepository;
+
+        // let's see if we get the scope
+        $smartScopes = $scopeRepository->getCurrentSmartScopes();
+        $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
+        $this->assertContains('system/Patient.read', $smartScopes, "system/Patient.read should be in smart scopes");
+        $this->assertContains('system/Observation.read', $smartScopes, "system/Observation.read should be in smart scopes");
+        $this->assertContains('patient/Medication.read', $smartScopes, "patient/Medication.read should be in smart scopes");
+        $this->assertContains('user/Medication.read', $smartScopes, "user/Medication.read should be in smart scopes");
+        $this->assertContains('user/Medication.read', $smartScopes, "user/Medication.read should be in smart scopes");
+    }
+
+    public function testGetStandardScopes() {
+        $scopeRepository = $this->scopeRepository;
+
+        // let's see if we get the scope
+        $smartScopes = $scopeRepository->getStandardApiSupportedScopes();
+        $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
+        $this->assertContains('user/patient.read', $smartScopes, "user/patient.read should be in smart scopes");
+        $this->assertContains('user/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
+        $this->assertContains('system/allergy.read', $smartScopes, "system/allergy.read should be in smart scopes");
+        $this->assertContains('system/allergy.write', $smartScopes, "system/allergy.write should be in smart scopes");
+
     }
 }

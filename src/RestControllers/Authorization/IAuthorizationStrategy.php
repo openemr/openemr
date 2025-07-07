@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 // TODO: @adunsulag look at renaming this to be IAuthenticationStrategy or similar, as this is more about authentication than authorization.
 interface IAuthorizationStrategy
 {
-
     /**
      * Determines if the request should be processed by this authorization strategy.
      *
