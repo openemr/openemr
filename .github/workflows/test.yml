@@ -2,9 +2,11 @@ name: Test
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
 
 permissions:
   contents: read
@@ -140,9 +142,18 @@ jobs:
     # rename the docker directory to end with "_no-e2e".
     - name: E2e testing
       if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      env:
+        # Change this to just 'selenium' to disable video recording.
+        COMPOSE_PROFILES: video-recording
       run: |
         . ci/ciLibrary.source
         build_test e2e
+    - name: Upload E2E test videos
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-test-videos-${{ matrix.configurations.docker_dir }}
+        path: selenium-videos/
     - name: Api testing
       if: ${{ success() || failure() }}
       run: |
