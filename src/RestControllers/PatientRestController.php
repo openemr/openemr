@@ -87,8 +87,11 @@ class PatientRestController
 
     /**
      * Returns patient resources which match an optional search criteria.
+     * @param HttpRestRequest $request - The HTTP request object.
+     * @param array $search - An array of search fields to filter the results.
+     * @param SearchQueryConfig $config - The search query configuration object.
      */
-    public function getAll(array $search, SearchQueryConfig $config, HttpRestRequest $request)
+    public function getAll(HttpRestRequest $request, array $search, SearchQueryConfig $config)
     {
         $validSearchFields = array_filter(
             $search,

@@ -766,8 +766,8 @@ return array(
      */
     "GET /api/patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
-        $config = SearchQueryConfig::createConfigFromQueryParams($_GET);
-        $return = (new PatientRestController())->getAll($_GET, $config, $request);
+        $config = SearchQueryConfig::createConfigFromQueryParams($request->query->all());
+        $return = (new PatientRestController())->getAll($request, $request->query->all(), $config);
 
         return $return;
     },
