@@ -1,13 +1,13 @@
 <?php
 
-namespace OpenEMR\Tests\RestControllers\Subscriber;
+namespace OpenEMR\Tests\Integration\RestControllers\Subscriber;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEHttpKernel;
+use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
 use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEHttpKernel;
 
 class AuthorizationListenerTest extends TestCase
 {

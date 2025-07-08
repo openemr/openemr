@@ -10,6 +10,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\Config\ServerConfig;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -96,7 +97,7 @@ class SiteSetupListener implements EventSubscriberInterface
             // TODO: @adunsulag do we need to do a 401 when its an oauth2 request?
             // we don't use system logger here because we don't have access to our database that configures the logging
             error_log("OpenEMR Error - api site error, so forced exit " . "siteId: $siteId, pathInfo: $pathInfo");
-            throw new HttpException(400, "OpenEMR Error: api site error, so forced exit.  Please ensure that the site is set up correctly in the OpenEMR configuration.");
+            throw new HttpException(Response::HTTP_BAD_REQUEST, "OpenEMR Error: api site error, so forced exit.  Please ensure that the site is set up correctly in the OpenEMR configuration.");
         }
         $event->getRequest()->attributes->set('siteId', $siteId);
 
@@ -134,7 +135,7 @@ class SiteSetupListener implements EventSubscriberInterface
         if ($event->getKernel() instanceof OEHttpKernel) {
             $eventDispatcher = $event->getKernel()->getEventDispatcher();
         }
-        require_once(__DIR__ . "./../../../interface/globals.php");
+        require_once (__DIR__ . "./../../../interface/globals.php");
         // now that globals are setup, setup our centralized logger that will respect the global settings
         if ($event->getKernel() instanceof OEHttpKernel) {
             $event->getKernel()->setSystemLogger(new SystemLogger());
