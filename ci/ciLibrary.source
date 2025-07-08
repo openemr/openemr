@@ -105,9 +105,15 @@ phpcov() {
 }
 
 install_configure() {
-    actions_chmod 0666 sites/default/sqlconf.php
-    actions_chmod -R 0777 sites/default/documents
-    sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
+    (
+        cd "$(git rev-parse --show-toplevel)"
+    	actions_chmod 0666 sites/default/sqlconf.php
+    	actions_chmod -R 0777 sites/default/documents
+    )
+    # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
+    _exec sh -c "sed -e 's@^exit;@ @' < ./contrib/util/installScripts/InstallerAuto.php > ./contrib/util/installScripts/InstallerAutoTemp.php"
+    # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
+    _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
     _exec php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
     _exec rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
     _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
@@ -119,10 +125,7 @@ install_configure() {
 }
 
 build_test_e2e() {
-    _exec sh -c "${CHROMIUM_INSTALL?};
-                 export PANTHER_NO_SANDBOX=1;
-                 export PANTHER_CHROME_ARGUMENTS=--disable-dev-shm-usage;
-                 php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e \
+    _exec sh -c "php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e \
                                                              --testdox"
 }
 

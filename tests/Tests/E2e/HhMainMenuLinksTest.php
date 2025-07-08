@@ -32,7 +32,7 @@ class HhMainMenuLinksTest extends PantherTestCase
      * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      */
-    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading): void
+    public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading = ''): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
