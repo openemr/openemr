@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * package   OpenEMR
  * link      http://www.open-emr.org
  * author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -10,7 +10,6 @@
  */
 
 namespace OpenEMR\Reports\Encounter;
-
 
 class EncounterReportData
 {
