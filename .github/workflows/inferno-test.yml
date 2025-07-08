@@ -65,13 +65,3 @@ jobs:
               run: |
                   docker compose -f ci/inferno/compose.yml down -v || true
                   docker system prune -f || true
-
-            - name: Upload test results
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: inferno-test-results
-                  path: |
-                      ci/inferno/test-results/
-                      ci/inferno/logs/
-                  if-no-files-found: ignore
