@@ -4,6 +4,7 @@ namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -239,7 +240,7 @@ class ApiTestClient
      * @param $body - The POST request body (array)
      * @return $postResponse - HTTP response
      */
-    public function post($url, $body, $json = true)
+    public function post($url, $body, $json = true) : ResponseInterface
     {
         if ($json) {
             $postResponse = $this->client->post($url, [
