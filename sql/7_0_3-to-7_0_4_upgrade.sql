@@ -109,6 +109,10 @@
 --    desc: Change date from zeroes to date of vitals form creation.
 --    arguments: none
 
+--  #IfMBOEncounterNeeded
+--    desc: Add encounter to the form_misc_billing_options table
+--    arguments: none
+
 #IfMissingColumn onetime_auth scope
 ALTER TABLE `onetime_auth` ADD `scope` tinytext COMMENT 'context scope for this token';
 #EndIf
@@ -170,4 +174,15 @@ ALTER TABLE `track_events` DROP INDEX `unique_event_label_url`;
 
 #IfNotIndex track_events unique_event_label_target
 ALTER TABLE `track_events` ADD UNIQUE `unique_event_label_target` (`event_label`, `event_url`(255), `event_target`(255));
+#EndIf
+
+#IfMissingColumn form_misc_billing_options encounter
+ALTER TABLE `form_misc_billing_options` ADD `encounter` BIGINT(20) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex form_misc_billing_options encounter
+ALTER TABLE `form_misc_billing_options` ADD UNIQUE `encounter` (`encounter`);
+#EndIf
+
+#IfMBOEncounterNeeded
 #EndIf
