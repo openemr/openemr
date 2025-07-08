@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -33,6 +34,9 @@ class ExceptionHandlerListener implements EventSubscriberInterface
         $code = 500; // Default to 500 Internal Server Error
         if ($exception instanceof HttpException) {
             $code = $exception->getStatusCode();
+        }
+        if ($exception instanceof OAuthServerException) {
+            $code = $exception->getHttpStatusCode();
         }
         $data = [
             'error' => 'An error occurred',

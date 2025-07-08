@@ -19,14 +19,18 @@ class SessionCleanupListener implements EventSubscriberInterface
 
     public function onRequestTerminated(TerminateEvent $event): void
     {
+        $session = $event->getRequest()->getSession();
         if (!$event->getRequest()->attributes->has('is_local_api')) {
-            SessionUtil::apiSessionCookieDestroy();
+            $session->invalidate(0); // Invalidate the session without persisting it
             return;
         }
 
-        // if we still have an active session, we close it
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
+        // if we still have an active session, we close it, just to mimic the behavior of the original dispatch.php
+
+        if ($session->isStarted()) {
+            if (!empty($session)) {
+                $session->save();
+            }
         }
     }
 }

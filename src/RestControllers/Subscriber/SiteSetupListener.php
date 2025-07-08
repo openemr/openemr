@@ -5,6 +5,7 @@ namespace OpenEMR\RestControllers\Subscriber;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEHttpKernel;
@@ -12,6 +13,9 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionFactory;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorageFactory;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -117,13 +121,14 @@ class SiteSetupListener implements EventSubscriberInterface
         } else {
             $ignoreAuth = true;
             // Will start the api OpenEMR session/cookie, if its oauth2 it uses a different session cookie
+            $sessionFactory = new HttpSessionFactory($event->getRequest(), self::getWebroot()
+                , $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API);
             if ($isOauth2Request) {
-                SessionUtil::oauthSessionStart(self::getWebroot());
                 $event->getRequest()->attributes->set('is_oauth2_request', true);
-            } else {
-                // for non-oauth2 requests, we use the api session
-                SessionUtil::apiSessionStart(self::getWebroot());
             }
+            $session = $sessionFactory->createSession();
+            $event->getRequest()->setSession($session);
+            $session->start(); // start the session for the request
         }
 
         // Set $sessionAllowWrite to true here for following reasons:

@@ -69,8 +69,14 @@ use OpenEMR\Common\Session\Predis\SentinelUtil;
 
 class SessionUtil
 {
-    private const CORE_SESSION_ID = "OpenEMR";
-    private const OAUTH_SESSION_ID = 'authserverOpenEMR';
+    public const CORE_SESSION_ID = "OpenEMR";
+    public const OAUTH_SESSION_ID = 'authserverOpenEMR';
+
+    public const API_SESSION_ID = 'apiOpenEMR';
+
+    public const API_WEBROOT = '/apis/';
+
+    public const OAUTH_WEBROOT = '/oauth2/';
 
     private static $gc_maxlifetime = 14400;
     private static $use_strict_mode = true;
@@ -234,7 +240,7 @@ class SessionUtil
         $settings = [
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => true,
-            'name' => 'apiOpenEMR',
+            'name' => self::API_SESSION_ID,
             'cookie_httponly' => self::$use_cookie_httponly,
             'cookie_path' => ((!empty($web_root)) ? $web_root . '/apis/' : '/apis/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
