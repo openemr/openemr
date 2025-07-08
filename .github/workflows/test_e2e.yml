@@ -1,10 +1,12 @@
-name: Test
+name: Test End-to-End
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
 
 permissions:
   contents: read
@@ -32,6 +34,10 @@ jobs:
         # Everything inside this for loop that goes to stdout ends up
         # in the github output, so it must be valid json.
         for docker_dir in "${dirs[@]}"; do
+            if [[ $docker_dir = *_no-e2e ]]; then
+                echo "Skipping e2e tests for $docker_dir" >&2
+                continue
+            fi
             IFS=: read -r database db < <(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
             IFS=_ read -r webserver php _ <<< "${docker_dir}"
 
@@ -57,13 +63,14 @@ jobs:
                 "docker_dir": "%s",
                 "database": "%s",
                 "db": "%s",
+                "e2e_enabled": "%s",
                 "openemr_dir": "%s",
                 "php": "%s",
                 "webserver": "%s",
                 "webserver_template": "%s",
                 "database_template": "%s",
                 "selenium_template": "%s"
-            }\n' "$docker_dir" "$database" "$db" "$openemr_dir" "$php" "$webserver" "$webserver_template" "$database_template" "$selenium_template"
+            }\n' "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver" "$webserver_template" "$database_template" "$selenium_template"
         done | {
             printf 'configurations='
             jq -cs .
@@ -131,6 +138,14 @@ jobs:
       run: |
         . ci/ciLibrary.source
         build_test unit
+    ##
+    # To skip E2E tests for specific docker directories,
+    # rename the docker directory to end with "_no-e2e".
+    - name: E2e testing
+      if: ${{ (success() || failure()) && matrix.configurations.e2e_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        build_test e2e
     - name: Api testing
       if: ${{ success() || failure() }}
       run: |
