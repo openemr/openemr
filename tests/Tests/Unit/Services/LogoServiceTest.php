@@ -22,7 +22,7 @@ class LogoServiceTest extends TestCase
         // has to be a file that exists in the zend_modules or custom_modules directory for safe path inclusion
         $logoPathUpdated = "/interface/modules/zend_modules/public/images/close.png";
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener(LogoFilterEvent::EVENT_NAME, function (LogoFilterEvent $event) use ($logoType, $logoPathUpdated) : void {
+        $eventDispatcher->addListener(LogoFilterEvent::EVENT_NAME, function (LogoFilterEvent $event) use ($logoType, $logoPathUpdated): void {
             $this->assertEquals($logoType, $event->getLogoType(), "Logo type was not populated");
             $this->assertEquals("", $event->getWebPath());
             $this->assertEquals("", $event->getFilePath());
