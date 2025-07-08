@@ -886,7 +886,7 @@ class AuthorizationController
             $clientName =  $client->getName();
         }
 
-        $uuidToUser = new UuidUserAccount($_SESSION['user_id']);
+        $uuidToUser = new UuidUserAccount($_SESSION['user_id'] ?? '');
         $userRole = $uuidToUser->getUserRole();
         $userAccount = $uuidToUser->getUserAccount();
 
