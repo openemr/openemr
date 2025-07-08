@@ -36,7 +36,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
      * @depends testLoginAuthorized
      * @depends testPatientOpen
      */
-    public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading, ?bool $clearAlert = false): void
+    public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading = '', ?bool $clearAlert = false): void
     {
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have

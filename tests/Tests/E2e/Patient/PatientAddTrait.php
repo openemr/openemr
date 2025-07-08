@@ -109,6 +109,9 @@ trait PatientAddTrait
                 WebDriverBy::xpath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)
             )
         );
+
+        sleep(5); // wait for the form to be ready (sometimes it takes a bit longer)
+
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
 
