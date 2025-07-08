@@ -32,11 +32,11 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     private $crawler;
 
     /**
+     * @dataProvider menuLinkProvider
      * @depends testLoginAuthorized
      * @depends testPatientOpen
      */
-    #[DataProvider('menuLink')]
-    public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading = null, ?bool $clearAlert = false): void
+    public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading = '', ?bool $clearAlert = false): void
     {
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
@@ -87,7 +87,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
         }
     }
 
-    public static function menuLink()
+    public static function menuLinkProvider()
     {
         return [
             'Patient -> Dashboard menu link' => ['Patient||Dashboard', 'Dashboard', false],
