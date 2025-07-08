@@ -15,6 +15,7 @@
  */
 
 require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
