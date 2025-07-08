@@ -14,11 +14,14 @@ jobs:
         runs-on: ubuntu-22.04
         name: Inferno Certification Test
         timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
+        env:
+            HAS_INFERNO_PAT: ${{ secrets.INFERNO_PAT != '' }}
+            if: env.HAS_INFERNO_PAT == 'true'
         steps:
             - uses: actions/checkout@v4
               with:
                   submodules: 'recursive'
-                  token: ${{ secrets.GITHUB_TOKEN }}
+                  token: ${{ secrets.INFERNO_PAT }}
 
             - name: Install PHP
               uses: shivammathur/setup-php@v2
