@@ -141,7 +141,7 @@ function downloadWenoLogCsvAndZip()
         RecursiveIteratorIterator::LEAVES_ONLY
     );
 
-    foreach ($files as $file) {
+    foreach ($files as $name => $file) {
         if (!$file->isDir()) {
             $filePath = $file->getRealPath();
             $relativePath = basename($filePath);
