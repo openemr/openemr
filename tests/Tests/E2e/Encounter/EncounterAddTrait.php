@@ -23,6 +23,7 @@ use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsEncounterAddTrait;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 trait EncounterAddTrait
 {
@@ -32,6 +33,7 @@ trait EncounterAddTrait
 
     #[Depends('testLoginAuthorized')]
     #[Depends('testPatientOpen')]
+    #[Test]
     public function testEncounterAdd(): void
     {
         $this->base();

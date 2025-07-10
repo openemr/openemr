@@ -10,6 +10,7 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 {
