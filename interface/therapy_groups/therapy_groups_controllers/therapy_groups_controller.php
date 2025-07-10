@@ -404,6 +404,8 @@ class TherapyGroupsController extends BaseController
         foreach ($counselors as $counselorId) {
             $this->counselorsModel->save($groupData['group_id'], $counselorId);
         }
+
+        return $groupData['group_id'];
     }
 
     static function setSession($groupId)
