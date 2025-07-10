@@ -13,14 +13,19 @@ jobs:
     check_secret:
         runs-on: ubuntu-latest
         name: Check Required Secret
+        outputs:
+            has_inferno_pat: ${{ steps.check.outputs.has_inferno_pat }}
         steps:
+            - id: check
             - name: Check if INFERNO_PAT is available
               run: |
                   if [ -z "${{ secrets.INFERNO_PAT }}" ]; then
                       echo "::warning::INFERNO_PAT secret is not set. Inferno certification tests will be skipped."
                       echo "To run these tests, please set the INFERNO_PAT secret in your repository settings."
+                      echo "has_inferno_pat=false" >> $GITHUB_OUTPUT
                   else
                       echo "INFERNO_PAT secret is available. Proceeding with tests."
+                      echo "has_inferno_pat=true" >> $GITHUB_OUTPUT
                   fi
 
     inferno_certification_test:
@@ -28,7 +33,7 @@ jobs:
         runs-on: ubuntu-latest
         name: Inferno Certification Test
         timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
-        if: secrets.INFERNO_PAT != ''
+        if: needs.check_secret.outputs.has_inferno_pat == 'true'
         steps:
             - uses: actions/checkout@v4
               with:
