@@ -16,8 +16,8 @@ jobs:
         outputs:
             has_inferno_pat: ${{ steps.check.outputs.has_inferno_pat }}
         steps:
-            - id: check
             - name: Check if INFERNO_PAT is available
+              id: check
               run: |
                   if [ -z "${{ secrets.INFERNO_PAT }}" ]; then
                       echo "::warning::INFERNO_PAT secret is not set. Inferno certification tests will be skipped."
