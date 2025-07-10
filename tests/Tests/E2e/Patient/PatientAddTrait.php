@@ -23,7 +23,7 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientAddTrait;
-use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\Attributes\Depends;
 
 trait PatientAddTrait
 {
@@ -33,9 +33,7 @@ trait PatientAddTrait
     private int $patientAddAttemptCounter = 1;
     private bool $closedClient = false;
 
-    /**
-     * @depends testLoginAuthorized
-     */
+    #[Depends('testPatientOpen')]
     public function testPatientAdd(): void
     {
         $this->base();
