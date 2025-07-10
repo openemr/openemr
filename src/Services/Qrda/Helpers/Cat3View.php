@@ -111,6 +111,7 @@ trait Cat3View
         end
         end
          */
+        return [];
     }
 
     public function cms_payer_code(\Mustache_Context $context): string
@@ -174,6 +175,7 @@ trait Cat3View
         end
         end
          */
+        return [];
     }
 
     public function supplemental_data_value_code_system(\Mustache_Context $context): string

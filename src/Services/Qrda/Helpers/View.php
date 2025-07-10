@@ -19,6 +19,8 @@ trait View
     protected $submission_program;
     protected $_qrda_guid;
 
+    protected $_measures;
+
     public function measures()
     {
         // Limit the pollution of the context by only passing the values we need
