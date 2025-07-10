@@ -10,7 +10,21 @@ permissions:
     contents: read
 
 jobs:
+    check_secret:
+        runs-on: ubuntu-latest
+        name: Check Required Secret
+        steps:
+            - name: Check if INFERNO_PAT is available
+              run: |
+                  if [ -z "${{ secrets.INFERNO_PAT }}" ]; then
+                      echo "::warning::INFERNO_PAT secret is not set. Inferno certification tests will be skipped."
+                      echo "To run these tests, please set the INFERNO_PAT secret in your repository settings."
+                  else
+                      echo "INFERNO_PAT secret is available. Proceeding with tests."
+                  fi
+
     inferno_certification_test:
+        needs: check_secret
         runs-on: ubuntu-latest
         name: Inferno Certification Test
         timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
