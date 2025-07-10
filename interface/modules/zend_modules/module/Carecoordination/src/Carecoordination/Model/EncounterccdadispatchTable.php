@@ -37,6 +37,7 @@ use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Services\Search\SearchQueryFragment;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
+use RuntimeException;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -2827,7 +2828,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $field_name
      * @return void
      */
-    public function getDetails($field_name)
+    public function getDetails($field_name) : ?array
     {
         if ($field_name == 'hie_custodian_id') {
             $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid, f.oid AS facility_oid, f.facility_npi
@@ -2871,6 +2872,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             return $result;
         }
+        return null;
     }
 
     /*
@@ -3595,7 +3597,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $uid
      * @return void
      */
-    public function getUserDetails($uid)
+    public function getUserDetails($uid) : ?array
     {
         $query = "SELECT u.title,npi,fname,mname,lname,street,city,state,zip,CONCAT_WS(' ','',phonew1) AS phonew1, lo.title as  physician_type, facility As organization, taxonomy, lous.title as taxonomy_desc, specialty, SUBSTRING(lo.codes, LENGTH('SNOMED-CT:')+1, LENGTH(lo.codes)) as physician_type_code FROM users as u
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
@@ -3611,6 +3613,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
             return $result;
         }
+        return null;
     }
 
     /**
