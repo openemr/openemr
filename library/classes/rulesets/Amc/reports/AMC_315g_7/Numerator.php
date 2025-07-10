@@ -110,6 +110,7 @@ class AMC_315g_7_Numerator implements AmcFilterIF, IAmcItemizedReport
             // required elements.
             return true;
         }
+        return false;
     }
 
     /**

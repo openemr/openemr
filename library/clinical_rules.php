@@ -868,6 +868,9 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
         // done, so now can return results
         return $results;
     }
+
+    // Default return for cases not covered by the above conditions
+    return $results;
 }
 
 /**

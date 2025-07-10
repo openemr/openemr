@@ -187,7 +187,7 @@ class EmailClient extends AppDispatch
      */
     function fetchReminderCount(): string|bool
     {
-        // TODO: Implement fetchReminderCount() method.
+        throw new \Exception("fetchReminderCount() method not implemented");
     }
 
     /**
