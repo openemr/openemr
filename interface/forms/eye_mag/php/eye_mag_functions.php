@@ -3286,7 +3286,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
  * @param string $form_id is the form_eye_*.id where the data to carry forward is located
  * @param string $pid value = patient id
- * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone
+ * @return void : outputs the ZONE specific HTML for a prior record + widget for the desired zone
  */
 function copy_forward($zone, $copy_from, $copy_to, $pid)
 {
