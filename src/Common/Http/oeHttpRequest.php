@@ -21,11 +21,14 @@ namespace OpenEMR\Common\Http;
  */
 class oeHttpRequest extends oeHttp
 {
+    private string $bodyFormat;
+    private array $options;
+
     public function __construct($client)
     {
         parent::__construct();
 
-        $this->client = $client;
+        self::$client = $client;
         $this->bodyFormat = "json";
         $this->options = [
             'base_uri' => '',
