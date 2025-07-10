@@ -179,31 +179,30 @@ class TeleconferenceRoomController
         } elseif ($action == 'set_appointment_status') {
             $this->setAppointmentStatusAction($queryVars);
         } elseif ($action == 'set_current_appt_encounter') {
-            return $this->setCurrentAppointmentEncounter($queryVars);
+            $this->setCurrentAppointmentEncounter($queryVars);
         } elseif ($action == 'patient_appointment_ready') {
-            return $this->patientAppointmentReadyAction($queryVars);
+            $this->patientAppointmentReadyAction($queryVars);
         } elseif ($action == 'conference_session_update') {
-            return $this->conferenceSessionUpdateAction($queryVars);
+            $this->conferenceSessionUpdateAction($queryVars);
         } elseif ($action == 'check_registration') {
-            return $this->checkRegistrationAction($queryVars);
+            $this->checkRegistrationAction($queryVars);
         } elseif ($action == 'get_telehealth_settings') {
-            return $this->getTeleHealthFrontendSettingsAction($queryVars);
+            $this->getTeleHealthFrontendSettingsAction($queryVars);
         } elseif ($action == 'verify_installation_settings') {
-            return $this->verifyInstallationSettings($queryVars);
+            $this->verifyInstallationSettings($queryVars);
         } elseif ($action == 'save_session_participant') {
-            return $this->saveSessionParticipantAction($queryVars);
+            $this->saveSessionParticipantAction($queryVars);
         } elseif ($action == 'get_participant_list') {
-            return $this->getParticipantListAction($queryVars);
+            $this->getParticipantListAction($queryVars);
         } elseif ($action == self::LAUNCH_PATIENT_SESSION) {
-            return $this->launchPatientSessionAction($queryVars);
+            $this->launchPatientSessionAction($queryVars);
         } elseif ($action == 'generate_participant_link') {
-            return $this->generateParticipantLinkAction($queryVars);
+            $this->generateParticipantLinkAction($queryVars);
         } elseif ($action == 'patient_validate_telehealth_ready') {
-            return $this->validatePatientIsTelehealthReadyAction($queryVars);
+            $this->validatePatientIsTelehealthReadyAction($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
-            return;
         }
     }
 
