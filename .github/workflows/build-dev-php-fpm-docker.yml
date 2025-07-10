@@ -28,7 +28,7 @@ jobs:
       - name: Build and push dev-php-fpm:pre-build-dev-85 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm"
+          context: ./docker/library/dockers/dev-php-fpm
           tags: openemr/dev-php-fpm:pre-build-dev-85
           platforms: linux/amd64
           push: true
