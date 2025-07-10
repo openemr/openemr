@@ -33,7 +33,7 @@ trait PatientAddTrait
     private int $patientAddAttemptCounter = 1;
     private bool $closedClient = false;
 
-    #[Depends('testPatientOpen')]
+    #[Depends('testLoginAuthorized')]
     public function testPatientAdd(): void
     {
         $this->base();

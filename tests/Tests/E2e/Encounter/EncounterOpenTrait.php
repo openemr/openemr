@@ -24,7 +24,6 @@ use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsEncounterOpenTrait;
 use PHPUnit\Framework\Attributes\Depends;
 
-
 trait EncounterOpenTrait
 {
     use BaseTrait;

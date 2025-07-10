@@ -36,6 +36,7 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
 
     #[DataProvider('menuLinkProvider')]
     #[Depends('testLoginAuthorized')]
+    #[Depends('testPatientOpen')]
     #[Test]
     public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading = '', ?bool $clearAlert = false): void
     {
