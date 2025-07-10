@@ -28,28 +28,6 @@
 // Purpose of file: HTML helpers
 // ----------------------------------------------------------------------
 
-/**
- * Set object to keep generated HTML.
- *
- * After calling SetOutputMode() with this value, all future calls to
- * pnHTML methods will store their HTML in the objecr rather than
- * returning it to the calling process.
- *
- * $const _PNH_KEEPOUTPUT Keep the output from method calls
- */
-
-define('_PNH_KEEPOUTPUT', 0);
-
-/**
- * Set object to return generated HTML to caller.
- *
- * After calling SetOutputMode() with this value, all future calls to
- * pnHTML methods will return their HTML directly to the calling process
- * rather than storing it within the object.
- *
- * $const _PNH_RETURNOUTPUT Return the output from method calls
- */
-define('_PNH_RETURNOUTPUT', 1);
 
 /**
  * Set incoming text to be copied verbatim to the output buffer
@@ -134,13 +112,6 @@ class pnHTML
      */
     var $output;
 
-    /**
-     * Return output?
-     *
-     * @access private
-     * @var integer $return
-     */
-    var $return;
 
     /**
      * Parse text for output?
@@ -179,53 +150,12 @@ class pnHTML
     {
         $this->header = array ();
         $this->output = '';
-        $this->return = _PNH_KEEPOUTPUT;
         $this->parse = _PNH_PARSEINPUT;
         $this->tabindex = 0;
         $this->fileupload = 0;
         return true;
     }
 
-    /**
-     * Return the current state of the output stream
-     *
-     * @access public
-     * @since 1.13 - 2002/01/23
-     * @return integer Current output state
-     * @see SetOutputMode()
-     */
-    function GetOutputMode()
-    {
-        // The ONLY time this should be accessed directly
-        return $this->return;
-    }
-
-    /**
-     * Set state of the output stream
-     *
-     * @access public
-     * @since 1.14 - 2002/01/29
-     * @param int $st Output state to set to
-     * @return integer Previous state
-     * @see GetOutputMode()
-     */
-    function SetOutputMode($st)
-    {
-        $pre = $this->GetOutputMode();
-        switch ($st) {
-            default:
-            case _PNH_KEEPOUTPUT:
-                // The ONLY time this should be accessed directly
-                $this->return = _PNH_KEEPOUTPUT;
-                break;
-            case _PNH_RETURNOUTPUT:
-                // The ONLY time this should be accessed directly
-                $this->return = _PNH_RETURNOUTPUT;
-                break;
-        }
-
-        return $pre;
-    }
 
     /**
      * Retrieve the current input state
@@ -313,14 +243,13 @@ class pnHTML
      *==============================================================================*/
 
     /**
-     * Put the appropriate HTML tags in place to create a valid start to HTML output.
+     * Generate the appropriate HTML tags for a valid start to HTML output.
      *
      * @access public
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
-     * @see EndPage()
+     * @return string The HTML string
+     * @see generateEndPage()
      */
-    function StartPage()
+    function generateStartPage()
     {
         ob_start();
         include 'header.php';
@@ -329,22 +258,30 @@ class pnHTML
         $output = ob_get_contents();
         @ob_end_clean();
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+        return $output;
     }
 
     /**
-     * Put the appropriate HTML tags in place to create a valid end to HTML output.
+     * Put the appropriate HTML tags in place to create a valid start to HTML output.
+     * Appends the output to the internal output buffer.
      *
      * @access public
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
-     * @see StartPage()
+     * @return void
+     * @see EndPage()
      */
-    function EndPage()
+    function StartPage()
+    {
+        $this->output .= $this->generateStartPage();
+    }
+
+    /**
+     * Generate the appropriate HTML tags for a valid end to HTML output.
+     *
+     * @access public
+     * @return string The HTML string
+     * @see generateStartPage()
+     */
+    function generateEndPage()
     {
         global $index;
         if (pnVarCleanFromInput('module')) {
@@ -359,11 +296,20 @@ class pnHTML
         $output = ob_get_contents();
         @ob_end_clean();
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+        return $output;
+    }
+
+    /**
+     * Put the appropriate HTML tags in place to create a valid end to HTML output.
+     * Appends the output to the internal output buffer.
+     *
+     * @access public
+     * @return void
+     * @see StartPage()
+     */
+    function EndPage()
+    {
+        $this->output .= $this->generateEndPage();
     }
 
 
@@ -372,47 +318,61 @@ class pnHTML
      *==============================================================================*/
 
     /**
-     * Add free-form text to the object's buffer
+     * Generate processed text string
      *
      * @access public
-     * @param string $text The text string to add
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @param string $text The text string to process
+     * @return string The processed text string
      */
-    function Text($text)
+    function generateText($text)
     {
         if ($this->GetInputMode() == _PNH_PARSEINPUT) {
             $text = pnVarPrepForDisplay($text);
         }
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $text;
-        } else {
-            $this->output .= $text;
-        }
+        return $text;
+    }
+
+    /**
+     * Add free-form text to the object's buffer
+     *
+     * @access public
+     * @param string $text The text string to add
+     * @return void
+     */
+    function Text($text)
+    {
+        $this->output .= $this->generateText($text);
     }
 
 
     /**
-     * Add line break
+     * Generate line break HTML
      *
      * @access public
      * @param integer $numbreaks number of linebreaks to add
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @return string The line break HTML string
      */
-    function Linebreak($numbreaks = 1)
+    function generateLinebreak($numbreaks = 1)
     {
         $out = '';
         for ($i = 0; $i < $numbreaks; $i++) {
             $out .= '<br />';
         }
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $out;
-        } else {
-            $this->output .= $out;
-        }
+        return $out;
+    }
+
+    /**
+     * Add line break
+     *
+     * @access public
+     * @param integer $numbreaks number of linebreaks to add
+     * @return void
+     */
+    function Linebreak($numbreaks = 1)
+    {
+        $this->output .= $this->generateLinebreak($numbreaks);
     }
 
 
@@ -425,40 +385,52 @@ class pnHTML
      *
      * @access public
      * @param string $action the URL that this form should go to on submission
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @return string The HTML form start string
      */
-    function FormStart($action)
+    function generateFormStart($action)
     {
-        $output = '<form'
+        return '<form'
             . ' action="' . pnVarPrepForDisplay($action) . '"'
             . ' method="post"'
             . ' enctype="' . ((empty($this->fileupload)) ? 'application/x-www-form-urlencoded' : 'multipart/form-data') . '"'
             . '>'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+    }
+
+    /**
+     * Add HTML tags to start a form.
+     * Appends the output to the internal output buffer.
+     *
+     * @access public
+     * @param string $action the URL that this form should go to on submission
+     * @return void
+     */
+    function FormStart($action)
+    {
+        $this->output .= $this->generateFormStart($action);
     }
 
     /**
      * Add HTML tags to end a form.
      *
      * @access public
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @return string The HTML form end string
+     */
+    function generateFormEnd()
+    {
+        return '</form>';
+    }
+
+    /**
+     * Add HTML tags to end a form.
+     * Appends the output to the internal output buffer.
+     *
+     * @access public
+     * @return void
      */
     function FormEnd()
     {
-        $output = '</form>';
-
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+        $this->output .= $this->generateFormEnd();
     }
 
     /**
@@ -468,13 +440,12 @@ class pnHTML
      * @param string $label (optional) the name of the submission button.  This
      * defaults to <code>'Submit'</code>
      * @param string $accesskey (optional) accesskey to active this button
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @return string The HTML submit button string
      */
-    function FormSubmit($label = 'Submit', $accesskey = '')
+    function generateFormSubmit($label = 'Submit', $accesskey = '')
     {
         $this->tabindex++;
-        $output = '<input class="btn btn-primary"'
+        return '<input class="btn btn-primary"'
             . ' type="submit"'
             . ' value="' . pnVarPrepForDisplay($label) . '"'
             . ' align="middle"'
@@ -482,27 +453,36 @@ class pnHTML
             . ' tabindex="' . $this->tabindex . '"'
             . ' />'
         ;
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+    }
+
+    /**
+     * Add HTML tags for a submission button as part of a form.
+     * Appends the output to the internal output buffer.
+     *
+     * @access public
+     * @param string $label (optional) the name of the submission button.  This
+     * defaults to <code>'Submit'</code>
+     * @param string $accesskey (optional) accesskey to active this button
+     * @return void
+     */
+    function FormSubmit($label = 'Submit', $accesskey = '')
+    {
+        $this->output .= $this->generateFormSubmit($label, $accesskey);
     }
 
 
     /**
-     * Add HTML tags for a hidden field as part of a form.
+     * Generate HTML tags for a hidden field as part of a form.
      *
      * @access public
      * @param mixed $fieldname the name of the hidden field.  can also be an array.
      * @param string $value the value of the hidden field
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @return string The HTML hidden field string
      */
-    function FormHidden($fieldname, $value = '')
+    function generateFormHidden($fieldname, $value = '')
     {
         if (empty($fieldname)) {
-            return;
+            return '';
         }
 
         if (is_array($fieldname)) {
@@ -526,11 +506,21 @@ class pnHTML
             ;
         }
 
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+        return $output;
+    }
+
+    /**
+     * Add HTML tags for a hidden field as part of a form.
+     * Appends the output to the internal output buffer.
+     *
+     * @access public
+     * @param mixed $fieldname the name of the hidden field.  can also be an array.
+     * @param string $value the value of the hidden field
+     * @return void
+     */
+    function FormHidden($fieldname, $value = '')
+    {
+        $this->output .= $this->generateFormHidden($fieldname, $value);
     }
 
     /**
@@ -552,13 +542,12 @@ class pnHTML
      * shrink automatically to the correct size
      * @param string $selected (optional) selected value of <code>id</code>
      * @param string $accesskey (optional) accesskey to active this item
-     * @return string An HTML string if <code>ReturnHTML()</code> has been called,
-     * otherwise null
+     * @return string The HTML select string
      */
-    function FormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false)
+    function generateFormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false)
     {
         if (empty($fieldname)) {
-            return;
+            return '';
         }
 
         $disable_text = "";
@@ -607,10 +596,24 @@ class pnHTML
         }
 
         $output .= '</select>';
-        if ($this->GetOutputMode() == _PNH_RETURNOUTPUT) {
-            return $output;
-        } else {
-            $this->output .= $output;
-        }
+        return $output;
+    }
+
+    /**
+     * Create a HTML select list.
+     * Appends the output to the internal output buffer.
+     *
+     * @access public
+     * @param string $fieldname name for the select field
+     * @param array $data array of arrays with keys 'id', 'name' and optional 'selected'
+     * @param integer $multiple (optional) 1 for multiple select, 0 for single
+     * @param integer $size (optional) size of the select field
+     * @param string $selected (optional) selected value of <code>id</code>
+     * @param string $accesskey (optional) accesskey to active this item
+     * @return void
+     */
+    function FormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false)
+    {
+        $this->output .= $this->generateFormSelectMultiple($fieldname, $data, $multiple, $size, $selected, $accesskey, $disable, $readonly);
     }
 }
