@@ -25,7 +25,6 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthConfigurationVer
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
@@ -69,72 +68,72 @@ class TeleconferenceRoomController
     /**
      * @var Environment
      */
-    private $twig;
+    private Environment $twig;
 
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @var boolean  Whether we are running as a patient in the portal context
      */
-    private $isPatient;
+    private bool $isPatient;
 
     /**
      * @var string The location where the module assets are stored
      */
-    private $assetPath;
+    private string $assetPath;
 
     /**
      * @var EncounterService
      */
-    private $encounterService;
+    private EncounterService $encounterService;
 
     /**
      * @var AppointmentService
      */
-    private $appointmentService;
+    private AppointmentService $appointmentService;
 
     /**
-     * @var \Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository
+     * @var TeleHealthSessionRepository
      */
-    private $sessionRepository;
+    private TeleHealthSessionRepository $sessionRepository;
 
     /**
      * @var TeleHealthUserRepository
      */
-    private $telehealthUserRepo;
+    private TeleHealthUserRepository $telehealthUserRepo;
 
     /**
      * @var TeleHealthVideoRegistrationController
      */
-    private $telehealthRegistrationController;
+    private TeleHealthVideoRegistrationController $telehealthRegistrationController;
 
     /**
      * @var TeleHealthParticipantInvitationMailerService
      */
-    private $mailerService;
+    private TeleHealthParticipantInvitationMailerService $mailerService;
 
     /**
      * @var TeleHealthFrontendSettingsController
      */
-    private $settingsController;
+    private TeleHealthFrontendSettingsController $settingsController;
 
     /**
      * @var TelehealthGlobalConfig
      */
-    private $config;
+    private TelehealthGlobalConfig $config;
 
     /**
      * @var TeleHealthProvisioningService
      */
-    private $provisioningService;
+    private TeleHealthProvisioningService $provisioningService;
 
     /**
      * @var ParticipantListService
      */
-    private $participantListService;
+    private ParticipantListService $participantListService;
 
     public function __construct(
         Environment $twig,
@@ -252,7 +251,6 @@ class TeleconferenceRoomController
     /**
      * @param $userName
      * @param $session
-     * @return array|\OpenEMR\Services\The
      * @throws AccessDeniedException
      */
     private function verifyUsernameCanAccessSession($userName, $session)
