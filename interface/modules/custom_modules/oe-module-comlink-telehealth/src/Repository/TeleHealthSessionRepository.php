@@ -21,7 +21,7 @@ class TeleHealthSessionRepository
 {
     const TABLE_NAME = "comlink_telehealth_appointment_session";
 
-    public function createSession($pc_eid, $user_id, $encounter, $pid) : ?array
+    public function createSession($pc_eid, $user_id, $encounter, $pid): ?array
     {
         $sql = "INSERT INTO " . self::TABLE_NAME . " (pc_eid, user_id, encounter, pid) VALUES (?,?,?,?)";
         (new SystemLogger())->debug("Attempting to create session ", ['pc_eid' => $pc_eid, 'user_id' => $user_id, 'encounter' => $encounter, 'pid' => $pid]);
@@ -30,7 +30,7 @@ class TeleHealthSessionRepository
         return $this->getSessionByAppointmentId($pc_eid, $user_id);
     }
 
-    public function addRelatedPartyToSession($pc_eid, $pid_related) : ?array
+    public function addRelatedPartyToSession($pc_eid, $pid_related): ?array
     {
         $patientService = new PatientService();
         $session = $this->getSessionByAppointmentId($pc_eid);
@@ -50,7 +50,7 @@ class TeleHealthSessionRepository
         QueryUtils::sqlStatementThrowException($sql, $bind);
         return $this->getSessionByAppointmentId($pc_eid);
     }
-    public function updateStartTimestamp($pc_eid, $role = 'provider') : void
+    public function updateStartTimestamp($pc_eid, $role = 'provider'): void
     {
         $validRoles = ['provider', 'patient', 'patient_related'];
         if (!in_array($role, $validRoles)) {
@@ -61,7 +61,7 @@ class TeleHealthSessionRepository
         $sql = "UPDATE " . self::TABLE_NAME . " SET " . $columnPrefix . "_start_time = NOW() WHERE pc_eid = ?";
         QueryUtils::sqlStatementThrowException($sql, [$pc_eid]);
     }
-    public function updateLastSeenTimestamp($pc_eid, $role) : void
+    public function updateLastSeenTimestamp($pc_eid, $role): void
     {
         $validRoles = ['provider', 'patient', 'patient_related'];
         if (!in_array($role, $validRoles)) {
@@ -89,7 +89,7 @@ class TeleHealthSessionRepository
         return null;
     }
 
-    public function updatePatientFromAppointment(array $session, array $appt) : void
+    public function updatePatientFromAppointment(array $session, array $appt): void
     {
         // for now we only sync the patient record if its been changed
         if ($session['pid'] != $appt['pc_pid']) {

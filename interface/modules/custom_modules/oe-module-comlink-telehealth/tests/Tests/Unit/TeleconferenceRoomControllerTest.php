@@ -43,7 +43,6 @@ class TeleconferenceRoomControllerTest extends TestCase
             $this->createMock(TeleHealthProvisioningService::class),
             $this->createMock(ParticipantListService::class),
             ""
-
         );
     }
 
