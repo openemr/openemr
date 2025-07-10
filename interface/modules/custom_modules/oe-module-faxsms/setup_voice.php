@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,11 +17,10 @@ require_once(__DIR__ . "/../../../globals.php");
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
-// kick off app endpoints controller
-$serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? '';
+$serviceType = 'voice';
+appDispatch::setModuleType($serviceType);
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
-$service = $clientApp::getServiceType();
 if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
@@ -43,7 +42,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                 if (!e.isDefaultPrevented()) {
                     $(window).scrollTop(0);
                     let wait = '<i class="fa fa-cog fa-spin fa-4x"></i>';
-                    let url = 'saveSetup?type=' + encodeURIComponent(<?php echo js_escape($serviceType) ?>);
+                    let url = 'saveSetup?type=voice';
                     $.ajax({
                         type: "POST",
                         url: url,
@@ -79,11 +78,6 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     return false;
                 }
             });
-            if (Service === 'fax') {
-                $(".smsHide").hide();
-            } else {
-                $(".faxHide").hide();
-            }
         });
 
         function openJwtWindow() {
@@ -95,7 +89,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                 let message = xl("Please enter Client ID first.");
                 (async (message, time) => {
                     await asyncAlertMsg(message, time, 'warning', 'lg');
-                })(message,1500).then(res => {
+                })(message, 1500).then(res => {
                     console.log(res);
                 });
             }
@@ -132,66 +126,49 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                             <?php echo xlt("Production Check") ?>
                         </label>
                     </div>
-                        <div class="form-group">
-                            <label for="form_extension"><?php echo xlt("Extension") ?> *</label>
-                            <input id="form_extension" type="text" name="extension" class="form-control" value='<?php echo attr($c['extension']) ?>' required />
-                        </div>
-                        <div class="form-group faxHide">
-                            <label for="form_phone"><?php echo xlt("FAX Phone Number") ?> *</label>
-                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>' required />
-                        </div>
-                        <div class="form-group smsHide">
-                            <label for="form_smsnumber"><?php echo xlt("SMS Phone Number") ?> *</label>
-                            <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control"
-                                value='<?php echo attr($c['smsNumber']) ?>' required />
+                    <div class="form-group">
+                        <label for="form_extension"><?php echo xlt("Extension") ?> *</label>
+                        <input id="form_extension" type="text" name="extension" class="form-control" value='<?php echo attr($c['extension']) ?>' required />
+                    </div>
+                    <div class="form-group">
+                        <label for="form_phone"><?php echo xlt("Phone Number") ?> *</label>
+                        <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>' required />
+                    </div>
+                    <div class="form-group">
+                        <label for="form_smsnumber"><?php echo xlt("Opt Phone Number") ?></label>
+                        <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control" value='<?php echo attr($c['smsNumber']) ?>' />
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-group">
+                        <label for="form_key"><?php echo xlt("Client ID") ?> *</label>
+                        <div class="input-group">
+                            <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' required />
+                            <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_key')">
+                                <span class="input-group-text"><i class="fa fa-eye"></i></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md">
-                        <div class="form-group">
-                            <label for="form_key"><?php echo xlt("Client ID") ?> *</label>
-                            <div class="input-group">
-                                <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' required />
-                                <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_key')">
-                                    <span class="input-group-text"><i class="fa fa-eye"></i></span>
-                                </div>
+                    <div class="form-group">
+                        <label for="form_secret"><?php echo xlt("Client Secret") ?> *</label>
+                        <div class="input-group">
+                            <input id="form_secret" type="password" name="secret" class="form-control"
+                                value='<?php echo attr($c['appSecret']) ?>' required />
+                            <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_secret')">
+                                <span class="input-group-text"><i class="fa fa-eye"></i></span>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="form_secret"><?php echo xlt("Client Secret") ?> *</label>
-                            <div class="input-group">
-                                <input id="form_secret" type="password" name="secret" class="form-control"
-                                    value='<?php echo attr($c['appSecret']) ?>' required />
-                                <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_secret')">
-                                    <span class="input-group-text"><i class="fa fa-eye"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_jwt"><?php echo xlt("Copy and Paste JWT") ?> *</label>
-                            <span class="form-group">
+                    </div>
+                    <div class="form-group">
+                        <label for="form_jwt"><?php echo xlt("Copy and Paste JWT") ?> *</label>
+                        <span class="form-group">
                                 <button type="button" class="btn btn-primary btn-download btn-sm mb-1 p-0 px-1 float-right" onclick="openJwtWindow()"><?php echo xlt("Create JWT") ?></button>
                             </span>
-                            <textarea id="form_jwt" type="text" rows="3" name="jwt" class="form-control small" required><?php echo attr($c['jwt']) ?></textarea>
-                        </div>
-                        <div class=" form-group">
-                            <label for="form_nhours"><?php echo xlt("Appointment Advance Notification (Hours)") ?> *</label>
-                            <input id="form_nhours" type="text" name="smshours" class="form-control"
-                                placeholder="<?php echo xlt('Please enter number of hours before appointment') ?> *"
-                                required="required" value='<?php echo attr($c['smsHours']) ?>'>
-                        </div>
+                        <textarea id="form_jwt" type="text" rows="3" name="jwt" class="form-control small" required><?php echo attr($c['jwt']) ?></textarea>
                     </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
-                            <span style="font-size:12px;font-style: italic;">&nbsp;
-<?php echo xlt("Tags") ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***</span>
-                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control small"
-                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo attr($c['smsMessage']) ?></textarea>
-                        </div>
-                    </div>
-                    <p class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
                 </div>
             </div>
+            <p class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
             <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
         </form>
     </div>

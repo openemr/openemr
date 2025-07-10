@@ -6,7 +6,7 @@
  * @package   OpenEMR Module
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -86,11 +86,13 @@ $vendors = $boot->getVendorGlobals();
     }
     $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
     $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
+    $isVoiceEnable = $vendors['oe_enable_voice'] > 0 ? 'voice' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
 
     $isRCSMS = $vendors['oefax_enable_sms'] == 1 ? '1' : '0';
     $isEMAIL = $vendors['oe_enable_email'] == 4 ? '1' : '0';
     $isRCFax = $vendors['oefax_enable_fax'] == 1 ? '1' : '0';
+    $isVOICE = $vendors['oe_enable_voice'] == 6 ? '1' : '0';
     $setupUrl = './../setup.php';
     if ($isRCFax || $isRCSMS) {
         $setupUrl = './../setup_rc.php';
@@ -101,6 +103,7 @@ $vendors = $boot->getVendorGlobals();
         let ServiceFax = <?php echo js_escape($isRCFax) ?>;
         let ServiceSMS = <?php echo js_escape($isRCSMS); ?>;
         let ServiceEmail = <?php echo js_escape($isEMAIL); ?>;
+        let ServiceVoice = <?php echo js_escape($isVOICE); ?>;
 
         function toggleHelpCard() {
             const helpCard = document.getElementById('helpCard');
@@ -108,9 +111,12 @@ $vendors = $boot->getVendorGlobals();
         }
 
         function toggleSetup(id, type = 'single') {
-            let url = './../setup.php';
+            let url = '../setup.php';
             if (ServiceFax === '1') {
-                url = './../setup_rc.php';
+                url = '../setup_rc.php';
+            }
+            if (ServiceVoice === '6') {
+                url = '../setup_voice.php';
             }
             let dialog = $("#dialog").is(':checked');
             if (!dialog || id === 'set-service') {
@@ -155,6 +161,17 @@ $vendors = $boot->getVendorGlobals();
                 }
                 return dlgopen('', '', 'modal-lg', '', '', title, params);
             }
+            if (id === 'set-voice') {
+                let title = 'Voice Module Credentials';
+                let params = {
+                    buttons: [{text: 'Cancel', close: true, style: 'default btn-sm'}],
+                    sizeHeight: 'full',
+                    allowDrag: false,
+                    type: 'iframe',
+                    url: './../setup_voice.php?type=email&module_config=-1'
+                }
+                return dlgopen('', '', 'modal-lg', '', '', title, params);
+            }
         }
 
         $(function () {
@@ -184,6 +201,9 @@ $vendors = $boot->getVendorGlobals();
             <?php }
             if (!empty($vendors['oe_enable_email'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email Account"); ?><span class="caret"></span></button>
+            <?php }
+            if (!empty($vendors['oe_enable_voice'])) { ?>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-voice')"><?php echo xlt("Setup Voice"); ?><span class="caret"></span></button>
             <?php } ?>
             <span class="checkbox text-light br-dark" title="Use Dialog or Panels">
                 <label for="dialog"><?php echo xlt("Render in dialog."); ?></label>
@@ -226,6 +246,15 @@ $vendors = $boot->getVendorGlobals();
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
                                 <option value="0" <?php echo $vendors['oe_enable_email'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <option value="4" <?php echo $vendors['oe_enable_email'] == '4' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label for="voice_vendor" class="col-sm-6"><?php echo xlt("Enable Voice Widgets") ?></label>
+                        <div class="col-sm-6" title="Enable Voice Widgets Support.">
+                            <select class="form-control persist" name="voice_vendor" id="voice_vendor">
+                                <option value="0" <?php echo $vendors['oe_enable_voice'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
+                                <option value="6" <?php echo $vendors['oe_enable_voice'] == '6' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
                             </select>
                         </div>
                     </div>
@@ -329,6 +358,12 @@ $vendors = $boot->getVendorGlobals();
             <div id="set-email" class="frame d-none">
                 <h3 class="text-center"><?php echo xlt("Setup Email Account"); ?></h3>
                 <iframe src="<?php echo attr('./../setup_email.php?type=email&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
+            </div>
+        <?php } ?>
+        <?php if (!empty($vendors['oe_enable_voice'])) { ?>
+            <div id="set-voice" class="frame d-none">
+                <h3 class="text-center"><?php echo xlt("Setup Voice Account"); ?></h3>
+                <iframe src="<?php echo attr('./../setup_voice.php?type=voice&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
             </div>
         <?php } ?>
     </div>
