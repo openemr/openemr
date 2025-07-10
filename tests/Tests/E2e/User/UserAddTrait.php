@@ -95,6 +95,9 @@ trait UserAddTrait
 
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
+
+        sleep(5); // wait for the form to be submitted and processed
+
         // assert the new user is in the database
         $this->assertUserInDatabase($username);
         // since this function is run recursively in above line, ensure only do the below block once
