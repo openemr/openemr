@@ -3172,7 +3172,7 @@ function canvas_select($zone, $encounter, $pid)
  *  @param string $visit_date Future functionality to limit result set. UTC DATE Formatted
  *  @param string $pid value = patient id
  *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
- *  @return true : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
 function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
 {
