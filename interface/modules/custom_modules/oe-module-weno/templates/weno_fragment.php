@@ -28,7 +28,7 @@ $validate_errors = "";
 $cite = '';
 
 if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
-    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings or Weno Administrator to configure Weno Prescriber Id.");
+    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings Weno tab to configure Weno Prescriber Id.");
     return "Fail";
 }
 
