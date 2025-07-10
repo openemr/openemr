@@ -14,9 +14,7 @@ jobs:
         runs-on: ubuntu-latest
         name: Inferno Certification Test
         timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
-        env:
-            HAS_INFERNO_PAT: ${{ secrets.INFERNO_PAT != '' }}
-            if: env.HAS_INFERNO_PAT == 'true'
+        if: secrets.INFERNO_PAT != ''
         steps:
             - uses: actions/checkout@v4
               with:
