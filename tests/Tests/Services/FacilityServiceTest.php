@@ -31,6 +31,8 @@ class FacilityServiceTest extends TestCase
      */
     private $fixtureManager;
 
+    private array $facilityFixture;
+
     protected function setUp(): void
     {
         $this->facilityService = new FacilityService();

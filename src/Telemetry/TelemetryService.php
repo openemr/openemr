@@ -135,8 +135,8 @@ class TelemetryService
         // server geo data
         $geo = new GeoTelemetry();
         $serverGeoData = $geo->getServerGeoData();
-        if (isset($serverGeo['error'])) {
-            error_log("Error fetching server geolocation: " . $serverGeo['error']);
+        if (isset($serverGeoData['error'])) {
+            error_log("Error fetching server geolocation: " . $serverGeoData['error']);
         }
 
         $endpoint = "https://reg.open-emr.org/api/usage?SiteID=" . urlencode($site_uuid);
