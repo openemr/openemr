@@ -15,6 +15,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -27,7 +29,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.0 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-0"
+          context: ./docker/library/dockers/dev-php-fpm-8-0
           tags: openemr/dev-php-fpm:8.0
           platforms: linux/amd64
           push: true
@@ -38,6 +40,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -50,7 +54,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.0-redis docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-0-redis"
+          context: ./docker/library/dockers/dev-php-fpm-8-0-redis
           tags: openemr/dev-php-fpm:8.0-redis
           platforms: linux/amd64
           push: true
@@ -61,6 +65,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -73,7 +79,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.1 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-1"
+          context: ./docker/library/dockers/dev-php-fpm-8-1
           tags: openemr/dev-php-fpm:8.1
           platforms: linux/amd64
           push: true
@@ -84,6 +90,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -96,7 +104,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.1-redis docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-1-redis"
+          context: ./docker/library/dockers/dev-php-fpm-8-1-redis
           tags: openemr/dev-php-fpm:8.1-redis
           platforms: linux/amd64
           push: true
@@ -107,6 +115,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -119,7 +129,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.2 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-2"
+          context: ./docker/library/dockers/dev-php-fpm-8-2
           tags: openemr/dev-php-fpm:8.2
           platforms: linux/amd64
           push: true
@@ -130,6 +140,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -142,7 +154,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.2-redis docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-2-redis"
+          context: ./docker/library/dockers/dev-php-fpm-8-2-redis
           tags: openemr/dev-php-fpm:8.2-redis
           platforms: linux/amd64
           push: true
@@ -153,6 +165,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -165,7 +179,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.3 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-3"
+          context: ./docker/library/dockers/dev-php-fpm-8-3
           tags: openemr/dev-php-fpm:8.3
           platforms: linux/amd64
           push: true
@@ -176,6 +190,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -188,7 +204,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.3-redis docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-3-redis"
+          context: ./docker/library/dockers/dev-php-fpm-8-3-redis
           tags: openemr/dev-php-fpm:8.3-redis
           platforms: linux/amd64
           push: true
@@ -199,6 +215,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -211,7 +229,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.4 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-4"
+          context: ./docker/library/dockers/dev-php-fpm-8-4
           tags: openemr/dev-php-fpm:8.4
           platforms: linux/amd64
           push: true
@@ -222,6 +240,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -234,7 +254,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.4-redis docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-4-redis"
+          context: ./docker/library/dockers/dev-php-fpm-8-4-redis
           tags: openemr/dev-php-fpm:8.4-redis
           platforms: linux/amd64
           push: true
@@ -245,6 +265,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -257,7 +279,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.5 docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-5"
+          context: ./docker/library/dockers/dev-php-fpm-8-5
           tags: openemr/dev-php-fpm:8.5
           platforms: linux/amd64
           push: true
@@ -268,6 +290,8 @@ jobs:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -280,7 +304,7 @@ jobs:
       - name: Build and push dev-php-fpm:8.5-redis docker
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:docker/library/dockers/dev-php-fpm-8-5-redis"
+          context: ./docker/library/dockers/dev-php-fpm-8-5-redis
           tags: openemr/dev-php-fpm:8.5-redis
           platforms: linux/amd64
           push: true
