@@ -7,6 +7,7 @@ use OpenEMR\Services\PractitionerService;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Practitioner Service Tests
@@ -28,6 +29,8 @@ class PractitionerServiceTest extends TestCase
 
     private $fixtureManager;
 
+    private array $practitionerFixture;
+
     protected function setUp(): void
     {
         $this->practitionerService = new PractitionerService();
@@ -45,7 +48,9 @@ class PractitionerServiceTest extends TestCase
     {
         $this->practitionerFixture["fname"] = "A";
         $this->practitionerFixture["npi"] = "12345";
-        unset($this->practitionerFixture["lname"]);
+        if (isset($this->practitionerFixture["lname"])) {
+            unset($this->practitionerFixture["lname"]);
+        }
 
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
 
