@@ -42,7 +42,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         throw new \Exception("Not used");
     }
 
-    public function getInputFilter() : InputFilterInterface
+    public function getInputFilter(): InputFilterInterface
     {
         if (!isset($this->inputFilter)) {
             $inputFilter = new InputFilter();

@@ -41,7 +41,7 @@ class BulkPatientExport311APITest extends TestCase
      * @return string
      * @throws GuzzleException
      */
-    private function getInfernoJWKS() : string
+    private function getInfernoJWKS(): string
     {
             self::$testClient = new BulkAPITestClient(self::$baseUrl);
             self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);

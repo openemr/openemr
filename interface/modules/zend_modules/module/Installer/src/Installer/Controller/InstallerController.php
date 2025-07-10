@@ -351,7 +351,7 @@ class InstallerController extends AbstractActionController
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
      * @return boolean
      */
-    private function installACL($dir) : bool
+    private function installACL($dir): bool
     {
         $aclfile = $dir . "/moduleACL.php";
         if (file_exists($aclfile)) {
@@ -675,7 +675,7 @@ class InstallerController extends AbstractActionController
      * @param $moduleName
      * @return bool
      */
-    public function getModuleId($moduleName) : bool
+    public function getModuleId($moduleName): bool
     {
         if (empty($moduleName)) {
             return false;

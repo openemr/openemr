@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification;
 
-
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait\G10ApiTestTrait;
 use PHPUnit\Framework\TestCase;

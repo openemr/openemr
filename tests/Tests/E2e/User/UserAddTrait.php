@@ -56,6 +56,7 @@ trait UserAddTrait
     {
         // if user already exists, then skip this
         if ($this->isUserExist($username)) {
+            // @phpstan-ignore method.notFound
             $this->markTestSkipped('New user test skipped because this user already exists.');
         }
 
@@ -145,6 +146,7 @@ trait UserAddTrait
             }
             $counter++;
         }
+        // @phpstan-ignore method.notFound
         $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
     }
 }

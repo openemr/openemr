@@ -650,7 +650,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         return $clonedRequest;
     }
 
-    public function getRequestTarget() : string
+    public function getRequestTarget(): string
     {
         return $this->innerServerRequest->getRequestTarget();
     }

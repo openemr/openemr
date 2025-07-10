@@ -215,8 +215,7 @@ class FhirDocRefService
     {
         // this creates our CCDA
         $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
-        if (empty($createdEvent->getPid()))
-        {
+        if (empty($createdEvent->getPid())) {
             throw new \Exception("Failed to create ccda event, pid is empty");
         }
         if (empty($createdEvent->getCcdaId())) {

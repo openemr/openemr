@@ -61398,7 +61398,7 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists($offset) : bool
+    public function offsetExists($offset): bool
     {
         return isset($this->_bigDumbMap[$offset]);
     }
@@ -61407,7 +61407,7 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
      * @param mixed $offset
      * @return mixed
      */
-    public function offsetGet($offset) : mixed
+    public function offsetGet($offset): mixed
     {
         if (isset($this->_bigDumbMap[$offset])) {
             return $this->_bigDumbMap[$offset];
@@ -61425,7 +61425,7 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
      * @param mixed $offset
      * @param mixed $value
      */
-    public function offsetSet($offset, $value) : void
+    public function offsetSet($offset, $value): void
     {
         throw new \BadMethodCallException('Not allowed to set values on the FHIR parser element map');
     }
@@ -61433,7 +61433,7 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
     /**
      * @param mixed $offset
      */
-    public function offsetUnset($offset) : void
+    public function offsetUnset($offset): void
     {
         throw new \BadMethodCallException('Not allowed to unset values in this FHIR parser element map');
     }
@@ -61441,7 +61441,7 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
     /**
      * @return mixed
      */
-    public function current() : mixed
+    public function current(): mixed
     {
         return current($this->_bigDumbMap);
     }
@@ -61449,17 +61449,17 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
     /**
      * @return string
      */
-    public function key() : mixed
+    public function key(): mixed
     {
         return key($this->_bigDumbMap);
     }
 
-    public function next() : void
+    public function next(): void
     {
         next($this->_bigDumbMap);
     }
 
-    public function rewind() : void
+    public function rewind(): void
     {
         reset($this->_bigDumbMap);
     }
@@ -61467,7 +61467,7 @@ class PHPFHIRParserMap implements \ArrayAccess, \Iterator
     /**
      * @return bool
      */
-    public function valid() : bool
+    public function valid(): bool
     {
         return key($this->_bigDumbMap) !== null;
     }
