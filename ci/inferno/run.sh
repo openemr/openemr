@@ -71,36 +71,38 @@ initialize_openemr() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
     (
-    	repo_root="$(git rev-parse --show-toplevel)" || exit 1
-	cd -P "${repo_root}"
+        repo_root="$(git rev-parse --show-toplevel)" || exit 1
+        cd -P "${repo_root}"
+        # shellcheck source-path=../..
         . ci/ciLibrary.source
         main_build
         ccda_build
         cd -
         dockers_env_start
         install_configure
-	~/bin/openemr-cmd pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
-	~/bin/openemr-cmd rs 2025-06-25-inferno-baseline
-        #configure_coverage
+        "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
+        "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+        # configure_coverage
         echo 'OpenEMR initialized'
-    ) || exit 1
+    )
 }
 run_testsuite() {
     local -x DOCKER_DIR=inferno
     local -x OPENEMR_DIR=/var/www/localhost/htdocs/openemr
     (
     	repo_root="$(git rev-parse --show-toplevel)" || exit 1
-	cd -P "${repo_root}"
+        cd -P "${repo_root}"
+        # shellcheck source-path=../..
         . ci/ciLibrary.source
-	cd -
-	phpunit --testsuite certification -c ${OPENEMR_DIR}/phpunit.xml
-	#merge_coverage
-	echo 'Certification Tests Executed'
-    ) || exit 1
+        cd -
+        phpunit --testsuite certification -c "${OPENEMR_DIR}/phpunit.xml"
+        # merge_coverage
+        echo 'Certification Tests Executed'
+    )
 }
 
 fix_redis_permissions() {
-     docker run --rm -v ${PWD}/onc-certification-g10-test-kit/data/redis:/data redis chown -R redis:redis /data
+     docker run --rm -v "${PWD}/onc-certification-g10-test-kit/data/redis:/data" redis chown -R redis:redis /data
 }
 
 cleanup() {
@@ -119,6 +121,7 @@ main() {
     # We need platform arguments.
     export DOCKER_BUILDKIT=1
     local use_cloned_files
+    # shellcheck disable=SC2310
     if clone_files; then
       use_cloned_files=1
     else
@@ -150,7 +153,7 @@ main() {
     fix_redis_permissions
 
     # Run the test suite and capture exit code
-    
+    # shellcheck disable=SC2310
     if ! run_testsuite; then
         local exit_code=$?
         echo "FAILURE: Inferno certification tests failed with exit code: ${exit_code}"

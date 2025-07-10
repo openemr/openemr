@@ -106,7 +106,8 @@ phpcov() {
 
 install_configure() {
     (
-        cd "$(git rev-parse --show-toplevel)"
+        toplevel="$(git rev-parse --show-toplevel)"
+        cd "${toplevel}"
     	actions_chmod 0666 sites/default/sqlconf.php
     	actions_chmod -R 0777 sites/default/documents
     )
