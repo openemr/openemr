@@ -126,7 +126,8 @@ class FhirDocRefService
 
     private function getPatientRecordForSearchParameters($oeSearchParameters): array
     {
-        $mappedField = reset($this->getPatientContextSearchField()->getMappedFields()); // grab the first one
+        $mappedFields = $this->getPatientContextSearchField()->getMappedFields();
+        $mappedField = reset($mappedFields); // grab the first one
         $searchPatient = $oeSearchParameters[$mappedField->getField()];
 
         // we only allow one patient CCD to be generated at a time.
@@ -214,6 +215,10 @@ class FhirDocRefService
     {
         // this creates our CCDA
         $createdEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, PatientDocumentCreateCCDAEvent::EVENT_NAME_CCDA_CREATE);
+        if (empty($createdEvent->getPid()))
+        {
+            throw new \Exception("Failed to create ccda event, pid is empty");
+        }
         if (empty($createdEvent->getCcdaId())) {
             // TODO: handle the case where nothing was generated
             throw new \Exception("Failed to generate ccda");
@@ -230,7 +235,14 @@ class FhirDocRefService
         // and that it is always the same data
         $patientDocService = new FhirPatientDocumentReferenceService();
         $docStringUuid = UuidRegistry::uuidToString($doc->get_uuid());
-        $result = $patientDocService->getOne($docStringUuid, $patient['uuid']); // make sure we don't deviate from the patient
+        $patientPid = $createdEvent->getPid();
+        $patientService = new PatientService();
+        $uuid = $patientService->getUuid($patientPid);
+        if (empty($uuid)) {
+            throw new \Exception("Patient uuid could not be found for pid " . $patientPid);
+        }
+
+        $result = $patientDocService->getOne($docStringUuid, UuidRegistry::uuidToString($uuid)); // make sure we don't deviate from the patient
 
         if (!$result->hasData()) {
             throw new \Exception("Fhir DocumentReference resource could not be found for uuid");
