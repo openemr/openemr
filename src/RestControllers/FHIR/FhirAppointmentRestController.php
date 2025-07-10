@@ -19,6 +19,9 @@ use OpenEMR\Services\FHIR\FhirResourcesService;
 
 class FhirAppointmentRestController
 {
+    private FhirAppointmentService $fhirAppointmentService;
+    private FhirResourcesService $fhirService;
+
     public function __construct(HttpRestRequest $request)
     {
         $this->fhirAppointmentService = new FhirAppointmentService($request->getApiBaseFullUrl());

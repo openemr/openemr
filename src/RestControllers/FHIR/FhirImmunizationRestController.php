@@ -25,8 +25,9 @@ require_once(__DIR__ . '/../../../_rest_config.php');
  */
 class FhirImmunizationRestController
 {
-    private $fhirImmunizationService;
-    private $fhirService;
+    private FhirImmunizationService $fhirImmunizationService;
+    private FhirResourcesService $fhirService;
+    private FhirValidationService $fhirValidationService;
 
     public function __construct()
     {

@@ -41,6 +41,8 @@ class FhirDocumentRestController
      */
     private $defaultMimeTypeHandler;
 
+    private SystemLogger $logger;
+
     public function __construct(HttpRestRequest $request)
     {
         $this->mimeTypeHandlers = [];
