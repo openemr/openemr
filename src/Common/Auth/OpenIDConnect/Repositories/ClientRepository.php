@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -146,7 +147,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $list;
     }
 
-    public function getClientEntity($clientIdentifier)
+    public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 

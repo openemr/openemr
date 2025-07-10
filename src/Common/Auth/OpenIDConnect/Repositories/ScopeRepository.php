@@ -160,9 +160,10 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function finalizeScopes(
         array $scopes,
-        $grantType,
+        string $grantType,
         ClientEntityInterface $clientEntity,
-        $userIdentifier = null
+        ?string $userIdentifier = null,
+        ?string $authCodeId = null
     ): array {
         $finalizedScopes = [];
         $scopeListNames = [];
