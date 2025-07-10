@@ -58,7 +58,6 @@ function smarty_function_pc_filter($args, &$smarty)
 
     $types = explode(',', $type);
     $output = new pnHTML();
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $mdir = pnVarPrepForOS($modinfo['directory']);
     unset($modinfo);
@@ -163,6 +162,6 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     if (!in_array('user', $types)) {
-        echo $output->FormHidden('pc_username', $pc_username);
+        echo $output->generateFormHidden('pc_username', $pc_username);
     }
 }
