@@ -26,6 +26,7 @@ use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Services\Utils\SQLUpgradeService;
+use RuntimeException;
 
 class InstallerController extends AbstractActionController
 {
@@ -220,9 +221,6 @@ class InstallerController extends AbstractActionController
                 }
                 if ($status == 'bypass_event') {
                     $output = "";
-                    if (!empty($div) && is_array($div)) {
-                        $output = implode("<br />\n", $div);
-                    }
                     echo json_encode(["status" => 'Success', "output" => $output]);
                     exit(0);
                 }
@@ -353,12 +351,14 @@ class InstallerController extends AbstractActionController
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
      * @return boolean
      */
-    private function installACL($dir)
+    private function installACL($dir) : bool
     {
         $aclfile = $dir . "/moduleACL.php";
         if (file_exists($aclfile)) {
             include_once($aclfile);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -675,7 +675,7 @@ class InstallerController extends AbstractActionController
      * @param $moduleName
      * @return bool
      */
-    public function getModuleId($moduleName)
+    public function getModuleId($moduleName) : bool
     {
         if (empty($moduleName)) {
             return false;
@@ -686,6 +686,7 @@ class InstallerController extends AbstractActionController
                 return $module["mod_id"];
             }
         }
+        return false;
     }
 
     /**

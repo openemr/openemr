@@ -36,6 +36,8 @@ class Multipledb implements InputFilterAwareInterface
     public $port;
     public $date;
 
+    private ?InputFilterInterface $inputFilter;
+
     public function exchangeArray($data)
     {
 
@@ -99,7 +101,7 @@ class Multipledb implements InputFilterAwareInterface
 
     public function getInputFilter()
     {
-        if (!$this->inputFilter) {
+        if (!isset($this->inputFilter)) {
             $inputFilter = new InputFilter();
 
             foreach (self::$inputsValidations as $input) {

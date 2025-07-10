@@ -16,8 +16,7 @@ return array(
         'factories' => [
             SyndromicsurveillanceController::class => function (ContainerInterface $container, $requestedName) {
                 return new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class));
-            },
-            PdfTemplatesController::class => InvokableFactory::class,
+            }
         ]
     ),
 
