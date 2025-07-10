@@ -132,7 +132,7 @@ class eRxPage
      */
     public function getPrescriptionIds()
     {
-        $this->prescriptionIds;
+        return $this->prescriptionIds;
     }
 
     /**
