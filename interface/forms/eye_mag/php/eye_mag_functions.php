@@ -1592,7 +1592,7 @@ margin: 2px 0 2px 2px;">
  * via display_PMSFH('2') and show_PMSFH_panel($PMSFH) respectively,
  * to javascript to display changes to the user.
  * @param associative array $PMSFH if it exists
- * @return json encoded string
+ * @return void
  */
 function send_json_values($PMSFH = "")
 {
