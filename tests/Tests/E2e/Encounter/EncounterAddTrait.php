@@ -52,6 +52,7 @@ trait EncounterAddTrait
     {
         // if patient already exists, then skip this
         if ($this->isEncounterExist($firstname, $lastname, $dob, $sex)) {
+            // @phpstan-ignore method.notFound
             $this->markTestSkipped('New encounter test skipped because this encounter already exists.');
         }
 
@@ -85,6 +86,7 @@ trait EncounterAddTrait
         $this->client->waitFor('//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
 
         // ensure the encounter was added
+        // @phpstan-ignore method.notFound
         $this->assertTrue($this->isEncounterExist($firstname, $lastname, $dob, $sex), 'New encounter is not in database, so FAILED');
     }
 }
