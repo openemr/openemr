@@ -372,7 +372,7 @@ class ApplicationTable extends AbstractTableGateway
     }
 
     /*
-    * Retrive the data format from GLOBALS
+    * Retrieve the data format from GLOBALS
     *
     * @param    Date format set in GLOBALS
     * @return   Date format in datepicker

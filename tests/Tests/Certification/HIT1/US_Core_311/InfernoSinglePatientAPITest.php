@@ -264,7 +264,7 @@ class InfernoSinglePatientAPITest extends TestCase
     {
         if (self::TEST_SUITE === self::TEST_SUITE_US_CORE_V311) {
             return 'us_core_v311-us_core_v311_fhir_api-us_core_v311_';
-        } else if (self::TEST_SUITE === self::TEST_SUITE_G10_CERTIFICATION) {
+        } elseif (self::TEST_SUITE === self::TEST_SUITE_G10_CERTIFICATION) {
             return 'g10_certification-g10_single_patient_api-us_core_v311_';
         } else {
             throw new \Exception("Unknown test suite: " . self::TEST_SUITE);
@@ -285,7 +285,7 @@ class InfernoSinglePatientAPITest extends TestCase
                     } else {
                         $failMessage = $assertMessage . " for test " . $result['test_id'] . ' ' . $result['result_message'];
                     }
-                } else if (!empty($result['test_group_id'])) {
+                } elseif (!empty($result['test_group_id'])) {
                     if (in_array($result['test_group_id'], $testIdsToSkipFailures)) {
                         continue; // skip this test if it's in the skip list
                     } else {

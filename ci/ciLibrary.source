@@ -35,12 +35,12 @@ composer_github_auth() {
     if (( githubTokenRateLimit > 500 )); then
         echo 'Trying to use composer github api token'
         if composer config --global --auth github-oauth.github.com "${githubToken}"; then
-            echo "github composer token worked"
+            echo 'github composer token worked'
         else
-            echo "github composer token did not work"
+            echo 'github composer token did not work'
         fi
     else
-        echo "Not using composer github api token"
+        echo 'Not using composer github api token'
     fi
 }
 
@@ -61,6 +61,18 @@ _exec() {
 
 dockers_env_start() {
     dc up --detach --wait --wait-timeout 300
+}
+
+selenium_video_start() {
+    # Selenium and video containers are only started explicitly or when their profiles are activated.
+    # So this may do nothing if the profiles are not activated.
+    dockers_env_start
+}
+
+selenium_video_stop() {
+    dc stop selenium video
+    dc logs selenium
+    dc logs video
 }
 
 actions_chmod() {
@@ -117,17 +129,71 @@ install_configure() {
     _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
     _exec php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
     _exec rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
-    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
-    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
-    _exec mysql -u openemr --password="openemr" --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
 }
 
 build_test_e2e() {
-    _exec sh -c "php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e \
-                                                             --testdox"
+    echo 'Creating selenium-videos directory…'
+    mkdir -p selenium-videos
+    # Fix permissions for video recording
+    actions_chmod 777 selenium-videos
+
+    selenium_video_start
+    echo 'Checking if selenium container is running…'
+    # shellcheck disable=SC2310
+    if dc ps --services --filter status=running selenium; then
+        echo 'Selenium container is running.'
+    else
+        echo 'Selenium container is not running.'
+    fi
+    echo 'Checking if video container is running…'
+    # shellcheck disable=SC2310
+    if dc ps --services --filter status=running video; then
+        echo 'Video container is running.'
+    else
+        echo 'Video container is not running.'
+    fi
+    echo 'Checking if video directory exists in video container…'
+    # shellcheck disable=SC2310
+    if dc exec video ls -la /videos; then
+        echo 'Video directory exists in video container.'
+    else
+        echo 'Video directory not found in video container.'
+    fi
+
+    echo 'Running E2E tests…'
+    set +e
+    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testsuite e2e --testdox
+    status=$?
+    set -e
+
+    # Stop selenium and video containers if they were started and extract videos
+    echo 'Waiting for video recording to complete…'
+    sleep 5
+    echo 'Stopping selenium and video containers…'
+    selenium_video_stop
+    echo 'Extracting videos from video container…'
+    # shellcheck disable=SC2310
+    if dc cp video:/videos/video.mp4 selenium-videos/video.mp4 2>/dev/null; then
+        echo 'Video file extracted successfully'
+    else
+        # This is not an error if video recording is not enabled
+        echo 'No video file found in container'
+    fi
+    echo 'Checking for video files after extraction…'
+    if [[ -d selenium-videos ]]; then
+        echo 'Videos directory exists locally.'
+        ls -la selenium-videos/
+    else
+        echo 'No videos directory found locally.'
+    fi
+
+    return "${status}"
 }
 
 phpunit() {
@@ -138,7 +204,7 @@ phpunit() {
 # Run the tests, enabling coverage if set.
 # Coverage is not handled for api or e2e tests.
 build_test() {
-    local testsuite="$1"
+    local testsuite=$1
     local -a args=( --testsuite "${testsuite}" )
     shift
     case "${testsuite}" in

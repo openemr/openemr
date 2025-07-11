@@ -3129,7 +3129,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     }
 
     /*
-    * Retrive the saved settings of the module from database
+    * Retrieve the saved settings of the module from database
     *
     * @param    string      $module_directory       module directory name
     * @param    string      $field_name             field name as in the module_settings table
