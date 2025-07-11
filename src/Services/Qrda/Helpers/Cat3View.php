@@ -205,6 +205,7 @@ trait Cat3View
         end
         end
          */
+        return '';
     }
 
     public function unknown_supplemental_value(\Mustache_Context $context): bool

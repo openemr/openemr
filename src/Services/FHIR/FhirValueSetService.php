@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRValueSet;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetCompose;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetInclude;

@@ -19,6 +19,11 @@ use OpenEMR\Services\Search\SearchFieldOrder;
 
 trait ResourceServiceSearchTrait
 {
+    /**
+     * @var FHIRSearchFieldFactory
+     */
+    private $searchFieldFactory;
+
     public function setSearchFieldFactory(FHIRSearchFieldFactory $factory)
     {
         $this->searchFieldFactory = $factory;
