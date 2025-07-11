@@ -10,6 +10,8 @@
             let isRegistered = false;
             let isLoggedIn = false;
 
+            const image = top.webroot_url + "/public/images/logos/core/menu/primary/logo.svg";
+
             function loadRCAdapter() {
                 const rcScript = document.createElement("script");
                 rcScript.setAttribute("data-rc-adapter", "true");
@@ -33,6 +35,9 @@
                 }
                 // Handle login status updates
                 if (data.type === 'rc-login-status-notify') {
+                    // replace logo image
+                    let imageLoad = document.querySelector('.Adapter_logo');
+                    imageLoad.src = image;
                     // Register the adapter if not already done
                     if (data.loggedIn && !isRegistered) {
                         isRegistered = true;
