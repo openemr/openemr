@@ -22,8 +22,8 @@
                 // Start a grace period to allow RC widget to initialize
                 setTimeout(() => {
                     isLoggedIn = true;
-                }, 5000);
-                console.log("Reloaded RC adapter with same credentials");
+                }, 4000);
+                console.log("loaded RC adapter script");
             }
             // web phone event handling
             window.addEventListener('message', function (e) {
@@ -97,7 +97,18 @@
                     if (rcFrame && typeof RCAdapter !== 'undefined') {
                         RCAdapter.setClosed(true);
                     }
-                }, 5000);
+                }, 6000);
+            });
+
+            window.addEventListener('beforeunload', function () {
+                const rcFrame = document.getElementById('rc-widget-adapter-frame');
+                RCAdapter.dispose();
+                if (rcFrame && rcFrame.contentWindow) {
+                    rcFrame.contentWindow.postMessage({
+                        type: 'rc-adapter-logout'
+                    }, '*');
+                    console.log('Sent logout to RingCentral widget on unload');
+                }
             });
         </script>
     </div>
