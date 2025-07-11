@@ -57,8 +57,7 @@ return array(
                 $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $resultSetPrototype = new ResultSet();
                 $resultSetPrototype->setArrayObjectPrototype(new Syndromicsurveillance());
-                $tableGateway = new TableGateway('module_menu', $dbAdapter, null, $resultSetPrototype);
-                $table = new SyndromicsurveillanceTable($tableGateway);
+                $table = new SyndromicsurveillanceTable();
                 return $table;
             }
         ),
