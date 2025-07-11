@@ -190,7 +190,7 @@
             <label>&nbsp; {{'in-house'|xlt}}</label>
             <select class="input-sm form-control" name="drug_id" onchange="drugselected(this)">
                 {% for key,drug in DRUG_ARRAY_VALUES %}
-                    <option value="drug"
+                    <option value="{{ drug|attr }}"
                         {% if drug == prescription.get_drug_id() %} selected="selected" {% endif %}>{{ DRUG_ARRAY_OUTPUT[key]|text }}</option>
                 {% endfor %}
             </select>
