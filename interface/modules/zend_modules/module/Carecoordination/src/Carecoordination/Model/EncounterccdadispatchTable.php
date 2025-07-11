@@ -3139,7 +3139,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      * @param $field_name
      * @return string|null
      */
-    public function getSettings($module_directory, $field_name) : ?string
+    public function getSettings($module_directory, $field_name): ?string
     {
         $query = "SELECT mo_conf.field_value FROM modules AS mo
         LEFT JOIN module_configuration AS mo_conf ON mo_conf.module_id = mo.mod_id
