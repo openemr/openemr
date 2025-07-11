@@ -288,7 +288,7 @@ class ApplicationTable
         return htmlspecialchars($string, ENT_QUOTES);
     }
     /*
-     * Retrive the data format from GLOBALS
+     * Retrieve the data format from GLOBALS
      *
      * @param Date format set in GLOBALS
      * @return Date format in PHP
