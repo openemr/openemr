@@ -16,7 +16,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function functional_cognitive_status_report($pid, $encounter, $cols, $id)
+function functional_cognitive_status_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";

@@ -22,7 +22,7 @@ $GLOBALS['SELL_FROM_ONE_WAREHOUSE'] = true;
 
 $substitute_array = array('', xl('Allowed'), xl('Not Allowed'));
 
-function send_drug_email($subject, $body)
+function send_drug_email($subject, $body): void
 {
     $recipient = $GLOBALS['practice_return_email_path'];
     if (empty($recipient)) {

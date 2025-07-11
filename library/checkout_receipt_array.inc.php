@@ -53,7 +53,7 @@ function receiptArrayDetailLine(
     $billtime = '',
     $tax = 0,
     $chargecat = ''
-) {
+): void {
     $adjust = 0;
     $adjreason = '';
 
@@ -129,7 +129,7 @@ function receiptArrayDetailLine(
 
 // Store a receipt payment line.
 //
-function receiptArrayPaymentLine(&$aReceipt, $paydate, $amount, $description = '', $method = '')
+function receiptArrayPaymentLine(&$aReceipt, $paydate, $amount, $description = '', $method = ''): void
 {
     $amount = sprintf('%01.2f', $amount);
     $aReceipt['payments'][] = array(

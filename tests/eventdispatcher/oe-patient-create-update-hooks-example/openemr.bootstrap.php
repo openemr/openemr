@@ -24,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @param $patientData
  */
-function send_patient_data_to_remote_system($patientData)
+function send_patient_data_to_remote_system($patientData): void
 {
     // This is just a stub for example only
     // For example, you could write data to a file and send to a remote SFTP server

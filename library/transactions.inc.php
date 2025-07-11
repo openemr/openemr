@@ -56,7 +56,7 @@ function newTransaction(
     return $id;
 }
 
-function authorizeTransaction($id, $authorized = "1")
+function authorizeTransaction($id, $authorized = "1"): void
 {
     sqlQuery("update transactions set authorized = ? where " .
     "id = ?", array($authorized, $id));

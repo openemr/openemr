@@ -119,7 +119,7 @@ if ($mode) {
 
 $CPR = 4; // cells per row
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -128,7 +128,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -142,7 +142,7 @@ function end_row()
     }
 }
 
-function end_group()
+function end_group(): void
 {
     global $last_group;
     if (strlen($last_group) > 0) {

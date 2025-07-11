@@ -26,14 +26,14 @@ use OpenEMR\Core\Header;
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
 
-function setLayoutTimestamp($layout_id)
+function setLayoutTimestamp($layout_id): void
 {
     $query = "UPDATE layout_group_properties SET grp_last_update = CURRENT_TIMESTAMP " .
         "WHERE grp_form_id = ? AND grp_group_id = ''";
     sqlStatement($query, array($layout_id));
 }
 
-function collectLayoutNames($condition, $mapping = '')
+function collectLayoutNames($condition, $mapping = ''): void
 {
     global $layouts, $form_inactive;
     $gres = sqlStatement(
@@ -152,7 +152,7 @@ function genGroupId($parent)
 // that have sub-groups, in which case only the appropriate parent portion of
 // the ID is changed.
 //
-function fuzzyRename($from, $to)
+function fuzzyRename($from, $to): void
 {
     global $layout_id;
 
@@ -170,7 +170,7 @@ function fuzzyRename($from, $to)
 // Swaps the positions of two groups.  To the degree they have matching parents,
 // only the first differing child positions are swapped.
 //
-function swapGroups($id1, $id2)
+function swapGroups($id1, $id2): void
 {
     $i = 0;
     while ($i < strlen($id1) && $i < strlen($id2) && $id1[$i] == $id2[$i]) {
@@ -277,7 +277,7 @@ function isColumnReserved($tablename, $field_id)
 // Call this when adding or removing a layout field.  This will create or drop
 // the corresponding table column when appropriate.  Table columns are not
 // dropped if they contain any non-empty values or are required internally.
-function addOrDeleteColumn($layout_id, $field_id, $add = true)
+function addOrDeleteColumn($layout_id, $field_id, $add = true): void
 {
     $tablename = tableNameFromLayout($layout_id);
     if (!$tablename) {
@@ -709,7 +709,7 @@ function genFieldOptionList($current = '')
 
 // Write one option line to the form.
 //
-function writeFieldLine($linedata)
+function writeFieldLine($linedata): void
 {
     global $fld_line_no, $sources, $lbfonly, $extra_html, $validations, $UOR;
     ++$fld_line_no;

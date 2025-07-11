@@ -12,7 +12,7 @@
 
 require_once(dirname(__FILE__) . '/../../../library/api.inc.php');
 
-function sdoh_report($pid, $encounter, $cols, $id)
+function sdoh_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_sdoh", $id);

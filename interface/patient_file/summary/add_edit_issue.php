@@ -105,7 +105,7 @@ function issueTypeIndex($tstr)
     return $i;
 }
 
-function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
+function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 {
     ///////////////////////////////////////////////////////////////////////
     // Active Issue Code Recycle Function authored by epsdky (2014-2015) //

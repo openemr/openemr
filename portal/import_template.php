@@ -321,7 +321,7 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
  * @param $template_id
  * @param $content
  */
-function renderEditorHtml($template_id, $content)
+function renderEditorHtml($template_id, $content): void
 {
     global $authUploadTemplates;
 
@@ -427,7 +427,7 @@ function renderEditorHtml($template_id, $content)
 /**
  *
  */
-function renderProfileHtml()
+function renderProfileHtml(): void
 {
     global $templateService;
 

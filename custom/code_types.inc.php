@@ -120,7 +120,7 @@ define('SKIP_TOTAL_TABLE_COUNT', 'skip_total_table_count');
  * @param type $joins               An array which describes additional tables to join as part of a code search.
  * @param array $extraColumns       An array of extra columns to be included in the table definition
  */
-function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "", $extraColumns = array())
+function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "", $extraColumns = array()): void
 {
     $results[$index] = array(EXT_TABLE_NAME => $table_name,
                            EXT_COL_CODE => $col_code,

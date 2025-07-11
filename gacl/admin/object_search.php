@@ -26,7 +26,7 @@ switch ($_GET['action']) {
 		$gacl_api->debug_text('Submit!!');
 
 		//Function to pass array_walk to trim all entries in an array.
-		function array_walk_trim(&$array_field) {
+		function array_walk_trim(&$array_field): void {
 			$array_field = $db->qstr(strtolower(trim($array_field)));
 		}
 

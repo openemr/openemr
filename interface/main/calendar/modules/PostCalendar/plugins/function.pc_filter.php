@@ -25,7 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_filter($args, &$smarty)
+function smarty_function_pc_filter($args, &$smarty): void
 {
     extract($args);
     unset($args);

@@ -131,7 +131,7 @@ function getListTouch($patient_id, $type)
     }
 }
 
-function setListTouch($patient_id, $type)
+function setListTouch($patient_id, $type): void
 {
     $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type));
 

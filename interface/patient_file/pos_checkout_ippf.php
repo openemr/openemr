@@ -137,7 +137,7 @@ function generate_layout_display_field($formid, $fieldid, $currvalue)
 
 // This creates and loads the array $aAdjusts of adjustment data for this encounter.
 //
-function load_adjustments($patient_id, $encounter_id)
+function load_adjustments($patient_id, $encounter_id): void
 {
     global $aAdjusts;
     // Create array aAdjusts from ar_activity rows for $encounter_id.
@@ -198,7 +198,7 @@ function pull_adjustment($code_type, $code, $billtime, &$memo)
 // Taxes may change from time to time and $aTaxNames reflects only the taxes that were present
 // for this invoice.
 //
-function load_taxes($patient_id, $encounter)
+function load_taxes($patient_id, $encounter): void
 {
     global $aTaxNames, $aInvTaxes, $taxes;
     global $num_optional_columns, $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
@@ -288,7 +288,7 @@ function receiptDetailLine(
     $billtime = '',
     $postdate = '',
     $chargecat = ''
-) {
+): void {
     global $details, $TAXES_AFTER_ADJUSTMENT;
 
     // Use $lineid to match up (and delete) entries in $aInvTaxes with the line.
@@ -389,7 +389,7 @@ function receiptDetailLine(
 
 // Output HTML for a receipt payment line.
 //
-function receiptPaymentLine($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = '')
+function receiptPaymentLine($paydate, $amount, $description = '', $method = '', $refno = '', $billtime = ''): void
 {
     global $aTaxNames, $num_optional_columns;
     global $rcpt_num_method_columns, $rcpt_num_ref_columns, $rcpt_num_amount_columns;
@@ -465,7 +465,7 @@ function invoiceChecksum($pid, $encounter)
 // Generate a receipt from the last-billed invoice for this patient,
 // or for the encounter specified as a GET parameter.
 //
-function generate_receipt($patient_id, $encounter = 0)
+function generate_receipt($patient_id, $encounter = 0): void
 {
     global $details, $rapid_data_entry, $aAdjusts;
     global $web_root, $webserver_root, $code_types;
@@ -1086,7 +1086,7 @@ function generate_receipt($patient_id, $encounter = 0)
 // This is deferred because we need to know which encounter was chosen.
 //
 $form_headers_written = false;
-function write_form_headers()
+function write_form_headers(): void
 {
     global $form_headers_written, $patdata, $patient_id, $encounter_id, $aAdjusts;
     global $taxes, $encounter_date, $num_optional_columns, $TAXES_AFTER_ADJUSTMENT;
@@ -1238,7 +1238,7 @@ function write_form_line(
     $taxrates,
     $billtime = '',
     $chargecat = ''
-) {
+): void {
     global $lino, $totalchg, $aAdjusts, $taxes, $encounter_date, $TAXES_AFTER_ADJUSTMENT;
 
     // Write heading rows if that is not already done.
@@ -1402,7 +1402,7 @@ function write_form_line(
 
 // Function to output a past payment/adjustment line to the form.
 //
-function write_old_payment_line($pay_type, $date, $method, $reference, $amount)
+function write_old_payment_line($pay_type, $date, $method, $reference, $amount): void
 {
     global $lino, $taxes, $num_optional_columns;
     global $form_num_type_columns, $form_num_method_columns, $form_num_ref_columns, $form_num_amount_columns;
@@ -1422,7 +1422,7 @@ function write_old_payment_line($pay_type, $date, $method, $reference, $amount)
 }
 
 // Mark the tax rates that are referenced in this invoice.
-function markTaxes($taxrates)
+function markTaxes($taxrates): void
 {
     global $taxes;
     $arates = explode(':', $taxrates);

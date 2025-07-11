@@ -95,7 +95,7 @@ ignore_user_abort(1);
  * administrator intervention. Any service function return values and output are ignored.
  */
 
-function execute_background_service_calls()
+function execute_background_service_calls(): void
 {
   /**
    * Note: The global $service_name below is set to the name of the service currently being
@@ -164,7 +164,7 @@ function execute_background_service_calls()
  * so we need to reset the is_running flag for that service before quitting
  */
 
-function background_shutdown()
+function background_shutdown(): void
 {
     global $service_name;
     if (isset($service_name)) {

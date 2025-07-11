@@ -32,7 +32,7 @@
  */
 
 
-function smarty_function_xlj($params, &$smarty)
+function smarty_function_xlj($params, &$smarty): void
 {
     if (empty($params['t'])) {
         trigger_error("xlj: missing 't' parameter", E_USER_WARNING);

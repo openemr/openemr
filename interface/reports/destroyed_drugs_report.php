@@ -50,7 +50,7 @@ function mergeData($d1, $d2)
     $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
     return $d1;
 }
-function mapToTable($row)
+function mapToTable($row): void
 {
     if ($row) {
         echo "<tr>\n";

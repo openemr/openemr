@@ -474,7 +474,7 @@ function sqlQueryCdrEngine($statement, $binds = false)
 *
 * @param  string  $statement  query
 */
-function sqlInsertClean_audit($statement, $binds = false)
+function sqlInsertClean_audit($statement, $binds = false): void
 {
     // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) {
@@ -547,7 +547,7 @@ function sqlNumRows($r)
 * @param string $statement
 * @param string $sqlerr
 */
-function HelpfulDie($statement, $sqlerr = '')
+function HelpfulDie($statement, $sqlerr = ''): void
 {
 
     echo "<h2><font color='red'>" . xlt('Query Error') . "</font></h2>";
@@ -661,7 +661,7 @@ function get_db()
  * Used when converted to mysqli to centralize special circumstances.
  * @param string $database
  */
-function generic_sql_select_db($database, $link = null)
+function generic_sql_select_db($database, $link = null): void
 {
     if (is_null($link)) {
         $link = $GLOBALS['dbh'];
@@ -694,7 +694,7 @@ function generic_sql_insert_id()
 /**
  * Begin a Transaction.
  */
-function sqlBeginTrans()
+function sqlBeginTrans(): void
 {
     $GLOBALS['adodb']['db']->BeginTrans();
 }
@@ -703,7 +703,7 @@ function sqlBeginTrans()
 /**
  * Commit a transaction
  */
-function sqlCommitTrans($ok = true)
+function sqlCommitTrans($ok = true): void
 {
     $GLOBALS['adodb']['db']->CommitTrans();
 }
@@ -712,7 +712,7 @@ function sqlCommitTrans($ok = true)
 /**
  * Rollback a transaction
  */
-function sqlRollbackTrans()
+function sqlRollbackTrans(): void
 {
     $GLOBALS['adodb']['db']->RollbackTrans();
 }

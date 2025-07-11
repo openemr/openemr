@@ -148,7 +148,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 }
 
 // This is called back by ParseERA::parseERA() if we are processing X12 835's.
-function era_callback(&$out)
+function era_callback(&$out): void
 {
     global $where, $eracount, $eraname;
     // print_r($out); // debugging
@@ -226,7 +226,7 @@ function emailLogin($patient_id, $message)
 
 // Upload a file to the client's browser
 //
-function upload_file_to_client($file_to_send)
+function upload_file_to_client($file_to_send): void
 {
     header("Pragma: public");
     header("Expires: 0");
@@ -244,7 +244,7 @@ function upload_file_to_client($file_to_send)
     sleep(1);
 }
 
-function upload_file_to_client_email($ppid, $file_to_send)
+function upload_file_to_client_email($ppid, $file_to_send): void
 {
     $message = "";
     global $STMT_TEMP_FILE_PDF;
@@ -260,7 +260,7 @@ function upload_file_to_client_email($ppid, $file_to_send)
     emailLogin($ppid, $message);
 }
 
-function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false)
+function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false): void
 {
     //modified for statement title name
     //Function reads a HTML file and converts to pdf.

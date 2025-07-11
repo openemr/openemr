@@ -239,7 +239,7 @@ $get_count = extract($_GET, EXTR_OVERWRITE);
 $script_dir = dirname(__FILE__);
 ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$script_dir/phpseclib");
 require_once("$script_dir/phpseclib/Net/SFTP.php");
-function get_openemr_globals($libdir)
+function get_openemr_globals($libdir): void
 {
     if (!isset($site)) {
         $_GET['site'] = 'default';
@@ -247,7 +247,7 @@ function get_openemr_globals($libdir)
 
     require_once("$libdir/../interface/globals.php");
 }
-function sftp_status($msg, $val)
+function sftp_status($msg, $val): void
 {
     if (php_sapi_name() == 'cli') {
         fwrite(STDOUT, xl($msg) . ' ' . $val . PHP_EOL);

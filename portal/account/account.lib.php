@@ -293,7 +293,7 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
     }
 }
 
-function saveInsurance($pid)
+function saveInsurance($pid): void
 {
     newInsuranceData(
         $pid = $pid,
@@ -531,7 +531,7 @@ function getPidHolder($preventRaceCondition = false): int
     }
 }
 
-function cleanupRegistrationSession()
+function cleanupRegistrationSession(): void
 {
     unset($_SESSION['patient_portal_onsite_two']);
     unset($_SESSION['authUser']);

@@ -47,7 +47,7 @@ if (!$auth_drug_reports) {
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();
 
-function addWarning($msg)
+function addWarning($msg): void
 {
     global $warnings, $form_action;
     $break = $form_action != 'export' ? '<br />' : '; ';
@@ -260,7 +260,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
     return $zerodays;
 }
 
-function write_report_line(&$row)
+function write_report_line(&$row): void
 {
     global $form_details, $wrl_last_drug_id, $warnings, $encount, $fwcond, $fwbind, $form_days;
     global $gbl_expired_lot_warning_days, $form_facility, $form_warehouse, $form_action;

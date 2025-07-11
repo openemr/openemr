@@ -31,7 +31,7 @@
  */
 
 
-function smarty_function_xla($params, &$smarty)
+function smarty_function_xla($params, &$smarty): void
 {
     if (empty($params['t'])) {
         trigger_error("xla: missing 't' parameter", E_USER_WARNING);

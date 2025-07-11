@@ -16,7 +16,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function observation_report($pid, $encounter, $cols, $id)
+function observation_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";

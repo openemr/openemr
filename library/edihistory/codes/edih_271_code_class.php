@@ -393,7 +393,6 @@ class edih_271_codes
         // NM108  N101
         $this->code271['NM108'] = array(
         "AD" => "BCBS Assoc Plan Code",
-        "NI" => "NAIC ID",
         "24" => "Employer ID Number (EIN)",
         "34" => "Social Security No",
         "46" => "Electronic Transmiter ID (ETIN)",
@@ -1328,9 +1327,6 @@ class edih_271_codes
 
         // code source identifier
         $this->code271['SV101'] = array(
-        'HP' => 'Health Ins Prospective Pmt System',
-        'N6' => 'National Health Related Item Code in 4-6 Format',
-        'UI' => 'U.P.C. Consumer Package Code (1-5-5)',
         'AD' => 'Am Dental Assoc Codes.',
         'CJ' => 'CPT Codes',
         'DX' => '(ICD-9-CM) Diagnosis',

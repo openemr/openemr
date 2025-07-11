@@ -1238,7 +1238,7 @@ function QuotedOrNull($fld)
     return "NULL";
 }
 
-function debug($local_var)
+function debug($local_var): void
 {
     echo "<pre><BR>We are in the debug function.<BR>";
     echo "Passed variable = " . $local_var . " <BR>";
@@ -1248,7 +1248,7 @@ function debug($local_var)
 
 /* From original issue.php */
 
-function row_delete($table, $where)
+function row_delete($table, $where): void
 {
     $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);
