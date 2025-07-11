@@ -9,6 +9,9 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
+
 class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 {
     const BROWSER = "chrome";
@@ -47,6 +50,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
    /**
     * Tests Add Patient to openEMR
     */
+    #[Test]
     public function testAddPatient()
     {
         $testset = $this->generateTestData();
@@ -101,8 +105,9 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
     /**
      * Check that the new patient exist in the database
      *
-     * @depends testAddPatient
      */
+    #[Depends('testAddPatient')]
+    #[Test]
     public function testFindPatient($testset)
     {
         $this->database_connection();
