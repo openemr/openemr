@@ -21,7 +21,7 @@ $exp = '';
 
 $str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
 
-function gad7_report($pid, $encounter, $cols, $id)
+function gad7_report($pid, $encounter, $cols, $id): void
 {
     global $str_test, $str_nervous,$gad7_total, $pdf_as_string, $str_values,$str_difficulty_values, $data, $exp, $file_name, $str_generate_pdf;
 

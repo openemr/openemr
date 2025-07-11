@@ -68,7 +68,7 @@ function cbvalue($cbname)
     return empty($_POST[$cbname]) ? 0 : 1;
 }
 
-function recursiveDelete($typeid)
+function recursiveDelete($typeid): void
 {
     $res = sqlStatement("SELECT procedure_type_id FROM " .
         "procedure_type WHERE parent = ?", [$typeid]);

@@ -13,7 +13,7 @@
 
 // $type
 
-function smarty_core_load_resource_plugin($params, &$smarty)
+function smarty_core_load_resource_plugin($params, &$smarty): void
 {
     /*
      * Resource plugins are not quite like the other ones, so they are

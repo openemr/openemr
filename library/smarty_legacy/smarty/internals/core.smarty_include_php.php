@@ -18,7 +18,7 @@
 
 //  $file, $assign, $once, $_smarty_include_vars
 
-function smarty_core_smarty_include_php($params, &$smarty)
+function smarty_core_smarty_include_php($params, &$smarty): void
 {
     $_params = array('resource_name' => $params['smarty_file']);
     require_once(SMARTY_CORE_DIR . 'core.get_php_resource.php');

@@ -410,7 +410,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     } ?>
                     <?php
 
-                    function end_cell()
+                    function end_cell(): void
                     {
                         global $item_count;
                         if ($item_count > 0) {
@@ -419,7 +419,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         }
                     }
 
-                    function end_row()
+                    function end_row(): void
                     {
                         global $cell_count, $CPR, $BS_COL_CLASS;
                         end_cell();
@@ -435,7 +435,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         $cell_count = 0;
                     }
 
-                    function end_group()
+                    function end_group(): void
                     {
                         global $last_group, $SHORT_FORM;
                         if (strlen($last_group) > 0) {

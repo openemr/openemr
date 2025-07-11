@@ -55,7 +55,7 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 //===============================================================================
 //This section handles the common functins of payment screens.
 //===============================================================================
-function DistributionInsert($CountRow, $created_time, $user_id)
+function DistributionInsert($CountRow, $created_time, $user_id): void
 {
 //Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.
@@ -245,7 +245,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
   // Delete rows, with logging, for the specified table using the
   // specified WHERE clause.  Borrowed from deleter.php.
   //
-function row_delete($table, $where)
+function row_delete($table, $where): void
 {
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -276,7 +276,7 @@ function row_delete($table, $where)
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.  Borrowed from deleter.php.
 //
-function row_modify($table, $set, $where)
+function row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::instance()->newEvent(

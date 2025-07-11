@@ -26,7 +26,7 @@ if (!AclMain::aclCheckCore('patients', 'lab')) {
     exit;
 }
 
-function thisLineItem($row)
+function thisLineItem($row): void
 {
     $provname = $row['provider_lname'];
     if (!empty($row['provider_fname'])) {

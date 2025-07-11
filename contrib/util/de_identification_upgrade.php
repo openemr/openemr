@@ -40,7 +40,7 @@ function tableExists_de($tblname)
     return true;
 }
 
-function upgradeFromSqlFile_de($filename)
+function upgradeFromSqlFile_de($filename): void
 {
     global $webserver_root;
 

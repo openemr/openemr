@@ -803,7 +803,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 exit;
 
-function myLocalJS()
+function myLocalJS(): void
 {
     ?>
     <script>

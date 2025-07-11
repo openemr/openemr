@@ -15,7 +15,7 @@
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function track_anything_report($pid, $encounter, $cols, $id)
+function track_anything_report($pid, $encounter, $cols, $id): void
 {
     #$patient_report_flag = 'no';
     echo "<div id='track_anything'>";

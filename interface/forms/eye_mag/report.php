@@ -80,7 +80,7 @@ while ($prefs = sqlFetchArray($result)) {
     $$LOCATION = text($prefs['GOVALUE']);
 }
 
-function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
+function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): void
 {
     global $form_folder;
     global $form_name;
@@ -192,7 +192,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
         //return;
     }
 }
-function left_overs()
+function left_overs(): void
 {
   /*
   * Keep: this could be co-opted to export an XML/HL7 type of document
@@ -212,7 +212,7 @@ function left_overs()
  *  It relies on the presence of the PMSFH,IMPPLAN arrays.
  *  Rest of fields are pulled from the DB.
  */
-function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
+function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 {
     global $form_folder;
     global $PDF_OUTPUT;
@@ -2439,7 +2439,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     }
 }
 
-function display_draw_image($zone, $encounter, $pid)
+function display_draw_image($zone, $encounter, $pid): void
 {
     global $form_folder;
     global $web_root;

@@ -21,7 +21,7 @@ use OpenEMR\Common\Acl\AclMain;
 // when viewing a "comprehensive patient report".  Also from
 // interface/patient_file/encounter/forms.php.
 
-function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
+function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): void
 {
     global $CPR;
     require_once($GLOBALS["srcdir"] . "/options.inc.php");

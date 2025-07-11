@@ -1527,7 +1527,7 @@ function calculateEvents($days, $events, $viewtype)
     return $days;
 }
 
-function fillBlocks($td, $ar)
+function fillBlocks($td, $ar): void
 {
     if (strlen($td) > 0 && !isset($ar[$td]['blocks'])) {
             $ar[$td]['blocks'] = array();

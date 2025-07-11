@@ -34,7 +34,7 @@ function isGpRelation($type1, $id1, $type2, $id2)
     return !empty($tmp['count']);
 }
 
-function setGpRelation($type1, $id1, $type2, $id2, $set = true)
+function setGpRelation($type1, $id1, $type2, $id2, $set = true): void
 {
     if (isGpRelation($type1, $id1, $type2, $id2)) {
         if (!$set) {

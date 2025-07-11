@@ -127,7 +127,7 @@ if (empty($skipSessionExpirationCheck) && $throttleDownWaitMilliseconds > 0) {
     SessionTracker::processSessionThrottleDown($throttleDownWaitMilliseconds);
 }
 
-function authCloseSession()
+function authCloseSession(): void
 {
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
@@ -136,7 +136,7 @@ function authCloseSession()
     SessionUtil::coreSessionDestroy();
 }
 
-function authLoginScreen($timed_out = false)
+function authLoginScreen($timed_out = false): void
 {
   // See comment in authCloseSession().
     global $incoming_site_id;

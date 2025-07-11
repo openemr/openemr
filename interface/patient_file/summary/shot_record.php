@@ -105,7 +105,7 @@ function convertToDataArray($data_array)
     return $data;
 }
 
-function printPDF($res, $res2, $data)
+function printPDF($res, $res2, $data): void
 {
 
     $pdf = new Cezpdf("LETTER");
@@ -125,7 +125,7 @@ function printPDF($res, $res2, $data)
     $pdf->ezStream();
 }
 
-function printHTML($res, $res2, $data)
+function printHTML($res, $res2, $data): void
 {
 //print html css
 

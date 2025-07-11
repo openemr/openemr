@@ -14,7 +14,7 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFathbf_javascript()
+function LBFathbf_javascript(): void
 {
     global $formid;
 
@@ -77,7 +77,7 @@ function athbfSFChanged() {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFathbf_javascript_onload()
+function LBFathbf_javascript_onload(): void
 {
 
     echo "

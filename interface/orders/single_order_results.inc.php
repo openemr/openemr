@@ -68,7 +68,7 @@ function storeNote($s)
 }
 
 // Display a single row of output including order, report and result information.
-function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
+function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): void
 {
     $lab_id = empty($row['lab_id']) ? 0 : ($row['lab_id'] + 0);
     $order_type_id = empty($row['order_type_id']) ? 0 : ($row['order_type_id'] + 0);

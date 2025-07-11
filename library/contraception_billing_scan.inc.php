@@ -29,7 +29,7 @@ $contraception_billing_prov = 0;
 // This is called for each service in the visit to determine the method
 // of the service with highest CYP.
 //
-function _contraception_billing_check($code_type, $code, $provider)
+function _contraception_billing_check($code_type, $code, $provider): void
 {
     global $code_types;
     global $contraception_billing_code, $contraception_billing_cyp, $contraception_billing_prov;

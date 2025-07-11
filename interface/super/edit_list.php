@@ -382,7 +382,7 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = '')
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
 {
     global $opt_line_no, $list_id;
     ++$opt_line_no;
@@ -575,7 +575,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
 
 // Write a form line as above but for the special case of the Fee Sheet.
 //
-function writeFSLine($category, $option, $codes)
+function writeFSLine($category, $option, $codes): void
 {
     global $opt_line_no;
 
@@ -672,7 +672,7 @@ function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''
 
 // Write a form line as above but for the special case of Code Types.
 //
-function writeCTLine($ct_array)
+function writeCTLine($ct_array): void
 {
     global $opt_line_no, $ct_external_options;
 
@@ -814,7 +814,7 @@ function writeCTLine($ct_array)
 /**
  * Special case of Issue Types
  */
-function writeITLine($it_array)
+function writeITLine($it_array): void
 {
     global $opt_line_no, $ISSUE_TYPE_CATEGORIES, $ISSUE_TYPE_STYLES;
     ++$opt_line_no;

@@ -32,7 +32,7 @@ $amendmentsList = explode(",", $amendments);
 $patientDetails = getPatientData($pid, "fname,lname");
 $patientName = $patientDetails['lname'] . ", " . $patientDetails['fname'];
 
-function printAmendment($amendmentID, $lastAmendment)
+function printAmendment($amendmentID, $lastAmendment): void
 {
     $query = "SELECT lo.title AS 'amendmentFrom', lo1.title AS 'amendmentStatus',a.* FROM amendments a
 		LEFT JOIN list_options lo ON a.amendment_by = lo.option_id AND lo.list_id = 'amendment_from' AND lo.activity = 1

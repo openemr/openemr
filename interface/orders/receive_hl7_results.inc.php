@@ -110,7 +110,7 @@ function rhl7InsertRow(&$arr, $tablename)
 }
 
 // Write all of the accumulated reports and their results.
-function rhl7FlushMain(&$amain, $commentdelim = "\n")
+function rhl7FlushMain(&$amain, $commentdelim = "\n"): void
 {
     foreach ($amain as $arr) {
         if (!isset($amain[0]['rep']['procedure_order_id'])) {
@@ -368,7 +368,7 @@ function rhl7CWE($s, $componentdelimiter)
  *
  * @param string $specimen Encoding type from SPM.
  */
-function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2)
+function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2): void
 {
     $specimen_display = '';
 

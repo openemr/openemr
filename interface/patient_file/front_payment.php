@@ -77,7 +77,7 @@ $facilityService = new FacilityService();
 // Display a row of data for an encounter.
 //
 $var_index = 0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0)
+function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0): void
 {
     global $var_index;
     $var_index++;

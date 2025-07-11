@@ -698,7 +698,6 @@ class C_EncounterVisitForm
             'formAction' => '/interface/forms/newpatient/save.php',
             'language_direction' => $_SESSION['language_direction'] ?? 'ltr',
             'validationConstraints' => $validationConstraints ?? [],
-            'isPosEnabled' => $GLOBALS['set_pos_code_encounter'] === "1",
             'selectedFacilityId' => $default_fac_override,
             'defaultClassCodeValue' => $viewmode ?  $encounter['class_code'] : '',
             'defaultEncounterTypeValue' => $viewmode ? $this->getDefaultEncounterType($viewmode, $encounter) : '',

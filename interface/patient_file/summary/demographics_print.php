@@ -194,7 +194,7 @@ if (is_file("$webserver_root/$ma_logo_path")) {
 
 echo genFacilityTitle(xl('Registration Form'), -1, $logo);
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -203,7 +203,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -217,7 +217,7 @@ function end_row()
     }
 }
 
-function end_group()
+function end_group(): void
 {
     global $last_group;
     if (strlen($last_group) > 0) {

@@ -61,7 +61,7 @@ function smarty_outputfilter_trimwhitespace($source, &$smarty)
     return $source;
 }
 
-function smarty_outputfilter_trimwhitespace_replace($search_str, $replace, &$subject) {
+function smarty_outputfilter_trimwhitespace_replace($search_str, $replace, &$subject): void {
     $_len = strlen($search_str);
     $_pos = 0;
     for ($_i=0, $_count=count($replace); $_i<$_count; $_i++)

@@ -51,7 +51,7 @@ $ORDERHASH = array(
   'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
 );
 
-function show_doc_total($lastdocname, $doc_encounters)
+function show_doc_total($lastdocname, $doc_encounters): void
 {
     if ($lastdocname) {
         echo " <tr>\n";

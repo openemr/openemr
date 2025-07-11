@@ -16,7 +16,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Pdf\PdfCreator;
 
-function ub04_dispose()
+function ub04_dispose(): void
 {
     $dispose = ($_POST['handler'] ?? null) ? $_POST['handler'] : ($_GET['handler'] ?? null);
     if ($dispose) {
@@ -68,7 +68,7 @@ function get_payer_defaults($payerid)
     }
 }
 
-function savePayerTemplate($payerid, $ub04id)
+function savePayerTemplate($payerid, $ub04id): void
 {
     $ub04id = json_encode($ub04id);
     sqlStatement("update insurance_companies set claim_template = ? where id = ?", array(
@@ -77,7 +77,7 @@ function savePayerTemplate($payerid, $ub04id)
     ));
 }
 
-function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
+function saveTemplate($encounter, $pid, $ub04id, $action = 'form'): void
 {
     global $isAuthorized;
     if ($action != 'batch_save') {

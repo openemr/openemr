@@ -7,7 +7,7 @@ require_once("library/htmlspecialchars.inc.php");
 require_once("library/translation.inc.php");
 require_once("custom/code_types.inc.php");
 
-function main_search_test($type, $string, $limit = 20, $modes = null, $count = false, $category = null)
+function main_search_test($type, $string, $limit = 20, $modes = null, $count = false, $category = null): void
 {
     echo "<ol>";
     $res = main_code_set_search($type, $string, $limit, $category, true, $modes, $count);
@@ -21,7 +21,7 @@ function main_search_test($type, $string, $limit = 20, $modes = null, $count = f
     echo "</ol>";
 }
 
-function return_code_info_test($type, $string, $limit = 20, $modes = null, $count = false)
+function return_code_info_test($type, $string, $limit = 20, $modes = null, $count = false): void
 {
     echo "<ol>";
     $res = return_code_information($type, $string);

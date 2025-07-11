@@ -15,7 +15,7 @@
 require_once(dirname(__FILE__) . '/../../../library/api.inc.php');
 
 
-function phq9_report($pid, $encounter, $cols, $id)
+function phq9_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $phq9_total = 0;

@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
-function setInsurance($pid, $ainsurance, $asubscriber, $seq)
+function setInsurance($pid, $ainsurance, $asubscriber, $seq): void
 {
     $iwhich = $seq == '2' ? "secondary" : ($seq == '3' ? "tertiary" : "primary");
     newInsuranceData(

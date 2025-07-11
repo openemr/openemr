@@ -7,7 +7,7 @@ require_once("library/htmlspecialchars.inc.php");
 require_once("library/translation.inc.php");
 require_once("custom/code_types.inc.php");
 
-function description_test($codes, $mode)
+function description_test($codes, $mode): void
 {
     $descriptions = lookup_code_descriptions($codes, $mode);
     echo $descriptions . "    <br />" . PHP_EOL;

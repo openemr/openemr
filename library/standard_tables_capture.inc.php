@@ -281,7 +281,7 @@ function snomed_import($us_extension = false)
     return true;
 }
 
-function drop_old_sct()
+function drop_old_sct(): void
 {
     $array_to_truncate = array(
         "sct_concepts_drop" => "DROP TABLE IF EXISTS `sct_concepts`",
@@ -295,7 +295,7 @@ function drop_old_sct()
     }
 }
 
-function drop_old_sct2()
+function drop_old_sct2(): void
 {
     $array_to_truncate = array(
         "sct2_concept_drop" => "DROP TABLE IF EXISTS `sct2_concept`",
@@ -312,14 +312,14 @@ function drop_old_sct2()
     }
 }
 
-function chg_ct_external_torf1()
+function chg_ct_external_torf1(): void
 {
     sqlStatement("UPDATE code_types SET ct_external = 2 WHERE ct_key = 'SNOMED'");
     sqlStatement("UPDATE code_types SET ct_external = 7 WHERE ct_key = 'SNOMED-CT'");
     sqlStatement("UPDATE code_types SET ct_external = 9 WHERE ct_key = 'SNOMED-PR'");
 }
 
-function chg_ct_external_torf2()
+function chg_ct_external_torf2(): void
 {
     sqlStatement("UPDATE code_types SET ct_external = 10 WHERE ct_key = 'SNOMED'");
     sqlStatement("UPDATE code_types SET ct_external = 11 WHERE ct_key = 'SNOMED-CT'");
@@ -686,7 +686,7 @@ function valueset_import($type)
 
 // Function to clean up temp files
 // $type (RXNORM etc.)
-function temp_dir_cleanup($type)
+function temp_dir_cleanup($type): void
 {
     if (is_dir($GLOBALS['temporary_files_dir'] . "/" . $type)) {
         rmdir_recursive($GLOBALS['temporary_files_dir'] . "/" . $type);
@@ -718,7 +718,7 @@ function update_tracker_table($type, $revision, $version, $file_checksum)
 }
 
 // Function to delete an entire directory
-function rmdir_recursive($dir)
+function rmdir_recursive($dir): void
 {
     $files = scandir($dir);
     array_shift($files);    // remove '.' from array
@@ -738,7 +738,7 @@ function rmdir_recursive($dir)
 }
 
 // function to cleanup temp, copy and unarchive the zip file
-function handle_zip_file($mode, $file)
+function handle_zip_file($mode, $file): void
 {
         // 1. copy the file to temp directory
     if (!temp_copy($file, $mode)) {

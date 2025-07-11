@@ -58,7 +58,7 @@ function addForm(
     return sqlInsert($sql, $arraySqlBind);
 }
 
-function authorizeForm($id, $authorized = "1")
+function authorizeForm($id, $authorized = "1"): void
 {
     sqlQuery("UPDATE forms SET authorized = ? WHERE id = ? AND deleted = 0", array($authorized, $id));
 }

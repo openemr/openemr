@@ -44,7 +44,7 @@ $info_msg = "";
 // Delete rows, with logging, for the specified table using the
 // specified WHERE clause.
 //
-function row_delete($table, $where)
+function row_delete($table, $where): void
 {
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
@@ -79,7 +79,7 @@ function row_delete($table, $where)
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.
 //
-function row_modify($table, $set, $where)
+function row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::instance()->newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
@@ -114,7 +114,7 @@ function decorateString($fmt, $str)
 // Delete and undo product sales for a given patient or visit.
 // This is special because it has to replace the inventory.
 //
-function delete_drug_sales($patient_id, $encounter_id = 0)
+function delete_drug_sales($patient_id, $encounter_id = 0): void
 {
     $where = $encounter_id ? "ds.encounter = '" . add_escape_custom($encounter_id) . "'" :
     "ds.pid = '" . add_escape_custom($patient_id) . "' AND ds.encounter != 0";
@@ -130,7 +130,7 @@ function delete_drug_sales($patient_id, $encounter_id = 0)
 
 // Delete a form's data that is specific to that form.
 //
-function form_delete($formdir, $formid, $patient_id, $encounter_id)
+function form_delete($formdir, $formid, $patient_id, $encounter_id): void
 {
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
@@ -178,7 +178,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
 //  Note the specific file is not deleted (instead flagged as deleted), since required to keep file for
 //   ONC certification purposes.
 //
-function delete_document($document)
+function delete_document($document): void
 {
     sqlStatement("UPDATE `documents` SET `deleted` = 1 WHERE id = ?", [$document]);
     row_delete("categories_to_documents", "document_id = '" . add_escape_custom($document) . "'");

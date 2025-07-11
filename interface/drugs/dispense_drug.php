@@ -18,7 +18,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 $facilityService = new FacilityService();
 
-function send_email($subject, $body)
+function send_email($subject, $body): void
 {
     $recipient = $GLOBALS['practice_return_email_path'];
     if (empty($recipient)) {

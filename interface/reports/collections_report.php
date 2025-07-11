@@ -180,7 +180,7 @@ for ($c = 0; $c < $form_age_cols; ++$c) {
     $grand_total_agedbal[$c] = 0;
 }
 
-function endPatient($ptrow)
+function endPatient($ptrow): void
 {
     global $export_patient_count, $export_dollars, $bgcolor;
     global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
@@ -267,7 +267,7 @@ function endPatient($ptrow)
     }
 }
 
-function endInsurance($insrow)
+function endInsurance($insrow): void
 {
     global $export_patient_count, $export_dollars, $bgcolor;
     global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
@@ -319,7 +319,7 @@ function getInsName($payerid)
 }
 
 $ins_co_name = '';
-function insuranceSelect()
+function insuranceSelect(): void
 {
     global $ins_co_name;
     $insurancei = getInsuranceProviders();

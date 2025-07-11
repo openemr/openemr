@@ -172,7 +172,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
  * @param   integer  $report_id    Report id
  * @param   integer  $total_items  Total number of items that will be processed
  */
-function setTotalItemsReportDatabase($report_id, $total_items)
+function setTotalItemsReportDatabase($report_id, $total_items): void
 {
   // Insert the total items that are to be processed
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"total_items",$total_items));
@@ -185,7 +185,7 @@ function setTotalItemsReportDatabase($report_id, $total_items)
  * @param   integer  $report_id           Report id
  * @param   integer  $items_processed  Number of items that have been processed
  */
-function updateReportDatabase($report_id, $items_processed)
+function updateReportDatabase($report_id, $items_processed): void
 {
   // Update the items that have been processed
     sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id));
@@ -199,7 +199,7 @@ function updateReportDatabase($report_id, $items_processed)
  * @param   integer  $report_id  Report id
  * @param   string   $data       Report results/data
  */
-function finishReportDatabase($report_id, $data)
+function finishReportDatabase($report_id, $data): void
 {
 
   // Record the data
@@ -276,7 +276,7 @@ function getStatusReportDatabase($report_id)
  * @param   string   $rule_id  The name of the rule that was used to generate this item
  * @param   string   $itemized_details  JSON of itemized details about this rule (if applicable)
  */
-function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '', $rule_id = '', $itemizedDetails = '')
+function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '', $rule_id = '', $itemizedDetails = ''): void
 {
     $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id, $rule_id, $itemizedDetails);
     sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`,`rule_id`,`item_details`) VALUES (?,?,?,?,?,?,?)", $sqlParameters);

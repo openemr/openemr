@@ -25,7 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_sort_events($params, &$smarty)
+function smarty_function_pc_sort_events($params, &$smarty): void
 {
     extract($params);
 

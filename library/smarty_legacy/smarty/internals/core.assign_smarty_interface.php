@@ -14,7 +14,7 @@
  * @param array Format: null
  * @param Smarty
  */
-function smarty_core_assign_smarty_interface($params, &$smarty)
+function smarty_core_assign_smarty_interface($params, &$smarty): void
 {
         if (isset($smarty->_smarty_vars) && isset($smarty->_smarty_vars['request'])) {
             return;

@@ -7,7 +7,7 @@ require_once("library/htmlspecialchars.inc.php");
 require_once("library/translation.inc.php");
 require_once("custom/code_types.inc.php");
 
-function search_test($type, $string, $mode = 'default', $return_only_one = false)
+function search_test($type, $string, $mode = 'default', $return_only_one = false): void
 {
     echo "<ol>";
     $res = code_set_search($type, $string, false, true, $return_only_one, 0, 10, array(), null, $mode);
