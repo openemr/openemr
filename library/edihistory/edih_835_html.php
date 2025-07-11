@@ -27,6 +27,7 @@
 function edih_round_cb(&$v, $k)
 {
     $v = round((int)$v, 2);
+    return $v;
 }
 /**
  * Create summary html string for an x12 835 claim payment

@@ -1592,7 +1592,7 @@ margin: 2px 0 2px 2px;">
  * via display_PMSFH('2') and show_PMSFH_panel($PMSFH) respectively,
  * to javascript to display changes to the user.
  * @param associative array $PMSFH if it exists
- * @return json encoded string
+ * @return void
  */
 function send_json_values($PMSFH = "")
 {
@@ -3172,7 +3172,7 @@ function canvas_select($zone, $encounter, $pid)
  *  @param string $visit_date Future functionality to limit result set. UTC DATE Formatted
  *  @param string $pid value = patient id
  *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
- *  @return true : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
 function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
 {
@@ -3286,7 +3286,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
  * @param string $form_id is the form_eye_*.id where the data to carry forward is located
  * @param string $pid value = patient id
- * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone
+ * @return void : outputs the ZONE specific HTML for a prior record + widget for the desired zone
  */
 function copy_forward($zone, $copy_from, $copy_to, $pid)
 {
