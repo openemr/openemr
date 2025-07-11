@@ -14,6 +14,8 @@
 // openemr/library/classes/Prescription.class.php file.
 
 use PHPMailer\PHPMailer\PHPMailer;
+use OpenEMR\Services\EncounterService;
+
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision
@@ -44,6 +46,30 @@ function send_drug_email($subject, $body)
     }
 }
 
+/**
+ * Validates that an encounter exists for a given patient
+ *
+ * @param int $patient_id The patient ID
+ * @param int $encounter_id The encounter ID to validate
+ * @return bool|string Returns true if valid, or an error message if invalid
+ */
+function _validateEncounter($patient_id, $encounter_id)
+{
+    if (empty($encounter_id) || $encounter_id == 0) {
+        return xlt('No active encounter selected. To dispense medication, you must first select or create a valid encounter for this patient. Please return to the patient dashboard, select or create an encounter, then try again.');
+    }
+
+    $encounter = new EncounterService()->getOneByPidEid($patient_id, $encounter_id);
+    
+    if (empty($encounter)) {
+        // This is a system error - the encounter ID exists but doesn't match the patient
+        error_log("Drug dispensing error: Encounter $encounter_id does not exist or does not belong to patient $patient_id");
+        return xlt('System error: The selected encounter does not exist or does not belong to this patient. This may indicate a data integrity issue. Please contact support if this problem persists.');
+    }
+    
+    return true;
+}
+
 function sellDrug(
     $drug_id,
     $quantity,
@@ -72,16 +98,11 @@ function sellDrug(
         $user         = $_SESSION['authUser'];
     }
 
-  // error_log("quantity = '$quantity'"); // debugging
-
-    // Sanity check.
+    // Sanity check
     if (!$testonly) {
-        $tmp = sqlQuery(
-            "SELECT count(*) AS count from form_encounter WHERE pid = ? AND encounter = ?",
-            array($patient_id, $encounter_id)
-        );
-        if (empty($tmp['count'])) {
-            die(xlt('Internal error: the referenced encounter no longer exists.') . text(" $patient_id $encounter_id"));
+        $validation_result = _validateEncounter($patient_id, $encounter_id);
+        if ($validation_result !== true) {
+            die($validation_result);
         }
     }
 
