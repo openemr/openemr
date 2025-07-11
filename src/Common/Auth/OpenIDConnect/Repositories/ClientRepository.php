@@ -147,7 +147,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $list;
     }
 
-    public function getClientEntity(string $clientIdentifier): ?ClientEntityInterface
+    public function getClientEntity($clientIdentifier)
     {
         $clients = sqlQueryNoLog("Select * From oauth_clients Where client_id=?", array($clientIdentifier));
 
