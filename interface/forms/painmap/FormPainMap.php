@@ -19,19 +19,8 @@ require_once($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.p
  */
 class FormPainMap extends AbstractClickmapModel
 {
-    /**
-     * The database table to place form data in/read form data from.
-     *
-     * @var TABLE_NAME
-     */
-
-    static $TABLE_NAME = "form_painmap";
-
-    /* Initializer. just calls parent's initializer. */
-    function __construct($id = "")
-    {
-        parent::__construct(FormPainMap::$TABLE_NAME, $id);
-    }
+    public const TABLE_NAME = 'form_painmap';
+    protected string $_table = self::TABLE_NAME;
 
     /**
      * @brief Return the Title of the form, Useful when calling addform().
