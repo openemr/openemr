@@ -8,9 +8,11 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+//header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;", true); // Preserve CSP header for security
 
 require_once("../../../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -82,6 +84,8 @@ $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode(
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-src *;">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><?php echo xlt('Weno eRx') ?></title>
     <?php Header::setupHeader(); ?>
     <style>
