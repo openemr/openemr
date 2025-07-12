@@ -187,6 +187,7 @@ class EmailClient extends AppDispatch
      */
     function fetchReminderCount(): string|bool
     {
+        return "0"; // Caller expects a string result, not HTML;
         // TODO: Implement fetchReminderCount() method.
     }
 
