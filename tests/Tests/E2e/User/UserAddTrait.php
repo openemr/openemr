@@ -82,16 +82,16 @@ trait UserAddTrait
             )
         );
 
-        sleep(5); // wait for the form to be ready
+        sleep(2); // wait for the form to be ready
 
         $this->populateUserFormReliably($username);
 
-        sleep(5); // wait for the form to be ready
+        sleep(2); // wait for the populated form to be ready
 
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
 
-        sleep(5); // wait for the form submission to be complete
+        sleep(2); // wait for the form submission to be complete
 
         // assert the new user is in the database
         $this->assertUserInDatabase($username);
@@ -114,7 +114,7 @@ trait UserAddTrait
             if ($counter > 0) {
                 echo "\n" . "TRY " . ($counter + 1) . " of 3 to see if new user is in database" . "\n";
             }
-            sleep(5);
+            sleep(2);
             if ($this->isUserExist($username)) {
                 $userExistDatabase = true;
             }
