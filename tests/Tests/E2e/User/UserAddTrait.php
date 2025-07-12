@@ -82,21 +82,13 @@ trait UserAddTrait
                 WebDriverBy::xpath(XpathsConstantsUserAddTrait::NEW_USER_FORM_RUMPLE_FIELD)
             )
         );
-        $this->crawler = $this->client->refreshCrawler();
-        $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
-        $newUser['rumple'] = $username;
-        $newUser['stiltskin'] = UserTestData::PASSWORD;
-        $newUser['fname'] = UserTestData::FIRSTNAME;
-        $newUser['lname'] = UserTestData::LASTNAME;
-        $newUser['adminPass'] = LoginTestData::password;
-        $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
+
+        $this->populateUserFormWithRetry($username);
 
         sleep(5); // wait for the form to be ready
 
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT)->click();
-
-        sleep(5); // wait for the form to be submitted and processed
 
         // assert the new user is in the database
         $this->assertUserInDatabase($username);
@@ -149,5 +141,39 @@ trait UserAddTrait
             $counter++;
         }
         $this->assertTrue($userExistDatabase, 'New user is not in database, so FAILED');
+    }
+
+    private function populateUserFormWithRetry($username): void
+    {
+        // Wait for JavaScript to fully load
+        $this->client->wait()->until(
+            WebDriverExpectedCondition::jsCondition("return typeof checkPasswordStrength !== 'undefined'")
+        );
+
+        $this->crawler = $this->client->refreshCrawler();
+        $newUser = $this->crawler->filterXPath(XpathsConstantsUserAddTrait::NEW_USER_BUTTON_USERADD_TRAIT)->form();
+
+        $newUser['rumple'] = $username;
+        $newUser['fname'] = UserTestData::FIRSTNAME;
+        $newUser['lname'] = UserTestData::LASTNAME;
+        $newUser['adminPass'] = LoginTestData::password;
+
+        // Retry logic for password field
+        for ($i = 0; $i < 3; $i++) {
+            $newUser['stiltskin'] = UserTestData::PASSWORD;
+            $this->client->wait(200000); // Wait for any JS processing
+
+            // Verify it worked
+            $passwordField = $this->client->findElement('//input[@name="stiltskin"]');
+            if ($passwordField->getAttribute('value') === UserTestData::PASSWORD) {
+                break; // Success!
+            }
+
+            if ($i === 2) {
+                throw new Exception("Failed to populate password field after 3 attempts");
+            }
+        }
+
+        $this->client->waitFor(XpathsConstantsUserAddTrait::CREATE_USER_BUTTON_USERADD_TRAIT);
     }
 }
