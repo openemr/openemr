@@ -39,6 +39,8 @@ class BaseController extends AbstractActionController
 
     );
 
+    protected Listener $translate;
+
     /**
      * path to file after base pass from ModuleconfigController
      * @var array

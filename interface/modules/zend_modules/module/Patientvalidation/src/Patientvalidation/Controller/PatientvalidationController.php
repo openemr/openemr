@@ -34,6 +34,8 @@ class PatientvalidationController extends BaseController
      */
     private $PatientDataTable;
 
+    private Listener $listenerObject;
+
     /**
      * PatientvalidationController constructor.
      */

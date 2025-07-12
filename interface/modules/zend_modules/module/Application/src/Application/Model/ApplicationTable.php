@@ -14,7 +14,7 @@ namespace Application\Model;
 
 use DateTime;
 use Exception;
-use Laminas\Db\Adapter\ExceptionInterface;
+use Laminas\Db\Adapter\Exception\ExceptionInterface;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -64,11 +64,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement = $this->adapter->query($sql);
             $return = $statement->execute($params);
             $result = true;
-        } catch (ExceptionInterface $e) {
-            if ($error) {
-                $this->errorHandler($e, $sql, $params);
-            }
-        } catch (\Exception $e) {
+        } catch (\Exception | ExceptionInterface $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }

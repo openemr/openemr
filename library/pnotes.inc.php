@@ -539,8 +539,6 @@ function updatePnotePatient($id, $patient_id)
         die("updatePnotePatient() did not find id '" . text($id) . "'");
     }
 
-    $activity = $assigned_to ? '1' : '0';
-
     $pid = $row['pid'];
 
     if ($pid != 0 || (int)$patient_id < 1) {

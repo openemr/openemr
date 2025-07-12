@@ -24,10 +24,10 @@ use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\DateSearchField;
-use OpenEMR\Services\Search\SearchFieldComparableValue;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use OpenEMR\FHIR\Export\ExportWillShutdownException;
 
 class FhirOperationExportRestController
 {
@@ -76,9 +76,12 @@ class FhirOperationExportRestController
     private $resourceRegistry;
 
     /**
-     * @var
+     * @var bool
      */
-    private $isExportDisabled;
+    private bool $isExportDisabled;
+
+    private FhirExportJobService $fhirExportJobService;
+
 
     public function __construct(HttpRestRequest $request)
     {
@@ -321,7 +324,7 @@ class FhirOperationExportRestController
             }
             // if we've reached our shutdown point, every subsequent resource we just fail immediately
             if ($shutdownImminent) {
-                $this->errorResult[] = $this->getExportTimeoutExportError($resource);
+                $errorResult[] = $this->getExportTimeoutExportError($resource);
                 continue;
             }
 

@@ -96,6 +96,7 @@ trait BaseTrait
                 str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading[1])
             ) {
                 if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
+                    // @phpstan-ignore method.notFound
                     $this->fail("Timeout waiting for tab [$text]");
                 }
                 usleep(100);
@@ -104,14 +105,17 @@ trait BaseTrait
             // only have 1 $loading to check
             while (str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $loading)) {
                 if (($startTime + 10000) < ((int)(microtime(true) * 1000))) {
+                    // @phpstan-ignore method.notFound
                     $this->fail("Timeout waiting for tab [$text]");
                 }
                 usleep(100);
             }
         }
         if ($looseTabTitle) {
+            // @phpstan-ignore method.notFound
             $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");
         } else {
+            // @phpstan-ignore method.notFound
             $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), "[$text] tab load FAILED");
         }
     }

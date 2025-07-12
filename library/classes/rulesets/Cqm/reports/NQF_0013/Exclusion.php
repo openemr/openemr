@@ -24,6 +24,9 @@
 
 class NQF_0013_Exclusion implements CqmFilterIF
 {
+    // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
+    const DIALYSIS_SERVICE = 'pro_dialysis_service';
+
     public function getTitle()
     {
         return "Exclusion";
@@ -36,7 +39,7 @@ class NQF_0013_Exclusion implements CqmFilterIF
             return true;
         }
 
-        $procedure_code = implode(',', Codes::lookup(Procedure::DIALYSIS_SERVICE, 'SNOMED'));
+        $procedure_code = implode(',', Codes::lookup(self::DIALYSIS_SERVICE, 'SNOMED'));
         //Dialysis procedure exists exclude the patient
         $sql = "SELECT count(*) as cnt FROM procedure_order pr " .
                "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .

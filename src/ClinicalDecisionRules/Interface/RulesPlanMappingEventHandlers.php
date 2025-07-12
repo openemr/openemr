@@ -119,7 +119,7 @@ class RulesPlanMappingEventHandlers
         $row = sqlFetchArray($res);
         if ($row != null) {
             //001 = plan name taken
-            throw new Exception("003");
+            throw new \Exception("003");
         }
 
         //Add plan into clinical_plans table

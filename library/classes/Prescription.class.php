@@ -149,6 +149,8 @@ class Prescription extends ORDataObject
 
     var $updated_by;
 
+    private string $erx_source;
+
     /**
     * Constructor sets all Prescription attributes to their default value
     */

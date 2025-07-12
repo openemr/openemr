@@ -53,6 +53,8 @@ class InstModule implements InputFilterAwareInterface
     public $sql_version;
     public $acl_action;
     public $acl_version;
+
+    public ?InputFilterInterface $inputFilter = null;
     public function exchangeArray($data)
     {
         $this -> modId                  = isset($data['mod_id']) ? $data['mod_id'] : null;

@@ -54,6 +54,7 @@ trait EncounterOpenTrait
     {
         // if patient does not already exists, then fail
         if (!$this->isEncounterExist($firstname, $lastname, $dob, $sex)) {
+            // @phpstan-ignore method.notFound
             $this->fail('Encounter does not exist so FAIL');
         }
 

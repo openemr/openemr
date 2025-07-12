@@ -52,6 +52,8 @@ class TeleHealthCalendarController
      */
     private $twig;
 
+    private TeleHealthProviderRepository $healthProviderRepository;
+
     public function __construct(TelehealthGlobalConfig $config, Environment $twig, SystemLogger $logger, $assetPath, $loggedInUserId)
     {
         $this->twig = $twig;

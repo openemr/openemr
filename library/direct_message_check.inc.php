@@ -468,7 +468,7 @@ function phimail_check()
 
             if ($ret2 !== true) {
                 phimail_logit(0, "M12 DONE failed: " . $ret2);
-                phimail_close();
+                phimail_close($fp);
                 return;
             }
         } else { //unrecognized or FAIL response

@@ -38,7 +38,7 @@ class ReferenceSearchField extends BasicSearchField
 
             $convertedFields[] = $this->createReferenceSearchValue($value);
         }
-        parent::setValues($convertedFields);
+        return parent::setValues($convertedFields);
     }
 
     /**

@@ -234,6 +234,9 @@ class ImmunizationService extends BaseService
      */
     public function insert($data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 
 
@@ -247,5 +250,8 @@ class ImmunizationService extends BaseService
      */
     public function update($uuid, $data)
     {
+        $processingResult = new ProcessingResult();
+        $processingResult->addInternalError("Method not implemented yet.");
+        return $processingResult;
     }
 }

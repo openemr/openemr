@@ -231,55 +231,6 @@ class HTML_TreeMenu
 
         return $treeMenu;
     }
-
-    /**
-    * Creates a treeMenu from XML. The structure of your XML should be
-    * like so:
-    *
-    * <treemenu>
-    *     <node text="First node" icon="folder.gif" expandedIcon="folder-expanded.gif" />
-    *     <node text="Second node" icon="folder.gif" expandedIcon="folder-expanded.gif">
-    *         <node text="Sub node" icon="folder.gif" expandedIcon="folder-expanded.gif" />
-    *     </node>
-    *     <node text="Third node" icon="folder.gif" expandedIcon="folder-expanded.gif">
-    * </treemenu>
-    *
-    * Any of the options you can supply to the HTML_TreeNode constructor can be supplied as
-    * attributes to the <node> tag. If there are no subnodes for a particular node, you can
-    * use the XML shortcut <node ... /> instead of <node ... ></node>. The $xml argument can
-    * be either the XML as a string, or an pre-created XML_Tree object. Also, this method
-    * REQUIRES my own Tree class to work (http://phpguru.org/tree.html). If this has not
-    * been include()ed or require()ed this method will die().
-    *
-    * @param  mixed  $xml  This can be either a string containing the XML, or an XML_Tree object
-    *                      (the PEAR::XML_Tree package).
-    * @return object       The HTML_TreeMenu object
-    */
-    function createFromXML($xml)
-    {
-        if (!class_exists('Tree')) {
-            die('Could not find Tree class');
-        }
-
-        // Supplied $xml is a string
-        if (is_string($xml)) {
-            require_once('XML/Tree.php');
-            $xmlTree = new XML_Tree();
-            $xmlTree->getTreeFromString($xml);
-
-        // Supplied $xml is an XML_Tree object
-        } else {
-            $xmlTree = $xml;
-        }
-
-        // Now process the XML_Tree object, setting the XML attributes
-        // to be the tag data (with out the XML tag name or contents).
-        $treeStructure = Tree::createFromXMLTree($xmlTree, true);
-        $treeStructure->nodes->traverse(create_function('&$node', '$tagData = $node->getTag(); $node->setTag($tagData["attributes"]);'));
-
-
-        return HTML_TreeMenu::createFromStructure(array('structure' => $treeStructure));
-    }
 } // HTML_TreeMenu
 
 

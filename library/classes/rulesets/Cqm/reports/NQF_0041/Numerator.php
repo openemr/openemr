@@ -9,6 +9,9 @@
 //
 class NQF_0041_Numerator implements CqmFilterIF
 {
+    // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
+    const INFLU_VACCINE = 'pro_influenza_vaccine';
+
     public function getTitle()
     {
         return "Numerator";
@@ -18,7 +21,7 @@ class NQF_0041_Numerator implements CqmFilterIF
     {
         $periodPlus89Days   = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime($beginDate)));
         $periodMinus153Days = date('Y-m-d 00:00:00', strtotime('-153 day', strtotime($beginDate)));
-        $influenza_procedure = implode(',', Codes::lookup(Procedure::INFLU_VACCINE, 'SNOMED'));
+        $influenza_procedure = implode(',', Codes::lookup(self::INFLU_VACCINE, 'SNOMED'));
         $influenza_medication = implode(',', Codes::lookup(Medication::INFLUENZA_VACCINE, 'CVX'));
         $provider_communication = implode(',', Codes::lookup(Communication::PREV_RECEIPT_VACCINE, 'SNOMED'));
 

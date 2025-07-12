@@ -7,7 +7,7 @@ use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FHIR\FhirPatientRestController
+ * @coversDefaultClass \OpenEMR\RestControllers\FHIR\FhirPatientRestController
  */
 
 class FhirPatientRestControllerTest extends TestCase
