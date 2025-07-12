@@ -7,6 +7,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Patient Service Tests
@@ -27,6 +28,8 @@ class PatientServiceTest extends TestCase
      */
     private $patientService;
     private $fixtureManager;
+
+    private array $patientFixture;
 
     protected function setUp(): void
     {
@@ -52,7 +55,9 @@ class PatientServiceTest extends TestCase
     {
         $this->patientFixture["fname"] = "";
         $this->patientFixture["DOB"] = "12/27/2017";
-        unset($this->patientFixture["sex"]);
+        if (isset($this->patientFixture["sex"])) {
+            unset($this->patientFixture["sex"]);
+        }
 
         $actualResult = $this->patientService->insert($this->patientFixture);
 

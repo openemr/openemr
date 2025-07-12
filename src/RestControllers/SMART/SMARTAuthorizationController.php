@@ -66,8 +66,6 @@ class SMARTAuthorizationController
 
     const PATIENT_SELECT_CONFIRM_ENDPOINT = "/smart/patient-select-confirm";
 
-    const PATIENT_SEARCH_ENDPOINT = "/smart/patient-search";
-
     /**
      * Maximum number of patients that can be displayed in a search result.
      */
@@ -106,9 +104,6 @@ class SMARTAuthorizationController
         if (false !== stripos($end_point, self::PATIENT_SELECT_CONFIRM_ENDPOINT)) {
             return true;
         }
-        if (false !== stripos($end_point, self::PATIENT_SEARCH_ENDPOINT)) {
-            return true;
-        }
         if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
             return true;
         }
@@ -133,10 +128,6 @@ class SMARTAuthorizationController
         } else if (false !== stripos($end_point, self::PATIENT_SELECT_PATH)) {
             // session is maintained
             $this->patientSelect();
-            exit;
-        } else if (false !== stripos($end_point, self::PATIENT_SEARCH_ENDPOINT)) {
-            // session is maintained
-            $this->patientSearch();
             exit;
         } else if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
             $this->ehrLaunchAutoSubmit();

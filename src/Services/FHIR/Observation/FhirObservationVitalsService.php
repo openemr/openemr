@@ -25,6 +25,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -36,6 +37,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirObservationVitalsService extends FhirServiceBase implements IPatientCompartmentResourceService
 {
+    use FhirServiceBaseEmptyTrait;
+
     // we set this to be 'Final' which has the follow interpretation
     // 'The observation is complete and there are no further actions needed.'
     // @see http://hl7.org/fhir/R4/valueset-observation-status.html
@@ -250,27 +253,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
-
-    /**
-     * Inserts an OpenEMR record into the sytem.
-     * @return The OpenEMR processing result.
-     */
-    protected function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: Implement insertOpenEMRRecord() method.
-    }
-
-    /**
-     * Updates an existing OpenEMR record.
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return The OpenEMR Service Result
-     */
-    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: Implement updateOpenEMRRecord() method.
-    }
-
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      * @param openEMRSearchParameters OpenEMR search fields
@@ -404,18 +386,6 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         }
         return $codeMappings;
     }
-
-
-    /**
-     * Parses a FHIR Resource, returning the equivalent OpenEMR record.
-     *
-     * @param $fhirResource The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
-     */
-    public function parseFhirResource($fhirResource = array())
-    {
-    }
-
 
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource

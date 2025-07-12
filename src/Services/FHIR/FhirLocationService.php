@@ -19,6 +19,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\LocationService;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -32,6 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirLocationService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
 
@@ -208,25 +210,6 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
             $openEMRSearchParameters['patient-facility-type'] = $patientFacilityType;
         }
         return $this->locationService->getAll($openEMRSearchParameters, false);
-    }
-
-    public function parseFhirResource($fhirResource = array())
-    {
-        // TODO: If Required in Future
-    }
-
-    public function insertOpenEMRRecord($openEmrRecord)
-    {
-        // TODO: If Required in Future
-    }
-
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
-    {
-        // TODO: If Required in Future
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
     }
 
     private function hasAccessToUserLocationData()

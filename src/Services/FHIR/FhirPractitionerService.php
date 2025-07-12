@@ -8,6 +8,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -32,6 +33,7 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirPractitionerService extends FhirServiceBase implements IFhirExportableResourceService, IResourceUSCIGProfileService
 {
+    use FhirServiceBaseEmptyTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
 
@@ -305,10 +307,6 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
         return $this->practitionerService->getAll($openEMRSearchParameters, true);
-    }
-    public function createProvenanceResource($dataRecord = array(), $encode = false)
-    {
-        // TODO: If Required in Future
     }
 
     /**

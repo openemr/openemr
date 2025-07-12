@@ -3,16 +3,12 @@
 namespace OpenEMR\Cqm;
 
 use Exception;
-use GuzzleHttp\Client;
 use OpenEMR\Common\Http\HttpClient;
 use OpenEMR\Common\System\System;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
-
-use function GuzzleHttp\Psr7\str;
 
 /**
  * Class CqmClient

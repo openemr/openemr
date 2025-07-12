@@ -34,6 +34,9 @@ class FhirOperationDocRefRestController
     const OPERATION_OUTCOME_ISSUE_TYPE_PROCESSING = "processing";
     const OPERATION_OUTCOME_ISSUE_TYPE_NOT_SUPPORTED = "not-supported";
 
+    private FhirDocRefService $fhirDocRefService;
+    private FhirResourcesService $fhirService;
+
     public function __construct(HttpRestRequest $request)
     {
         $this->fhirDocRefService = new FhirDocRefService($request->getApiBaseFullUrl());

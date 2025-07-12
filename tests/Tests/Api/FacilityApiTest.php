@@ -3,10 +3,10 @@
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\RestControllers\FacilityRestController;
-use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Facility API Endpoint Test Cases.

@@ -1391,7 +1391,7 @@ class CdaTemplateImportDispose
 
             // Medication additions
             if ($addMedication) {
-                $sql = "INSERT INTO lists SET `type` = ?, `begdate` = ?, `enddate` = ?, `pid` = ?, 
+                $sql = "INSERT INTO lists SET `type` = ?, `begdate` = ?, `enddate` = ?, `pid` = ?,
                       `title` = ?, `diagnosis` = ?, `date` = ?, `activity` = ?, `user` = ?, `groupname` = ?";
                 $med = [
                     'medication',
@@ -1827,6 +1827,7 @@ class CdaTemplateImportDispose
             }
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
             $res = $appTable->zQuery($query_insert, array($newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date));
+            $plan_date_value = null; // leaving variable in before in case code relies on key as it was undefined and newer versions of php doesn't like that.
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
 

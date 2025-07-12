@@ -69,7 +69,7 @@ class CarecoordinationController extends AbstractActionController
      */
     public function indexAction()
     {
-        $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
+        return $this->redirect()->toRoute('encountermanager', array('action' => 'index'));
     }
 
     /**
@@ -342,7 +342,6 @@ class CarecoordinationController extends AbstractActionController
 
         $view = new ViewModel(array(
             'carecoordinationTable' => $this->getCarecoordinationTable(),
-            'ApplicationTable' => $this->getApplicationTable(),
             'commonplugin' => $this->CommonPlugin(), // this comes from the Application Module
             'demographics' => $demographics,
             'demographics_old' => $demographics_old,
@@ -868,14 +867,6 @@ class CarecoordinationController extends AbstractActionController
     public function getCarecoordinationTable()
     {
         return $this->carecoordinationTable;
-    }
-
-    /**
-     * Returns the application table.
-     */
-    public function getApplicationTable()
-    {
-        return $this->applicationTable;
     }
 
     /**

@@ -171,7 +171,7 @@ trait Date
         } elseif (!empty($context->find('relevantDatetime'))) {
             return $this->relevant_date_time_value($context);
         } else {
-            "<effectiveTime nullFlavor='UNK'/>";
+            return "<effectiveTime nullFlavor='UNK'/>";
         }
     }
 

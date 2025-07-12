@@ -28,6 +28,8 @@ class TeleHealthFrontendSettingsController
      */
     private $config;
 
+    private string $assetPath;
+
     public function __construct(string $assetPath, Environment $twig, TelehealthGlobalConfig $config)
     {
         $this->assetPath = $assetPath;

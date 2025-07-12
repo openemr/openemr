@@ -10,6 +10,7 @@
  /////////////////////////////////////////////////////////////////////
  // This program exports patient demographics on demand and sends
  // them to an Atlas LabWorks server to facilitate lab requisitions.
+ // This product is now called Clinisys Atlas, need to verify if the code is still used as of July 2025
  /////////////////////////////////////////////////////////////////////
 
  require_once("../interface/globals.php");
@@ -35,8 +36,7 @@
  // Add a string to output with some basic sanitizing.
 function Add($field)
 {
-    global $out;
-    $out .= "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
+    return "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
 }
 
  // Remove all non-digits from a string.
@@ -94,6 +94,7 @@ function mydie($msg)
  // This mess gets all the info for the patient.
  //
  $insrow = array();
+ global $pid; // defined in globals.php
 foreach (array('primary','secondary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", array($pid, $value));
@@ -146,84 +147,84 @@ if ($row['providerID']) {
  // Patient Section.
  //
  $out .= $pid;                     // patient id
- Add($row['pubpid']);              // chart number
- Add($row['lname']);               // last name
- Add($row['fname']);               // first name
- Add(substr($row['mname'], 0, 1)); // middle initial
- Add("");                          // alias
- Add(Digits($row['ss']));          // ssn
- Add(LWDate($row['DOB']));         // dob
- Add(Sex($row['sex']));            // gender
- Add("");                          // notes
- Add($row['street']);              // address 1
- Add("");                          // address2
- Add($row['city']);                // city
- Add($row['state']);               // state
- Add($row['postal_code']);         // zip
- Add(Digits($row['phone_home']));  // home phone
+ $out .= Add($row['pubpid']);              // chart number
+ $out .= Add($row['lname']);               // last name
+ $out .= Add($row['fname']);               // first name
+ $out .= Add(substr($row['mname'], 0, 1)); // middle initial
+ $out .= Add("");                          // alias
+ $out .= Add(Digits($row['ss']));          // ssn
+ $out .= Add(LWDate($row['DOB']));         // dob
+ $out .= Add(Sex($row['sex']));            // gender
+ $out .= Add("");                          // notes
+ $out .= Add($row['street']);              // address 1
+ $out .= Add("");                          // address2
+ $out .= Add($row['city']);                // city
+ $out .= Add($row['state']);               // state
+ $out .= Add($row['postal_code']);         // zip
+ $out .= Add(Digits($row['phone_home']));  // home phone
 
  // Guarantor Section.  OpenEMR does not have guarantors so we use the primary
  // insurance subscriber if there is one, otherwise the patient.
  //
 if (trim($row['lname1'])) {
-    Add($row['lname1']);
-    Add($row['fname1']);
-    Add(substr($row['mname1'], 0, 1));
-    Add($row['sstreet1']);
-    Add("");
-    Add($row['scity1']);
-    Add($row['sstate1']);
-    Add($row['szip1']);
+    $out .= Add($row['lname1']);
+    $out .= Add($row['fname1']);
+    $out .= Add(substr($row['mname1'], 0, 1));
+    $out .= Add($row['sstreet1']);
+    $out .= Add("");
+    $out .= Add($row['scity1']);
+    $out .= Add($row['sstate1']);
+    $out .= Add($row['szip1']);
 } else {
-    Add($row['lname']);
-    Add($row['fname']);
-    Add(substr($row['mname'], 0, 1));
-    Add($row['street']);
-    Add("");
-    Add($row['city']);
-    Add($row['state']);
-    Add($row['postal_code']);
+    $out .= Add($row['lname']);
+    $out .= Add($row['fname']);
+    $out .= Add(substr($row['mname'], 0, 1));
+    $out .= Add($row['street']);
+    $out .= Add("");
+    $out .= Add($row['city']);
+    $out .= Add($row['state']);
+    $out .= Add($row['postal_code']);
 }
 
  // Primary Insurance Section.
  //
- Add($row['provider1']);
- Add($row['name1']);
- Add($row['street11']);
- Add($row['street21']);
- Add($row['city1']);
- Add($row['state1']);
- Add($row['zip1']);
- Add("");
- Add(InsType($row['instype1']));
- Add($row['fname1'] . " " . $row['lname1']);
- Add(ucfirst($row['relationship1']));
- Add($row['group1']);
- Add($row['policy1']);
+ $out .= Add($row['provider1']);
+ $out .= Add($row['name1']);
+ $out .= Add($row['street11']);
+ $out .= Add($row['street21']);
+ $out .= Add($row['city1']);
+ $out .= Add($row['state1']);
+ $out .= Add($row['zip1']);
+ $out .= Add("");
+ $out .= Add(InsType($row['instype1']));
+ $out .= Add($row['fname1'] . " " . $row['lname1']);
+ $out .= Add(ucfirst($row['relationship1']));
+ $out .= Add($row['group1']);
+ $out .= Add($row['policy1']);
 
  // Secondary Insurance Section.
  //
- Add($row['provider2']);
- Add($row['name2']);
- Add($row['street12']);
- Add($row['street22']);
- Add($row['city2']);
- Add($row['state2']);
- Add($row['zip2']);
- Add("");
- Add(InsType($row['instype2']));
- Add($row['fname2'] . " " . $row['lname2']);
- Add(ucfirst($row['relationship2']));
- Add($row['group2']);
- Add($row['policy2']);
+ $out .= Add($row['provider2']);
+ $out .= Add($row['name2']);
+ $out .= Add($row['street12']);
+ $out .= Add($row['street22']);
+ $out .= Add($row['city2']);
+ $out .= Add($row['state2']);
+ $out .= Add($row['zip2']);
+ $out .= Add("");
+ $out .= Add(InsType($row['instype2']));
+ $out .= Add($row['fname2'] . " " . $row['lname2']);
+ $out .= Add(ucfirst($row['relationship2']));
+ $out .= Add($row['group2']);
+ $out .= Add($row['policy2']);
 
  // Primary Care Physician Section.
  //
- Add($prow['id']);
- Add($prow['lname']);
- Add($prow['fname']);
- Add(substr($prow['mname'], 0, 1));
- Add(""); // UPIN not available
+ $out .= Add($prow['id']);
+ $out .= Add($prow['lname']);
+ $out .= Add($prow['fname']);
+ $out .= Add(substr($prow['mname'], 0, 1));
+ $out .= Add(""); // UPIN not available
 
  // All done.
  $out .= "\rEND";

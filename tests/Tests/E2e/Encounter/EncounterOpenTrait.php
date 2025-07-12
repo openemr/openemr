@@ -22,6 +22,8 @@ use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsEncounterOpenTrait;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 trait EncounterOpenTrait
 {
@@ -30,10 +32,9 @@ trait EncounterOpenTrait
     use PatientOpenTrait;
     use EncounterAddTrait;
 
-    /**
-     * @depends testLoginAuthorized
-     * @depends testPatientOpen
-     */
+    #[Depends('testLoginAuthorized')]
+    #[Depends('testPatientOpen')]
+    #[Test]
     public function testEncounterOpen(): void
     {
         $this->base();
@@ -53,6 +54,7 @@ trait EncounterOpenTrait
     {
         // if patient does not already exists, then fail
         if (!$this->isEncounterExist($firstname, $lastname, $dob, $sex)) {
+            // @phpstan-ignore method.notFound
             $this->fail('Encounter does not exist so FAIL');
         }
 

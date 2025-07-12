@@ -17,6 +17,7 @@ use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 #[CoversClass(EncounterService::class)]
 class EncounterServiceTest extends TestCase

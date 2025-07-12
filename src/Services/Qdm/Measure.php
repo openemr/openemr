@@ -73,6 +73,8 @@ class Measure extends AbstractType
 
     public $calculation_method;
 
+    protected $_measure;
+
     /**
      * Measure constructor.
      *

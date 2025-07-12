@@ -20,7 +20,8 @@ use OpenEMR\Validators\ProcessingResult;
 
 class FhirDeviceRestController
 {
-    private $fhirService;
+    private FhirResourcesService $fhirService;
+    private FhirDeviceService $fhirResourceService;
 
     public function __construct()
     {

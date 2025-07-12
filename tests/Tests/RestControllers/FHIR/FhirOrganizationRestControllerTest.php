@@ -7,7 +7,7 @@ use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FHIR\FhirOrganizationRestController
+ * @coversDefaultClass \OpenEMR\RestControllers\FHIR\FhirOrganizationRestController
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

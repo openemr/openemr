@@ -34,7 +34,7 @@ class TeleHealthUserAdminController
     /**
      * @var TelehealthGlobalConfig
      */
-    private $globalConfig;
+    private $config;
 
     /**
      * @var TeleHealthPersonSettingsRepository

@@ -22,6 +22,8 @@ use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsEncounterAddTrait;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 trait EncounterAddTrait
 {
@@ -29,10 +31,9 @@ trait EncounterAddTrait
     use LoginTrait;
     use PatientOpenTrait;
 
-    /**
-     * @depends testLoginAuthorized
-     * @depends testPatientOpen
-     */
+    #[Depends('testLoginAuthorized')]
+    #[Depends('testPatientOpen')]
+    #[Test]
     public function testEncounterAdd(): void
     {
         $this->base();
@@ -52,6 +53,7 @@ trait EncounterAddTrait
     {
         // if patient already exists, then skip this
         if ($this->isEncounterExist($firstname, $lastname, $dob, $sex)) {
+            // @phpstan-ignore method.notFound
             $this->markTestSkipped('New encounter test skipped because this encounter already exists.');
         }
 
@@ -85,6 +87,7 @@ trait EncounterAddTrait
         $this->client->waitFor('//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for ' . $firstname . " " . $lastname . '")]');
 
         // ensure the encounter was added
+        // @phpstan-ignore method.notFound
         $this->assertTrue($this->isEncounterExist($firstname, $lastname, $dob, $sex), 'New encounter is not in database, so FAILED');
     }
 }

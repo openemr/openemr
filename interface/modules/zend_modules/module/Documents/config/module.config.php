@@ -79,8 +79,7 @@ return array(
     'service_manager' => [
         'factories' => [
             DocumentsTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $table = new DocumentsTable($dbAdapter);
+                $table = new DocumentsTable();
                 return $table;
             },
             // this class is used in other places such as the CCR module, etc so we have to expose it again.
