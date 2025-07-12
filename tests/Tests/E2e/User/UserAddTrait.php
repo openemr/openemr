@@ -152,7 +152,7 @@ trait UserAddTrait
 
             // Verify it worked
             try {
-                $passwordField = $this->client->findElement('//input[@name="stiltskin"]');
+                $passwordField = $this->client->findElement(WebDriverBy::name('stiltskin'));
                 $value = $passwordField->getAttribute('value');
 
                 if ($value === UserTestData::PASSWORD) {
