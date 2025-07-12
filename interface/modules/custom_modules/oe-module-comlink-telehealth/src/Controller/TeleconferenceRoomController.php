@@ -173,7 +173,7 @@ class TeleconferenceRoomController
         $this->logger->debug("TeleconferenceRoomController->dispatch()", ['action' => $action, 'queryVars' => $queryVars, 'isPatient' => $this->isPatient]);
 
         // TODO: @adunsulag need to look at each individual action and make sure we are following access permissions here...
-        match($action) {
+        match ($action) {
             'get_telehealth_launch_data' => $this->getTeleHealthLaunchDataAction($queryVars),
             'set_appointment_status' => $this->setAppointmentStatusAction($queryVars),
             'set_current_appt_encounter' => $this->setCurrentAppointmentEncounter($queryVars),
@@ -398,7 +398,8 @@ class TeleconferenceRoomController
         }
     }
 
-    public function handleInvalidAction($action) {
+    public function handleInvalidAction($action)
+    {
         $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
         echo "action not supported";
     }
