@@ -173,7 +173,7 @@ if ($refresh and $refresh != 'fullscreen') {
     } elseif ($refresh == "PMSFH_panel") {
         echo show_PMSFH_panel($PMSFH);
     } elseif ($refresh == "page") {
-        echo send_json_values($PMSFH);
+        send_json_values($PMSFH);
     } elseif ($refresh == "GFS") {
         echo display_GlaucomaFlowSheet($pid);
     }
