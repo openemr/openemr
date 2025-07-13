@@ -161,7 +161,7 @@ foreach ($parameters['otherid'] as $otherID) {
     echo "<br /><br />";
 } // end of otherID loop
 
-function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
+function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
 {
     global $commitchanges;
 

@@ -16,7 +16,7 @@
 
 require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
 
-function updateAppointmentStatus($pid, $encdate, $newstatus)
+function updateAppointmentStatus($pid, $encdate, $newstatus): void
 {
     if (empty($GLOBALS['gbl_auto_update_appt_status'])) {
         return;

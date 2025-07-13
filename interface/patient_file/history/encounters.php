@@ -84,7 +84,7 @@ $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
 //Get Document List by Encounter ID
-function getDocListByEncID($encounter, $raw_encounter_date, $pid)
+function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
 {
     global $ISSUE_TYPES, $auth_med;
 
@@ -123,7 +123,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 
 // This is called to generate a line of output for a patient document.
 //
-function showDocument(&$drow)
+function showDocument(&$drow): void
 {
     global $ISSUE_TYPES, $auth_med;
 
@@ -167,7 +167,7 @@ function showDocument(&$drow)
     echo "</tr>\n";
 }
 
-function generatePageElement($start, $pagesize, $billing, $issue, $text)
+function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 {
     if ($start < 0) {
         $start = 0;

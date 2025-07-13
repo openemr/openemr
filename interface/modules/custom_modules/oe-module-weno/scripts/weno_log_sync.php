@@ -102,7 +102,7 @@ function downloadWenoPrescriptionLog(): void
  *
  * @param string $errorMessage
  */
-function handleDownloadError(string $errorMessage)
+function handleDownloadError(string $errorMessage): void
 {
     EventAuditLogger::instance()->newEvent(
         "pharmacy_background",

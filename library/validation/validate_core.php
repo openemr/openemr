@@ -42,7 +42,7 @@ function collectValidationPageRules($title, $active = true)
  * @param $fileNamePath
  * @output a generated javascript tag with the validation
  */
-function validateUsingPageRules($fileNamePath)
+function validateUsingPageRules($fileNamePath): void
 {
 
     $path = '';

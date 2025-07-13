@@ -82,7 +82,7 @@ function InsType($field)
 }
 
  // Error abort function that does not leave the system locked.
-function mydie($msg)
+function mydie($msg): void
 {
     global $EXPORT_PATH;
     rename("$EXPORT_PATH/locked", "$EXPORT_PATH/unlocked");

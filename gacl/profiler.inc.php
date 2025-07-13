@@ -205,12 +205,12 @@ class Profiler {
     }
 }
 
-function profiler_start($name) {
+function profiler_start($name): void {
     if (array_key_exists("midcom_profiler",$GLOBALS))
       $GLOBALS["midcom_profiler"]->startTimer ($name);
 }
 
-function profiler_stop($name) {
+function profiler_stop($name): void {
     if (array_key_exists("midcom_profiler",$GLOBALS))
       $GLOBALS["midcom_profiler"]->stopTimer ($name);
 }

@@ -147,7 +147,7 @@ function GetAllCredits($enc = '', $pat = '')
 
     return($all);
 }
-function PrintEncHeader($dt, $rsn, $dr)
+function PrintEncHeader($dt, $rsn, $dr): void
 {
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -161,7 +161,7 @@ function PrintEncHeader($dt, $rsn, $dr)
     echo "</tr>\n";
     $orow++;
 }
-function PrintEncFooter()
+function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
     echo "<tr style='background-color: var(--gray300)'>";
@@ -174,7 +174,7 @@ function PrintEncFooter()
     echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
-function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances)
+function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;

@@ -84,7 +84,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return void
          */
-        function deleteRows($tblname, $colname, $source_pid, $target_pid)
+        function deleteRows($tblname, $colname, $source_pid, $target_pid): void
         {
             global $PRODUCTION;
             $crow = sqlQuery(
@@ -120,7 +120,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return voidd
          */
-        function updateRows($tblname, $colname, $source_pid, $target_pid)
+        function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {
             global $PRODUCTION;
             $crow = sqlQuery(
@@ -157,7 +157,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return void
          */
-        function mergeRows($tblname, $colname, $source_pid, $target_pid)
+        function mergeRows($tblname, $colname, $source_pid, $target_pid): void
         {
             global $PRODUCTION;
             $crow = sqlQuery(
@@ -285,7 +285,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          *
          * @return void
          */
-        function logMergeEvent($target_pid, $event_type, $log_message)
+        function logMergeEvent($target_pid, $event_type, $log_message): void
         {
             EventAuditLogger::instance()->newEvent(
                 "patient-merge-" . $event_type,

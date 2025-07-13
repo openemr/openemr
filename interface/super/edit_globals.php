@@ -108,7 +108,7 @@ function updateBackgroundService($name, $active, $interval)
  * copied to a temp variable before the while($globalsrow...) loop.
  * @author EMR Direct
  */
-function checkBackgroundServices()
+function checkBackgroundServices(): void
 {
   //load up any necessary globals
     $bgservices = sqlStatement(

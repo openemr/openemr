@@ -96,7 +96,7 @@ function thisLineItem(
     $transdate,
     $qtys,
     $irnumber = ''
-) {
+): void {
 
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
     global $whleft, $prodleft; // left 2 columns, blank where repeated

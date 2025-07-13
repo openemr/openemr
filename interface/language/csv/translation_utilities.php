@@ -99,7 +99,7 @@ function verify_translation($constant, $definition, $language, $replace = true, 
     }
 }
 
-function verify_translations($definitions, $language, $replace = true)
+function verify_translations($definitions, $language, $replace = true): void
 {
     foreach ($definitions as $constant => $definition) {
         verify_translation($constant, $definition, $language, $replace);
@@ -118,7 +118,7 @@ function utf8_fopen_read($fileName)
     return $handle;
 }
 
-function verify_file($filename, $language, $replace = true, $source_name = '', $constant_colummn = 0, $definition_column = 1)
+function verify_file($filename, $language, $replace = true, $source_name = '', $constant_colummn = 0, $definition_column = 1): void
 {
     if (($handle = utf8_fopen_read("$filename")) !== false) {
         $first = true;

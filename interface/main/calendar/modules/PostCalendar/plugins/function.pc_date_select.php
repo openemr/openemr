@@ -25,7 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_date_select($args)
+function smarty_function_pc_date_select($args): void
 {
     $print = pnVarCleanFromInput('print');
     $tplview = pnVarCleanFromInput('tplview');

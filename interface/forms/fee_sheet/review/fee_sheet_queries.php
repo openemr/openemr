@@ -32,7 +32,7 @@ require_once("code_check.php");
  * @param array $diags      a list of diagnoses
  * @param bool  $create     if set issue not already in the patient problem list will be created
  */
-function update_issues($pid, $encounter, $diags)
+function update_issues($pid, $encounter, $diags): void
 {
     $list_touched = false;  // flag to determine if we have actually affected the medical_problem list.
     $sqlEncounterDate = ('select date FROM form_encounter where encounter=?');
@@ -128,7 +128,7 @@ function update_issues($pid, $encounter, $diags)
  * @param int   $req_encounter       the encounter ID
  * @param array $diags               a list of diagnoses
  */
-function create_diags($req_pid, $req_encounter, $diags)
+function create_diags($req_pid, $req_encounter, $diags): void
 {
     $authorized = 1;// Need to fix this. hard coded for now
     $provid = 0;
@@ -175,7 +175,7 @@ function create_diags($req_pid, $req_encounter, $diags)
  * @param int   $req_encounter       the encounter ID
  * @param array $procs               a list of procedures
  */
-function create_procs($req_pid, $req_encounter, $procs)
+function create_procs($req_pid, $req_encounter, $procs): void
 {
     $authorized = 1;// Need to fix this. hard coded for now
     $provid = 0;
@@ -286,7 +286,7 @@ function common_diagnoses($limit = 10)
  * @param array &$procedures     return by reference of all the procedures
  *
  */
-function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures)
+function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures): void
 {
     $param = array($encounter);
     $sql = "SELECT code,code_type,code_text,fee,modifier,justify,units,ct_diag,ct_fee,ct_mod "
@@ -347,7 +347,7 @@ function select_encounters($pid, $encounter)
  * @param int   $billing_id         the identifier in the billing table of the
  *                                  row to update
  */
-function update_justify($pid, $enc, $diags, $billing_id)
+function update_justify($pid, $enc, $diags, $billing_id): void
 {
     $justify = "";
     foreach ($diags as $diag) {

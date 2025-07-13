@@ -207,7 +207,7 @@ function InsertEventFull()
     }
 }
 
-function DOBandEncounter($pc_eid)
+function DOBandEncounter($pc_eid): void
 {
      global $event_date,$info_msg;
      // Save new DOB if it's there.

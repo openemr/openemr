@@ -32,7 +32,7 @@
  */
 
 
-function smarty_function_xlt($params, &$smarty)
+function smarty_function_xlt($params, &$smarty): void
 {
     if (empty($params['t'])) {
         trigger_error("xlt: missing 't' parameter", E_USER_WARNING);

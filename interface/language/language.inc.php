@@ -21,7 +21,7 @@ function check_pattern($data, $pat)
 
 // Function to insert/modify items in the language log table, lang_custom
 //
-function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
+function insert_language_log($lang_desc, $lang_code, $cons_name, $def): void
 {
     global $disable_utf8_flag, $sqlconf;
 

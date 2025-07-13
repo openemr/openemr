@@ -60,7 +60,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
  * @param  string   $organize_mode  Way to organize the results (default or plans)
  * @param  string   $user           If a user is set, then will only show rules that user has permission to see.
  */
-function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '')
+function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = ''): void
 {
 
   // Set date to current if not set
@@ -2086,7 +2086,7 @@ function collect_plan($plan, $patient_id = '0')
  * @param  string   $setting     activity of plan (yes,no,default)
  * @param  integer  $patient_id  pid of selected patient.
  */
-function set_plan_activity_patient($plan, $type, $setting, $patient_id)
+function set_plan_activity_patient($plan, $type, $setting, $patient_id): void
 {
 
   // Don't allow messing with the default plans here
@@ -2249,7 +2249,7 @@ function collect_rule($rule, $patient_id = '0')
  * @param  string   $setting     activity of rule (yes,no,default)
  * @param  integer  $patient_id  pid of selected patient.
  */
-function set_rule_activity_patient($rule, $type, $setting, $patient_id)
+function set_rule_activity_patient($rule, $type, $setting, $patient_id): void
 {
 
   // Don't allow messing with the default rules here

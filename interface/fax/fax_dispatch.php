@@ -60,7 +60,7 @@ $info_msg = "";
 // This function builds an array of document categories recursively.
 // Kittens are the children of cats, you know.  :-)getKittens
 //
-function getKittens($catid, $catstring, &$categories)
+function getKittens($catid, $catstring, &$categories): void
 {
     $cres = sqlStatement("SELECT id, name FROM categories " .
     "WHERE parent = ? ORDER BY name", array($catid));

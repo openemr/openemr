@@ -27,7 +27,7 @@ if (!empty($_POST)) {
     }
 }
 
-function thisLineItem($row, $xfer = false)
+function thisLineItem($row, $xfer = false): void
 {
     global $grandtotal, $grandqty, $encount, $form_action;
 

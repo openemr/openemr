@@ -21,7 +21,7 @@ require('C_FormPainMap.class.php');
 /**
  * @brief report function, to display a form in the 'view enounter' page, and in the medical records reports.
  */
-function painmap_report($pid, $encounter, $cols, $id)
+function painmap_report($pid, $encounter, $cols, $id): void
 {
     /* Create a form object. */
     $c = new C_FormPainMap();

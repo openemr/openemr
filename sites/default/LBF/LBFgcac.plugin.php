@@ -105,7 +105,7 @@ function _LBFgcac_query_current_services()
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFgcac_javascript()
+function LBFgcac_javascript(): void
 {
     global $formid;
 
@@ -223,7 +223,7 @@ function mysubmit() {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFgcac_javascript_onload()
+function LBFgcac_javascript_onload(): void
 {
     echo "
 set_main_compl_list();

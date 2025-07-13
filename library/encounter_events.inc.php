@@ -250,7 +250,7 @@ function todaysEncounter($patient_id, $reason = '')
 }
 //===============================================================================
 // get the original event's repeat specs
-function update_event($eid)
+function update_event($eid): void
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
     $origEvent = sqlFetchArray($origEventRes);

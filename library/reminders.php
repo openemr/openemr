@@ -39,7 +39,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
  * @param  integer  $patient_id  pid of selected patient
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  */
-function patient_reminder_widget($patient_id, $dateTarget = '')
+function patient_reminder_widget($patient_id, $dateTarget = ''): void
 {
 
   // Set date to current if not set

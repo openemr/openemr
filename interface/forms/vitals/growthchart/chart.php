@@ -274,7 +274,7 @@ if ($charttype == 'birth') {
 $cssWidth = 524;
 $cssHeight = 668;
 
-function cssHeader()
+function cssHeader(): void
 {
     global $cssWidth, $cssHeight;
 
@@ -367,7 +367,7 @@ function cssHeader()
     <?php
 }
 
-function cssFooter()
+function cssFooter(): void
 {
     ?>
     </body>
@@ -375,7 +375,7 @@ function cssFooter()
     <?php
 }
 
-function cssPage($image1, $image2)
+function cssPage($image1, $image2): void
 {
     ?>
     <div class='paddingdiv' id='page1'>

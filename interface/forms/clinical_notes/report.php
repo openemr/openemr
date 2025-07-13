@@ -23,7 +23,7 @@ use OpenEMR\Services\ClinicalNotesService;
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function clinical_notes_report($pid, $encounter, $cols, $id)
+function clinical_notes_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $clinicalNotesService = new ClinicalNotesService();

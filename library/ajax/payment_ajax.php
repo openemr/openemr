@@ -27,7 +27,7 @@ if (isset($_POST["ajax_mode"])) {
 }
 
 //=================================
-function AjaxDropDownCode()
+function AjaxDropDownCode(): void
 {
     if ($_POST["ajax_mode"] == "set") {//insurance
         $CountIndex = 1;

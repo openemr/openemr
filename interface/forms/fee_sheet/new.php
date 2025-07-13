@@ -61,7 +61,7 @@ function formatMoneyNumber($value, $extradecimals = 0)
 }
 
 // Helper function for creating drop-lists.
-function endFSCategory()
+function endFSCategory(): void
 {
     global $i, $last_category, $FEE_SHEET_COLUMNS;
     if (! $last_category) {
@@ -77,7 +77,7 @@ function endFSCategory()
 }
 
 // Generate JavaScript to build the array of diagnoses.
-function genDiagJS($code_type, $code)
+function genDiagJS($code_type, $code): void
 {
     global $code_types;
     if (!empty($code_types[$code_type]['diag'])) {
@@ -87,7 +87,7 @@ function genDiagJS($code_type, $code)
 
 // Write all service lines to the web form.
 //
-function echoServiceLines()
+function echoServiceLines(): void
 {
     global $code_types, $justinit, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used, $institutional;
 
@@ -339,7 +339,7 @@ function echoServiceLines()
 
 // Write all product lines to the web form.
 //
-function echoProductLines()
+function echoProductLines(): void
 {
     global $code_types, $usbillstyle, $liprovstyle, $justifystyle, $fs, $price_levels_are_used;
 
