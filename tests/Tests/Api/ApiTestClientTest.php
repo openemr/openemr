@@ -85,7 +85,7 @@ class ApiTestClientTest extends TestCase
             $this->assertTrue(true);
         }
 
-        $this->client->tearDown();
+        $this->tearDown();
 
         try {
             $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("username" => "bar"));
@@ -94,7 +94,7 @@ class ApiTestClientTest extends TestCase
             $this->assertTrue(true);
         }
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
     /**
      * Tests OpenEMR OAuth when invalid client id is provided
@@ -109,7 +109,7 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(401, $actualValue->getStatusCode());
         $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -125,7 +125,7 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(400, $actualValue->getStatusCode());
         $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -151,7 +151,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -202,7 +202,7 @@ class ApiTestClientTest extends TestCase
         $this->assertGreaterThan(10, strlen($responseBody->access_token));
         $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -249,7 +249,7 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(401, $authResponse->getStatusCode());
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -269,7 +269,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -322,7 +322,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -379,7 +379,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -436,7 +436,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -471,7 +471,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -491,7 +491,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -515,7 +515,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -538,7 +538,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 
     /**
@@ -559,6 +559,6 @@ class ApiTestClientTest extends TestCase
         $this->assertNotNull($this->client->getAccessToken(), "Access token should be populated");
         $this->assertNotNull($this->client->getIdToken(), "Id token should be populated");
 
-        $this->client->tearDown();
+        $this->tearDown();
     }
 }
