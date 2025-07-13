@@ -109,7 +109,7 @@ class DateSearchField extends BasicSearchField
 
             $convertedFields[] = $this->createDateComparableValue($value);
         }
-        parent::setValues($convertedFields);
+        return parent::setValues($convertedFields);
     }
 
     /**

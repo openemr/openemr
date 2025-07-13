@@ -228,7 +228,7 @@ class pnHTML
     }
 
     /**
-     * Retrive the current input state
+     * Retrieve the current input state
      *
      * @access public
      * @since 1.13 - 2002/01/23

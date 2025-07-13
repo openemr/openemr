@@ -8,6 +8,7 @@ use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Patient Service Mapping Tests

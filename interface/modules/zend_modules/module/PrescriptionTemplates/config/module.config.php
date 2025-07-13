@@ -32,7 +32,7 @@ return array(
     'controllers' => array(
         'factories' => [
             HtmlTemplatesController::class => function (ContainerInterface $container, $requestedName) {
-                return new HtmlTemplatesController($container);
+                return new HtmlTemplatesController();
             },
             PdfTemplatesController::class => function (ContainerInterface $container, $requestedName) {
                 return new PdfTemplatesController($container);

@@ -36,21 +36,21 @@ trait FhirServiceBaseEmptyTrait
 
     public function parseFhirResource($fhirResource = array())
     {
-        // TODO: If Required in Future
+        return;
     }
 
     public function insertOpenEMRRecord($openEmrRecord)
     {
-        // TODO: If Required in Future
+        return;
     }
 
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        // TODO: If Required in Future
+        return;
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
-        // TODO: If Required in Future
+        return;
     }
 
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)

@@ -39,11 +39,6 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     protected $resourceSearchParameters = array();
 
     /**
-     * @var FHIRSearchFieldFactory
-     */
-    private $searchFieldFactory;
-
-    /**
      * Url to the base fhir api location
      * @var string
      */

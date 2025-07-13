@@ -87,7 +87,7 @@ class PatientRestController
     /**
      * Returns patient resources which match an optional search criteria.
      */
-    public function getAll($search = array(), SearchQueryConfig $config)
+    public function getAll(array $search, SearchQueryConfig $config)
     {
         $validSearchFields = array_filter(
             $search,

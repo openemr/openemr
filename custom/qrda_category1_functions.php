@@ -1192,7 +1192,7 @@ function getMeasureSection($xml, $rule_id)
     $xml->open_text();
 
     //Table Start
-    $xml->open_customTag('table', $tabArr);
+    $xml->open_customTag('table', []);
     //THEAD Start
     $xml->open_customTag('thead');
     //TR Start

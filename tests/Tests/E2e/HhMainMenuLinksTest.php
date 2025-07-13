@@ -17,6 +17,9 @@ namespace OpenEMR\Tests\E2e;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
@@ -28,10 +31,9 @@ class HhMainMenuLinksTest extends PantherTestCase
     private $client;
     private $crawler;
 
-    /**
-     * @dataProvider menuLinkProvider
-     * @depends testLoginAuthorized
-     */
+    #[DataProvider('menuLinkProvider')]
+    #[Depends('testLoginAuthorized')]
+    #[Test]
     public function testMainMenuLink(string $menuLink, string $expectedTabTitle, ?string $loading = ''): void
     {
         if ($expectedTabTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {

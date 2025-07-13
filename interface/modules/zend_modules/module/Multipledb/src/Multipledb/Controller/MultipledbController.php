@@ -37,6 +37,8 @@ class MultipledbController extends BaseController
      */
     private $MultipledbTable;
 
+    private Listener $listenerObject;
+
     /**
      * MultipledbController constructor.
      */

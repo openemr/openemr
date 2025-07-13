@@ -19,6 +19,9 @@ use OpenEMR\Tests\E2e\Encounter\EncounterOpenTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
@@ -31,17 +34,17 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
     private $client;
     private $crawler;
 
-    /**
-     * @dataProvider menuLinkProvider
-     * @depends testLoginAuthorized
-     * @depends testPatientOpen
-     * @depends testEncounterOpen
-     */
+    #[DataProvider('menuLinkProvider')]
+    #[Depends('testEncounterOpen')]
+    #[Depends('testLoginAuthorized')]
+    #[Depends('testPatientOpen')]
+    #[Test]
     public function testEncounterContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?bool $looseTabTitle = false, ?string $loading = 'Loading'): void
     {
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {
             // Care Coordination page check will be skipped since this flag is set (which means the environment does not have
             //  a high enough version of nodejs)
+            // @phpstan-ignore method.notFound
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
 

@@ -19,6 +19,9 @@ use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
 
@@ -31,11 +34,10 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     private $client;
     private $crawler;
 
-    /**
-     * @dataProvider menuLinkProvider
-     * @depends testLoginAuthorized
-     * @depends testPatientOpen
-     */
+    #[DataProvider('menuLinkProvider')]
+    #[Depends('testLoginAuthorized')]
+    #[Depends('testPatientOpen')]
+    #[Test]
     public function testPatientContextMainMenuLink(string $menuLink, string $expectedTabPopupTitle, bool $popup, ?string $loading = '', ?bool $clearAlert = false): void
     {
         if ($expectedTabPopupTitle == "Care Coordination" && !empty(getenv('UNABLE_SUPPORT_OPENEMR_NODEJS', true) ?? '')) {

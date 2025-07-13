@@ -18,6 +18,7 @@ use Laminas\View\Model\ViewModel;
 use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
+use Documents\Plugin\Documents;
 use Ccr\Model\CcrTable;
 
 class CcrController extends AbstractActionController
@@ -58,13 +59,12 @@ class CcrController extends AbstractActionController
             $this->importAction();
         } else {
             // TODO: change to $this->Documents()
-            $result = \Documents\Plugin\Documents::fetchXmlDocuments();
+            $result = Documents::fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCR') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
-                    // TODO: need to inject this dependency instead of the static...
-                    \Documents\Model\DocumentsTable::updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                    $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }

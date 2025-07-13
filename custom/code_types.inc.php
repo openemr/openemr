@@ -725,7 +725,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
 
             $res = sqlStatement($query, $sql_bind_array);
         } else {
-            HelpfulDie("Code type not active or not defined:" . $join_info[JOIN_TABLE]);
+            HelpfulDie("Code type not active or not defined:" . $form_code_type);
         }
     } // End specific code type search
 

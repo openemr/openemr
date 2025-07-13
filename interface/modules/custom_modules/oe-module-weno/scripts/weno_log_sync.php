@@ -17,11 +17,23 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
+function getModuleState($modId): bool
+{
+    $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_directory` = ?";
+    $flag = sqlQuery($sql, array($modId));
+
+    return !empty($flag['mod_active']);
+}
+
 /**
  * Download Weno Pharmacy data called by background service.
  */
 function downloadWenoPharmacy(): void
 {
+    $active = getModuleState('oe-module-weno');
+    if (!$active) {
+        return;
+    }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
     $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
@@ -50,10 +62,13 @@ function downloadWenoPharmacy(): void
  */
 function downloadWenoPrescriptionLog(): void
 {
+    $active = getModuleState('oe-module-weno');
+    if (!$active) {
+        return;
+    }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
     $isKey = $wenoValidate->validateAdminCredentials(true);
-
     if ((int)$isKey >= 998) {
         $wenoLog->insertWenoLog("Sync Report", "Failed import Internet problem!");
         handleDownloadError("Sync Report download attempt failed. Internet problem!");

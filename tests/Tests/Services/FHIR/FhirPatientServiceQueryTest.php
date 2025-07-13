@@ -9,6 +9,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * FHIR Patient Service Query Tests

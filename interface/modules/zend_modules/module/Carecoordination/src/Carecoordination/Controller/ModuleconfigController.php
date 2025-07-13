@@ -12,23 +12,24 @@
 
 namespace Carecoordination\Controller;
 
+use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterInterface;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Laminas\Filter\Compress\Zip;
 use Carecoordination\Form\ModuleconfigForm;
 
 class ModuleconfigController extends AbstractActionController
 {
-    protected $inputFilter;
+    protected InputFilterInterface $inputFilter;
 
-    public function __construct()
+    public function __construct(private ?AdapterInterface $dbAdapter = null)
     {
     }
 
     public function indexAction()
     {
-        // TODO: how does this even work?? It's constructor expects an adapter class and it's not used...
-        $form = new ModuleconfigForm();
+        $form = new ModuleconfigForm($this->dbAdapter);
         $form->get('hie_author_id')->setAttribute('options', array('user 1','user 2'));
 
         $view =  new ViewModel(array(
@@ -53,9 +54,6 @@ class ModuleconfigController extends AbstractActionController
     {
         if (!$this->inputFilter) {
             $inputFilter = new InputFilter();
-            $factory     = new InputFactory();
-
-
             $this->inputFilter = $inputFilter;
         }
 

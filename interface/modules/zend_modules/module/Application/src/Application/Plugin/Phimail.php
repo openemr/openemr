@@ -22,6 +22,8 @@ require_once($GLOBALS['srcdir'] . '/direct_message_check.inc.php');
 class Phimail extends AbstractPlugin
 {
     protected $application;
+
+    private Listener $listenerObject;
   /**
   *
   * Application Table Object

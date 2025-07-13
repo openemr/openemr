@@ -23,7 +23,8 @@ use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstants;
 use OpenEMR\Tests\E2e\Xpaths\XpathsConstantsPatientAddTrait;
-use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
 trait PatientAddTrait
 {
@@ -33,9 +34,8 @@ trait PatientAddTrait
     private int $patientAddAttemptCounter = 1;
     private bool $closedClient = false;
 
-    /**
-     * @depends testLoginAuthorized
-     */
+    #[Depends('testLoginAuthorized')]
+    #[Test]
     public function testPatientAdd(): void
     {
         $this->base();
@@ -71,6 +71,7 @@ trait PatientAddTrait
     {
         // if patient already exists, then skip this
         if ($this->isPatientExist($firstname, $lastname, $dob, $sex)) {
+            // @phpstan-ignore method.notFound
             $this->markTestSkipped('New patient test skipped because this patient already exists.');
         }
 
@@ -127,6 +128,7 @@ trait PatientAddTrait
         $this->client->waitFor('//*[text()="Medical Record Dashboard - ' . $firstname . " " . $lastname . '"]');
 
         // assert the new patient is in the database
+        // @phpstan-ignore method.notFound
         $this->assertTrue($this->isPatientExist($firstname, $lastname, $dob, $sex), 'New patient is not in database, so FAILED');
     }
 }
