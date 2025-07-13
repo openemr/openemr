@@ -37,6 +37,12 @@ class ApiTestClientTest extends TestCase
         $this->client = new ApiTestClient($baseUrl, false);
     }
 
+    public function tearDown(): void
+    {
+        $this->client->cleanupRevokeAuth();
+        $this->client->cleanupClient();
+    }
+
     /**
      * @cover ::getConfig with a null value
      */
@@ -46,8 +52,7 @@ class ApiTestClientTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->client->getConfig(null);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->tearDown();
     }
 
     /**
@@ -64,8 +69,7 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals("application/json", $actualHeaders["Accept"]);
         $this->assertArrayHasKey("User-Agent", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->tearDown();
     }
 
     /**
@@ -81,7 +85,7 @@ class ApiTestClientTest extends TestCase
             $this->assertTrue(true);
         }
 
-        $this->client->cleanupClient();
+        $this->client->tearDown();
 
         try {
             $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, array("username" => "bar"));
@@ -90,7 +94,7 @@ class ApiTestClientTest extends TestCase
             $this->assertTrue(true);
         }
 
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
     /**
      * Tests OpenEMR OAuth when invalid client id is provided
@@ -105,7 +109,7 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(401, $actualValue->getStatusCode());
         $this->assertEquals('invalid_client', json_decode($actualValue->getBody())->error);
 
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -121,7 +125,7 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(400, $actualValue->getStatusCode());
         $this->assertEquals('Failed Authentication', json_decode($actualValue->getBody())->hint);
 
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -147,8 +151,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -199,8 +202,7 @@ class ApiTestClientTest extends TestCase
         $this->assertGreaterThan(10, strlen($responseBody->access_token));
         $this->assertGreaterThan(10, strlen($responseBody->refresh_token));
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -247,8 +249,7 @@ class ApiTestClientTest extends TestCase
         );
         $this->assertEquals(401, $authResponse->getStatusCode());
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -268,8 +269,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -322,8 +322,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -380,8 +379,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -438,8 +436,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -474,7 +471,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -494,8 +491,7 @@ class ApiTestClientTest extends TestCase
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -519,8 +515,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -543,8 +538,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
 
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $this->client->tearDown();
     }
 
     /**
@@ -564,5 +558,7 @@ class ApiTestClientTest extends TestCase
         $this->assertNull($this->client->getRefreshToken(), "Refresh token should be empty for public client");
         $this->assertNotNull($this->client->getAccessToken(), "Access token should be populated");
         $this->assertNotNull($this->client->getIdToken(), "Id token should be populated");
+
+        $this->client->tearDown();
     }
 }
