@@ -26,7 +26,7 @@ if (! $encounter) { // comes from globals.php
 
 $returnurl = 'encounter_top.php';
 
-function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp)
+function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
 {
     $dres = sqlStatement("SELECT * FROM form_physical_exam_diagnoses " .
     "WHERE line_id = ? ORDER BY ordering, diagnosis", array($line_id));
@@ -68,7 +68,7 @@ function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp)
     echo " </tr>\n";
 }
 
-function showTreatmentLine($line_id, $description, &$linedbrow)
+function showTreatmentLine($line_id, $description, &$linedbrow): void
 {
     echo " <tr>\n";
     echo "  <td align='center'><input type='checkbox' name='form_obs[" . attr($line_id) . "][wnl]' " .

@@ -58,7 +58,7 @@ if ($notPatientPortal) {
     }
 }
 
-function createCCR($action, $raw = "no", $requested_by = "")
+function createCCR($action, $raw = "no", $requested_by = ""): void
 {
 
     $authorID = getUuid();
@@ -142,7 +142,7 @@ function createCCR($action, $raw = "no", $requested_by = "")
     }
 }
 
-function gnrtCCR($ccr, $raw = "no", $requested_by = "")
+function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
 {
     global $pid;
 
@@ -214,7 +214,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
     }
 }
 
-function viewCCD($ccr, $raw = "no", $requested_by = "")
+function viewCCD($ccr, $raw = "no", $requested_by = ""): void
 {
     global $pid;
 
@@ -337,13 +337,13 @@ function sourceType($ccr, $uuid)
 }
 
 
-function displayError($message)
+function displayError($message): void
 {
     echo '<script>alert("' . addslashes($message) . '");</script>';
 }
 
 
-function createHybridXML($ccr)
+function createHybridXML($ccr): void
 {
 
     // save the raw xml

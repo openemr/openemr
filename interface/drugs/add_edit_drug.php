@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'drugs')) {
 
 // Write a line of data for one template to the form.
 //
-function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices, $taxrates, $pkgqty)
+function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices, $taxrates, $pkgqty): void
 {
     global $tmpl_line_no;
     ++$tmpl_line_no;

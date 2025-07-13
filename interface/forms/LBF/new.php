@@ -43,7 +43,7 @@ $pprow = array();
 
 $alertmsg = '';
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $historical_ids, $USING_BOOTSTRAP;
     if ($item_count > 0) {
@@ -56,7 +56,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
     end_cell();

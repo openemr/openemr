@@ -29,7 +29,7 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 
 $facilityService = new FacilityService();
 
-function thisLineItem($row, $codetype, $code)
+function thisLineItem($row, $codetype, $code): void
 {
     global $code_types;
 

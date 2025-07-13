@@ -128,7 +128,7 @@ function GetAllCredits($enc = '', $pat = '')
     return ($all);
 }
 
-function PrintEncHeader($dt, $rsn, $dr)
+function PrintEncHeader($dt, $rsn, $dr): void
 {
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -143,7 +143,7 @@ function PrintEncHeader($dt, $rsn, $dr)
     $orow++;
 }
 
-function PrintEncFooter()
+function PrintEncFooter(): void
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
     echo "<tr bgcolor='#DDFFFF'>";
@@ -157,7 +157,7 @@ function PrintEncFooter()
     echo "</tr>\n";
 }
 
-function PrintCreditDetail($detail, $pat, $unassigned = false)
+function PrintCreditDetail($detail, $pat, $unassigned = false): void
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;

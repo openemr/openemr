@@ -88,7 +88,7 @@ function is_weekend_day($day)
  * @param (int) $day
  * @return boolean
  */
-function is_holiday($date)
+function is_holiday($date): void
 {
     return Holidays_Controller::is_holiday($date);
 }

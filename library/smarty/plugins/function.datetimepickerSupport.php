@@ -28,7 +28,7 @@
  * @param array
  * @param Smarty
  */
-function smarty_function_datetimepickerSupport($params, &$smarty)
+function smarty_function_datetimepickerSupport($params, &$smarty): void
 {
     if (!empty($params['picker']) && $params['picker'] == 'time') {
         echo "$('.datetimepicker').datetimepicker({ ";

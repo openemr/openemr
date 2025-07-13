@@ -47,7 +47,7 @@ function where_or_and($and)
     return $and;
 }
 
-function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text)
+function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text): void
 {
 
     $sql = "INSERT INTO batchcom SET patient_id=?, sent_by=?,
@@ -59,7 +59,7 @@ function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_tex
     $res = sqlStatement($sql, array($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text));
 }
 
-function generate_csv($sql_result)
+function generate_csv($sql_result): void
 {
     /*  batch CSV processor, included from batchcom */
     // create file header.

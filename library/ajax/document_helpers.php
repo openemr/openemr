@@ -26,7 +26,7 @@ $req = array(
     'sql_limit' => (isset($_GET["limit"]) ? filter_input(INPUT_GET, 'limit') : 20),
 );
 
-function get_patients_list($req)
+function get_patients_list($req): void
 {
     $term = "%" . $req['term'] . "%";
     $clear = "- " . xl("Reset to no patient") . " -";

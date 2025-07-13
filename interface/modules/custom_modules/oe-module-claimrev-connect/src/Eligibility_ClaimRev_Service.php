@@ -15,7 +15,7 @@
     use OpenEMR\Common\Crypto\CryptoGen;
     use OpenEMR\Modules\ClaimRevConnector\EligibilityTransfer;
 
-function start_send_eligibility()
+function start_send_eligibility(): void
 {
     $autoSend = $GLOBALS['oe_claimrev_send_eligibility'] ?? null;
     if ($autoSend) {

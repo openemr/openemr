@@ -15,7 +15,7 @@ use OpenEMR\Core\Header;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
-function formHeader($title = "My Form")
+function formHeader($title = "My Form"): void
 {
     ?>
     <html>
@@ -27,7 +27,7 @@ function formHeader($title = "My Form")
     <?php
 }
 
-function formFooter()
+function formFooter(): void
 {
     ?>
     </body>
@@ -89,7 +89,7 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
     return sqlInsert($sql, $sqlBindingArray);
 }
 
-function formJump($address = '')
+function formJump($address = ''): void
 {
     echo "<script>\n";
     if ($address) {

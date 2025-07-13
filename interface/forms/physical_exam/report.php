@@ -16,7 +16,7 @@ require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 require_once("lines.php");
 
-function physical_exam_report($pid, $encounter, $cols, $id)
+function physical_exam_report($pid, $encounter, $cols, $id): void
 {
     global $pelines;
 

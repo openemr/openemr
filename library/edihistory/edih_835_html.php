@@ -24,7 +24,7 @@
  * @param string
  * @return float
  */
-function edih_round_cb(&$v, $k)
+function edih_round_cb(&$v, $k): void
 {
     $v = round((int)$v, 2);
     return $v;

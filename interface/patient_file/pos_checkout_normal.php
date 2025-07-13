@@ -82,7 +82,7 @@ $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,sta
 // Output HTML for an invoice line item.
 //
 $prevsvcdate = '';
-function receiptDetailLine($svcdate, $description, $amount, $quantity)
+function receiptDetailLine($svcdate, $description, $amount, $quantity): void
 {
     global $prevsvcdate, $details;
     if (!$details) {
@@ -109,7 +109,7 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity)
 
 // Output HTML for an invoice payment.
 //
-function receiptPaymentLine($paydate, $amount, $description = '')
+function receiptPaymentLine($paydate, $amount, $description = ''): void
 {
     $amount = sprintf('%01.2f', 0 - $amount); // make it negative
     echo " <tr>\n";
@@ -123,7 +123,7 @@ function receiptPaymentLine($paydate, $amount, $description = '')
 // Generate a receipt from the last-billed invoice for this patient,
 // or for the encounter specified as a GET parameter.
 //
-function generate_receipt($patient_id, $encounter = 0)
+function generate_receipt($patient_id, $encounter = 0): void
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
     global $sl_err, $sl_cash_acc, $details, $facilityService;
@@ -479,7 +479,7 @@ function generate_receipt($patient_id, $encounter = 0)
         $amount,
         $units,
         $taxrates
-    ) {
+    ): void {
         global $lino;
         $amount = sprintf("%01.2f", $amount);
         if (empty($units)) {
@@ -522,7 +522,7 @@ function generate_receipt($patient_id, $encounter = 0)
     }
 
     // Print receipt header for facility
-    function printFacilityHeader($frow)
+    function printFacilityHeader($frow): void
     {
         echo text($frow['name'] ?? '') .
         "<br />" . text($frow['street'] ?? '') .
@@ -533,7 +533,7 @@ function generate_receipt($patient_id, $encounter = 0)
     }
 
     // Pring receipt header for Provider
-    function printProviderHeader($pvdrow)
+    function printProviderHeader($pvdrow): void
     {
         echo text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
         "<br />" . text($pvdrow['street']) .
@@ -544,7 +544,7 @@ function generate_receipt($patient_id, $encounter = 0)
     }
 
     // Mark the tax rates that are referenced in this invoice.
-    function markTaxes($taxrates)
+    function markTaxes($taxrates): void
     {
         global $taxes;
         $arates = explode(':', $taxrates);

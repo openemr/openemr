@@ -25,7 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_url($args)
+function smarty_function_pc_url($args): void
 {
 
     //print "<br />args<br />";

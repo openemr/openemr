@@ -110,7 +110,7 @@ function getAge($dob, $asof = '')
 
 $cellcount = 0;
 
-function genStartRow($att)
+function genStartRow($att): void
 {
     global $cellcount, $form_output;
     if ($form_output != 3) {
@@ -120,7 +120,7 @@ function genStartRow($att)
     $cellcount = 0;
 }
 
-function genEndRow()
+function genEndRow(): void
 {
     global $form_output;
     if ($form_output == 3) {
@@ -143,7 +143,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right = false, $class = '')
+function genAnyCell($data, $right = false, $class = ''): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -174,14 +174,14 @@ function genAnyCell($data, $right = false, $class = '')
     }
 }
 
-function genHeadCell($data, $right = false)
+function genHeadCell($data, $right = false): void
 {
     genAnyCell($data, $right, 'dehead');
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
 //
-function genNumCell($num, $cnum)
+function genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -194,7 +194,7 @@ function genNumCell($num, $cnum)
 
 // Helper function called after the reporting key is determined for a row.
 //
-function loadColumnData($key, $row)
+function loadColumnData($key, $row): void
 {
     global $areport, $arr_titles, $arr_show;
 
@@ -262,7 +262,7 @@ function loadColumnData($key, $row)
 
 // This is called for each row returned from the query.
 //
-function process_result_code($row)
+function process_result_code($row): void
 {
     global $areport, $arr_titles, $form_by;
 

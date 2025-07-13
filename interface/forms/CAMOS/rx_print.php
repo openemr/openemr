@@ -158,7 +158,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
         if ($camos_content[0]) { //decide if we are printing this rx
             ?>
             <?php
-            function topHeaderRx()
+            function topHeaderRx(): void
             {
                 global $physician_name,$practice_address,$practice_city,$practice_state,$practice_zip,$practice_phone,$practice_fax,$practice_dea;
                 print text($physician_name) . "<br/>\n";
@@ -169,7 +169,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
                 print xlt('Voice') . ': ' . text($practice_phone) . ' / ' . xlt('Fax') . ': ' . text($practice_fax) . "<br/>\n";
                 print xlt('DEA') . ': ' . text($practice_dea);
             }
-            function bottomHeaderRx()
+            function bottomHeaderRx(): void
             {
                 global $patient_name,$patient_address,$patient_city,$patient_state,$patient_zip,$patient_phone,$patient_dob;
                 print "<span class='mytagname'> " . xlt('Name') . ":</span>\n";

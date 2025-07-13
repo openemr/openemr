@@ -19,7 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-function writeRow($method, $name, $allowEdit = false)
+function writeRow($method, $name, $allowEdit = false): void
 {
     echo "        <tr><td>&nbsp;";
     if ($name == '') {

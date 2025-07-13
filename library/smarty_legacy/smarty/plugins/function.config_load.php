@@ -24,7 +24,7 @@
  * </pre>
  * @param Smarty
  */
-function smarty_function_config_load($params, &$smarty)
+function smarty_function_config_load($params, &$smarty): void
 {
         if ($smarty->debugging) {
             $_params = array();

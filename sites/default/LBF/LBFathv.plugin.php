@@ -14,7 +14,7 @@
 // section of the page.  This in turn defines desired javaScript
 // functions.
 //
-function LBFathv_javascript()
+function LBFathv_javascript(): void
 {
     global $formid;
 
@@ -135,7 +135,7 @@ function athv_temperature_f_changed() {
 // The purpose of this function is to create JavaScript that is run
 // once when the page is loaded.
 //
-function LBFathv_javascript_onload()
+function LBFathv_javascript_onload(): void
 {
 
     echo "

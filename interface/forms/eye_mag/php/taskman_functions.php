@@ -26,7 +26,7 @@ $facilityService = new FacilityService();
 /**
  *  This function creates a task as a record in the form_taskman DB_table.
  */
-function make_task($ajax_req)
+function make_task($ajax_req): void
 {
     global $send;
 
@@ -141,7 +141,7 @@ function process_tasks($task)
  /**
  *  This function updates the taskman record in the form_taskman table.
  */
-function update_taskman($task, $action, $value)
+function update_taskman($task, $action, $value): void
 {
     global $send;
     if ($action == 'created') {
@@ -228,7 +228,7 @@ function deliver_document($task)
  *  This function will display the form_taskman table as requested, by date or by status?
  *  Currently it is not used.
  */
-function show_task($ajax_req)
+function show_task($ajax_req): void
 {
     //$_REQUEST['show_task'] = task_id, or all or by date range?
     //Could be a HTML5 table layout?

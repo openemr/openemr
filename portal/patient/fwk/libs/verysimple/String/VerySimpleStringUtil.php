@@ -61,9 +61,6 @@ class VerySimpleStringUtil
         }
 
         self::$SMART_QUOTE_CHARS = array (
-                "�" => "'",
-                "�" => "'",
-                "�" => "\"",
                 "�" => "\"",
                 chr(145) => "'",
                 chr(146) => "'",

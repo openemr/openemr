@@ -137,7 +137,7 @@ $lnames = array (
 /* function to clear the present value if a record's column and replace it with a value if spoecified
    Input: $con, $table, $column, $value = value to replace with
 */
-function removeColumn($con, $table, $column, $value = '')
+function removeColumn($con, $table, $column, $value = ''): void
 {
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
@@ -228,7 +228,7 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 //This function replaces the data stored in the insurance_data table with the random generated name.
 //In order for this to work, this function must be called AFTER the random name generator has been called.
 //Input: $con, $pid
-function deIdInsuranceDataTable($con, $pid)
+function deIdInsuranceDataTable($con, $pid): void
 {
 
     //check if there is
@@ -274,7 +274,7 @@ function deIdInsuranceDataTable($con, $pid)
 //This function replaces the facility name with unqiue names so users can
 //see how different facilities have their data and permissions abstracted depending on
 //which facility the user has access too.
-function deIdFacilityTable($con)
+function deIdFacilityTable($con): void
 {
 
 
@@ -304,7 +304,7 @@ function deIdFacilityTable($con)
 
 
 //
-function deIdUsersTable($con)
+function deIdUsersTable($con): void
 {
 
 
@@ -355,7 +355,7 @@ function deIdUsersTable($con)
 }
 
 //Clears most forms.  User must verify that this function handles all text fields that might hold personal identifying information
-function deIdForms($con)
+function deIdForms($con): void
 {
 
     removeColumn($con, "form_physical_exam", "comments", "no comment, talk to my lawyer");
@@ -374,7 +374,7 @@ function deIdForms($con)
 }
 
 // truncates log tables to remove all hidden information
-function truncateLogs($con)
+function truncateLogs($con): void
 {
 
     $query = mysqli_query($con, "TRUNCATE TABLE log") or print("\n\n log table not truncated \n\n");

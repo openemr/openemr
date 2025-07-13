@@ -32,7 +32,7 @@
  */
 
 
-function smarty_function_xl($params, &$smarty)
+function smarty_function_xl($params, &$smarty): void
 {
     if (empty($params['t'])) {
         trigger_error("xl: missing 't' parameter", E_USER_WARNING);
