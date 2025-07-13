@@ -857,8 +857,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         <li class="nav-item sms-hide email-hide etherfax" role="tab">
                             <a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a>
                         </li>
-                        <li class="nav-item" role="presentation"><a class="nav-link" href="#rc_settings" aria-controls="rc_settings" role="tab" data-toggle="tab"><?php echo xlt("Ring Central Incoming Settings") ?></a></li>
-                        <li class="nav-item" role="presentation"><a class="nav-link" href="#rc_call_control" aria-controls="rc_call_control" role="tab" data-toggle="tab"><?php echo xlt("Ring Central Call Control") ?></a></li>
                         <?php if ($serviceType == 'email') { ?>
                             <?php
                             $param = ['is_universal' => 1, 'type' => 'email'];
