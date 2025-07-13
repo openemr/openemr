@@ -20,6 +20,7 @@ use Nyholm\Psr7\Uri;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -197,7 +198,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         $this->innerServerRequest = $this->innerServerRequest->withQueryParams($queryParams);
     }
 
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->innerServerRequest->getQueryParams();
     }
@@ -212,7 +213,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      * Return an array of HTTP request headers
      * @return array|string[][]
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->innerServerRequest->getHeaders();
     }
@@ -222,7 +223,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      * @param $headerName string the name of the header value to retrieve.
      * @return string[]
      */
-    public function getHeader($headerName)
+    public function getHeader($headerName): array
     {
         return $this->innerServerRequest->getHeader($headerName);
     }
@@ -232,7 +233,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
      * @param $headerName The name of the header to check
      * @return bool true if the header exists, false otherwise.
      */
-    public function hasHeader($headerName)
+    public function hasHeader($headerName): bool
     {
         return $this->innerServerRequest->hasHeader($headerName);
         return !empty($this->headers[$headerName]);
@@ -372,7 +373,7 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
             if (empty($context) || empty($resource)) {
                 continue; // nothing to do here
                 // skip over any launch parameters, fhiruser, etc.
-            } else if (array_search($context, $validContext) === false) {
+            } elseif (array_search($context, $validContext) === false) {
                 continue;
             }
             $currentContext = $this->resourceScopeContexts[$resource] ?? $scopeContext;
@@ -380,9 +381,9 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
             if ($context == "user" && $currentContext != 'system') {
                 $scopeContext = "user";
             // system scope for the resource overwrites everything
-            } else if ($context == "system") {
+            } elseif ($context == "system") {
                 $scopeContext = "system";
-            } else if ($currentContext != "patient") {
+            } elseif ($currentContext != "patient") {
                 // if what we have currently is not a patient context we want to use that value and not overwrite
                 // it with a patient context
                 $scopeContext = $currentContext;
@@ -600,86 +601,86 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         $this->apiBaseFullUrl = $apiBaseFullUrl;
     }
 
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         return $this->innerServerRequest->getProtocolVersion();
     }
 
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): MessageInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withProtocolVersion($version);
         return $clonedRequest;
     }
 
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
         return $this->innerServerRequest->getHeaderLine($name);
     }
 
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): MessageInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withHeader($name, $value);
         return $clonedRequest;
     }
 
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): MessageInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withAddedHeader($name, $value);
         return $clonedRequest;
     }
 
-    public function withoutHeader($name)
+    public function withoutHeader($name): MessageInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withoutHeader($name);
         return $clonedRequest;
     }
 
-    public function getBody()
+    public function getBody(): StreamInterface
     {
         return $this->innerServerRequest->getBody();
     }
 
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): MessageInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withBody($body);
         return $clonedRequest;
     }
 
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         $this->innerServerRequest->getRequestTarget();
     }
 
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget($requestTarget): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withRequestTarget($requestTarget);
         return $clonedRequest;
     }
 
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->innerServerRequest->getMethod();
     }
 
-    public function withMethod($method)
+    public function withMethod($method): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withRequestTarget($method);
         return $clonedRequest;
     }
 
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->innerServerRequest->getUri();
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withUri($uri, $preserveHost);
@@ -688,36 +689,36 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         return $clonedRequest;
     }
 
-    public function getServerParams()
+    public function getServerParams(): array
     {
         return $this->innerServerRequest->getServerParams();
     }
 
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->innerServerRequest->getCookieParams();
     }
 
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withCookieParams($cookies);
         return $clonedRequest;
     }
 
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withQueryParams($query);
         return $clonedRequest;
     }
 
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
         return $this->innerServerRequest->getUploadedFiles();
     }
 
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withUploadedFiles($uploadedFiles);
@@ -729,31 +730,31 @@ class HttpRestRequest implements ServerRequestInterface, \Stringable
         return $this->innerServerRequest->getParsedBody();
     }
 
-    public function withParsedBody($data)
+    public function withParsedBody($data): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withParsedBody($data);
         return $clonedRequest;
     }
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->innerServerRequest->getAttributes();
     }
 
-    public function getAttribute($name, $default = null)
+    public function getAttribute($name, $default = null): ServerRequestInterface
     {
         return $this->innerServerRequest->getAttribute($name, $default);
     }
 
-    public function withAttribute($name, $value)
+    public function withAttribute($name, $value): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withAttribute($name, $value);
         return $clonedRequest;
     }
 
-    public function withoutAttribute($name)
+    public function withoutAttribute($name): ServerRequestInterface
     {
         $clonedRequest = clone $this;
         $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withoutAttribute($name);

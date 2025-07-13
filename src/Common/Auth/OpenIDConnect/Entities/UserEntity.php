@@ -44,7 +44,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
                     $fhirUserResource = "Practitioner";
                 }
-            } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
+            } elseif ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
                 $fhirUserResource = "Patient";
             } else {
                 (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);

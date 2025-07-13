@@ -107,7 +107,7 @@ class UuidUserAccount
             } else {
                 $this->userRole = self::USER_ROLE_USERS;
             }
-        } else if (!empty($patientRole['pid'])) {
+        } elseif (!empty($patientRole['pid'])) {
             $counter++;
             $this->userRole = self::USER_ROLE_PATIENT;
         }

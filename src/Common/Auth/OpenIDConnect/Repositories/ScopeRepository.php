@@ -934,7 +934,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             $description = xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD");
             if ($context == 'user') {
                 $description .= " " . xl("for a patient that the user has access to");
-            } else if ($context == "system") {
+            } elseif ($context == "system") {
                 $description .= " " . xl("for a patient that exists in the system");
             };
         }
@@ -1021,7 +1021,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         if ($context == "user") {
             $description .= ". " . xl("Application is requesting access to all patient data for this resource you have access to");
-        } else if ($context == "system") {
+        } elseif ($context == "system") {
             $description .= ". " . xl("Application is requesting access to all data in entire system for this resource");
         }
         return $description;

@@ -217,7 +217,7 @@ class SystemLogger implements LoggerInterface
             $escapedKey = $this->escapeValue($key);
             if (is_array($value)) {
                 $escapedDict[$key] = $this->escapeVariables($value, $recurseLimit + 1);
-            } else if (is_object($value)) {
+            } elseif (is_object($value)) {
                 try {
                     $object = json_encode($value);
                     $escapedDict[$escapedKey] = $this->escapeValue($object);
