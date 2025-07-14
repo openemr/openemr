@@ -582,7 +582,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                     if (isset($useMapping[$use])) {
                         $data[$useMapping[$use]] = $contactValue;
                     } else {
-                        $data[$systemValue] = (string)$contactValue;
+                        $data[$systemValue] = $contactValue;
                     }
                 } elseif ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";

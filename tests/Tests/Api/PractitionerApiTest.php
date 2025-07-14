@@ -48,7 +48,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::post with an invalid practitioner request
      */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->practitionerRecord["fname"]);
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
@@ -63,7 +63,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::post with a valid practitioner request
      */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
 
@@ -83,7 +83,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::put with an invalid pid and uuid
      */
-    public function testInvalidPut()
+    public function testInvalidPut(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -105,7 +105,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::put with a valid resource id and payload
      */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -129,7 +129,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::getOne with an invalid pid
      */
-    public function testGetOneInvalidId()
+    public function testGetOneInvalidId(): void
     {
         $actualResponse = $this->testClient->getOne(self::PRACTITIONER_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -143,7 +143,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::getOne with a valid pid
      */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResponse = $this->testClient->post(self::PRACTITIONER_API_ENDPOINT, $this->practitionerRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -166,7 +166,7 @@ class PractitionerApiTest extends TestCase
     /**
      * @covers ::getAll
      */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
 

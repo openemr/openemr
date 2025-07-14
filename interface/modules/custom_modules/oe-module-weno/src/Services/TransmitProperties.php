@@ -310,7 +310,7 @@ insurance;
             --$age;
         }
 
-        return (int)$age;
+        return $age;
     }
 
     /**

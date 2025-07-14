@@ -43,7 +43,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::post with an invalid patient request
      */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->patientRecord["fname"]);
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
@@ -58,7 +58,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::post with a valid patient request
      */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
 
@@ -78,7 +78,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::put with an invalid pid and uuid
      */
-    public function testInvalidPut()
+    public function testInvalidPut(): void
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -96,7 +96,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::put with a valid resource id and payload
      */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -119,7 +119,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::getOne with an invalid pid
      */
-    public function testGetOneInvalidPid()
+    public function testGetOneInvalidPid(): void
     {
         $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -133,7 +133,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::getOne with a valid pid
      */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -155,7 +155,7 @@ class PatientApiTest extends TestCase
     /**
      * @covers ::getAll
      */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPatientFixtures();
 

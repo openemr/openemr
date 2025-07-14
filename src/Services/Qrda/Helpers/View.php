@@ -48,7 +48,7 @@ trait View
 
     public function object_id()
     {
-        return substr(sha1((string)random_bytes(512)), -24);
+        return substr(sha1(random_bytes(512)), -24);
     }
 
     public function submission_program()

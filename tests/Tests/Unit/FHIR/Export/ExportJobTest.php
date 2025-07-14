@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 class ExportJobTest extends TestCase
 {
-    public function testSetStatus()
+    public function testSetStatus(): void
     {
         $statii = ExportJob::ALLOWED_STATII;
         foreach ($statii as $status) {
@@ -26,14 +26,14 @@ class ExportJobTest extends TestCase
         }
     }
 
-    public function testSetStatusInvalidThrowsException()
+    public function testSetStatusInvalidThrowsException(): void
     {
         $job = new ExportJob();
         $this->expectException(\InvalidArgumentException::class);
         $job->setStatus("some random status");
     }
 
-    public function testIsComplete()
+    public function testIsComplete(): void
     {
         $job = new ExportJob();
         $this->assertFalse($job->isComplete(), "new job should not be complete");
@@ -42,7 +42,7 @@ class ExportJobTest extends TestCase
         $this->assertTrue($job->isComplete(), "completed status job should be complete");
     }
 
-    public function testSetOutput()
+    public function testSetOutput(): void
     {
         $job = new ExportJob();
         $outputFormats = ExportJob::ALLOWED_OUTPUT_FORMATS;
@@ -52,7 +52,7 @@ class ExportJobTest extends TestCase
         }
     }
 
-    public function testSetOutputInvalidThrowsException()
+    public function testSetOutputInvalidThrowsException(): void
     {
         $job = new ExportJob();
         $this->expectException(\InvalidArgumentException::class);

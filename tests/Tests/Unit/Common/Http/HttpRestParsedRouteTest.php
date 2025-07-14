@@ -18,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 
 class HttpRestParsedRouteTest extends TestCase
 {
-    public function testGetResource()
+    public function testGetResource(): void
     {
         $request = "/fhir/Patient/" . Uuid::uuid4();
         $definition = "GET /fhir/Patient/:id";
@@ -27,7 +27,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals("Patient", $parsedRoute->getResource());
     }
 
-    public function testGetResourceWithOperation()
+    public function testGetResourceWithOperation(): void
     {
         $request = '/fhir/Patient/$export';
         $definition = 'POST /fhir/Patient/$export';
@@ -36,7 +36,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals("Patient", $parsedRoute->getResource());
     }
 
-    public function testGetResourceWithRootOperation()
+    public function testGetResourceWithRootOperation(): void
     {
         $request = '/fhir/$export';
         $definition = 'POST /fhir/$export';
@@ -53,7 +53,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals(null, $parsedStatusRoute->getResource());
     }
 
-    public function testGetResourceWithDocumentBinaryFormat()
+    public function testGetResourceWithDocumentBinaryFormat(): void
     {
         $request = '/fhir/Binary/15';
         $definition = 'GET /fhir/Binary/:id';
@@ -62,7 +62,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals("Binary", $parsedRoute->getResource());
     }
 
-    public function testIsOperation()
+    public function testIsOperation(): void
     {
         $request = '/fhir/$export';
         $definition = 'POST /fhir/$export';
@@ -77,7 +77,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertFalse($parsedRoute->isOperation());
     }
 
-    public function testIsOperationWithResource()
+    public function testIsOperationWithResource(): void
     {
         $request = '/fhir/Patient/$export';
         $definition = 'POST /fhir/Patient/$export';
@@ -86,7 +86,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertTrue($parsedRoute->isOperation());
     }
 
-    public function testMetadataRoute()
+    public function testMetadataRoute(): void
     {
         $request = '/fhir/metadata';
         $definition = 'GET /fhir/metadata';
@@ -100,7 +100,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertNull($parsedRoute->getOperation(), "metadata operation should return null");
     }
 
-    public function testGetOperationWithRootOperation()
+    public function testGetOperationWithRootOperation(): void
     {
         $request = '/fhir/$export';
         $definition = 'POST /fhir/$export';
@@ -118,7 +118,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals('$bulkdata-status', $parsedStatusRoute->getOperation());
     }
 
-    public function testGetOperationWithPatientExportOperation()
+    public function testGetOperationWithPatientExportOperation(): void
     {
         $request = '/fhir/Patient/$export';
         $definition = 'GET /fhir/Patient/$export';
@@ -129,7 +129,7 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals('Patient', $parsedRoute->getResource());
     }
 
-    public function testGetRouteWithRouteParamSpecialCharacter()
+    public function testGetRouteWithRouteParamSpecialCharacter(): void
     {
         $request = '/fhir/Patient/unique-id:with:colons';
         $definition = 'GET /fhir/Patient/:uid';

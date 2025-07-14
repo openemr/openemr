@@ -31,7 +31,7 @@ class AclMainTest extends TestCase
     /**
      * Unit test to explore the ACLs and verify the checks are working properly.
      */
-    public function testAclCheckCore()
+    public function testAclCheckCore(): void
     {
         // make sure we've cleared all GACL caches here...
         AclMain::clearGaclCache();

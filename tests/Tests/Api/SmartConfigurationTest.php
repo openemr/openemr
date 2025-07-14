@@ -51,7 +51,7 @@ class SmartConfigurationTest extends TestCase
     /**
      * @covers ::get with an invalid path
      */
-    public function testInvalidPathGet()
+    public function testInvalidPathGet(): void
     {
         $actualResponse = $this->testClient->get(self::SMART_CONFIG_ENDPOINT . "ss");
         $this->assertEquals(401, $actualResponse->getStatusCode());
@@ -60,7 +60,7 @@ class SmartConfigurationTest extends TestCase
     /**
      * @covers ::get
      */
-    public function testGet()
+    public function testGet(): void
     {
         $actualResponse = $this->testClient->get(self::SMART_CONFIG_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());

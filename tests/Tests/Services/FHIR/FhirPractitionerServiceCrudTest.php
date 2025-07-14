@@ -50,7 +50,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->fhirPractitionerFixture->setId(null);
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
@@ -63,7 +63,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsertWithErrors()
+    public function testInsertWithErrors(): void
     {
         $this->fhirPractitionerFixture->name = []; // clear the names TODO: I don't like this public accessor, can we fix it?s
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
@@ -72,7 +72,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->fhirPractitionerFixture->setId(null);
         $processingResult = $this->fhirPractitionerService->insert($this->fhirPractitionerFixture);
@@ -95,7 +95,7 @@ class FhirPractitionerServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateWithErrors()
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirPractitionerService->update('bad-uuid', $this->fhirPractitionerFixture);
         $this->assertFalse($actualResult->isValid());

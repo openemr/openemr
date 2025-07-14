@@ -57,7 +57,7 @@ class CapabilityFhirTest extends TestCase
     /**
      * @covers ::get with an invalid path
      */
-    public function testInvalidPathGet()
+    public function testInvalidPathGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT . "ss");
         $this->assertEquals(401, $actualResponse->getStatusCode());
@@ -66,7 +66,7 @@ class CapabilityFhirTest extends TestCase
     /**
      * @covers ::get with an invalid site
      */
-    public function testInvalidSiteGet()
+    public function testInvalidSiteGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT_INVALID_SITE);
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -75,7 +75,7 @@ class CapabilityFhirTest extends TestCase
     /**
      * @covers ::get
      */
-    public function testGet()
+    public function testGet(): void
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());

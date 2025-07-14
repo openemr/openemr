@@ -1047,7 +1047,7 @@ function edih_errseg_parse($err_seg, $id = false)
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
     $ik = explode('*', $err_seg);
     foreach ($ik as $i => $k) {
-        switch ((int)$i) {
+        switch ($i) {
             case 0:
                 $ret_ar['trace'] = $k;
                 break;

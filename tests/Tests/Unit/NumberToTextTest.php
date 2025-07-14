@@ -12,7 +12,7 @@ class NumberToTextTest extends TestCase
   /**
    * @dataProvider cases
    */
-    public function testConvert($numeral, $text)
+    public function testConvert($numeral, $text): void
     {
         $ntt = new NumberToText($numeral);
         $this->assertEquals($text, $ntt->convert(), "'$numeral' converts to '$text'");

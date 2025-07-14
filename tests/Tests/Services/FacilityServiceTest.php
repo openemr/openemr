@@ -47,7 +47,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertFailure()
+    public function testInsertFailure(): void
     {
         $this->facilityFixture["name"] = "A";
         $this->facilityFixture["facility_npi"] = "12345";
@@ -63,7 +63,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertSuccess()
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->facilityService->insert($this->facilityFixture);
         $this->assertTrue($actualResult->isValid());
@@ -82,7 +82,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateFailure()
+    public function testUpdateFailure(): void
     {
         $this->facilityService->insert($this->facilityFixture);
 
@@ -98,7 +98,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateSuccess()
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->facilityService->insert($this->facilityFixture);
         $this->assertTrue($actualResult->isValid());
@@ -122,7 +122,7 @@ class FacilityServiceTest extends TestCase
     }
 
     #[Test]
-    public function testFacilityQueries()
+    public function testFacilityQueries(): void
     {
         $this->fixtureManager->installFacilityFixtures();
 
@@ -161,7 +161,7 @@ class FacilityServiceTest extends TestCase
         }
     }
 
-    public function testGetFacilityForUser()
+    public function testGetFacilityForUser(): void
     {
         $this->fixtureManager->installFacilityFixtures();
 

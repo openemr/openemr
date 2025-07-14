@@ -159,7 +159,7 @@ class FhirPatientServiceMappingTest extends TestCase
     }
 
     #[Test]
-    public function testParseOpenEMRRecord()
+    public function testParseOpenEMRRecord(): void
     {
         $this->patientFixture['uuid'] = $this->fixtureManager->getUnregisteredUuid();
         $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture);
@@ -215,7 +215,7 @@ class FhirPatientServiceMappingTest extends TestCase
     }
 
     #[Test]
-    public function testParseFhirResource()
+    public function testParseFhirResource(): void
     {
         $actualResult = $this->fhirPatientService->parseFhirResource($this->fhirPatientFixture);
 

@@ -21,7 +21,7 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result with a validation message
      */
-    public function testWithValidationMessage()
+    public function testWithValidationMessage(): void
     {
         $this->processingResult->setValidationMessages(array("fname" => "bad value"));
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 201, false);
@@ -35,7 +35,7 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result with an internal error
      */
-    public function testWithInternalError()
+    public function testWithInternalError(): void
     {
         $this->processingResult->addInternalError("internal error occurred");
         $actualValue = RestControllerHelper::handleProcessingResult($this->processingResult, 201, false);
@@ -49,7 +49,7 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result where a single item response is requested
      */
-    public function testWithSingleItemResponse()
+    public function testWithSingleItemResponse(): void
     {
         $expectedData = array("pid" => 1);
         $this->processingResult->addData($expectedData);
@@ -67,7 +67,7 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result where a multiple item response is requested
      */
-    public function testWithMultiItemResponse()
+    public function testWithMultiItemResponse(): void
     {
         $this->processingResult->addData(array("fname" => "John"));
         $this->processingResult->addData(array("fname" => "Jane"));
@@ -86,7 +86,7 @@ class HandleProcessingResultTest extends TestCase
     /**
      * Tests a processing result with an "empty data set" where a multiple item response is requested.
      */
-    public function testWithEmptyMultiItemResponse()
+    public function testWithEmptyMultiItemResponse(): void
     {
         $expectedData = array();
 

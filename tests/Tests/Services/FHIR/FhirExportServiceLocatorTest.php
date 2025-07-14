@@ -39,7 +39,7 @@ class FhirExportServiceLocatorTest extends TestCase
         $this->mockConfig::reset();
     }
 
-    public function testFindExportServices()
+    public function testFindExportServices(): void
     {
 
         $noop = function (): void {};

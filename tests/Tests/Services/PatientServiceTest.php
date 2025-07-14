@@ -44,14 +44,14 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testGetFreshPid()
+    public function testGetFreshPid(): void
     {
         $actualValue = $this->patientService->getFreshPid();
         $this->assertGreaterThan(0, $actualValue);
     }
 
     #[Test]
-    public function testInsertFailure()
+    public function testInsertFailure(): void
     {
         $this->patientFixture["fname"] = "";
         $this->patientFixture["DOB"] = "12/27/2017";
@@ -70,7 +70,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertSuccess()
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
@@ -89,7 +89,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateFailure()
+    public function testUpdateFailure(): void
     {
         $this->patientService->insert($this->patientFixture);
 
@@ -105,7 +105,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateSuccess()
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
@@ -129,7 +129,7 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
-    public function testPatientQueries()
+    public function testPatientQueries(): void
     {
         $this->fixtureManager->installPatientFixtures();
 

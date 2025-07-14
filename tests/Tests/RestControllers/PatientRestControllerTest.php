@@ -53,7 +53,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::post with invalid data
      */
-    public function testPostInvalidData()
+    public function testPostInvalidData(): void
     {
         unset($this->patientData["fname"]);
         $actualResult = $this->patientController->post($this->patientData);
@@ -66,7 +66,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::post with valid data
      */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
@@ -82,7 +82,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::put with invalid data
      */
-    public function testPutInvalidData()
+    public function testPutInvalidData(): void
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
@@ -101,7 +101,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::put with valid data
      */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
@@ -124,7 +124,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::getOne with an invalid uuid
      */
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->patientController->getOne("not-a-uuid");
         $this->assertEquals(400, http_response_code());
@@ -136,7 +136,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::getOne with a valid uuid
      */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         // create a record
         $postResult = $this->patientController->post($this->patientData);
@@ -150,7 +150,7 @@ class PatientRestControllerTest extends TestCase
     /**
      * @cover ::getAll
      */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPatientFixtures();
         $searchResult = $this->patientController->getAll(array("postal_code" => "90210"), new SearchQueryConfig());

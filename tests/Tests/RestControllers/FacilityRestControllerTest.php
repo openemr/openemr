@@ -81,7 +81,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::post with invalid data
      */
-    public function testPostInvalidData()
+    public function testPostInvalidData(): void
     {
         unset($this->facilityData["name"]);
         $actualResult = $this->facilityController->post($this->facilityData);
@@ -94,7 +94,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::post with valid data
      */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->facilityController->post($this->facilityData);
         $this->assertEquals(201, http_response_code());
@@ -110,7 +110,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::patch with invalid data
      */
-    public function testPatchInvalidData()
+    public function testPatchInvalidData(): void
     {
         $actualResult = $this->facilityController->post($this->facilityData);
         $this->assertEquals(201, http_response_code());
@@ -129,7 +129,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::patch with valid data
      */
-    public function testPatch()
+    public function testPatch(): void
     {
         $actualResult = $this->facilityController->post($this->facilityData);
         $this->assertEquals(201, http_response_code());
@@ -152,7 +152,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::getOne with an invalid uuid
      */
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->facilityController->getOne("not-a-uuid");
         $this->assertEquals(400, http_response_code());
@@ -164,7 +164,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::getOne with a valid uuid
      */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         // create a record
         $postResult = $this->facilityController->post($this->facilityData);
@@ -178,7 +178,7 @@ class FacilityRestControllerTest extends TestCase
     /**
      * @cover ::getAll
      */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installFacilityFixtures();
         $searchResult = $this->facilityController->getAll(array("facility_npi" => "0123456789"));

@@ -63,7 +63,7 @@ class MeasureResultsTest extends TestCase
         }
     }
 
-    public function testAllPatients()
+    public function testAllPatients(): void
     {
         $failures = [];
         foreach ($this->measure_result_map as $measureResult) {

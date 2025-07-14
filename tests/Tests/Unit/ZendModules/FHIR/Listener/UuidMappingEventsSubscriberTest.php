@@ -37,7 +37,7 @@ class UuidMappingEventsSubscriberTest extends TestCase
         }
     }
 
-    public function testOnServicePostSaveEventForVitals()
+    public function testOnServicePostSaveEventForVitals(): void
     {
         $uuidMapping = new UuidMapping();
         $uuidRegistry = UuidRegistry::getRegistryForTable(VitalsService::TABLE_VITALS);
@@ -64,7 +64,7 @@ class UuidMappingEventsSubscriberTest extends TestCase
         }
     }
 
-    public function testOnServicePostSaveEventForSocialHistory()
+    public function testOnServicePostSaveEventForSocialHistory(): void
     {
         $uuidMapping = new UuidMapping();
         $uuidRegistry = UuidRegistry::getRegistryForTable(SocialHistoryService::TABLE_NAME);

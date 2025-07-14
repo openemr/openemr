@@ -52,7 +52,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->fhirPatientFixture->setId(null);
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
@@ -65,7 +65,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsertWithErrors()
+    public function testInsertWithErrors(): void
     {
         $this->fhirPatientFixture->name = [];
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
@@ -74,7 +74,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->fhirPatientFixture->setId(null);
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
@@ -97,7 +97,7 @@ class FhirPatientServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateWithErrors()
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirPatientService->update('bad-uuid', $this->fhirPatientFixture);
         $this->assertFalse($actualResult->isValid());

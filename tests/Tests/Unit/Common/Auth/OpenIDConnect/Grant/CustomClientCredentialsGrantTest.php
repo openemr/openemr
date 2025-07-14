@@ -45,7 +45,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * client entity (when they choose not to use a jwks_uri)
      * @throws \Exception
      */
-    public function testValidResponseForClientWithRegisteredJwks()
+    public function testValidResponseForClientWithRegisteredJwks(): void
     {
 
         $clientEntity = $this->getClientEntityForTest();
@@ -86,7 +86,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * to be retrieved from.
      * @throws \Exception
      */
-    public function testValidResponseForClientWithJwksUri()
+    public function testValidResponseForClientWithJwksUri(): void
     {
         $clientEntity = $this->getClientEntityForTest();
         $jwt = $this->createJWTForKeys($clientEntity->getIdentifier(), self::AUDIENCE);
@@ -137,7 +137,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * to be retrieved from.
      * @throws \Exception
      */
-    public function testInvalidResponseForClientWithJwksUri()
+    public function testInvalidResponseForClientWithJwksUri(): void
     {
         $clientEntity = $this->getClientEntityForTest();
         $jwt = $this->createJWTForKeys('not_an_issuer', self::AUDIENCE);
@@ -167,7 +167,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * Tests and makes sure the lobocci library for creating a Jwt works which is what we need in our other tests.
      * @throws \Exception
      */
-    public function testCreateJwtForKeys()
+    public function testCreateJwtForKeys(): void
     {
 
         $configuration = Configuration::forAsymmetricSigner(

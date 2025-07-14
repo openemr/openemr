@@ -29,7 +29,7 @@ class SinglePatient311APITest extends TestCase
     /**
      * @throws Exception
      */
-    public function testSingleApiRun()
+    public function testSingleApiRun(): void
     {
         // we will use the filesystem to write out the test run settings so that we can see them in the code coverage report
         $response = $this->getTestGroupResponse(
