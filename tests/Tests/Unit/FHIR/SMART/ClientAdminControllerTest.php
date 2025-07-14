@@ -32,7 +32,7 @@ class ClientAdminControllerTest extends TestCase
         $this->controller = new ClientAdminController($this->mockRepository, $this->mockLogger, $this->mockTwig, 'test-url.php');
     }
 
-    public function testDispatch()
+    public function testDispatch(): void
     {
         // smoke test
         $request = new Request(['action' => 'list/']);
@@ -44,7 +44,7 @@ class ClientAdminControllerTest extends TestCase
         $this->expectOutputRegex('/Client Registrations/');
     }
 
-    public function testDispatchWithExternalCDR()
+    public function testDispatchWithExternalCDR(): void
     {
         // smoke test, individual routes will be handled elsewhere
         $request = new Request(['action' => RouteController::EXTERNAL_CDR_ACTION . '/edit/1']);

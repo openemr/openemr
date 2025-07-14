@@ -24,7 +24,7 @@ class ListOptionRuleTest extends TestCase
     /**
      * @covers ::validate
      */
-    public function testValidateWithValidOptionId()
+    public function testValidateWithValidOptionId(): void
     {
         // test with a valid list id
         $rule = new ListOptionRule('yesno');
@@ -34,7 +34,7 @@ class ListOptionRuleTest extends TestCase
         $this->assertEmpty($messageStack->getFailures(), "No failures should have been added to the message stack");
     }
 
-    public function testValidateWithInvalidOptionId()
+    public function testValidateWithInvalidOptionId(): void
     {
         $rule = new ListOptionRule('yesno');
         $messageStack = new MessageStack();

@@ -48,7 +48,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -61,7 +61,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testInsertWithErrors()
+    public function testInsertWithErrors(): void
     {
         $this->fhirOrganizationFixture->setName(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -70,7 +70,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->fhirOrganizationFixture->setId(null);
         $processingResult = $this->fhirOrganizationService->insert($this->fhirOrganizationFixture);
@@ -93,7 +93,7 @@ class FhirOrganizationServiceCrudTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateWithErrors()
+    public function testUpdateWithErrors(): void
     {
         $actualResult = $this->fhirOrganizationService->update('bad-uuid', $this->fhirOrganizationFixture);
         $this->assertFalse($actualResult->isValid());

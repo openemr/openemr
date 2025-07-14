@@ -58,13 +58,13 @@ class CarePlanServiceTest extends TestCase
     }
 
     #[Test]
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $this->markTestIncomplete("This test is not implemented");
     }
 
     #[Test]
-    public function testGetSurrogateKeyForRecord()
+    public function testGetSurrogateKeyForRecord(): void
     {
         // we are going to use the old care plan
         $expectedResult = sqlQuery("SELECT `fcp`.`id` AS `form_id`,`fe`.`uuid` AS `euuid`, `fcp`.`encounter` FROM `form_care_plan` fcp "

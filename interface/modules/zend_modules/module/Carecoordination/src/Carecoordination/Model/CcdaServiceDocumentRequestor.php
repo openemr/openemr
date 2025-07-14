@@ -67,7 +67,7 @@ class CcdaServiceDocumentRequestor
                 }
                 sleep(5); // give cpu a rest
                 // now try to connect to the server
-                $result = socket_connect($socket, "127.0.0.1", (int)6661);
+                $result = socket_connect($socket, "127.0.0.1", 6661);
                 if ($result === false) {
                     $errorCode = socket_last_error($socket);
                     $errorMsg = socket_strerror($errorCode);

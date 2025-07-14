@@ -758,7 +758,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     $commentdelim = "\n";
 
     // Ensoftek: Different labs seem to send different EOLs. Edit HL7 input to a character we know.
-    $hl7 = (string)str_replace(array("\r\n", "\r", "\n"), "\r", $hl7);
+    $hl7 = str_replace(array("\r\n", "\r", "\n"), "\r", $hl7);
 
     $today = time();
     $in_message_lab_name = '';

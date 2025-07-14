@@ -30,7 +30,7 @@ class UuidRegistryTest extends TestCase
      * @covers \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes
      * @covers \OpenEMR\Common\Uuid\UuidRegistry::uuidToString
      */
-    public function testUuidConversions()
+    public function testUuidConversions(): void
     {
         $stringValue = $this->uuidFactory->uuid4()->toString();
         $byteValue = UuidRegistry::uuidToBytes($stringValue);

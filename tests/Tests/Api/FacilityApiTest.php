@@ -49,7 +49,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->facilityRecord["name"]);
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
@@ -62,7 +62,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testPost()
+    public function testPost(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
 
@@ -80,7 +80,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testInvalidPut()
+    public function testInvalidPut(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -100,7 +100,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testPut()
+    public function testPut(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -121,7 +121,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testGetOneInvalidId()
+    public function testGetOneInvalidId(): void
     {
         $actualResponse = $this->testClient->getOne(self::FACILITY_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
@@ -133,7 +133,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
@@ -153,7 +153,7 @@ class FacilityApiTest extends TestCase
     }
 
     #[Test]
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installFacilityFixtures();
 

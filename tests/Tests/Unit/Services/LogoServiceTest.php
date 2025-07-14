@@ -16,7 +16,7 @@ class LogoServiceTest extends TestCase
         $GLOBALS['web_root'] = ''; // needed by the ModulesApplication class (called by LogoService)
     }
 
-    public function testLogoEventCanOverrideLogoPath()
+    public function testLogoEventCanOverrideLogoPath(): void
     {
         $logoType = "logoPathThatDoesNotExist/logo";
         // has to be a file that exists in the zend_modules or custom_modules directory for safe path inclusion

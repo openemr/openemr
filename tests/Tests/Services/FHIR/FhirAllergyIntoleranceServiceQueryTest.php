@@ -117,7 +117,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     */
     #[Test]
     #[DataProvider('searchParameterPatientReferenceDataProvider')]
-    public function testGetAllPatientReference($parameterName, $parameterValue)
+    public function testGetAllPatientReference($parameterName, $parameterValue): void
     {
         $pubpid = FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
         $select = "SELECT `lists`.`pid`,`patient_data`.`uuid` FROM `lists` INNER JOIN `patient_data` ON `patient_data`.`pid` = "
@@ -142,7 +142,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
      * installation, we run this test separately
      */
     #[Test]
-    public function testGetAllWithUuid()
+    public function testGetAllWithUuid(): void
     {
         $select = "SELECT `uuid` FROM `lists` WHERE `type`='allergy' LIMIT 1";
         $allergy_uuid = QueryUtils::fetchSingleValue($select, 'uuid');
@@ -155,7 +155,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
      * Uses the getAll method so we can't pass unless that is working.
      */
     #[Test]
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResult = $this->fhirService->getAll([]);
         $this->assertNotEmpty($actualResult->getData(), "Get All should have returned a result");
@@ -171,7 +171,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
     }
 
     #[Test]
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->fhirService->getOne('not-a-uuid');
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));

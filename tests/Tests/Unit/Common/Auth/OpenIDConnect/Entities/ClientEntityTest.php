@@ -20,7 +20,7 @@ class ClientEntityTest extends TestCase
     /**
      * Checks to make sure the hasScope method is working properly
      */
-    public function testHasScope()
+    public function testHasScope(): void
     {
         $client = new ClientEntity();
         $client->setScopes('openid email phone address launch api:oemr api:fhir api:port');

@@ -43,7 +43,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     /**
      * @cover ::post with valid data
      */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $this->assertEquals(201, http_response_code());
@@ -53,7 +53,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     /**
      * @cover ::post with invalid data
      */
-    public function testInvalidPost()
+    public function testInvalidPost(): void
     {
         unset($this->fhirFixture['name']);
 
@@ -65,7 +65,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     /**
      * @cover ::patch with valid data
      */
-    public function testPatch()
+    public function testPatch(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $fhirId = $actualResult['uuid'];
@@ -80,7 +80,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     /**
      * @cover ::patch with valid data
      */
-    public function testInvalidPatch()
+    public function testInvalidPatch(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);
 
@@ -91,7 +91,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
         $fhirId = $actualResult['uuid'];
@@ -100,7 +100,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    public function testGetOneNoMatch()
+    public function testGetOneNoMatch(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);
 
@@ -108,7 +108,7 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);
 

@@ -323,11 +323,11 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
             if ($nsrch && $nfsrch) {
                 $result_notes = getPortalPatientNotes($owner, '', '0', $nsrch);
                 $result_notifications = getPortalPatientNotifications($owner, '', '0', $nfsrch);
-                $result = array_merge((array)$result_notes, (array)$result_notifications);
+                $result = array_merge($result_notes, $result_notifications);
             } else {
                 $result_notes = getPortalPatientNotes($owner);
                 $result_notifications = getPortalPatientNotifications($owner);
-                $result = array_merge((array)$result_notes, (array)$result_notifications);
+                $result = array_merge($result_notes, $result_notifications);
                 //$result = $result_notes;
             }
 
@@ -344,7 +344,7 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
             $result = array();
             $result_notes = getPortalPatientNotes($owner, '', '0', "OR (p.deleted != 1 AND (p.owner = ?)) ");
             $result_notifications = getPortalPatientNotifications($owner);
-            $result = array_merge((array)$result_notes, (array)$result_notifications);
+            $result = array_merge($result_notes, $result_notifications);
             return $result;
         } elseif ($dotype == "deleted") {
             $result = array();

@@ -105,7 +105,7 @@ class FixtureManagerTest extends TestCase
     /**
      * @covers ::getPatientFixtures
      */
-    public function testGetPatientFixtures()
+    public function testGetPatientFixtures(): void
     {
         $patientFixtures = $this->fixtureManager->getPatientFixtures();
         $this->assertIsArray($patientFixtures);
@@ -119,7 +119,7 @@ class FixtureManagerTest extends TestCase
     /**
      * @covers ::getSinglePatientFixture
      */
-    public function testGetPatientFixture()
+    public function testGetPatientFixture(): void
     {
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->assertPatientFields($patientFixture);
@@ -129,7 +129,7 @@ class FixtureManagerTest extends TestCase
      * @covers ::installPatientFixtures
      * @covers ::removePatientFixtures
      */
-    public function testInstallAndRemovePatientFixtures()
+    public function testInstallAndRemovePatientFixtures(): void
     {
         $actualCount = $this->fixtureManager->installPatientFixtures();
         $this->assertGreaterThan(0, $actualCount);
@@ -146,7 +146,7 @@ class FixtureManagerTest extends TestCase
     /**
      * @covers ::getFhirPatientFixtures
      */
-    public function testGetFhirPatientFixtures()
+    public function testGetFhirPatientFixtures(): void
     {
         $fhirPatientFixtures = $this->fixtureManager->getFhirPatientFixtures();
         $this->assertIsArray($fhirPatientFixtures);

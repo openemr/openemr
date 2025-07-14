@@ -69,7 +69,7 @@ class IntrospectionTest extends TestCase
         }
     }
 
-    public function testPrivateClientWithAccessTokenWithHint()
+    public function testPrivateClientWithAccessTokenWithHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -86,114 +86,11 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPrivateClientWithAccessTokenWithHintWithRevoke()
+    public function testPrivateClientWithAccessTokenWithHintWithRevoke(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
             "token_type_hint" => "access_token",
-            "client_id" => $this->client->getClientId(),
-            "client_secret" => $this->client->getClientSecret(),
-            "token" => $this->client->getAccessToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(true, $responseBody->active);
-        $this->assertEquals('active', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-
-        $this->client->cleanupRevokeAuth();
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(false, $responseBody->active);
-        $this->assertEquals('revoked', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-    }
-
-    public function testPrivateClientWithBadAccessTokenWithHint()
-    {
-        $this->setUpClient('private');
-        $introspectBody = [
-            "token_type_hint" => "access_token",
-            "client_id" => $this->client->getClientId(),
-            "client_secret" => $this->client->getClientSecret(),
-            "token" => ApiTestClient::BOGUS_ACCESS_TOKEN
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(false, $responseBody->active);
-        $this->assertNull($responseBody->status ?? null);
-    }
-
-    public function testPrivateBadClientIdWithAccessTokenWithHint()
-    {
-        $this->setUpClient('private');
-        $introspectBody = [
-            "token_type_hint" => "access_token",
-            "client_id" => ApiTestClient::BOGUS_CLIENTID,
-            "client_secret" => $this->client->getClientSecret(),
-            "token" => $this->client->getAccessToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(401, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals('invalid_request', $responseBody->error);
-        $this->assertEquals('Not a registered client', $responseBody->error_description);
-    }
-
-    public function testPrivateBadClientSecretWithAccessTokenWithHint()
-    {
-        $this->setUpClient('private');
-        $introspectBody = [
-            "token_type_hint" => "access_token",
-            "client_id" => $this->client->getClientId(),
-            "client_secret" => ApiTestClient::BOGUS_CLIENTSECRET,
-            "token" => $this->client->getAccessToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(401, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals('invalid_request', $responseBody->error);
-        $this->assertEquals('Client failed security', $responseBody->error_description);
-    }
-
-    public function testPrivateMissingClientSecretWithAccessTokenWithHint()
-    {
-        $this->setUpClient('private');
-        $introspectBody = [
-            "token_type_hint" => "access_token",
-            "client_id" => $this->client->getClientId(),
-            "token" => $this->client->getAccessToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(400, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals('invalid_request', $responseBody->error);
-        $this->assertEquals('Invalid client app type', $responseBody->error_description);
-    }
-
-    public function testPrivateClientWithAccessTokenWithoutHint()
-    {
-        $this->setUpClient('private');
-        $introspectBody = [
-            "client_id" => $this->client->getClientId(),
-            "client_secret" => $this->client->getClientSecret(),
-            "token" => $this->client->getAccessToken()
-        ];
-        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
-        $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
-        $this->assertEquals(true, $responseBody->active);
-        $this->assertEquals('active', $responseBody->status);
-        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
-    }
-
-    public function testPrivateClientWithAccessTokenWithoutHintWithRevoke()
-    {
-        $this->setUpClient('private');
-        $introspectBody = [
             "client_id" => $this->client->getClientId(),
             "client_secret" => $this->client->getClientSecret(),
             "token" => $this->client->getAccessToken()
@@ -214,7 +111,110 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPrivateClientWithBadAccessTokenWithoutHint()
+    public function testPrivateClientWithBadAccessTokenWithHint(): void
+    {
+        $this->setUpClient('private');
+        $introspectBody = [
+            "token_type_hint" => "access_token",
+            "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
+            "token" => ApiTestClient::BOGUS_ACCESS_TOKEN
+        ];
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(200, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals(false, $responseBody->active);
+        $this->assertNull($responseBody->status ?? null);
+    }
+
+    public function testPrivateBadClientIdWithAccessTokenWithHint(): void
+    {
+        $this->setUpClient('private');
+        $introspectBody = [
+            "token_type_hint" => "access_token",
+            "client_id" => ApiTestClient::BOGUS_CLIENTID,
+            "client_secret" => $this->client->getClientSecret(),
+            "token" => $this->client->getAccessToken()
+        ];
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(401, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals('invalid_request', $responseBody->error);
+        $this->assertEquals('Not a registered client', $responseBody->error_description);
+    }
+
+    public function testPrivateBadClientSecretWithAccessTokenWithHint(): void
+    {
+        $this->setUpClient('private');
+        $introspectBody = [
+            "token_type_hint" => "access_token",
+            "client_id" => $this->client->getClientId(),
+            "client_secret" => ApiTestClient::BOGUS_CLIENTSECRET,
+            "token" => $this->client->getAccessToken()
+        ];
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(401, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals('invalid_request', $responseBody->error);
+        $this->assertEquals('Client failed security', $responseBody->error_description);
+    }
+
+    public function testPrivateMissingClientSecretWithAccessTokenWithHint(): void
+    {
+        $this->setUpClient('private');
+        $introspectBody = [
+            "token_type_hint" => "access_token",
+            "client_id" => $this->client->getClientId(),
+            "token" => $this->client->getAccessToken()
+        ];
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(400, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals('invalid_request', $responseBody->error);
+        $this->assertEquals('Invalid client app type', $responseBody->error_description);
+    }
+
+    public function testPrivateClientWithAccessTokenWithoutHint(): void
+    {
+        $this->setUpClient('private');
+        $introspectBody = [
+            "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
+            "token" => $this->client->getAccessToken()
+        ];
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(200, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals(true, $responseBody->active);
+        $this->assertEquals('active', $responseBody->status);
+        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
+    }
+
+    public function testPrivateClientWithAccessTokenWithoutHintWithRevoke(): void
+    {
+        $this->setUpClient('private');
+        $introspectBody = [
+            "client_id" => $this->client->getClientId(),
+            "client_secret" => $this->client->getClientSecret(),
+            "token" => $this->client->getAccessToken()
+        ];
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(200, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals(true, $responseBody->active);
+        $this->assertEquals('active', $responseBody->status);
+        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
+
+        $this->client->cleanupRevokeAuth();
+        $authResponse = $this->client->post(ApiTestClient::OAUTH_INTROSPECTION_ENDPOINT, $introspectBody, false);
+        $this->assertEquals(200, $authResponse->getStatusCode());
+        $responseBody = json_decode($authResponse->getBody());
+        $this->assertEquals(false, $responseBody->active);
+        $this->assertEquals('revoked', $responseBody->status);
+        $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
+    }
+
+    public function testPrivateClientWithBadAccessTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -229,7 +229,7 @@ class IntrospectionTest extends TestCase
         $this->assertNull($responseBody->status ?? null);
     }
 
-    public function testPrivateBadClientIdWithAccessTokenWithoutHint()
+    public function testPrivateBadClientIdWithAccessTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -244,7 +244,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Not a registered client', $responseBody->error_description);
     }
 
-    public function testPrivateBadClientSecretWithAccessTokenWithoutHint()
+    public function testPrivateBadClientSecretWithAccessTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -259,7 +259,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Client failed security', $responseBody->error_description);
     }
 
-    public function testPrivateMissingClientSecretWithAccessTokenWithoutHint()
+    public function testPrivateMissingClientSecretWithAccessTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -273,7 +273,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Invalid client app type', $responseBody->error_description);
     }
 
-    public function testPrivateClientWithRefreshTokenWithHint()
+    public function testPrivateClientWithRefreshTokenWithHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -290,7 +290,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPrivateClientWithRefreshTokenWithHintWithRevoke()
+    public function testPrivateClientWithRefreshTokenWithHintWithRevoke(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -315,7 +315,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPrivateClientWithBadRefreshTokenWithHint()
+    public function testPrivateClientWithBadRefreshTokenWithHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -328,7 +328,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals(400, $authResponse->getStatusCode());
     }
 
-    public function testPrivateBadClientIdWithRefreshTokenWithHint()
+    public function testPrivateBadClientIdWithRefreshTokenWithHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -344,7 +344,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Not a registered client', $responseBody->error_description);
     }
 
-    public function testPrivateBadClientSecretWithRefreshTokenWithHint()
+    public function testPrivateBadClientSecretWithRefreshTokenWithHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -360,7 +360,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Client failed security', $responseBody->error_description);
     }
 
-    public function testPrivateMissingClientSecretWithRefreshTokenWithHint()
+    public function testPrivateMissingClientSecretWithRefreshTokenWithHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -375,7 +375,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Invalid client app type', $responseBody->error_description);
     }
 
-    public function testPrivateClientWithRefreshTokenWithoutHint()
+    public function testPrivateClientWithRefreshTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -391,7 +391,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPrivateClientWithRefreshTokenWithoutHintWithRevoke()
+    public function testPrivateClientWithRefreshTokenWithoutHintWithRevoke(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -415,7 +415,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPrivateClientWithBadRefreshTokenWithoutHint()
+    public function testPrivateClientWithBadRefreshTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -427,7 +427,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals(400, $authResponse->getStatusCode());
     }
 
-    public function testPrivateBadClientIdWithRefreshTokenWithoutHint()
+    public function testPrivateBadClientIdWithRefreshTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -442,7 +442,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Not a registered client', $responseBody->error_description);
     }
 
-    public function testPrivateBadClientSecretWithRefreshTokenWithoutHint()
+    public function testPrivateBadClientSecretWithRefreshTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -457,7 +457,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Client failed security', $responseBody->error_description);
     }
 
-    public function testPrivateMissingClientSecretWithRefreshTokenWithoutHint()
+    public function testPrivateMissingClientSecretWithRefreshTokenWithoutHint(): void
     {
         $this->setUpClient('private');
         $introspectBody = [
@@ -471,7 +471,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Invalid client app type', $responseBody->error_description);
     }
 
-    public function testPublicClientWithAccessTokenWithHint()
+    public function testPublicClientWithAccessTokenWithHint(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -487,7 +487,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPublicClientWithAccessTokenWithHintWithRevoke()
+    public function testPublicClientWithAccessTokenWithHintWithRevoke(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -511,7 +511,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPublicClientWithBadAccessTokenWithHint()
+    public function testPublicClientWithBadAccessTokenWithHint(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -526,7 +526,7 @@ class IntrospectionTest extends TestCase
         $this->assertNull($responseBody->status ?? null);
     }
 
-    public function testPublicBadClientIdWithAccessTokenWithHint()
+    public function testPublicBadClientIdWithAccessTokenWithHint(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -541,7 +541,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals('Not a registered client', $responseBody->error_description);
     }
 
-    public function testPublicClientWithAccessTokenWithoutHint()
+    public function testPublicClientWithAccessTokenWithoutHint(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -556,7 +556,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPublicClientWithAccessTokenWithoutHintWithRevoke()
+    public function testPublicClientWithAccessTokenWithoutHintWithRevoke(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -579,7 +579,7 @@ class IntrospectionTest extends TestCase
         $this->assertEquals($this->client->getClientId(), $responseBody->client_id);
     }
 
-    public function testPublicClientWithBadAccessTokenWithoutHint()
+    public function testPublicClientWithBadAccessTokenWithoutHint(): void
     {
         $this->setUpClient('public');
         $introspectBody = [
@@ -593,7 +593,7 @@ class IntrospectionTest extends TestCase
         $this->assertNull($responseBody->status ?? null);
     }
 
-    public function testPublicBadClientIdWithAccessTokenWithoutHint()
+    public function testPublicBadClientIdWithAccessTokenWithoutHint(): void
     {
         $this->setUpClient('public');
         $introspectBody = [

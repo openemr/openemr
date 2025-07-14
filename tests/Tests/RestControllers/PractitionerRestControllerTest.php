@@ -77,7 +77,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::post with invalid data
      */
-    public function testPostInvalidData()
+    public function testPostInvalidData(): void
     {
         unset($this->practitionerData["fname"]);
         $actualResult = $this->practitionerController->post($this->practitionerData);
@@ -90,7 +90,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::post with valid data
      */
-    public function testPost()
+    public function testPost(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
         $this->assertEquals(201, http_response_code());
@@ -106,7 +106,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::put with invalid data
      */
-    public function testPutInvalidData()
+    public function testPutInvalidData(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
         $this->assertEquals(201, http_response_code());
@@ -125,7 +125,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::put with valid data
      */
-    public function testPut()
+    public function testPut(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
         $this->assertEquals(201, http_response_code());
@@ -148,7 +148,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::getOne with an invalid uuid
      */
-    public function testGetOneInvalidUuid()
+    public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->practitionerController->getOne("not-a-uuid");
         $this->assertEquals(400, http_response_code());
@@ -160,7 +160,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::getOne with a valid uuid
      */
-    public function testGetOne()
+    public function testGetOne(): void
     {
         // create a record
         $postResult = $this->practitionerController->post($this->practitionerData);
@@ -174,7 +174,7 @@ class PractitionerRestControllerTest extends TestCase
     /**
      * @cover ::getAll
      */
-    public function testGetAll()
+    public function testGetAll(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
         $searchResult = $this->practitionerController->getAll(array("npi" => "0123456789"));
