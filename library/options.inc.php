@@ -4209,7 +4209,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 }
                 // 'smallform' can be used to add arbitrary CSS classes. Note the leading space.
                 $group_fields['smallform'] = ' form-control-sm mb-1 mw-100';
-                echo generate_form_field($group_fields, $currvalue);
+                generate_form_field($group_fields, $currvalue);
                 if ($datacols == 0) {
                     // End nowrap
                     echo "</span> "; // space to allow wrap between spans

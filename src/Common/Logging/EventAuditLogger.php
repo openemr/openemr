@@ -710,7 +710,7 @@ MSG;
             "," . $adodb->qstr($recipient) . "," .
             $adodb->qstr($pid) . "," .
             $adodb->qstr($description) . ")";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
     /**
@@ -730,7 +730,7 @@ MSG;
                 recipient=" . $adodb->qstr($recipient) . ",
                 description=" . $adodb->qstr($description) . "
                 where id=" . $adodb->qstr($disclosure_id) . "";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
     /**
@@ -741,7 +741,7 @@ MSG;
     public function deleteDisclosure($deletelid)
     {
         $sql = "delete from extended_log where id='" . add_escape_custom($deletelid) . "'";
-        $ret = sqlInsertClean_audit($sql);
+        sqlInsertClean_audit($sql);
     }
 
     public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)

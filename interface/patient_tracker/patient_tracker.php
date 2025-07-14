@@ -794,7 +794,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
         <input type='hidden' name='encounterID' value='0' />
     </form>
 
-    <?php echo myLocalJS(); ?>
+    <?php myLocalJS(); ?>
 </body>
 </html>
     <?php

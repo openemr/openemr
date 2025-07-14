@@ -40,7 +40,7 @@ if (($_POST['mode'] ?? null) === 'save_profiles') {
 }
 
 if (($_REQUEST['mode'] ?? null) === 'render_profile') {
-    echo renderProfileHtml();
+    renderProfileHtml();
     exit;
 }
 
