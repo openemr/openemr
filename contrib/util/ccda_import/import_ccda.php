@@ -36,8 +36,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment this out when using this script (and then uncomment it again when done using script)
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_CCDA_IMPORT')) {
+    die('Set OPENEMR_ENABLE_CCDA_IMPORT=1 environment variable to enable this script');
+}
 
 // only allow use from command line
 if (php_sapi_name() !== 'cli') {

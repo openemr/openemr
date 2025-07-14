@@ -124,11 +124,9 @@ install_configure() {
     	actions_chmod -R 0777 sites/default/documents
     )
     # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
-    _exec sh -c "sed -e 's@^exit;@ @' < ./contrib/util/installScripts/InstallerAuto.php > ./contrib/util/installScripts/InstallerAutoTemp.php"
     # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
     _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
-    _exec php -f ./contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%
-    _exec rm -f ./contrib/util/installScripts/InstallerAutoTemp.php
+    _exec sh -c 'OPENEMR_ENABLE_INSTALLER_AUTO=1 php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr

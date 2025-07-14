@@ -24,8 +24,10 @@
  *
  */
 
-// comment out below exit when need to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_TEST_EDIH_SFTP_FILES')) {
+    die('Set OPENEMR_ENABLE_TEST_EDIH_SFTP_FILES=1 environment variable to enable this script');
+}
 
 /* ** add this function to edih_uploads.php
  * -- or work it into edih_upload_files(), since it is almost a direct copy
