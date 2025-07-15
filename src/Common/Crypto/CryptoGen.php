@@ -32,6 +32,8 @@ namespace OpenEMR\Common\Crypto;
 
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
+use OpenEMR\Common\Crypto\CryptoGenStrategy;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 class CryptoGen
@@ -55,8 +57,16 @@ class CryptoGen
     #  from the drive).
     private array $keyCache = [];
 
-    public function __construct()
+    private EncryptionStrategyInterface $encryptionStrategy;
+
+    public function __construct(?EncryptionStrategyInterface $encryptionStrategy = null)
     {
+        $this->encryptionStrategy = $encryptionStrategy ?? new CryptoGenStrategy();
+    }
+
+    public function setEncryptionStrategy(EncryptionStrategyInterface $strategy): void
+    {
+        $this->encryptionStrategy = $strategy;
     }
 
     /**
@@ -69,9 +79,7 @@ class CryptoGen
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
     {
-        $encryptedValue = $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
-
-        return $encryptedValue;
+        return $this->encryptionStrategy->encryptStandard($value, $customPassword, $keySource);
     }
 
     /**
@@ -86,36 +94,7 @@ class CryptoGen
      */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
-        if (empty($value)) {
-            return "";
-        }
-
-        # Collect the encrypt/decrypt version and remove it from the value
-        $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
-        $trimmedValue = mb_substr($value, 3, null, '8bit');
-
-        if (!empty($minimumVersion)) {
-            if ($encryptionVersion < $minimumVersion) {
-                error_log("OpenEMR Error : Decryption is not working because the encrypt/decrypt version is lower than allowed.");
-                return false;
-            }
-        }
-
-        # Map the encrypt/decrypt version to the correct decryption function
-        if ($encryptionVersion == 6) {
-            return $this->coreDecrypt($trimmedValue, $customPassword, $keySource, "six");
-        } elseif ($encryptionVersion == 5) {
-            return $this->coreDecrypt($trimmedValue, $customPassword, $keySource, "five");
-        } elseif ($encryptionVersion == 4) {
-            return $this->coreDecrypt($trimmedValue, $customPassword, $keySource, "four");
-        } elseif (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
-            return $this->aes256DecryptTwo($trimmedValue, $customPassword);
-        } elseif ($encryptionVersion == 1) {
-            return $this->aes256DecryptOne($trimmedValue, $customPassword);
-        } else {
-            error_log("OpenEMR Error : Decryption is not working because of unknown encrypt/decrypt version.");
-            return false;
-        }
+        return $this->encryptionStrategy->decryptStandard($value, $customPassword, $keySource, $minimumVersion);
     }
 
     /**
@@ -124,15 +103,7 @@ class CryptoGen
      */
     public function cryptCheckStandard(?string $value): bool
     {
-        if (empty($value)) {
-            return false;
-        }
-
-        if (preg_match('/^00[1-6]/', $value)) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->encryptionStrategy->cryptCheckStandard($value);
     }
 
     /**
