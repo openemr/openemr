@@ -495,7 +495,7 @@ function make_document($task)
         echo '<pagebreak resetpagenum="1" pagenumstyle="1" suppress="off" />';
     }
 
-    echo narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
+    narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
     ?>
     </body>
     </html>
