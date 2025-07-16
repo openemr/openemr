@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   collect:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: Collect Docker Dirs
@@ -78,7 +78,7 @@ jobs:
       configurations: ${{ steps.docker-dirs.outputs.configurations }}
   build:
     name: PHP ${{ matrix.configurations.php }} - ${{ matrix.configurations.webserver }} - ${{ matrix.configurations.database }} ${{ matrix.configurations.db }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: collect
     strategy:
       fail-fast: false
