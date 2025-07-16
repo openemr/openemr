@@ -74,8 +74,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// This exit is to avoid malicious use of this script.
-exit;
+// This safety check prevents accidental execution of this script.
+if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
+    die('Set OPENEMR_ENABLE_INSTALLER_AUTO=1 environment variable to enable this script');
+}
 
 // Include standard libraries/classes
 require_once dirname(__FILE__) . '/../../../vendor/autoload.php';

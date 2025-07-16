@@ -12,8 +12,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// comment below exit if plan to use this script
-exit;
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_BATCH_PHONE_NOTIFICATION')) {
+    die('Set OPENEMR_ENABLE_BATCH_PHONE_NOTIFICATION=1 environment variable to enable this script');
+}
 
 $backpic = "";
 //phone notification
