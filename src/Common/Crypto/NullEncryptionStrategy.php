@@ -4,43 +4,50 @@ namespace OpenEMR\Common\Crypto;
 
 use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
 
+/**
+ * Null encryption strategy that returns values unchanged.
+ *
+ * This strategy provides no encryption - it is an identity function
+ * that returns all values exactly as provided. Used when encryption
+ * is disabled or not required.
+ */
 class NullEncryptionStrategy implements EncryptionStrategyInterface
 {
-    private string $nullVersion = "000";
-
+    /**
+     * Returns the value unchanged (no encryption).
+     *
+     * @param string|null $value The value to "encrypt"
+     * @param string|null $customPassword Ignored parameter for interface compatibility
+     * @param string $keySource Ignored parameter for interface compatibility
+     * @return string|null The same value that was passed in
+     */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
     {
-        return ($value === null) ? null : $this->nullVersion . base64_encode($value);
+        return $value;
     }
 
+    /**
+     * Returns the value unchanged (no decryption).
+     *
+     * @param string|null $value The value to "decrypt"
+     * @param string|null $customPassword Ignored parameter for interface compatibility
+     * @param string $keySource Ignored parameter for interface compatibility
+     * @param int|null $minimumVersion Ignored parameter for interface compatibility
+     * @return false|string The same value that was passed in
+     */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
-        if (empty($value)) {
-            return "";
-        }
-
-        $encryptionVersion = intval(mb_substr($value, 0, 3, '8bit'));
-        $trimmedValue = mb_substr($value, 3, null, '8bit');
-
-        if (!empty($minimumVersion) && ($encryptionVersion < $minimumVersion)) {
-            error_log("OpenEMR Error : Decryption is not working because the encrypt/decrypt version is lower than allowed.");
-            return false;
-        }
-
-        if ($encryptionVersion !== 0) {
-            error_log("OpenEMR Error : Null encryption strategy cannot decrypt non-null encrypted data (version: " . $encryptionVersion . ").");
-            return false;
-        }
-        $decoded = base64_decode($trimmedValue, true);
-        if ($decoded === false) {
-            error_log("OpenEMR Error : Null decryption did not work because illegal characters were noted in base64_encoded data.");
-            return false;
-        }
-        return $decoded;
+        return $value;
     }
 
+    /**
+     * Always returns true since no encryption validation is needed.
+     *
+     * @param string|null $value The value to check
+     * @return bool Always true
+     */
     public function cryptCheckStandard(?string $value): bool
     {
-        return empty($value) ? false : (preg_match('/^000/', $value) === 1);
+        return true;
     }
 }
