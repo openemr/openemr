@@ -33,8 +33,8 @@ class NotificationEventListener implements EventSubscriberInterface
     private bool $isSmsEnabled;
     private mixed $isEmailEnabled;
     private bool $isFaxEnabled;
-    private $eventDispatcher;
     private bool $isVoiceEnabled;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @var \Twig\Environment The twig rendering environment
@@ -51,7 +51,6 @@ class NotificationEventListener implements EventSubscriberInterface
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
-
         $this->eventDispatcher = $eventDispatcher;
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
@@ -109,9 +108,9 @@ class NotificationEventListener implements EventSubscriberInterface
         $loginCred = $this->getRCCredentials($serviceType);
         $moduleBaseUrl = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
-            'clientId' => urlencode($loginCred['appKey']),
-            'clientSecret' => urlencode($loginCred['appSecret']),
-            'jwt' => urlencode($loginCred['jwt']),
+            'clientId' => $loginCred['appKey'],
+            'clientSecret' => $loginCred['appSecret'],
+            'jwt' => $loginCred['jwt'],
         ];
         // Render using Twig
         if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt']) {

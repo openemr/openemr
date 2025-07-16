@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 $serviceType = 'voice';
-appDispatch::setModuleType($serviceType);
+AppDispatch::setModuleType($serviceType);
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
 if (!$clientApp->verifyAcl()) {

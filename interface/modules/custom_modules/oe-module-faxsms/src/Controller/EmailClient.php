@@ -46,7 +46,7 @@ class EmailClient extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
 
         $this->sid = $credentials['username'];
         $this->appKey = $credentials['appKey'];

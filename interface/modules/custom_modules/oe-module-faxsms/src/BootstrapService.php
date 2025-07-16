@@ -144,4 +144,34 @@ class BootstrapService
         }
         return [];
     }
+
+    public static function getUserPermission($user_id, $service)
+    {
+        if (empty($user_id)) {
+            $user_id = $_SESSION['authUserID'] ?? 0;
+        }
+        $setting_label = "module_faxsms_{$service}_permission";
+        $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
+        $result = sqlQuery($query, [$user_id, $setting_label]);
+        return $result ? $result['setting_value'] : '1';
+    }
+
+    public static function usePrimaryAccount($user_id)
+    {
+        if (empty($user_id)) {
+            $user_id = $_SESSION['authUserID'] ?? 0;
+        }
+        $setting_label = "module_faxsms_use_primary";
+        $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
+        $result = sqlQuery($query, [$user_id, $setting_label]);
+        return $result ? $result['setting_value'] : '0';
+    }
+
+    public static function getPrimaryUser()
+    {
+        $setting_label = "module_faxsms_primary_user";
+        $query = "SELECT setting_user FROM user_settings WHERE setting_label = ? AND setting_value = '1'";
+        $result = sqlQuery($query, [$setting_label]);
+        return $result ? $result['setting_user'] : '0';
+    }
 }
