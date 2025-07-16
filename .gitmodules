@@ -1,6 +1,6 @@
 [submodule "ci/inferno/onc-certification-g10-test-kit"]
 	path = ci/inferno/onc-certification-g10-test-kit
-	url = https://github.com/opencoreemr/onc-certification-g10-test-kit
+	url = https://github.com/openemr/onc-certification-g10-test-kit
 [submodule "ci/inferno/inferno-files"]
 	path = ci/inferno/inferno-files
 	url = https://github.com/openemr/inferno-files.git

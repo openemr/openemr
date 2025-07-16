@@ -73,7 +73,7 @@ class BulkPatientExport311APITest extends TestCase
      * @throws GuzzleException
      * @throws Exception
      */
-    public function testBulkPatientExport()
+    public function testBulkPatientExport(): void
     {
         // for now this uses the admin user to authenticate
         // TODO: @adunsulag need to implement this using a test practitioner user so we can test the inferno single patient API from a regular provider

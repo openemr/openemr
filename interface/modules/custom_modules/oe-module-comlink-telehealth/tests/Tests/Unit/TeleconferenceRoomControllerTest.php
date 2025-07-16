@@ -63,7 +63,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         ];
     }
 
-    public function testInitalizeAppointmentForTelehealthWithPendingCheckinStatus()
+    public function testInitalizeAppointmentForTelehealthWithPendingCheckinStatus(): void
     {
         $apptService = $this->createMock(AppointmentService::class);
         $appointment = $this->getDefaultAppointment();
@@ -79,7 +79,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         $controller->initalizeAppointmentForTelehealth($appointment['pc_eid']);
     }
 
-    public function testInitalizeAppointmentForTelehealthWithValidCheckinStatus()
+    public function testInitalizeAppointmentForTelehealthWithValidCheckinStatus(): void
     {
         $encounterId = 50;
         $apptService = $this->createMock(AppointmentService::class);
@@ -112,7 +112,7 @@ class TeleconferenceRoomControllerTest extends TestCase
         $this->assertEquals($encounterId, $updatedAppointment['encounter'], 'Encounter value should match getEncounterForAppointment return');
     }
 
-    public function testInitalizeAppointmentForTelehealthWithAppointmentCreation()
+    public function testInitalizeAppointmentForTelehealthWithAppointmentCreation(): void
     {
         $encounterId = 50;
         $apptService = $this->createMock(AppointmentService::class);

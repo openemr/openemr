@@ -472,11 +472,14 @@ class Cache_Lite
     *
     * @param string $msg error message
     * @param int $code error code
+    * @throws PEAR_Error
+    * @return never
     * @access public
     */
     function raiseError($msg, $code)
     {
         include_once('PEAR.php');
+        /** @phpstan-ignore-next-line */
         PEAR::raiseError($msg, $code, $this->_pearErrorMode);
     }
 

@@ -1137,7 +1137,7 @@ class edih_x12_file
                 // so type and search values can be determined here.
                 if (strncmp($seg, 'ST' . $de, 3) == 0) {
                     $stseg = explode($de, $seg);
-                    $type = ($type) ? $type : (string)$stseg[1];
+                    $type = ($type) ? $type : $stseg[1];
                     //
                     $idval = ( strpos('|HN|277|HB|271', $type) ) ? 'TRN' . $de . '2' . $de . $clm01 : '';
                     $idval = ( strpos('|HR|276|HS|270', $type) ) ? 'TRN' . $de . '1' . $de . $clm01 : $idval;

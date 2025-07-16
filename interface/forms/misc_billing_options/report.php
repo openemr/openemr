@@ -18,7 +18,7 @@ use OpenEMR\Billing\MiscBillingOptions;
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function misc_billing_options_report($pid, $encounter, $cols, $id)
+function misc_billing_options_report($pid, $encounter, $cols, $id): void
 {
     $MBO = new OpenEMR\Billing\MiscBillingOptions();
     $count = 0;

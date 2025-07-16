@@ -27,7 +27,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-function write_code_info($codetype, $code, $selector, $pricelevel)
+function write_code_info($codetype, $code, $selector, $pricelevel): void
 {
     global $code_types;
 

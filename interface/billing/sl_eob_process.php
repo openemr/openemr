@@ -49,7 +49,7 @@ function parse_date($date)
     return '';
 }
 
-function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "false")
+function writeMessageLine($bgcolor, $class, $description, $nl2br_process = "false"): void
 {
     $dline =
     " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
@@ -75,7 +75,7 @@ function writeDetailLine(
     $description,
     $amount,
     $balance
-) {
+): void {
 
     global $last_ptname, $last_invnumber, $last_code;
     if ($ptname == $last_ptname) {
@@ -120,7 +120,7 @@ function writeDetailLine(
     // This writes detail lines that were already in SQL-Ledger for a given
     // charge item.
     //
-function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
+function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor): void
 {
     global $invoice_total;
     // $prev['total'] = 0.00; // to accumulate total charges
@@ -153,7 +153,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     //
 
 // TODO: Sort colors here for Bootstrap themes
-function era_callback_check(&$out)
+function era_callback_check(&$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
@@ -219,7 +219,7 @@ function era_callback_check(&$out)
         }
     }
 }
-function era_callback(&$out)
+function era_callback(&$out): void
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;

@@ -27,6 +27,7 @@
 function edih_round_cb(&$v, $k)
 {
     $v = round((int)$v, 2);
+    return $v;
 }
 /**
  * Create summary html string for an x12 835 claim payment
@@ -125,7 +126,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                 $clp01 = $clp02 = $clp03 = $clp04 = $clp05 = $clp06 = $clp07 = '';
                 $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = $tblid = '';
                 foreach ($sar as $k => $v) {
-                    switch ((int)$k) {
+                    switch ($k) {
                         case 0:
                             break;
                         case 1:
@@ -229,7 +230,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                     $cas_str = '';
                     // claim adjustment group;  expect CAS segment for each adjustment group
                     foreach ($sar as $k => $v) {
-                        switch ((int)$k) {
+                        switch ($k) {
                             case 0:
                                 break;
                             case 1:
@@ -433,7 +434,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $per01_ar = array('CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website');
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k => $v) {
-                    switch ((int)$k) {
+                    switch ($k) {
                         case 0:
                             break;
                         case 1:
@@ -625,7 +626,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 //
                 $moa_str = 'Claim Level Remarks: ';
                 foreach ($sar as $k => $v) {
-                    switch ((int)$k) {
+                    switch ($k) {
                         case 0:
                             break;
                         case 1:
@@ -1160,7 +1161,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $per01_ar = array('CX' => 'Claims Dept','BL' => 'Technical Dept','IC' => 'Website');
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k => $v) {
-                    switch ((int)$k) {
+                    switch ($k) {
                         case 0:
                             break;
                         case 1:

@@ -1592,9 +1592,9 @@ margin: 2px 0 2px 2px;">
  * via display_PMSFH('2') and show_PMSFH_panel($PMSFH) respectively,
  * to javascript to display changes to the user.
  * @param associative array $PMSFH if it exists
- * @return json encoded string
+ * @return void
  */
-function send_json_values($PMSFH = "")
+function send_json_values($PMSFH = ""): void
 {
     global $pid;
     global $form_id;
@@ -2634,7 +2634,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
  *  @param array $PMSFH
  *
  */
-function show_PMSFH_report($PMSFH)
+function show_PMSFH_report($PMSFH): void
 {
     global $pid;
     global $ISSUE_TYPES;
@@ -3172,9 +3172,9 @@ function canvas_select($zone, $encounter, $pid)
  *  @param string $visit_date Future functionality to limit result set. UTC DATE Formatted
  *  @param string $pid value = patient id
  *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
- *  @return true : when called directly outputs the ZONE specific HTML5 CANVAS widget
+ *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
+function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = ''): void
 {
     global $form_folder;
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid . "/";
@@ -3286,9 +3286,9 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
  * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
  * @param string $form_id is the form_eye_*.id where the data to carry forward is located
  * @param string $pid value = patient id
- * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone
+ * @return void : outputs the ZONE specific HTML for a prior record + widget for the desired zone
  */
-function copy_forward($zone, $copy_from, $copy_to, $pid)
+function copy_forward($zone, $copy_from, $copy_to, $pid): void
 {
     global $form_id;
 
@@ -3921,7 +3921,7 @@ function display($pid, $encounter, $category_value)
  *
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
+function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
 {
     global $form_folder;
     global $prov_data;
@@ -4067,7 +4067,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
  *  @param string $encounter is the current encounter number
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_left($pid, $encounter)
+function menu_overhaul_left($pid, $encounter): void
 {
     global $form_folder;
     global $pat_data;
@@ -4204,7 +4204,7 @@ function menu_overhaul_left($pid, $encounter)
  *  @return nothing, outputs directly to screen
  */
 
-function menu_overhaul_bottom($pid, $encounter)
+function menu_overhaul_bottom($pid, $encounter): void
 {
     ?><div class="navbar-custom" style="width:100%;height:25px;position:relative;border-top:1pt solid black;bottom:0px;z-index:1000000;">&nbsp;</div><?php
 }
@@ -4811,7 +4811,7 @@ function cmp($a, $b)
  *
  *  @return $ranges.  A mysqlArray(max_FIELD,max_date,min_date)
  */
-function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
 {
     global $PMSFH;
     global $form_folder;
@@ -6021,7 +6021,7 @@ function generate_specRx($W)
  * Function to display Refractive Data for an encounter
  * @param array $encounter_data, visit data for a given encounter
  */
-function display_refractive_data($encounter_data)
+function display_refractive_data($encounter_data): void
 {
     @extract($encounter_data);
     $count_rx = '0';

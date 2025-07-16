@@ -59,7 +59,7 @@ $grand_total_charges    = 0;
 $grand_total_copays     = 0;
 $grand_total_encounters = 0;
 
-function postError($msg)
+function postError($msg): void
 {
     global $errmsg;
     if ($errmsg) {
@@ -69,7 +69,7 @@ function postError($msg)
     $errmsg .= text($msg);
 }
 
-function endDoctor(&$docrow)
+function endDoctor(&$docrow): void
 {
     global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
     if (!$docrow['docname']) {

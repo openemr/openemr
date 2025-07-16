@@ -31,7 +31,7 @@ if ($_POST['ccrAction'] == 'generate') {
     }
 }
 
-function getHeaderData()
+function getHeaderData(): void
 {
 
 // Reserved for future use

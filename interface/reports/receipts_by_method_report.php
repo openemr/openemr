@@ -60,7 +60,7 @@ function thisLineItem(
     $rowadjamount,
     $payer_type = 0,
     $irnumber = ''
-) {
+): void {
 
     global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
 
@@ -116,7 +116,7 @@ function showLineItem(
     $rowadjamount,
     $payer_type = 0,
     $irnumber = ''
-) {
+): void {
 
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
     $grandpaytotal, $grandadjtotal, $showing_ppd;

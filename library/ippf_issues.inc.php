@@ -20,7 +20,7 @@ $CPR = 4; // cells per row
 
 $pprow = array();
 
-function end_cell()
+function end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -29,7 +29,7 @@ function end_cell()
     }
 }
 
-function end_row()
+function end_row(): void
 {
     global $cell_count, $CPR;
     end_cell();
@@ -43,7 +43,7 @@ function end_row()
     }
 }
 
-function end_group()
+function end_group(): void
 {
     global $last_group;
     if (strlen($last_group) > 0) {
@@ -53,13 +53,13 @@ function end_group()
     }
 }
 
-function issue_ippf_gcac_newtype()
+function issue_ippf_gcac_newtype(): void
 {
     echo "  var gcadisp = (aitypes[index] == 3) ? '' : 'none';\n";
     echo "  document.getElementById('ippf_gcac').style.display = gcadisp;\n";
 }
 
-function issue_ippf_gcac_save($issue)
+function issue_ippf_gcac_save($issue): void
 {
     $sets = "id = '" . add_escape_custom($issue) . "'";
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -75,7 +75,7 @@ function issue_ippf_gcac_save($issue)
     sqlStatement("REPLACE INTO lists_ippf_gcac SET $sets");
 }
 
-function issue_ippf_gcac_form($issue, $thispid)
+function issue_ippf_gcac_form($issue, $thispid): void
 {
     global $pprow, $item_count, $cell_count, $last_group;
 
@@ -199,13 +199,13 @@ function issue_ippf_gcac_form($issue, $thispid)
     echo "</div>\n";
 }
 
-function issue_ippf_con_newtype()
+function issue_ippf_con_newtype(): void
 {
     echo "  var condisp = (aitypes[index] == 4) ? '' : 'none';\n";
     echo "  document.getElementById('ippf_con').style.display = condisp;\n";
 }
 
-function issue_ippf_con_save($issue)
+function issue_ippf_con_save($issue): void
 {
     $sets = "id = '" . add_escape_custom($issue) . "'";
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -221,7 +221,7 @@ function issue_ippf_con_save($issue)
     sqlStatement("REPLACE INTO lists_ippf_con SET $sets");
 }
 
-function issue_ippf_con_form($issue, $thispid)
+function issue_ippf_con_form($issue, $thispid): void
 {
     global $pprow, $item_count, $cell_count, $last_group;
 

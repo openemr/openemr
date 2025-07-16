@@ -50,7 +50,7 @@ class EncounterServiceTest extends TestCase
     }
 
     #[Test]
-    public function testGetOne()
+    public function testGetOne(): void
     {
         $this->fixtureManager->installFixtures();
 
@@ -65,7 +65,7 @@ class EncounterServiceTest extends TestCase
     }
 
     #[Test]
-    public function testSearchWithBoundPatientUUID()
+    public function testSearchWithBoundPatientUUID(): void
     {
         $this->fixtureManager->installFixtures();
 

@@ -13,7 +13,7 @@
 
 // $plugins
 
-function smarty_core_load_plugins($params, &$smarty)
+function smarty_core_load_plugins($params, &$smarty): void
 {
 
     foreach ($params['plugins'] as $_plugin_info) {

@@ -14,6 +14,6 @@
 
 
 
-function start_X12_SFTP()
+function start_X12_SFTP(): void
 {
 }

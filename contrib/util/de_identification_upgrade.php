@@ -40,7 +40,7 @@ function tableExists_de($tblname)
     return true;
 }
 
-function upgradeFromSqlFile_de($filename)
+function upgradeFromSqlFile_de($filename): void
 {
     global $webserver_root;
 
@@ -173,9 +173,10 @@ if (!empty($_POST['form_submit'])) {
         echo "\n";
         echo "<p>" . text(getSqlLastError()) . " (#" . text(getSqlLastErrorNo()) . ")\n";
         exit();
-    }  $login = $sqlconf["login"];
+    }
+    $login = $sqlconf["login"];
     $loginhost = $sqlconf["host"];
-    generic_sql_select_db($sqlconf['dbase']) or die(text(getSqlLastError()));
+    generic_sql_select_db($sqlconf['dbase']);
     if (sqlStatement("GRANT FILE ON *.* TO '$login'@'$loginhost'") == false) {
         echo xlt("Error when granting file privilege to the OpenEMR user.");
         echo "\n";

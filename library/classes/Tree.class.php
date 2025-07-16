@@ -347,7 +347,7 @@ class Tree
     }
 }
 
-function array_merge_2(&$array, &$array_i)
+function array_merge_2(&$array, &$array_i): void
 {
        // For each element of the array (key => value):
     foreach ($array_i as $k => $v) {

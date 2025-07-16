@@ -32,7 +32,7 @@ class FhirVitalsServiceTest extends TestCase
         QueryUtils::sqlStatementThrowException($sql, $bindValues);
     }
 
-    public function testConstructor()
+    public function testConstructor(): void
     {
         // insert something into the db for a form_service and make sure things are populated
         $sql = "INSERT INTO form_vitals(id,external_id) "

@@ -47,7 +47,7 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 $Processed = 0;
-function era_callback(&$out)
+function era_callback(&$out): void
 {
     global $where, $eracount, $eraname;
     ++$eracount;

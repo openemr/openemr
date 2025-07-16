@@ -104,7 +104,7 @@ $res = sqlStatement(
     $binds
 );
 
-function generateEmptyTd($n)
+function generateEmptyTd($n): void
 {
     $temp = '';
     while ($n > 0) {
@@ -133,7 +133,7 @@ function mergeData($d1, $d2)
     $d1['expiration'] = array_merge($d1['expiration'], $d2['expiration']);
     return $d1;
 }
-function mapToTable($row)
+function mapToTable($row): void
 {
     global $auth_admin, $auth_lots;
     $today = date('Y-m-d');

@@ -195,7 +195,7 @@ function getListsReport($id)
     return $ret;
 }
 
-function printListData($pid, $list_type, $list_activity = "%")
+function printListData($pid, $list_type, $list_activity = "%"): void
 {
     $res = sqlStatement("select * from lists where pid=? and type=? and activity like ? order by date", array($pid, $list_type, $list_activity));
     while ($result = sqlFetchArray($res)) {
@@ -203,7 +203,7 @@ function printListData($pid, $list_type, $list_activity = "%")
     }
 }
 
-function printPatientNotes($pid)
+function printPatientNotes($pid): void
 {
   // exclude ALL deleted notes
     $res = sqlStatement("select * from pnotes where pid = ? and deleted != 1 and activity = 1 order by date", array($pid));
@@ -234,7 +234,7 @@ function lbt_current_value($frow, $formid)
 
 // Display a particular transaction.
 //
-function lbt_report($id, $formname)
+function lbt_report($id, $formname): void
 {
     $arr = array();
     $fres = sqlStatement("SELECT * FROM layout_options " .
@@ -258,7 +258,7 @@ function lbt_report($id, $formname)
 
 // Display all transactions for the specified patient.
 //
-function printPatientTransactions($pid)
+function printPatientTransactions($pid): void
 {
     $res = sqlStatement("SELECT * FROM transactions WHERE pid = ? ORDER BY date", array($pid));
     while ($row = sqlFetchArray($res)) {
@@ -272,7 +272,7 @@ function printPatientTransactions($pid)
     }
 }
 
-function printPatientBilling($pid)
+function printPatientBilling($pid): void
 {
     $res = sqlStatement("select * from billing where pid=? and activity = '1' order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
@@ -309,7 +309,7 @@ function getPatientBillingEncounter($pid, $encounter)
     return $billings;
 }
 
-function printPatientForms($pid, $cols)
+function printPatientForms($pid, $cols): void
 {
     //this function takes a $pid
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", array($pid));
@@ -481,7 +481,7 @@ function getRecInsuranceData($pid, $ins_type)
     return $retar;
 }
 
-function printRecData($data_array, $recres, $N)
+function printRecData($data_array, $recres, $N): void
 {
     //this function generates a formatted history of all changes to the data
     //it is a multi-level recursive function that exhaustively displays all of
@@ -507,7 +507,7 @@ function printRecData($data_array, $recres, $N)
     print "</tr></table>\n";
 }
 
-function printData($retar, $key, $sep, $date_format)
+function printData($retar, $key, $sep, $date_format): void
 {
     //$retar[$key]
     if (@array_key_exists($key, $retar)) {
@@ -520,7 +520,7 @@ function printData($retar, $key, $sep, $date_format)
     }
 }
 
-function printRecDataOne($data_array, $recres, $N)
+function printRecDataOne($data_array, $recres, $N): void
 {
     //this function is like printRecData except it will only print out those elements that
     //have values. when they do have values, this function will only print out the most recent
@@ -549,7 +549,7 @@ function printRecDataOne($data_array, $recres, $N)
     print "</tr></table>\n";
 }
 
-function printDataOne($retar, $key, $sep, $date_format)
+function printDataOne($retar, $key, $sep, $date_format): void
 {
     //this function supports the printRecDataOne function above
     if (@array_key_exists($key, $retar)) {

@@ -178,7 +178,7 @@ function getAge($dob, $asof = '')
 
 $cellcount = 0;
 
-function genStartRow($att)
+function genStartRow($att): void
 {
     global $cellcount, $form_output;
     if ($form_output != 3) {
@@ -188,7 +188,7 @@ function genStartRow($att)
     $cellcount = 0;
 }
 
-function genEndRow()
+function genEndRow(): void
 {
     global $form_output;
     if ($form_output == 3) {
@@ -211,7 +211,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right = false, $class = '', $colspan = 1)
+function genAnyCell($data, $right = false, $class = '', $colspan = 1): void
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -244,14 +244,14 @@ function genAnyCell($data, $right = false, $class = '', $colspan = 1)
     }
 }
 
-function genHeadCell($data, $right = false, $colspan = 1)
+function genHeadCell($data, $right = false, $colspan = 1): void
 {
     genAnyCell($data, $right, 'dehead', $colspan);
 }
 
 // Create an HTML table cell containing a numeric value, and track totals.
 //
-function genNumCell($num, $cnum)
+function genNumCell($num, $cnum): void
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
@@ -514,7 +514,7 @@ function getGcacClientStatus($row)
 
 // Helper function called after the reporting key is determined for a row.
 //
-function loadColumnData($key, $row, $quantity = 1)
+function loadColumnData($key, $row, $quantity = 1): void
 {
     global $areport, $arr_titles, $form_content, $from_date, $to_date, $arr_show;
 
@@ -609,7 +609,7 @@ function loadColumnData($key, $row, $quantity = 1)
 
 // This is called for each IPPF service code that is selected.
 //
-function process_ippf_code($row, $code, $quantity = 1)
+function process_ippf_code($row, $code, $quantity = 1): void
 {
     global $areport, $arr_titles, $form_by, $form_content;
 
@@ -811,7 +811,7 @@ function process_ippf_code($row, $code, $quantity = 1)
 
 // This is called for each MA service code that is selected.
 //
-function process_ma_code($row)
+function process_ma_code($row): void
 {
     global $form_by, $arr_content, $form_content;
 
@@ -865,7 +865,7 @@ function LBFgcac_title($form_id, $field_id, $list_id)
 
 // This is called for each encounter that is selected.
 //
-function process_visit($row)
+function process_visit($row): void
 {
     global $form_by;
 
@@ -952,7 +952,7 @@ function process_issue($row) {
 // This is called for each selected referral.
 // Row keys are the first specified MA code, if any.
 //
-function process_referral($row)
+function process_referral($row): void
 {
     global $form_by;
     $key = 'Unspecified';

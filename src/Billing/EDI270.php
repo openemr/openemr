@@ -752,7 +752,7 @@ class EDI270
         $id = (int)$id;
         $returnval = [];
 
-        if ((int)$id > 0) {
+        if ($id > 0) {
             $returnval = sqlQuery("select * from x12_partners WHERE id = ?", array($id));
             $X12info = $returnval;
         } else {

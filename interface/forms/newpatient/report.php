@@ -20,7 +20,7 @@ use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Common\Twig\TwigContainer;
 
-function newpatient_report($pid, $encounter, $cols, $id)
+function newpatient_report($pid, $encounter, $cols, $id): void
 {
     $res = sqlStatement("select e.*, f.name as facility_name from form_encounter as e join facility as f on f.id = e.facility_id where e.pid=? and e.id=?", array($pid,$id));
     $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);

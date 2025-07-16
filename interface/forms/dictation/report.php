@@ -13,7 +13,7 @@
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function dictation_report($pid, $encounter, $cols, $id)
+function dictation_report($pid, $encounter, $cols, $id): void
 {
     $cols = 1; // force always 1 column
     $count = 0;

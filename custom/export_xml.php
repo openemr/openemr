@@ -21,7 +21,7 @@
  $indent = 0;
 
  // Add a string to output with some basic sanitizing.
-function Add($tag, $text)
+function Add($tag, $text): void
 {
     global $out, $indent;
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", ($text ?? '')));
@@ -34,7 +34,7 @@ function Add($tag, $text)
     }
 }
 
-function OpenTag($tag)
+function OpenTag($tag): void
 {
     global $out, $indent;
     for ($i = 0; $i < $indent; ++$i) {
@@ -45,7 +45,7 @@ function OpenTag($tag)
     $out .= "<$tag>\n";
 }
 
-function CloseTag($tag)
+function CloseTag($tag): void
 {
     global $out, $indent;
     --$indent;
@@ -80,7 +80,7 @@ function LWDate($field)
 }
 
  // Add an insurance section.
-function addInsurance($row, $seq)
+function addInsurance($row, $seq): void
 {
     if ($row["name$seq"]) {
         OpenTag("insurance");

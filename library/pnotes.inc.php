@@ -473,7 +473,7 @@ function addMailboxPnote(
     );
 }
 
-function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", $datetime = "")
+function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", $datetime = ""): void
 {
     $row = getPnoteById($id);
     if (! $row) {
@@ -517,7 +517,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
     sqlStatement($sql, $bindingParams);
 }
 
-function updatePnoteMessageStatus($id, $message_status)
+function updatePnoteMessageStatus($id, $message_status): void
 {
     if ($message_status == "Done") {
         sqlStatement("update pnotes set message_status = ?, activity = '0', update_by = ?, update_date = NOW() where id = ?", array($message_status, $_SESSION['authUserID'], $id));
@@ -532,7 +532,7 @@ function updatePnoteMessageStatus($id, $message_status)
  * @param $patient_id the patient id to associate with the note
  * @author EMR Direct <http://www.emrdirect.com/>
  */
-function updatePnotePatient($id, $patient_id)
+function updatePnotePatient($id, $patient_id): void
 {
     $row = getPnoteById($id);
     if (! $row) {
@@ -553,7 +553,7 @@ function updatePnotePatient($id, $patient_id)
     sqlStatement("UPDATE pnotes SET pid = ?, body = ?, update_by = ?, update_date = NOW() WHERE id = ?", array($pid, $body, $_SESSION['authUserID'], $id));
 }
 
-function authorizePnote($id, $authorized = "1")
+function authorizePnote($id, $authorized = "1"): void
 {
     sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?", array ($authorized, $_SESSION['authUserID'], $id));
 }

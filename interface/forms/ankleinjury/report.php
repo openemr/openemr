@@ -15,7 +15,7 @@
 require_once(dirname(__FILE__) . '/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
-function ankleinjury_report($pid, $encounter, $cols, $id)
+function ankleinjury_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
     $data = formFetch("form_ankleinjury", $id);

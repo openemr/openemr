@@ -28,7 +28,7 @@ class ProcessingResultTest extends TestCase
     /**
      * @cover ::__construct
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $this->assertEquals(0, count($this->processingResult->getValidationMessages()));
         $this->assertEquals(0, count($this->processingResult->getInternalErrors()));
@@ -47,7 +47,7 @@ class ProcessingResultTest extends TestCase
      * @cover ::getData
      * @cover ::addData
      */
-    public function testGetSetOperations()
+    public function testGetSetOperations(): void
     {
         $this->assertEquals(0, count($this->processingResult->getValidationMessages()));
         $this->processingResult->setValidationMessages(array("foo" => "bar"));
@@ -65,7 +65,7 @@ class ProcessingResultTest extends TestCase
     /**
      * @cover ::isValid
      */
-    public function testIsValid()
+    public function testIsValid(): void
     {
         $this->assertTrue($this->processingResult->isValid());
 
@@ -76,7 +76,7 @@ class ProcessingResultTest extends TestCase
     /**
      * @cover ::hasErrors
      */
-    public function testHasErrors()
+    public function testHasErrors(): void
     {
         // no validation or processing errors
         $this->assertFalse($this->processingResult->hasErrors());
@@ -98,7 +98,7 @@ class ProcessingResultTest extends TestCase
     /**
      * @cover ::hasInternalErrors
      */
-    public function testHasInternalErrors()
+    public function testHasInternalErrors(): void
     {
         $this->assertFalse($this->processingResult->hasInternalErrors());
 

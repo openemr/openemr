@@ -301,7 +301,7 @@ $deceased = is_patient_deceased($pid);
 
 
 // Display image in 'widget style'
-function image_widget($doc_id, $doc_catg)
+function image_widget($doc_id, $doc_catg): void
 {
     global $pid, $web_root;
     $docobj = new Document($doc_id);

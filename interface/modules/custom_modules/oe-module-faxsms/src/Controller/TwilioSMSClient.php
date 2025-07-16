@@ -302,7 +302,7 @@ class TwilioSMSClient extends AppDispatch
      */
     function sendFax(): string|bool
     {
-        // TODO: Implement sendFax() method.
+        throw new \Exception("sendFax() method not implemented");
     }
 
     /**
@@ -318,6 +318,6 @@ class TwilioSMSClient extends AppDispatch
      */
     function sendEmail(): mixed
     {
-        // TODO: Implement sendEmail() method.
+        throw new \Exception("sendEmail() method not implemented");
     }
 }

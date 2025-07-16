@@ -45,7 +45,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * client entity (when they choose not to use a jwks_uri)
      * @throws \Exception
      */
-    public function testValidResponseForClientWithRegisteredJwks()
+    public function testValidResponseForClientWithRegisteredJwks(): void
     {
 
         $clientEntity = $this->getClientEntityForTest();
@@ -86,7 +86,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * to be retrieved from.
      * @throws \Exception
      */
-    public function testValidResponseForClientWithJwksUri()
+    public function testValidResponseForClientWithJwksUri(): void
     {
         $clientEntity = $this->getClientEntityForTest();
         $jwt = $this->createJWTForKeys($clientEntity->getIdentifier(), self::AUDIENCE);
@@ -137,7 +137,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * to be retrieved from.
      * @throws \Exception
      */
-    public function testInvalidResponseForClientWithJwksUri()
+    public function testInvalidResponseForClientWithJwksUri(): void
     {
         $clientEntity = $this->getClientEntityForTest();
         $jwt = $this->createJWTForKeys('not_an_issuer', self::AUDIENCE);
@@ -167,7 +167,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * Tests and makes sure the lobocci library for creating a Jwt works which is what we need in our other tests.
      * @throws \Exception
      */
-    public function testCreateJwtForKeys()
+    public function testCreateJwtForKeys(): void
     {
 
         $configuration = Configuration::forAsymmetricSigner(
@@ -202,7 +202,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $this->assertNotEmpty($jwt, "Token failed to create");
     }
 
-    private function getMockScopeRepository()
+    private function getMockScopeRepository(): \PHPUnit\Framework\MockObject\MockObject
     {
         $repo = $this->createMock(ScopeRepositoryInterface::class);
         $repo->method('finalizeScopes')
@@ -210,13 +210,13 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $repo;
     }
 
-    public function getMockJwtRepository()
+    public function getMockJwtRepository(): \PHPUnit\Framework\MockObject\MockObject
     {
         $repo = $this->createMock(JWTRepository::class);
         return $repo;
     }
 
-    private function getMockServerRequestForJWT($jwt)
+    private function getMockServerRequestForJWT($jwt): \PHPUnit\Framework\MockObject\MockObject
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getParsedBody')
@@ -237,7 +237,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $clientEntity;
     }
 
-    private function getMockAccessTokenRepository(AccessTokenEntity $accessToken)
+    private function getMockAccessTokenRepository(AccessTokenEntity $accessToken): \PHPUnit\Framework\MockObject\MockObject
     {
         $accessTokenRepo = $this->createMock(AccessTokenRepository::class);
         $accessTokenRepo->method('getNewToken')
@@ -245,7 +245,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $accessTokenRepo;
     }
 
-    private function getMockUserService()
+    private function getMockUserService(): \PHPUnit\Framework\MockObject\MockObject
     {
         $userService = $this->createMock(UserService::class);
         $userService->method('getSystemUser')
@@ -255,7 +255,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         return $userService;
     }
 
-    private function getMockClientRepository(ClientEntity $clientEntity)
+    private function getMockClientRepository(ClientEntity $clientEntity): \PHPUnit\Framework\MockObject\MockObject
     {
         $clientRepo = $this->createMock(ClientRepositoryInterface::class);
         $clientRepo->method('getClientEntity')

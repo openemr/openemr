@@ -570,7 +570,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
 // $frow is a row from the layout_options table.
 // $currvalue is the current value, if any, of the associated item.
 //
-function generate_form_field($frow, $currvalue)
+function generate_form_field($frow, $currvalue): void
 {
     global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
 
@@ -1681,7 +1681,7 @@ function generate_form_field($frow, $currvalue)
     }
 }
 
-function generate_print_field($frow, $currvalue, $value_allowed = true)
+function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
     global $rootdir, $date_init, $ISSUE_TYPES;
 
@@ -3255,7 +3255,7 @@ $last_group = '';
 $cell_count = 0;
 $item_count = 0;
 
-function disp_end_cell()
+function disp_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -3264,7 +3264,7 @@ function disp_end_cell()
     }
 }
 
-function disp_end_row()
+function disp_end_row(): void
 {
     global $cell_count, $CPR;
     disp_end_cell();
@@ -3278,7 +3278,7 @@ function disp_end_row()
     }
 }
 
-function disp_end_group()
+function disp_end_group(): void
 {
     global $last_group;
     if (strlen($last_group) > 0) {
@@ -3288,7 +3288,7 @@ function disp_end_group()
 
 // Bootstrapped versions of disp_end_* functions:
 
-function bs_disp_end_cell()
+function bs_disp_end_cell(): void
 {
     global $item_count;
     if ($item_count > 0) {
@@ -3297,7 +3297,7 @@ function bs_disp_end_cell()
     }
 }
 
-function bs_disp_end_row()
+function bs_disp_end_row(): void
 {
     global $cell_count, $CPR, $BS_COL_CLASS;
     bs_disp_end_cell();
@@ -3313,7 +3313,7 @@ function bs_disp_end_row()
     }
 }
 
-function bs_disp_end_group()
+function bs_disp_end_group(): void
 {
     global $last_group;
     if (strlen($last_group) > 0) {
@@ -3333,7 +3333,7 @@ function getPatientDescription($pid)
 }
 
 // Accumulate action conditions into a JSON expression for the browser side.
-function accumActionConditions(&$frow, &$condition_str)
+function accumActionConditions(&$frow, &$condition_str): void
 {
     $field_id = $frow['field_id'];
     $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions'], ['allowed_classes' => false]);
@@ -3495,7 +3495,7 @@ function isSkipped(&$frow, $currvalue)
 }
 
 // Load array of names of the given layout and its groups.
-function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = null)
+function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = null): void
 {
     if ($sel != '*' && strpos($sel, 'grp_group_id') === false) {
         $sel = "grp_group_id, $sel";
@@ -3518,7 +3518,7 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
     }
 }
 
-function display_layout_rows($formtype, $result1, $result2 = '')
+function display_layout_rows($formtype, $result1, $result2 = ''): void
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
@@ -3672,7 +3672,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
 
 // This generates the tabs for a form.
 //
-function display_layout_tabs($formtype, $result1, $result2 = '')
+function display_layout_tabs($formtype, $result1, $result2 = ''): void
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
@@ -3725,7 +3725,7 @@ function display_layout_tabs($formtype, $result1, $result2 = '')
 
 // This generates the tab contents of the display version of a form.
 //
-function display_layout_tabs_data($formtype, $result1, $result2 = '')
+function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
@@ -3945,7 +3945,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 
 // This generates the tab contents of the data entry version of a form.
 //
-function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
+function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): void
 {
     global $item_count, $cell_count, $last_group, $CPR, $condition_str, $BS_COL_CLASS;
 
@@ -4209,7 +4209,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                 }
                 // 'smallform' can be used to add arbitrary CSS classes. Note the leading space.
                 $group_fields['smallform'] = ' form-control-sm mb-1 mw-100';
-                echo generate_form_field($group_fields, $currvalue);
+                generate_form_field($group_fields, $currvalue);
                 if ($datacols == 0) {
                     // End nowrap
                     echo "</span> "; // space to allow wrap between spans
@@ -4391,7 +4391,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
 
 // Generate JavaScript validation logic for the required fields.
 //
-function generate_layout_validation($form_id)
+function generate_layout_validation($form_id): void
 {
     if ('HIS' == $form_id) {
         $form_id .= '%'; // TBD: DEM also?
@@ -4527,7 +4527,7 @@ function dropdown_facility(
     $onchange = '',
     $multiple = false,
     $class = ''
-) {
+): void {
     global $facilityService;
 
     $have_selected = false;
@@ -4636,7 +4636,7 @@ function dropdown_facility(
  *
  * @todo Convert to a modern layout
  */
-function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false)
+function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false): void
 {
     if ($fixedWidth) {
         echo "<div class='section-header'>";
@@ -4715,7 +4715,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 }
 
 //billing_facility fuction will give the dropdown list which contain billing faciliies.
-function billing_facility($name, $select)
+function billing_facility($name, $select): void
 {
     global $facilityService;
 

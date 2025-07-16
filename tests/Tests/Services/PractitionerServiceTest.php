@@ -44,7 +44,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertFailure()
+    public function testInsertFailure(): void
     {
         $this->practitionerFixture["fname"] = "A";
         $this->practitionerFixture["npi"] = "12345";
@@ -63,7 +63,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testInsertSuccess()
+    public function testInsertSuccess(): void
     {
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
         $this->assertTrue($actualResult->isValid());
@@ -82,7 +82,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateFailure()
+    public function testUpdateFailure(): void
     {
         $this->practitionerService->insert($this->practitionerFixture);
 
@@ -98,7 +98,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testUpdateSuccess()
+    public function testUpdateSuccess(): void
     {
         $actualResult = $this->practitionerService->insert($this->practitionerFixture);
         $this->assertTrue($actualResult->isValid());
@@ -122,7 +122,7 @@ class PractitionerServiceTest extends TestCase
     }
 
     #[Test]
-    public function testPractitionerQueries()
+    public function testPractitionerQueries(): void
     {
         $this->fixtureManager->installPractitionerFixtures();
 

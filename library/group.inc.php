@@ -114,7 +114,7 @@ function getGroupCounselorsNames($gid)
     return $result;
 }
 
-function unsetGroup()
+function unsetGroup(): void
 {
     SessionUtil::unsetSession('therapy_group');
 }

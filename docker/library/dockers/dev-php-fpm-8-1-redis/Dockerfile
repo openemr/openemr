@@ -9,11 +9,7 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM php:8.1-fpm-buster
-
-# set environment setting to let OpenEMR CI know that unable to test nodejs related stuff since this
-#  environment can not support a high enough nodejs version.
-ENV UNABLE_SUPPORT_OPENEMR_NODEJS = True
+FROM php:8.1-fpm
 
 # Update
 RUN apt-get update
@@ -24,7 +20,11 @@ RUN apt-get update
 #  and instead rely on php scripts, if possible.
 RUN apt-get install -y mariadb-client \
                        imagemagick \
-                       nodejs
+                       curl
+
+# Install correct version nodejs
+RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash -
+RUN apt-get install nodejs -y
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/

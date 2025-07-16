@@ -25,7 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_view_select($args)
+function smarty_function_pc_view_select($args): void
 {
     @define('_PC_FORM_TEMPLATE', true);
     $Date = postcalendar_getDate();

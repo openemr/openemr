@@ -53,7 +53,7 @@ function myCellText($s)
     return text($s);
 }
 
-function generate_order_summary($orderid)
+function generate_order_summary($orderid): void
 {
 
   // If requested, save checkbox selections as to which procedures are not sendable.

@@ -17,7 +17,7 @@ use OpenEMR\Services\QuestionnaireService;
 /**
  * @throws Exception
  */
-function questionnaire_assessments_report($pid, $encounter, $cols, $id)
+function questionnaire_assessments_report($pid, $encounter, $cols, $id): void
 {
     $form = formFetch("form_questionnaire_assessments", $id);
     if (!$form) {

@@ -246,7 +246,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
                 $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
-                    $data[$systemValue] = (string)$contactValue;
+                    $data[$systemValue] = $contactValue;
                 } else if ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";
                     $useMapping = ['mobile' => 'phonecell', 'home' => 'phone', 'work' => 'phonew1'];

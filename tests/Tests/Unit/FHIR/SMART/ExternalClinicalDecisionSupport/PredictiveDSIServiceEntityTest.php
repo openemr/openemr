@@ -22,7 +22,7 @@ class PredictiveDSIServiceEntityTest extends TestCase
         $this->entity = new PredictiveDSIServiceEntity($this->clientEntity);
     }
 
-    public function testPopulateServiceWithFhirQuestionnaire()
+    public function testPopulateServiceWithFhirQuestionnaire(): void
     {
         $twig = (new TwigContainer())->getTwig();
         $questionnaire = $twig->render("api/smart/dsi-service-questionnaire.json.twig", ['fhirUrl' => '/']);
