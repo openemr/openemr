@@ -51,6 +51,22 @@ jobs:
               with:
                   node-version: '20'
 
+            - name: Cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ~/.composer/cache/files
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-composer-
+
+            - name: Cache node modules
+              uses: actions/cache@v4
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
 
