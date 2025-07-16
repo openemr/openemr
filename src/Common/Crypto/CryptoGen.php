@@ -33,6 +33,7 @@ namespace OpenEMR\Common\Crypto;
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
+use OpenEMR\Common\Crypto\EncryptionStrategyEvent;
 use OpenEMR\Common\Crypto\CryptoGenStrategy;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -59,15 +60,40 @@ class CryptoGen
 
     private EncryptionStrategyInterface $encryptionStrategy;
 
+    /**
+     * Constructor - Initialize CryptoGen with encryption strategy.
+     * 
+     * Event-based selection takes precedence over constructor parameter.
+     * This allows modules to override the encryption strategy even when
+     * one is explicitly provided in the constructor.
+     * 
+     * Priority order:
+     * 1. Event-dispatched strategy (highest priority)
+     * 2. Constructor parameter
+     * 3. Default CryptoGenStrategy (fallback)
+     * 
+     * @param EncryptionStrategyInterface|null $encryptionStrategy Strategy to use if no event handler provides one
+     * @throws CryptoGenException If invalid encryption strategy is provided
+     */
     public function __construct(?EncryptionStrategyInterface $encryptionStrategy = null)
     {
-        $this->encryptionStrategy = $encryptionStrategy ?? new CryptoGenStrategy();
+        // Dispatch event to allow modules to provide custom encryption strategy
+        $event = new EncryptionStrategyEvent();
+        if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, EncryptionStrategyEvent::STRATEGY_SELECT);
+        }
+        if ($event->hasStrategy() && $event->getStrategy() instanceof EncryptionStrategyInterface) {
+            // If the event has a strategy, use it
+            $this->encryptionStrategy = $event->getStrategy();
+        } elseif (is_null($encryptionStrategy)) {
+            $this->encryptionStrategy = new CryptoGenStrategy();
+        } elseif ($encryptionStrategy instanceof EncryptionStrategyInterface) {
+            $this->encryptionStrategy = $encryptionStrategy;
+        } else {
+            throw new CryptoGenException("OpenEMR Error: Invalid encryption strategy provided.");
+        }
     }
 
-    public function setEncryptionStrategy(EncryptionStrategyInterface $strategy): void
-    {
-        $this->encryptionStrategy = $strategy;
-    }
 
     /**
      * Standard function to encrypt

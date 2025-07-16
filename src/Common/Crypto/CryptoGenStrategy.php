@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * CryptoGenStrategy - Default encryption strategy implementation.
+ * 
+ * Implements AES-256-CBC encryption with HMAC-SHA384 authentication.
+ * Supports both standard key-based encryption and custom password-based encryption.
+ * Uses PBKDF2 + HKDF for password-based key derivation.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Common\Crypto;
 
 use Exception;
@@ -7,17 +21,43 @@ use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
+/**
+ * Default encryption strategy using AES-256-CBC with HMAC-SHA384.
+ * 
+ * This strategy provides secure encryption with:
+ * - AES-256-CBC for data encryption
+ * - HMAC-SHA384 for authentication
+ * - PBKDF2 + HKDF for password-based key derivation
+ * - Support for multiple key versions for backward compatibility
+ */
 class CryptoGenStrategy implements EncryptionStrategyInterface
 {
     private string $encryptionVersion = "006";
     private string $keyVersion = "six";
     private array $keyCache = [];
 
+    /**
+     * Encrypt data using the current encryption version (see $encryptionVersion).
+     * 
+     * @param string|null $value The data to encrypt
+     * @param string|null $customPassword If provided, derives keys from password instead of standard keys
+     * @param string $keySource Source for standard keys ('drive' or 'database')
+     * @return string|null Encrypted data prefixed with $encryptionVersion, using $keyVersion for key selection, or null if input is null
+     */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
     {
         return $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
     }
 
+    /**
+     * Decrypt data encrypted with any supported encryption version.
+     * 
+     * @param string|null $value The encrypted data to decrypt
+     * @param string|null $customPassword If provided, derives keys from password instead of standard keys
+     * @param string $keySource Source for standard keys ('drive' or 'database')
+     * @param int|null $minimumVersion Minimum encryption version required (for security validation)
+     * @return false|string Decrypted data or false on failure
+     */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
         if (empty($value)) {
@@ -45,6 +85,12 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
         };
     }
 
+    /**
+     * Check if a value was encrypted using a supported encryption version.
+     * 
+     * @param string|null $value The value to check
+     * @return bool True if the value has a valid encryption version prefix (001-006)
+     */
     public function cryptCheckStandard(?string $value): bool
     {
         return !empty($value) && preg_match('/^00[1-6]/', $value);
@@ -252,6 +298,11 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
         );
     }
 
+    /**
+     * Validate that the OpenSSL extension is loaded.
+     * 
+     * @throws CryptoGenException If OpenSSL extension is not available
+     */
     private function validateOpenSSLExtension(): void
     {
         if (!extension_loaded('openssl')) {
@@ -259,6 +310,14 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
         }
     }
 
+    /**
+     * Derive encryption and HMAC keys from either stored keys or custom password.
+     * 
+     * @param string|null $customPassword If provided, uses PBKDF2+HKDF for key derivation
+     * @param string $keyNumber The key version to use (e.g., 'six', 'five')
+     * @param string $keySource Source for standard keys ('drive' or 'database')
+     * @return array [encryptionKey, hmacKey, salt] - salt is null for standard keys
+     */
     private function deriveKeys(?string $customPassword, string $keyNumber, string $keySource): array
     {
         if (empty($customPassword)) {
@@ -282,6 +341,13 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
         ];
     }
 
+    /**
+     * Validate that encryption keys are not empty.
+     * 
+     * @param string $secretKey The encryption key
+     * @param string $secretKeyHmac The HMAC key
+     * @throws CryptoGenException If either key is empty
+     */
     private function validateKeys(string $secretKey, string $secretKeyHmac): void
     {
         if (empty($secretKey) || empty($secretKeyHmac)) {
