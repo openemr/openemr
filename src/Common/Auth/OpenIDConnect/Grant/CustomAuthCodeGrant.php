@@ -66,7 +66,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                 $this->logger->errorLogCaller("Aud parameter did not match authorized server in non-launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
                 throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
             }
-        } else if (empty($audience) && empty($launch)) {
+        } elseif (empty($audience) && empty($launch)) {
             $this->logger->debug("Aud parameter not provided (and non-launch scenario), so not validating aud (audience)");
         }
 

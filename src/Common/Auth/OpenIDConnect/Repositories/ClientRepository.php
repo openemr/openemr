@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
