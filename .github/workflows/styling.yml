@@ -19,7 +19,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
+        php-version:
+        - '8.4'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -46,7 +47,7 @@ jobs:
     - name: Composer Install
       run: composer install --prefer-dist --no-progress
     - name: Check PHP Styling
-      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+      run: ./vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=github .
 
   css_styling:
     runs-on: ubuntu-24.04
@@ -54,7 +55,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        node-version: ['22']
+        node-version:
+        - '22'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -80,7 +82,7 @@ jobs:
     - name: NPM CI
       run: npm ci
     - name: Check CSS Styling
-      run: npm run stylelint
+      run: npm run stylelint -- --formatter github
 
   js_linting:
     runs-on: ubuntu-24.04
@@ -88,7 +90,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        node-version: ['22']
+        node-version:
+        - '22'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -114,4 +117,4 @@ jobs:
     - name: NPM CI
       run: npm ci
     - name: Check JS Linting
-      run: npm run lint:js
+      run: npm run lint:js -- --format github
