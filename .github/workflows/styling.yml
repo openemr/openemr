@@ -36,7 +36,7 @@ jobs:
       - name: Check PHP Styling
         run: |
           failTest=false
-          $HOME/.composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full . || failTest=true
+          $HOME/.composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=github . || failTest=true
           if $failTest; then
             exit 1
           fi
@@ -63,7 +63,7 @@ jobs:
       - name: Check CSS Styling
         run: |
           failTest=false
-          npm run stylelint || failTest=true
+          npm run stylelint -- --formatter github || failTest=true
           if $failTest; then
             exit 1
           fi
@@ -90,7 +90,7 @@ jobs:
       - name: Check JS Linting
         run: |
           failTest=false
-          npm run lint:js || failTest=true
+          npm run lint:js -- --format github || failTest=true
           if $failTest; then
             exit 1
           fi
