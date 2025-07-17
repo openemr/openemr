@@ -10,7 +10,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR <https://opencoreemr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,8 +23,11 @@ namespace OpenEMR\Common\Crypto;
  *
  * All encryption strategies must implement these methods to provide
  * encryption, decryption, and validation functionality.
+ *
+ * Strategies must also be serializable to allow storage in the database
+ * during installation so they remain accessible even if modules are removed.
  */
-interface EncryptionStrategyInterface
+interface EncryptionStrategyInterface extends \Serializable
 {
     /**
      * Encrypt data using the strategy's encryption method.

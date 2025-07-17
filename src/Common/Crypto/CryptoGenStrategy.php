@@ -10,7 +10,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2025 OpenCoreEMR <https://opencoreemr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,6 +35,13 @@ use OpenEMR\Common\Logging\SystemLogger;
  */
 class CryptoGenStrategy implements EncryptionStrategyInterface
 {
+    # This is the current encrypt/decrypt version
+    # (this will always be a three digit number that we will
+    # increment when updating the encrypt/decrypt methodology
+    # which allows being able to maintain backward compatibility
+    # to decrypt values from prior versions)
+    # Remember to update cryptCheckStandard() and decryptStandard()
+    # when incrementing this.
     private string $encryptionVersion = "006";
     private string $keyVersion = "six";
     private array $keyCache = [];
@@ -141,7 +150,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
         $hmacHash = hash_hmac('sha384', $iv . $processedValue, $sSecretKeyHmac, true);
 
-        if ($sValue != "" && ($processedValue == "" || $hmacHash == "")) {
+        if ($sValue !== "" && ($processedValue === false || $hmacHash === "")) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working (encrypted value is blank or hmac hash is blank).");
         }
 
@@ -498,5 +507,59 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
             OPENSSL_RAW_DATA,
             $iv
         );
+    }
+
+    /**
+     * Serialize the strategy for database storage.
+     *
+     * @return string Serialized strategy data
+     */
+    public function serialize(): string
+    {
+        return serialize([
+            'encryptionVersion' => $this->encryptionVersion,
+            'keyVersion' => $this->keyVersion
+        ]);
+    }
+
+    /**
+     * Unserialize the strategy from database storage.
+     *
+     * @param string $data Serialized strategy data
+     */
+    public function unserialize(string $data): void
+    {
+        $serializedData = unserialize($data);
+
+        $this->encryptionVersion = $serializedData['encryptionVersion'] ?? '006';
+        $this->keyVersion = $serializedData['keyVersion'] ?? 'six';
+        $this->keyCache = [];
+        $this->logger = new SystemLogger();
+    }
+
+    /**
+     * Modern PHP serialization method.
+     *
+     * @return array Data to serialize
+     */
+    public function __serialize(): array
+    {
+        return [
+            'encryptionVersion' => $this->encryptionVersion,
+            'keyVersion' => $this->keyVersion
+        ];
+    }
+
+    /**
+     * Modern PHP unserialization method.
+     *
+     * @param array $data Serialized data
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->encryptionVersion = $data['encryptionVersion'] ?? '006';
+        $this->keyVersion = $data['keyVersion'] ?? 'six';
+        $this->keyCache = [];
+        $this->logger = new SystemLogger();
     }
 }

@@ -1,64 +1,70 @@
 # OpenEMR Crypto Strategy System
 
-This directory contains OpenEMR's pluggable encryption strategy system, which allows for flexible encryption implementations while maintaining backward compatibility and data integrity.
+This directory contains OpenEMR's install-time encryption strategy selection system, which allows for flexible encryption implementations while maintaining data integrity and preventing runtime strategy changes.
 
 ## Overview
 
-The crypto strategy system is built around the [Strategy Pattern](https://refactoring.guru/design-patterns/strategy) and integrates with OpenEMR's event system to allow modules to provide custom encryption implementations.
+The crypto strategy system is built around the [Strategy Pattern](https://refactoring.guru/design-patterns/strategy) with **install-time selection** to ensure data accessibility and prevent configuration drift.
 
 ### Core Components
 
-- **`CryptoGen`** - Main encryption facade that delegates to strategies
-- **`EncryptionStrategyInterface`** - Contract that all strategies must implement
+- **`CryptoGen`** - Main encryption facade that loads strategy from database
+- **`EncryptionStrategyInterface`** - Contract that all strategies must implement (extends `Serializable`)
 - **`CryptoGenStrategy`** - Default AES-256-CBC + HMAC-SHA384 implementation
 - **`NullEncryptionStrategy`** - Identity function (no encryption)
-- **`EncryptionStrategyEvent`** - Event for strategy selection
+- **`EncryptionStrategySelector`** - Tool for strategy discovery and selection during installation
+- **`EncryptionStrategyRegistrationEvent`** - Event for modules to register available strategies
 - **`CryptoGenException`** - Exception for critical crypto errors
 
 ## How the Strategy System Works
 
-### Strategy Selection Priority
+### Install-Time Strategy Selection
 
-When `CryptoGen` is instantiated, strategy selection follows this priority order:
+The encryption strategy is selected **once during installation** and stored in the database. This ensures:
 
-1. **Event-dispatched strategy** (highest priority)
-2. Constructor parameter
-3. Default `CryptoGenStrategy` (fallback)
+1. **Data accessibility** - Strategy remains available even if modules are removed
+2. **Configuration immutability** - No runtime strategy changes that could cause data loss
+3. **Consistency** - All encryption uses the same strategy throughout the system
 
-This design allows modules to override encryption system-wide, even when code explicitly provides a strategy.
+### Strategy Loading Priority
+
+When `CryptoGen` is instantiated, it loads the strategy in this order:
+
+1. **Database-stored strategy** (from installation)
+2. Default `CryptoGenStrategy` (fallback if no strategy stored)
 
 ### Strategy Interface
 
-All encryption strategies must implement `EncryptionStrategyInterface`:
+All encryption strategies must implement `EncryptionStrategyInterface` and `Serializable`:
 
 ```php
-interface EncryptionStrategyInterface
+interface EncryptionStrategyInterface extends \Serializable
 {
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive');
-    
+
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string;
-    
+
     public function cryptCheckStandard(?string $value): bool;
 }
 ```
 
-## Event System Integration
+## Installation Integration
 
-The strategy system integrates with OpenEMR's Symfony event dispatcher to allow dynamic strategy selection.
+The strategy system integrates with OpenEMR's installation process to allow strategy selection during setup.
 
-### Event Flow
+### Installation Flow
 
-1. `CryptoGen` constructor dispatches `EncryptionStrategyEvent::STRATEGY_SELECT`
-2. Event listeners can call `$event->setStrategy($customStrategy)`
-3. First strategy set wins (unless event propagation is stopped)
-4. If no strategy is set via events, falls back to constructor parameter or default
+1. **Strategy Discovery** - `EncryptionStrategySelector` dispatches `EncryptionStrategyRegistrationEvent::STRATEGY_REGISTRATION`
+2. **Module Registration** - Modules can register available strategies via event listeners
+3. **Strategy Selection** - User/installer selects strategy (default: `cryptogen`)
+4. **Serialization** - Selected strategy is serialized and stored in `globals.encryption_strategy_serialized`
+5. **Runtime Loading** - `CryptoGen` loads and deserializes strategy from database
 
-### Event Priority
+### Available Installation Options
 
-Event-based selection **always takes precedence** over constructor parameters. This allows:
-- System administrators to enforce encryption policies
-- Compliance modules to override encryption methods
-- Testing frameworks to inject mock strategies
+- **Web Installation** - Strategy selection integrated into installation UI
+- **CLI Installation** - Use `encryption_strategy=strategyname` parameter
+- **Automated Installation** - Defaults to `cryptogen` strategy
 
 ## Creating a Custom Encryption Strategy
 
@@ -73,28 +79,53 @@ use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
 
 class CustomEncryptionStrategy implements EncryptionStrategyInterface
 {
+    private string $version = '001';
+
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
     {
         // Your encryption implementation
         if ($value === null) return null;
-        
+
         // Implement your encryption logic here
         return $encryptedValue;
     }
-    
+
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
         // Your decryption implementation
         if (empty($value)) return "";
-        
+
         // Implement your decryption logic here
         return $decryptedValue;
     }
-    
+
     public function cryptCheckStandard(?string $value): bool
     {
         // Check if value was encrypted with your strategy
         return !empty($value) && str_starts_with($value, 'YOUR_PREFIX');
+    }
+
+    // Required serialization methods
+    public function serialize(): string
+    {
+        return serialize(['version' => $this->version]);
+    }
+
+    public function unserialize(string $data): void
+    {
+        $unserialized = unserialize($data);
+        $this->version = $unserialized['version'] ?? '001';
+    }
+
+    // Modern PHP serialization methods
+    public function __serialize(): array
+    {
+        return ['version' => $this->version];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->version = $data['version'] ?? '001';
     }
 }
 ```
@@ -106,81 +137,90 @@ class CustomEncryptionStrategy implements EncryptionStrategyInterface
 3. **Error handling** - Return `false` from `decryptStandard` on failure
 4. **Unique identification** - `cryptCheckStandard` should identify your encrypted data
 5. **Security** - Use cryptographically secure methods (AES, authenticated encryption, etc.)
+6. **Serialization** - Implement both legacy and modern PHP serialization methods
 
-## Registering Your Strategy via Events
+## Registering Your Strategy for Installation
 
-### Method 1: Event Listener
+### Step 3: Register Strategy During Installation
 
 ```php
 <?php
 
-use OpenEMR\Common\Crypto\EncryptionStrategyEvent;
+use OpenEMR\Events\Crypto\EncryptionStrategyRegistrationEvent;
 use YourModule\Crypto\CustomEncryptionStrategy;
 
 // In your module's event listener registration
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
 $eventDispatcher->addListener(
-    EncryptionStrategyEvent::STRATEGY_SELECT,
-    function (EncryptionStrategyEvent $event) {
-        // Only set if no other strategy has been set
-        if (!$event->hasStrategy()) {
-            $event->setStrategy(new CustomEncryptionStrategy());
-        }
+    EncryptionStrategyRegistrationEvent::STRATEGY_REGISTRATION,
+    function (EncryptionStrategyRegistrationEvent $event) {
+        $event->registerStrategy(
+            'custom_encryption',                    // Unique strategy ID
+            'Custom Encryption Strategy',           // Human-readable name
+            'Advanced encryption for compliance',   // Description
+            new CustomEncryptionStrategy()          // Strategy instance
+        );
     }
 );
 ```
 
-### Method 2: High-Priority Listener (Override Others)
+### Installation Usage Examples
 
-```php
-$eventDispatcher->addListener(
-    EncryptionStrategyEvent::STRATEGY_SELECT,
-    function (EncryptionStrategyEvent $event) {
-        // Force your strategy (overrides others)
-        $event->setStrategy(new CustomEncryptionStrategy());
-        $event->stopPropagation(); // Prevent other listeners
-    },
-    100 // High priority
-);
+#### CLI Installation with Custom Strategy
+
+```bash
+# Install with custom strategy
+php -f InstallerAuto.php encryption_strategy=custom_encryption
+
+# Install with default strategy (cryptogen)
+php -f InstallerAuto.php
+
+# Install with no encryption
+php -f InstallerAuto.php encryption_strategy=null
 ```
 
-### Method 3: Conditional Strategy
+#### Web Installation
 
-```php
-$eventDispatcher->addListener(
-    EncryptionStrategyEvent::STRATEGY_SELECT,
-    function (EncryptionStrategyEvent $event) {
-        // Only use custom strategy under certain conditions
-        if ($GLOBALS['enable_custom_crypto'] ?? false) {
-            $event->setStrategy(new CustomEncryptionStrategy());
-        }
-    }
-);
-```
+During web installation, your custom strategy will appear in the encryption strategy selection dropdown with the name and description you provided.
 
-## ⚠️ CRITICAL WARNING: Changing Encryption Strategies
+### Strategy Validation
 
-### 🚨 CATASTROPHIC DATA LOSS RISK 🚨
+The system validates that:
+1. Strategy ID is unique
+2. Strategy implements `EncryptionStrategyInterface`
+3. Strategy implements `Serializable` interface
+4. Strategy can be serialized and deserialized correctly
 
-**Changing the global encryption strategy after encrypted data exists can cause PERMANENT DATA LOSS.**
+## ⚠️ CRITICAL WARNING: Install-Time Strategy Selection
 
-### Why Strategy Changes Are Dangerous
+### 🚨 STRATEGY CANNOT BE CHANGED AFTER INSTALLATION 🚨
 
-1. **Existing encrypted data becomes unreadable** - Data encrypted with Strategy A cannot be decrypted by Strategy B
+**The encryption strategy is selected once during installation and cannot be changed afterward without data loss.**
+
+### Why Strategy Changes Are Prevented
+
+1. **Data integrity** - Existing encrypted data cannot be decrypted with a different strategy
 2. **No automatic migration** - The system doesn't automatically re-encrypt existing data
 3. **Silent failures** - Applications may fail to decrypt critical patient data
 4. **Compliance violations** - Loss of encrypted PHI can violate HIPAA and other regulations
 
-**This is an extremely serious problem that requires careful planning and expert consultation. Do not attempt to change encryption strategies without fully understanding the implications and having a comprehensive data migration plan. Do not install modules that introduce a new encryption strategy into an install that already has data!**
+### Install-Time Protection
+
+The new system prevents strategy changes by:
+- **Serializing the strategy** during installation so it remains available even if modules are removed
+- **Loading from database** at runtime instead of allowing dynamic selection
+- **Immutable configuration** that cannot be changed through the UI or events
+
+**Choose your encryption strategy carefully during installation. This decision cannot be easily reversed.**
 
 ## Best Practices
 
 1. **Stick with the default** - `CryptoGenStrategy` is battle-tested and secure
 2. **Test extensively** - Any custom strategy must pass comprehensive security testing
 3. **Document everything** - Custom strategies need thorough documentation
-4. **Monitor for failures** - Log and alert on decryption failures
-5. **Plan for migration** - Have a strategy change plan before you need it
+4. **Test serialization** - Ensure strategies serialize/deserialize correctly
+5. **Plan for the long term** - Strategy choice is permanent once data is encrypted
 6. **Regular backups** - Encrypted data is only as safe as your backups
 
 ## Security Considerations
@@ -191,15 +231,23 @@ $eventDispatcher->addListener(
 - **Never hardcode keys** - Use proper key management
 - **Validate all inputs** - Prevent injection attacks
 - **Constant-time comparisons** - Prevent timing attacks
+- **Secure serialization** - Don't serialize sensitive data like keys
 
 ## Debugging
 
-To debug strategy selection:
+To debug strategy loading:
 
 ```php
-// Add logging to see which strategy is selected
+// Check what strategy is loaded from database
 $cryptoGen = new CryptoGen();
-error_log("Selected strategy: " . get_class($cryptoGen->getEncryptionStrategy()));
+error_log("Loaded strategy: " . get_class($cryptoGen->getEncryptionStrategy()));
+
+// Check available strategies during installation
+$selector = new EncryptionStrategySelector();
+$strategies = $selector->getAvailableStrategies();
+foreach ($strategies as $id => $strategy) {
+    error_log("Available strategy: {$id} - {$strategy['name']}");
+}
 ```
 
 ## Legacy Support

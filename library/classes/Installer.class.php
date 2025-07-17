@@ -53,6 +53,7 @@ class Installer
     public $error_message;
     public $debug_message;
     public $dbh;
+    public $encryption_strategy;
 
     public function __construct($cgi_variables)
     {
@@ -81,6 +82,7 @@ class Installer
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
         $this->development_translations = isset($cgi_variables['development_translations']) ? ($cgi_variables['development_translations']) : '';
         $this->new_theme                = isset($cgi_variables['new_theme']) ? ($cgi_variables['new_theme']) : '';
+        $this->encryption_strategy      = isset($cgi_variables['encryption_strategy']) ? ($cgi_variables['encryption_strategy']) : 'cryptogen';
         // Make this true for IPPF.
         $this->ippf_specific = false;
 
@@ -609,14 +611,42 @@ $config = 1; /////////////
                     $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
                     $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
-                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
+                        // Special handling for encryption strategy global
+                        if ($fldid === 'encryption_strategy_serialized') {
+                            $strategyValue = $this->serializeEncryptionStrategy($this->encryption_strategy);
+                            $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                               "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($strategyValue) . "' )");
+                        } else {
+                            $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                               "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
+                        }
                     }
                 }
             }
         }
 
         return true;
+    }
+
+    /**
+     * Serialize encryption strategy for database storage.
+     *
+     * @param string $strategyId Strategy identifier
+     * @return string Serialized strategy data
+     */
+    private function serializeEncryptionStrategy($strategyId)
+    {
+        // Include the crypto classes
+        require_once(dirname(__FILE__) . '/../../src/Common/Crypto/EncryptionStrategySelector.php');
+
+        try {
+            $selector = new \OpenEMR\Common\Crypto\EncryptionStrategySelector();
+            return $selector->serializeStrategy($strategyId);
+        } catch (Exception $e) {
+            // Fall back to default strategy if serialization fails
+            error_log("Installer: Failed to serialize encryption strategy '{$strategyId}': " . $e->getMessage());
+            return $selector->serializeStrategy('cryptogen');
+        }
     }
 
     public function install_gacl()

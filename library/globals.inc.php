@@ -2470,6 +2470,13 @@ $GLOBALS_METADATA = array(
             xl('Authentication SHA512 hash rounds number.')
         ),
 
+        'encryption_strategy_serialized' => array(
+            xl('Encryption Strategy') . '*',
+            'text',
+            '',
+            xl('Serialized encryption strategy selected during installation. This setting should not be modified after installation.')
+        ),
+
     ),
 
     // Notifications Tab
