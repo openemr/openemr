@@ -390,6 +390,92 @@ function zip_content($source, $destination, $content = '', $create = true)
                         }
 
                         echo "</div><br />";
+                    } elseif ($val == "future_appointments") {
+                        echo "<hr />";
+                        echo "<div class='text' id='future_appointments'>\n";
+                        print "<h4>" . xlt('Your Future Appointments') . ":</h4>";
+
+                        // Fetch future appointments for the patient
+                        $current_date = date('Y-m-d');
+                        // Set end date to a reasonable future date (e.g., 2 years from now)
+                        $end_date = date('Y-m-d', strtotime('+2 years'));
+                        // Try to fetch appointments without status filtering first
+                        $future_appointments = fetchAppointments($current_date, $end_date, $pid, null, null, null, null, null, null, false, 0, null);
+                        
+                        // If no appointments found, try without any status filtering
+                        if (empty($future_appointments)) {
+                            // Try with explicit status parameter to include all statuses
+                            $future_appointments = fetchAppointments($current_date, $end_date, $pid, null, null, '', null, null, null, false, 0, null);
+                        }
+                        
+                        // Debug: Check if appointments are being fetched
+                        if (empty($future_appointments)) {
+                            // Try a direct database query to see if appointments exist
+                            $debug_sql = "SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_eventDate >= ?";
+                            $debug_result = sqlQuery($debug_sql, array($pid, $current_date));
+                            $appointment_count = $debug_result['count'];
+                            
+                            // Also check for any appointments regardless of date
+                            $debug_sql2 = "SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_pid = ?";
+                            $debug_result2 = sqlQuery($debug_sql2, array($pid));
+                            $total_appointment_count = $debug_result2['count'];
+                            
+                            // If we have appointments but fetchAppointments didn't return them, try direct query
+                            if ($appointment_count > 0) {
+                                $direct_sql = "SELECT e.pc_eventDate, e.pc_startTime, e.pc_endTime, 
+                                              u.fname AS ufname, u.lname AS ulname 
+                                              FROM openemr_postcalendar_events AS e 
+                                              LEFT OUTER JOIN users AS u ON u.id = e.pc_aid 
+                                              WHERE e.pc_pid = ? AND e.pc_eventDate >= ? 
+                                              ORDER BY e.pc_eventDate, e.pc_startTime";
+                                $direct_result = sqlStatement($direct_sql, array($pid, $current_date));
+                                $future_appointments = array();
+                                while ($row = sqlFetchArray($direct_result)) {
+                                    $future_appointments[] = $row;
+                                }
+                            }
+                        }
+
+                        if (empty($future_appointments)) {
+                            echo "<div class='text' >";
+                            echo "<span>" . xlt('No future appointments scheduled') . "</span>";
+                            if (isset($appointment_count) && isset($total_appointment_count)) {
+                                echo "<br /><span style='color: #666; font-size: 0.9em;'>Debug: Found " . $appointment_count . " future appointments and " . $total_appointment_count . " total appointments for this patient.</span>";
+                            }
+                            echo "</div>";
+                            echo "<br />";
+                        } else {
+                            echo "<div class='table-responsive'><table class='table'>";
+                            echo "<tr><td class='font-weight-bold'>" . xlt('Date') . "</td><td class='font-weight-bold'>" . xlt('Time') . "</td><td class='font-weight-bold'>" . xlt('Provider') . "</td></tr>\n";
+                            
+                            foreach ($future_appointments as $appointment) {
+                                // Format the date and time
+                                $appointment_date = oeFormatShortDate($appointment['pc_eventDate']);
+                                $start_time = $appointment['pc_startTime'];
+                                $end_time = $appointment['pc_endTime'];
+                                
+                                // Format time for display
+                                $start_display = date('g:i A', strtotime($start_time));
+                                $end_display = date('g:i A', strtotime($end_time));
+                                $time_display = $start_display . " - " . $end_display;
+                                
+                                // Get provider name
+                                $provider_name = trim($appointment['ufname'] . ' ' . $appointment['ulname']);
+                                if (empty($provider_name)) {
+                                    $provider_name = xlt('Not assigned');
+                                }
+                                
+                                echo "<tr>\n";
+                                echo "<td class='text'>" . text($appointment_date) . "</td>\n";
+                                echo "<td class='text'>" . text($time_display) . "</td>\n";
+                                echo "<td class='text'>" . text($provider_name) . "</td>\n";
+                                echo "</tr>\n";
+                            }
+                            
+                            echo "</table></div>";
+                        }
+
+                        echo "</div><br />";
                     } elseif ($val == "demographics") {
                         echo "<hr />";
                         echo "<div class='text demographics' id='DEM'>\n";
