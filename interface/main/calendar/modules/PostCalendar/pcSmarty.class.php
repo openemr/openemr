@@ -49,7 +49,8 @@ class pcSmarty extends Smarty_Legacy
      */
     private $twigContainer;
 
-    public function getVar($varName) {
+    public function getVar($varName)
+    {
         return $this->_tpl_vars[$varName] ?? null;
     }
     public function assign($tpl_var, $value = null)
@@ -131,7 +132,7 @@ class pcSmarty extends Smarty_Legacy
         echo $this->fetch($resource_name, $cache_id, $compile_id, true);
     }
 
-    function __construct()
+    public function __construct()
     {
         $this->_tpl_vars = [];
 
