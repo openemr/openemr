@@ -2,7 +2,7 @@
 
 /**
  * CryptoGenStrategy - Default encryption strategy implementation.
- * 
+ *
  * Implements AES-256-CBC encryption with HMAC-SHA384 authentication.
  * Supports both standard key-based encryption and custom password-based encryption.
  * Uses PBKDF2 + HKDF for password-based key derivation.
@@ -20,10 +20,11 @@ use Exception;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 
 /**
  * Default encryption strategy using AES-256-CBC with HMAC-SHA384.
- * 
+ *
  * This strategy provides secure encryption with:
  * - AES-256-CBC for data encryption
  * - HMAC-SHA384 for authentication
@@ -35,10 +36,20 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
     private string $encryptionVersion = "006";
     private string $keyVersion = "six";
     private array $keyCache = [];
+    private SystemLogger $logger;
+
+    public function __construct()
+    {
+        $this->logger = new SystemLogger();
+        $this->logger->debug("CryptoGenStrategy: Initialized", [
+            'encryption_version' => $this->encryptionVersion,
+            'key_version' => $this->keyVersion
+        ]);
+    }
 
     /**
      * Encrypt data using the current encryption version (see $encryptionVersion).
-     * 
+     *
      * @param string|null $value The data to encrypt
      * @param string|null $customPassword If provided, derives keys from password instead of standard keys
      * @param string $keySource Source for standard keys ('drive' or 'database')
@@ -46,12 +57,22 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
     {
-        return $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
+        $this->logger->debug("CryptoGenStrategy: encryptStandard called", [
+            'has_custom_password' => !is_null($customPassword),
+            'key_source' => $keySource,
+            'key_version' => $this->keyVersion
+        ]);
+
+        $result = $this->encryptionVersion . $this->coreEncrypt($value, $customPassword, $keySource, $this->keyVersion);
+
+        $this->logger->debug("CryptoGenStrategy: encryptStandard completed");
+
+        return $result;
     }
 
     /**
      * Decrypt data encrypted with any supported encryption version.
-     * 
+     *
      * @param string|null $value The encrypted data to decrypt
      * @param string|null $customPassword If provided, derives keys from password instead of standard keys
      * @param string $keySource Source for standard keys ('drive' or 'database')
@@ -87,7 +108,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
     /**
      * Check if a value was encrypted using a supported encryption version.
-     * 
+     *
      * @param string|null $value The value to check
      * @return bool True if the value has a valid encryption version prefix (001-006)
      */
@@ -300,7 +321,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
     /**
      * Validate that the OpenSSL extension is loaded.
-     * 
+     *
      * @throws CryptoGenException If OpenSSL extension is not available
      */
     private function validateOpenSSLExtension(): void
@@ -312,7 +333,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
     /**
      * Derive encryption and HMAC keys from either stored keys or custom password.
-     * 
+     *
      * @param string|null $customPassword If provided, uses PBKDF2+HKDF for key derivation
      * @param string $keyNumber The key version to use (e.g., 'six', 'five')
      * @param string $keySource Source for standard keys ('drive' or 'database')
@@ -343,7 +364,7 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
 
     /**
      * Validate that encryption keys are not empty.
-     * 
+     *
      * @param string $secretKey The encryption key
      * @param string $secretKeyHmac The HMAC key
      * @throws CryptoGenException If either key is empty

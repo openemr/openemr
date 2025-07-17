@@ -2,7 +2,7 @@
 
 /**
  * EncryptionStrategyInterface - Interface for encryption strategy implementations.
- * 
+ *
  * This interface defines the contract that all encryption strategies must implement
  * to be compatible with the CryptoGen class. It supports both standard key-based
  * encryption and custom password-based encryption.
@@ -18,7 +18,7 @@ namespace OpenEMR\Common\Crypto;
 
 /**
  * Interface for encryption strategy implementations.
- * 
+ *
  * All encryption strategies must implement these methods to provide
  * encryption, decryption, and validation functionality.
  */
@@ -26,7 +26,7 @@ interface EncryptionStrategyInterface
 {
     /**
      * Encrypt data using the strategy's encryption method.
-     * 
+     *
      * @param string|null $value The data to encrypt
      * @param string|null $customPassword If provided, use password-based encryption
      * @param string $keySource Source for standard keys ('drive' or 'database')
@@ -36,7 +36,7 @@ interface EncryptionStrategyInterface
 
     /**
      * Decrypt data using the strategy's decryption method.
-     * 
+     *
      * @param string|null $value The encrypted data to decrypt
      * @param string|null $customPassword If provided, use password-based decryption
      * @param string $keySource Source for standard keys ('drive' or 'database')
@@ -47,7 +47,7 @@ interface EncryptionStrategyInterface
 
     /**
      * Check if a value was encrypted using this strategy.
-     * 
+     *
      * @param string|null $value The value to check
      * @return bool True if the value is compatible with this strategy
      */

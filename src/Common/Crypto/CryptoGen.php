@@ -36,6 +36,8 @@ use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
 use OpenEMR\Common\Crypto\EncryptionStrategyEvent;
 use OpenEMR\Common\Crypto\CryptoGenStrategy;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLogger;
 
 class CryptoGen
 {
@@ -59,36 +61,71 @@ class CryptoGen
     private array $keyCache = [];
 
     private EncryptionStrategyInterface $encryptionStrategy;
+    private SystemLogger $logger;
 
     /**
      * Constructor - Initialize CryptoGen with encryption strategy.
-     * 
+     *
      * Event-based selection takes precedence over constructor parameter.
      * This allows modules to override the encryption strategy even when
      * one is explicitly provided in the constructor.
-     * 
+     *
      * Priority order:
      * 1. Event-dispatched strategy (highest priority)
      * 2. Constructor parameter
      * 3. Default CryptoGenStrategy (fallback)
-     * 
+     *
      * @param EncryptionStrategyInterface|null $encryptionStrategy Strategy to use if no event handler provides one
      * @throws CryptoGenException If invalid encryption strategy is provided
      */
     public function __construct(?EncryptionStrategyInterface $encryptionStrategy = null)
     {
+        $this->logger = new SystemLogger();
+
+        $this->logger->debug("CryptoGen: Constructor called", [
+            'provided_strategy' => $encryptionStrategy ? get_class($encryptionStrategy) : 'null'
+        ]);
+
         // Dispatch event to allow modules to provide custom encryption strategy
         $event = new EncryptionStrategyEvent();
         if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
+            $this->logger->debug("CryptoGen: Dispatching strategy selection event");
             $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, EncryptionStrategyEvent::STRATEGY_SELECT);
+        } else {
+            $this->logger->debug("CryptoGen: No event dispatcher available, skipping event dispatch");
         }
         if ($event->hasStrategy() && $event->getStrategy() instanceof EncryptionStrategyInterface) {
-            // If the event has a strategy, use it
+            // Event-based strategy takes precedence
             $this->encryptionStrategy = $event->getStrategy();
-        } elseif (is_null($encryptionStrategy)) {
-            $this->encryptionStrategy = new CryptoGenStrategy();
+            $strategyClass = get_class($this->encryptionStrategy);
+            EventAuditLogger::instance()->newEvent(
+                EncryptionStrategyEvent::STRATEGY_SELECT,
+                $_SESSION['authUser'] ?? 'system',
+                $_SESSION['authProvider'] ?? 'system',
+                1,
+                "Event-dispatched encryption strategy selected: {$strategyClass}"
+            );
         } elseif ($encryptionStrategy instanceof EncryptionStrategyInterface) {
+            // Constructor parameter strategy
             $this->encryptionStrategy = $encryptionStrategy;
+            $strategyClass = get_class($this->encryptionStrategy);
+            EventAuditLogger::instance()->newEvent(
+                EncryptionStrategyEvent::STRATEGY_SELECT,
+                $_SESSION['authUser'] ?? 'system',
+                $_SESSION['authProvider'] ?? 'system',
+                1,
+                "Constructor-provided encryption strategy selected: {$strategyClass}"
+            );
+        } elseif (is_null($encryptionStrategy)) {
+            // Default fallback strategy
+            $this->encryptionStrategy = new CryptoGenStrategy();
+            EventAuditLogger::instance()->newEvent(
+                EncryptionStrategyEvent::STRATEGY_SELECT,
+                $_SESSION['authUser'] ?? 'system',
+                $_SESSION['authProvider'] ?? 'system',
+                1,
+                "Default encryption strategy selected: CryptoGenStrategy"
+            );
         } else {
             throw new CryptoGenException("OpenEMR Error: Invalid encryption strategy provided.");
         }
@@ -105,7 +142,19 @@ class CryptoGen
      */
     public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
     {
-        return $this->encryptionStrategy->encryptStandard($value, $customPassword, $keySource);
+        $this->logger->debug("CryptoGen: encryptStandard called", [
+            'has_custom_password' => !is_null($customPassword),
+            'key_source' => $keySource,
+            'strategy' => get_class($this->encryptionStrategy)
+        ]);
+
+        $result = $this->encryptionStrategy->encryptStandard($value, $customPassword, $keySource);
+
+        $this->logger->debug("CryptoGen: encryptStandard completed", [
+            'success' => $result !== null
+        ]);
+
+        return $result;
     }
 
     /**
@@ -120,7 +169,20 @@ class CryptoGen
      */
     public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
-        return $this->encryptionStrategy->decryptStandard($value, $customPassword, $keySource, $minimumVersion);
+        $this->logger->debug("CryptoGen: decryptStandard called", [
+            'has_custom_password' => !is_null($customPassword),
+            'key_source' => $keySource,
+            'minimum_version' => $minimumVersion,
+            'strategy' => get_class($this->encryptionStrategy)
+        ]);
+
+        $result = $this->encryptionStrategy->decryptStandard($value, $customPassword, $keySource, $minimumVersion);
+
+        $this->logger->debug("CryptoGen: decryptStandard completed", [
+            'success' => $result !== false
+        ]);
+
+        return $result;
     }
 
     /**
@@ -129,7 +191,17 @@ class CryptoGen
      */
     public function cryptCheckStandard(?string $value): bool
     {
-        return $this->encryptionStrategy->cryptCheckStandard($value);
+        $this->logger->debug("CryptoGen: cryptCheckStandard called", [
+            'strategy' => get_class($this->encryptionStrategy)
+        ]);
+
+        $result = $this->encryptionStrategy->cryptCheckStandard($value);
+
+        $this->logger->debug("CryptoGen: cryptCheckStandard completed", [
+            'result' => $result
+        ]);
+
+        return $result;
     }
 
     private function formatExceptionMessage($stackTrace): string
@@ -310,9 +382,16 @@ class CryptoGen
      */
     private function collectCryptoKey(string $version = "one", string $sub = "", string $keySource = 'drive'): string
     {
+        $this->logger->debug("CryptoGen: collectCryptoKey called", [
+            'version' => $version,
+            'sub' => $sub,
+            'key_source' => $keySource
+        ]);
+
         // Check if key is in the cache first (and return it if it is)
         $cacheLabel = $version . $sub . $keySource;
         if (!empty($this->keyCache[$cacheLabel])) {
+            $this->logger->debug("CryptoGen: Key found in cache", ['cache_label' => $cacheLabel]);
             return $this->keyCache[$cacheLabel];
         }
 
@@ -376,6 +455,9 @@ class CryptoGen
 
         // Store key in cache and then return the key
         $this->keyCache[$cacheLabel] = $key;
+        $this->logger->debug("CryptoGen: Key collected and cached", [
+            'cache_label' => $cacheLabel
+        ]);
         return $key;
     }
 }

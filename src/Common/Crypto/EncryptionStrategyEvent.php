@@ -6,16 +6,16 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event class for encryption strategy selection.
- * 
+ *
  * This event is dispatched when a CryptoGen instance is created,
  * allowing modules to register custom encryption strategies.
- * 
+ *
  * Example usage in a module event listener:
- * 
+ *
  * ```php
  * use OpenEMR\Common\Crypto\EncryptionStrategyEvent;
  * use YourModule\CustomEncryptionStrategy;
- * 
+ *
  * // In your module's event listener registration
  * $eventDispatcher->addListener(
  *     EncryptionStrategyEvent::STRATEGY_SELECT,
@@ -27,7 +27,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  *     }
  * );
  * ```
- * 
+ *
  * Your custom strategy must implement EncryptionStrategyInterface:
  * - encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
  * - decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
@@ -45,7 +45,7 @@ class EncryptionStrategyEvent extends Event
 
     /**
      * Set a custom encryption strategy.
-     * 
+     *
      * @param EncryptionStrategyInterface $strategy The encryption strategy to use
      */
     public function setStrategy(EncryptionStrategyInterface $strategy): void
@@ -55,7 +55,7 @@ class EncryptionStrategyEvent extends Event
 
     /**
      * Get the registered encryption strategy.
-     * 
+     *
      * @return EncryptionStrategyInterface|null The registered strategy or null if none set
      */
     public function getStrategy(): ?EncryptionStrategyInterface
@@ -65,7 +65,7 @@ class EncryptionStrategyEvent extends Event
 
     /**
      * Check if a strategy has been set.
-     * 
+     *
      * @return bool True if a strategy has been registered
      */
     public function hasStrategy(): bool
