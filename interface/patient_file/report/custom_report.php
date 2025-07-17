@@ -99,22 +99,7 @@ $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
 
-/**
- * Enhanced patient header for PDF reports
- * @param int $pid Patient ID
- * @return string HTML for patient header
- */
-function genEnhancedPatientHeader($pid) {
-    $patientData = getPatientData($pid);
-    $patientName = getPatientName($pid);
-    
-    return '
-    <div class="patient-header">
-        <div style="font-size: 14pt; font-weight: bold;">' . text($patientName) . '</div>
-        <div style="font-size: 11pt; color: #666666;">' . text($patientData['DOB_TS']) . ' | ' . xlt('Patient ID') . ': ' . text($pid) . '</div>
-    </div>
-    ';
-}
+
 
 function getContent()
 {
@@ -360,7 +345,6 @@ function zip_content($source, $destination, $content = '', $create = true)
                 // Setup Headers and Footers for mPDF only Download
                 if ($PDF_OUTPUT) {
                     echo genPatientHeaderFooter($pid);
-                    echo genEnhancedPatientHeader($pid);
                 }
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
