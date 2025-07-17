@@ -389,13 +389,28 @@ class Installer
     public function add_version_info()
     {
         include dirname(__FILE__) . "/../../version.php";
-        if ($this->execute_sql("UPDATE version SET v_major = '" . $this->escapeSql($v_major) . "', v_minor = '" . $this->escapeSql($v_minor) . "', v_patch = '" . $this->escapeSql($v_patch) . "', v_realpatch = '" . $this->escapeSql($v_realpatch) . "', v_tag = '" . $this->escapeSql($v_tag) . "', v_database = '" . $this->escapeSql($v_database) . "', v_acl = '" . $this->escapeSql($v_acl) . "'") == false) {
-            $this->error_message = "ERROR. Unable insert version information into database\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
-            return false;
-        }
+        $version_fields = array_map([$this, 'escapeSql'], [
+            'v_major' => $v_major,
+            'v_minor' => $v_minor,
+            'v_patch' => $v_patch,
+            'v_realpatch' => $v_realpatch,
+            'v_tag' => $v_tag,
+            'v_database' => $v_database,
+            'v_acl' => $v_acl
+        ]);
+        $update_parts = array_map(function($field) use ($version_fields) {
+            return sprintf("%s = '%s'", $field, $version_fields[$field]);
+        }, array_keys($version_fields));
 
-        return true;
+        // Join the parts with commas
+        $update_sql = "UPDATE version SET " . implode(", ", $update_parts);
+
+        if ($this->execute_sql($update_sql) !== false) {
+            return true;
+        }
+        $this->error_message = "ERROR. Unable insert version information into database\n" .
+        "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+        return false;
     }
 
     public function add_initial_user()
