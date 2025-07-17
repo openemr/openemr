@@ -47,8 +47,4 @@ jobs:
       run: mkdir -p /tmp/rector
 
     - name: Rector Dry Run
-      run: |
-        if ! vendor/bin/rector process --dry-run; then
-          echo "Rector failed!"
-          exit 1
-        fi
+      run: vendor/bin/rector process --dry-run

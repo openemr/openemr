@@ -29,10 +29,5 @@ jobs:
         run: php -v
 
       - name: Check PHP Syntax
-        run: |
-          failSyntax=false
-          if find . -type f -name "*.php" -exec php -l {} \; 2>&1 >/dev/null | grep "^"; then failSyntax=true; fi
-          if find . -type f -name "*.inc" -exec php -l {} \; 2>&1 >/dev/null | grep "^"; then failSyntax=true; fi
-          if $failSyntax; then
-            exit 1
-          fi
+        shell: bash
+        run: git ls-files -z '*.inc' '*.php' | xargs -0 php -l >/dev/null
