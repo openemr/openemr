@@ -67,14 +67,6 @@ class CryptoGen
         $this->logger->debug("CryptoGen: Loaded encryption strategy", [
             'strategy_class' => $strategyClass
         ]);
-
-        EventAuditLogger::instance()->newEvent(
-            'crypto.strategy.loaded',
-            $_SESSION['authUser'] ?? 'system',
-            $_SESSION['authProvider'] ?? 'system',
-            1,
-            "Encryption strategy loaded from database: {$strategyClass}"
-        );
     }
 
 
