@@ -58,11 +58,17 @@ if ($PDF_FAX) {
 
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
-    // special settings for patient custom report that are necessary for mpdf
-    $config_mpdf['margin_top'] *= 1.5;
-    $config_mpdf['margin_bottom'] *= 1.5;
+    // Enhanced PDF configuration for better patient reports
+    $config_mpdf['margin_top'] = 15;
+    $config_mpdf['margin_bottom'] = 15;
+    $config_mpdf['margin_left'] = 10;
+    $config_mpdf['margin_right'] = 10;
+    $config_mpdf['default_font_size'] = 11;
+    $config_mpdf['default_font'] = 'helvetica';
+    $config_mpdf['autoScriptToLang'] = true;
+    $config_mpdf['autoLangToFont'] = true;
     $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
-    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
+    $config_mpdf['margin_footer'] = $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -92,6 +98,23 @@ unset($_GET['printable']);
 $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
+
+/**
+ * Enhanced patient header for PDF reports
+ * @param int $pid Patient ID
+ * @return string HTML for patient header
+ */
+function genEnhancedPatientHeader($pid) {
+    $patientData = getPatientData($pid);
+    $patientName = getPatientName($pid);
+    
+    return '
+    <div class="patient-header">
+        <div style="font-size: 14pt; font-weight: bold;">' . text($patientName) . '</div>
+        <div style="font-size: 11pt; color: #666666;">' . text($patientData['DOB_TS']) . ' | ' . xlt('Patient ID') . ': ' . text($pid) . '</div>
+    </div>
+    ';
+}
 
 function getContent()
 {
@@ -204,6 +227,105 @@ function zip_content($source, $destination, $content = '', $create = true)
       }
     </style>
 
+    <?php if ($PDF_OUTPUT) { ?>
+    <style>
+        /* Enhanced PDF styling - clean and professional */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Headers */
+        h1, h2, h3, h4, h5 {
+            color: #000000;
+            margin-bottom: 8px;
+            page-break-after: avoid;
+            font-weight: bold;
+        }
+        
+        h1 { font-size: 16pt; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; }
+        h2 { font-size: 14pt; }
+        h3, h4 { font-size: 12pt; }
+        
+        /* Tables - clean and minimalist */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            page-break-inside: avoid;
+        }
+        
+        table th {
+            background-color: #f5f5f5;
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            font-weight: bold;
+        }
+        
+        table td {
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* Zebra striping for better readability */
+        table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        /* Patient header section */
+        .patient-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        /* Clinic name */
+        .clinic-name {
+            font-size: 12pt;
+            color: #555555;
+            margin-bottom: 15px;
+        }
+        
+        /* Signature line */
+        .signature-line {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #000000;
+        }
+        
+        /* Summary section */
+        .summary-section {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-left: 3px solid #888888;
+        }
+        
+        /* Utility classes */
+        .text-bold {
+            font-weight: bold;
+        }
+        
+        .text-muted {
+            color: #666666;
+        }
+        
+        /* Page break control */
+        .page-break {
+            page-break-after: always;
+        }
+        
+        .no-break {
+            page-break-inside: avoid;
+        }
+    </style>
+    <?php } ?>
+
     <?php if (!$PDF_OUTPUT) { ?>
         <?php // if the track_anything form exists, then include the styling
         if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
@@ -238,6 +360,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                 // Setup Headers and Footers for mPDF only Download
                 if ($PDF_OUTPUT) {
                     echo genPatientHeaderFooter($pid);
+                    echo genEnhancedPatientHeader($pid);
                 }
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
@@ -391,9 +514,9 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         echo "</div><br />";
                     } elseif ($val == "future_appointments") {
-                        echo "<hr />";
-                        echo "<div class='text' id='future_appointments'>\n";
-                        print "<h4>" . xlt('Your Future Appointments') . ":</h4>";
+                        echo "<hr style='border-top: 1px solid #e0e0e0; margin: 20px 0;' />";
+                        echo "<div class='text no-break' id='future_appointments'>\n";
+                        print "<h2 style='margin-bottom: 15px;'>" . xlt('Your Future Appointments') . "</h2>";
 
                         // Fetch future appointments for the patient
                         $current_date = date('Y-m-d');
@@ -437,18 +560,23 @@ function zip_content($source, $destination, $content = '', $create = true)
                         }
 
                         if (empty($future_appointments)) {
-                            echo "<div class='text' >";
-                            echo "<span>" . xlt('No future appointments scheduled') . "</span>";
+                            echo "<div style='text-align: center; padding: 30px 20px; background-color: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; margin: 20px 0;'>";
+                            echo "<span style='font-size: 1.1em; color: #333333;'>" . xlt('No future appointments scheduled') . "</span>";
                             if (isset($appointment_count) && isset($total_appointment_count)) {
-                                echo "<br /><span style='color: #666; font-size: 0.9em;'>Debug: Found " . $appointment_count . " future appointments and " . $total_appointment_count . " total appointments for this patient.</span>";
+                                echo "<br /><span style='color: #666666; font-size: 0.9em; margin-top: 10px; display: block;'>Debug: Found " . $appointment_count . " future appointments and " . $total_appointment_count . " total appointments for this patient.</span>";
                             }
                             echo "</div>";
-                            echo "<br />";
                         } else {
-                            echo "<div class='table-responsive'><table class='table'>";
-                            echo "<tr><td class='font-weight-bold'>" . xlt('Date') . "</td><td class='font-weight-bold'>" . xlt('Time') . "</td><td class='font-weight-bold'>" . xlt('Provider') . "</td></tr>\n";
+                            echo "<table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>";
+                            echo "<thead><tr style='background-color: #f5f5f5;'>";
+                            echo "<th style='padding: 10px; text-align: left; border: 1px solid #e0e0e0;'>" . xlt('Date') . "</th>";
+                            echo "<th style='padding: 10px; text-align: left; border: 1px solid #e0e0e0;'>" . xlt('Time') . "</th>";
+                            echo "<th style='padding: 10px; text-align: left; border: 1px solid #e0e0e0;'>" . xlt('Provider') . "</th>";
+                            echo "</tr></thead><tbody>";
                             
+                            $row_count = 0;
                             foreach ($future_appointments as $appointment) {
+                                $row_count++;
                                 // Format the date and time
                                 $appointment_date = oeFormatShortDate($appointment['pc_eventDate']);
                                 $start_time = $appointment['pc_startTime'];
@@ -465,14 +593,21 @@ function zip_content($source, $destination, $content = '', $create = true)
                                     $provider_name = xlt('Not assigned');
                                 }
                                 
-                                echo "<tr>\n";
-                                echo "<td class='text'>" . text($appointment_date) . "</td>\n";
-                                echo "<td class='text'>" . text($time_display) . "</td>\n";
-                                echo "<td class='text'>" . text($provider_name) . "</td>\n";
-                                echo "</tr>\n";
+                                echo "<tr>";
+                                echo "<td style='padding: 10px; border: 1px solid #e0e0e0;'>" . text($appointment_date) . "</td>";
+                                echo "<td style='padding: 10px; border: 1px solid #e0e0e0;'>" . text($time_display) . "</td>";
+                                echo "<td style='padding: 10px; border: 1px solid #e0e0e0;'>" . text($provider_name) . "</td>";
+                                echo "</tr>";
                             }
                             
-                            echo "</table></div>";
+                            echo "</tbody></table>";
+                            
+                            // Add summary section
+                            $appointment_count = count($future_appointments);
+                            echo "<div class='summary-section'>";
+                            echo "<div class='text-bold'>" . xlt('Summary') . ":</div>";
+                            echo "<div>" . xlt('Total future appointments') . ": <span class='text-bold'>" . $appointment_count . "</span></div>";
+                            echo "</div>";
                         }
 
                         echo "</div><br />";
