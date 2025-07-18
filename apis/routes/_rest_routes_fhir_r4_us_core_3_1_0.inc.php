@@ -113,7 +113,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirAllergyIntoleranceRestController($request))->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirAllergyIntoleranceRestController($request))->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -230,7 +230,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirAllergyIntoleranceRestController($request))->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirAllergyIntoleranceRestController($request))->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -314,7 +314,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirAppointmentRestController($request))->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "appt");
+            RestConfig::request_authorization_check($request, "patients", "appt");
             $return = (new FhirAppointmentRestController($request))->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -370,7 +370,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirAppointmentRestController($request))->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "appt");
+            RestConfig::request_authorization_check($request, "patients", "appt");
             $return = (new FhirAppointmentRestController($request))->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -463,7 +463,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirCarePlanRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCarePlanRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -547,7 +547,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirCarePlanRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCarePlanRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -640,7 +640,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirCareTeamRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCareTeamRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -757,7 +757,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirCareTeamRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCareTeamRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -841,7 +841,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirConditionRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirConditionRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -945,7 +945,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirConditionRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirConditionRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -1037,7 +1037,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirCoverageRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
@@ -1112,7 +1112,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirCoverageRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirCoverageRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -1195,7 +1195,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirDeviceRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDeviceRestController())->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
@@ -1281,7 +1281,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirDeviceRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDeviceRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -1392,7 +1392,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirDiagnosticReportRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDiagnosticReportRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -1499,7 +1499,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirDiagnosticReportRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDiagnosticReportRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -1610,7 +1610,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirDocumentReferenceRestController($request))->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDocumentReferenceRestController($request))->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -1682,7 +1682,7 @@ return array(
             $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
             // TODO: it seems like regular users should be able to grab authorship / provenance information
-            RestConfig::authorization_check("patients", "demo");
+            RestConfig::request_authorization_check($request, "patients", "demo");
             $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
@@ -1793,7 +1793,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirDocumentReferenceRestController($request))->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDocumentReferenceRestController($request))->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -1835,7 +1835,7 @@ return array(
         if ($request->isPatientRequest()) {
             $response = $docController->downloadDocument($documentId, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "users");
+            RestConfig::request_authorization_check($request, "admin", "users");
             $response = $docController->downloadDocument($documentId);
         }
 
@@ -1928,7 +1928,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirEncounterRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("encounters", "auth_a");
+            RestConfig::request_authorization_check($request, "encounters", "auth_a");
             $return = (new FhirEncounterRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -2043,7 +2043,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirEncounterRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirEncounterRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -2127,7 +2127,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirGoalRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirGoalRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -2212,7 +2212,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirGoalRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirGoalRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -2291,7 +2291,7 @@ return array(
      *  )
      */
     'GET /fhir/Group' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -2337,7 +2337,7 @@ return array(
      *  )
      */
     "GET /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirGroupRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -2378,7 +2378,7 @@ return array(
      *  )
      */
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $fhirExportService = new FhirOperationExportRestController($request);
         $exportParams = $request->getQueryParams();
         $exportParams['groupId'] = $groupId;
@@ -2478,7 +2478,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirImmunizationRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirImmunizationRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -2557,7 +2557,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirImmunizationRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirImmunizationRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -2764,7 +2764,7 @@ return array(
      *  )
      */
     "GET /fhir/Medication" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med");
         $return = (new FhirMedicationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
@@ -2839,7 +2839,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirMedicationRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -2941,7 +2941,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirMedicationRequestRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRequestRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -3036,7 +3036,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirMedicationRequestRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRequestRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -3147,7 +3147,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirObservationRestController())->getAll($getParams, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirObservationRestController())->getAll($getParams);
         }
         RestConfig::apiLog($return);
@@ -3271,7 +3271,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirObservationRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirObservationRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -3414,7 +3414,7 @@ return array(
      */
     "GET /fhir/Organization" => function (HttpRestRequest $request) {
         if (!$request->isPatientRequest()) {
-            RestConfig::authorization_check("admin", "users");
+            RestConfig::request_authorization_check($request, "admin", "users");
         }
         $return = (new FhirOrganizationRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
@@ -3513,7 +3513,7 @@ return array(
     "GET /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         $patientUUID = null;
         if (!$request->isPatientRequest()) {
-            RestConfig::authorization_check("admin", "users");
+            RestConfig::request_authorization_check($request, "admin", "users");
         } else {
             $patientUUID = $request->getPatientUUIDString();
         }
@@ -3656,7 +3656,7 @@ return array(
      *  )
      */
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
+        RestConfig::request_authorization_check($request, "admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirOrganizationRestController())->post($data);
         RestConfig::apiLog($return, $data);
@@ -3758,7 +3758,7 @@ return array(
      *  )
      */
     "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
+        RestConfig::request_authorization_check($request, "admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirOrganizationRestController())->patch($uuid, $data);
         RestConfig::apiLog($return, $data);
@@ -3956,7 +3956,7 @@ return array(
      *  )
      */
     "POST /fhir/Patient" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPatientRestController())->post($data);
         RestConfig::apiLog($return, $data);
@@ -4087,7 +4087,7 @@ return array(
      *  )
      */
     "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPatientRestController())->put($uuid, $data);
         RestConfig::apiLog($return, $data);
@@ -4285,7 +4285,7 @@ return array(
             $params['_id'] = $request->getPatientUUIDString();
             $return = (new FhirPatientRestController())->getAll($params, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "demo");
+            RestConfig::request_authorization_check($request, "patients", "demo");
             $return = (new FhirPatientRestController())->getAll($params);
         }
         RestConfig::apiLog($return);
@@ -4314,7 +4314,7 @@ return array(
      */
     // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
     'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
@@ -4474,7 +4474,7 @@ return array(
             }
             $uuid = $request->getPatientUUIDString();
         } else {
-            RestConfig::authorization_check("patients", "demo");
+            RestConfig::request_authorization_check($request, "patients", "demo");
         }
         $return = (new FhirPatientRestController())->getOne($uuid);
         RestConfig::apiLog($return);
@@ -4643,7 +4643,7 @@ return array(
      *  )
      */
     "GET /fhir/Person" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
@@ -4757,7 +4757,7 @@ return array(
             $return = (new FhirPersonRestController())->getOne($uuid);
         } elseif (!$request->isPatientRequest()) {
             // not a patient ,make sure we have access to the users ACL
-            RestConfig::authorization_check("admin", "users");
+            RestConfig::request_authorization_check($request, "admin", "users");
             $return = (new FhirPersonRestController())->getOne($uuid);
         } else {
             // if we are a patient bound request we need to make sure we are only bound to the patient
@@ -4937,7 +4937,7 @@ return array(
         // should we allow just open api access to admin information?  Should we restrict particular pieces
         // of data in the practitioner side (phone number, address information) based on a permission set?
         if (!$request->isPatientRequest()) {
-            RestConfig::authorization_check("admin", "users");
+            RestConfig::request_authorization_check($request, "admin", "users");
         }
         $return = (new FhirPractitionerRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
@@ -5022,7 +5022,7 @@ return array(
         // should we allow just open api access to admin information?  Should we restrict particular pieces
         // of data in the practitioner side (phone number, address information) based on a permission set?
         if (!$request->isPatientRequest()) {
-            RestConfig::authorization_check("admin", "users");
+            RestConfig::request_authorization_check($request, "admin", "users");
         }
         $return = (new FhirPractitionerRestController())->getOne($uuid);
         RestConfig::apiLog($return);
@@ -5126,7 +5126,7 @@ return array(
      *  )
      */
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPractitionerRestController())->post($data);
         RestConfig::apiLog($return, $data);
@@ -5210,7 +5210,7 @@ return array(
      *  )
      */
     "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPractitionerRestController())->patch($uuid, $data);
         RestConfig::apiLog($return, $data);
@@ -5298,7 +5298,7 @@ return array(
      *  )
      */
     "GET /fhir/PractitionerRole" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
@@ -5378,7 +5378,7 @@ return array(
      *  )
      */
     "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
@@ -5469,7 +5469,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirProcedureRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirProcedureRestController())->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
@@ -5537,7 +5537,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirProcedureRestController())->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("patients", "med");
+            RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirProcedureRestController())->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -5643,7 +5643,7 @@ return array(
             // only allow access to data of binded patient
             $return = (new FhirProvenanceRestController($request))->getOne($uuid, $request->getPatientUUIDString());
         } else {
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirProvenanceRestController($request))->getOne($uuid);
         }
         RestConfig::apiLog($return);
@@ -5711,7 +5711,7 @@ return array(
             $return = (new FhirProvenanceRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
         } else {
             // TODO: it seems like regular users should be able to grab authorship / provenance information
-            RestConfig::authorization_check("admin", "super");
+            RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirProvenanceRestController($request))->getAll($request->getQueryParams());
         }
         RestConfig::apiLog($return);
@@ -5905,7 +5905,7 @@ return array(
      *  )
      */
     "GET /fhir/ValueSet" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
+        RestConfig::request_authorization_check($request, "admin", "super");
         $return = (new FhirValueSetRestController())->getAll($request->getQueryParams());
         RestConfig::apiLog($return);
         return $return;
@@ -5995,7 +5995,7 @@ return array(
      *  )
      */
     "GET /fhir/ValueSet/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
+        RestConfig::request_authorization_check($request, "admin", "super");
         $return = (new FhirValueSetRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
@@ -6140,7 +6140,7 @@ return array(
      *  )
      */
     'GET /fhir/$export' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
@@ -6177,7 +6177,7 @@ return array(
      *  )
      */
     'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $jobUuidString = $request->getQueryParam('job');
         // if we were truly async we would return 202 here to say we are in progress with a JSON response
         // since OpenEMR data is so small we just return the JSON from the database
@@ -6208,7 +6208,7 @@ return array(
      *  )
      */
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users");
         $job = $request->getQueryParam('job');
         $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processDeleteExportForJob($job);

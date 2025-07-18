@@ -299,6 +299,11 @@ class RestConfig
         return null;
     }
 
+    public static function request_authorization_check(HttpRestRequest $request, $section, $value, $aclPermission = '')
+    {
+        return self::authorization_check($section, $value, $request->getSession()->get("authUser"), $aclPermission);
+    }
+
     public static function authorization_check($section, $value, $user = '', $aclPermission = ''): void
     {
         $result = AclMain::aclCheckCore($section, $value, $user, $aclPermission);

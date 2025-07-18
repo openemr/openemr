@@ -70,10 +70,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         }
         // only if this is an oauth2 request are we going to process it.
         if (!$event->hasResponse() && $this->shouldProcessRequest($event->getRequest())) {
-            $globals = $event->getKernel()->getGlobalsBag();
-            $dispatcher = $event->getKernel()->getEventDispatcher();
-            $globals = $event->getKernel() instanceof OEHttpKernel ? $event->getKernel()->getGlobalsBag() : new OEGlobalsBag();
-            $response = $this->authorizeRequest($event->getRequest(), $globals, $dispatcher);
+            $response = $this->authorizeRequest($event->getRequest(), $event->getKernel());
             $event->setResponse($response);
         }
         return $event;
@@ -106,6 +103,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 
         // set up csrf
         //  used to prevent csrf in the 2 different types of submissions by oauth2/provider/login.php
+        $this->logger->error("session is ", $session->all());
         if (empty($session->get('csrf_private_key', null))) {
             CsrfUtils::setupCsrfKey($session);
         }

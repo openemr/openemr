@@ -57,6 +57,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -209,7 +210,13 @@ class AuthorizationController
     private function getTwig(): Environment
     {
         if (!isset($this->twig)) {
-            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $this->kernel);
+            // TODO: @adunsulag look at refactoring this.  I don't like how this kernel has ended up and is incompatible
+            // with our current kernel.
+            $oeKernel = $this->globalsBag->get("kernel");
+            if (!$oeKernel instanceof Kernel) {
+                throw new RuntimeException("OpenEMR Error: Unable to get OpenEMR Kernel from globals bag");
+            }
+            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $oeKernel);
             $this->twig = $twigContainer->getTwig();
         }
         return $this->twig;
@@ -418,8 +425,12 @@ class AuthorizationController
         if (empty($requestScopes)) {
             return;
         }
+        $this->logger->debug(
+            "AuthorizationController->validateScopesAgainstServerApprovedScopes() - Validating scopes",
+            ['scopeString' => $scopeString]
+        );
 
-        $scopeRepo = new ScopeRepository($request, $this->session);
+        $scopeRepo = $this->getScopeRepository($request, $this->session);
         $scopeRepo->setRequestScopes($scopeString);
         foreach ($requestScopes as $scope) {
             $validScope = $scopeRepo->getScopeEntityByIdentifier($scope);
@@ -564,7 +575,7 @@ class AuthorizationController
         $logger->debug("AuthorizationController->oauthAuthorizationFlow() request query params ", ["queryParams" => $request->getQueryParams()]);
 
         $this->grantType = 'authorization_code';
-        $server = $this->getAuthorizationServer($httpRequest);
+        $server = $this->getAuthorizationServer($this->getScopeRepository($httpRequest, $this->session));
         try {
             // Validate the HTTP request and return an AuthorizationRequest object.
             $logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
@@ -621,10 +632,9 @@ class AuthorizationController
      * @return AuthorizationServer
      * @throws Exception
      */
-    public function getAuthorizationServer($includeAuthGrantRefreshToken = true): AuthorizationServer
+    public function getAuthorizationServer(ScopeRepository $scopeRepository, $includeAuthGrantRefreshToken = true): AuthorizationServer
     {
         $protectedClaims = ['profile', 'email', 'address', 'phone'];
-        $scopeRepository = new ScopeRepository();
         $claims = $scopeRepository->getSupportedClaims();
         $customClaim = [];
         foreach ($claims as $claim) {
@@ -655,7 +665,7 @@ class AuthorizationController
         $authServer = new AuthorizationServer(
             $this->getClientRepository(),
             new AccessTokenRepository(),
-            new ScopeRepository(),
+            $scopeRepository,
             new CryptKey($this->privateKey, $this->passphrase),
             $this->oaEncryptionKey,
             $responseType
@@ -944,12 +954,7 @@ class AuthorizationController
         $oauthLogin = true;
         $redirect = $this->authBaseUrl . "/device/code";
         $session = $request->getSession();
-        var_dump($session->get('scopes', ''));
-        die();
-
         $scopeString = $session->get('scopes', '');
-        var_dump($scopeString);
-        die();
         // check for offline_access
 
         $scopesList = explode(' ', $scopeString);
@@ -1131,7 +1136,7 @@ class AuthorizationController
         try {
             $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $_POST['scope']);
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
-            $server = $this->getAuthorizationServer($include_refresh_token);
+            $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session), $include_refresh_token);
             $user = new UserEntity();
             $user->setIdentifier($this->session->set('user_id'));
             $authRequest->setUser($user);
@@ -1285,7 +1290,7 @@ class AuthorizationController
             $leagueRequest = $this->createServerRequest();
         }
         // Finally time to init the server.
-        $server = $this->getAuthorizationServer();
+        $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session));
         try {
             if (($this->grantType === 'authorization_code') && empty($this->session->get('csrf'))) {
                 // the saved session was not populated as expected
@@ -1686,7 +1691,7 @@ class AuthorizationController
         $scopesById = array_combine($scopes, $scopes);
         $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $scopesById);
         $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
-        $server = $this->getAuthorizationServer($include_refresh_token);
+        $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session), $include_refresh_token);
 
         // make sure we get our serialized session data
         $this->serializeUserSession($authRequest, $request);

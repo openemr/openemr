@@ -18,6 +18,7 @@ use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\UuidUserAccount;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
@@ -82,11 +83,11 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     /**
      * ScopeRepository constructor.
-     * @param $restConfig \RestConfig normally we would typesafe this, but RestConfig isn't in the autoloader so we leave it out so we can unit test this class better
+     * @param HttpRestRequest|null $request
+     * @param SessionInterface|null $session
      */
     public function __construct(?HttpRestRequest $request = null, ?SessionInterface $session = null)
     {
-        $this->logger = new SystemLogger();
         if (!empty($request)) {
             $this->requestScopes = $request->get('scope', '');
         } else {
@@ -179,17 +180,17 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
         if (empty($this->validationScopes)) {
-            $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
+            $this->getLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
         }
 
         if (array_key_exists($identifier, $this->validationScopes) === false && stripos($identifier, 'site:') === false) {
-            $this->logger->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
+            $this->getLogger()->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
                 "scope" => $identifier
-                , 'validationScopes' => $this->validationScopes]);
+                , 'validationScopes' => array_keys($this->validationScopes)]);
             return null;
         }
-        $this->logger->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
+        $this->getLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
 
         $scope = new ScopeEntity();
         $scope->setIdentifier($identifier);
@@ -219,7 +220,7 @@ class ScopeRepository implements ScopeRepositoryInterface
                 }
             }
         } else {
-            $this->logger->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
+            $this->getLogger()->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
         }
 
         // If a nonce is passed in, add a nonce scope for id token nonce claim
@@ -235,7 +236,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $finalizedScopeNames[] = $siteScope->getIdentifier();
         $finalizedScopes[] = $siteScope;
 
-            $this->logger->debug(
+            $this->getLogger()->debug(
                 "ScopeRepository->finalizeScopes() scopes finalized ",
                 ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
                 ,
@@ -261,7 +262,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     public function setRequestScopes($scopes)
     {
         if (!is_string($scopes)) {
-            (new SystemLogger())->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
+            $this->getLogger()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
             throw new \InvalidArgumentException("Invalid scope parameter set");
         }
 
@@ -758,7 +759,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getCurrentSmartScopes(): array
     {
-        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
+        $this->getLogger()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
 
         $scopesSupported = $this->fhirScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
@@ -767,7 +768,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         // we need to make sure the 'site:' and any other server context vars are permitted
         $serverScopes = $this->getServerScopes();
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopes_dict));
-        (new SystemLogger())->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
+        $this->getLogger()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         $scopesEvent = new RestApiScopeEvent();
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
@@ -785,7 +786,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function getCurrentStandardScopes(): array
     {
-        (new SystemLogger())->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
+        $this->getLogger()->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         $scopesSupported = $this->apiScopes();
         asort($scopesSupported);
@@ -841,7 +842,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $requestScopeString = $this->getRequestScopes();
         $isFhir = $this->hasFhirApiScopes();
         $isApi = $this->hasStandardApiScopes();
-        (new SystemLogger())->debug(
+        $this->getLogger()->debug(
             "ScopeRepository->buildScopeValidatorArray() ",
             ["requestScopeString" => $requestScopeString, 'isStandardApi' => $isApi, 'isFhirApi' => $isFhir]
         );

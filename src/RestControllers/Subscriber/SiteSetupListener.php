@@ -134,6 +134,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $session = $sessionFactory->createSession();
             $event->getRequest()->setSession($session);
             $session->start(); // start the session for the request
+            $session->set('site_id', $siteId); // set the site id in the session
         }
 
         // Set $sessionAllowWrite to true here for following reasons:

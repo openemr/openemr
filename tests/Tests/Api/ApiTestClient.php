@@ -119,6 +119,21 @@ class ApiTestClient
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
             $this->refresh_token = $responseBody->refresh_token ?? null;
+        } else {
+            $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
+            if ($authResponse->getBody()) {
+                $errorBody = json_decode($authResponse->getBody());
+                if (isset($errorBody->error)) {
+                    $errorMessage .= " - " . $errorBody->error;
+                }
+                if (isset($errorBody->error_description)) {
+                    $errorMessage .= ": " . $errorBody->error_description;
+                }
+                if (isset($errorBody->hint)) {
+                    $errorMessage .= ": " . $errorBody->hint;
+                }
+            }
+            error_log($errorMessage);
         }
 
         return $authResponse;
