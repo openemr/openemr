@@ -265,7 +265,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <td class="text">
                                     <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" /><?php echo  xlt('Recurrent Appointments'); ?>
                                     <br />
+                                    /** AI generated code by google-labs-jules starts */
                                     <input type='checkbox' name='include_future_appointments' id='include_future_appointments' value="future_appointments" /><?php echo  xlt('Future Appointments'); ?>
+                                    /** AI generated code by google-labs-jules ends */
                                     <br />
                                 </td>
                             </tr>
