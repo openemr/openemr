@@ -8,14 +8,20 @@ use Lcobucci\JWT\Signer\Rsa\Sha384;
 use League\OAuth2\Server\CryptKey;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
+use OpenEMR\Services\TrustedUserService;
+use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ServerBag;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
 
 class BearerTokenAuthorizationStrategyTest extends TestCase
 {
@@ -26,6 +32,15 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     const KEY_PATH_PUBLIC = __DIR__ . '/../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem';
     const KEY_PATH_PRIVATE = __DIR__ . '/../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key';
 
+    private function getMockSessionForRequest(HttpRestRequest $request): SessionInterface
+    {
+        $sessionFactory = new MockFileSessionStorageFactory();
+        $sessionStorage = $sessionFactory->createStorage($request);
+        $session = new Session($sessionStorage);
+        $session->start();
+        $session->set("site_id", "default");
+        return $session;
+    }
     public function testIs_api_request()
     {
         $this->assertTrue(BearerTokenAuthorizationStrategy::is_api_request("/apis/default/api/Patient"), "Expected is_api_request to return true for portal API path");
@@ -35,7 +50,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     public function testShouldProcessRequest()
     {
         $strategy = new BearerTokenAuthorizationStrategy();
-        $this->assertTrue($strategy->shouldProcessRequest($this->createMock(Request::class)), "Expected shouldProcessRequest to return true for any request");
+        $this->assertTrue($strategy->shouldProcessRequest($this->createMock(HttpRestRequest::class)), "Expected shouldProcessRequest to return true for any request");
     }
 
     public function testIs_portal_request()
@@ -79,9 +94,11 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
 
     public function testAuthorizeRequest()
     {
+        // TODO: refactor BearerTokenAuthorizationStrategy This class is doing too much as evidenced by ALL of the dependency mocking
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
         $testClient = new ClientEntity();
         $testClient->setIdentifier(self::TEST_CLIENT_ID);
-        $testClient->setUserId(1);
+        $testClient->setUserId($userUuid);
 
         $tokenId = "some-valid-token-id";
         $accessToken = new AccessTokenEntity();
@@ -89,23 +106,33 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE));
         $accessToken->setClient($testClient);
         $accessToken->setExpiryDateTime(new \DateTimeImmutable('+1 hour'));
+        $accessToken->setUserIdentifier($userUuid);
         // need to create a fake token id
 
-        $scopes = ['openid', 'profile', 'email'];
+        $scopes = ['openid', 'profile', 'email', 'api:oemr'];
+        foreach($scopes as $scope) {
+            $entity = new ScopeEntity();
+            $entity->setIdentifier($scope);
+            $accessToken->addScope($entity);
+        }
         $context = [];
         $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
-        $accessTokenRepository->expects($this->once())
-            ->method('getTokenByToken')
-            ->with($tokenId)
-            ->willReturn([
-                'id' => 1
-                ,'user_id' => 1
-                ,'expiry' => date("Y-m-d H:i:s", strtotime("+1 hour"))
-                ,'client_id' => 'test-client-id'
-                ,'scope' => json_encode($scopes)
-                ,'revoked' => 0
-                ,'context' => json_encode($context)
-            ]); // Simulating a valid token with user_id 1
+//        $accessTokenRepository->expects($this->once())
+//            ->method('getTokenByToken')
+//            ->with($tokenId)
+//            ->willReturn([
+//                'id' => 1
+//                ,'user_id' => $userUuid
+//                ,'expiry' => date("Y-m-d H:i:s", strtotime("+1 hour"))
+//                ,'client_id' => 'test-client-id'
+//                ,'scope' => json_encode($scopes)
+//                ,'revoked' => 0
+//                ,'context' => json_encode($context)
+//            ]); // Simulating a valid token with user_id 1
+        $accessTokenRepository // ->expects($this->once())
+            ->method('getTokenExpiration')
+            ->with($tokenId, $testClient->getIdentifier(), $accessToken->getUserIdentifier())
+            ->willReturn(date("Y-m-d H:i:s", strtotime("+1 hour"))); // Simulating a valid token expiration time
         $strategy = new BearerTokenAuthorizationStrategy();
         $request = new HttpRestRequest([], [], [], [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $accessToken, // Simulating a request with a valid token
@@ -116,9 +143,36 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
             'SERVER_NAME' => 'example.com',
 
         ]);
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
         $strategy->setAccessTokenRepository($accessTokenRepository);
         $cryptKey = new CryptKey(self::KEY_PATH_PUBLIC, null, false);
         $strategy->setPublicKey($cryptKey);
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->expects($this->once())->method('isTrustedUser')
+            ->with($testClient->getIdentifier(), $accessToken->getUserIdentifier())
+            ->willReturn(true); // Simulating that the user is trusted
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $userUsername = 'testuser';
+        $strategy->setUuidUserAccountFactory(function() use ($userUsername) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn([
+                    'id' => 1,
+                    'username' => $userUsername,
+                    'uuid' => '123e4567-e89b-12d3-a456-426614174000',
+                ]);
+            $mock->method('getUserRole')->willReturn('users');
+            return $mock;
+        });
+
+        $mockUserService = $this->createMock(UserService::class);
+        $mockUserService->expects($this->once())
+            ->method('getAuthGroupForUser')
+            ->with($userUsername)
+            ->willReturn("Default");
+        $strategy->setUserService($mockUserService);
 
         // Simulating a request with a valid token
         $this->assertTrue($strategy->authorizeRequest($request));

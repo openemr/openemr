@@ -44,6 +44,7 @@ use OpenEMR\Services\UserService;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomClientCredentialsGrant extends ClientCredentialsGrant
 {
@@ -83,12 +84,14 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
      */
     const OAUTH_JWT_CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 
+    private SessionInterface $session;
     /**
      * CustomClientCredentialsGrant constructor.
      * @param $authTokenUrl string The OAUTH2 token issuing url to be used as the audience parameter for JWT validation
      */
-    public function __construct($authTokenUrl)
+    public function __construct(SessionInterface $session, string $authTokenUrl)
     {
+        $this->session = $session;
         $this->logger = new SystemLogger(); // default if we don't have one.
         $this->authTokenUrl = $authTokenUrl;
         $this->trustedUserService = new TrustedUserService();

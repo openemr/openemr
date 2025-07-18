@@ -153,12 +153,22 @@ class ScopeRepositoryTest extends TestCase
         // let's see if we get the scope
         $smartScopes = $scopeRepository->getCurrentSmartScopes();
         $this->assertNotEmpty($smartScopes, "Smart scopes should not be empty");
-        $this->assertContains('system/Patient.read', $smartScopes, "system/Patient.read should be in smart scopes");
-        $this->assertContains('system/Observation.read', $smartScopes, "system/Observation.read should be in smart scopes");
-        $this->assertContains('patient/Medication.read', $smartScopes, "patient/Medication.read should be in smart scopes");
-        $this->assertContains('user/Medication.read', $smartScopes, "user/Medication.read should be in smart scopes");
-        $this->assertContains('user/Medication.read', $smartScopes, "user/Medication.read should be in smart scopes");
+        $resourceChecks = ['Patient', 'Observation', 'MedicationRequest'];
+        foreach ($resourceChecks as $resource) {
+            $this->assertContains("system/{$resource}.read", $smartScopes, "system/{$resource}.read should be in smart scopes");
+            $this->assertContains("patient/{$resource}.read", $smartScopes, "patient/{$resource}.read should be in smart scopes");
+            $this->assertContains("user/{$resource}.read", $smartScopes, "user/{$resource}.read should be in smart scopes");
+        }
+
+        // now do v2 checks
+        foreach ($resourceChecks as $resource) {
+            $this->assertContains("system/{$resource}.rs", $smartScopes, "system/{$resource}.rs should be in smart scopes");
+            $this->assertContains("patient/{$resource}.rs", $smartScopes, "patient/{$resource}.rs should be in smart scopes");
+            $this->assertContains("user/{$resource}.rs", $smartScopes, "user/{$resource}.rs should be in smart scopes");
+        }
     }
+
+
 
     public function testGetStandardScopes() {
         $scopeRepository = $this->scopeRepository;

@@ -26,6 +26,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomRefreshTokenGrant extends RefreshTokenGrant
 {
@@ -34,8 +35,11 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     private $logger;
 
-    public function __construct(RefreshTokenRepositoryInterface $refreshTokenRepository)
+    private $session;
+
+    public function __construct(SessionInterface $session, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
+        $this->session = $session;
         $this->logger = new SystemLogger();
         parent::__construct($refreshTokenRepository);
     }
@@ -93,7 +97,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
         if (isset($requestParameters[$parameter])) {
             // make sure we are getting the site here
             if (!preg_match('(site:)', $requestParameters[$parameter])) {
-                return $requestParameters[$parameter] . " site:" . $_SESSION['site_id'];
+                return $requestParameters[$parameter] . " site:" . $this->session->get('site_id', 'default');
             }
             return $requestParameters[$parameter];
         } else {

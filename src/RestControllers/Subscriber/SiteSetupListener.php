@@ -104,6 +104,8 @@ class SiteSetupListener implements EventSubscriberInterface
             throw new HttpException(Response::HTTP_BAD_REQUEST, "OpenEMR Error: api site error, so forced exit.  Please ensure that the site is set up correctly in the OpenEMR configuration.");
         }
         $event->getRequest()->attributes->set('siteId', $siteId);
+        $webroot = self::getWebroot();
+        $event->getRequest()->attributes->set('webroot', $webroot);
 
         // set the site
         $_GET['site'] = $siteId; // for legacy purposes
@@ -121,7 +123,7 @@ class SiteSetupListener implements EventSubscriberInterface
         } else {
             $ignoreAuth = true;
             // Will start the api OpenEMR session/cookie, if its oauth2 it uses a different session cookie
-            $sessionFactory = new HttpSessionFactory($event->getRequest(), self::getWebroot()
+            $sessionFactory = new HttpSessionFactory($event->getRequest(), $webroot
                 , $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API);
             if ($isOauth2Request) {
                 $event->getRequest()->attributes->set('is_oauth2_request', true);
@@ -139,6 +141,7 @@ class SiteSetupListener implements EventSubscriberInterface
         // setup the globals... would be nice to not have to do this, but we need the globals for the rest of OpenEMR
         if ($event->getKernel() instanceof OEHttpKernel) {
             $eventDispatcher = $event->getKernel()->getEventDispatcher();
+            $globalsBag = $event->getKernel()->getGlobalsBag();
         }
         require_once (__DIR__ . "./../../../interface/globals.php");
         // now that globals are setup, setup our centralized logger that will respect the global settings

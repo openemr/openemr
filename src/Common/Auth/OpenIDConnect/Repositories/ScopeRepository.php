@@ -25,6 +25,7 @@ use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
@@ -75,14 +76,39 @@ class ScopeRepository implements ScopeRepositoryInterface
     private ServerConfig $config;
 
     /**
+     * @var string[] The array of scopes that are supported by the FHIR server.
+     */
+    private array $fhirScopesList;
+
+    /**
      * ScopeRepository constructor.
      * @param $restConfig \RestConfig normally we would typesafe this, but RestConfig isn't in the autoloader so we leave it out so we can unit test this class better
      */
-    public function __construct($restConfig = null)
+    public function __construct(?HttpRestRequest $request = null, ?SessionInterface $session = null)
     {
         $this->logger = new SystemLogger();
-        $this->requestScopes = isset($_REQUEST['scope']) ? $_REQUEST['scope'] : null;
-        $this->sessionScopes = $_SESSION['scopes'] ?? '';
+        if (!empty($request)) {
+            $this->requestScopes = $request->get('scope', '');
+        } else {
+            $this->requestScopes = '';
+        }
+        if (!empty($session)) {
+            $this->sessionScopes = $session->get('scopes', '');
+        } else {
+            $this->sessionScopes = '';
+        }
+    }
+
+    public function setLogger(SystemLogger $logger): void
+    {
+        $this->logger = $logger;
+    }
+    public function getLogger(): SystemLogger
+    {
+        if (!isset($this->logger)) {
+            $this->logger = new SystemLogger();
+        }
+        return $this->logger;
     }
 
     public function setServerConfig(ServerConfig $config): void
@@ -324,23 +350,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $requiredSmart;
     }
 
-    /**
-     * @Method fhirScopes
-     *
-     * Returns all fhir permitted scopes and permissions.
-     * These will be qualified against existing and future routes
-     * with role(patient, user or system facing applications).
-     *
-     * @return array
-     */
-    public function fhirScopes(): array
-    {
-        // Note: we only allow patient/read access for FHIR apps right now, if someone wants write access they have to
-        // have a user/<resource>.write permission as the security context for patient only rights has too much risk
-        // for problems.
-
-        // we've restricted our patient scopes just to what we have in portal.  We will slowly open them up as we
-        // verify the access rights on them.
+    public function fhirScopesV1() {
         $permitted = [
 //            "patient/Account.read",
             "patient/AllergyIntolerance.read",
@@ -443,6 +453,93 @@ class ScopeRepository implements ScopeRepositoryInterface
             return array_merge($permitted, $this->systemScopes());
         }
         return $permitted;
+    }
+
+    public function fhirScopesV2() {
+        $resources = [
+            'AllergyIntolerance',
+            'CarePlan',
+            'CareTeam',
+            'Condition',
+            'Coverage',
+            'Device',
+            'DiagnosticReport',
+            'DocumentReference',
+            'Encounter',
+            'Goal',
+            'Immunization',
+            'MedicationDispense',
+            'MedicationRequest',
+            'Observation',
+            'Organization',
+            'Patient',
+            'Practitioner',
+            'PractitionerRole',
+            'Procedure',
+            'Provenance',
+            'QuestionnaireResponse',
+            'RelatedPerson',
+            'ServiceRequest',
+            'Specimen'
+        ];
+        $scopes = [];
+        $systemEnabled = $this->getServerConfig()->areSystemScopesEnabled();
+        foreach ($resources as $resource) {
+            // we'll ignore write for now
+            $scopes[] = "patient/{$resource}.rs";
+            $scopes[] = "user/{$resource}.rs";
+            if ($systemEnabled) {
+                $scopes[] = "system/{$resource}.rs";
+            }
+        }
+        // now add the restrictions
+        $restrictedScopes = [
+            'Condition' => [
+                'category=http://hl7.org/fhir/us/core/CodeSystem/condition-category|health-concern'
+                ,'category=http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis'
+                ,'category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item'
+            ]
+            ,'Observation' => [
+                'category=http://hl7.org/fhir/us/core/CodeSystem/us-core-category|sdoh'
+                ,'category=http://terminology.hl7.org//CodeSystem-observation-category|social-history'
+                ,'category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory'
+                ,'category=http://terminology.hl7.org/CodeSystem/observation-category|survey'
+                ,'category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs'
+            ]
+            ,'DocumentReference' => [
+                'category=http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note'
+            ]
+        ];
+        foreach ($restrictedScopes as $resource => $restrictions) {
+            foreach ($restrictions as $restriction) {
+                $scopes[] = "patient/{$resource}.rs?{$restriction}";
+                $scopes[] = "user/{$resource}.rs?{$restriction}";
+                if ($systemEnabled) {
+                    $scopes[] = "system/{$resource}.rs?{$restriction}";
+                }
+            }
+        }
+        return $scopes;
+    }
+    /**
+     * @Method fhirScopes
+     *
+     * Returns all fhir permitted scopes and permissions.
+     *
+     * @return array
+     */
+    public function fhirScopes(): array
+    {
+        // Note: we only allow patient/read access for FHIR apps right now, if someone wants write access they have to
+        // have a user/<resource>.write permission as the security context for patient only rights has too much risk
+        // for problems.
+
+        if (!isset($this->fhirScopesList)) {
+            $permitted = $this->fhirScopesV1();
+            $permitted = array_merge($permitted, $this->fhirScopesV2());
+            $this->fhirScopesList = $permitted;
+        }
+        return $this->fhirScopesList;
     }
 
     public function systemScopes(): array

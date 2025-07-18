@@ -6,8 +6,8 @@ namespace OpenEMR\RestControllers\Subscriber;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\RestControllers\Authorization\IAuthorizationStrategy;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
@@ -21,6 +21,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class OAuth2AuthorizationListener implements EventSubscriberInterface
 {
     private SystemLogger $logger;
+
+    private string $webroot;
+
     public function __construct()
     {
     }
@@ -60,41 +63,51 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
     }
 
     public function onKernelRequest(RequestEvent $event) {
+
         // only if this is an oauth2 request are we going to process it.
         if (!$event->hasResponse() && $this->shouldProcessRequest($event->getRequest())) {
-            $response = $this->authorizeRequest($event->getRequest());
+            $globals = $event->getKernel() instanceof OEHttpKernel ? $event->getKernel()->getGlobalsBag() : new OEGlobalsBag();
+            $response = $this->authorizeRequest($event->getRequest(), $globals);
             $event->setResponse($response);
         }
         return $event;
     }
 
-    public function authorizeRequest(Request $request): Response
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws \League\OAuth2\Server\Exception\OAuthServerException
+     */
+    public function authorizeRequest(Request $request, OEGlobalsBag $globalsBag): Response
     {
         $logger = $this->getLogger();
         if (!($request instanceof HttpRestRequest)) {
             throw new HttpException(500, "OpenEMR Error: OAuth2AuthorizationStrategy requires HttpRestRequest");
         }
+        $session = $request->getSession();
         // exit if api is not turned on
-        if (empty($GLOBALS['rest_api']) && empty($GLOBALS['rest_fhir_api']) && empty($GLOBALS['rest_portal_api'])) {
+        if (empty($globalsBag->get('rest_api', null)) && empty($globalsBag->get('rest_fhir_api', null))
+            && empty($globalsBag->get('rest_portal_api', null))) {
             $logger->debug("api disabled exiting call");
-            SessionUtil::oauthSessionCookieDestroy();
+            $session->invalidate();
             throw HttpException::fromStatusCode(404, "OpenEMR Error: API is disabled");
         }
         // site is already valid from previous listener
 
         // set up csrf
         //  used to prevent csrf in the 2 different types of submissions by oauth2/provider/login.php
-        if (empty($_SESSION['csrf_private_key'])) {
-            CsrfUtils::setupCsrfKey();
+        if (empty($session->get('csrf_private_key', null))) {
+            CsrfUtils::setupCsrfKey($session);
         }
         $logger->debug("oauth2 request received", ["endpoint" => $request->getRequestPathWithoutSite()]);
 
-        $authServer = new AuthorizationController();
+        $authServer = new AuthorizationController($session, $globalsBag);
+
 
         $end_point = $request->getRequestPathWithoutSite();
         if (false !== stripos($end_point, '/token')) {
             // session is destroyed within below function
-            return $this->convertPsrResponse($authServer->oauthAuthorizeToken());
+            return $this->convertPsrResponse($authServer->oauthAuthorizeToken($request));
         }
 
         if (false !== stripos($end_point, '/openid-configuration')) {
@@ -107,12 +120,12 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 
         if (false !== stripos($end_point, '/authorize')) {
             // session is destroyed (when throws exception) within below function
-            return $this->convertPsrResponse($authServer->oauthAuthorizationFlow());
+            return $this->convertPsrResponse($authServer->oauthAuthorizationFlow($request));
         }
 
         if (false !== stripos($end_point, '/device/code')) {
             // session is destroyed within below function
-            return $this->convertPsrResponse($authServer->authorizeUser());
+            return $this->convertPsrResponse($authServer->authorizeUser($request));
         }
 
         if (false !== stripos($end_point, '/jwk')) {
@@ -124,35 +137,35 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 
         if (false !== stripos($end_point, '/login')) {
             // session is maintained
-            return $this->convertPsrResponse($authServer->userLogin());
+            return $this->convertPsrResponse($authServer->userLogin($request));
         }
         if ($authServer->isSMARTAuthorizationEndPoint($end_point)) {
-            return $this->convertPsrResponse($authServer->dispatchSMARTAuthorizationEndpoint($end_point));
+            return $this->convertPsrResponse($authServer->dispatchSMARTAuthorizationEndpoint($end_point, $request));
         }
 
         if (false !== stripos($end_point, '/scope-authorize-confirm')) {
             // session is maintained
-            return $this->convertPsrResponse($authServer->scopeAuthorizeConfirm());
+            return $this->convertPsrResponse($authServer->scopeAuthorizeConfirm($request));
         }
 
         if (false !== stripos($end_point, '/registration')) {
             // session is destroyed within below function
-            return $this->convertPsrResponse($authServer->clientRegistration());
+            return $this->convertPsrResponse($authServer->clientRegistration($request));
         }
 
         if (false !== stripos($end_point, '/client')) {
             // session is destroyed within below function
-            return $this->convertPsrResponse($authServer->clientRegisteredDetails());
+            return $this->convertPsrResponse($authServer->clientRegisteredDetails($request));
         }
 
         if (false !== stripos($end_point, '/logout')) {
             // session is destroyed within below function
-            return $this->convertPsrResponse($authServer->userSessionLogout());
+            return $this->convertPsrResponse($authServer->userSessionLogout($request));
         }
 
         if (false !== stripos($end_point, '/introspect')) {
             // session is destroyed within below function
-            return $this->convertPsrResponse($authServer->tokenIntrospection());
+            return $this->convertPsrResponse($authServer->tokenIntrospection($request));
         }
     }
 }

@@ -33,6 +33,7 @@ use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomClientCredentialsGrantTest extends TestCase
 {
@@ -58,7 +59,7 @@ class CustomClientCredentialsGrantTest extends TestCase
 
 
         $ttl = new \DateInterval('PT300S');
-        $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
@@ -109,7 +110,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessToken = new AccessTokenEntity();
 
         $ttl = new \DateInterval('PT300S');
-        $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));
@@ -147,7 +148,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         $accessToken = new AccessTokenEntity();
 
         $ttl = new \DateInterval('PT300S');
-        $grant = new CustomClientCredentialsGrant(self::AUDIENCE);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
         $grant->setUserService($this->getMockUserService());
         $grant->setPrivateKey($this->createMock(CryptKey::class));
         $grant->setClientRepository($this->getMockClientRepository($clientEntity));

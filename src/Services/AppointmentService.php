@@ -610,7 +610,7 @@ class AppointmentService extends BaseService
 
         $userService = new UserService();
         $user = $userService->getUser($appointment['pc_aid']);
-        $authGroup = UserService::getAuthGroupForUser($user['username']);
+        $authGroup = $userService->getAuthGroupForUser($user['username']);
 
         $pos_code = QueryUtils::fetchSingleValue(
             "SELECT pos_code FROM facility WHERE id = ?",

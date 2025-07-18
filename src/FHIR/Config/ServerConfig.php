@@ -154,6 +154,12 @@ class ServerConfig
         }
         return $webServerRoot . "/sites/" . $site . "/documents/certificates/oapublic.key";
     }
+    public function getJsonWebKeySetUrl(): string
+    {
+        // this is the URL that the FHIR server will use to get the public key for the OAuth2 server
+        return $this->getOauthAuthorizationUrl() . "/jwk";
+    }
+
     public function getOauthAuthorizationUrl(): string
     {
         return $this->oauthAddress . "/oauth2/" . $this->getSiteId();

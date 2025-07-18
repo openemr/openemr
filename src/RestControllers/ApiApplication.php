@@ -36,6 +36,13 @@ class ApiApplication
 
     private EventDispatcher $dispatcher;
 
+    private string $webroot;
+
+public function __construct(string $webroot = "")
+    {
+        $this->webroot = $webroot;
+    }
+
     public function setDispatcher(EventDispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;

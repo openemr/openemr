@@ -13,8 +13,10 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Services\TrustedUserService;
+use OpenEMR\Services\UserService;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -36,6 +38,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     private $uuidUserAccountFactory = null;
 
     private CryptKey $publicKey;
+
+    private UserService $userService;
 
     public function __construct(?SystemLogger $logger = null)
     {
@@ -100,7 +104,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             // Initialize the access token repository if not already set.
             $this->accessTokenRepository = $this->createAccessTokenRepository();
         }
-        return new AccessTokenRepository();
+        return $this->accessTokenRepository;
     }
 
     public function setAccessTokenRepository(AccessTokenRepository $accessTokenRepository): void
@@ -129,8 +133,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         if (!isset($this->uuidUserAccountFactory)) {
             // If the factory is not set, we can initialize it here.
             // This is a placeholder for the actual factory logic.
-            $this->uuidUserAccountFactory = function ($userId) {
-                return new UuidUserAccount($userId);
+            $this->uuidUserAccountFactory = function ($userUuid) {
+                return new UuidUserAccount($userUuid);
             };
         }
         return $this->uuidUserAccountFactory;
@@ -145,11 +149,21 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     public function shouldProcessRequest(Request $request): bool
     {
+        if (!$request instanceof HttpRestRequest) {
+            // If the request is not an instance of HttpRestRequest, we do not process it.
+            return false;
+        }
         return true; // This strategy should process all requests, but you can add conditions if needed.
     }
 
     public function authorizeRequest(Request $request): bool
     {
+        if (!$request instanceof HttpRestRequest) {
+            // If the request is not an instance of HttpRestRequest, we do not process it.
+            $this->getLogger()->error("OpenEMR Error - BearerTokenAuthorizationStrategy requires HttpRestRequest");
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, "OpenEMR Error: BearerTokenAuthorizationStrategy requires HttpRestRequest.");
+        }
+
         // verify the access token
         $repository = $this->getAccessTokenRepository();
         $tokenRaw = $this->verifyAccessToken($repository, $request);
@@ -188,7 +202,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
         // TODO: @adunsulag this seems redundant since the access token should already be verified on the expiration date
         // we should look at removing this and see if it causes any issues
-        if (!$this->authenticateUserToken($tokenId, $clientId, $userId)) {
+        if (!$this->authenticateUserToken($request, $tokenId, $clientId, $userId)) {
             $this->logger->error("dispatch.php api call with invalid token");
             throw new UnauthorizedHttpException("Bearer", "OpenEMR Error: API call failed due to invalid token or expired token.");
         }
@@ -234,32 +248,36 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private function setupSessionForUserRole(string $userRole, array $user, HttpRestRequest $request): void
     {
+        $session = $request->getSession();
+
         // Set user ID in the session
-        $_SESSION['userId'] = $user['uuid'];
+        $session->set('userId', $user['uuid']);
 
         // Set user role in the session
-        $_SESSION['userRole'] = $userRole;
+        $session->set('userRole', $userRole);
         if ($userRole == 'users') {
-            $_SESSION['authUser'] = $user["username"] ?? null;
-            $_SESSION['authUserID'] = $user["id"] ?? null;
-            $_SESSION['authProvider'] = sqlQueryNoLog("SELECT `name` FROM `groups` WHERE `user` = ?", [$_SESSION['authUser']])['name'] ?? null;
-            if (empty($_SESSION['authUser']) || empty($_SESSION['authUserID']) || empty($_SESSION['authProvider'])) {
+            $session->set('authUser', $user["username"] ?? null);
+            $session->set('authUserID', $user["id"] ?? null);
+            $userService = $this->getUserService();
+            $authProvider = $userService->getAuthGroupForUser($user['username']);
+            $session->set('authProvider', $authProvider);
+            if (empty($session->get('authUser')) || empty($session->get('authUserID')) || empty($session->get('authProvider'))) {
                 // this should never happen
                 $this->logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
                 throw new HttpException(401);
             }
             $this->logger->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
         } elseif ($userRole == 'patient') {
-            $_SESSION['pid'] = $user['pid'] ?? null;
-            $this->logger->debug("dispatch.php request setup for patient role", ['patient' => $_SESSION['pid']]);
+            $session->set('pid', $user['pid'] ?? null);
+            $this->logger->debug("dispatch.php request setup for patient role", ['patient' => $session->get('pid')]);
         } elseif ($userRole === 'system') {
-            $_SESSION['authUser'] = $user["username"] ?? null;
-            $_SESSION['authUserID'] = $user["id"] ?? null;
+            $session->set('authUser', $user["username"] ?? null);
+            $session->set('authUserID', $user["id"] ?? null);
             if (
-                empty($_SESSION['authUser'])
+                empty($session->get('authUser'))
                 // this should never happen as the system role depends on the system username... but we safety check it anyways
-                || $_SESSION['authUser'] != \OpenEMR\Services\UserService::SYSTEM_USER_USERNAME
-                || empty($_SESSION['authUserID'])
+                || $session->get('authUser') != \OpenEMR\Services\UserService::SYSTEM_USER_USERNAME
+                || empty($session->get('authUserID'))
             ) {
                 $this->logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
                 throw new HttpException(401);
@@ -267,19 +285,20 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         }
     }
 
-    private function authenticateUserToken($tokenId, $clientId, $userId): bool
+    private function authenticateUserToken(HttpRestRequest $request, $tokenId, $clientId, $userId): bool
     {
-        $ip = collectIpAddresses();
+        $ips = $request->getClientIps();
+        $ip = [
+            'ip_string' => implode(" ", $ips)
+        ];
 
         // check for token
         $accessTokenRepo = $this->getAccessTokenRepository();
         $authTokenExpiration = $accessTokenRepo->getTokenExpiration($tokenId, $clientId, $userId);
-
         if (empty($authTokenExpiration)) {
             EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". Token not found for client[" . $clientId . "] and user " . $userId . ".");
             return false;
         }
-
         // Ensure token not expired (note an expired token should have already been caught by oauth2, however will also check here)
         $currentDateTime = date("Y-m-d H:i:s");
         $expiryDateTime = date("Y-m-d H:i:s", strtotime($authTokenExpiration));
@@ -374,5 +393,19 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     public static function is_api_request($resource): bool
     {
         return stripos(strtolower($resource), "/api/") !== false;
+    }
+
+    public function setUserService(UserService $userService) {
+        // This method is intended to set the user service for the authorization strategy.
+        $this->userService = $userService;
+    }
+
+    public function getUserService() : UserService
+    {
+        if (!isset($this->userService)) {
+            // Initialize the user service if not already set.
+            $this->userService = new UserService();
+        }
+        return $this->userService;
     }
 }
