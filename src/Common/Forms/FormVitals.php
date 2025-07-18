@@ -5,6 +5,7 @@
  * For backwards compatibility it extends ORDataObject (which implements the a form of the Active record data pattern),
  * but the preferred mechanism is to use this as a POPO (Plain old PHP object) and save / retrieve data using
  * the VitalsService class.
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -14,38 +15,34 @@
 
 namespace OpenEMR\Common\Forms;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Utils\MeasurementUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
+
 /**
  * class FormVitals
- *
  */
-
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
-use OpenEMR\Common\ORDataObject\ORDataObject;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Utils\MeasurementUtils;
-
 class FormVitals extends ORDataObject
 {
+    public const TABLE_NAME = 'form_vitals';
+    protected string $_table = self::TABLE_NAME;
+
     /**
-     *
      * @access public
      */
-    const TABLE_NAME = "form_vitals";
-
     const LIST_OPTION_VITALS_INTERPRETATION = 'vitals-interpretation';
-
 
     const MEASUREMENT_METRIC_ONLY = 4;
     const MEASUREMENT_USA_ONLY = 3;
     const MEASUREMENT_PERSIST_IN_METRIC = 2;
     const MEASUREMENT_PERSIST_IN_USA = 1;
+
     /**
-     *
      * static
      */
-    public $id;
-    public $date;
+    public string $date;
     public $pid;
     public $user;
     public $groupname;
@@ -82,32 +79,16 @@ class FormVitals extends ORDataObject
      */
     private $encounter;
 
-    // public $temp_methods;
     /**
-     * Constructor sets all Form attributes to their default value
+     * Sets all Form attributes to their default value
+     *
+     * @return void
      */
-
-    public function __construct($id = "", $_prefix = "")
+    protected function init(): void
     {
-        parent::__construct();
-        if ($id > 0) {
-            $this->id = $id;
-        } else {
-            $id = "";
-            $this->date = $this->get_date();
-        }
-
-        $this->_table = self::TABLE_NAME;
+        $this->date = date('YmdHis', time());
         $this->activity = 1;
         $this->pid = $GLOBALS['pid'];
-        if (!empty($id)) {
-            $this->populate();
-        }
-    }
-    public function populate()
-    {
-        parent::populate();
-        //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
     public function toString($html = false)
@@ -116,16 +97,6 @@ class FormVitals extends ORDataObject
         return $html ? nl2br($string) : $string;
     }
 
-    public function set_id($id)
-    {
-        if (!empty($id) && is_numeric($id)) {
-            $this->id = $id;
-        }
-    }
-    public function get_id()
-    {
-        return $this->id;
-    }
     public function set_pid($pid)
     {
         if (!empty($pid) && is_numeric($pid)) {
@@ -147,25 +118,18 @@ class FormVitals extends ORDataObject
         return $this->activity;
     }
 
-    public function get_date()
+    public function get_date(): string
     {
-        if (!$this->date) {
-            $this->date = date('YmdHis', time());
-        }
-
         return $this->date;
     }
 
-    public function set_date($dt)
+    public function set_date(string $dt): void
     {
-        if (!empty($dt)) {
-            $dt = str_replace(array('-', ':', ' '), '', $dt);
-            while (strlen($dt) < 14) {
-                $dt .= '0';
-            }
-
-            $this->date = $dt;
+        if (empty($dt)) {
+            return;
         }
+        $dt = str_replace(array('-', ':', ' '), '', $dt);
+        $this->date = str_pad($dt, 14, '0', STR_PAD_RIGHT);
     }
 
     public function get_user()
@@ -485,7 +449,7 @@ class FormVitals extends ORDataObject
     public function persist()
     {
         if (empty($this->uuid)) {
-            $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
+            $this->uuid = (new UuidRegistry(['table_name' => $this->_table]))->createUuid();
         }
         parent::persist();
 
@@ -571,4 +535,4 @@ class FormVitals extends ORDataObject
         $this->authorized = $authorized;
         return $this;
     }
-}   // end of Form
+}
