@@ -389,13 +389,40 @@ class Installer
     public function add_version_info()
     {
         include dirname(__FILE__) . "/../../version.php";
-        if ($this->execute_sql("UPDATE version SET v_major = '" . $this->escapeSql($v_major) . "', v_minor = '" . $this->escapeSql($v_minor) . "', v_patch = '" . $this->escapeSql($v_patch) . "', v_realpatch = '" . $this->escapeSql($v_realpatch) . "', v_tag = '" . $this->escapeSql($v_tag) . "', v_database = '" . $this->escapeSql($v_database) . "', v_acl = '" . $this->escapeSql($v_acl) . "'") == false) {
-            $this->error_message = "ERROR. Unable insert version information into database\n" .
-            "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
-            return false;
-        }
+        /**
+         * This annotation declares variables from the legacy include
+         * so PHPStan recognizes them.
+         *
+         * @var string $v_major
+         * @var string $v_minor
+         * @var string $v_patch
+         * @var string $v_realpatch
+         * @var string $v_tag
+         * @var string $v_database
+         * @var string $v_acl
+         */
+        $version_fields = array_map([$this, 'escapeSql'], [
+            'v_major' => $v_major,
+            'v_minor' => $v_minor,
+            'v_patch' => $v_patch,
+            'v_realpatch' => $v_realpatch,
+            'v_tag' => $v_tag,
+            'v_database' => $v_database,
+            'v_acl' => $v_acl
+        ]);
+        $update_parts = array_map(function ($field) use ($version_fields) {
+            return sprintf("%s = '%s'", $field, $version_fields[$field]);
+        }, array_keys($version_fields));
 
-        return true;
+        // Join the parts with commas
+        $update_sql = "UPDATE version SET " . implode(", ", $update_parts);
+
+        if ($this->execute_sql($update_sql) !== false) {
+            return true;
+        }
+        $this->error_message = "ERROR. Unable insert version information into database\n" .
+        "<p>" . mysqli_error($this->dbh) . " (#" . mysqli_errno($this->dbh) . ")\n";
+        return false;
     }
 
     public function add_initial_user()
@@ -592,16 +619,10 @@ $config = 1; /////////////
 
     public function insert_globals()
     {
-        if (!(function_exists('xl'))) {
-            function xl($s)
-            {
-                return $s;
-            }
-        } else {
-            $GLOBALS['temp_skip_translations'] = true;
-        }
-        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
+        $GLOBALS['temp_skip_translations'] = true;
+        $skipGlobalEvent = true; // use in globals.inc.php script to skip event stuff
         require(dirname(__FILE__) . '/../globals.inc.php');
+        /** @phpstan-ignore variable.undefined */
         foreach ($GLOBALS_METADATA as $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
                 list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
@@ -852,7 +873,7 @@ $config = 1; /////////////
         // If this script is being used by OpenEMR's setup, then will
         //   incorporate the installation values. Otherwise will
         //    hardcode the 'admin' user.
-        if (isset($this) && isset($this->iuser)) {
+        if (isset($this->iuser)) {
             $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
             $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
         } else {
@@ -1494,6 +1515,12 @@ $config = 1; /////////////
             die("Source site $source_site_id has not been set up!");
         }
 
+        /**
+         * @var string $login
+         * @var string $host
+         * @var string $pass
+         * @var string $dbase
+         */
         $backup_file = $this->get_backup_filename();
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
@@ -1552,7 +1579,6 @@ $config = 1; /////////////
 
     private function extractFileName($theme_file_name = '')
     {
-        $this->theme_file_name = $theme_file_name;
         $under_score = strpos($theme_file_name, '_') + 1;
         $dot = strpos($theme_file_name, '.');
         $theme_value = substr($theme_file_name, $under_score, ($dot - $under_score));
