@@ -510,11 +510,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
                             echo "</div>";
                         } else {
-                            echo "<table>";
-                            echo "<thead><tr>";
-                            echo "<th>" . xlt('Date') . "</th>";
-                            echo "<th>" . xlt('Time') . "</th>";
-                            echo "<th>" . xlt('Provider') . "</th>";
+                            echo "<table style='width:100%; border-collapse:collapse; margin:15px 0;'>";
+                            echo "<thead><tr style='background-color:#f5f5f5;'>";
+                            echo "<th style='padding:10px; text-align:left; border-bottom:1px solid #e0e0e0;'>" . xlt('Date') . "</th>";
+                            echo "<th style='padding:10px; text-align:left; border-bottom:1px solid #e0e0e0;'>" . xlt('Time') . "</th>";
+                            echo "<th style='padding:10px; text-align:left; border-bottom:1px solid #e0e0e0;'>" . xlt('Provider') . "</th>";
                             echo "</tr></thead><tbody>";
                             
                             $row_count = 0;
@@ -537,9 +537,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 }
                                 
                                 echo "<tr>";
-                                echo "<td>" . text($appointment_date) . "</td>";
-                                echo "<td>" . text($time_display) . "</td>";
-                                echo "<td>" . text($provider_name) . "</td>";
+                                echo "<td style='padding:10px; border-bottom:1px solid #e0e0e0;'>" . text($appointment_date) . "</td>";
+                                echo "<td style='padding:10px; border-bottom:1px solid #e0e0e0;'>" . text($time_display) . "</td>";
+                                echo "<td style='padding:10px; border-bottom:1px solid #e0e0e0;'>" . text($provider_name) . "</td>";
                                 echo "</tr>";
                             }
                             
