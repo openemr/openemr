@@ -15,10 +15,10 @@ use Twig\Environment;
 class ClientAdminControllerTest extends TestCase
 {
     protected ClientAdminController $controller;
-    protected ClientRepository $mockRepository;
-    protected SystemLogger $mockLogger;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockRepository;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockLogger;
 
-    protected Environment $mockTwig;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockTwig;
 
     protected function setUp(): void
     {

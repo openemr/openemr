@@ -676,8 +676,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $providerId = $this->getProviderId($pid);
             if (empty($providerId)) {
                 return $participant;
-            } else {
-                $providerId = $providerId;
             }
             $refer_date = $records[0]['refer_date'] ?? date("Y-m-d");
         } else {
@@ -2888,11 +2886,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getAge($pid, $date = null)
     {
-        if ($date != '') {
-            $date = $date;
-        } else {
-            $date = date('Y-m-d H:i:s');
-        }
+        $date = $date ?: date('Y-m-d H:i:s');
 
         $age = 0;
         $query = "select ROUND(DATEDIFF('$date',DOB)/365.25) AS age from patient_data where pid= ? ";
