@@ -38,7 +38,6 @@ class HttpSessionFactory implements SessionFactoryInterface
             throw new \InvalidArgumentException("Invalid session type: $sessionType");
         }
         $this->sessionType = $sessionType;
-
     }
     public function createSession(): SessionInterface
     {
@@ -56,7 +55,6 @@ class HttpSessionFactory implements SessionFactoryInterface
                 'use_cookies' => true,
                 'use_only_cookies' => true
             ];
-
         } else if ($this->sessionType == self::SESSION_TYPE_API) {
             $sessionKey = SessionUtil::API_SESSION_ID;
             $settings = [

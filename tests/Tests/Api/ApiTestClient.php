@@ -240,7 +240,7 @@ class ApiTestClient
      * @param $body - The POST request body (array)
      * @return $postResponse - HTTP response
      */
-    public function post($url, $body, $json = true) : ResponseInterface
+    public function post($url, $body, $json = true): ResponseInterface
     {
         if ($json) {
             $postResponse = $this->client->post($url, [

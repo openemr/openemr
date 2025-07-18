@@ -186,7 +186,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
             // mdsupport - Don't die if logout menu link is called from expired session.
             // Eliminate this code when close method is available for session management.
             if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
-                $globalsBag->set('login_screen',"login_screen.php");
+                $globalsBag->set('login_screen', "login_screen.php");
                 $srcdir = "../library";
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
@@ -600,8 +600,9 @@ if (empty($globalsBag->getString('site_addr_oath'))) {
     $globalsBag->set('site_addr_oath', $ResolveServerHost());
 }
 if (empty($globalsBag->getString('qualified_site_addr'))) {
-    $globalsBag->set('qualified_site_addr'
-        , rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
+    $globalsBag->set(
+        'qualified_site_addr',
+        rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
     );
 }
 
@@ -704,11 +705,11 @@ if (!empty($checkModulesTableExists)) {
         // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
         /** @var ModulesApplication */
         $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->get('kernel')
-            , $globalsBag->getString('fileroot')
-            , $globalsBag->getString('baseModDir')
-            , $globalsBag->getString('zendModDir'))
-        );
+            $globalsBag->get('kernel'),
+            $globalsBag->getString('fileroot'),
+            $globalsBag->getString('baseModDir'),
+            $globalsBag->getString('zendModDir')
+        ));
     } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);

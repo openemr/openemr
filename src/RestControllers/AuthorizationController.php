@@ -58,6 +58,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
@@ -67,7 +68,6 @@ use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -147,11 +147,16 @@ class AuthorizationController
 
     private string $webroot;
 
-    public function __construct(SessionInterface $session
-        , OEGlobalsBag $globalsBag
-        , $providerForm = true)
-    {
+    private OEHttpKernel $kernel;
+
+    public function __construct(
+        SessionInterface $session,
+        OEHttpKernel $kernel,
+        $providerForm = true
+    ) {
         $this->session = $session;
+        $this->kernel = $kernel;
+        $globalsBag = $kernel->getGlobalsBag();
         $this->webroot = $globalsBag->get('webroot', '');
         $this->globalsBag = $globalsBag;
         $this->siteId = $session->get('site_id', null);
@@ -170,20 +175,18 @@ class AuthorizationController
 
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
-
-
-
         $this->trustedUserService = new TrustedUserService();
     }
 
-    public function getSystemLogger() : SystemLogger {
+    public function getSystemLogger(): SystemLogger
+    {
         if (!isset($this->logger)) {
             $this->logger = new SystemLogger();
         }
         return $this->logger;
     }
 
-    public function setSystemLogger(SystemLogger $logger) : void
+    public function setSystemLogger(SystemLogger $logger): void
     {
         $this->logger = $logger;
     }
@@ -197,7 +200,7 @@ class AuthorizationController
                 $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
                 __DIR__ . "/../../oauth2/",
                 $this->getTwig(),
-                $GLOBALS['kernel']->getEventDispatcher()
+                $this->kernel->getEventDispatcher()
             );
         }
         return $this->smartAuthController;
@@ -206,7 +209,7 @@ class AuthorizationController
     private function getTwig(): Environment
     {
         if (!isset($this->twig)) {
-            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $GLOBALS['kernel']);
+            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $this->kernel);
             $this->twig = $twigContainer->getTwig();
         }
         return $this->twig;
@@ -216,7 +219,7 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
         try {
-            $oauth2KeyConfig = new OAuth2KeyConfig($GLOBALS['OE_SITE_DIR']);
+            $oauth2KeyConfig = new OAuth2KeyConfig($this->globalsBag->get('OE_SITE_DIR'));
             $oauth2KeyConfig->configKeyPairs();
             $this->privateKey = $oauth2KeyConfig->getPrivateKeyLocation();
             $this->publicKey = $oauth2KeyConfig->getPublicKeyLocation();
@@ -662,13 +665,13 @@ class AuthorizationController
         if ($this->grantType === 'authorization_code') {
             $this->getSystemLogger()->debug(
                 "logging global params",
-                ['site_addr_oath' => $GLOBALS['site_addr_oath'], 'web_root' => $GLOBALS['web_root'], 'site_id' => $this->session->get('site_id', null)]
+                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->globalsBag->get('web_root'), 'site_id' => $this->session->get('site_id', null)]
             );
             $fhirServiceConfig = new ServerConfig();
             $expectedAudience = [
                 $fhirServiceConfig->getFhirUrl(),
-                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $this->session->get('site_id', 'default') . "/api",
-                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $this->session->get('site_id', 'default') . "/portal",
+                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/api",
+                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/portal",
             ];
             $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
@@ -692,7 +695,7 @@ class AuthorizationController
             );
         }
         // TODO: break this up - throw exception for not turned on.
-        if (!empty($GLOBALS['oauth_password_grant']) && ($this->grantType === self::GRANT_TYPE_PASSWORD)) {
+        if (!empty($this->globalsBag->get('oauth_password_grant', null)) && ($this->grantType === self::GRANT_TYPE_PASSWORD)) {
             $grant = new CustomPasswordGrant(
                 $this->session,
                 new UserRepository(),
@@ -706,8 +709,10 @@ class AuthorizationController
         }
         if ($this->grantType === self::GRANT_TYPE_CLIENT_CREDENTIALS) {
             // Enable the client credentials grant on the server
-            $client_credentials = new CustomClientCredentialsGrant($this->session
-                , $this->authBaseFullUrl . AuthorizationController::getTokenPath());
+            $client_credentials = new CustomClientCredentialsGrant(
+                $this->session,
+                $this->authBaseFullUrl . AuthorizationController::getTokenPath()
+            );
             $client_credentials->setLogger($this->getSystemLogger());
             $client_credentials->setHttpClient(new Client()); // set our guzzle client here
             $authServer->enableGrantType(
@@ -757,14 +762,17 @@ class AuthorizationController
         if (empty($clientId)) {
             // why are we logging in... we need to terminate
             $this->getSystemLogger()->errorLogCaller("application client_id was missing when it shouldn't have been");
-            return $this->renderTwigPage('oauth2/authorize/login', "error/general_http_error.html.twig"
-                ,['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
+            return $this->renderTwigPage(
+                'oauth2/authorize/login',
+                "error/general_http_error.html.twig",
+                ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]
+            );
         }
 
         $clientService = new ClientRepository();
         $client = $clientService->getClientEntity($clientId);
 
-        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_fhir_api']));
+        $patientRoleSupport = (!empty($this->globalsBag->get('rest_portal_api', null)) || !empty($this->globalsBag->get('rest_fhir_api', null)));
         $loginTwigVars = [
             'authorize' => null
             ,'mfaRequired' => false
@@ -773,7 +781,7 @@ class AuthorizationController
             ,'isU2F' => false
             ,'u2fRequests' => ''
             ,'appId' => ''
-            ,'enforce_signin_email' => $GLOBALS['enforce_signin_email'] === '1' ?? false
+            ,'enforce_signin_email' => $this->globalsBag->get('enforce_signin_email', 0) === '1' ?? false
             ,'user' => [
                 'email' => $_POST['email'] ?? ''
                 ,'username' => $_POST['username'] ?? ''
@@ -850,9 +858,16 @@ class AuthorizationController
         } else {
             $redirect = $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM;
         }
-        $this->getSystemLogger()->debug("AuthorizationController->userLogin() complete redirecting",
-            ["scopes" => $session->get('scopes','')
-            , 'claims' => $session->get('claims', []), 'redirect' => $redirect]);
+        $this->getSystemLogger()->debug(
+            "AuthorizationController->userLogin() complete redirecting",
+            ["scopes" => $session->get('scopes', '')
+            ,
+            'claims' => $session->get(
+                'claims',
+                []
+            ),
+            'redirect' => $redirect]
+        );
 
         return $this->createServerResponse()->withStatus(Response::HTTP_TEMPORARY_REDIRECT)->withHeader("Location", $redirect);
     }
@@ -861,7 +876,7 @@ class AuthorizationController
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher = $this->kernel->getEventDispatcher();
         $updatedTemplatePageEvent = $dispatcher->dispatch($templatePageEvent);
         $template = $updatedTemplatePageEvent->getTwigTemplate();
         $vars = $updatedTemplatePageEvent->getTwigVariables();
@@ -892,8 +907,7 @@ class AuthorizationController
     {
         if (isset($this->clientRepository)) {
             return $this->clientRepository;
-        }
-        else {
+        } else {
             return new ClientRepository();
         }
     }
@@ -902,8 +916,7 @@ class AuthorizationController
     {
         if (isset($this->scopeRepository)) {
             return $this->scopeRepository;
-        }
-        else {
+        } else {
             $scopeRepository = new ScopeRepository($request, $session);
             $scopeRepository->setLogger($this->logger);
             return $scopeRepository;
@@ -915,11 +928,11 @@ class AuthorizationController
         $this->scopeRepository = $scopeRepository;
     }
 
-    public function getUuidUserAccount($userId) : UuidUserAccount {
+    public function getUuidUserAccount($userId): UuidUserAccount
+    {
         if (isset($this->uuidUserFactory)) {
             return $this->uuidUserFactory($userId);
-        }
-        else {
+        } else {
             return new UuidUserAccount($userId);
         }
     }
@@ -1143,8 +1156,14 @@ class AuthorizationController
                     CsrfUtils::csrfNotVerified(false, true, false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
-                    $this->saveTrustedUser($this->session->get('client_id',), $this->session->get('user_id'),
-                        $this->session->get('scopes'), $this->session->get('persist_login'), $code, $session_cache);
+                    $this->saveTrustedUser(
+                        $this->session->get('client_id',),
+                        $this->session->get('user_id'),
+                        $this->session->get('scopes'),
+                        $this->session->get('persist_login'),
+                        $code,
+                        $session_cache
+                    );
                 }
             } else {
                 if (empty($this->session->get('csrf', null))) {
@@ -1611,8 +1630,15 @@ class AuthorizationController
         $this->session->remove("csrf_private_key");
         $session_cache = json_encode($this->session->all(), JSON_THROW_ON_ERROR);
         $requestBody = $request->getParsedBody();
-        $this->saveTrustedUser($requestBody['client_id'] ?? '', $this->session->get('pass_user_id')
-            , $requestBody['scope'] ?? '', 0, $code, $session_cache, self::GRANT_TYPE_PASSWORD);
+        $this->saveTrustedUser(
+            $requestBody['client_id'] ?? '',
+            $this->session->get('pass_user_id'),
+            $requestBody['scope'] ?? '',
+            0,
+            $code,
+            $session_cache,
+            self::GRANT_TYPE_PASSWORD
+        );
     }
 
     private function shouldSkipAuthorizationFlow(AuthorizationRequest $authRequest)
@@ -1621,7 +1647,7 @@ class AuthorizationController
         $client = $authRequest->getClient();
         // if don't allow our globals settings to allow skipping the authorization flow when inside an ehr launch
         // we just return false
-        if ($GLOBALS['oauth_ehr_launch_authorization_flow_skip'] !== '1') {
+        if ($this->globalsBag->getInt('oauth_ehr_launch_authorization_flow_skip', 0) !== 1) {
             $this->getSystemLogger()->debug("AuthorizationController->shouldSkipAuthorizationFlow() - oauth_ehr_launch_authorization_flow_skip not set, not skipping even though launch is present.");
             return false;
         }
@@ -1773,7 +1799,7 @@ class AuthorizationController
     {
         $this->session->save(); // save the session so we can switch to the core session
         // TODO: do we need to have a setter here so we can unit test this functionality for the session factory?
-        $sessionFactory = new HttpSessionFactory($request, $GLOBALS['webroot'], HttpSessionFactory::SESSION_TYPE_CORE, true);
+        $sessionFactory = new HttpSessionFactory($request, $this->webroot, HttpSessionFactory::SESSION_TYPE_CORE, true);
         $coreSession = $sessionFactory->createSession();
 
         // if we can deserialize let's now check to see if the user is logged in
@@ -1786,7 +1812,7 @@ class AuthorizationController
             $this->session->invalidate(); // restart the oauth2 session
             return null; // no uuid so we will go through login steps
         }
-        $userId = $_SESSION['authUserID'];
+        $userId = $coreSession->get('authUserID');
         $userService = new UserService();
         $user = $userService->getUser($userId);
         if (empty($user)) {

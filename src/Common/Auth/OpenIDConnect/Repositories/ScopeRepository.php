@@ -350,7 +350,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $requiredSmart;
     }
 
-    public function fhirScopesV1() {
+    public function fhirScopesV1()
+    {
         $permitted = [
 //            "patient/Account.read",
             "patient/AllergyIntolerance.read",
@@ -455,7 +456,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $permitted;
     }
 
-    public function fhirScopesV2() {
+    public function fhirScopesV2()
+    {
         $resources = [
             'AllergyIntolerance',
             'CarePlan',

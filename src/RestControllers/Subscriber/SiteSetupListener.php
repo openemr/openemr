@@ -123,8 +123,11 @@ class SiteSetupListener implements EventSubscriberInterface
         } else {
             $ignoreAuth = true;
             // Will start the api OpenEMR session/cookie, if its oauth2 it uses a different session cookie
-            $sessionFactory = new HttpSessionFactory($event->getRequest(), $webroot
-                , $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API);
+            $sessionFactory = new HttpSessionFactory(
+                $event->getRequest(),
+                $webroot,
+                $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API
+            );
             if ($isOauth2Request) {
                 $event->getRequest()->attributes->set('is_oauth2_request', true);
             }
@@ -143,7 +146,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $eventDispatcher = $event->getKernel()->getEventDispatcher();
             $globalsBag = $event->getKernel()->getGlobalsBag();
         }
-        require_once (__DIR__ . "./../../../interface/globals.php");
+        require_once(__DIR__ . "./../../../interface/globals.php");
         // now that globals are setup, setup our centralized logger that will respect the global settings
         if ($event->getKernel() instanceof OEHttpKernel) {
             $event->getKernel()->setSystemLogger(new SystemLogger());

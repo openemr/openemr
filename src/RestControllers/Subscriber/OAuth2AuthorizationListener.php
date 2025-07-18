@@ -11,6 +11,7 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,12 +63,17 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         return $httpFoundationFactory->createResponse($response);
     }
 
-    public function onKernelRequest(RequestEvent $event) {
-
+    public function onKernelRequest(RequestEvent $event)
+    {
+        if (!$event->getKernel() instanceof OEHttpKernel) {
+            return; // we only want to process this if the kernel is an OEHttpKernel
+        }
         // only if this is an oauth2 request are we going to process it.
         if (!$event->hasResponse() && $this->shouldProcessRequest($event->getRequest())) {
+            $globals = $event->getKernel()->getGlobalsBag();
+            $dispatcher = $event->getKernel()->getEventDispatcher();
             $globals = $event->getKernel() instanceof OEHttpKernel ? $event->getKernel()->getGlobalsBag() : new OEGlobalsBag();
-            $response = $this->authorizeRequest($event->getRequest(), $globals);
+            $response = $this->authorizeRequest($event->getRequest(), $globals, $dispatcher);
             $event->setResponse($response);
         }
         return $event;
@@ -78,16 +84,20 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
      * @return Response
      * @throws \League\OAuth2\Server\Exception\OAuthServerException
      */
-    public function authorizeRequest(Request $request, OEGlobalsBag $globalsBag): Response
+    public function authorizeRequest(Request $request, OEHttpKernel $kernel): Response
     {
+        $globalsBag = $kernel->getGlobalsBag();
+        $dispatcher = $kernel->getEventDispatcher();
         $logger = $this->getLogger();
         if (!($request instanceof HttpRestRequest)) {
             throw new HttpException(500, "OpenEMR Error: OAuth2AuthorizationStrategy requires HttpRestRequest");
         }
         $session = $request->getSession();
         // exit if api is not turned on
-        if (empty($globalsBag->get('rest_api', null)) && empty($globalsBag->get('rest_fhir_api', null))
-            && empty($globalsBag->get('rest_portal_api', null))) {
+        if (
+            empty($globalsBag->get('rest_api', null)) && empty($globalsBag->get('rest_fhir_api', null))
+            && empty($globalsBag->get('rest_portal_api', null))
+        ) {
             $logger->debug("api disabled exiting call");
             $session->invalidate();
             throw HttpException::fromStatusCode(404, "OpenEMR Error: API is disabled");
@@ -101,7 +111,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         }
         $logger->debug("oauth2 request received", ["endpoint" => $request->getRequestPathWithoutSite()]);
 
-        $authServer = new AuthorizationController($session, $globalsBag);
+        $authServer = new AuthorizationController($session, $kernel);
 
 
         $end_point = $request->getRequestPathWithoutSite();

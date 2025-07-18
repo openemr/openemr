@@ -38,7 +38,7 @@ class ApiApplication
 
     private string $webroot;
 
-public function __construct(string $webroot = "")
+    public function __construct(string $webroot = "")
     {
         $this->webroot = $webroot;
     }

@@ -395,12 +395,13 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return stripos(strtolower($resource), "/api/") !== false;
     }
 
-    public function setUserService(UserService $userService) {
+    public function setUserService(UserService $userService)
+    {
         // This method is intended to set the user service for the authorization strategy.
         $this->userService = $userService;
     }
 
-    public function getUserService() : UserService
+    public function getUserService(): UserService
     {
         if (!isset($this->userService)) {
             // Initialize the user service if not already set.

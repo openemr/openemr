@@ -110,25 +110,12 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         // need to create a fake token id
 
         $scopes = ['openid', 'profile', 'email', 'api:oemr'];
-        foreach($scopes as $scope) {
+        foreach ($scopes as $scope) {
             $entity = new ScopeEntity();
             $entity->setIdentifier($scope);
             $accessToken->addScope($entity);
         }
-        $context = [];
         $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
-//        $accessTokenRepository->expects($this->once())
-//            ->method('getTokenByToken')
-//            ->with($tokenId)
-//            ->willReturn([
-//                'id' => 1
-//                ,'user_id' => $userUuid
-//                ,'expiry' => date("Y-m-d H:i:s", strtotime("+1 hour"))
-//                ,'client_id' => 'test-client-id'
-//                ,'scope' => json_encode($scopes)
-//                ,'revoked' => 0
-//                ,'context' => json_encode($context)
-//            ]); // Simulating a valid token with user_id 1
         $accessTokenRepository // ->expects($this->once())
             ->method('getTokenExpiration')
             ->with($tokenId, $testClient->getIdentifier(), $accessToken->getUserIdentifier())
@@ -156,7 +143,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $strategy->setTrustedUserService($trustedUserService);
 
         $userUsername = 'testuser';
-        $strategy->setUuidUserAccountFactory(function() use ($userUsername) {
+        $strategy->setUuidUserAccountFactory(function () use ($userUsername) {
             $mock = $this->createMock(UuidUserAccount::class);
             $mock->method('getUserAccount')->willReturn([
                     'id' => 1,
