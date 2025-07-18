@@ -58,17 +58,11 @@ if ($PDF_FAX) {
 
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
-    // Enhanced PDF configuration for better patient reports
-    $config_mpdf['margin_top'] = 15;
-    $config_mpdf['margin_bottom'] = 15;
-    $config_mpdf['margin_left'] = 10;
-    $config_mpdf['margin_right'] = 10;
-    $config_mpdf['default_font_size'] = 11;
-    $config_mpdf['default_font'] = 'helvetica';
-    $config_mpdf['autoScriptToLang'] = true;
-    $config_mpdf['autoLangToFont'] = true;
+    // special settings for patient custom report that are necessary for mpdf
+    $config_mpdf['margin_top'] *= 1.5;
+    $config_mpdf['margin_bottom'] *= 1.5;
     $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
-    $config_mpdf['margin_footer'] = $GLOBALS['pdf_bottom_margin'];
+    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -212,104 +206,69 @@ function zip_content($source, $destination, $content = '', $create = true)
       }
     </style>
 
-    <?php if ($PDF_OUTPUT) { ?>
     <style>
-        /* Enhanced PDF styling - clean and professional */
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 11pt;
-            line-height: 1.4;
-            color: #000000;
-            margin: 0;
-            padding: 0;
+        /* Enhanced styling for Future Appointments section only */
+        .future-appointments-section {
+            font-family: Arial, sans-serif !important;
+            font-size: 11pt !important;
+            line-height: 1.4 !important;
+            color: #000000 !important;
+            margin: 20px 0 !important;
         }
         
-        /* Headers */
-        h1, h2, h3, h4, h5 {
-            color: #000000;
-            margin-bottom: 8px;
-            page-break-after: avoid;
-            font-weight: bold;
+        .future-appointments-section h2 {
+            color: #000000 !important;
+            margin-bottom: 15px !important;
+            page-break-after: avoid !important;
+            font-weight: bold !important;
+            font-size: 14pt !important;
+            border-bottom: none !important;
+            text-decoration: none !important;
         }
         
-        h1 { font-size: 16pt; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; }
-        h2 { font-size: 14pt; }
-        h3, h4 { font-size: 12pt; }
-        
-        /* Tables - clean and minimalist */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-            page-break-inside: avoid;
+        .future-appointments-section table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 15px 0 !important;
+            page-break-inside: avoid !important;
+            border: none !important;
         }
         
-        table th {
-            background-color: #f5f5f5;
-            text-align: left;
-            padding: 8px;
-            border: 1px solid #e0e0e0;
-            font-weight: bold;
+        .future-appointments-section table th {
+            background-color: #f5f5f5 !important;
+            text-align: left !important;
+            padding: 10px !important;
+            border: none !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            font-weight: bold !important;
+            color: #333333 !important;
         }
         
-        table td {
-            padding: 8px;
-            border: 1px solid #e0e0e0;
+        .future-appointments-section table td {
+            padding: 10px !important;
+            border: none !important;
+            border-bottom: 1px solid #e0e0e0 !important;
         }
         
-        /* Zebra striping for better readability */
-        table tr:nth-child(even) {
-            background-color: #fafafa;
+        .future-appointments-section table tr:last-child td {
+            border-bottom: none !important;
         }
         
-        /* Patient header section */
-        .patient-header {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e0e0e0;
+        .future-appointments-section .summary-section {
+            margin-top: 20px !important;
+            padding: 12px !important;
+            background-color: #f5f5f5 !important;
+            border-left: 3px solid #888888 !important;
         }
         
-        /* Clinic name */
-        .clinic-name {
-            font-size: 12pt;
-            color: #555555;
-            margin-bottom: 15px;
+        .future-appointments-section .text-bold {
+            font-weight: bold !important;
         }
         
-        /* Signature line */
-        .signature-line {
-            margin-top: 40px;
-            padding-top: 10px;
-            border-top: 1px solid #000000;
-        }
-        
-        /* Summary section */
-        .summary-section {
-            margin-top: 20px;
-            padding: 12px;
-            background-color: #f5f5f5;
-            border-left: 3px solid #888888;
-        }
-        
-        /* Utility classes */
-        .text-bold {
-            font-weight: bold;
-        }
-        
-        .text-muted {
-            color: #666666;
-        }
-        
-        /* Page break control */
-        .page-break {
-            page-break-after: always;
-        }
-        
-        .no-break {
-            page-break-inside: avoid;
+        .future-appointments-section .no-break {
+            page-break-inside: avoid !important;
         }
     </style>
-    <?php } ?>
 
     <?php if (!$PDF_OUTPUT) { ?>
         <?php // if the track_anything form exists, then include the styling
@@ -499,8 +458,8 @@ function zip_content($source, $destination, $content = '', $create = true)
                         echo "</div><br />";
                     } elseif ($val == "future_appointments") {
                         echo "<hr style='border-top: 1px solid #e0e0e0; margin: 20px 0;' />";
-                        echo "<div class='text no-break' id='future_appointments'>\n";
-                        print "<h2 style='margin-bottom: 15px;'>" . xlt('Your Future Appointments') . "</h2>";
+                        echo "<div class='text no-break future-appointments-section' id='future_appointments'>\n";
+                        print "<h2>" . xlt('Your Future Appointments') . "</h2>";
 
                         // Fetch future appointments for the patient
                         $current_date = date('Y-m-d');
@@ -551,11 +510,11 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
                             echo "</div>";
                         } else {
-                            echo "<table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>";
-                            echo "<thead><tr style='background-color: #f5f5f5;'>";
-                            echo "<th style='padding: 10px; text-align: left; border: 1px solid #e0e0e0;'>" . xlt('Date') . "</th>";
-                            echo "<th style='padding: 10px; text-align: left; border: 1px solid #e0e0e0;'>" . xlt('Time') . "</th>";
-                            echo "<th style='padding: 10px; text-align: left; border: 1px solid #e0e0e0;'>" . xlt('Provider') . "</th>";
+                            echo "<table>";
+                            echo "<thead><tr>";
+                            echo "<th>" . xlt('Date') . "</th>";
+                            echo "<th>" . xlt('Time') . "</th>";
+                            echo "<th>" . xlt('Provider') . "</th>";
                             echo "</tr></thead><tbody>";
                             
                             $row_count = 0;
@@ -578,9 +537,9 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 }
                                 
                                 echo "<tr>";
-                                echo "<td style='padding: 10px; border: 1px solid #e0e0e0;'>" . text($appointment_date) . "</td>";
-                                echo "<td style='padding: 10px; border: 1px solid #e0e0e0;'>" . text($time_display) . "</td>";
-                                echo "<td style='padding: 10px; border: 1px solid #e0e0e0;'>" . text($provider_name) . "</td>";
+                                echo "<td>" . text($appointment_date) . "</td>";
+                                echo "<td>" . text($time_display) . "</td>";
+                                echo "<td>" . text($provider_name) . "</td>";
                                 echo "</tr>";
                             }
                             
