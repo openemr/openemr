@@ -40,9 +40,9 @@ class NullEncryptionStrategy implements EncryptionStrategyInterface
      * @param string|null $customPassword Ignored parameter for interface compatibility
      * @param string $keySource Ignored parameter for interface compatibility
      * @param int|null $minimumVersion Ignored parameter for interface compatibility
-     * @return false|string The same value that was passed in
+     * @return false|string|null The same value that was passed in
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
+    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string|null
     {
         return $value;
     }
@@ -59,46 +59,33 @@ class NullEncryptionStrategy implements EncryptionStrategyInterface
     }
 
     /**
-     * Serialize the strategy for database storage.
+     * Get the unique identifier for this encryption strategy.
      *
-     * Since this is a null strategy with no state, we just return a simple identifier.
-     *
-     * @return string Serialized strategy data
+     * @return string Strategy identifier
      */
-    public function serialize(): string
+    public function getId(): string
     {
-        return serialize(['type' => 'null']);
+        return 'null';
     }
 
     /**
-     * Unserialize the strategy from database storage.
+     * Get the human-readable name for this encryption strategy.
      *
-     * Since this is a null strategy with no state, there's nothing to restore.
-     *
-     * @param string $data Serialized strategy data
+     * @return string Strategy display name
      */
-    public function unserialize(string $data): void
+    public function getName(): string
     {
-        // Nothing to unserialize for null strategy
+        return 'No Encryption';
     }
 
     /**
-     * Modern PHP serialization method.
+     * Get a description of this encryption strategy.
      *
-     * @return array Data to serialize
+     * @return string Strategy description
      */
-    public function __serialize(): array
+    public function getDescription(): string
     {
-        return ['type' => 'null'];
+        return 'Disables encryption - data is stored in plain text. Only use in environments where encryption is handled by the OS or at a higher level.';
     }
 
-    /**
-     * Modern PHP unserialization method.
-     *
-     * @param array $data Serialized data
-     */
-    public function __unserialize(array $data): void
-    {
-        // Nothing to unserialize for null strategy
-    }
 }

@@ -1,7 +1,6 @@
 <?php
 
 /**
- *
  * Installer class.
  *
  * @package   OpenEMR
@@ -611,15 +610,13 @@ $config = 1; /////////////
                     $res = $this->execute_sql("SELECT count(*) AS count FROM globals WHERE gl_name = '" . $this->escapeSql($fldid) . "'");
                     $row = mysqli_fetch_array($res, MYSQLI_ASSOC);
                     if (empty($row['count'])) {
-                        // Special handling for encryption strategy global
-                        if ($fldid === 'encryption_strategy_serialized') {
-                            $strategyValue = $this->serializeEncryptionStrategy($this->encryption_strategy);
-                            $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                               "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($strategyValue) . "' )");
-                        } else {
-                            $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-                               "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
+                        // Override encryption strategy default with installer parameter
+                        if ($fldid === 'encryption_strategy_name' && !empty($this->encryption_strategy)) {
+                            $flddef = $this->encryption_strategy;
                         }
+                        
+                        $this->execute_sql("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                           "VALUES ( '" . $this->escapeSql($fldid) . "', '0', '" . $this->escapeSql($flddef) . "' )");
                     }
                 }
             }
@@ -628,26 +625,6 @@ $config = 1; /////////////
         return true;
     }
 
-    /**
-     * Serialize encryption strategy for database storage.
-     *
-     * @param string $strategyId Strategy identifier
-     * @return string Serialized strategy data
-     */
-    private function serializeEncryptionStrategy($strategyId)
-    {
-        // Include the crypto classes
-        require_once(dirname(__FILE__) . '/../../src/Common/Crypto/EncryptionStrategySelector.php');
-
-        try {
-            $selector = new \OpenEMR\Common\Crypto\EncryptionStrategySelector();
-            return $selector->serializeStrategy($strategyId);
-        } catch (Exception $e) {
-            // Fall back to default strategy if serialization fails
-            error_log("Installer: Failed to serialize encryption strategy '{$strategyId}': " . $e->getMessage());
-            return $selector->serializeStrategy('cryptogen');
-        }
-    }
 
     public function install_gacl()
     {

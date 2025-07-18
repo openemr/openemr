@@ -16,14 +16,24 @@
 namespace OpenEMR\Common\Crypto;
 
 use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
-use OpenEMR\Events\Crypto\EncryptionStrategyRegistrationEvent;
 use OpenEMR\Common\Crypto\CryptoGenStrategy;
 use OpenEMR\Common\Crypto\NullEncryptionStrategy;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Logging\SystemLogger;
 
 class EncryptionStrategySelector
 {
+    /**
+     * Default encryption strategy identifier.
+     */
+    public const DEFAULT_STRATEGY_ID = 'cryptogen';
+
     private SystemLogger $logger;
+    /**
+     * Array of built-in encryption strategy instances.
+     *
+     * @var array<string, EncryptionStrategyInterface> Built-in encryption strategies
+     */
     private array $builtinStrategies = [];
 
     public function __construct()
@@ -38,62 +48,30 @@ class EncryptionStrategySelector
     private function initializeBuiltinStrategies(): void
     {
         $this->builtinStrategies = [
-            'cryptogen' => [
-                'id' => 'cryptogen',
-                'name' => 'Standard Encryption (AES-256-CBC)',
-                'description' => 'OpenEMR default encryption using AES-256-CBC with HMAC-SHA384 authentication. Recommended for most installations.',
-                'strategy' => new CryptoGenStrategy()
-            ],
-            'null' => [
-                'id' => 'null',
-                'name' => 'No Encryption',
-                'description' => 'Disables encryption - data is stored in plain text. Only use in development or non-sensitive environments.',
-                'strategy' => new NullEncryptionStrategy()
-            ]
+            'cryptogen' => new CryptoGenStrategy(),
+            'null' => new NullEncryptionStrategy()
         ];
     }
 
     /**
-     * Get all available encryption strategies, including built-in and module-provided ones.
+     * Get all available encryption strategies (core implementations only).
      *
-     * @return array Array of strategies with keys: id, name, description, strategy
+     * @return array<string, EncryptionStrategyInterface> Array of strategy instances indexed by ID
      */
     public function getAvailableStrategies(): array
     {
-        $strategies = $this->builtinStrategies;
-
-        // Dispatch event to collect strategies from modules
-        $event = new EncryptionStrategyRegistrationEvent();
-        if (isset($GLOBALS['kernel']) && method_exists($GLOBALS['kernel'], 'getEventDispatcher')) {
-            $this->logger->debug("EncryptionStrategySelector: Dispatching strategy registration event");
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, EncryptionStrategyRegistrationEvent::STRATEGY_REGISTRATION);
-
-            // Merge module strategies with built-in ones
-            $moduleStrategies = $event->getStrategies();
-            $strategies = array_merge($strategies, $moduleStrategies);
-
-            $this->logger->debug("EncryptionStrategySelector: Found strategies", [
-                'builtin_count' => count($this->builtinStrategies),
-                'module_count' => count($moduleStrategies),
-                'total_count' => count($strategies)
-            ]);
-        } else {
-            $this->logger->debug("EncryptionStrategySelector: No event dispatcher available, using built-in strategies only");
-        }
-
-        return $strategies;
+        return $this->builtinStrategies;
     }
 
     /**
-     * Get a specific strategy by ID.
+     * Get a specific strategy instance by ID.
      *
      * @param string $id Strategy identifier
-     * @return array|null Strategy metadata or null if not found
+     * @return EncryptionStrategyInterface|null Strategy instance or null if not found
      */
-    public function getStrategy(string $id): ?array
+    public function getStrategy(string $id): ?EncryptionStrategyInterface
     {
-        $strategies = $this->getAvailableStrategies();
-        return $strategies[$id] ?? null;
+        return $this->builtinStrategies[$id] ?? null;
     }
 
     /**
@@ -104,77 +82,47 @@ class EncryptionStrategySelector
      */
     public function isValidStrategy(string $id): bool
     {
-        $strategies = $this->getAvailableStrategies();
-        return isset($strategies[$id]);
+        return isset($this->builtinStrategies[$id]);
     }
 
     /**
-     * Serialize a strategy for storage in the database.
+     * Get a strategy instance by name.
      *
-     * @param string $id Strategy identifier
-     * @return string Serialized strategy data
-     * @throws \InvalidArgumentException If strategy ID is invalid
+     * @param string $strategyName Strategy identifier
+     * @return EncryptionStrategyInterface|null Strategy instance or null if not found
      */
-    public function serializeStrategy(string $id): string
+    public function getStrategyByName(string $strategyName): ?EncryptionStrategyInterface
     {
-        $strategyData = $this->getStrategy($id);
-        if (!$strategyData) {
-            throw new \InvalidArgumentException("Unknown strategy ID: {$id}");
-        }
-
-        // Special handling for null strategy - store identifier instead of serialized object
-        if ($id === 'null') {
-            return 'null';
-        }
-
-        $strategy = $strategyData['strategy'];
-        // Strategy must implement Serializable interface via EncryptionStrategyInterface
-        // No need for instanceof check since interface already requires it
-
-        return serialize($strategy);
-    }
-
-    /**
-     * Deserialize a strategy from database storage.
-     *
-     * @param string $serializedData Serialized strategy data
-     * @return EncryptionStrategyInterface|null Deserialized strategy or null if invalid
-     */
-    public function deserializeStrategy(string $serializedData): ?EncryptionStrategyInterface
-    {
-        // Special handling for null strategy
-        if ($serializedData === 'null') {
-            return new NullEncryptionStrategy();
-        }
-
-        try {
-            $strategy = unserialize($serializedData);
-            if ($strategy instanceof EncryptionStrategyInterface) {
-                return $strategy;
-            }
-        } catch (\Exception $e) {
-            $this->logger->error("EncryptionStrategySelector: Failed to deserialize strategy", [
-                'error' => $e->getMessage()
+        $strategy = $this->getStrategy($strategyName);
+        if (!$strategy) {
+            $this->logger->warning("EncryptionStrategySelector: Unknown strategy requested", [
+                'strategy_name' => $strategyName
             ]);
+            return null;
         }
 
-        return null;
+        return $strategy;
     }
 
     /**
-     * Get the default strategy ID.
+     * Get the default strategy instance.
      *
-     * @return string Default strategy identifier
+     * @return EncryptionStrategyInterface Default strategy instance (never null)
+     * @throws CryptoGenException If default strategy cannot be found
      */
-    public function getDefaultStrategyId(): string
+    public function getDefaultStrategy(): EncryptionStrategyInterface
     {
-        return 'cryptogen';
+        $strategy = $this->getStrategy(self::DEFAULT_STRATEGY_ID);
+        if ($strategy) {
+            return $strategy;
+        }
+        throw new CryptoGenException("Fatal error: Default encryption strategy '" . self::DEFAULT_STRATEGY_ID . "' not found");
     }
 
     /**
      * Get strategy metadata for display in installation UI.
      *
-     * @return array Array of strategy options for UI display
+     * @return array<int, array{value: string, label: string, description: string}> Array of strategy options for UI display
      */
     public function getStrategyOptions(): array
     {
@@ -183,9 +131,9 @@ class EncryptionStrategySelector
 
         foreach ($strategies as $id => $strategy) {
             $options[] = [
-                'value' => $id,
-                'label' => $strategy['name'],
-                'description' => $strategy['description']
+                'value' => $strategy->getId(),
+                'label' => $strategy->getName(),
+                'description' => $strategy->getDescription()
             ];
         }
 
@@ -193,25 +141,29 @@ class EncryptionStrategySelector
     }
 
     /**
-     * Validate that a strategy object is properly serializable.
+     * Get the strategy from global configuration.
      *
-     * @param EncryptionStrategyInterface $strategy Strategy to validate
-     * @return bool True if strategy can be serialized and deserialized
+     * @return EncryptionStrategyInterface Strategy instance based on global configuration
      */
-    public function validateStrategySerializable(EncryptionStrategyInterface $strategy): bool
+    public function getConfiguredStrategy(): EncryptionStrategyInterface
     {
-        // Strategy must implement Serializable interface via EncryptionStrategyInterface
-
-        try {
-            $serialized = serialize($strategy);
-            $deserialized = unserialize($serialized);
-            return $deserialized instanceof EncryptionStrategyInterface;
-        } catch (\Exception $e) {
-            $this->logger->error("EncryptionStrategySelector: Strategy serialization validation failed", [
-                'error' => $e->getMessage(),
-                'strategy_class' => get_class($strategy)
+        $strategyName = $GLOBALS['encryption_strategy_name'] ?? 'cryptogen';
+        if (!is_string($strategyName)) {
+            $this->logger->warning("EncryptionStrategySelector: Invalid configured strategy type, falling back to default", [
+                'configured_strategy' => $strategyName,
+                'fallback_strategy' => 'cryptogen'
             ]);
-            return false;
+            $strategyName = 'cryptogen';
         }
+        $strategy = $this->getStrategyByName($strategyName);
+
+        if ($strategy) {
+            return $strategy;
+        }
+        $this->logger->warning("EncryptionStrategySelector: Configured strategy not found, falling back to default", [
+            'configured_strategy' => $strategyName,
+            'fallback_strategy' => self::DEFAULT_STRATEGY_ID
+        ]);
+        return $this->getDefaultStrategy();
     }
 }

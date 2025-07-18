@@ -34,6 +34,7 @@ require_once __DIR__ . '/../../../library/sql.inc.php';
 
 use Exception;
 use function sqlQueryNoLog;
+use function sqlStatementNoLog;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\EncryptionStrategyInterface;
 use OpenEMR\Common\Crypto\EncryptionStrategySelector;
@@ -76,9 +77,9 @@ class CryptoGen
      * @param string|null $value          This is the data to encrypt.
      * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
      * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
-     *
+     * @return string|null Encrypted data or null if input is null
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive')
+    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): ?string
     {
         $this->logger->debug("CryptoGen: encryptStandard called", [
             'has_custom_password' => !is_null($customPassword),
@@ -103,9 +104,9 @@ class CryptoGen
      * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
      * @param int|null    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
      *                                    from outside OpenEMR to ensure bad actor is not trying to use an older version).
-     * @return false|string
+     * @return false|string|null
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
+    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string|null
     {
         $this->logger->debug("CryptoGen: decryptStandard called", [
             'has_custom_password' => !is_null($customPassword),
@@ -154,41 +155,44 @@ class CryptoGen
      */
     private function loadStrategyFromDatabase(): EncryptionStrategyInterface
     {
-        try {
-            // Check if we have a database connection and the globals table exists
-            if (!isset($GLOBALS['dbase']) || empty($GLOBALS['dbase'])) {
-                $this->logger->debug("CryptoGen: No database connection, using default strategy");
-                return new CryptoGenStrategy();
-            }
-
-            // Query for the encryption strategy global setting
-            $result = sqlQueryNoLog("SELECT gl_value FROM globals WHERE gl_name = 'encryption_strategy_serialized' AND gl_index = 0");
-
-            if (empty($result['gl_value'])) {
-                $this->logger->debug("CryptoGen: No encryption strategy stored in database, using default");
-                return new CryptoGenStrategy();
-            }
-
-            $serializedStrategy = $result['gl_value'];
-            $this->logger->debug("CryptoGen: Found serialized strategy in database");
-
-            // Use the strategy selector to deserialize
-            $selector = new EncryptionStrategySelector();
-            $strategy = $selector->deserializeStrategy($serializedStrategy);
-
-            if ($strategy === null) {
-                $this->logger->error("CryptoGen: Failed to deserialize strategy, using default");
-                return new CryptoGenStrategy();
-            }
-
-            return $strategy;
-        } catch (Exception $e) {
-            $this->logger->error("CryptoGen: Error loading strategy from database", [
-                'error' => $e->getMessage()
-            ]);
-
-            // Fall back to default strategy
-            return new CryptoGenStrategy();
+        // Check if we have a database connection and the globals table exists
+        if (!isset($GLOBALS['dbase']) || empty($GLOBALS['dbase'])) {
+            throw new CryptoGenException("Fatal error: No database connection available for loading encryption strategy");
         }
+
+        $selector = new EncryptionStrategySelector();
+
+        // Query for the encryption strategy name from global setting
+        $result = sqlQueryNoLog("SELECT gl_value FROM globals WHERE gl_name = 'encryption_strategy_name' AND gl_index = 0");
+
+        if (empty($result['gl_value'])) {
+            $this->logger->debug("CryptoGen: No encryption strategy name stored in database, setting default");
+            // Set the default strategy in the database
+            $defaultStrategy = $selector->getDefaultStrategy();
+            $defaultStrategyId = $defaultStrategy->getId();
+            sqlStatementNoLog("INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('encryption_strategy_name', 0, ?)", [$defaultStrategyId]);
+            $this->logger->debug("CryptoGen: Set default encryption strategy in database to '{$defaultStrategyId}'", [
+                'strategy_name' => $defaultStrategyId
+            ]);
+            return $defaultStrategy;
+        }
+
+        $strategyName = $result['gl_value'];
+
+        if (!is_string($strategyName)) {
+            throw new CryptoGenException("Fatal error: Encryption strategy name from database is not a string");
+        }
+
+        $this->logger->debug("CryptoGen: Found strategy name in database", [
+            'strategy_name' => $strategyName
+        ]);
+
+        // Use the strategy selector to get strategy by name
+        $strategy = $selector->getStrategyByName($strategyName);
+
+        if ($strategy !== null) {
+            return $strategy;
+        }
+        throw new CryptoGenException("Fatal error: Encryption strategy '{$strategyName}' configured in database but not found");
     }
 }

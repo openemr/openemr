@@ -126,6 +126,36 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
         return !empty($value) && preg_match('/^00[1-6]/', $value);
     }
 
+    /**
+     * Get the unique identifier for this encryption strategy.
+     *
+     * @return string Strategy identifier
+     */
+    public function getId(): string
+    {
+        return 'cryptogen';
+    }
+
+    /**
+     * Get the human-readable name for this encryption strategy.
+     *
+     * @return string Strategy display name
+     */
+    public function getName(): string
+    {
+        return 'Standard Encryption (AES-256-CBC)';
+    }
+
+    /**
+     * Get a description of this encryption strategy.
+     *
+     * @return string Strategy description
+     */
+    public function getDescription(): string
+    {
+        return 'OpenEMR default encryption using AES-256-CBC with HMAC-SHA384 authentication. Recommended for most installations.';
+    }
+
     private function coreEncrypt(?string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): string
     {
         $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
@@ -509,57 +539,4 @@ class CryptoGenStrategy implements EncryptionStrategyInterface
         );
     }
 
-    /**
-     * Serialize the strategy for database storage.
-     *
-     * @return string Serialized strategy data
-     */
-    public function serialize(): string
-    {
-        return serialize([
-            'encryptionVersion' => $this->encryptionVersion,
-            'keyVersion' => $this->keyVersion
-        ]);
-    }
-
-    /**
-     * Unserialize the strategy from database storage.
-     *
-     * @param string $data Serialized strategy data
-     */
-    public function unserialize(string $data): void
-    {
-        $serializedData = unserialize($data);
-
-        $this->encryptionVersion = $serializedData['encryptionVersion'] ?? '006';
-        $this->keyVersion = $serializedData['keyVersion'] ?? 'six';
-        $this->keyCache = [];
-        $this->logger = new SystemLogger();
-    }
-
-    /**
-     * Modern PHP serialization method.
-     *
-     * @return array Data to serialize
-     */
-    public function __serialize(): array
-    {
-        return [
-            'encryptionVersion' => $this->encryptionVersion,
-            'keyVersion' => $this->keyVersion
-        ];
-    }
-
-    /**
-     * Modern PHP unserialization method.
-     *
-     * @param array $data Serialized data
-     */
-    public function __unserialize(array $data): void
-    {
-        $this->encryptionVersion = $data['encryptionVersion'] ?? '006';
-        $this->keyVersion = $data['keyVersion'] ?? 'six';
-        $this->keyCache = [];
-        $this->logger = new SystemLogger();
-    }
 }

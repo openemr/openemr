@@ -23,11 +23,8 @@ namespace OpenEMR\Common\Crypto;
  *
  * All encryption strategies must implement these methods to provide
  * encryption, decryption, and validation functionality.
- *
- * Strategies must also be serializable to allow storage in the database
- * during installation so they remain accessible even if modules are removed.
  */
-interface EncryptionStrategyInterface extends \Serializable
+interface EncryptionStrategyInterface
 {
     /**
      * Encrypt data using the strategy's encryption method.
@@ -46,9 +43,9 @@ interface EncryptionStrategyInterface extends \Serializable
      * @param string|null $customPassword If provided, use password-based decryption
      * @param string $keySource Source for standard keys ('drive' or 'database')
      * @param int|null $minimumVersion Minimum encryption version required
-     * @return false|string Decrypted data or false on failure
+     * @return false|string|null Decrypted data or false on failure
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string;
+    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string|null;
 
     /**
      * Check if a value was encrypted using this strategy.
@@ -57,4 +54,25 @@ interface EncryptionStrategyInterface extends \Serializable
      * @return bool True if the value is compatible with this strategy
      */
     public function cryptCheckStandard(?string $value): bool;
+
+    /**
+     * Get the unique identifier for this encryption strategy.
+     *
+     * @return string Strategy identifier (e.g., 'cryptogen', 'null')
+     */
+    public function getId(): string;
+
+    /**
+     * Get the human-readable name for this encryption strategy.
+     *
+     * @return string Strategy display name
+     */
+    public function getName(): string;
+
+    /**
+     * Get a description of this encryption strategy.
+     *
+     * @return string Strategy description
+     */
+    public function getDescription(): string;
 }
