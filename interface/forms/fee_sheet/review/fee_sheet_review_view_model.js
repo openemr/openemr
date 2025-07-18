@@ -86,6 +86,7 @@ function procedure(json_source) {
         json_return.units = this.units();
         /** ai generated code by google-labs-jules starts */
         json_return.ndc_info = this.ndc_info();
+        json_return.mod_size = this.mod_size();
         /** ai generated code by google-labs-jules end */
         json_return.justify = this.genJustify();
         return json_return;
