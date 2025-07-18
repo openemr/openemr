@@ -346,8 +346,6 @@ class CdaTemplateImportDispose
                         $res_enc = $appTable->zQuery("SELECT encounter FROM form_encounter WHERE pid=? ORDER BY id DESC LIMIT 1", array($pid));
                         $res_enc_cur = $res_enc->current();
                         $encounter_for_forms = $res_enc_cur['encounter'];
-                    } else {
-                        $encounter_for_forms = $encounter_for_forms;
                     }
                 }
             }

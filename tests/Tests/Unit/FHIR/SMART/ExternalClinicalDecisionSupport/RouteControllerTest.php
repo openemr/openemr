@@ -18,14 +18,14 @@ use Twig\Environment;
 class RouteControllerTest extends TestCase
 {
     protected RouteController $controller;
-    protected ClientRepository $mockRepository;
-    protected SystemLogger $mockLogger;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockRepository;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockLogger;
 
-    protected Environment $mockTwig;
+    protected \PHPUnit\Framework\MockObject\MockObject $mockTwig;
 
-    protected ActionUrlBuilder $actionUrlBuilder;
+    protected \PHPUnit\Framework\MockObject\MockObject $actionUrlBuilder;
 
-    protected DecisionSupportInterventionService $dsiService;
+    protected \PHPUnit\Framework\MockObject\MockObject $dsiService;
 
     protected function setUp(): void
     {

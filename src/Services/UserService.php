@@ -213,9 +213,6 @@ class UserService
         // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
         if (count($records) == 1) {
             $akeys = array_keys($records[0]);
-            foreach ($akeys as $key) {
-                $records[0][$key] = $records[0][$key];
-            }
         }
 
         return ($records ?? null);

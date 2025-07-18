@@ -51,8 +51,6 @@ class Barcode
             foreach (array('code' => '', 'crc' => true, 'rect' => false) as $v => $def) {
                 $$v = isset($datas[$v]) ? $datas[$v] : $def;
             }
-
-            $code = $code;
         } else {
             $code = $datas;
         }

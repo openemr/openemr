@@ -282,9 +282,6 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
 
     if ($iter == 1) {
         $akeys = array_keys($returnval[0]);
-        foreach ($akeys as $key) {
-            $returnval[0][$key] = $returnval[0][$key];
-        }
     }
 
     return ($returnval ?? null);

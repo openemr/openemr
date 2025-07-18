@@ -51,7 +51,6 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         }
 
         // escape and format note for viewing
-        $fenote = $fenote;
         $fenote = str_replace("\r\n", "<br />", $fenote);
         $fenote = str_replace("\n", "<br />", $fenote);
 

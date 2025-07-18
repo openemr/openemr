@@ -711,8 +711,6 @@ window.onload = function() {
                                 $codekeydisp .= ':' . $iter2['modifier'];
                             }
 
-                            $codekeydisp = $codekeydisp;
-
                             if ($binfo[0]) {
                                 $binfo[0] .= '<br />';
                             }

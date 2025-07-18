@@ -1638,7 +1638,6 @@ class Smarty_Legacy
             if(strlen($_resource_name_parts[0]) == 1) {
                 // 1 char is not resource type, but part of filepath
                 $params['resource_type'] = $this->default_resource_type;
-                $params['resource_name'] = $params['resource_name'];
             } else {
                 $params['resource_type'] = $_resource_name_parts[0];
                 $params['resource_name'] = $_resource_name_parts[1];

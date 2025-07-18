@@ -444,22 +444,13 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
                 continue;
             }
 
-            switch ((string)$loopid) {
-                case '2000A':
-                    $loopid = '2100A';
-                    break;     // edih_change_loop($lptest, &$lpval)
-                case '2000B':
-                    $loopid = '2100B';
-                    break;
-                case '2000C':
-                    $loopid = '2100C';
-                    break;
-                case '2000D':
-                    $loopid = '2100D';
-                    break;
-                default:
-                    $loopid = $loopid;
-            }
+            $loopid = match ($loopid) {
+                '2000A' => '2100A',
+                '2000B' => '2100B',
+                '2000C' => '2100C',
+                '2000D' => '2100D',
+                default => $loopid,
+            };
 
             $str_html .= "<tr><td class='btloop'>" . text($loopid) . "</td><td class='btnum'>" . text($key) . "</td><td class='btseg'>" . text($seg) . "</td></tr>" . PHP_EOL;
             $prevseg = 'NM1' . $de;
