@@ -147,23 +147,13 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return new AccessTokenRepository();
     }
 
-    public function shouldProcessRequest(Request $request): bool
+    public function shouldProcessRequest(HttpRestRequest $request): bool
     {
-        if (!$request instanceof HttpRestRequest) {
-            // If the request is not an instance of HttpRestRequest, we do not process it.
-            return false;
-        }
         return true; // This strategy should process all requests, but you can add conditions if needed.
     }
 
-    public function authorizeRequest(Request $request): bool
+    public function authorizeRequest(HttpRestRequest $request): bool
     {
-        if (!$request instanceof HttpRestRequest) {
-            // If the request is not an instance of HttpRestRequest, we do not process it.
-            $this->getLogger()->error("OpenEMR Error - BearerTokenAuthorizationStrategy requires HttpRestRequest");
-            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, "OpenEMR Error: BearerTokenAuthorizationStrategy requires HttpRestRequest.");
-        }
-
         // verify the access token
         $repository = $this->getAccessTokenRepository();
         $tokenRaw = $this->verifyAccessToken($repository, $request);
@@ -234,14 +224,11 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $request->attributes->set('userRole', $userRole);
         $request->attributes->set('clientId', $clientId);
         $request->attributes->set('tokenId', $tokenId);
-
-        if ($request instanceof HttpRestRequest) {
-            $request->setAccessTokenScopes($attributes['oauth_scopes']);
-            $request->setAccessTokenId($tokenId);
-            $request->setRequestUserRole($userRole);
-            $request->setRequestUser($userId, $user);
-            $request->setClientId($clientId);
-        }
+        $request->setAccessTokenScopes($attributes['oauth_scopes']);
+        $request->setAccessTokenId($tokenId);
+        $request->setRequestUserRole($userRole);
+        $request->setRequestUser($userId, $user);
+        $request->setClientId($clientId);
         return true;
     }
 

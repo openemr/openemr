@@ -28,32 +28,6 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
     {
     }
 
-    /**
-     * @param callable $factory (string) :=> UuidUserAccount
-     * @return void
-     */
-    public function setUuidUserAccountFactory(callable $factory): void
-    {
-        // This method is intended to set the factory for creating UuidUserAccount instances.
-        // Implementation details would depend on the specific requirements of the application.
-        $this->uuidUserAccountFactory = $factory;
-    }
-
-    /**
-     * @return callable (string) :=> UuidUserAccount
-     */
-    public function getUuidUserAccountFactory(): callable
-    {
-        if (!isset($this->uuidUserAccountFactory)) {
-            // If the factory is not set, we can initialize it here.
-            // This is a placeholder for the actual factory logic.
-            $this->uuidUserAccountFactory = function ($userUuid) {
-                return new UuidUserAccount($userUuid);
-            };
-        }
-        return $this->uuidUserAccountFactory;
-    }
-
     public function shouldProcessRequest(Request $request): bool
     {
         if ($request->headers->has("APICSRFTOKEN")) {
@@ -69,7 +43,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
      * @return bool
      * @throw UnauthorizedHttpException if the request is not authorized
      */
-    public function authorizeRequest(Request $request): bool
+    public function authorizeRequest(HttpRestRequest $request): bool
     {
         $session = $request->getSession();
         // for legacy purposes
@@ -114,13 +88,10 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
         $request->attributes->set('userId', $userUuid);
         $request->attributes->set('clientId', null);
         $request->attributes->set('tokenId', $csrfToken);
-        if ($request instanceof HttpRestRequest) {
-            $request->setAccessTokenId($csrfToken);
-            $request->setRequestUserRole($userRole);
-            $request->setRequestUser($userUuid, $user);
-            return true;
-        }
-        return false;
+        $request->setAccessTokenId($csrfToken);
+        $request->setRequestUserRole($userRole);
+        $request->setRequestUser($userUuid, $user);
+        return true;
     }
 
     public function getUserService(): UserService
