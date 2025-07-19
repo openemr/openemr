@@ -300,7 +300,7 @@ final class EventAuditLoggerTest extends TestCase
         );
 
         // Test passes if no exceptions are thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -335,7 +335,7 @@ final class EventAuditLoggerTest extends TestCase
         );
 
         // Test passes if no exceptions are thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -372,7 +372,7 @@ final class EventAuditLoggerTest extends TestCase
         );
 
         // Test passes if no exceptions are thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -457,7 +457,7 @@ final class EventAuditLoggerTest extends TestCase
         $this->eventAuditLogger->auditSQLEvent('DELETE FROM patient_data WHERE pid = ?', true, [123]);
 
         // Test passes if no exceptions are thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -528,7 +528,7 @@ final class EventAuditLoggerTest extends TestCase
         $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
 
         // Test passes if no exceptions are thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -587,7 +587,7 @@ final class EventAuditLoggerTest extends TestCase
             'testuser'
         );
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -606,7 +606,7 @@ final class EventAuditLoggerTest extends TestCase
             456
         );
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -619,7 +619,7 @@ final class EventAuditLoggerTest extends TestCase
         // Test passes if no exceptions are thrown
         $this->eventAuditLogger->deleteDisclosure(789);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -782,6 +782,6 @@ final class EventAuditLoggerTest extends TestCase
         $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', null);
 
         // Test passes if no exceptions are thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 }
