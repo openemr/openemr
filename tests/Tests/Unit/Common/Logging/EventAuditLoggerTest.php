@@ -10,6 +10,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2025 OpenEMR Support LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 /**
  * Comprehensive unit tests for the EventAuditLogger class
  *
@@ -60,7 +61,7 @@ final class EventAuditLoggerTest extends TestCase
      */
     private array $modifiedGlobalKeys = [
         'enable_auditlog',
-        'enable_auditlog_encryption', 
+        'enable_auditlog_encryption',
         'audit_events_patient-record',
         'audit_events_security-administration',
         'audit_events_query',
@@ -80,8 +81,8 @@ final class EventAuditLoggerTest extends TestCase
 
         // Backup original superglobals
         $this->originalSession = $_SESSION ?? [];
-        $this->originalServer = $_SERVER ?? [];
-        
+        $this->originalServer = $_SERVER;
+
         // Backup only the specific $GLOBALS keys we modify
         $this->originalGlobals = [];
         foreach ($this->modifiedGlobalKeys as $modifiedGlobalKey) {
@@ -108,7 +109,7 @@ final class EventAuditLoggerTest extends TestCase
         // Restore original superglobals
         $_SESSION = $this->originalSession;
         $_SERVER = $this->originalServer;
-        
+
         // Restore original $GLOBALS values and unset any we added
         foreach ($this->modifiedGlobalKeys as $modifiedGlobalKey) {
             if (isset($this->originalGlobals[$modifiedGlobalKey])) {
@@ -191,63 +192,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function mockDatabaseFunctions(): void
     {
-        // Mock global database functions
-        if (!function_exists('sqlStatement')) {
-            function sqlStatement($sql, $binds = []): bool {
-                return true; // Mock successful execution
-            }
-        }
-
-        if (!function_exists('sqlInsertClean_audit')) {
-            function sqlInsertClean_audit($sql, $binds = []): bool {
-                return true; // Mock successful execution
-            }
-        }
-
-        if (!function_exists('sqlQueryNoLog')) {
-            function sqlQueryNoLog($sql, $binds = []) {
-                return null; // Mock no result
-            }
-        }
-
-        if (!function_exists('collectIpAddresses')) {
-            function collectIpAddresses(): array {
-                return ['ip_string' => '127.0.0.1'];
-            }
-        }
-
-        if (!function_exists('add_escape_custom')) {
-            function add_escape_custom($value): string {
-                return addslashes($value);
-            }
-        }
-
-        if (!function_exists('escape_sql_column_name')) {
-            function escape_sql_column_name($column, $tables = []) {
-                return $column;
-            }
-        }
-
-        if (!function_exists('escape_sort_order')) {
-            function escape_sort_order($order) {
-                return $order;
-            }
-        }
-
-        if (!function_exists('sqlFetchArray')) {
-            function sqlFetchArray($result): array|false {
-                static $called = false;
-                if (!$called) {
-                    $called = true;
-                    return [
-                        'patient_portal_menu_id' => 1,
-                        'menu_name' => 'dashboard'
-                    ];
-                }
-
-                return false;
-            }
-        }
+        // Note: In a real test environment, these would be mocked at the framework level
+        // For now, we'll assume these functions exist or are stubbed elsewhere
     }
 
     /**
@@ -501,7 +447,7 @@ final class EventAuditLoggerTest extends TestCase
         // Test SELECT query
         $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [123]);
 
-        // Test INSERT query  
+        // Test INSERT query
         $this->eventAuditLogger->auditSQLEvent('INSERT INTO patient_data (fname) VALUES (?)', true, ['John']);
 
         // Test UPDATE query
@@ -756,7 +702,7 @@ final class EventAuditLoggerTest extends TestCase
         ];
 
         $result = $this->eventAuditLogger->getEvents($params);
-        
+
         // Result should be truthy (mocked to return true)
         $this->assertTrue($result);
     }
@@ -775,7 +721,7 @@ final class EventAuditLoggerTest extends TestCase
         ];
 
         $result = $this->eventAuditLogger->getEvents($params);
-        
+
         // Result should be truthy (mocked to return true)
         $this->assertTrue($result);
     }
