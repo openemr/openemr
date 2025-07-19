@@ -37,7 +37,7 @@ final class EventAuditLoggerTest extends TestCase
     private $eventAuditLogger;
 
     /**
-     * @var MockObject|CryptoGen
+     * @var MockObject
      */
     private \PHPUnit\Framework\MockObject\MockObject $cryptoGenMock;
 
