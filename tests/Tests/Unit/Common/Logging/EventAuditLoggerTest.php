@@ -625,6 +625,45 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
+     * Test logHttpRequest when HTTP request logging is disabled
+     */
+    public function testLogHttpRequestDisabled(): void
+    {
+        // Disable HTTP request logging
+        $GLOBALS['audit_events_http-request'] = false;
+
+        // Mock newEvent method to ensure it's not called
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->getMock();
+
+        $loggerMock->expects($this->never())->method('newEvent');
+
+        // Call logHttpRequest - should return early without logging
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
+     * Test logHttpRequest when audit logging is disabled
+     */
+    public function testLogHttpRequestAuditDisabled(): void
+    {
+        // Disable audit logging but keep HTTP request logging enabled
+        $GLOBALS['enable_auditlog'] = false;
+        $GLOBALS['audit_events_http-request'] = true;
+
+        // Mock newEvent method to ensure it's not called
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->getMock();
+
+        $loggerMock->expects($this->never())->method('newEvent');
+
+        // Call logHttpRequest - should return early without logging
+        $loggerMock->logHttpRequest();
+    }
+
+    /**
      * Test logHttpRequest with different HTTP methods
      */
     public function testLogHttpRequestDifferentMethods(): void
