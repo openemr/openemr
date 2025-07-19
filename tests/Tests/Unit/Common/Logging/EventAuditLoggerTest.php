@@ -40,22 +40,22 @@ final class EventAuditLoggerTest extends TestCase
     private \PHPUnit\Framework\MockObject\MockObject $cryptoGenMock;
 
     /**
-     * @var array Original $_SESSION backup
+     * @var array<string, mixed> Original $_SESSION backup
      */
     private array $originalSession;
 
     /**
-     * @var array Original $_SERVER backup
+     * @var array<string, mixed> Original $_SERVER backup
      */
     private array $originalServer;
 
     /**
-     * @var array Original $GLOBALS backup
+     * @var array<string, mixed> Original $GLOBALS backup
      */
     private array $originalGlobals;
 
     /**
-     * @var array Keys of $GLOBALS that we modify in tests
+     * @var array<int, string> Keys of $GLOBALS that we modify in tests
      */
     private array $modifiedGlobalKeys = [
         'enable_auditlog',
