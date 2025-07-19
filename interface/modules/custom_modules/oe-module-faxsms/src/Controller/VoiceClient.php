@@ -40,6 +40,35 @@ class VoiceClient extends AppDispatch
         parent::__construct();
     }
 
+    public function getVoiceCredentials(): mixed
+    {
+        $vendor = '_voice';
+        $this->authUser = (int)$this->getSession('authUserID');
+        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+            $this->authUser = 0;
+        }
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
+
+        if (empty($credentials)) {
+            return array(
+                'extension' => '',
+                'phone' => '',
+                'smsNumber' => '',
+                'appKey' => '',
+                'appSecret' => '',
+                'server' => '',
+                'portal' => '',
+                'production' => '',
+                'jwt' => ''
+            );
+        } else {
+            $credentials = $credentials['credentials'];
+        }
+
+        $decrypt = $this->crypto->decryptStandard($credentials);
+        return json_decode($decrypt, true);
+    }
+
     /**
      * @return array
      */
@@ -48,7 +77,7 @@ class VoiceClient extends AppDispatch
         if (!file_exists($this->cacheDir)) {
             mkdir($this->cacheDir, 0777, true);
         }
-        return AppDispatch::getSetup();
+        return $this->getSetup();
     }
 
     function sendFax(): string|bool
