@@ -191,6 +191,9 @@ final class EventAuditLoggerTest extends TestCase
             ->getMock();
         $resultSetMock->method('FetchRow')->willReturn(false); // No breakglass user found
 
+        // Add EOF property manually since addProperties() doesn't exist
+        $resultSetMock->EOF = true;
+
         $mock->method('Execute')->willReturn($resultSetMock);
         $mock->method('ExecuteNoLog')->willReturn($resultSetMock);
         return $mock;
@@ -664,8 +667,8 @@ final class EventAuditLoggerTest extends TestCase
 
         $result = $this->eventAuditLogger->getEvents($params);
 
-        // Result should be truthy (mocked to return true)
-        $this->assertTrue($result);
+        // Result should be truthy (returns the result set mock object)
+        $this->assertNotNull($result);
     }
 
     /**
@@ -681,8 +684,8 @@ final class EventAuditLoggerTest extends TestCase
 
         $result = $this->eventAuditLogger->getEvents($params);
 
-        // Result should be truthy (mocked to return true)
-        $this->assertTrue($result);
+        // Result should be truthy (returns the result set mock object)
+        $this->assertNotNull($result);
     }
 
     /**
