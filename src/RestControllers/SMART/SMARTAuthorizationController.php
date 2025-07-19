@@ -11,8 +11,10 @@
 
 namespace OpenEMR\RestControllers\SMART;
 
+use Google\Service\Bigquery\SessionInfo;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RedirectUriValidators\RedirectUriValidator;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -27,6 +29,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 
@@ -65,6 +68,12 @@ class SMARTAuthorizationController
      */
     private $dispatcher;
 
+    private SessionInterface $session;
+
+    private PatientContextSearchController $patientContextSearchController;
+
+    private ClientRepository $clientRepository;
+
     const PATIENT_SELECT_PATH = "/smart/patient-select";
 
     const PATIENT_SELECT_CONFIRM_ENDPOINT = "/smart/patient-select-confirm";
@@ -81,17 +90,32 @@ class SMARTAuthorizationController
 
     /**
      * SMARTAuthorizationController constructor.
+     * TODO: @adunsulag this constructor has a lot of parameters, we should look at refactoring this to use a configuration object or reduce the scope of what this class does.
      * @param $authBaseFullURL
      * @param $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
      */
-    public function __construct(LoggerInterface $logger, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir, Environment $twig, EventDispatcher $dispatcher)
+    public function __construct(SessionInterface $session, LoggerInterface $logger, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir, Environment $twig, EventDispatcher $dispatcher)
     {
+        $this->session = $session;
         $this->logger = $logger;
         $this->authBaseFullURL = $authBaseFullURL;
         $this->smartFinalRedirectURL = $smartFinalRedirectURL;
         $this->oauthTemplateDir = $oauthTemplateDir;
         $this->twig = $twig;
         $this->dispatcher = $dispatcher;
+    }
+
+    public function setPatientContextSearchController(PatientContextSearchController $patientContextSearchController): void
+    {
+        $this->patientContextSearchController = $patientContextSearchController;
+    }
+
+    public function getPatientContextSearchController(): PatientContextSearchController
+    {
+        if (!isset($this->patientContextSearchController)) {
+            $this->patientContextSearchController = new PatientContextSearchController(new PatientService(), $this->logger);
+        }
+        return $this->patientContextSearchController;
     }
 
     /**
@@ -119,14 +143,15 @@ class SMARTAuthorizationController
     /**
      * Handles the route endpoint and terminates the process upon completion.
      * @param $end_point
+     * @param HttpRestRequest $request
      */
-    public function dispatchRoute($end_point): ResponseInterface
+    public function dispatchRoute($end_point, HttpRestRequest $request): ResponseInterface
     {
 
         // order here matters
         if (false !== stripos($end_point, self::PATIENT_SELECT_CONFIRM_ENDPOINT)) {
             // session is maintained
-            return $this->patientSelectConfirm();
+            return $this->patientSelectConfirm($request);
         } else if (false !== stripos($end_point, self::PATIENT_SELECT_PATH)) {
             // session is maintained
             return $this->patientSelect();
@@ -160,8 +185,9 @@ class SMARTAuthorizationController
      */
     public function needSMARTAuthorization()
     {
-        if (empty($_SESSION['puuid']) && strpos($_SESSION['scopes'], SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
-            $this->logger->debug("AuthorizationController->userLogin() SMART app request for patient context ", ['scopes' => $_SESSION['scopes'], 'puuid' => $_SESSION['puuid'] ?? null]);
+        if (empty($this->session->get('puuid')) && strpos($this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
+            $this->logger->debug("AuthorizationController->userLogin() SMART app request for patient context "
+                , ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid', null)]);
             return true;
         }
         return false;
@@ -181,27 +207,27 @@ class SMARTAuthorizationController
     /**
      * Receives the response of the patient selected, sets up the session and redirects back to the oauth2 regular flow
      */
-    public function patientSelectConfirm()
+    public function patientSelectConfirm(HttpRestRequest $request) : ResponseInterface
     {
-        $user_uuid = $_SESSION['user_id'];
+        $user_uuid = $this->session->get('user_id', null);
         if (!isset($user_uuid)) {
             $this->logger->error("SMARTAuthorizationController->patientSelect() Unauthorized call, user has not authenticated");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized call');
         }
 
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"], 'oauth2')) {
+        if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token"), 'oauth2', $this->session)) {
             $this->logger->error("SMARTAuthorizationController->patientSelect() Invalid CSRF token");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Invalid CSRF token');
         }
 
         // set our patient information up in our pid so we can handle our code property...
         try {
-            $patient_id = $_POST['patient_id']; // this patient_id is actually a uuid.. wierd
-            $searchController = new PatientContextSearchController(new PatientService(), $this->logger);
+            $patient_id = $request->request->get('patient_id', null); // this patient_id is actually a uuid.. wierd
+            $searchController = $this->getPatientContextSearchController();
             // throws access denied if user doesn't have access
             $foundPatient = $searchController->getPatientForUser($patient_id, $user_uuid);
             // put PID in session
-            $_SESSION['puuid'] = $patient_id;
+            $this->session->set('puuid', $patient_id);
 
             // now redirect to our scope-authorize
             $redirect = $this->smartFinalRedirectURL;
@@ -212,7 +238,7 @@ class SMARTAuthorizationController
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage(), 'userId' => $user_uuid]);
             // make sure to grab the redirect uri before the session is destroyed
             $redirectUri = $this->getClientRedirectURI();
-            SessionUtil::oauthSessionCookieDestroy();
+            $this->session->invalidate(); // destroy the session so we don't have any stale data
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
@@ -253,7 +279,7 @@ class SMARTAuthorizationController
             $searchParams = $_GET['search'] ?? [];
 
             // grab our list of patients to select from.
-            $searchController = new PatientContextSearchController(new PatientService(), $this->logger);
+            $searchController = $this->getPatientContextSearchController();
             $patients = $searchController->searchPatients($searchParams, $user_uuid);
             $hasMore = count($patients) > self::PATIENT_SEARCH_MAX_RESULTS;
             $patients = $hasMore ? array_slice($patients, 0, self::PATIENT_SEARCH_MAX_RESULTS) : $patients;
@@ -365,14 +391,27 @@ class SMARTAuthorizationController
         echo $response->getBody();
     }
 
+    public function setClientRepository(ClientRepository $repository) : void
+    {
+        $this->clientRepository = $repository;
+    }
+
+    public function getClientRepository() : ClientRepository
+    {
+        if (!isset($this->clientRepository)) {
+            $this->clientRepository = new ClientRepository();
+        }
+        return $this->clientRepository;
+    }
+
     /**
      * Returns the client redirect URI to send error responses back.
      * @return string|null
      */
     private function getClientRedirectURI()
     {
-        $client_id = $_SESSION['client_id'];
-        $repo = new ClientRepository();
+        $client_id = $this->session->get('client_id');
+        $repo = $this->getClientRepository();
         $client = $repo->getClientEntity($client_id);
         $uriList = $client->getRedirectUri();
         $uri = $uriList;
@@ -383,9 +422,9 @@ class SMARTAuthorizationController
             // this is probably overly paranoid but we want to safeguard against any session tampering and use the same logic
             // to validate the redirect_uri as we do elsewhere in the system
             // if we have multiple redirect_uris and we have the redirect uri in our session
-            if (!empty($_SESSION['redirect_uri'])) {
-                if ($validator->validateRedirectUri($_SESSION['redirect_uri'])) {
-                    $uri = $_SESSION['redirect_uri'];
+            if (!empty($this->session->get('redirect_uri'))) {
+                if ($validator->validateRedirectUri($this->session->get('redirect_uri'))) {
+                    $uri = $this->session->get('redirect_uri');
                 }
             }
         }

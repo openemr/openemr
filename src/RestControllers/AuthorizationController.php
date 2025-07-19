@@ -196,6 +196,7 @@ class AuthorizationController
     {
         if (!isset($this->smartAuthController)) {
             $this->smartAuthController = new SMARTAuthorizationController(
+                $this->session,
                 $this->getSystemLogger(),
                 $this->authBaseFullUrl,
                 $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
@@ -1072,13 +1073,14 @@ class AuthorizationController
      * Route handler for any SMART authorization contexts that we need for OpenEMR
      * @param $end_point
      */
-    public function dispatchSMARTAuthorizationEndpoint($end_point): ResponseInterface
+    public function dispatchSMARTAuthorizationEndpoint($end_point, HttpRestRequest $request): ResponseInterface
     {
-        return $this->getSmartAuthController()->dispatchRoute($end_point);
+        return $this->getSmartAuthController()->dispatchRoute($end_point, $request);
     }
 
     private function verifyLogin($username, $password, $email = '', $type = 'api'): bool
     {
+        $session = $this->session;
         $auth = new AuthUtils($type);
         $is_true = $auth->confirmPassword($username, $password, $email);
         if (!$is_true) {
@@ -1088,7 +1090,7 @@ class AuthorizationController
         // TODO: should user_id be set to be a uuid here?
         if ($this->userId = $auth->getUserId()) {
             $this->session->set('user_id', $this->getUserUuid($this->userId, 'users'));
-            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $_SESSION['user_id'],
+            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $session->get('user_id'),
                 'username' => $username, 'email' => $email, 'type' => $type]);
             return true;
         }
@@ -1096,7 +1098,7 @@ class AuthorizationController
             $puuid = $this->getUserUuid($id, 'patient');
             // TODO: @adunsulag check with @sjpadgett on where this user_id is even used as we are assigning it to be a uuid
             $this->session->set('user_id', $puuid);
-            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $_SESSION['user_id']
+            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $session->get('user_id')
                 , 'username' => $username, 'email' => $email, 'type' => $type]);
             $this->session->set('pid', $id);
             $this->session->set('puuid', $puuid);
@@ -1771,7 +1773,7 @@ class AuthorizationController
         }
         // if user is logged in we want to track who the creator was
         // if not logged in, user id will be null as we don't have anything to track.
-        $userId = $_SESSION['authUserID'] ?? null;
+        $userId = $this->session->get('authUserID', null);
         $dsiService->updateService($service, $userId);
     }
 
