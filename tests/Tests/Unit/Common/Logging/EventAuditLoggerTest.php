@@ -164,7 +164,7 @@ final class EventAuditLoggerTest extends TestCase
         $mock = $this->getMockBuilder(\stdClass::class)
             ->addMethods(['qstr', 'Insert_ID'])
             ->getMock();
-        
+
         $mock->method('qstr')->willReturnCallback(function ($value): string {
             return "'" . addslashes($value) . "'";
         });
