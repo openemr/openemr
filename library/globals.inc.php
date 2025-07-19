@@ -2470,6 +2470,13 @@ $GLOBALS_METADATA = array(
             xl('Authentication SHA512 hash rounds number.')
         ),
 
+        'encryption_strategy_name' => array(
+            xl('Encryption Strategy Name') . '*',
+            'text',
+            'cryptogen',
+            xl('Name of the encryption strategy selected during installation. This setting should not be modified after installation.')
+        ),
+
     ),
 
     // Notifications Tab
