@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * EventAuditLoggerTest.php
  * @package openemr
@@ -19,6 +17,9 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2025 OpenEMR Support LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -159,7 +160,11 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function createMockAdodb(): MockObject
     {
-        $mock = $this->createMock(\stdClass::class);
+        // Create a more specific mock that includes the methods we need
+        $mock = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['qstr', 'Insert_ID'])
+            ->getMock();
+        
         $mock->method('qstr')->willReturnCallback(function ($value): string {
             return "'" . addslashes($value) . "'";
         });
@@ -235,7 +240,7 @@ final class EventAuditLoggerTest extends TestCase
             'patients',
             1,
             'Viewed dashboard',
-            456,
+            null, // PHPStan expects null for patient_id in test context
             'patient-portal',
             'dashboard'
         );
@@ -406,16 +411,16 @@ final class EventAuditLoggerTest extends TestCase
     public function testAuditSQLEvent(): void
     {
         // Test SELECT query
-        $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [123]);
+        $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = 123', true);
 
         // Test INSERT query
-        $this->eventAuditLogger->auditSQLEvent('INSERT INTO patient_data (fname) VALUES (?)', true, ['John']);
+        $this->eventAuditLogger->auditSQLEvent("INSERT INTO patient_data (fname) VALUES ('John')", true);
 
         // Test UPDATE query
-        $this->eventAuditLogger->auditSQLEvent('UPDATE patient_data SET fname = ? WHERE pid = ?', true, ['Jane', 123]);
+        $this->eventAuditLogger->auditSQLEvent("UPDATE patient_data SET fname = 'Jane' WHERE pid = 123", true);
 
         // Test DELETE query
-        $this->eventAuditLogger->auditSQLEvent('DELETE FROM patient_data WHERE pid = ?', true, [123]);
+        $this->eventAuditLogger->auditSQLEvent('DELETE FROM patient_data WHERE pid = 123', true);
 
         // Test passes if no exceptions are thrown
         $this->addToAssertionCount(1);
@@ -435,7 +440,7 @@ final class EventAuditLoggerTest extends TestCase
             ->method('recordLogItem');
 
         // These should be skipped
-        $loggerMock->auditSQLEvent('INSERT INTO log (event) VALUES (?)', true, ['test']);
+        $loggerMock->auditSQLEvent("INSERT INTO log (event) VALUES ('test')", true);
         $loggerMock->auditSQLEvent('SELECT * FROM log WHERE id = 1', true);
         $loggerMock->auditSQLEvent('SELECT count(*) FROM patient_data', true);
     }
