@@ -49,8 +49,19 @@
                                     {{ type.xlTitle|text }}</option>
                             {% endfor %}
                         </select>
+                        <hr class="text-dark">
                     </div>
                     {% endif %}
+                    <!-- Note Author -->
+                    <div class="col-12">
+                        <label class="h6">{{ 'Author'|xlt }}:</label>
+                        <span>{{ obj.full_name }}</span>
+                    </div>
+                    <!-- Last edited date -->
+                    <div class="col-12">
+                        <label class="h6">{{ 'Last Updated'|xlt }}:</label>
+                        <span>{{ obj.last_updated }}</span>
+                    </div>
                 </div>
             </div>
             <div class="forms col-lg-8">

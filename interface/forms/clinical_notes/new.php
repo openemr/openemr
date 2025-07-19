@@ -32,7 +32,7 @@ use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
 
 $returnurl = 'encounter_top.php';
-$formid = (int) ($_GET['id'] ?? 0);
+$formid = (int)($_GET['id'] ?? 0);
 
 $clinicalNotesService = new ClinicalNotesService();
 $alertMessage = '';
@@ -66,6 +66,7 @@ if ($formid) {
         // FHIR and other resources still refer to them, they will just be marked as inactive...
         if ($record['activity'] == ClinicalNotesService::ACTIVITY_ACTIVE) {
             $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
+            $record['full_name'] = sqlQuery("SELECT CONCAT(fname, ' ', lname) AS full_name FROM users WHERE username = ?", [$record['user']]) ['full_name'] ?? '';
             $check_res[] = $record;
         }
         // if we don't have a type_title or type_category, we are going to set them to the default values as we don't have a matching list option type / category
