@@ -78,8 +78,12 @@ final class EventAuditLoggerTest extends TestCase
         parent::setUp();
 
         // Backup original superglobals
-        $this->originalSession = $_SESSION ?? [];
-        $this->originalServer = $_SERVER;
+        /** @var array<string, mixed> $session */
+        $session = $_SESSION ?? [];
+        $this->originalSession = $session;
+        /** @var array<string, mixed> $server */
+        $server = $_SERVER;
+        $this->originalServer = $server;
 
         // Backup only the specific $GLOBALS keys we modify
         $this->originalGlobals = [];
@@ -181,6 +185,10 @@ final class EventAuditLoggerTest extends TestCase
 
         $mock->method('qstr')->willReturnCallback(function ($value): string {
             // Handle both string and numeric values
+            if (!is_string($value) && !is_numeric($value)) {
+                throw new \InvalidArgumentException('Value must be string or numeric');
+            }
+
             return "'" . addslashes((string)$value) . "'";
         });
         $mock->method('Insert_ID')->willReturn(123);
