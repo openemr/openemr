@@ -36,9 +36,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     private $eventAuditLogger;
 
-    /**
-     * @var MockObject
-     */
     private \PHPUnit\Framework\MockObject\MockObject $cryptoGenMock;
 
     /**
@@ -91,10 +88,7 @@ final class EventAuditLoggerTest extends TestCase
             }
         }
 
-        // Reset singleton instance before each test
-        $this->resetSingleton();
-
-        // Get fresh instance
+        // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = EventAuditLogger::instance();
 
         // Create mock for CryptoGen
@@ -119,21 +113,7 @@ final class EventAuditLoggerTest extends TestCase
             }
         }
 
-        // Reset singleton
-        $this->resetSingleton();
-
         parent::tearDown();
-    }
-
-    /**
-     * Reset the singleton instance for testing
-     */
-    private function resetSingleton(): void
-    {
-        $reflectionClass = new ReflectionClass(EventAuditLogger::class);
-        $reflectionProperty = $reflectionClass->getProperty('instance');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue(null);
     }
 
     /**
@@ -188,15 +168,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Mock database functions that EventAuditLogger uses
-     */
-    private function mockDatabaseFunctions(): void
-    {
-        // Note: In a real test environment, these would be mocked at the framework level
-        // For now, we'll assume these functions exist or are stubbed elsewhere
-    }
-
-    /**
      * Test singleton pattern implementation
      */
     public function testSingletonPattern(): void
@@ -213,8 +184,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testNewEventBasic(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
@@ -240,8 +209,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testNewEventPatientPortal(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
@@ -279,7 +246,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testRecordLogItemWithoutEncryption(): void
     {
-        $this->mockDatabaseFunctions();
         $GLOBALS['enable_auditlog_encryption'] = false;
 
         // Inject mock CryptoGen
@@ -308,7 +274,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testRecordLogItemWithEncryption(): void
     {
-        $this->mockDatabaseFunctions();
         $GLOBALS['enable_auditlog_encryption'] = true;
 
         // Setup CryptoGen mock expectations
@@ -343,8 +308,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testRecordLogItemWithApiLogging(): void
     {
-        $this->mockDatabaseFunctions();
-
         $apiData = [
             'user_id' => 1,
             'patient_id' => 123,
@@ -442,8 +405,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testAuditSQLEvent(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Test SELECT query
         $this->eventAuditLogger->auditSQLEvent('SELECT * FROM patient_data WHERE pid = ?', true, [123]);
 
@@ -465,8 +426,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testAuditSQLEventSkipsExcludedStatements(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Mock recordLogItem to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
@@ -550,8 +509,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testAuditSQLAuditTamper(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
@@ -575,8 +532,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testRecordDisclosure(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Test passes if no exceptions are thrown
         $this->eventAuditLogger->recordDisclosure(
             '2025-01-01 12:00:00',
@@ -595,8 +550,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testUpdateRecordedDisclosure(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Test passes if no exceptions are thrown
         $this->eventAuditLogger->updateRecordedDisclosure(
             '2025-01-01 12:00:00',
@@ -614,8 +567,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testDeleteDisclosure(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Test passes if no exceptions are thrown
         $this->eventAuditLogger->deleteDisclosure(789);
 
@@ -627,8 +578,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequest(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Mock newEvent method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
@@ -653,8 +602,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequestDifferentMethods(): void
     {
-        $this->mockDatabaseFunctions();
-
         $methods = [
             'GET' => 'select',
             'POST' => 'update',
@@ -691,8 +638,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testGetEvents(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Test basic getEvents call
         $params = [
             'sdate' => '2025-01-01 00:00:00',
@@ -712,8 +657,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testGetEventsExtendedLog(): void
     {
-        $this->mockDatabaseFunctions();
-
         $params = [
             'event' => 'disclosure',
             'sdate' => '2025-01-01 00:00:00',
@@ -734,8 +677,6 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['gbl_force_log_breakglass'] = false;
 
-        $this->mockDatabaseFunctions();
-
         // Mock recordLogItem to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem', 'isBreakglassUser'])
@@ -755,8 +696,6 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['gbl_force_log_breakglass'] = true;
 
-        $this->mockDatabaseFunctions();
-
         // Mock recordLogItem and isBreakglassUser
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem', 'isBreakglassUser'])
@@ -773,8 +712,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testNullPatientIdHandling(): void
     {
-        $this->mockDatabaseFunctions();
-
         // Test with string "NULL"
         $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', 'NULL');
 
