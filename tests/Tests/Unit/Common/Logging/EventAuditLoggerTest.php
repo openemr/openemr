@@ -488,6 +488,27 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
+     * Test eventCategoryFinder method with delete operations for lists table (lines 897-904)
+     */
+    public function testEventCategoryFinderDeleteLists(): void
+    {
+        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
+        $reflectionMethod = $reflectionClass->getMethod('eventCategoryFinder');
+        $reflectionMethod->setAccessible(true);
+
+        // Test delete operations with lists: prefix (covers lines 897-904)
+        $this->assertEquals('Problem List', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medical_problem'", 'delete', ''));
+        $this->assertEquals('Medication', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'medication'", 'delete', ''));
+        $this->assertEquals('Allergy', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'allergy'", 'delete', ''));
+
+        // Test delete operation that doesn't match any specific category
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "lists:'other_type'", 'delete', ''));
+
+        // Test delete operation without lists: prefix
+        $this->assertEquals('delete', $reflectionMethod->invoke($this->eventAuditLogger, "DELETE FROM lists WHERE id = 123", 'delete', ''));
+    }
+
+    /**
      * Test isBreakglassUser method
      */
     public function testIsBreakglassUser(): void
