@@ -103,7 +103,8 @@ class ApiApplication
 
         $controllerResolver = new ControllerResolver();
         $argumentResolver = new ArgumentResolver();
-        $kernel = new OEHttpKernel($eventDispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
+        $handleAllThrowables = true; // set to true to handle all exceptions in the ExceptionHandlerListener
+        $kernel = new OEHttpKernel($eventDispatcher, $controllerResolver, new RequestStack(), $argumentResolver, $handleAllThrowables);
 
         // actually execute the kernel, which turns the request into a response
 // by dispatching events, calling a controller, and returning the response

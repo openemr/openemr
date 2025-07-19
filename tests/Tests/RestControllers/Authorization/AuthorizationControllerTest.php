@@ -9,6 +9,9 @@ use OAuthException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEHttpKernel;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
@@ -52,10 +55,16 @@ class AuthorizationControllerTest extends TestCase
     {
         $request = $this->getMockRequest();
         $session = $this->getMockSessionForRequest($request);
+        $coreKernel = $this->createMock(Kernel::class);
+        $coreKernel->method('getEventDispatcher')
+            ->willReturn(new EventDispatcher());
+        $globalsBag = new OEGlobalsBag([
+            'kernel' => $coreKernel,
+        ]);
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method("getEventDispatcher")
             ->willReturn(new EventDispatcher());
-        $kernel->method("getGlobalsBag")->willReturn(new OEGlobalsBag([]));
+        $kernel->method("getGlobalsBag")->willReturn($globalsBag);
         $authorizationController = new AuthorizationController($session, $kernel);
         $authorizationController->setSystemLogger(new SystemLogger(Level::Emergency));
         return $authorizationController;

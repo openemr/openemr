@@ -88,6 +88,7 @@ class FhirOperationExportRestController
         $this->request = $request;
         $this->logger = new SystemLogger();
         $this->fhirExportJobService = new FhirExportJobService();
+        // TODO: @adunsulag this class relies on restConfig but we need to refactor this to use the ServerConfig class
         $this->isExportDisabled = !($this->request->getRestConfig()::areSystemScopesEnabled());
     }
 

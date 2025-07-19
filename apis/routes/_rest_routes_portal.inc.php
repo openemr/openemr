@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * Portal API Routes
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Yash Raj Bothra <yashrajbothra786@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Raj Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 // Note that the portal (api) route is only for patient role
 //  (there is a mechanism in place to ensure only patient role can access the portal (api) route)
 return array(
@@ -25,7 +43,6 @@ return array(
      */
     "GET /portal/patient" => function (HttpRestRequest $request) {
         $return = (new PatientRestController())->getOne($request->getPatientUUIDString());
-        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -51,7 +68,6 @@ return array(
      */
     "GET /portal/patient/encounter" => function (HttpRestRequest $request) {
         $return = (new EncounterRestController())->getAll($request->getPatientUUIDString());
-        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -86,7 +102,6 @@ return array(
      */
     "GET /portal/patient/encounter/:euuid" => function ($euuid, HttpRestRequest $request) {
         $return = (new EncounterRestController())->getOne($request->getPatientUUIDString(), $euuid);
-        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -112,7 +127,6 @@ return array(
      */
     "GET /portal/patient/appointment" => function (HttpRestRequest $request) {
         $return = (new AppointmentRestController())->getAllForPatientByUuid($request->getPatientUUIDString());
-        RestConfig::apiLog($return);
         return $return;
     },
 
@@ -148,7 +162,6 @@ return array(
      */
     "GET /portal/patient/appointment/:auuid" => function ($auuid, HttpRestRequest $request) {
         $return = (new AppointmentRestController())->getOneForPatient($auuid, $request->getPatientUUIDString());
-        RestConfig::apiLog($return);
         return $return;
     }
 );

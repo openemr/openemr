@@ -2,18 +2,56 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\UserService;
+use Symfony\Component\HttpFoundation\Response;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class LocalApiAuthorizationController implements IAuthorizationStrategy
 {
-    public function __construct(SystemLogger $logger)
+    /**
+     * @var null | callable (string) :=> UuidUserAccount
+     */
+    private $uuidUserAccountFactory = null;
+
+    private UserService $userService;
+
+    public function __construct(private SystemLogger $logger, private OEGlobalsBag $globalsBag)
     {
+    }
+
+    /**
+     * @param callable $factory (string) :=> UuidUserAccount
+     * @return void
+     */
+    public function setUuidUserAccountFactory(callable $factory): void
+    {
+        // This method is intended to set the factory for creating UuidUserAccount instances.
+        // Implementation details would depend on the specific requirements of the application.
+        $this->uuidUserAccountFactory = $factory;
+    }
+
+    /**
+     * @return callable (string) :=> UuidUserAccount
+     */
+    public function getUuidUserAccountFactory(): callable
+    {
+        if (!isset($this->uuidUserAccountFactory)) {
+            // If the factory is not set, we can initialize it here.
+            // This is a placeholder for the actual factory logic.
+            $this->uuidUserAccountFactory = function ($userUuid) {
+                return new UuidUserAccount($userUuid);
+            };
+        }
+        return $this->uuidUserAccountFactory;
     }
 
     public function shouldProcessRequest(Request $request): bool
@@ -33,8 +71,9 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
      */
     public function authorizeRequest(Request $request): bool
     {
+        $session = $request->getSession();
         // for legacy purposes
-        $GLOBALS['is_local_api'] = true;
+        $this->globalsBag->set('is_local_api', true);
         // need to check for csrf match when using api locally
         $csrfFail = false;
         $csrfToken = $request->headers->get("APICSRFTOKEN");
@@ -44,41 +83,56 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
             $csrfFail = true;
         }
 
-        if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($csrfToken, 'api'))) {
+        if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($csrfToken, 'api', $session))) {
             $this->logger->error("OpenEMR Error: internal api failed because csrf token did not match");
             $csrfFail = true;
         }
 
         if ($csrfFail) {
-            $this->logger->error("dispatch.php CSRF failed", ["resource" => $request->getPathInfo()]);
+            $this->logger->error(self::class . " CSRF failed", ["resource" => $request->getPathInfo()]);
             throw new UnauthorizedHttpException("APICSRFTOKEN", "OpenEMR Error: internal api failed because csrf token did not match");
         }
-        $userId = $_SESSION['userId'];
-        $uuidToUser = new UuidUserAccount($userId);
-        $user = $uuidToUser->getUserAccount();
-        $userRole = $uuidToUser->getUserRole();
+        $userId = $session->get('authUserID', null);
+        if (empty($userId)) {
+            // unable to identify the user
+            $this->logger->error("OpenEMR Error - api user account could not be identified, so forced exit", ['userId' => $userId]);
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        // currently local api only supports users, so we will set the user role to users
+        $userService = $this->getUserService();
+        $user = $userService->getUser($userId);
+        $userRole = UuidUserAccount::USER_ROLE_USERS;
+
         if (empty($user)) {
             // unable to identify the users user role
-            $this->logger->error("OpenEMR Error - api user account could not be identified, so forced exit", [
+            $this->logger->error("OpenEMR Error - local user account could not be identified, so forced exit", [
                 'userId' => $userId,
-                'userRole' => $uuidToUser->getUserRole()]);
-            // TODO: @adunsulag shouldn't this be 500? if token is valid but user isn't found, seems like a system error as it never should happen
-            throw new HttpException(400);
+                'userRole' => $userRole]);
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        if (empty($userRole)) {
-            // unable to identify the users user role
-            $this->logger->error("OpenEMR Error - api user role for user could not be identified, so forced exit");
-            // TODO: @adunsulag shouldn't this be 500? if token is valid but user role isn't found, seems like a system error as it never should happen
-            throw new HttpException(400);
-        }
-
-        $request->attributes->set('userId', $userId);
+        $userUuid = $user['uuid'];
+        $request->attributes->set('userId', $userUuid);
         $request->attributes->set('clientId', null);
         $request->attributes->set('tokenId', $csrfToken);
         if ($request instanceof HttpRestRequest) {
             $request->setAccessTokenId($csrfToken);
             $request->setRequestUserRole($userRole);
-            $request->setRequestUser($user);
+            $request->setRequestUser($userUuid, $user);
+            return true;
         }
+        return false;
+    }
+
+    public function getUserService(): UserService
+    {
+        if (!isset($this->userService)) {
+            $this->userService = new UserService();
+        }
+        return $this->userService;
+    }
+
+    public function setUserService(UserService $userService): void
+    {
+        $this->userService = $userService;
     }
 }

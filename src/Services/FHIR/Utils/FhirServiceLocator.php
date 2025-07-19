@@ -13,9 +13,11 @@
 
 namespace OpenEMR\Services\FHIR\Utils;
 
+use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 
+// TODO: @adunsulag this class relies on restConfig but we need to refactor this to use the FHIRRouteFinder
 class FhirServiceLocator
 {
     /**

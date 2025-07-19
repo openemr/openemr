@@ -64,7 +64,7 @@ class RestConfig
      *
      * @return RestConfig
      */
-    public static function GetInstance(): \RestConfig
+    public static function GetInstance(): self
     {
         if (!self::$IS_INITIALIZED) {
             self::Init();
@@ -397,58 +397,6 @@ class RestConfig
         } else {
             return false;
         }
-    }
-
-    public static function apiLog($response = '', $requestBody = ''): void
-    {
-        // for now we just return until we can refactor the api authorization pieces...
-        return;
-//        $logResponse = $response;
-//
-//        // only log when using standard api calls (skip when using local api calls from within OpenEMR)
-//        //  and when api log option is set
-//        if (!$GLOBALS['is_local_api'] && !self::$notRestCall && $GLOBALS['api_log_option']) {
-//            if ($GLOBALS['api_log_option'] == 1) {
-//                // Do not log the response and requestBody
-//                $logResponse = '';
-//                $requestBody = '';
-//            }
-//            if ($response instanceof ResponseInterface) {
-//                if (self::shouldLogResponse($response)) {
-//                    $body = $response->getBody();
-//                    $logResponse = $body->getContents();
-//                    $body->rewind();
-//                } else {
-//                    $logResponse = 'Content not application/json - Skip binary data';
-//                }
-//            } else {
-//                $logResponse = (!empty($logResponse)) ? json_encode($response) : '';
-//            }
-//
-//            // convert pertinent elements to json
-//            $requestBody = (!empty($requestBody)) ? json_encode($requestBody) : '';
-//
-//            // prepare values and call the log function
-//            $event = 'api';
-//            $category = 'api';
-//            $method = $_SERVER['REQUEST_METHOD'];
-//            $url = $_SERVER['REQUEST_URI'];
-//            $patientId = (int)($_SESSION['pid'] ?? 0);
-//            $userId = (int)($_SESSION['authUserID'] ?? 0);
-//            $api = [
-//                'user_id' => $userId,
-//                'patient_id' => $patientId,
-//                'method' => $method,
-//                'request' => $GLOBALS['resource'],
-//                'request_url' => $url,
-//                'request_body' => $requestBody,
-//                'response' => $logResponse
-//            ];
-//            if ($patientId === 0) {
-//                $patientId = null; //entries in log table are blank for no patient_id, whereas in api_log are 0, which is why above $api value uses 0 when empty
-//            }
-//            EventAuditLogger::instance()->recordLogItem(1, $event, ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 'api log', $patientId, $category, 'open-emr', null, null, '', $api);
-//        }
     }
 
     public static function emitResponse($response, $build = false): void

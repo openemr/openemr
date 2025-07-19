@@ -1,5 +1,25 @@
 <?php
 
+/**
+ * FHIR API Routes
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Yash Raj Bothra <yashrajbothra786@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Raj Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
@@ -116,7 +136,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirAllergyIntoleranceRestController($request))->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -233,7 +253,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirAllergyIntoleranceRestController($request))->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -317,7 +337,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "appt");
             $return = (new FhirAppointmentRestController($request))->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -373,7 +393,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "appt");
             $return = (new FhirAppointmentRestController($request))->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -466,7 +486,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCarePlanRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -550,7 +570,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCarePlanRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -643,7 +663,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCareTeamRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -760,7 +780,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirCareTeamRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -844,7 +864,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirConditionRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -948,7 +968,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirConditionRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1040,7 +1060,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1115,7 +1135,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirCoverageRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1198,7 +1218,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDeviceRestController())->getAll($request->getQueryParams());
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1284,7 +1304,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDeviceRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1395,7 +1415,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDiagnosticReportRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1502,7 +1522,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDiagnosticReportRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1613,7 +1633,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDocumentReferenceRestController($request))->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1685,7 +1705,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "demo");
             $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams());
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1796,7 +1816,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirDocumentReferenceRestController($request))->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -1931,7 +1951,7 @@ return array(
             RestConfig::request_authorization_check($request, "encounters", "auth_a");
             $return = (new FhirEncounterRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2046,7 +2066,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirEncounterRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2130,7 +2150,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirGoalRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2215,7 +2235,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirGoalRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2299,7 +2319,7 @@ return array(
         } else {
             $return = (new FhirGroupRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2344,7 +2364,7 @@ return array(
         } else {
             $return = (new FhirGroupRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2388,7 +2408,7 @@ return array(
             $request->getHeader('Accept')[0] ?? '',
             $request->getHeader('Prefer')[0] ?? ''
         );
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2481,7 +2501,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirImmunizationRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2560,7 +2580,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirImmunizationRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2628,7 +2648,7 @@ return array(
      */
     "GET /fhir/Location" => function (HttpRestRequest $request) {
         $return = (new FhirLocationRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2697,7 +2717,7 @@ return array(
      */
     "GET /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
         $return = (new FhirLocationRestController())->getOne($uuid, $request->getPatientUUIDString());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2766,7 +2786,7 @@ return array(
     "GET /fhir/Medication" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $return = (new FhirMedicationRestController())->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2842,7 +2862,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -2944,7 +2964,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRequestRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3039,7 +3059,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirMedicationRequestRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3150,7 +3170,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirObservationRestController())->getAll($getParams);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3274,7 +3294,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirObservationRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3417,7 +3437,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "users");
         }
         $return = (new FhirOrganizationRestController())->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3519,7 +3539,7 @@ return array(
         }
         $return = (new FhirOrganizationRestController())->getOne($uuid, $patientUUID);
 
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -3659,7 +3679,7 @@ return array(
         RestConfig::request_authorization_check($request, "admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirOrganizationRestController())->post($data);
-        RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -3761,7 +3781,7 @@ return array(
         RestConfig::request_authorization_check($request, "admin", "super");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirOrganizationRestController())->patch($uuid, $data);
-        RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -3959,7 +3979,7 @@ return array(
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPatientRestController())->post($data);
-        RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -4090,7 +4110,7 @@ return array(
         RestConfig::request_authorization_check($request, "patients", "demo");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPatientRestController())->put($uuid, $data);
-        RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -4288,7 +4308,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "demo");
             $return = (new FhirPatientRestController())->getAll($params);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4322,7 +4342,7 @@ return array(
             $request->getHeader('Accept')[0] ?? '',
             $request->getHeader('Prefer')[0] ?? ''
         );
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4477,7 +4497,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "demo");
         }
         $return = (new FhirPatientRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4645,7 +4665,7 @@ return array(
     "GET /fhir/Person" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4764,7 +4784,7 @@ return array(
             $return = (new FhirPersonRestController())->getOne($uuid, $request->getPatientUUIDString());
         }
 
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -4940,7 +4960,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "users");
         }
         $return = (new FhirPractitionerRestController())->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5025,7 +5045,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "users");
         }
         $return = (new FhirPractitionerRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5129,7 +5149,7 @@ return array(
         RestConfig::request_authorization_check($request, "admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPractitionerRestController())->post($data);
-        RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -5213,7 +5233,7 @@ return array(
         RestConfig::request_authorization_check($request, "admin", "users");
         $data = (array) (json_decode(file_get_contents("php://input"), true));
         $return = (new FhirPractitionerRestController())->patch($uuid, $data);
-        RestConfig::apiLog($return, $data);
+
         return $return;
     },
 
@@ -5300,7 +5320,7 @@ return array(
     "GET /fhir/PractitionerRole" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5380,7 +5400,7 @@ return array(
     "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $return = (new FhirPractitionerRoleRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5472,7 +5492,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirProcedureRestController())->getAll($request->getQueryParams());
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5540,7 +5560,7 @@ return array(
             RestConfig::request_authorization_check($request, "patients", "med");
             $return = (new FhirProcedureRestController())->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5646,7 +5666,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirProvenanceRestController($request))->getOne($uuid);
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5714,7 +5734,7 @@ return array(
             RestConfig::request_authorization_check($request, "admin", "super");
             $return = (new FhirProvenanceRestController($request))->getAll($request->getQueryParams());
         }
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5907,7 +5927,7 @@ return array(
     "GET /fhir/ValueSet" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $return = (new FhirValueSetRestController())->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -5997,7 +6017,7 @@ return array(
     "GET /fhir/ValueSet/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "super");
         $return = (new FhirValueSetRestController())->getOne($uuid);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6032,7 +6052,7 @@ return array(
      */
     "GET /fhir/.well-known/smart-configuration" => function () {
         $return = (new SMARTConfigurationController())->getConfig();
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6051,7 +6071,7 @@ return array(
         // for now we will just hard code the custom resources
         $operationDefinitionController = new FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getAll($request->getQueryParams());
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6113,7 +6133,7 @@ return array(
         // for now we will just hard code the custom resources
         $operationDefinitionController = new FhirOperationDefinitionRestController();
         $return = $operationDefinitionController->getOne($operation);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6148,7 +6168,7 @@ return array(
             $request->getHeader('Accept')[0] ?? '',
             $request->getHeader('Prefer')[0] ?? ''
         );
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6183,7 +6203,7 @@ return array(
         // since OpenEMR data is so small we just return the JSON from the database
         $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExportStatusRequestForJob($jobUuidString);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 
@@ -6212,7 +6232,7 @@ return array(
         $job = $request->getQueryParam('job');
         $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processDeleteExportForJob($job);
-        RestConfig::apiLog($return);
+
         return $return;
     },
 );

@@ -28,10 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HttpRestRequest extends Request implements \Stringable
 {
-    /**
-     * @var \RestConfig
-     */
-    private $restConfig;
 
     /**
      * The Resource that is being requested in this http rest call.
@@ -174,9 +170,9 @@ class HttpRestRequest extends Request implements \Stringable
         return $this->query->all();
     }
 
-    public function getQueryParam($key)
+    public function getQueryParam($key) : bool|float|int|null|string
     {
-        $params = $this->query->get($key, null);
+        return $this->query->get($key);
     }
 
     /**

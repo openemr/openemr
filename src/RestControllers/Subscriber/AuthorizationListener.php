@@ -5,6 +5,8 @@ namespace OpenEMR\RestControllers\Subscriber;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
@@ -28,8 +30,25 @@ class AuthorizationListener implements EventSubscriberInterface
         ];
     }
     private array $authorizationStrategies;
+
+    private OEGlobalsBag $globalsBag;
+
     public function __construct()
     {
+    }
+    public function setGlobals(OEGlobalsBag $globalsBag): void
+    {
+        // This method is intended to set the globals bag for the authorization listener.
+        $this->globalsBag = $globalsBag;
+    }
+
+    public function getGlobalsBag(): OEGlobalsBag
+    {
+        // This method is intended to return the globals bag for the authorization listener.
+        if (!isset($this->globalsBag)) {
+            $this->globalsBag = new OEGlobalsBag();
+        }
+        return $this->globalsBag;
     }
 
     public function setLogger(SystemLogger $logger): void
@@ -55,7 +74,7 @@ class AuthorizationListener implements EventSubscriberInterface
             // Initialize the authorization strategies if not already set.
             $this->authorizationStrategies = [];
             // the order of these strategies is important, as they will be checked in the order they are added.
-            $this->addAuthorizationStrategy(new LocalApiAuthorizationController($this->getLogger()));
+            $this->addAuthorizationStrategy(new LocalApiAuthorizationController($this->getLogger(), $this->getGlobalsBag()));
             $skipAuthorizationStrategy = new SkipAuthorizationStrategy();
             $skipAuthorizationStrategy->addSkipRoute('/fhir/metadata');
             $skipAuthorizationStrategy->addSkipRoute('/fhir/.well-known/smart-configuration');
@@ -74,7 +93,14 @@ class AuthorizationListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        $this->setLogger($event->getKernel()->getSystemLogger());
+        if (!$event->getKernel() instanceof OEHttpKernel) {
+            // We only want to process this if the kernel is an OEHttpKernel.
+            return;
+        } else {
+            $this->setLogger($event->getKernel()->getSystemLogger());
+            $this->setGlobals($event->getKernel()->getGlobalsBag());
+        }
+
         $request = $event->getRequest();
         if ($this->shouldProcessRequest($request)) {
             // If the request should be processed, authorize it.

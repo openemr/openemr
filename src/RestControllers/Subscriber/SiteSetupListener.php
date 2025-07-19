@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionFactory;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorageFactory;
+use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorageFactory;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -133,7 +134,6 @@ class SiteSetupListener implements EventSubscriberInterface
             }
             $session = $sessionFactory->createSession();
             $event->getRequest()->setSession($session);
-            $session->start(); // start the session for the request
             $session->set('site_id', $siteId); // set the site id in the session
         }
 
@@ -151,6 +151,18 @@ class SiteSetupListener implements EventSubscriberInterface
         // now that globals are setup, setup our centralized logger that will respect the global settings
         if ($event->getKernel() instanceof OEHttpKernel) {
             $event->getKernel()->setSystemLogger(new SystemLogger());
+        }
+        // need to do a bridge session
+        if ($event->getRequest()->headers->get('APICSRFTOKEN')) {
+            // setup the existing session bridge for local api requests
+            $sessionFactory = new HttpSessionFactory(
+                $event->getRequest(),
+                $webroot,
+                HttpSessionFactory::SESSION_TYPE_CORE
+            );
+            $sessionFactory->setUseExistingSessionBridge(true);
+            $session = $sessionFactory->createSession();
+            $event->getRequest()->setSession($session);
         }
         // need to make sure the keys are always created
         try {
