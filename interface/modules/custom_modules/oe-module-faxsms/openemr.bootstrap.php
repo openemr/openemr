@@ -27,6 +27,7 @@ use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\MenuEvent;
+use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -55,6 +56,21 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
  * @global EventDispatcher $dispatcher Injected by the OpenEMR module loader;
  */
 $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+
+
+// Verify our module service permissions based on User Permission overrides.
+// The Globals are set to the module services enabled status in module Setup.
+// Be aware that the Globals are set to the service vendor identifier(int) values in the module setup.
+// So not true/false booleans.
+$GLOBALS['oefax_enable_fax'] = !empty(BootstrapService::getUserPermission('', 'fax')) ? $GLOBALS['oefax_enable_fax'] : false;
+$GLOBALS['oefax_enable_sms'] = !empty(BootstrapService::getUserPermission('', 'sms')) ? $GLOBALS['oefax_enable_sms'] : false;
+$GLOBALS['oe_enable_email'] = !empty(BootstrapService::getUserPermission('', 'email')) ? $GLOBALS['oe_enable_email'] : false;
+$GLOBALS['oe_enable_voice'] = !empty(BootstrapService::getUserPermission('', 'voice')) ? $GLOBALS['oe_enable_voice'] : false;
+// Set local variables for use in this bootstrap.
+$allowFax = $GLOBALS['oefax_enable_fax'];
+$allowSMS = $GLOBALS['oefax_enable_sms'];
+$allowEmail = $GLOBALS['oe_enable_email'];
+$allowVoice = $GLOBALS['oe_enable_voice'];
 
 function getTwigNamespaces(): array
 {
@@ -91,7 +107,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem->label = $sms_label;
     $menuItem->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=sms";
     $menuItem->children = [];
-    $menuItem->acl_req = ["patients", "docs"];
+    $menuItem->acl_req = ["patients", "demo"];
     $menuItem->global_req = ["oefax_enable_sms"];
     // Our Email menu
     $menuItemEmail = new stdClass();
@@ -101,7 +117,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItemEmail->label = xlt("Clinic Email");
     $menuItemEmail->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=email";
     $menuItemEmail->children = [];
-    $menuItemEmail->acl_req = ["patients", "docs"];
+    $menuItemEmail->acl_req = ["patients", "demo"];
     $menuItemEmail->global_req = ["oe_enable_email"];
     // Our FAX menu
     $menuItem2 = new stdClass();
@@ -111,7 +127,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem2->label = $fax_label;
     $menuItem2->url = "/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax";
     $menuItem2->children = [];
-    $menuItem2->acl_req = ["patients", "docs"];
+    $menuItem2->acl_req = ["patients", "demo"];
     $menuItem2->global_req = ["oefax_enable_fax"];
 
     // email reminders
@@ -122,7 +138,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem3->label = xlt("Test Email Reminders");
     $menuItem3->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?dryrun=1&alert=0&type=email&site=" . $_SESSION['site_id'];
     $menuItem3->children = [];
-    $menuItem3->acl_req = ["patients", "docs"];
+    $menuItem3->acl_req = ["patients", "demo"];
     $menuItem3->global_req = ["oe_enable_email"];
 
     $menuItem4 = new stdClass();
@@ -132,7 +148,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem4->label = xlt("Send Email Reminders");
     $menuItem4->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?alert=1&type=email&site=" . $_SESSION['site_id'];
     $menuItem4->children = [];
-    $menuItem4->acl_req = ["patients", "docs"];
+    $menuItem4->acl_req = ["patients", "demo"];
     $menuItem4->global_req = ["oe_enable_email"];
 
     $menuItemSetup = new stdClass();
@@ -162,10 +178,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $topMenu->menu_id = 'service';
     $topMenu->label = xlt("Services");
     $topMenu->children = [$subMenu];
-    $topMenu->acl_req = [
-        "patients",
-        "demo"
-    ];
+    $topMenu->acl_req = [];
 
     $i = 0;
     foreach ($menu as $item) {

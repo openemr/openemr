@@ -12,12 +12,13 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use Exception;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\SDK;
 
 trait AuthenticateTrait
 {
-    public function authenticate($acl = ['admin', 'doc']): bool|int|string
+    public function authenticate($acl = []): bool|int|string
     {
         if (empty($this->credentials['appKey'])) {
             $this->credentials = $this->getCredentials();

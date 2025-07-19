@@ -3,9 +3,9 @@
 <div id="rc-container" class="d-flex flex-row align-items-center justify-content-between">
     <div id="rc-header">
         <script>
-            const RC_CLIENT_ID = {{ clientId|js_url }};
-            const RC_CLIENT_SECRET = {{ clientSecret|js_url }};
-            const RC_JWT = {{ jwt|js_url }};
+            const RC_CLIENT_ID = "{{ clientId }}";
+            const RC_CLIENT_SECRET = "{{ clientSecret }}";
+            const RC_JWT = "{{ jwt }}";
             let isWidgetVisible = false;
             let isRegistered = false;
             let isLoggedIn = false;
@@ -100,6 +100,12 @@
                 setTimeout(function () {
                     const rcFrame = document.querySelector('iframe[src*="ringcentral"]');
                     if (rcFrame && typeof RCAdapter !== 'undefined') {
+                        RCAdapter.setClosed(false);
+                    }
+                }, 2000);
+                setTimeout(function () {
+                    const rcFrame = document.querySelector('iframe[src*="ringcentral"]');
+                    if (rcFrame && typeof RCAdapter !== 'undefined') {
                         RCAdapter.setClosed(true);
                     }
                 }, 6000);
@@ -107,11 +113,11 @@
 
             window.addEventListener('beforeunload', function () {
                 const rcFrame = document.getElementById('rc-widget-adapter-frame');
-                RCAdapter.dispose();
                 if (rcFrame && rcFrame.contentWindow) {
                     rcFrame.contentWindow.postMessage({
                         type: 'rc-adapter-logout'
                     }, '*');
+                    RCAdapter.dispose();
                     console.log('Sent logout to RingCentral widget on unload');
                 }
             });

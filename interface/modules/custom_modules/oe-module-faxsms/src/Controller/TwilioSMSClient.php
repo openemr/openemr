@@ -72,7 +72,7 @@ class TwilioSMSClient extends AppDispatch
      */
     public function getCredentials(): mixed
     {
-        $credentials = appDispatch::getSetup();
+        $credentials = AppDispatch::getSetup();
         $this->accountSID = $credentials['username'] ?? '';
         $this->authToken = $credentials['password'] ?? '';
         $this->sid = $credentials['username'] ?? '';
