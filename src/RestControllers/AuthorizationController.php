@@ -197,12 +197,11 @@ class AuthorizationController
         if (!isset($this->smartAuthController)) {
             $this->smartAuthController = new SMARTAuthorizationController(
                 $this->session,
-                $this->getSystemLogger(),
+                $this->kernel,
                 $this->authBaseFullUrl,
                 $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
                 __DIR__ . "/../../oauth2/",
-                $this->getTwig(),
-                $this->kernel->getEventDispatcher()
+                $this->getTwig()
             );
         }
         return $this->smartAuthController;
