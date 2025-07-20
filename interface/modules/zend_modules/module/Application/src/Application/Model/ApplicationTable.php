@@ -14,9 +14,11 @@ namespace Application\Model;
 
 use DateTime;
 use Exception;
+use Laminas\Db\Adapter\Adapter;
 use Laminas\Db\Adapter\Exception\ExceptionInterface;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable extends AbstractTableGateway
@@ -26,12 +28,14 @@ class ApplicationTable extends AbstractTableGateway
 
     /**
      *
-     * @param \Laminas\Db\Adapter\Adapter $adapter
+     * @param Adapter $adapter
      */
-    public function __construct()
+    public function __construct(Adapter $adapter = null)
     {
-        // TODO: I can't find any reason why we grab the static adapter instead of injecting a regular DB adapter here...
-        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        if ($adapter === null) {
+            // Fallback to static adapter if none provided
+            $adapter = GlobalAdapterFeature::getStaticAdapter();
+        }
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->resultSetPrototype->setArrayObjectPrototype(new Application());
