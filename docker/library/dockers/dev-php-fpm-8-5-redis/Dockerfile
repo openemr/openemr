@@ -11,56 +11,56 @@
 #
 FROM openemr/dev-php-fpm:pre-build-dev-85
 
-# Update
-RUN apt-get update
-
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
-RUN apt-get install -y mariadb-client \
+RUN apt-get update \
+ && apt-get install -y curl \
                        imagemagick \
-                       curl
+                       mariadb-client
 
 # Install correct version nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash -
-RUN apt-get install nodejs -y
+RUN curl -sL https://deb.nodesource.com/setup_20.x \
+  | bash - \
+ && apt-get update \
+ && apt-get install -y nodejs
 
 # Temporary fix to get ldap install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
 # TODO: intermittently try to remove this block of code and uncomment ldap in below ../install-php-extensions run
 # TODO:
-RUN apt-get install -y \
-    libldap2-dev \
-    libsasl2-dev \
-    libldap-common \
-    pkg-config
+RUN apt-get update \
+ && apt-get install -y libldap-common \
+                       libldap2-dev \
+                       libsasl2-dev \
+                       pkg-config
 RUN LDAP_CFLAGS="-I/usr/include" \
     LDAP_LIBS="-lldap -llber" \
     docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-    && docker-php-ext-install ldap
+ && docker-php-ext-install ldap
 
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions pdo_mysql \
-                           # ldap \
-                           xsl \
+RUN chmod uga+x /usr/local/bin/install-php-extensions \
+ && sync \
+ && install-php-extensions calendar \
                            gd \
-                           zip \
-                           soap \
                            gettext \
+                           intl \
                            mysqli \
+                           pdo_mysql \
+                           redis \
+                           soap \
                            sockets \
                            tokenizer \
                            xmlreader \
-                           calendar \
-                           intl \
-                           redis
-
-# Copy over the php.ini conf
-COPY php.ini /usr/local/etc/php/php.ini
+                           xsl \
+                           zip
 
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
 RUN usermod -u 1000 www-data
+
+# Copy over the php.ini conf
+COPY php.ini /usr/local/etc/php/php.ini
