@@ -13,8 +13,8 @@ use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 class ControllerEditTest extends TestCase
 {
     private $controller;
-    private $ruleManagerMock;
-    private $codeManagerMock;
+    private \PHPUnit\Framework\MockObject\MockObject $ruleManagerMock;
+    private \PHPUnit\Framework\MockObject\MockObject $codeManagerMock;
 
     protected function setUp(): void
     {
