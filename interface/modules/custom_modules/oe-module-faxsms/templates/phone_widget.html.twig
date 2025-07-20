@@ -3,9 +3,9 @@
 <div id="rc-container" class="d-flex flex-row align-items-center justify-content-between">
     <div id="rc-header">
         <script>
-            const RC_CLIENT_ID = "{{ clientId }}";
-            const RC_CLIENT_SECRET = "{{ clientSecret }}";
-            const RC_JWT = "{{ jwt }}";
+            const RC_CLIENT_ID = {{ clientId|js_escape }};
+            const RC_CLIENT_SECRET = {{ clientSecret|js_escape }};
+            const RC_JWT = {{ jwt|js_escape }};
             let isWidgetVisible = false;
             let isRegistered = false;
             let isLoggedIn = false;
