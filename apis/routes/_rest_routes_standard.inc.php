@@ -1257,7 +1257,7 @@ return array(
      */
     "GET /api/patient/:puuid/encounter" => function ($puuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
-        $return = (new EncounterRestController())->getAll($puuid);
+        $return = (new EncounterRestController($request->getSession()))->getAll($puuid);
 
         return $return;
     },
@@ -1431,7 +1431,7 @@ return array(
     "POST /api/patient/:puuid/encounter" => function ($puuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new EncounterRestController())->post($puuid, $data);
+        $return = (new EncounterRestController($request->getSession()))->post($puuid, $data);
 
         return $return;
     },
@@ -1676,7 +1676,7 @@ return array(
     "PUT /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new EncounterRestController())->put($puuid, $euuid, $data);
+        $return = (new EncounterRestController($request->getSession()))->put($puuid, $euuid, $data);
 
         return $return;
     },
@@ -1721,7 +1721,7 @@ return array(
      */
     "GET /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
-        $return = (new EncounterRestController())->getOne($puuid, $euuid);
+        $return = (new EncounterRestController($request->getSession()))->getOne($puuid, $euuid);
 
         return $return;
     },
@@ -1766,7 +1766,7 @@ return array(
      */
     "GET /api/patient/:pid/encounter/:eid/soap_note" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $return = (new EncounterRestController())->getSoapNotes($pid, $eid);
+        $return = (new EncounterRestController($request->getSession()))->getSoapNotes($pid, $eid);
 
         return $return;
     },
@@ -1900,7 +1900,7 @@ return array(
     "POST /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
         $data = json_decode(file_get_contents("php://input"), true) ?? [];
-        $return = (new EncounterRestController())->postVital($pid, $eid, $data);
+        $return = (new EncounterRestController($request->getSession()))->postVital($pid, $eid, $data);
 
         return $return;
     },
@@ -1962,7 +1962,7 @@ return array(
     "PUT /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
         $data = json_decode(file_get_contents("php://input"), true) ?? [];
-        $return = (new EncounterRestController())->putVital($pid, $eid, $vid, $data);
+        $return = (new EncounterRestController($request->getSession()))->putVital($pid, $eid, $vid, $data);
 
         return $return;
     },
@@ -2007,7 +2007,7 @@ return array(
      */
     "GET /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $return = (new EncounterRestController())->getVitals($pid, $eid);
+        $return = (new EncounterRestController($request->getSession()))->getVitals($pid, $eid);
 
         return $return;
     },
@@ -2061,7 +2061,7 @@ return array(
      */
     "GET /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $return = (new EncounterRestController())->getVital($pid, $eid, $vid);
+        $return = (new EncounterRestController($request->getSession()))->getVital($pid, $eid, $vid);
 
         return $return;
     },
@@ -2115,7 +2115,7 @@ return array(
      */
     "GET /api/patient/:pid/encounter/:eid/soap_note/:sid" => function ($pid, $eid, $sid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $return = (new EncounterRestController())->getSoapNote($pid, $eid, $sid);
+        $return = (new EncounterRestController($request->getSession()))->getSoapNote($pid, $eid, $sid);
 
         return $return;
     },
@@ -2201,7 +2201,7 @@ return array(
     "POST /api/patient/:pid/encounter/:eid/soap_note" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new EncounterRestController())->postSoapNote($pid, $eid, $data);
+        $return = (new EncounterRestController($request->getSession()))->postSoapNote($pid, $eid, $data);
 
         return $return;
     },
@@ -2263,7 +2263,7 @@ return array(
     "PUT /api/patient/:pid/encounter/:eid/soap_note/:sid" => function ($pid, $eid, $sid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new EncounterRestController())->putSoapNote($pid, $eid, $sid, $data);
+        $return = (new EncounterRestController($request->getSession()))->putSoapNote($pid, $eid, $sid, $data);
 
         return $return;
     },

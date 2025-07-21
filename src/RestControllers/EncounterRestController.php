@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\EncounterService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EncounterRestController
 {
@@ -27,7 +28,7 @@ class EncounterRestController
         "provider_id"
     );
 
-    public function __construct()
+    public function __construct(private SessionInterface $session)
     {
         $this->encounterService = new EncounterService();
     }

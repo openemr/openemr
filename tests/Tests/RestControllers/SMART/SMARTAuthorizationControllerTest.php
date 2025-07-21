@@ -26,8 +26,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
 use Twig\TemplateWrapper;
 
-class SMARTAuthorizationControllerTest extends TestCase {
-
+class SMARTAuthorizationControllerTest extends TestCase
+{
     const LOG_LEVEL = Level::Critical;
 
     const SMART_FINAL_REDIRECT_URL = "http://localhost:8080/smart/final_redirect";
@@ -50,8 +50,14 @@ class SMARTAuthorizationControllerTest extends TestCase {
             ->willReturn(new EventDispatcher());
         $kernel->method('getSystemLogger')
             ->willReturn($logger);
-        return new SMARTAuthorizationController($session, $kernel, "", self::SMART_FINAL_REDIRECT_URL
-            , "", $this->createMock(Environment::class));
+        return new SMARTAuthorizationController(
+            $session,
+            $kernel,
+            "",
+            self::SMART_FINAL_REDIRECT_URL,
+            "",
+            $this->createMock(Environment::class)
+        );
     }
     public function testPatientSelectConfirm()
     {
@@ -69,7 +75,8 @@ class SMARTAuthorizationControllerTest extends TestCase {
         $this->assertStringStartsWith(self::SMART_FINAL_REDIRECT_URL, $response->getHeader("Location")[0], "Expected redirect to the final redirect URL");
     }
 
-    public function testPatientSelectConfirmMissingUserIdThrowsException() {
+    public function testPatientSelectConfirmMissingUserIdThrowsException()
+    {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
         $session = $this->getMockSessionForRequest($request);
         $controller = $this->getDefaultSMARTAuthorizationController($session, $request);
@@ -78,7 +85,8 @@ class SMARTAuthorizationControllerTest extends TestCase {
         $this->expectExceptionMessage("Unauthorized call");
         $controller->patientSelectConfirm($request);
     }
-    public function testPatientSelectConfirmMissingCsrfFromPostThrowsException() {
+    public function testPatientSelectConfirmMissingCsrfFromPostThrowsException()
+    {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "POST");
         $session = $this->getMockSessionForRequest($request);
         $controller = $this->getDefaultSMARTAuthorizationController($session, $request);
@@ -88,7 +96,8 @@ class SMARTAuthorizationControllerTest extends TestCase {
         $controller->patientSelectConfirm($request);
     }
 
-    public function testPatientSelectConfirmPatientSearchExceptionHandled() {
+    public function testPatientSelectConfirmPatientSearchExceptionHandled()
+    {
         $clientId = "test_client_id";
         $clientRedirectUri = "http://localhost:8080/redirect";
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "POST");
@@ -158,8 +167,14 @@ class SMARTAuthorizationControllerTest extends TestCase {
         $kernel->method('getSystemLogger')
             ->willReturn(new SystemLogger());
 
-        $controller = new SMARTAuthorizationController($session, $kernel, "", self::SMART_FINAL_REDIRECT_URL
-            , "", $twig);
+        $controller = new SMARTAuthorizationController(
+            $session,
+            $kernel,
+            "",
+            self::SMART_FINAL_REDIRECT_URL,
+            "",
+            $twig
+        );
         $patientContextSearchController = $this->createMock(PatientContextSearchController::class);
         $patientContextSearchController->method('searchPatients')
             ->willReturn(
@@ -202,8 +217,14 @@ class SMARTAuthorizationControllerTest extends TestCase {
             ->willReturn($this->createMock(EventDispatcher::class));
         $kernel->method('getSystemLogger')
             ->willReturn($logger);
-        $controller = new SMARTAuthorizationController($session, $kernel, "", ""
-            , "", $this->createMock(Environment::class));
+        $controller = new SMARTAuthorizationController(
+            $session,
+            $kernel,
+            "",
+            "",
+            "",
+            $this->createMock(Environment::class)
+        );
         $this->assertTrue($controller->needSMARTAuthorization(), "SMART Authorization should be needed ");
     }
 
@@ -215,8 +236,14 @@ class SMARTAuthorizationControllerTest extends TestCase {
         $logger = new SystemLogger(self::LOG_LEVEL);
         $kernel = $this->createMock(OEHttpKernel::class);
 
-        $controller = new SMARTAuthorizationController($session, $kernel, "", ""
-            , "", $this->createMock(Environment::class));
+        $controller = new SMARTAuthorizationController(
+            $session,
+            $kernel,
+            "",
+            "",
+            "",
+            $this->createMock(Environment::class)
+        );
         $this->assertFalse($controller->needSMARTAuthorization(), "SMART Authorization should NOT be needed ");
     }
 
@@ -234,8 +261,14 @@ class SMARTAuthorizationControllerTest extends TestCase {
             ->willReturn($this->createMock(EventDispatcher::class));
         $kernel->method('getSystemLogger')
             ->willReturn($logger);
-        $controller = new SMARTAuthorizationController($session, $kernel, "", ""
-            , "", $this->createMock(Environment::class));
+        $controller = new SMARTAuthorizationController(
+            $session,
+            $kernel,
+            "",
+            "",
+            "",
+            $this->createMock(Environment::class)
+        );
         $this->assertFalse($controller->needSMARTAuthorization(), "SMART Authorization should NOT be needed ");
     }
 
@@ -265,15 +298,22 @@ class SMARTAuthorizationControllerTest extends TestCase {
             ->willReturn($dispatcher);
         $kernel->method('getSystemLogger')
             ->willReturn($logger);
-        $controller = new SMARTAuthorizationController($session, $kernel, "", self::SMART_FINAL_REDIRECT_URL
-            , "", $twig);
+        $controller = new SMARTAuthorizationController(
+            $session,
+            $kernel,
+            "",
+            self::SMART_FINAL_REDIRECT_URL,
+            "",
+            $twig
+        );
         $response = $controller->ehrLaunchAutoSubmit($request);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode(), "Expected response status code to be 200 OK");
         $contents = $response->getBody()->getContents();
         $this->assertEquals($contents, $contents, "Expected response body to match rendered json");
     }
 
-    public function testSmartAppStyles() {
+    public function testSmartAppStyles()
+    {
         $this->markTestIncomplete("Having problems mocking the templates so leaving this incomplete for now");
 //        $request = HttpRestRequest::create("/apis/default/fhir/Patient", "GET");
 //        $expectedTwigName = 'oauth2/authorize/smart-style-style_light.json.twig';

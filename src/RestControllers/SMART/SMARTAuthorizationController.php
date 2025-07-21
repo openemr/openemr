@@ -191,8 +191,10 @@ class SMARTAuthorizationController
     public function needSMARTAuthorization()
     {
         if (empty($this->session->get('puuid')) && strpos($this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
-            $this->logger->debug("AuthorizationController->userLogin() SMART app request for patient context "
-                , ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid', null)]);
+            $this->logger->debug(
+                "AuthorizationController->userLogin() SMART app request for patient context ",
+                ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid', null)]
+            );
             return true;
         }
         return false;
@@ -212,7 +214,7 @@ class SMARTAuthorizationController
     /**
      * Receives the response of the patient selected, sets up the session and redirects back to the oauth2 regular flow
      */
-    public function patientSelectConfirm(HttpRestRequest $request) : ResponseInterface
+    public function patientSelectConfirm(HttpRestRequest $request): ResponseInterface
     {
         $user_uuid = $this->session->get('user_id', null);
         if (!isset($user_uuid)) {
@@ -263,7 +265,7 @@ class SMARTAuthorizationController
      * @param HttpRestRequest $request
      * @return ResponseInterface
      */
-    public function patientSelect(HttpRestRequest $request) : ResponseInterface
+    public function patientSelect(HttpRestRequest $request): ResponseInterface
     {
         $user_uuid = $this->session->get('user_id');
         if (empty($user_uuid)) {
@@ -379,12 +381,12 @@ class SMARTAuthorizationController
         }
     }
 
-    public function setClientRepository(ClientRepository $repository) : void
+    public function setClientRepository(ClientRepository $repository): void
     {
         $this->clientRepository = $repository;
     }
 
-    public function getClientRepository() : ClientRepository
+    public function getClientRepository(): ClientRepository
     {
         if (!isset($this->clientRepository)) {
             $this->clientRepository = new ClientRepository();

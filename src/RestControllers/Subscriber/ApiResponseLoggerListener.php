@@ -4,6 +4,8 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -37,6 +39,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
         if (!$request instanceof HttpRestRequest) {
             return; // only handle HttpRestRequest
         }
+        $session = $request->getSession();
+        $globalsBag = $event->getKernel() instanceof OEHttpKernel ? $event->getKernel()->getGlobalsBag() : new OEGlobalsBag([]);
         $logResponse = $response;
 
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
@@ -45,9 +49,9 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             !$request->isLocalApi() &&
             // we don't log unit test pieces.
             !$request->attributes->has("skipResponseLogging") &&
-            $GLOBALS['api_log_option']
+            $globalsBag->getInt('api_log_option', 0) > 0
         ) {
-            if ($GLOBALS['api_log_option'] == 1) {
+            if ($globalsBag->getInt('api_log_option', 0) == 1) {
                 // Do not log the response and requestBody
                 $logResponse = '';
                 $requestBody = '';
@@ -72,8 +76,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             $category = 'api';
             $method = $request->getMethod();
             $url = $request->getRequestUri();
-            $patientId = (int)($_SESSION['pid'] ?? 0);
-            $userId = (int)($_SESSION['authUserID'] ?? 0);
+            $patientId = (int)($session->get('pid', 0));
+            $userId = (int)($session->get('authUserID', 0));
             $api = [
                 'user_id' => $userId,
                 'patient_id' => $patientId,
@@ -89,8 +93,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             $this->getEventAuditLogger()->recordLogItem(
                 1,
                 $event,
-                ($_SESSION['authUser'] ?? ''),
-                ($_SESSION['authProvider'] ?? ''),
+                $session->get('authUser', ''),
+                $session->get('authProvider', ''),
                 'api log',
                 $patientId,
                 $category,

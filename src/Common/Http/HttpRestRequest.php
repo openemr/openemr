@@ -28,7 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HttpRestRequest extends Request implements \Stringable
 {
-
     /**
      * The Resource that is being requested in this http rest call.
      * @var string
@@ -170,7 +169,7 @@ class HttpRestRequest extends Request implements \Stringable
         return $this->query->all();
     }
 
-    public function getQueryParam($key) : bool|float|int|null|string
+    public function getQueryParam($key): bool|float|int|null|string
     {
         return $this->query->get($key);
     }

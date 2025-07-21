@@ -23,10 +23,11 @@ class TelemetryListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         try {
+            $session = $request->getSession();
             $userRole = $request->attributes->get('userRole', 'UNKNOWN');
             (new TelemetryService())->trackApiRequestEvent([
                 'eventType' => 'API',
-                'eventLabel' => strtoupper($_SESSION['api'] ?? 'UNKNOWN'),
+                'eventLabel' => strtoupper($session->get('api', 'UNKNOWN')),
                 'eventUrl' => $request->getRequestMethod() . ' ' . $request->getPathInfo(),
                 'eventTarget' => $userRole,
             ]);

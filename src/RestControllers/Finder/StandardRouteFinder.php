@@ -22,7 +22,7 @@ class StandardRouteFinder implements IRouteFinder
     {
     }
 
-    public function find(HttpRestRequest $request) : array
+    public function find(HttpRestRequest $request): array
     {
         $routes = include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php';
 

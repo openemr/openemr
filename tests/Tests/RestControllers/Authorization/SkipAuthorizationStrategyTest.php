@@ -10,17 +10,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
 
-class SkipAuthorizationStrategyTest extends TestCase {
-
-    private function getMockSessionForRequest(HttpRestRequest $request): SessionInterface
-    {
-        $sessionFactory = new MockFileSessionStorageFactory();
-        $sessionStorage = $sessionFactory->createStorage($request);
-        $session = new Session($sessionStorage);
-        $session->start();
-        $session->set("site_id", "default");
-        return $session;
-    }
+class SkipAuthorizationStrategyTest extends TestCase
+{
     public function testShouldSkipOptionsMethod()
     {
         $request = HttpRestRequest::create("/apis/default/fhir/Patient", "OPTIONS");
@@ -68,5 +59,15 @@ class SkipAuthorizationStrategyTest extends TestCase {
         $this->assertEquals(null, $request->attributes->get('tokenId'), "Expected tokenId to be null for skipped path");
         $this->assertEquals(UuidUserAccount::USER_ROLE_USERS, $request->getRequestUserRole(), "Expected user role to be 'users' for skipped path");
         $this->assertEquals($userId, $request->attributes->get('userId'), "Expected userId attribute to be set to 1 for skipped path");
+    }
+
+    private function getMockSessionForRequest(HttpRestRequest $request): SessionInterface
+    {
+        $sessionFactory = new MockFileSessionStorageFactory();
+        $sessionStorage = $sessionFactory->createStorage($request);
+        $session = new Session($sessionStorage);
+        $session->start();
+        $session->set("site_id", "default");
+        return $session;
     }
 }

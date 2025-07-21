@@ -1716,7 +1716,7 @@ class AuthorizationController
         $apiSession['persist_login'] = 0;
         unset($apiSession['csrf_private_key']);
         $session_cache = json_encode($apiSession, JSON_THROW_ON_ERROR);
-        // now we need to get our $_SESSION['user_id']
+        // now we need to get our session user_id
         $this->saveTrustedUser($apiSession['client_id'], $apiSession['user_id'], $apiSession['scopes'], $apiSession['persist_login'], $code, $session_cache);
 
         $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() sending server response");
