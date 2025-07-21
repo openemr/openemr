@@ -2347,7 +2347,7 @@ class CarecoordinationTable extends AbstractTableGateway
         if (!$dom->loadXML($xmlContent, LIBXML_NOERROR | LIBXML_NOWARNING)) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            throw new Exception("Invalid XML provided: " . implode(", ", array_map(fn($e) => $e->message, $errors)));
+            throw new Exception("Invalid XML provided: " . implode(", ", array_map(fn($e): string => $e->message, $errors)));
         }
         // Normalize and ensure UTF-8 encoding
         $dom->encoding = 'UTF-8';
