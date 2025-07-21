@@ -134,11 +134,11 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     </div>
                         <div class="form-group">
                             <label for="form_extension"><?php echo xlt("Extension") ?> *</label>
-                            <input id="form_extension" type="text" name="extension" class="form-control" value='<?php echo attr($c['extension']) ?>' required />
+                            <input id="form_extension" type="text" name="extension" class="form-control" value='<?php echo attr($c['extension']) ?>' />
                         </div>
                         <div class="form-group faxHide">
                             <label for="form_phone"><?php echo xlt("FAX Phone Number") ?> *</label>
-                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>' required />
+                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone'] ?? '+1') ?>' required />
                         </div>
                         <div class="form-group smsHide">
                             <label for="form_smsnumber"><?php echo xlt("SMS Phone Number") ?> *</label>

@@ -69,6 +69,7 @@ if ($_POST['form_save'] ?? null) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
+    $_SESSION['editingUser'] = ($_POST['editingUser'] ?? 0);
     $boot->saveVendorGlobals($_POST);
 }
 
@@ -148,7 +149,7 @@ if ($_POST['form_save_permissions'] ?? null) {
 // Function to get primary user
 
 // Get all active users for the form
-$users_query = "SELECT id, username, fname, lname FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL ORDER BY lname, fname";
+$users_query = "SELECT id, username, fname, lname, authorized FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL ORDER BY lname, fname";
 $users_result = sqlStatement($users_query);
 $active_users = [];
 while ($user = sqlFetchArray($users_result)) {
@@ -163,7 +164,7 @@ $vendors = $boot->getVendorGlobals();
 <!DOCTYPE HTML>
 <html lang="eng">
 <head>
-    <title><?php echo xlt("Enable Vendors") ?></title>
+    <title><?php echo xlt("Enable Services") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
     if (count($vendors ?? []) === 0) {
@@ -314,7 +315,6 @@ $vendors = $boot->getVendorGlobals();
         <div class="form-group m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
-
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS"); ?><span class="caret"></span></button>
             <?php }
@@ -336,9 +336,31 @@ $vendors = $boot->getVendorGlobals();
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <div class="">
+                <div class="form-group">
                     <div class="title text-center"><?php echo xlt("Available Modules"); ?></div>
                     <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
+                    <div class="row col form-group">
+                        <label for="editingUser" class="form-inline"><?php echo xlt("Editing Service Credentials for User"); ?></label>
+                        <div class="ml-2" title="User to setup credentials.">
+                            <select class="form-control persist" name="editingUser" id="editingUser">
+                                <option value="0"><?php echo xlt("Default (You)"); ?></option>
+                                <?php foreach ($active_users as $user) {
+                                    $user_id = $user['id'];
+                                    if ($_SESSION['authUserID'] == $user_id) {
+                                        continue;
+                                    }
+                                    $display_name = trim($user['fname'] . ' ' . $user['lname']);
+                                    if (empty($display_name)) {
+                                        $display_name = $user['username'];
+                                    }
+                                    ?>
+                                    <option value="<?php echo attr($user_id); ?>" <?php echo ($_SESSION['editingUser'] == $user_id) ? 'selected' : ''; ?>>
+                                        <?php echo text($display_name); ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
                     <hr>
                     <div class="clearfix"></div>
                     <div class="row form-group">
