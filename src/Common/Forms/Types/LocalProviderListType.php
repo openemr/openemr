@@ -57,7 +57,7 @@ class LocalProviderListType
     {
         $urow = null;
         if ($this->providerList != null) {
-            $index = array_search($this->providerList, fn($item) => $item['id'] == $id);
+            $index = array_search($this->providerList, fn($item): bool => $item['id'] == $id);
             if ($index !== false) {
                 $urow = $this->providerList[$index];
             }

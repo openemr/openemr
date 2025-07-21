@@ -430,7 +430,7 @@ function edih_upload_files()
 
         if (!$fa['tmp_name'] || !$fa['size']) {
             //$html_str .= "Error: file name or size error <br />" . PHP_EOL;
-            $f_ar['reject'][] = array('name' => (string)$fa['name'],'comment' => 'php file upload error');
+            $f_ar['reject'][] = array('name' => $fa['name'],'comment' => 'php file upload error');
             unset($files[$uplkey][$idx]);
             continue;
         }

@@ -46,7 +46,7 @@ Check out [FHIR_README.md](FHIR_README.md)
 
 ### For Developers
 
-If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 20.* is required) :
+If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 22.* is required) :
 
 ```shell
 composer install --no-dev
