@@ -1076,7 +1076,7 @@ class Events extends Base
         return count($hits);
     }
 
-    private function recursive_array_search($needle, $haystack)
+    private function recursive_array_search($needle, $haystack): bool
     {
         foreach ($haystack as $key => $value) {
             $current_key = $key;
@@ -2856,7 +2856,7 @@ class Display extends base
  * @return bool
  */
 
-    public function SMS_bot($logged_in)
+    public function SMS_bot($logged_in): bool
     {
         $fields = array();
         $fields = $_REQUEST;

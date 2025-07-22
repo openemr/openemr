@@ -1955,10 +1955,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -1990,23 +1988,17 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -2026,40 +2018,26 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->effectivePeriod)) {
             $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
         }
-        if (0 < count($this->topic)) {
-            foreach ($this->topic as $topic) {
-                $topic->xmlSerialize(true, $sxe->addChild('topic'));
-            }
+        foreach ($this->topic as $topic) {
+            $topic->xmlSerialize(true, $sxe->addChild('topic'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
-        if (0 < count($this->editor)) {
-            foreach ($this->editor as $editor) {
-                $editor->xmlSerialize(true, $sxe->addChild('editor'));
-            }
+        foreach ($this->editor as $editor) {
+            $editor->xmlSerialize(true, $sxe->addChild('editor'));
         }
-        if (0 < count($this->reviewer)) {
-            foreach ($this->reviewer as $reviewer) {
-                $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
-            }
+        foreach ($this->reviewer as $reviewer) {
+            $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
         }
-        if (0 < count($this->endorser)) {
-            foreach ($this->endorser as $endorser) {
-                $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
-            }
+        foreach ($this->endorser as $endorser) {
+            $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
         }
-        if (0 < count($this->relatedArtifact)) {
-            foreach ($this->relatedArtifact as $relatedArtifact) {
-                $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
-            }
+        foreach ($this->relatedArtifact as $relatedArtifact) {
+            $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
         }
-        if (0 < count($this->library)) {
-            foreach ($this->library as $library) {
-                $library->xmlSerialize(true, $sxe->addChild('library'));
-            }
+        foreach ($this->library as $library) {
+            $library->xmlSerialize(true, $sxe->addChild('library'));
         }
         if (isset($this->kind)) {
             $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
@@ -2100,10 +2078,8 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->location)) {
             $this->location->xmlSerialize(true, $sxe->addChild('location'));
         }
-        if (0 < count($this->participant)) {
-            foreach ($this->participant as $participant) {
-                $participant->xmlSerialize(true, $sxe->addChild('participant'));
-            }
+        foreach ($this->participant as $participant) {
+            $participant->xmlSerialize(true, $sxe->addChild('participant'));
         }
         if (isset($this->productReference)) {
             $this->productReference->xmlSerialize(true, $sxe->addChild('productReference'));
@@ -2114,38 +2090,26 @@ class FHIRActivityDefinition extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
         }
-        if (0 < count($this->dosage)) {
-            foreach ($this->dosage as $dosage) {
-                $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
-            }
+        foreach ($this->dosage as $dosage) {
+            $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
         }
-        if (0 < count($this->bodySite)) {
-            foreach ($this->bodySite as $bodySite) {
-                $bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
-            }
+        foreach ($this->bodySite as $bodySite) {
+            $bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
         }
-        if (0 < count($this->specimenRequirement)) {
-            foreach ($this->specimenRequirement as $specimenRequirement) {
-                $specimenRequirement->xmlSerialize(true, $sxe->addChild('specimenRequirement'));
-            }
+        foreach ($this->specimenRequirement as $specimenRequirement) {
+            $specimenRequirement->xmlSerialize(true, $sxe->addChild('specimenRequirement'));
         }
-        if (0 < count($this->observationRequirement)) {
-            foreach ($this->observationRequirement as $observationRequirement) {
-                $observationRequirement->xmlSerialize(true, $sxe->addChild('observationRequirement'));
-            }
+        foreach ($this->observationRequirement as $observationRequirement) {
+            $observationRequirement->xmlSerialize(true, $sxe->addChild('observationRequirement'));
         }
-        if (0 < count($this->observationResultRequirement)) {
-            foreach ($this->observationResultRequirement as $observationResultRequirement) {
-                $observationResultRequirement->xmlSerialize(true, $sxe->addChild('observationResultRequirement'));
-            }
+        foreach ($this->observationResultRequirement as $observationResultRequirement) {
+            $observationResultRequirement->xmlSerialize(true, $sxe->addChild('observationResultRequirement'));
         }
         if (isset($this->transform)) {
             $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
         }
-        if (0 < count($this->dynamicValue)) {
-            foreach ($this->dynamicValue as $dynamicValue) {
-                $dynamicValue->xmlSerialize(true, $sxe->addChild('dynamicValue'));
-            }
+        foreach ($this->dynamicValue as $dynamicValue) {
+            $dynamicValue->xmlSerialize(true, $sxe->addChild('dynamicValue'));
         }
         if ($returnSXE) {
             return $sxe;

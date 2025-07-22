@@ -353,25 +353,17 @@ class FHIRStructureMapRule extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
-        if (0 < count($this->rule)) {
-            foreach ($this->rule as $rule) {
-                $rule->xmlSerialize(true, $sxe->addChild('rule'));
-            }
+        foreach ($this->rule as $rule) {
+            $rule->xmlSerialize(true, $sxe->addChild('rule'));
         }
-        if (0 < count($this->dependent)) {
-            foreach ($this->dependent as $dependent) {
-                $dependent->xmlSerialize(true, $sxe->addChild('dependent'));
-            }
+        foreach ($this->dependent as $dependent) {
+            $dependent->xmlSerialize(true, $sxe->addChild('dependent'));
         }
         if (isset($this->documentation)) {
             $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));

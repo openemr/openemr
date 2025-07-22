@@ -117,7 +117,7 @@ function buildTemplate(string $pid = null, string $encounter = null, $htmlin, st
     return $htmlin;
 }
 
-function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
+function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = ""): bool
 {
     $top = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
     $side = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];

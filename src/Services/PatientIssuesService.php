@@ -210,11 +210,9 @@ class PatientIssuesService extends BaseService
     {
         sqlStatement("DELETE FROM issue_encounter WHERE " .
             "pid = ? AND encounter = ?", array($pid, $encounter));
-        if (!empty($issues)) {
-            foreach ($issues as $issue) {
-                $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
-                sqlStatement($query, array($pid, $issue, $encounter));
-            }
+        foreach ($issues as $issue) {
+            $query = "INSERT INTO issue_encounter ( pid, list_id, encounter ) VALUES (?,?,?)";
+            sqlStatement($query, array($pid, $issue, $encounter));
         }
     }
 }

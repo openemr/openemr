@@ -842,23 +842,17 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
@@ -869,20 +863,14 @@ class FHIRImplementationGuide extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->license)) {
             $this->license->xmlSerialize(true, $sxe->addChild('license'));
         }
-        if (0 < count($this->fhirVersion)) {
-            foreach ($this->fhirVersion as $fhirVersion) {
-                $fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
-            }
+        foreach ($this->fhirVersion as $fhirVersion) {
+            $fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
         }
-        if (0 < count($this->dependsOn)) {
-            foreach ($this->dependsOn as $dependsOn) {
-                $dependsOn->xmlSerialize(true, $sxe->addChild('dependsOn'));
-            }
+        foreach ($this->dependsOn as $dependsOn) {
+            $dependsOn->xmlSerialize(true, $sxe->addChild('dependsOn'));
         }
-        if (0 < count($this->global)) {
-            foreach ($this->global as $global) {
-                $global->xmlSerialize(true, $sxe->addChild('global'));
-            }
+        foreach ($this->global as $global) {
+            $global->xmlSerialize(true, $sxe->addChild('global'));
         }
         if (isset($this->definition)) {
             $this->definition->xmlSerialize(true, $sxe->addChild('definition'));

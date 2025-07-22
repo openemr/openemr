@@ -196,7 +196,7 @@ class ModulesApplication
      * @param $file
      * @return bool
      */
-    public static function isSafeModuleFileForInclude($file)
+    public static function isSafeModuleFileForInclude($file): bool
     {
         $realpath = realpath($file);
         $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);

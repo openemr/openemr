@@ -784,23 +784,17 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
             $sxe = new \SimpleXMLElement('<Patient xmlns="http://hl7.org/fhir"></Patient>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
         }
-        if (0 < count($this->name)) {
-            foreach ($this->name as $name) {
-                $name->xmlSerialize(true, $sxe->addChild('name'));
-            }
+        foreach ($this->name as $name) {
+            $name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if (isset($this->gender)) {
             $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
@@ -814,10 +808,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
         if (isset($this->deceasedDateTime)) {
             $this->deceasedDateTime->xmlSerialize(true, $sxe->addChild('deceasedDateTime'));
         }
-        if (0 < count($this->address)) {
-            foreach ($this->address as $address) {
-                $address->xmlSerialize(true, $sxe->addChild('address'));
-            }
+        foreach ($this->address as $address) {
+            $address->xmlSerialize(true, $sxe->addChild('address'));
         }
         if (isset($this->maritalStatus)) {
             $this->maritalStatus->xmlSerialize(true, $sxe->addChild('maritalStatus'));
@@ -828,33 +820,23 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
         if (isset($this->multipleBirthInteger)) {
             $this->multipleBirthInteger->xmlSerialize(true, $sxe->addChild('multipleBirthInteger'));
         }
-        if (0 < count($this->photo)) {
-            foreach ($this->photo as $photo) {
-                $photo->xmlSerialize(true, $sxe->addChild('photo'));
-            }
+        foreach ($this->photo as $photo) {
+            $photo->xmlSerialize(true, $sxe->addChild('photo'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
-        if (0 < count($this->communication)) {
-            foreach ($this->communication as $communication) {
-                $communication->xmlSerialize(true, $sxe->addChild('communication'));
-            }
+        foreach ($this->communication as $communication) {
+            $communication->xmlSerialize(true, $sxe->addChild('communication'));
         }
-        if (0 < count($this->generalPractitioner)) {
-            foreach ($this->generalPractitioner as $generalPractitioner) {
-                $generalPractitioner->xmlSerialize(true, $sxe->addChild('generalPractitioner'));
-            }
+        foreach ($this->generalPractitioner as $generalPractitioner) {
+            $generalPractitioner->xmlSerialize(true, $sxe->addChild('generalPractitioner'));
         }
         if (isset($this->managingOrganization)) {
             $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
         }
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
         if ($returnSXE) {
             return $sxe;

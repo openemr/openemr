@@ -461,10 +461,8 @@ class FHIRAddress extends FHIRElement implements \JsonSerializable
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->line)) {
-            foreach ($this->line as $line) {
-                $line->xmlSerialize(true, $sxe->addChild('line'));
-            }
+        foreach ($this->line as $line) {
+            $line->xmlSerialize(true, $sxe->addChild('line'));
         }
         if (isset($this->city)) {
             $this->city->xmlSerialize(true, $sxe->addChild('city'));

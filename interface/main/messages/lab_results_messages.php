@@ -33,30 +33,28 @@ function lab_results_messages($set_pid, $rid, $provider_id = ""): void
         $result[$iter] = $row;
     }
 
-    if (!empty($result)) {
-        foreach ($result as $user_detail) {
-            unset($thisauth); // Make sure it is empty.
-            // Check user authorization. Only send the pending review message to authorised user.
-            // $thisauth = AclMain::aclCheckCore('patients', 'sign', $user_detail['username']);
+    foreach ($result as $user_detail) {
+        unset($thisauth); // Make sure it is empty.
+        // Check user authorization. Only send the pending review message to authorised user.
+        // $thisauth = AclMain::aclCheckCore('patients', 'sign', $user_detail['username']);
 
-            // Route message to administrators if there is no provider match.
-            if ($provider_id == "") {
-                $thisauth = AclMain::aclCheckCore('admin', 'super', $user_detail['username']);
-            } else {
-                $thisauth = true;
-            }
+        // Route message to administrators if there is no provider match.
+        if ($provider_id == "") {
+            $thisauth = AclMain::aclCheckCore('admin', 'super', $user_detail['username']);
+        } else {
+            $thisauth = true;
+        }
 
-            if ($thisauth) {
-                // Send lab result message to the ordering provider when there is a new lab report.
-                $pname = getPatientName($set_pid);
-                $link = "<a href='../../orders/orders_results.php?review=1&set_pid=" . attr_url($set_pid) . "'" .
-                " onclick='return top.restoreSession()'>here</a>";
-                $note = "Patient $pname's lab results have arrived. Please click $link to review them.<br/>";
-                $note_type = "Lab Results";
-                $message_status = "New";
-                // Add pnote.
-                $noteid = addPnote($set_pid, $note, $userauthorized, '1', $note_type, $user_detail['username'], '', $message_status);
-            }
+        if ($thisauth) {
+            // Send lab result message to the ordering provider when there is a new lab report.
+            $pname = getPatientName($set_pid);
+            $link = "<a href='../../orders/orders_results.php?review=1&set_pid=" . attr_url($set_pid) . "'" .
+            " onclick='return top.restoreSession()'>here</a>";
+            $note = "Patient $pname's lab results have arrived. Please click $link to review them.<br/>";
+            $note_type = "Lab Results";
+            $message_status = "New";
+            // Add pnote.
+            $noteid = addPnote($set_pid, $note, $userauthorized, '1', $note_type, $user_detail['username'], '', $message_status);
         }
     }
 }

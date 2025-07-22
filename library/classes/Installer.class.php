@@ -108,7 +108,7 @@ class Installer
         $this->dbh = false;
     }
 
-    public function login_is_valid()
+    public function login_is_valid(): bool
     {
         if (($this->login == '') || (! isset($this->login))) {
             $this->error_message = "login is invalid: '$this->login'";
@@ -118,7 +118,7 @@ class Installer
         return true;
     }
 
-    public function char_is_valid($input_text)
+    public function char_is_valid($input_text): bool
     {
         // to prevent php injection
         trim($input_text);
@@ -133,7 +133,7 @@ class Installer
         return true;
     }
 
-    public function databaseNameIsValid($name)
+    public function databaseNameIsValid($name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -141,7 +141,7 @@ class Installer
         return true;
     }
 
-    public function collateNameIsValid($name)
+    public function collateNameIsValid($name): bool
     {
         if (preg_match('/[^A-Za-z0-9_-]/', $name)) {
             return false;
@@ -149,7 +149,7 @@ class Installer
         return true;
     }
 
-    public function iuser_is_valid()
+    public function iuser_is_valid(): bool
     {
         if (strpos($this->iuser, " ")) {
             $this->error_message = "Initial user is invalid: '$this->iuser'";
@@ -159,7 +159,7 @@ class Installer
         return true;
     }
 
-    public function iuname_is_valid()
+    public function iuname_is_valid(): bool
     {
         if ($this->iuname == "" || !isset($this->iuname)) {
             $this->error_message = "Initial user last name is invalid: '$this->iuname'";
@@ -169,7 +169,7 @@ class Installer
         return true;
     }
 
-    public function password_is_valid()
+    public function password_is_valid(): bool
     {
         if ($this->pass == "" || !isset($this->pass)) {
             $this->error_message = "The password for the new database account is invalid: '$this->pass'";
@@ -179,7 +179,7 @@ class Installer
         return true;
     }
 
-    public function user_password_is_valid()
+    public function user_password_is_valid(): bool
     {
         if ($this->iuserpass == "" || !isset($this->iuserpass)) {
             $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
@@ -191,7 +191,7 @@ class Installer
 
 
 
-    public function root_database_connection()
+    public function root_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
@@ -207,7 +207,7 @@ class Installer
         }
     }
 
-    public function user_database_connection()
+    public function user_database_connection(): bool
     {
         $this->dbh = $this->connect_to_database($this->server, $this->login, $this->pass, $this->port, $this->dbname);
         if (! $this->dbh) {
@@ -386,7 +386,7 @@ class Installer
         return $sql_results;
     }
 
-    public function add_version_info()
+    public function add_version_info(): bool
     {
         include dirname(__FILE__) . "/../../version.php";
         /**
@@ -425,7 +425,7 @@ class Installer
         return false;
     }
 
-    public function add_initial_user()
+    public function add_initial_user(): bool
     {
         if ($this->execute_sql("INSERT INTO `groups` (id, name, user) VALUES (1,'" . $this->escapeSql($this->igroup) . "','" . $this->escapeSql($this->iuser) . "')") == false) {
             $this->error_message = "ERROR. Unable to add initial user group\n" .
@@ -470,7 +470,7 @@ class Installer
      * Handle the additional users now that our gacl's have finished installing.
      * @return bool
      */
-    public function install_additional_users()
+    public function install_additional_users(): bool
     {
         // Add the official openemr users (services)
         if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
@@ -479,7 +479,7 @@ class Installer
         return true;
     }
 
-    public function on_care_coordination()
+    public function on_care_coordination(): bool
     {
         $resource = $this->execute_sql("SELECT `mod_id` FROM `modules` WHERE `mod_name` = 'Carecoordination' LIMIT 1");
         $resource_array = mysqli_fetch_array($resource, MYSQLI_ASSOC);
@@ -531,7 +531,7 @@ class Installer
    * @global string $GLOBALS['OE_SITE_DIR'] contains the name of the site directory to create
    * @return name of the site directory or False
    */
-    public function create_site_directory()
+    public function create_site_directory(): bool
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
             $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
@@ -549,7 +549,7 @@ class Installer
         return true;
     }
 
-    public function write_configuration_file()
+    public function write_configuration_file(): bool
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
             $this->create_site_directory();
@@ -617,7 +617,7 @@ $config = 1; /////////////
         return true;
     }
 
-    public function insert_globals()
+    public function insert_globals(): bool
     {
         $GLOBALS['temp_skip_translations'] = true;
         $skipGlobalEvent = true; // use in globals.inc.php script to skip event stuff
@@ -640,7 +640,7 @@ $config = 1; /////////////
         return true;
     }
 
-    public function install_gacl()
+    public function install_gacl(): bool
     {
 
         $gacl = new GaclApi();
@@ -1192,7 +1192,7 @@ $config = 1; /////////////
         return true;
     }
 
-    public function quick_install()
+    public function quick_install(): bool
     {
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
@@ -1476,7 +1476,7 @@ $config = 1; /////////////
    * @param string $dst name of the destination to copy to
    * @return bool indicating success
    */
-    private function recurse_copy($src, $dst)
+    private function recurse_copy($src, $dst): bool
     {
         $dir = opendir($src);
         if (! @mkdir($dst)) {

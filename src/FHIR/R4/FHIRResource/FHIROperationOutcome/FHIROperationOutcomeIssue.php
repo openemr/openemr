@@ -350,15 +350,11 @@ For resource issues, this will be a simple XPath limited to element names, repet
         if (isset($this->diagnostics)) {
             $this->diagnostics->xmlSerialize(true, $sxe->addChild('diagnostics'));
         }
-        if (0 < count($this->location)) {
-            foreach ($this->location as $location) {
-                $location->xmlSerialize(true, $sxe->addChild('location'));
-            }
+        foreach ($this->location as $location) {
+            $location->xmlSerialize(true, $sxe->addChild('location'));
         }
-        if (0 < count($this->expression)) {
-            foreach ($this->expression as $expression) {
-                $expression->xmlSerialize(true, $sxe->addChild('expression'));
-            }
+        foreach ($this->expression as $expression) {
+            $expression->xmlSerialize(true, $sxe->addChild('expression'));
         }
         if ($returnSXE) {
             return $sxe;

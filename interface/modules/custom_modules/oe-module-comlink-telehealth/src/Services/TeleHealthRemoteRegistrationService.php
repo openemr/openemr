@@ -309,7 +309,7 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function deactivateUser(string $username, string $password)
+    public function deactivateUser(string $username, string $password): bool
     {
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($username);

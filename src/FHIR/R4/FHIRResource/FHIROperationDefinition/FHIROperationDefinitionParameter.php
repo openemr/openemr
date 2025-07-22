@@ -519,10 +519,8 @@ class FHIROperationDefinitionParameter extends FHIRBackboneElement implements \J
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->targetProfile)) {
-            foreach ($this->targetProfile as $targetProfile) {
-                $targetProfile->xmlSerialize(true, $sxe->addChild('targetProfile'));
-            }
+        foreach ($this->targetProfile as $targetProfile) {
+            $targetProfile->xmlSerialize(true, $sxe->addChild('targetProfile'));
         }
         if (isset($this->searchType)) {
             $this->searchType->xmlSerialize(true, $sxe->addChild('searchType'));
@@ -530,15 +528,11 @@ class FHIROperationDefinitionParameter extends FHIRBackboneElement implements \J
         if (isset($this->binding)) {
             $this->binding->xmlSerialize(true, $sxe->addChild('binding'));
         }
-        if (0 < count($this->referencedFrom)) {
-            foreach ($this->referencedFrom as $referencedFrom) {
-                $referencedFrom->xmlSerialize(true, $sxe->addChild('referencedFrom'));
-            }
+        foreach ($this->referencedFrom as $referencedFrom) {
+            $referencedFrom->xmlSerialize(true, $sxe->addChild('referencedFrom'));
         }
-        if (0 < count($this->part)) {
-            foreach ($this->part as $part) {
-                $part->xmlSerialize(true, $sxe->addChild('part'));
-            }
+        foreach ($this->part as $part) {
+            $part->xmlSerialize(true, $sxe->addChild('part'));
         }
         if ($returnSXE) {
             return $sxe;

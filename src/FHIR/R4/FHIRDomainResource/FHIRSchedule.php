@@ -425,33 +425,23 @@ class FHIRSchedule extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Schedule xmlns="http://hl7.org/fhir"></Schedule>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
         }
-        if (0 < count($this->serviceCategory)) {
-            foreach ($this->serviceCategory as $serviceCategory) {
-                $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
-            }
+        foreach ($this->serviceCategory as $serviceCategory) {
+            $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
         }
-        if (0 < count($this->serviceType)) {
-            foreach ($this->serviceType as $serviceType) {
-                $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
-            }
+        foreach ($this->serviceType as $serviceType) {
+            $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
         }
-        if (0 < count($this->specialty)) {
-            foreach ($this->specialty as $specialty) {
-                $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
-            }
+        foreach ($this->specialty as $specialty) {
+            $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
         }
-        if (0 < count($this->actor)) {
-            foreach ($this->actor as $actor) {
-                $actor->xmlSerialize(true, $sxe->addChild('actor'));
-            }
+        foreach ($this->actor as $actor) {
+            $actor->xmlSerialize(true, $sxe->addChild('actor'));
         }
         if (isset($this->planningHorizon)) {
             $this->planningHorizon->xmlSerialize(true, $sxe->addChild('planningHorizon'));

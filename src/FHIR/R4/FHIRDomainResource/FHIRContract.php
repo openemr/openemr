@@ -1358,10 +1358,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Contract xmlns="http://hl7.org/fhir"></Contract>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
@@ -1393,25 +1391,17 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->expirationType)) {
             $this->expirationType->xmlSerialize(true, $sxe->addChild('expirationType'));
         }
-        if (0 < count($this->subject)) {
-            foreach ($this->subject as $subject) {
-                $subject->xmlSerialize(true, $sxe->addChild('subject'));
-            }
+        foreach ($this->subject as $subject) {
+            $subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
-        if (0 < count($this->authority)) {
-            foreach ($this->authority as $authority) {
-                $authority->xmlSerialize(true, $sxe->addChild('authority'));
-            }
+        foreach ($this->authority as $authority) {
+            $authority->xmlSerialize(true, $sxe->addChild('authority'));
         }
-        if (0 < count($this->domain)) {
-            foreach ($this->domain as $domain) {
-                $domain->xmlSerialize(true, $sxe->addChild('domain'));
-            }
+        foreach ($this->domain as $domain) {
+            $domain->xmlSerialize(true, $sxe->addChild('domain'));
         }
-        if (0 < count($this->site)) {
-            foreach ($this->site as $site) {
-                $site->xmlSerialize(true, $sxe->addChild('site'));
-            }
+        foreach ($this->site as $site) {
+            $site->xmlSerialize(true, $sxe->addChild('site'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
@@ -1422,10 +1412,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->subtitle)) {
             $this->subtitle->xmlSerialize(true, $sxe->addChild('subtitle'));
         }
-        if (0 < count($this->alias)) {
-            foreach ($this->alias as $alias) {
-                $alias->xmlSerialize(true, $sxe->addChild('alias'));
-            }
+        foreach ($this->alias as $alias) {
+            $alias->xmlSerialize(true, $sxe->addChild('alias'));
         }
         if (isset($this->author)) {
             $this->author->xmlSerialize(true, $sxe->addChild('author'));
@@ -1442,48 +1430,32 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->subType)) {
-            foreach ($this->subType as $subType) {
-                $subType->xmlSerialize(true, $sxe->addChild('subType'));
-            }
+        foreach ($this->subType as $subType) {
+            $subType->xmlSerialize(true, $sxe->addChild('subType'));
         }
         if (isset($this->contentDefinition)) {
             $this->contentDefinition->xmlSerialize(true, $sxe->addChild('contentDefinition'));
         }
-        if (0 < count($this->term)) {
-            foreach ($this->term as $term) {
-                $term->xmlSerialize(true, $sxe->addChild('term'));
-            }
+        foreach ($this->term as $term) {
+            $term->xmlSerialize(true, $sxe->addChild('term'));
         }
-        if (0 < count($this->supportingInfo)) {
-            foreach ($this->supportingInfo as $supportingInfo) {
-                $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
-            }
+        foreach ($this->supportingInfo as $supportingInfo) {
+            $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
         }
-        if (0 < count($this->relevantHistory)) {
-            foreach ($this->relevantHistory as $relevantHistory) {
-                $relevantHistory->xmlSerialize(true, $sxe->addChild('relevantHistory'));
-            }
+        foreach ($this->relevantHistory as $relevantHistory) {
+            $relevantHistory->xmlSerialize(true, $sxe->addChild('relevantHistory'));
         }
-        if (0 < count($this->signer)) {
-            foreach ($this->signer as $signer) {
-                $signer->xmlSerialize(true, $sxe->addChild('signer'));
-            }
+        foreach ($this->signer as $signer) {
+            $signer->xmlSerialize(true, $sxe->addChild('signer'));
         }
-        if (0 < count($this->friendly)) {
-            foreach ($this->friendly as $friendly) {
-                $friendly->xmlSerialize(true, $sxe->addChild('friendly'));
-            }
+        foreach ($this->friendly as $friendly) {
+            $friendly->xmlSerialize(true, $sxe->addChild('friendly'));
         }
-        if (0 < count($this->legal)) {
-            foreach ($this->legal as $legal) {
-                $legal->xmlSerialize(true, $sxe->addChild('legal'));
-            }
+        foreach ($this->legal as $legal) {
+            $legal->xmlSerialize(true, $sxe->addChild('legal'));
         }
-        if (0 < count($this->rule)) {
-            foreach ($this->rule as $rule) {
-                $rule->xmlSerialize(true, $sxe->addChild('rule'));
-            }
+        foreach ($this->rule as $rule) {
+            $rule->xmlSerialize(true, $sxe->addChild('rule'));
         }
         if (isset($this->legallyBindingAttachment)) {
             $this->legallyBindingAttachment->xmlSerialize(true, $sxe->addChild('legallyBindingAttachment'));

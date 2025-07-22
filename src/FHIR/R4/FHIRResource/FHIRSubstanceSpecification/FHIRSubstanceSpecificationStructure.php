@@ -417,23 +417,17 @@ class FHIRSubstanceSpecificationStructure extends FHIRBackboneElement implements
         if (isset($this->molecularFormulaByMoiety)) {
             $this->molecularFormulaByMoiety->xmlSerialize(true, $sxe->addChild('molecularFormulaByMoiety'));
         }
-        if (0 < count($this->isotope)) {
-            foreach ($this->isotope as $isotope) {
-                $isotope->xmlSerialize(true, $sxe->addChild('isotope'));
-            }
+        foreach ($this->isotope as $isotope) {
+            $isotope->xmlSerialize(true, $sxe->addChild('isotope'));
         }
         if (isset($this->molecularWeight)) {
             $this->molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
-        if (0 < count($this->representation)) {
-            foreach ($this->representation as $representation) {
-                $representation->xmlSerialize(true, $sxe->addChild('representation'));
-            }
+        foreach ($this->representation as $representation) {
+            $representation->xmlSerialize(true, $sxe->addChild('representation'));
         }
         if ($returnSXE) {
             return $sxe;

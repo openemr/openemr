@@ -198,10 +198,8 @@ class FHIRMedicinalProductPharmaceuticalTargetSpecies extends FHIRBackboneElemen
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->withdrawalPeriod)) {
-            foreach ($this->withdrawalPeriod as $withdrawalPeriod) {
-                $withdrawalPeriod->xmlSerialize(true, $sxe->addChild('withdrawalPeriod'));
-            }
+        foreach ($this->withdrawalPeriod as $withdrawalPeriod) {
+            $withdrawalPeriod->xmlSerialize(true, $sxe->addChild('withdrawalPeriod'));
         }
         if ($returnSXE) {
             return $sxe;

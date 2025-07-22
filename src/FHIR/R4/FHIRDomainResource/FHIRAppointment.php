@@ -933,10 +933,8 @@ The duration (usually in minutes) could also be provided to indicate the length 
             $sxe = new \SimpleXMLElement('<Appointment xmlns="http://hl7.org/fhir"></Appointment>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -944,33 +942,23 @@ The duration (usually in minutes) could also be provided to indicate the length 
         if (isset($this->cancelationReason)) {
             $this->cancelationReason->xmlSerialize(true, $sxe->addChild('cancelationReason'));
         }
-        if (0 < count($this->serviceCategory)) {
-            foreach ($this->serviceCategory as $serviceCategory) {
-                $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
-            }
+        foreach ($this->serviceCategory as $serviceCategory) {
+            $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
         }
-        if (0 < count($this->serviceType)) {
-            foreach ($this->serviceType as $serviceType) {
-                $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
-            }
+        foreach ($this->serviceType as $serviceType) {
+            $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
         }
-        if (0 < count($this->specialty)) {
-            foreach ($this->specialty as $specialty) {
-                $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
-            }
+        foreach ($this->specialty as $specialty) {
+            $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
         }
         if (isset($this->appointmentType)) {
             $this->appointmentType->xmlSerialize(true, $sxe->addChild('appointmentType'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
         if (isset($this->priority)) {
             $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
@@ -978,10 +966,8 @@ The duration (usually in minutes) could also be provided to indicate the length 
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->supportingInformation)) {
-            foreach ($this->supportingInformation as $supportingInformation) {
-                $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
-            }
+        foreach ($this->supportingInformation as $supportingInformation) {
+            $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
         }
         if (isset($this->start)) {
             $this->start->xmlSerialize(true, $sxe->addChild('start'));
@@ -992,10 +978,8 @@ The duration (usually in minutes) could also be provided to indicate the length 
         if (isset($this->minutesDuration)) {
             $this->minutesDuration->xmlSerialize(true, $sxe->addChild('minutesDuration'));
         }
-        if (0 < count($this->slot)) {
-            foreach ($this->slot as $slot) {
-                $slot->xmlSerialize(true, $sxe->addChild('slot'));
-            }
+        foreach ($this->slot as $slot) {
+            $slot->xmlSerialize(true, $sxe->addChild('slot'));
         }
         if (isset($this->created)) {
             $this->created->xmlSerialize(true, $sxe->addChild('created'));
@@ -1006,20 +990,14 @@ The duration (usually in minutes) could also be provided to indicate the length 
         if (isset($this->patientInstruction)) {
             $this->patientInstruction->xmlSerialize(true, $sxe->addChild('patientInstruction'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->participant)) {
-            foreach ($this->participant as $participant) {
-                $participant->xmlSerialize(true, $sxe->addChild('participant'));
-            }
+        foreach ($this->participant as $participant) {
+            $participant->xmlSerialize(true, $sxe->addChild('participant'));
         }
-        if (0 < count($this->requestedPeriod)) {
-            foreach ($this->requestedPeriod as $requestedPeriod) {
-                $requestedPeriod->xmlSerialize(true, $sxe->addChild('requestedPeriod'));
-            }
+        foreach ($this->requestedPeriod as $requestedPeriod) {
+            $requestedPeriod->xmlSerialize(true, $sxe->addChild('requestedPeriod'));
         }
         if ($returnSXE) {
             return $sxe;

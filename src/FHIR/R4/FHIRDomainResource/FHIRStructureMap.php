@@ -766,10 +766,8 @@ class FHIRStructureMap extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -792,23 +790,17 @@ class FHIRStructureMap extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -816,20 +808,14 @@ class FHIRStructureMap extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
         }
-        if (0 < count($this->structure)) {
-            foreach ($this->structure as $structure) {
-                $structure->xmlSerialize(true, $sxe->addChild('structure'));
-            }
+        foreach ($this->structure as $structure) {
+            $structure->xmlSerialize(true, $sxe->addChild('structure'));
         }
-        if (0 < count($this->import)) {
-            foreach ($this->import as $import) {
-                $import->xmlSerialize(true, $sxe->addChild('import'));
-            }
+        foreach ($this->import as $import) {
+            $import->xmlSerialize(true, $sxe->addChild('import'));
         }
-        if (0 < count($this->group)) {
-            foreach ($this->group as $group) {
-                $group->xmlSerialize(true, $sxe->addChild('group'));
-            }
+        foreach ($this->group as $group) {
+            $group->xmlSerialize(true, $sxe->addChild('group'));
         }
         if ($returnSXE) {
             return $sxe;

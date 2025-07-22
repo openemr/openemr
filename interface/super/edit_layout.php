@@ -213,7 +213,7 @@ function tableNameFromLayout($layout_id)
 
 // This tells you if a column name is required in code and therefore must not
 // be deleted or renamed.
-function isColumnReserved($tablename, $field_id)
+function isColumnReserved($tablename, $field_id): bool
 {
     if ($tablename == 'patient_data') {
         if (

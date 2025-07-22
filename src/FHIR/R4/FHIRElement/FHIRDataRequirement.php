@@ -459,10 +459,8 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->profile)) {
-            foreach ($this->profile as $profile) {
-                $profile->xmlSerialize(true, $sxe->addChild('profile'));
-            }
+        foreach ($this->profile as $profile) {
+            $profile->xmlSerialize(true, $sxe->addChild('profile'));
         }
         if (isset($this->subjectCodeableConcept)) {
             $this->subjectCodeableConcept->xmlSerialize(true, $sxe->addChild('subjectCodeableConcept'));
@@ -470,28 +468,20 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
         if (isset($this->subjectReference)) {
             $this->subjectReference->xmlSerialize(true, $sxe->addChild('subjectReference'));
         }
-        if (0 < count($this->mustSupport)) {
-            foreach ($this->mustSupport as $mustSupport) {
-                $mustSupport->xmlSerialize(true, $sxe->addChild('mustSupport'));
-            }
+        foreach ($this->mustSupport as $mustSupport) {
+            $mustSupport->xmlSerialize(true, $sxe->addChild('mustSupport'));
         }
-        if (0 < count($this->codeFilter)) {
-            foreach ($this->codeFilter as $codeFilter) {
-                $codeFilter->xmlSerialize(true, $sxe->addChild('codeFilter'));
-            }
+        foreach ($this->codeFilter as $codeFilter) {
+            $codeFilter->xmlSerialize(true, $sxe->addChild('codeFilter'));
         }
-        if (0 < count($this->dateFilter)) {
-            foreach ($this->dateFilter as $dateFilter) {
-                $dateFilter->xmlSerialize(true, $sxe->addChild('dateFilter'));
-            }
+        foreach ($this->dateFilter as $dateFilter) {
+            $dateFilter->xmlSerialize(true, $sxe->addChild('dateFilter'));
         }
         if (isset($this->limit)) {
             $this->limit->xmlSerialize(true, $sxe->addChild('limit'));
         }
-        if (0 < count($this->sort)) {
-            foreach ($this->sort as $sort) {
-                $sort->xmlSerialize(true, $sxe->addChild('sort'));
-            }
+        foreach ($this->sort as $sort) {
+            $sort->xmlSerialize(true, $sxe->addChild('sort'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -524,20 +524,14 @@ class FHIRProdCharacteristic extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->shape)) {
             $this->shape->xmlSerialize(true, $sxe->addChild('shape'));
         }
-        if (0 < count($this->color)) {
-            foreach ($this->color as $color) {
-                $color->xmlSerialize(true, $sxe->addChild('color'));
-            }
+        foreach ($this->color as $color) {
+            $color->xmlSerialize(true, $sxe->addChild('color'));
         }
-        if (0 < count($this->imprint)) {
-            foreach ($this->imprint as $imprint) {
-                $imprint->xmlSerialize(true, $sxe->addChild('imprint'));
-            }
+        foreach ($this->imprint as $imprint) {
+            $imprint->xmlSerialize(true, $sxe->addChild('imprint'));
         }
-        if (0 < count($this->image)) {
-            foreach ($this->image as $image) {
-                $image->xmlSerialize(true, $sxe->addChild('image'));
-            }
+        foreach ($this->image as $image) {
+            $image->xmlSerialize(true, $sxe->addChild('image'));
         }
         if (isset($this->scoring)) {
             $this->scoring->xmlSerialize(true, $sxe->addChild('scoring'));

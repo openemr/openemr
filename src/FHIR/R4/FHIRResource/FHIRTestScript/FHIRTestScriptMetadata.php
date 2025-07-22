@@ -204,15 +204,11 @@ class FHIRTestScriptMetadata extends FHIRBackboneElement implements \JsonSeriali
             $sxe = new \SimpleXMLElement('<TestScriptMetadata xmlns="http://hl7.org/fhir"></TestScriptMetadata>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
-        if (0 < count($this->capability)) {
-            foreach ($this->capability as $capability) {
-                $capability->xmlSerialize(true, $sxe->addChild('capability'));
-            }
+        foreach ($this->capability as $capability) {
+            $capability->xmlSerialize(true, $sxe->addChild('capability'));
         }
         if ($returnSXE) {
             return $sxe;

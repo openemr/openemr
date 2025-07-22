@@ -550,18 +550,14 @@ class FHIRTestReport extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->issued)) {
             $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
         }
-        if (0 < count($this->participant)) {
-            foreach ($this->participant as $participant) {
-                $participant->xmlSerialize(true, $sxe->addChild('participant'));
-            }
+        foreach ($this->participant as $participant) {
+            $participant->xmlSerialize(true, $sxe->addChild('participant'));
         }
         if (isset($this->setup)) {
             $this->setup->xmlSerialize(true, $sxe->addChild('setup'));
         }
-        if (0 < count($this->test)) {
-            foreach ($this->test as $test) {
-                $test->xmlSerialize(true, $sxe->addChild('test'));
-            }
+        foreach ($this->test as $test) {
+            $test->xmlSerialize(true, $sxe->addChild('test'));
         }
         if (isset($this->teardown)) {
             $this->teardown->xmlSerialize(true, $sxe->addChild('teardown'));

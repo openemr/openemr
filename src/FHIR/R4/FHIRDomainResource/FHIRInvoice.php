@@ -681,10 +681,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Invoice xmlns="http://hl7.org/fhir"></Invoice>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -704,10 +702,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->date)) {
             $this->date->xmlSerialize(true, $sxe->addChild('date'));
         }
-        if (0 < count($this->participant)) {
-            foreach ($this->participant as $participant) {
-                $participant->xmlSerialize(true, $sxe->addChild('participant'));
-            }
+        foreach ($this->participant as $participant) {
+            $participant->xmlSerialize(true, $sxe->addChild('participant'));
         }
         if (isset($this->issuer)) {
             $this->issuer->xmlSerialize(true, $sxe->addChild('issuer'));
@@ -715,15 +711,11 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->account)) {
             $this->account->xmlSerialize(true, $sxe->addChild('account'));
         }
-        if (0 < count($this->lineItem)) {
-            foreach ($this->lineItem as $lineItem) {
-                $lineItem->xmlSerialize(true, $sxe->addChild('lineItem'));
-            }
+        foreach ($this->lineItem as $lineItem) {
+            $lineItem->xmlSerialize(true, $sxe->addChild('lineItem'));
         }
-        if (0 < count($this->totalPriceComponent)) {
-            foreach ($this->totalPriceComponent as $totalPriceComponent) {
-                $totalPriceComponent->xmlSerialize(true, $sxe->addChild('totalPriceComponent'));
-            }
+        foreach ($this->totalPriceComponent as $totalPriceComponent) {
+            $totalPriceComponent->xmlSerialize(true, $sxe->addChild('totalPriceComponent'));
         }
         if (isset($this->totalNet)) {
             $this->totalNet->xmlSerialize(true, $sxe->addChild('totalNet'));
@@ -734,10 +726,8 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->paymentTerms)) {
             $this->paymentTerms->xmlSerialize(true, $sxe->addChild('paymentTerms'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

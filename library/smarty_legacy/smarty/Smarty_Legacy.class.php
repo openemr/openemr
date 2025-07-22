@@ -1387,7 +1387,7 @@ class Smarty_Legacy
      * @param string $compile_path
      * @return boolean
      */
-    function _is_compiled($resource_name, $compile_path)
+    function _is_compiled($resource_name, $compile_path): bool
     {
         if (!$this->force_compile && file_exists($compile_path)) {
             if (!$this->compile_check) {
@@ -1420,7 +1420,7 @@ class Smarty_Legacy
      * @param string $compile_path
      * @return boolean
      */
-    function _compile_resource($resource_name, $compile_path)
+    function _compile_resource($resource_name, $compile_path): bool
     {
 
         $_params = array('resource_name' => $resource_name);

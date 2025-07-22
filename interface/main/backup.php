@@ -769,39 +769,37 @@ if ($form_step == 102) {
                 }
             }
         }
-        if (!empty($form_sel_lists)) {
-            foreach ($form_sel_lists as $listid) {
-                // skip if have backtic(s)
-                if (strpos($listid, '`') !== false) {
-                    echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
-                    continue;
-                }
-                // whitelist the $listid
-                $listid_check = sqlQuery("SELECT `list_id` FROM `list_options` WHERE `list_id` = ? OR `option_id` = ?", [$listid, $listid]);
-                if (empty($listid_check['list_id'])) {
-                    echo xlt("Skipping missing list name") . ": " . text($listid) . "<br>";
-                    continue;
-                }
-                if (IS_WINDOWS) {
-                    # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    # windows uses the & to join statements.
-                    $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
-                        "ORDER BY list_id != 'lists', seq, title\" " .
-                        escapeshellarg($sqlconf["dbase"]) . " list_options";
-                    $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                } else {
-                    $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
-                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
-                        "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" .
-                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
-                        $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
-                        add_escape_custom($listid) . "\" OR list_id = \"" .
-                        add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
-                        escapeshellarg($sqlconf["dbase"]) . " list_options" .
-                        " >> " . escapeshellarg($EXPORT_FILE) . ";";
-                }
+        foreach ($form_sel_lists as $listid) {
+            // skip if have backtic(s)
+            if (strpos($listid, '`') !== false) {
+                echo xlt("Skipping illegal list name") . ": " . text($listid) . "<br>";
+                continue;
+            }
+            // whitelist the $listid
+            $listid_check = sqlQuery("SELECT `list_id` FROM `list_options` WHERE `list_id` = ? OR `option_id` = ?", [$listid, $listid]);
+            if (empty($listid_check['list_id'])) {
+                echo xlt("Skipping missing list name") . ": " . text($listid) . "<br>";
+                continue;
+            }
+            if (IS_WINDOWS) {
+                # windows will place the quotes in the outputted code if they are there. we removed them here.
+                $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                # windows uses the & to join statements.
+                $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
+                    "ORDER BY list_id != 'lists', seq, title\" " .
+                    escapeshellarg($sqlconf["dbase"]) . " list_options";
+                $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
+            } else {
+                $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
+                    add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                    "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" .
+                    add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                    $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
+                    add_escape_custom($listid) . "\" OR list_id = \"" .
+                    add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
+                    escapeshellarg($sqlconf["dbase"]) . " list_options" .
+                    " >> " . escapeshellarg($EXPORT_FILE) . ";";
             }
         }
 
@@ -1158,7 +1156,7 @@ function obliterate_dir($dir)
 
 // Create a tar archive given the archive file name, compression method if any, and the
 // array of file/directory names to archive
-function create_tar_archive($archiveName, $compressMethod, $itemArray)
+function create_tar_archive($archiveName, $compressMethod, $itemArray): bool
 {
     // Create a tar object using the pear library
     $tar = new Archive_Tar($archiveName, $compressMethod);

@@ -373,10 +373,8 @@ class FHIRMedicinalProductPharmaceuticalRouteOfAdministration extends FHIRBackbo
         if (isset($this->maxTreatmentPeriod)) {
             $this->maxTreatmentPeriod->xmlSerialize(true, $sxe->addChild('maxTreatmentPeriod'));
         }
-        if (0 < count($this->targetSpecies)) {
-            foreach ($this->targetSpecies as $targetSpecies) {
-                $targetSpecies->xmlSerialize(true, $sxe->addChild('targetSpecies'));
-            }
+        foreach ($this->targetSpecies as $targetSpecies) {
+            $targetSpecies->xmlSerialize(true, $sxe->addChild('targetSpecies'));
         }
         if ($returnSXE) {
             return $sxe;

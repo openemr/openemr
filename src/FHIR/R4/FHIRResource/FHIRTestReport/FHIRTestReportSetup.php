@@ -163,10 +163,8 @@ class FHIRTestReportSetup extends FHIRBackboneElement implements \JsonSerializab
             $sxe = new \SimpleXMLElement('<TestReportSetup xmlns="http://hl7.org/fhir"></TestReportSetup>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->action)) {
-            foreach ($this->action as $action) {
-                $action->xmlSerialize(true, $sxe->addChild('action'));
-            }
+        foreach ($this->action as $action) {
+            $action->xmlSerialize(true, $sxe->addChild('action'));
         }
         if ($returnSXE) {
             return $sxe;

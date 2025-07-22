@@ -218,22 +218,20 @@ $simpleSearch = $_GET['simple_search'] ?? null;
             <tr id="searchResults">
                 <?php
                 $pubpid_matched = false;
-                if ($result) {
-                    foreach ($result as $iter) {
-                        $relevance = $iter['relevance'];
-                        if ($relevance > 999) {
-                            $relevance -= 999;
-                            $pubpid_matched = true;
-                        }
-                        echo "<tr id='" . attr($iter['pid']) . "' class='oneresult";
-                        // Highlight entries where all fields matched.
-                        echo $numfields <= $iter['relevance'] ? " topresult" : "";
-                        echo "'>";
-                        echo "<td class='srID'>" . text($relevance) . "</td>\n";
-                        echo "<td class='srName'>" . text($iter['lname'] . ", " . $iter['fname']) . "</td>\n";
-                        foreach ($extracols as $field_id => $title) {
-                            echo "<td class='srMisc'>" . text($iter[$field_id]) . "</td>\n";
-                        }
+                foreach ($result as $iter) {
+                    $relevance = $iter['relevance'];
+                    if ($relevance > 999) {
+                        $relevance -= 999;
+                        $pubpid_matched = true;
+                    }
+                    echo "<tr id='" . attr($iter['pid']) . "' class='oneresult";
+                    // Highlight entries where all fields matched.
+                    echo $numfields <= $iter['relevance'] ? " topresult" : "";
+                    echo "'>";
+                    echo "<td class='srID'>" . text($relevance) . "</td>\n";
+                    echo "<td class='srName'>" . text($iter['lname'] . ", " . $iter['fname']) . "</td>\n";
+                    foreach ($extracols as $field_id => $title) {
+                        echo "<td class='srMisc'>" . text($iter[$field_id]) . "</td>\n";
                     }
                 }
                 ?>

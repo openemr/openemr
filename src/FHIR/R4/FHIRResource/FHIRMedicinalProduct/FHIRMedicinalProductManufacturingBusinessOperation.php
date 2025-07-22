@@ -335,10 +335,8 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
         if (isset($this->confidentialityIndicator)) {
             $this->confidentialityIndicator->xmlSerialize(true, $sxe->addChild('confidentialityIndicator'));
         }
-        if (0 < count($this->manufacturer)) {
-            foreach ($this->manufacturer as $manufacturer) {
-                $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-            }
+        foreach ($this->manufacturer as $manufacturer) {
+            $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
         }
         if (isset($this->regulator)) {
             $this->regulator->xmlSerialize(true, $sxe->addChild('regulator'));

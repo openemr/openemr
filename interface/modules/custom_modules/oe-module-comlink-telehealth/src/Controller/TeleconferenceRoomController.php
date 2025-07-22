@@ -932,7 +932,7 @@ class TeleconferenceRoomController
      * @param $userId
      * @return bool
      */
-    public function shouldChangeProvider($appt, $userId)
+    public function shouldChangeProvider($appt, $userId): bool
     {
         if ($appt['pc_aid'] != $userId) {
             return true;
@@ -1455,7 +1455,7 @@ class TeleconferenceRoomController
      * @param $session
      * @return bool
      */
-    private function isPatientPidAuthorizedForSession($pid, $session)
+    private function isPatientPidAuthorizedForSession($pid, $session): bool
     {
         $convertedPid = intval($pid);
         $related_session_pid = intval($session['pid_related'] ?? 0);

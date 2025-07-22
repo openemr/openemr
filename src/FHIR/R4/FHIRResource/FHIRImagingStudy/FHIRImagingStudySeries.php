@@ -557,10 +557,8 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->numberOfInstances)) {
             $this->numberOfInstances->xmlSerialize(true, $sxe->addChild('numberOfInstances'));
         }
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
         if (isset($this->bodySite)) {
             $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
@@ -568,23 +566,17 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->laterality)) {
             $this->laterality->xmlSerialize(true, $sxe->addChild('laterality'));
         }
-        if (0 < count($this->specimen)) {
-            foreach ($this->specimen as $specimen) {
-                $specimen->xmlSerialize(true, $sxe->addChild('specimen'));
-            }
+        foreach ($this->specimen as $specimen) {
+            $specimen->xmlSerialize(true, $sxe->addChild('specimen'));
         }
         if (isset($this->started)) {
             $this->started->xmlSerialize(true, $sxe->addChild('started'));
         }
-        if (0 < count($this->performer)) {
-            foreach ($this->performer as $performer) {
-                $performer->xmlSerialize(true, $sxe->addChild('performer'));
-            }
+        foreach ($this->performer as $performer) {
+            $performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->instance)) {
-            foreach ($this->instance as $instance) {
-                $instance->xmlSerialize(true, $sxe->addChild('instance'));
-            }
+        foreach ($this->instance as $instance) {
+            $instance->xmlSerialize(true, $sxe->addChild('instance'));
         }
         if ($returnSXE) {
             return $sxe;

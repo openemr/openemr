@@ -466,15 +466,11 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
             $sxe = new \SimpleXMLElement('<MedicinalProductPackaged xmlns="http://hl7.org/fhir"></MedicinalProductPackaged>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->subject)) {
-            foreach ($this->subject as $subject) {
-                $subject->xmlSerialize(true, $sxe->addChild('subject'));
-            }
+        foreach ($this->subject as $subject) {
+            $subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
@@ -482,28 +478,20 @@ class FHIRMedicinalProductPackaged extends FHIRDomainResource implements \JsonSe
         if (isset($this->legalStatusOfSupply)) {
             $this->legalStatusOfSupply->xmlSerialize(true, $sxe->addChild('legalStatusOfSupply'));
         }
-        if (0 < count($this->marketingStatus)) {
-            foreach ($this->marketingStatus as $marketingStatus) {
-                $marketingStatus->xmlSerialize(true, $sxe->addChild('marketingStatus'));
-            }
+        foreach ($this->marketingStatus as $marketingStatus) {
+            $marketingStatus->xmlSerialize(true, $sxe->addChild('marketingStatus'));
         }
         if (isset($this->marketingAuthorization)) {
             $this->marketingAuthorization->xmlSerialize(true, $sxe->addChild('marketingAuthorization'));
         }
-        if (0 < count($this->manufacturer)) {
-            foreach ($this->manufacturer as $manufacturer) {
-                $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-            }
+        foreach ($this->manufacturer as $manufacturer) {
+            $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
         }
-        if (0 < count($this->batchIdentifier)) {
-            foreach ($this->batchIdentifier as $batchIdentifier) {
-                $batchIdentifier->xmlSerialize(true, $sxe->addChild('batchIdentifier'));
-            }
+        foreach ($this->batchIdentifier as $batchIdentifier) {
+            $batchIdentifier->xmlSerialize(true, $sxe->addChild('batchIdentifier'));
         }
-        if (0 < count($this->packageItem)) {
-            foreach ($this->packageItem as $packageItem) {
-                $packageItem->xmlSerialize(true, $sxe->addChild('packageItem'));
-            }
+        foreach ($this->packageItem as $packageItem) {
+            $packageItem->xmlSerialize(true, $sxe->addChild('packageItem'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -825,23 +825,17 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
             $sxe = new \SimpleXMLElement('<DiagnosticReport xmlns="http://hl7.org/fhir"></DiagnosticReport>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
@@ -861,48 +855,32 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->issued)) {
             $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
         }
-        if (0 < count($this->performer)) {
-            foreach ($this->performer as $performer) {
-                $performer->xmlSerialize(true, $sxe->addChild('performer'));
-            }
+        foreach ($this->performer as $performer) {
+            $performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->resultsInterpreter)) {
-            foreach ($this->resultsInterpreter as $resultsInterpreter) {
-                $resultsInterpreter->xmlSerialize(true, $sxe->addChild('resultsInterpreter'));
-            }
+        foreach ($this->resultsInterpreter as $resultsInterpreter) {
+            $resultsInterpreter->xmlSerialize(true, $sxe->addChild('resultsInterpreter'));
         }
-        if (0 < count($this->specimen)) {
-            foreach ($this->specimen as $specimen) {
-                $specimen->xmlSerialize(true, $sxe->addChild('specimen'));
-            }
+        foreach ($this->specimen as $specimen) {
+            $specimen->xmlSerialize(true, $sxe->addChild('specimen'));
         }
-        if (0 < count($this->result)) {
-            foreach ($this->result as $result) {
-                $result->xmlSerialize(true, $sxe->addChild('result'));
-            }
+        foreach ($this->result as $result) {
+            $result->xmlSerialize(true, $sxe->addChild('result'));
         }
-        if (0 < count($this->imagingStudy)) {
-            foreach ($this->imagingStudy as $imagingStudy) {
-                $imagingStudy->xmlSerialize(true, $sxe->addChild('imagingStudy'));
-            }
+        foreach ($this->imagingStudy as $imagingStudy) {
+            $imagingStudy->xmlSerialize(true, $sxe->addChild('imagingStudy'));
         }
-        if (0 < count($this->media)) {
-            foreach ($this->media as $media) {
-                $media->xmlSerialize(true, $sxe->addChild('media'));
-            }
+        foreach ($this->media as $media) {
+            $media->xmlSerialize(true, $sxe->addChild('media'));
         }
         if (isset($this->conclusion)) {
             $this->conclusion->xmlSerialize(true, $sxe->addChild('conclusion'));
         }
-        if (0 < count($this->conclusionCode)) {
-            foreach ($this->conclusionCode as $conclusionCode) {
-                $conclusionCode->xmlSerialize(true, $sxe->addChild('conclusionCode'));
-            }
+        foreach ($this->conclusionCode as $conclusionCode) {
+            $conclusionCode->xmlSerialize(true, $sxe->addChild('conclusionCode'));
         }
-        if (0 < count($this->presentedForm)) {
-            foreach ($this->presentedForm as $presentedForm) {
-                $presentedForm->xmlSerialize(true, $sxe->addChild('presentedForm'));
-            }
+        foreach ($this->presentedForm as $presentedForm) {
+            $presentedForm->xmlSerialize(true, $sxe->addChild('presentedForm'));
         }
         if ($returnSXE) {
             return $sxe;

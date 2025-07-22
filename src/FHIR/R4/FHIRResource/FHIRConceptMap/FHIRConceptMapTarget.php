@@ -344,15 +344,11 @@ class FHIRConceptMapTarget extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
         }
-        if (0 < count($this->dependsOn)) {
-            foreach ($this->dependsOn as $dependsOn) {
-                $dependsOn->xmlSerialize(true, $sxe->addChild('dependsOn'));
-            }
+        foreach ($this->dependsOn as $dependsOn) {
+            $dependsOn->xmlSerialize(true, $sxe->addChild('dependsOn'));
         }
-        if (0 < count($this->product)) {
-            foreach ($this->product as $product) {
-                $product->xmlSerialize(true, $sxe->addChild('product'));
-            }
+        foreach ($this->product as $product) {
+            $product->xmlSerialize(true, $sxe->addChild('product'));
         }
         if ($returnSXE) {
             return $sxe;

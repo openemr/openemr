@@ -271,13 +271,11 @@ class RestControllerHelper
 
         // first check to make sure the operation is not already defined
         // such as $bulkdata-status when we have both a POST and a DELETE rest route to the same operation
-        if (!empty($capResource->getOperation())) {
-            foreach ($capResource->getOperation() as $existingOperation) {
-                // this doesn't handle the $export operations
-                // TODO: is there a better way to handle all operations and not just things such as $bulkdata-status?
-                if ($existingOperation->getName() == $operation) {
-                    return; // already exists so let's skip adding this operation
-                }
+        foreach ($capResource->getOperation() as $existingOperation) {
+            // this doesn't handle the $export operations
+            // TODO: is there a better way to handle all operations and not just things such as $bulkdata-status?
+            if ($existingOperation->getName() == $operation) {
+                return; // already exists so let's skip adding this operation
             }
         }
 

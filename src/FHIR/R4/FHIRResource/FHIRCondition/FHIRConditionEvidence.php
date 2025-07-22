@@ -204,15 +204,11 @@ class FHIRConditionEvidence extends FHIRBackboneElement implements \JsonSerializ
             $sxe = new \SimpleXMLElement('<ConditionEvidence xmlns="http://hl7.org/fhir"></ConditionEvidence>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if ($returnSXE) {
             return $sxe;

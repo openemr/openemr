@@ -83,16 +83,12 @@ class Module
 
         $extend_fhir_route_map = [];
 
-        if (count($extend_route_map) > 0) {
-            foreach ($extend_route_map as $route => $action) {
-                $m->addToRouteMap($route, $action);
-            }
+        foreach ($extend_route_map as $route => $action) {
+            $m->addToRouteMap($route, $action);
         }
 
-        if (count($extend_fhir_route_map) > 0) {
-            foreach ($extend_fhir_route_map as $route => $action) {
-                $m->addToFHIRRouteMap($route, $action);
-            }
+        foreach ($extend_fhir_route_map as $route => $action) {
+            $m->addToFHIRRouteMap($route, $action);
         }
     }
 }

@@ -515,10 +515,8 @@ class FHIRAuditEvent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->subtype)) {
-            foreach ($this->subtype as $subtype) {
-                $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
-            }
+        foreach ($this->subtype as $subtype) {
+            $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
         }
         if (isset($this->action)) {
             $this->action->xmlSerialize(true, $sxe->addChild('action'));
@@ -535,23 +533,17 @@ class FHIRAuditEvent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->outcomeDesc)) {
             $this->outcomeDesc->xmlSerialize(true, $sxe->addChild('outcomeDesc'));
         }
-        if (0 < count($this->purposeOfEvent)) {
-            foreach ($this->purposeOfEvent as $purposeOfEvent) {
-                $purposeOfEvent->xmlSerialize(true, $sxe->addChild('purposeOfEvent'));
-            }
+        foreach ($this->purposeOfEvent as $purposeOfEvent) {
+            $purposeOfEvent->xmlSerialize(true, $sxe->addChild('purposeOfEvent'));
         }
-        if (0 < count($this->agent)) {
-            foreach ($this->agent as $agent) {
-                $agent->xmlSerialize(true, $sxe->addChild('agent'));
-            }
+        foreach ($this->agent as $agent) {
+            $agent->xmlSerialize(true, $sxe->addChild('agent'));
         }
         if (isset($this->source)) {
             $this->source->xmlSerialize(true, $sxe->addChild('source'));
         }
-        if (0 < count($this->entity)) {
-            foreach ($this->entity as $entity) {
-                $entity->xmlSerialize(true, $sxe->addChild('entity'));
-            }
+        foreach ($this->entity as $entity) {
+            $entity->xmlSerialize(true, $sxe->addChild('entity'));
         }
         if ($returnSXE) {
             return $sxe;

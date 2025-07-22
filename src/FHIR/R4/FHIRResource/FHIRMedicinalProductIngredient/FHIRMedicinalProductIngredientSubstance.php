@@ -198,10 +198,8 @@ class FHIRMedicinalProductIngredientSubstance extends FHIRBackboneElement implem
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->strength)) {
-            foreach ($this->strength as $strength) {
-                $strength->xmlSerialize(true, $sxe->addChild('strength'));
-            }
+        foreach ($this->strength as $strength) {
+            $strength->xmlSerialize(true, $sxe->addChild('strength'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -338,10 +338,8 @@ class FHIREffectEvidenceSynthesisEffectEstimate extends FHIRBackboneElement impl
         if (isset($this->unitOfMeasure)) {
             $this->unitOfMeasure->xmlSerialize(true, $sxe->addChild('unitOfMeasure'));
         }
-        if (0 < count($this->precisionEstimate)) {
-            foreach ($this->precisionEstimate as $precisionEstimate) {
-                $precisionEstimate->xmlSerialize(true, $sxe->addChild('precisionEstimate'));
-            }
+        foreach ($this->precisionEstimate as $precisionEstimate) {
+            $precisionEstimate->xmlSerialize(true, $sxe->addChild('precisionEstimate'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -620,10 +620,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Consent xmlns="http://hl7.org/fhir"></Consent>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -631,10 +629,8 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->scope)) {
             $this->scope->xmlSerialize(true, $sxe->addChild('scope'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
@@ -642,15 +638,11 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->dateTime)) {
             $this->dateTime->xmlSerialize(true, $sxe->addChild('dateTime'));
         }
-        if (0 < count($this->performer)) {
-            foreach ($this->performer as $performer) {
-                $performer->xmlSerialize(true, $sxe->addChild('performer'));
-            }
+        foreach ($this->performer as $performer) {
+            $performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->organization)) {
-            foreach ($this->organization as $organization) {
-                $organization->xmlSerialize(true, $sxe->addChild('organization'));
-            }
+        foreach ($this->organization as $organization) {
+            $organization->xmlSerialize(true, $sxe->addChild('organization'));
         }
         if (isset($this->sourceAttachment)) {
             $this->sourceAttachment->xmlSerialize(true, $sxe->addChild('sourceAttachment'));
@@ -658,18 +650,14 @@ class FHIRConsent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->sourceReference)) {
             $this->sourceReference->xmlSerialize(true, $sxe->addChild('sourceReference'));
         }
-        if (0 < count($this->policy)) {
-            foreach ($this->policy as $policy) {
-                $policy->xmlSerialize(true, $sxe->addChild('policy'));
-            }
+        foreach ($this->policy as $policy) {
+            $policy->xmlSerialize(true, $sxe->addChild('policy'));
         }
         if (isset($this->policyRule)) {
             $this->policyRule->xmlSerialize(true, $sxe->addChild('policyRule'));
         }
-        if (0 < count($this->verification)) {
-            foreach ($this->verification as $verification) {
-                $verification->xmlSerialize(true, $sxe->addChild('verification'));
-            }
+        foreach ($this->verification as $verification) {
+            $verification->xmlSerialize(true, $sxe->addChild('verification'));
         }
         if (isset($this->provision)) {
             $this->provision->xmlSerialize(true, $sxe->addChild('provision'));

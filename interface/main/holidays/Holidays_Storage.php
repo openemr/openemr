@@ -58,7 +58,7 @@ class Holidays_Storage
      * The holidays array must contai the date=>DD/MM/YYY, description=>"string"
      * @param array $holidays
      */
-    public function create_events(array $holidays)
+    public function create_events(array $holidays): bool
     {
         $deleted = false;
         foreach ($holidays as $holiday) {
@@ -100,7 +100,7 @@ class Holidays_Storage
      * 2016/12/24,Christmas
      * @param $file (string containing the file name)
      */
-    public function import_holidays($file)
+    public function import_holidays($file): bool
     {
         $data = array();
         $handle = fopen($file, "r");

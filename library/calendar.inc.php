@@ -73,7 +73,7 @@ function getUserFacWH($uID, $fID)
  * @param (int) $day
  * @return boolean
  */
-function is_weekend_day($day)
+function is_weekend_day($day): bool
 {
 
     if (in_array($day, $GLOBALS['weekend_days'])) {

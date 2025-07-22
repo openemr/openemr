@@ -672,23 +672,17 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
             $sxe = new \SimpleXMLElement('<MedicinalProductAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorization>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->subject)) {
             $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
-        if (0 < count($this->country)) {
-            foreach ($this->country as $country) {
-                $country->xmlSerialize(true, $sxe->addChild('country'));
-            }
+        foreach ($this->country as $country) {
+            $country->xmlSerialize(true, $sxe->addChild('country'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -714,10 +708,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
         if (isset($this->legalBasis)) {
             $this->legalBasis->xmlSerialize(true, $sxe->addChild('legalBasis'));
         }
-        if (0 < count($this->jurisdictionalAuthorization)) {
-            foreach ($this->jurisdictionalAuthorization as $jurisdictionalAuthorization) {
-                $jurisdictionalAuthorization->xmlSerialize(true, $sxe->addChild('jurisdictionalAuthorization'));
-            }
+        foreach ($this->jurisdictionalAuthorization as $jurisdictionalAuthorization) {
+            $jurisdictionalAuthorization->xmlSerialize(true, $sxe->addChild('jurisdictionalAuthorization'));
         }
         if (isset($this->holder)) {
             $this->holder->xmlSerialize(true, $sxe->addChild('holder'));

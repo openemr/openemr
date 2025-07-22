@@ -321,25 +321,17 @@ class FHIRImplementationGuideManifest extends FHIRBackboneElement implements \Js
         if (isset($this->rendering)) {
             $this->rendering->xmlSerialize(true, $sxe->addChild('rendering'));
         }
-        if (0 < count($this->resource)) {
-            foreach ($this->resource as $resource) {
-                $resource->xmlSerialize(true, $sxe->addChild('resource'));
-            }
+        foreach ($this->resource as $resource) {
+            $resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
-        if (0 < count($this->page)) {
-            foreach ($this->page as $page) {
-                $page->xmlSerialize(true, $sxe->addChild('page'));
-            }
+        foreach ($this->page as $page) {
+            $page->xmlSerialize(true, $sxe->addChild('page'));
         }
-        if (0 < count($this->image)) {
-            foreach ($this->image as $image) {
-                $image->xmlSerialize(true, $sxe->addChild('image'));
-            }
+        foreach ($this->image as $image) {
+            $image->xmlSerialize(true, $sxe->addChild('image'));
         }
-        if (0 < count($this->other)) {
-            foreach ($this->other as $other) {
-                $other->xmlSerialize(true, $sxe->addChild('other'));
-            }
+        foreach ($this->other as $other) {
+            $other->xmlSerialize(true, $sxe->addChild('other'));
         }
         if ($returnSXE) {
             return $sxe;

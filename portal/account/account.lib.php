@@ -330,7 +330,7 @@ function saveInsurance($pid): void
     newInsuranceData($pid, "tertiary");
 }
 
-function validEmail($email)
+function validEmail($email): bool
 {
     if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
         return true;

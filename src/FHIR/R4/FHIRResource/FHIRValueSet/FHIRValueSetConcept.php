@@ -233,10 +233,8 @@ class FHIRValueSetConcept extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->display)) {
             $this->display->xmlSerialize(true, $sxe->addChild('display'));
         }
-        if (0 < count($this->designation)) {
-            foreach ($this->designation as $designation) {
-                $designation->xmlSerialize(true, $sxe->addChild('designation'));
-            }
+        foreach ($this->designation as $designation) {
+            $designation->xmlSerialize(true, $sxe->addChild('designation'));
         }
         if ($returnSXE) {
             return $sxe;

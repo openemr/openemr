@@ -90,7 +90,7 @@ define('_PN_CONFIG_MODULE', '/PNConfig');
  * @returns true|false
  * @return none
  */
-function pnConfigInit()
+function pnConfigInit(): bool
 {
     global $pnconfig;
 
@@ -202,7 +202,7 @@ function pnConfigGetVar($name)
  * running.
  * @returns void
  */
-function pnInit()
+function pnInit(): bool
 {
     // Hack for some weird PHP systems that should have the
     // LC_* constants defined, but don't
@@ -242,7 +242,7 @@ function pnInit()
     return true;
 }
 
-function pnDBInit()
+function pnDBInit(): bool
 {
     // Get database parameters
     global $pnconfig;

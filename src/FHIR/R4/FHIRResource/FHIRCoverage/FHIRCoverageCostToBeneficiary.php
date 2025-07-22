@@ -262,10 +262,8 @@ class FHIRCoverageCostToBeneficiary extends FHIRBackboneElement implements \Json
         if (isset($this->valueMoney)) {
             $this->valueMoney->xmlSerialize(true, $sxe->addChild('valueMoney'));
         }
-        if (0 < count($this->exception)) {
-            foreach ($this->exception as $exception) {
-                $exception->xmlSerialize(true, $sxe->addChild('exception'));
-            }
+        foreach ($this->exception as $exception) {
+            $exception->xmlSerialize(true, $sxe->addChild('exception'));
         }
         if ($returnSXE) {
             return $sxe;

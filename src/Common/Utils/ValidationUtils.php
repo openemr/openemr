@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Utils;
 
 class ValidationUtils
 {
-    public static function isValidEmail($email)
+    public static function isValidEmail($email): bool
     {
         // FILTER_FLAG_EMAIL_UNICODE allows for unicode characters in the local (part before the @) of the email
         if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE)) {

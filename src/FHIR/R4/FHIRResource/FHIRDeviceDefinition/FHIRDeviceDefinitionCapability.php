@@ -198,10 +198,8 @@ class FHIRDeviceDefinitionCapability extends FHIRBackboneElement implements \Jso
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->description)) {
-            foreach ($this->description as $description) {
-                $description->xmlSerialize(true, $sxe->addChild('description'));
-            }
+        foreach ($this->description as $description) {
+            $description->xmlSerialize(true, $sxe->addChild('description'));
         }
         if ($returnSXE) {
             return $sxe;

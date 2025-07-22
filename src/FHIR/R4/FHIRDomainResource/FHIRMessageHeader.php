@@ -526,10 +526,8 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->eventUri)) {
             $this->eventUri->xmlSerialize(true, $sxe->addChild('eventUri'));
         }
-        if (0 < count($this->destination)) {
-            foreach ($this->destination as $destination) {
-                $destination->xmlSerialize(true, $sxe->addChild('destination'));
-            }
+        foreach ($this->destination as $destination) {
+            $destination->xmlSerialize(true, $sxe->addChild('destination'));
         }
         if (isset($this->sender)) {
             $this->sender->xmlSerialize(true, $sxe->addChild('sender'));
@@ -552,10 +550,8 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->response)) {
             $this->response->xmlSerialize(true, $sxe->addChild('response'));
         }
-        if (0 < count($this->focus)) {
-            foreach ($this->focus as $focus) {
-                $focus->xmlSerialize(true, $sxe->addChild('focus'));
-            }
+        foreach ($this->focus as $focus) {
+            $focus->xmlSerialize(true, $sxe->addChild('focus'));
         }
         if (isset($this->definition)) {
             $this->definition->xmlSerialize(true, $sxe->addChild('definition'));

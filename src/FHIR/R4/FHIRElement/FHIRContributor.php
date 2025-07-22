@@ -234,10 +234,8 @@ class FHIRContributor extends FHIRElement implements \JsonSerializable
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if ($returnSXE) {
             return $sxe;

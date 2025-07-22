@@ -165,10 +165,8 @@ class FHIROperationOutcome extends FHIRDomainResource implements \JsonSerializab
             $sxe = new \SimpleXMLElement('<OperationOutcome xmlns="http://hl7.org/fhir"></OperationOutcome>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->issue)) {
-            foreach ($this->issue as $issue) {
-                $issue->xmlSerialize(true, $sxe->addChild('issue'));
-            }
+        foreach ($this->issue as $issue) {
+            $issue->xmlSerialize(true, $sxe->addChild('issue'));
         }
         if ($returnSXE) {
             return $sxe;

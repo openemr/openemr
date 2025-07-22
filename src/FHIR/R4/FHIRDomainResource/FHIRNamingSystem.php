@@ -591,10 +591,8 @@ class FHIRNamingSystem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->responsible)) {
             $this->responsible->xmlSerialize(true, $sxe->addChild('responsible'));
@@ -605,23 +603,17 @@ class FHIRNamingSystem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->usage)) {
             $this->usage->xmlSerialize(true, $sxe->addChild('usage'));
         }
-        if (0 < count($this->uniqueId)) {
-            foreach ($this->uniqueId as $uniqueId) {
-                $uniqueId->xmlSerialize(true, $sxe->addChild('uniqueId'));
-            }
+        foreach ($this->uniqueId as $uniqueId) {
+            $uniqueId->xmlSerialize(true, $sxe->addChild('uniqueId'));
         }
         if ($returnSXE) {
             return $sxe;

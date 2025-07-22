@@ -265,10 +265,8 @@ class FHIRCodeSystemFilter extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->operator)) {
-            foreach ($this->operator as $operator) {
-                $operator->xmlSerialize(true, $sxe->addChild('operator'));
-            }
+        foreach ($this->operator as $operator) {
+            $operator->xmlSerialize(true, $sxe->addChild('operator'));
         }
         if (isset($this->value)) {
             $this->value->xmlSerialize(true, $sxe->addChild('value'));

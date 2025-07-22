@@ -495,10 +495,8 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
         if (isset($this->amountType)) {
             $this->amountType->xmlSerialize(true, $sxe->addChild('amountType'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
         if ($returnSXE) {
             return $sxe;

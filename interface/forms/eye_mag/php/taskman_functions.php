@@ -178,7 +178,7 @@ function update_taskman($task, $action, $value): void
  *      Some suggest the fax server to fax machine portion of efaxing is not HIPPA compliant, no matter how it is done.
  *      Thus faxing is not HIPPA compliant, and if that affects you, don't deliver this way.
  */
-function deliver_document($task)
+function deliver_document($task): bool
 {
     global $facilityService;
     $facility_data  = $facilityService->getPrimaryBillingLocation();

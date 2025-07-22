@@ -268,10 +268,8 @@ class FHIRMedicinalProductIngredientSpecifiedSubstance extends FHIRBackboneEleme
         if (isset($this->confidentiality)) {
             $this->confidentiality->xmlSerialize(true, $sxe->addChild('confidentiality'));
         }
-        if (0 < count($this->strength)) {
-            foreach ($this->strength as $strength) {
-                $strength->xmlSerialize(true, $sxe->addChild('strength'));
-            }
+        foreach ($this->strength as $strength) {
+            $strength->xmlSerialize(true, $sxe->addChild('strength'));
         }
         if ($returnSXE) {
             return $sxe;

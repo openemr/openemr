@@ -233,10 +233,8 @@ class FHIRSubstanceReferenceInformationGeneElement extends FHIRBackboneElement i
         if (isset($this->element)) {
             $this->element->xmlSerialize(true, $sxe->addChild('element'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -87,7 +87,7 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // we'll let them search on any LOINC code, technically we could just search procedure_codes for a valid code
         // and return false if there is nothing there... but unless the queries get really inefficient, we can just

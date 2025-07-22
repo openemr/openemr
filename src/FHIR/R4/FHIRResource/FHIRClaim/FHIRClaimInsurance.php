@@ -370,10 +370,8 @@ class FHIRClaimInsurance extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->businessArrangement)) {
             $this->businessArrangement->xmlSerialize(true, $sxe->addChild('businessArrangement'));
         }
-        if (0 < count($this->preAuthRef)) {
-            foreach ($this->preAuthRef as $preAuthRef) {
-                $preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
-            }
+        foreach ($this->preAuthRef as $preAuthRef) {
+            $preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
         }
         if (isset($this->claimResponse)) {
             $this->claimResponse->xmlSerialize(true, $sxe->addChild('claimResponse'));

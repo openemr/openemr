@@ -196,10 +196,8 @@ class FHIRCodeableConcept extends FHIRElement implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<CodeableConcept xmlns="http://hl7.org/fhir"></CodeableConcept>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->coding)) {
-            foreach ($this->coding as $coding) {
-                $coding->xmlSerialize(true, $sxe->addChild('coding'));
-            }
+        foreach ($this->coding as $coding) {
+            $coding->xmlSerialize(true, $sxe->addChild('coding'));
         }
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));

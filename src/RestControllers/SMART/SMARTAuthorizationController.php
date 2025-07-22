@@ -96,7 +96,7 @@ class SMARTAuthorizationController
      * @param $end_point string the route url
      * @return bool true if the route should be handled by this controller, false otherwise
      */
-    public function isValidRoute($end_point)
+    public function isValidRoute($end_point): bool
     {
         if (false !== stripos($end_point, self::PATIENT_SELECT_PATH)) {
             return true;
@@ -155,7 +155,7 @@ class SMARTAuthorizationController
      * endpoints.
      * @return bool
      */
-    public function needSMARTAuthorization()
+    public function needSMARTAuthorization(): bool
     {
         if (empty($_SESSION['puuid']) && strpos($_SESSION['scopes'], SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
             $this->logger->debug("AuthorizationController->userLogin() SMART app request for patient context ", ['scopes' => $_SESSION['scopes'], 'puuid' => $_SESSION['puuid'] ?? null]);

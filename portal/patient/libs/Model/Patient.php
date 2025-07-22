@@ -43,7 +43,7 @@ class Patient extends PatientDAO
     /**
      * @see Phreezable::OnSave()
      */
-    public function OnSave($insert)
+    public function OnSave($insert): bool
     {
         // the controller create/update methods validate before saving.  this will be a
         // redundant validation check, however it will ensure data integrity at the model

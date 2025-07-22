@@ -199,10 +199,8 @@ class FHIRContactDetail extends FHIRElement implements \JsonSerializable
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if ($returnSXE) {
             return $sxe;

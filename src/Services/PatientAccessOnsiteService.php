@@ -251,7 +251,7 @@ class PatientAccessOnsiteService
         return RandomGenUtils::generatePortalPassword();
     }
 
-    private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
+    private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig): bool
     {
         $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
         if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email'])) {

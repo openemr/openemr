@@ -20,7 +20,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     {
     }
 
-    public static function isDornLab($ppid)
+    public static function isDornLab($ppid): bool
     {
         $sql = "SHOW TABLES LIKE 'mod_dorn_routes'";
         $result = sqlQuery($sql);

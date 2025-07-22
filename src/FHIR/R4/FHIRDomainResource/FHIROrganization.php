@@ -507,49 +507,35 @@ class FHIROrganization extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Organization xmlns="http://hl7.org/fhir"></Organization>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->alias)) {
-            foreach ($this->alias as $alias) {
-                $alias->xmlSerialize(true, $sxe->addChild('alias'));
-            }
+        foreach ($this->alias as $alias) {
+            $alias->xmlSerialize(true, $sxe->addChild('alias'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
-        if (0 < count($this->address)) {
-            foreach ($this->address as $address) {
-                $address->xmlSerialize(true, $sxe->addChild('address'));
-            }
+        foreach ($this->address as $address) {
+            $address->xmlSerialize(true, $sxe->addChild('address'));
         }
         if (isset($this->partOf)) {
             $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
         if ($returnSXE) {
             return $sxe;

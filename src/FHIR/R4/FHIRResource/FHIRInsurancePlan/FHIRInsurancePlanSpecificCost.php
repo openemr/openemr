@@ -198,10 +198,8 @@ class FHIRInsurancePlanSpecificCost extends FHIRBackboneElement implements \Json
         if (isset($this->category)) {
             $this->category->xmlSerialize(true, $sxe->addChild('category'));
         }
-        if (0 < count($this->benefit)) {
-            foreach ($this->benefit as $benefit) {
-                $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
-            }
+        foreach ($this->benefit as $benefit) {
+            $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -271,15 +271,11 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
         if (isset($this->regulatoryAuthority)) {
             $this->regulatoryAuthority->xmlSerialize(true, $sxe->addChild('regulatoryAuthority'));
         }
-        if (0 < count($this->substitution)) {
-            foreach ($this->substitution as $substitution) {
-                $substitution->xmlSerialize(true, $sxe->addChild('substitution'));
-            }
+        foreach ($this->substitution as $substitution) {
+            $substitution->xmlSerialize(true, $sxe->addChild('substitution'));
         }
-        if (0 < count($this->schedule)) {
-            foreach ($this->schedule as $schedule) {
-                $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
-            }
+        foreach ($this->schedule as $schedule) {
+            $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
         }
         if (isset($this->maxDispense)) {
             $this->maxDispense->xmlSerialize(true, $sxe->addChild('maxDispense'));

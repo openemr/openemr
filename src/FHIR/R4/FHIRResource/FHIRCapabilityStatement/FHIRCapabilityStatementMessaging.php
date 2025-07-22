@@ -268,10 +268,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
             $sxe = new \SimpleXMLElement('<CapabilityStatementMessaging xmlns="http://hl7.org/fhir"></CapabilityStatementMessaging>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
         if (isset($this->reliableCache)) {
             $this->reliableCache->xmlSerialize(true, $sxe->addChild('reliableCache'));
@@ -279,10 +277,8 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
         if (isset($this->documentation)) {
             $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
         }
-        if (0 < count($this->supportedMessage)) {
-            foreach ($this->supportedMessage as $supportedMessage) {
-                $supportedMessage->xmlSerialize(true, $sxe->addChild('supportedMessage'));
-            }
+        foreach ($this->supportedMessage as $supportedMessage) {
+            $supportedMessage->xmlSerialize(true, $sxe->addChild('supportedMessage'));
         }
         if ($returnSXE) {
             return $sxe;

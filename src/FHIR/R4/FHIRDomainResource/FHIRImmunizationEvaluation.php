@@ -610,10 +610,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
             $sxe = new \SimpleXMLElement('<ImmunizationEvaluation xmlns="http://hl7.org/fhir"></ImmunizationEvaluation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -636,10 +634,8 @@ class FHIRImmunizationEvaluation extends FHIRDomainResource implements \JsonSeri
         if (isset($this->doseStatus)) {
             $this->doseStatus->xmlSerialize(true, $sxe->addChild('doseStatus'));
         }
-        if (0 < count($this->doseStatusReason)) {
-            foreach ($this->doseStatusReason as $doseStatusReason) {
-                $doseStatusReason->xmlSerialize(true, $sxe->addChild('doseStatusReason'));
-            }
+        foreach ($this->doseStatusReason as $doseStatusReason) {
+            $doseStatusReason->xmlSerialize(true, $sxe->addChild('doseStatusReason'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

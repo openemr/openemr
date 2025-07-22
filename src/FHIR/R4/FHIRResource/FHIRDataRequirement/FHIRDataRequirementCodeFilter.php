@@ -269,10 +269,8 @@ class FHIRDataRequirementCodeFilter extends FHIRElement implements \JsonSerializ
         if (isset($this->valueSet)) {
             $this->valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
         if ($returnSXE) {
             return $sxe;

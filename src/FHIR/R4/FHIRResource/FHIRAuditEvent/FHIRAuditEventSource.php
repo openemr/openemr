@@ -233,10 +233,8 @@ class FHIRAuditEventSource extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->observer)) {
             $this->observer->xmlSerialize(true, $sxe->addChild('observer'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if ($returnSXE) {
             return $sxe;

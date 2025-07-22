@@ -51,7 +51,7 @@ class CsrfUtils
     }
 
     // Function to verify a csrf_token
-    public static function verifyCsrfToken($token, $subject = 'default')
+    public static function verifyCsrfToken($token, $subject = 'default'): bool
     {
         $currentToken = self::collectCsrfToken($subject);
 

@@ -971,15 +971,11 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
             $sxe = new \SimpleXMLElement('<DeviceDefinition xmlns="http://hl7.org/fhir"></DeviceDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->udiDeviceIdentifier)) {
-            foreach ($this->udiDeviceIdentifier as $udiDeviceIdentifier) {
-                $udiDeviceIdentifier->xmlSerialize(true, $sxe->addChild('udiDeviceIdentifier'));
-            }
+        foreach ($this->udiDeviceIdentifier as $udiDeviceIdentifier) {
+            $udiDeviceIdentifier->xmlSerialize(true, $sxe->addChild('udiDeviceIdentifier'));
         }
         if (isset($this->manufacturerString)) {
             $this->manufacturerString->xmlSerialize(true, $sxe->addChild('manufacturerString'));
@@ -987,10 +983,8 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->manufacturerReference)) {
             $this->manufacturerReference->xmlSerialize(true, $sxe->addChild('manufacturerReference'));
         }
-        if (0 < count($this->deviceName)) {
-            foreach ($this->deviceName as $deviceName) {
-                $deviceName->xmlSerialize(true, $sxe->addChild('deviceName'));
-            }
+        foreach ($this->deviceName as $deviceName) {
+            $deviceName->xmlSerialize(true, $sxe->addChild('deviceName'));
         }
         if (isset($this->modelNumber)) {
             $this->modelNumber->xmlSerialize(true, $sxe->addChild('modelNumber'));
@@ -998,51 +992,35 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->specialization)) {
-            foreach ($this->specialization as $specialization) {
-                $specialization->xmlSerialize(true, $sxe->addChild('specialization'));
-            }
+        foreach ($this->specialization as $specialization) {
+            $specialization->xmlSerialize(true, $sxe->addChild('specialization'));
         }
-        if (0 < count($this->version)) {
-            foreach ($this->version as $version) {
-                $version->xmlSerialize(true, $sxe->addChild('version'));
-            }
+        foreach ($this->version as $version) {
+            $version->xmlSerialize(true, $sxe->addChild('version'));
         }
-        if (0 < count($this->safety)) {
-            foreach ($this->safety as $safety) {
-                $safety->xmlSerialize(true, $sxe->addChild('safety'));
-            }
+        foreach ($this->safety as $safety) {
+            $safety->xmlSerialize(true, $sxe->addChild('safety'));
         }
-        if (0 < count($this->shelfLifeStorage)) {
-            foreach ($this->shelfLifeStorage as $shelfLifeStorage) {
-                $shelfLifeStorage->xmlSerialize(true, $sxe->addChild('shelfLifeStorage'));
-            }
+        foreach ($this->shelfLifeStorage as $shelfLifeStorage) {
+            $shelfLifeStorage->xmlSerialize(true, $sxe->addChild('shelfLifeStorage'));
         }
         if (isset($this->physicalCharacteristics)) {
             $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
         }
-        if (0 < count($this->languageCode)) {
-            foreach ($this->languageCode as $languageCode) {
-                $languageCode->xmlSerialize(true, $sxe->addChild('languageCode'));
-            }
+        foreach ($this->languageCode as $languageCode) {
+            $languageCode->xmlSerialize(true, $sxe->addChild('languageCode'));
         }
-        if (0 < count($this->capability)) {
-            foreach ($this->capability as $capability) {
-                $capability->xmlSerialize(true, $sxe->addChild('capability'));
-            }
+        foreach ($this->capability as $capability) {
+            $capability->xmlSerialize(true, $sxe->addChild('capability'));
         }
-        if (0 < count($this->property)) {
-            foreach ($this->property as $property) {
-                $property->xmlSerialize(true, $sxe->addChild('property'));
-            }
+        foreach ($this->property as $property) {
+            $property->xmlSerialize(true, $sxe->addChild('property'));
         }
         if (isset($this->owner)) {
             $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
@@ -1050,10 +1028,8 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->onlineInformation)) {
             $this->onlineInformation->xmlSerialize(true, $sxe->addChild('onlineInformation'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
@@ -1061,10 +1037,8 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->parentDevice)) {
             $this->parentDevice->xmlSerialize(true, $sxe->addChild('parentDevice'));
         }
-        if (0 < count($this->material)) {
-            foreach ($this->material as $material) {
-                $material->xmlSerialize(true, $sxe->addChild('material'));
-            }
+        foreach ($this->material as $material) {
+            $material->xmlSerialize(true, $sxe->addChild('material'));
         }
         if ($returnSXE) {
             return $sxe;

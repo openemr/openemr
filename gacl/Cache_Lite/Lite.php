@@ -329,7 +329,7 @@ class Cache_Lite
     * @return boolean true if no problem
     * @access public
     */
-    function remove($id, $group = 'default')
+    function remove($id, $group = 'default'): bool
     {
         $this->_setFileName($id, $group);
         if ($this->_memoryCaching) {
@@ -358,7 +358,7 @@ class Cache_Lite
     * @return boolean true if no problem
     * @access public
     */
-    function clean($group = false)
+    function clean($group = false): bool
     {
         if ($this->_fileNameProtection) {
             $motif = ($group) ? 'cache_'.md5($group).'_' : 'cache_';
@@ -560,7 +560,7 @@ class Cache_Lite
     * @return boolean true if ok
     * @access private
     */
-    function _write($data)
+    function _write($data): bool
     {
         $fp = @fopen($this->_file, "wb");
         if ($fp) {

@@ -414,15 +414,11 @@ class FHIRSubstanceNucleicAcidSubunit extends FHIRBackboneElement implements \Js
         if (isset($this->threePrime)) {
             $this->threePrime->xmlSerialize(true, $sxe->addChild('threePrime'));
         }
-        if (0 < count($this->linkage)) {
-            foreach ($this->linkage as $linkage) {
-                $linkage->xmlSerialize(true, $sxe->addChild('linkage'));
-            }
+        foreach ($this->linkage as $linkage) {
+            $linkage->xmlSerialize(true, $sxe->addChild('linkage'));
         }
-        if (0 < count($this->sugar)) {
-            foreach ($this->sugar as $sugar) {
-                $sugar->xmlSerialize(true, $sxe->addChild('sugar'));
-            }
+        foreach ($this->sugar as $sugar) {
+            $sugar->xmlSerialize(true, $sxe->addChild('sugar'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -303,10 +303,8 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
         if ($returnSXE) {
             return $sxe;

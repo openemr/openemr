@@ -335,10 +335,8 @@ class FHIRConceptMapGroup extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->targetVersion)) {
             $this->targetVersion->xmlSerialize(true, $sxe->addChild('targetVersion'));
         }
-        if (0 < count($this->element)) {
-            foreach ($this->element as $element) {
-                $element->xmlSerialize(true, $sxe->addChild('element'));
-            }
+        foreach ($this->element as $element) {
+            $element->xmlSerialize(true, $sxe->addChild('element'));
         }
         if (isset($this->unmapped)) {
             $this->unmapped->xmlSerialize(true, $sxe->addChild('unmapped'));

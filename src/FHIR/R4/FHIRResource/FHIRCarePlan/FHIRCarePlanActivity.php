@@ -309,20 +309,14 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
             $sxe = new \SimpleXMLElement('<CarePlanActivity xmlns="http://hl7.org/fhir"></CarePlanActivity>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->outcomeCodeableConcept)) {
-            foreach ($this->outcomeCodeableConcept as $outcomeCodeableConcept) {
-                $outcomeCodeableConcept->xmlSerialize(true, $sxe->addChild('outcomeCodeableConcept'));
-            }
+        foreach ($this->outcomeCodeableConcept as $outcomeCodeableConcept) {
+            $outcomeCodeableConcept->xmlSerialize(true, $sxe->addChild('outcomeCodeableConcept'));
         }
-        if (0 < count($this->outcomeReference)) {
-            foreach ($this->outcomeReference as $outcomeReference) {
-                $outcomeReference->xmlSerialize(true, $sxe->addChild('outcomeReference'));
-            }
+        foreach ($this->outcomeReference as $outcomeReference) {
+            $outcomeReference->xmlSerialize(true, $sxe->addChild('outcomeReference'));
         }
-        if (0 < count($this->progress)) {
-            foreach ($this->progress as $progress) {
-                $progress->xmlSerialize(true, $sxe->addChild('progress'));
-            }
+        foreach ($this->progress as $progress) {
+            $progress->xmlSerialize(true, $sxe->addChild('progress'));
         }
         if (isset($this->reference)) {
             $this->reference->xmlSerialize(true, $sxe->addChild('reference'));

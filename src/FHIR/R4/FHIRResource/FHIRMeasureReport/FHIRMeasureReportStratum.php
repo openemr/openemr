@@ -271,15 +271,11 @@ class FHIRMeasureReportStratum extends FHIRBackboneElement implements \JsonSeria
         if (isset($this->value)) {
             $this->value->xmlSerialize(true, $sxe->addChild('value'));
         }
-        if (0 < count($this->component)) {
-            foreach ($this->component as $component) {
-                $component->xmlSerialize(true, $sxe->addChild('component'));
-            }
+        foreach ($this->component as $component) {
+            $component->xmlSerialize(true, $sxe->addChild('component'));
         }
-        if (0 < count($this->population)) {
-            foreach ($this->population as $population) {
-                $population->xmlSerialize(true, $sxe->addChild('population'));
-            }
+        foreach ($this->population as $population) {
+            $population->xmlSerialize(true, $sxe->addChild('population'));
         }
         if (isset($this->measureScore)) {
             $this->measureScore->xmlSerialize(true, $sxe->addChild('measureScore'));

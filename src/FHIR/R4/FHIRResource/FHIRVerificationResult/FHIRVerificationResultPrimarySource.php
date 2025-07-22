@@ -376,15 +376,11 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
         if (isset($this->who)) {
             $this->who->xmlSerialize(true, $sxe->addChild('who'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->communicationMethod)) {
-            foreach ($this->communicationMethod as $communicationMethod) {
-                $communicationMethod->xmlSerialize(true, $sxe->addChild('communicationMethod'));
-            }
+        foreach ($this->communicationMethod as $communicationMethod) {
+            $communicationMethod->xmlSerialize(true, $sxe->addChild('communicationMethod'));
         }
         if (isset($this->validationStatus)) {
             $this->validationStatus->xmlSerialize(true, $sxe->addChild('validationStatus'));
@@ -395,10 +391,8 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
         if (isset($this->canPushUpdates)) {
             $this->canPushUpdates->xmlSerialize(true, $sxe->addChild('canPushUpdates'));
         }
-        if (0 < count($this->pushTypeAvailable)) {
-            foreach ($this->pushTypeAvailable as $pushTypeAvailable) {
-                $pushTypeAvailable->xmlSerialize(true, $sxe->addChild('pushTypeAvailable'));
-            }
+        foreach ($this->pushTypeAvailable as $pushTypeAvailable) {
+            $pushTypeAvailable->xmlSerialize(true, $sxe->addChild('pushTypeAvailable'));
         }
         if ($returnSXE) {
             return $sxe;

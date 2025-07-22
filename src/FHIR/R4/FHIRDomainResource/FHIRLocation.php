@@ -722,10 +722,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Location xmlns="http://hl7.org/fhir"></Location>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -736,10 +734,8 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->alias)) {
-            foreach ($this->alias as $alias) {
-                $alias->xmlSerialize(true, $sxe->addChild('alias'));
-            }
+        foreach ($this->alias as $alias) {
+            $alias->xmlSerialize(true, $sxe->addChild('alias'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
@@ -747,15 +743,11 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->mode)) {
             $this->mode->xmlSerialize(true, $sxe->addChild('mode'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if (isset($this->address)) {
             $this->address->xmlSerialize(true, $sxe->addChild('address'));
@@ -772,18 +764,14 @@ class FHIRLocation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->partOf)) {
             $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
-        if (0 < count($this->hoursOfOperation)) {
-            foreach ($this->hoursOfOperation as $hoursOfOperation) {
-                $hoursOfOperation->xmlSerialize(true, $sxe->addChild('hoursOfOperation'));
-            }
+        foreach ($this->hoursOfOperation as $hoursOfOperation) {
+            $hoursOfOperation->xmlSerialize(true, $sxe->addChild('hoursOfOperation'));
         }
         if (isset($this->availabilityExceptions)) {
             $this->availabilityExceptions->xmlSerialize(true, $sxe->addChild('availabilityExceptions'));
         }
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
         if ($returnSXE) {
             return $sxe;

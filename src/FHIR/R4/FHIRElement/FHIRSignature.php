@@ -356,10 +356,8 @@ class FHIRSignature extends FHIRElement implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Signature xmlns="http://hl7.org/fhir"></Signature>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->when)) {
             $this->when->xmlSerialize(true, $sxe->addChild('when'));

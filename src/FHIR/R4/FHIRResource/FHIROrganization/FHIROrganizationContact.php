@@ -265,10 +265,8 @@ class FHIROrganizationContact extends FHIRBackboneElement implements \JsonSerial
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if (isset($this->address)) {
             $this->address->xmlSerialize(true, $sxe->addChild('address'));

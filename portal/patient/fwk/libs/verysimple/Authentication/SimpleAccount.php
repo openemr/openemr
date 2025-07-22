@@ -32,7 +32,7 @@ class SimpleAccount implements IAuthenticatable
     {
         return $this->_authenticated;
     }
-    public function Login($username, $password)
+    public function Login($username, $password): bool
     {
         if ($this->_username == $username && $this->_password == $password) {
             $this->_authenticated = true;

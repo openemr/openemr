@@ -1801,10 +1801,8 @@ class FHIRParametersParameter extends FHIRBackboneElement implements \JsonSerial
         if (isset($this->resource)) {
             $this->resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
-        if (0 < count($this->part)) {
-            foreach ($this->part as $part) {
-                $part->xmlSerialize(true, $sxe->addChild('part'));
-            }
+        foreach ($this->part as $part) {
+            $part->xmlSerialize(true, $sxe->addChild('part'));
         }
         if ($returnSXE) {
             return $sxe;

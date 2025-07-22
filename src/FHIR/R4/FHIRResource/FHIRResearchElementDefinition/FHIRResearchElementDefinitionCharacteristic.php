@@ -779,10 +779,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
         if (isset($this->definitionDataRequirement)) {
             $this->definitionDataRequirement->xmlSerialize(true, $sxe->addChild('definitionDataRequirement'));
         }
-        if (0 < count($this->usageContext)) {
-            foreach ($this->usageContext as $usageContext) {
-                $usageContext->xmlSerialize(true, $sxe->addChild('usageContext'));
-            }
+        foreach ($this->usageContext as $usageContext) {
+            $usageContext->xmlSerialize(true, $sxe->addChild('usageContext'));
         }
         if (isset($this->exclude)) {
             $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));

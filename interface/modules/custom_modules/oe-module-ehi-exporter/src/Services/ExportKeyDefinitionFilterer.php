@@ -118,7 +118,7 @@ class ExportKeyDefinitionFilterer
         return $key;
     }
 
-    public function hasMultipleKeysForColumn(ExportKeyDefinition $key)
+    public function hasMultipleKeysForColumn(ExportKeyDefinition $key): bool
     {
         if ($key->localTable == 'lists' && $key->localColumn == 'list_option_id') {
             return true;

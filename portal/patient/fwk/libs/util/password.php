@@ -159,7 +159,7 @@ if (! function_exists('password_needs_rehash')) {
      *
      * @return boolean True if the password needs to be rehashed.
      */
-    function password_needs_rehash($hash, $algo, array $options = array())
+    function password_needs_rehash($hash, $algo, array $options = array()): bool
     {
         $info = password_get_info($hash);
         if ($info ['algo'] != $algo) {

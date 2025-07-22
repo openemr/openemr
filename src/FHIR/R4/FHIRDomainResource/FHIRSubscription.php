@@ -360,10 +360,8 @@ class FHIRSubscription extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->end)) {
             $this->end->xmlSerialize(true, $sxe->addChild('end'));

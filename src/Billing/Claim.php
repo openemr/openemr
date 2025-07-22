@@ -1618,7 +1618,7 @@ class Claim
         return $this->x12Clean(trim($tmp['npi'] ?? ''));
     }
 
-    public function NPIValid($npi)
+    public function NPIValid($npi): bool
     {
         // A NPI MUST be a 10 digit number
         if ($npi === '') {

@@ -1136,28 +1136,20 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<ChargeItem xmlns="http://hl7.org/fhir"></ChargeItem>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->definitionUri)) {
-            foreach ($this->definitionUri as $definitionUri) {
-                $definitionUri->xmlSerialize(true, $sxe->addChild('definitionUri'));
-            }
+        foreach ($this->definitionUri as $definitionUri) {
+            $definitionUri->xmlSerialize(true, $sxe->addChild('definitionUri'));
         }
-        if (0 < count($this->definitionCanonical)) {
-            foreach ($this->definitionCanonical as $definitionCanonical) {
-                $definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
-            }
+        foreach ($this->definitionCanonical as $definitionCanonical) {
+            $definitionCanonical->xmlSerialize(true, $sxe->addChild('definitionCanonical'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
@@ -1177,10 +1169,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->occurrenceTiming)) {
             $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
         }
-        if (0 < count($this->performer)) {
-            foreach ($this->performer as $performer) {
-                $performer->xmlSerialize(true, $sxe->addChild('performer'));
-            }
+        foreach ($this->performer as $performer) {
+            $performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
         if (isset($this->performingOrganization)) {
             $this->performingOrganization->xmlSerialize(true, $sxe->addChild('performingOrganization'));
@@ -1194,10 +1184,8 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
         }
-        if (0 < count($this->bodysite)) {
-            foreach ($this->bodysite as $bodysite) {
-                $bodysite->xmlSerialize(true, $sxe->addChild('bodysite'));
-            }
+        foreach ($this->bodysite as $bodysite) {
+            $bodysite->xmlSerialize(true, $sxe->addChild('bodysite'));
         }
         if (isset($this->factorOverride)) {
             $this->factorOverride->xmlSerialize(true, $sxe->addChild('factorOverride'));
@@ -1214,15 +1202,11 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->enteredDate)) {
             $this->enteredDate->xmlSerialize(true, $sxe->addChild('enteredDate'));
         }
-        if (0 < count($this->reason)) {
-            foreach ($this->reason as $reason) {
-                $reason->xmlSerialize(true, $sxe->addChild('reason'));
-            }
+        foreach ($this->reason as $reason) {
+            $reason->xmlSerialize(true, $sxe->addChild('reason'));
         }
-        if (0 < count($this->service)) {
-            foreach ($this->service as $service) {
-                $service->xmlSerialize(true, $sxe->addChild('service'));
-            }
+        foreach ($this->service as $service) {
+            $service->xmlSerialize(true, $sxe->addChild('service'));
         }
         if (isset($this->productReference)) {
             $this->productReference->xmlSerialize(true, $sxe->addChild('productReference'));
@@ -1230,20 +1214,14 @@ class FHIRChargeItem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->productCodeableConcept)) {
             $this->productCodeableConcept->xmlSerialize(true, $sxe->addChild('productCodeableConcept'));
         }
-        if (0 < count($this->account)) {
-            foreach ($this->account as $account) {
-                $account->xmlSerialize(true, $sxe->addChild('account'));
-            }
+        foreach ($this->account as $account) {
+            $account->xmlSerialize(true, $sxe->addChild('account'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->supportingInformation)) {
-            foreach ($this->supportingInformation as $supportingInformation) {
-                $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
-            }
+        foreach ($this->supportingInformation as $supportingInformation) {
+            $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
         }
         if ($returnSXE) {
             return $sxe;

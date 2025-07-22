@@ -170,10 +170,8 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
             $sxe = new \SimpleXMLElement('<BackboneElement xmlns="http://hl7.org/fhir"></BackboneElement>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->modifierExtension)) {
-            foreach ($this->modifierExtension as $modifierExtension) {
-                $modifierExtension->xmlSerialize(true, $sxe->addChild('modifierExtension'));
-            }
+        foreach ($this->modifierExtension as $modifierExtension) {
+            $modifierExtension->xmlSerialize(true, $sxe->addChild('modifierExtension'));
         }
         if ($returnSXE) {
             return $sxe;

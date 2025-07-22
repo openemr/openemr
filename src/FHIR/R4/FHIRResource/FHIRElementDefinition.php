@@ -5912,10 +5912,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->path)) {
             $this->path->xmlSerialize(true, $sxe->addChild('path'));
         }
-        if (0 < count($this->representation)) {
-            foreach ($this->representation as $representation) {
-                $representation->xmlSerialize(true, $sxe->addChild('representation'));
-            }
+        foreach ($this->representation as $representation) {
+            $representation->xmlSerialize(true, $sxe->addChild('representation'));
         }
         if (isset($this->sliceName)) {
             $this->sliceName->xmlSerialize(true, $sxe->addChild('sliceName'));
@@ -5926,10 +5924,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->label)) {
             $this->label->xmlSerialize(true, $sxe->addChild('label'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
         if (isset($this->slicing)) {
             $this->slicing->xmlSerialize(true, $sxe->addChild('slicing'));
@@ -5946,10 +5942,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->requirements)) {
             $this->requirements->xmlSerialize(true, $sxe->addChild('requirements'));
         }
-        if (0 < count($this->alias)) {
-            foreach ($this->alias as $alias) {
-                $alias->xmlSerialize(true, $sxe->addChild('alias'));
-            }
+        foreach ($this->alias as $alias) {
+            $alias->xmlSerialize(true, $sxe->addChild('alias'));
         }
         if (isset($this->min)) {
             $this->min->xmlSerialize(true, $sxe->addChild('min'));
@@ -5963,10 +5957,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->contentReference)) {
             $this->contentReference->xmlSerialize(true, $sxe->addChild('contentReference'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->defaultValueBase64Binary)) {
             $this->defaultValueBase64Binary->xmlSerialize(true, $sxe->addChild('defaultValueBase64Binary'));
@@ -6415,10 +6407,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->patternDosage)) {
             $this->patternDosage->xmlSerialize(true, $sxe->addChild('patternDosage'));
         }
-        if (0 < count($this->example)) {
-            foreach ($this->example as $example) {
-                $example->xmlSerialize(true, $sxe->addChild('example'));
-            }
+        foreach ($this->example as $example) {
+            $example->xmlSerialize(true, $sxe->addChild('example'));
         }
         if (isset($this->minValueDate)) {
             $this->minValueDate->xmlSerialize(true, $sxe->addChild('minValueDate'));
@@ -6477,15 +6467,11 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->maxLength)) {
             $this->maxLength->xmlSerialize(true, $sxe->addChild('maxLength'));
         }
-        if (0 < count($this->condition)) {
-            foreach ($this->condition as $condition) {
-                $condition->xmlSerialize(true, $sxe->addChild('condition'));
-            }
+        foreach ($this->condition as $condition) {
+            $condition->xmlSerialize(true, $sxe->addChild('condition'));
         }
-        if (0 < count($this->constraint)) {
-            foreach ($this->constraint as $constraint) {
-                $constraint->xmlSerialize(true, $sxe->addChild('constraint'));
-            }
+        foreach ($this->constraint as $constraint) {
+            $constraint->xmlSerialize(true, $sxe->addChild('constraint'));
         }
         if (isset($this->mustSupport)) {
             $this->mustSupport->xmlSerialize(true, $sxe->addChild('mustSupport'));
@@ -6502,10 +6488,8 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->binding)) {
             $this->binding->xmlSerialize(true, $sxe->addChild('binding'));
         }
-        if (0 < count($this->mapping)) {
-            foreach ($this->mapping as $mapping) {
-                $mapping->xmlSerialize(true, $sxe->addChild('mapping'));
-            }
+        foreach ($this->mapping as $mapping) {
+            $mapping->xmlSerialize(true, $sxe->addChild('mapping'));
         }
         if ($returnSXE) {
             return $sxe;

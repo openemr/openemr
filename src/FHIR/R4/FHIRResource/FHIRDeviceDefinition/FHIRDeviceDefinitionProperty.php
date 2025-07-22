@@ -239,15 +239,11 @@ class FHIRDeviceDefinitionProperty extends FHIRBackboneElement implements \JsonS
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->valueQuantity)) {
-            foreach ($this->valueQuantity as $valueQuantity) {
-                $valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
-            }
+        foreach ($this->valueQuantity as $valueQuantity) {
+            $valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
         }
-        if (0 < count($this->valueCode)) {
-            foreach ($this->valueCode as $valueCode) {
-                $valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
-            }
+        foreach ($this->valueCode as $valueCode) {
+            $valueCode->xmlSerialize(true, $sxe->addChild('valueCode'));
         }
         if ($returnSXE) {
             return $sxe;

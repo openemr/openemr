@@ -344,15 +344,11 @@ class FHIRStructureMapGroup extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->documentation)) {
             $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
         }
-        if (0 < count($this->input)) {
-            foreach ($this->input as $input) {
-                $input->xmlSerialize(true, $sxe->addChild('input'));
-            }
+        foreach ($this->input as $input) {
+            $input->xmlSerialize(true, $sxe->addChild('input'));
         }
-        if (0 < count($this->rule)) {
-            foreach ($this->rule as $rule) {
-                $rule->xmlSerialize(true, $sxe->addChild('rule'));
-            }
+        foreach ($this->rule as $rule) {
+            $rule->xmlSerialize(true, $sxe->addChild('rule'));
         }
         if ($returnSXE) {
             return $sxe;

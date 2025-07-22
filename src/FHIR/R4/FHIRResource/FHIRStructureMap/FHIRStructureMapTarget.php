@@ -408,10 +408,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->variable)) {
             $this->variable->xmlSerialize(true, $sxe->addChild('variable'));
         }
-        if (0 < count($this->listMode)) {
-            foreach ($this->listMode as $listMode) {
-                $listMode->xmlSerialize(true, $sxe->addChild('listMode'));
-            }
+        foreach ($this->listMode as $listMode) {
+            $listMode->xmlSerialize(true, $sxe->addChild('listMode'));
         }
         if (isset($this->listRuleId)) {
             $this->listRuleId->xmlSerialize(true, $sxe->addChild('listRuleId'));
@@ -419,10 +417,8 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->transform)) {
             $this->transform->xmlSerialize(true, $sxe->addChild('transform'));
         }
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
         if ($returnSXE) {
             return $sxe;

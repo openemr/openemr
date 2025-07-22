@@ -725,10 +725,8 @@ class FHIRGoal extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Goal xmlns="http://hl7.org/fhir"></Goal>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->lifecycleStatus)) {
             $this->lifecycleStatus->xmlSerialize(true, $sxe->addChild('lifecycleStatus'));
@@ -736,10 +734,8 @@ class FHIRGoal extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->achievementStatus)) {
             $this->achievementStatus->xmlSerialize(true, $sxe->addChild('achievementStatus'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->priority)) {
             $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
@@ -756,10 +752,8 @@ class FHIRGoal extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->startCodeableConcept)) {
             $this->startCodeableConcept->xmlSerialize(true, $sxe->addChild('startCodeableConcept'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if (isset($this->statusDate)) {
             $this->statusDate->xmlSerialize(true, $sxe->addChild('statusDate'));
@@ -770,25 +764,17 @@ class FHIRGoal extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->expressedBy)) {
             $this->expressedBy->xmlSerialize(true, $sxe->addChild('expressedBy'));
         }
-        if (0 < count($this->addresses)) {
-            foreach ($this->addresses as $addresses) {
-                $addresses->xmlSerialize(true, $sxe->addChild('addresses'));
-            }
+        foreach ($this->addresses as $addresses) {
+            $addresses->xmlSerialize(true, $sxe->addChild('addresses'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->outcomeCode)) {
-            foreach ($this->outcomeCode as $outcomeCode) {
-                $outcomeCode->xmlSerialize(true, $sxe->addChild('outcomeCode'));
-            }
+        foreach ($this->outcomeCode as $outcomeCode) {
+            $outcomeCode->xmlSerialize(true, $sxe->addChild('outcomeCode'));
         }
-        if (0 < count($this->outcomeReference)) {
-            foreach ($this->outcomeReference as $outcomeReference) {
-                $outcomeReference->xmlSerialize(true, $sxe->addChild('outcomeReference'));
-            }
+        foreach ($this->outcomeReference as $outcomeReference) {
+            $outcomeReference->xmlSerialize(true, $sxe->addChild('outcomeReference'));
         }
         if ($returnSXE) {
             return $sxe;

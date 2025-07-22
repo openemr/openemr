@@ -890,10 +890,8 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
             $sxe = new \SimpleXMLElement('<MedicinalProduct xmlns="http://hl7.org/fhir"></MedicinalProduct>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -910,73 +908,47 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->additionalMonitoringIndicator)) {
             $this->additionalMonitoringIndicator->xmlSerialize(true, $sxe->addChild('additionalMonitoringIndicator'));
         }
-        if (0 < count($this->specialMeasures)) {
-            foreach ($this->specialMeasures as $specialMeasures) {
-                $specialMeasures->xmlSerialize(true, $sxe->addChild('specialMeasures'));
-            }
+        foreach ($this->specialMeasures as $specialMeasures) {
+            $specialMeasures->xmlSerialize(true, $sxe->addChild('specialMeasures'));
         }
         if (isset($this->paediatricUseIndicator)) {
             $this->paediatricUseIndicator->xmlSerialize(true, $sxe->addChild('paediatricUseIndicator'));
         }
-        if (0 < count($this->productClassification)) {
-            foreach ($this->productClassification as $productClassification) {
-                $productClassification->xmlSerialize(true, $sxe->addChild('productClassification'));
-            }
+        foreach ($this->productClassification as $productClassification) {
+            $productClassification->xmlSerialize(true, $sxe->addChild('productClassification'));
         }
-        if (0 < count($this->marketingStatus)) {
-            foreach ($this->marketingStatus as $marketingStatus) {
-                $marketingStatus->xmlSerialize(true, $sxe->addChild('marketingStatus'));
-            }
+        foreach ($this->marketingStatus as $marketingStatus) {
+            $marketingStatus->xmlSerialize(true, $sxe->addChild('marketingStatus'));
         }
-        if (0 < count($this->pharmaceuticalProduct)) {
-            foreach ($this->pharmaceuticalProduct as $pharmaceuticalProduct) {
-                $pharmaceuticalProduct->xmlSerialize(true, $sxe->addChild('pharmaceuticalProduct'));
-            }
+        foreach ($this->pharmaceuticalProduct as $pharmaceuticalProduct) {
+            $pharmaceuticalProduct->xmlSerialize(true, $sxe->addChild('pharmaceuticalProduct'));
         }
-        if (0 < count($this->packagedMedicinalProduct)) {
-            foreach ($this->packagedMedicinalProduct as $packagedMedicinalProduct) {
-                $packagedMedicinalProduct->xmlSerialize(true, $sxe->addChild('packagedMedicinalProduct'));
-            }
+        foreach ($this->packagedMedicinalProduct as $packagedMedicinalProduct) {
+            $packagedMedicinalProduct->xmlSerialize(true, $sxe->addChild('packagedMedicinalProduct'));
         }
-        if (0 < count($this->attachedDocument)) {
-            foreach ($this->attachedDocument as $attachedDocument) {
-                $attachedDocument->xmlSerialize(true, $sxe->addChild('attachedDocument'));
-            }
+        foreach ($this->attachedDocument as $attachedDocument) {
+            $attachedDocument->xmlSerialize(true, $sxe->addChild('attachedDocument'));
         }
-        if (0 < count($this->masterFile)) {
-            foreach ($this->masterFile as $masterFile) {
-                $masterFile->xmlSerialize(true, $sxe->addChild('masterFile'));
-            }
+        foreach ($this->masterFile as $masterFile) {
+            $masterFile->xmlSerialize(true, $sxe->addChild('masterFile'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
-        if (0 < count($this->clinicalTrial)) {
-            foreach ($this->clinicalTrial as $clinicalTrial) {
-                $clinicalTrial->xmlSerialize(true, $sxe->addChild('clinicalTrial'));
-            }
+        foreach ($this->clinicalTrial as $clinicalTrial) {
+            $clinicalTrial->xmlSerialize(true, $sxe->addChild('clinicalTrial'));
         }
-        if (0 < count($this->name)) {
-            foreach ($this->name as $name) {
-                $name->xmlSerialize(true, $sxe->addChild('name'));
-            }
+        foreach ($this->name as $name) {
+            $name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->crossReference)) {
-            foreach ($this->crossReference as $crossReference) {
-                $crossReference->xmlSerialize(true, $sxe->addChild('crossReference'));
-            }
+        foreach ($this->crossReference as $crossReference) {
+            $crossReference->xmlSerialize(true, $sxe->addChild('crossReference'));
         }
-        if (0 < count($this->manufacturingBusinessOperation)) {
-            foreach ($this->manufacturingBusinessOperation as $manufacturingBusinessOperation) {
-                $manufacturingBusinessOperation->xmlSerialize(true, $sxe->addChild('manufacturingBusinessOperation'));
-            }
+        foreach ($this->manufacturingBusinessOperation as $manufacturingBusinessOperation) {
+            $manufacturingBusinessOperation->xmlSerialize(true, $sxe->addChild('manufacturingBusinessOperation'));
         }
-        if (0 < count($this->specialDesignation)) {
-            foreach ($this->specialDesignation as $specialDesignation) {
-                $specialDesignation->xmlSerialize(true, $sxe->addChild('specialDesignation'));
-            }
+        foreach ($this->specialDesignation as $specialDesignation) {
+            $specialDesignation->xmlSerialize(true, $sxe->addChild('specialDesignation'));
         }
         if ($returnSXE) {
             return $sxe;

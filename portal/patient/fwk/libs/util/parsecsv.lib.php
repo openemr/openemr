@@ -203,7 +203,7 @@ class parseCSV
      *          input CSV file or string
      * @return nothing
      */
-    function parse($input = null, $offset = null, $limit = null, $conditions = null)
+    function parse($input = null, $offset = null, $limit = null, $conditions = null): bool
     {
         if ($input === null) {
             $input = $this->file;
@@ -670,7 +670,7 @@ class parseCSV
      *          input local CSV file
      * @return true or false
      */
-    function load_data($input = null)
+    function load_data($input = null): bool
     {
         $data = null;
         $file = null;
@@ -831,7 +831,7 @@ class parseCSV
      *          current_row the current row number being processed
      * @return true of false
      */
-    function _validate_offset($current_row)
+    function _validate_offset($current_row): bool
     {
         if ($this->sort_by === null && $this->offset !== null && $current_row < $this->offset) {
             return false;
@@ -953,7 +953,7 @@ class parseCSV
      *          lock flock() mode
      * @return true or false
      */
-    function _wfile($file, $string = '', $mode = 'wb', $lock = 2)
+    function _wfile($file, $string = '', $mode = 'wb', $lock = 2): bool
     {
         if ($fp = fopen($file, $mode)) {
             flock($fp, $lock);

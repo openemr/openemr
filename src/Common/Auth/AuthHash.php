@@ -233,7 +233,7 @@ class AuthHash
 
     // To improve performance, this function is run as static since
     //  requires no defines from the class
-    public static function hashValid($hash)
+    public static function hashValid($hash): bool
     {
         //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
         //   password_get_info() call can not identify older bcrypt hashes)

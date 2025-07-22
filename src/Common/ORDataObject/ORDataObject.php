@@ -50,7 +50,7 @@ class ORDataObject
         $this->_isObjectModified = $isModified;
     }
 
-    public function persist()
+    public function persist(): bool
     {
         if (!$this->isObjectModified()) {
             return true;

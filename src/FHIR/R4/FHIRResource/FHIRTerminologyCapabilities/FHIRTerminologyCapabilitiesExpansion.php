@@ -300,10 +300,8 @@ class FHIRTerminologyCapabilitiesExpansion extends FHIRBackboneElement implement
         if (isset($this->incomplete)) {
             $this->incomplete->xmlSerialize(true, $sxe->addChild('incomplete'));
         }
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
         if (isset($this->textFilter)) {
             $this->textFilter->xmlSerialize(true, $sxe->addChild('textFilter'));

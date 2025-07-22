@@ -233,10 +233,8 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
         if (isset($this->coverage)) {
             $this->coverage->xmlSerialize(true, $sxe->addChild('coverage'));
         }
-        if (0 < count($this->preAuthRef)) {
-            foreach ($this->preAuthRef as $preAuthRef) {
-                $preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
-            }
+        foreach ($this->preAuthRef as $preAuthRef) {
+            $preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
         }
         if ($returnSXE) {
             return $sxe;

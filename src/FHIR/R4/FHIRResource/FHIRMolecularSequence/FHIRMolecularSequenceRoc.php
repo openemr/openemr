@@ -409,40 +409,26 @@ class FHIRMolecularSequenceRoc extends FHIRBackboneElement implements \JsonSeria
             $sxe = new \SimpleXMLElement('<MolecularSequenceRoc xmlns="http://hl7.org/fhir"></MolecularSequenceRoc>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->score)) {
-            foreach ($this->score as $score) {
-                $score->xmlSerialize(true, $sxe->addChild('score'));
-            }
+        foreach ($this->score as $score) {
+            $score->xmlSerialize(true, $sxe->addChild('score'));
         }
-        if (0 < count($this->numTP)) {
-            foreach ($this->numTP as $numTP) {
-                $numTP->xmlSerialize(true, $sxe->addChild('numTP'));
-            }
+        foreach ($this->numTP as $numTP) {
+            $numTP->xmlSerialize(true, $sxe->addChild('numTP'));
         }
-        if (0 < count($this->numFP)) {
-            foreach ($this->numFP as $numFP) {
-                $numFP->xmlSerialize(true, $sxe->addChild('numFP'));
-            }
+        foreach ($this->numFP as $numFP) {
+            $numFP->xmlSerialize(true, $sxe->addChild('numFP'));
         }
-        if (0 < count($this->numFN)) {
-            foreach ($this->numFN as $numFN) {
-                $numFN->xmlSerialize(true, $sxe->addChild('numFN'));
-            }
+        foreach ($this->numFN as $numFN) {
+            $numFN->xmlSerialize(true, $sxe->addChild('numFN'));
         }
-        if (0 < count($this->precision)) {
-            foreach ($this->precision as $precision) {
-                $precision->xmlSerialize(true, $sxe->addChild('precision'));
-            }
+        foreach ($this->precision as $precision) {
+            $precision->xmlSerialize(true, $sxe->addChild('precision'));
         }
-        if (0 < count($this->sensitivity)) {
-            foreach ($this->sensitivity as $sensitivity) {
-                $sensitivity->xmlSerialize(true, $sxe->addChild('sensitivity'));
-            }
+        foreach ($this->sensitivity as $sensitivity) {
+            $sensitivity->xmlSerialize(true, $sxe->addChild('sensitivity'));
         }
-        if (0 < count($this->fMeasure)) {
-            foreach ($this->fMeasure as $fMeasure) {
-                $fMeasure->xmlSerialize(true, $sxe->addChild('fMeasure'));
-            }
+        foreach ($this->fMeasure as $fMeasure) {
+            $fMeasure->xmlSerialize(true, $sxe->addChild('fMeasure'));
         }
         if ($returnSXE) {
             return $sxe;

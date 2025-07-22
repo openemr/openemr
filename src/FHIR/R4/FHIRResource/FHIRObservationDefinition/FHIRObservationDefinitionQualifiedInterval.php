@@ -396,10 +396,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
         if (isset($this->context)) {
             $this->context->xmlSerialize(true, $sxe->addChild('context'));
         }
-        if (0 < count($this->appliesTo)) {
-            foreach ($this->appliesTo as $appliesTo) {
-                $appliesTo->xmlSerialize(true, $sxe->addChild('appliesTo'));
-            }
+        foreach ($this->appliesTo as $appliesTo) {
+            $appliesTo->xmlSerialize(true, $sxe->addChild('appliesTo'));
         }
         if (isset($this->gender)) {
             $this->gender->xmlSerialize(true, $sxe->addChild('gender'));

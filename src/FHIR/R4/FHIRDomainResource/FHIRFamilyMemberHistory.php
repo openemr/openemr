@@ -986,20 +986,14 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
             $sxe = new \SimpleXMLElement('<FamilyMemberHistory xmlns="http://hl7.org/fhir"></FamilyMemberHistory>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->instantiatesCanonical)) {
-            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
-                $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
-            }
+        foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
+            $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
         }
-        if (0 < count($this->instantiatesUri)) {
-            foreach ($this->instantiatesUri as $instantiatesUri) {
-                $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
-            }
+        foreach ($this->instantiatesUri as $instantiatesUri) {
+            $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -1058,25 +1052,17 @@ class FHIRFamilyMemberHistory extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->deceasedString)) {
             $this->deceasedString->xmlSerialize(true, $sxe->addChild('deceasedString'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->condition)) {
-            foreach ($this->condition as $condition) {
-                $condition->xmlSerialize(true, $sxe->addChild('condition'));
-            }
+        foreach ($this->condition as $condition) {
+            $condition->xmlSerialize(true, $sxe->addChild('condition'));
         }
         if ($returnSXE) {
             return $sxe;

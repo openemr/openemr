@@ -323,25 +323,17 @@ class FHIRSubstanceReferenceInformation extends FHIRDomainResource implements \J
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
         }
-        if (0 < count($this->gene)) {
-            foreach ($this->gene as $gene) {
-                $gene->xmlSerialize(true, $sxe->addChild('gene'));
-            }
+        foreach ($this->gene as $gene) {
+            $gene->xmlSerialize(true, $sxe->addChild('gene'));
         }
-        if (0 < count($this->geneElement)) {
-            foreach ($this->geneElement as $geneElement) {
-                $geneElement->xmlSerialize(true, $sxe->addChild('geneElement'));
-            }
+        foreach ($this->geneElement as $geneElement) {
+            $geneElement->xmlSerialize(true, $sxe->addChild('geneElement'));
         }
-        if (0 < count($this->classification)) {
-            foreach ($this->classification as $classification) {
-                $classification->xmlSerialize(true, $sxe->addChild('classification'));
-            }
+        foreach ($this->classification as $classification) {
+            $classification->xmlSerialize(true, $sxe->addChild('classification'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if ($returnSXE) {
             return $sxe;

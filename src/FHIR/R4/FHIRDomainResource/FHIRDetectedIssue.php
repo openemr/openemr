@@ -570,10 +570,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<DetectedIssue xmlns="http://hl7.org/fhir"></DetectedIssue>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -596,15 +594,11 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->author)) {
             $this->author->xmlSerialize(true, $sxe->addChild('author'));
         }
-        if (0 < count($this->implicated)) {
-            foreach ($this->implicated as $implicated) {
-                $implicated->xmlSerialize(true, $sxe->addChild('implicated'));
-            }
+        foreach ($this->implicated as $implicated) {
+            $implicated->xmlSerialize(true, $sxe->addChild('implicated'));
         }
-        if (0 < count($this->evidence)) {
-            foreach ($this->evidence as $evidence) {
-                $evidence->xmlSerialize(true, $sxe->addChild('evidence'));
-            }
+        foreach ($this->evidence as $evidence) {
+            $evidence->xmlSerialize(true, $sxe->addChild('evidence'));
         }
         if (isset($this->detail)) {
             $this->detail->xmlSerialize(true, $sxe->addChild('detail'));
@@ -612,10 +606,8 @@ class FHIRDetectedIssue extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->reference)) {
             $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
         }
-        if (0 < count($this->mitigation)) {
-            foreach ($this->mitigation as $mitigation) {
-                $mitigation->xmlSerialize(true, $sxe->addChild('mitigation'));
-            }
+        foreach ($this->mitigation as $mitigation) {
+            $mitigation->xmlSerialize(true, $sxe->addChild('mitigation'));
         }
         if ($returnSXE) {
             return $sxe;

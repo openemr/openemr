@@ -972,18 +972,14 @@ class FHIRContractAction extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->subject)) {
-            foreach ($this->subject as $subject) {
-                $subject->xmlSerialize(true, $sxe->addChild('subject'));
-            }
+        foreach ($this->subject as $subject) {
+            $subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
         if (isset($this->intent)) {
             $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
         }
-        if (0 < count($this->linkId)) {
-            foreach ($this->linkId as $linkId) {
-                $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
-            }
+        foreach ($this->linkId as $linkId) {
+            $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -991,10 +987,8 @@ class FHIRContractAction extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->context)) {
             $this->context->xmlSerialize(true, $sxe->addChild('context'));
         }
-        if (0 < count($this->contextLinkId)) {
-            foreach ($this->contextLinkId as $contextLinkId) {
-                $contextLinkId->xmlSerialize(true, $sxe->addChild('contextLinkId'));
-            }
+        foreach ($this->contextLinkId as $contextLinkId) {
+            $contextLinkId->xmlSerialize(true, $sxe->addChild('contextLinkId'));
         }
         if (isset($this->occurrenceDateTime)) {
             $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
@@ -1005,20 +999,14 @@ class FHIRContractAction extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->occurrenceTiming)) {
             $this->occurrenceTiming->xmlSerialize(true, $sxe->addChild('occurrenceTiming'));
         }
-        if (0 < count($this->requester)) {
-            foreach ($this->requester as $requester) {
-                $requester->xmlSerialize(true, $sxe->addChild('requester'));
-            }
+        foreach ($this->requester as $requester) {
+            $requester->xmlSerialize(true, $sxe->addChild('requester'));
         }
-        if (0 < count($this->requesterLinkId)) {
-            foreach ($this->requesterLinkId as $requesterLinkId) {
-                $requesterLinkId->xmlSerialize(true, $sxe->addChild('requesterLinkId'));
-            }
+        foreach ($this->requesterLinkId as $requesterLinkId) {
+            $requesterLinkId->xmlSerialize(true, $sxe->addChild('requesterLinkId'));
         }
-        if (0 < count($this->performerType)) {
-            foreach ($this->performerType as $performerType) {
-                $performerType->xmlSerialize(true, $sxe->addChild('performerType'));
-            }
+        foreach ($this->performerType as $performerType) {
+            $performerType->xmlSerialize(true, $sxe->addChild('performerType'));
         }
         if (isset($this->performerRole)) {
             $this->performerRole->xmlSerialize(true, $sxe->addChild('performerRole'));
@@ -1026,40 +1014,26 @@ class FHIRContractAction extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->performer)) {
             $this->performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->performerLinkId)) {
-            foreach ($this->performerLinkId as $performerLinkId) {
-                $performerLinkId->xmlSerialize(true, $sxe->addChild('performerLinkId'));
-            }
+        foreach ($this->performerLinkId as $performerLinkId) {
+            $performerLinkId->xmlSerialize(true, $sxe->addChild('performerLinkId'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->reason)) {
-            foreach ($this->reason as $reason) {
-                $reason->xmlSerialize(true, $sxe->addChild('reason'));
-            }
+        foreach ($this->reason as $reason) {
+            $reason->xmlSerialize(true, $sxe->addChild('reason'));
         }
-        if (0 < count($this->reasonLinkId)) {
-            foreach ($this->reasonLinkId as $reasonLinkId) {
-                $reasonLinkId->xmlSerialize(true, $sxe->addChild('reasonLinkId'));
-            }
+        foreach ($this->reasonLinkId as $reasonLinkId) {
+            $reasonLinkId->xmlSerialize(true, $sxe->addChild('reasonLinkId'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->securityLabelNumber)) {
-            foreach ($this->securityLabelNumber as $securityLabelNumber) {
-                $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
-            }
+        foreach ($this->securityLabelNumber as $securityLabelNumber) {
+            $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
         }
         if ($returnSXE) {
             return $sxe;

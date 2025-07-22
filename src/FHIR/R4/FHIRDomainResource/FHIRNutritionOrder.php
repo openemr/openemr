@@ -749,25 +749,17 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<NutritionOrder xmlns="http://hl7.org/fhir"></NutritionOrder>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->instantiatesCanonical)) {
-            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
-                $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
-            }
+        foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
+            $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
         }
-        if (0 < count($this->instantiatesUri)) {
-            foreach ($this->instantiatesUri as $instantiatesUri) {
-                $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
-            }
+        foreach ($this->instantiatesUri as $instantiatesUri) {
+            $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
         }
-        if (0 < count($this->instantiates)) {
-            foreach ($this->instantiates as $instantiates) {
-                $instantiates->xmlSerialize(true, $sxe->addChild('instantiates'));
-            }
+        foreach ($this->instantiates as $instantiates) {
+            $instantiates->xmlSerialize(true, $sxe->addChild('instantiates'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -787,36 +779,26 @@ class FHIRNutritionOrder extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->orderer)) {
             $this->orderer->xmlSerialize(true, $sxe->addChild('orderer'));
         }
-        if (0 < count($this->allergyIntolerance)) {
-            foreach ($this->allergyIntolerance as $allergyIntolerance) {
-                $allergyIntolerance->xmlSerialize(true, $sxe->addChild('allergyIntolerance'));
-            }
+        foreach ($this->allergyIntolerance as $allergyIntolerance) {
+            $allergyIntolerance->xmlSerialize(true, $sxe->addChild('allergyIntolerance'));
         }
-        if (0 < count($this->foodPreferenceModifier)) {
-            foreach ($this->foodPreferenceModifier as $foodPreferenceModifier) {
-                $foodPreferenceModifier->xmlSerialize(true, $sxe->addChild('foodPreferenceModifier'));
-            }
+        foreach ($this->foodPreferenceModifier as $foodPreferenceModifier) {
+            $foodPreferenceModifier->xmlSerialize(true, $sxe->addChild('foodPreferenceModifier'));
         }
-        if (0 < count($this->excludeFoodModifier)) {
-            foreach ($this->excludeFoodModifier as $excludeFoodModifier) {
-                $excludeFoodModifier->xmlSerialize(true, $sxe->addChild('excludeFoodModifier'));
-            }
+        foreach ($this->excludeFoodModifier as $excludeFoodModifier) {
+            $excludeFoodModifier->xmlSerialize(true, $sxe->addChild('excludeFoodModifier'));
         }
         if (isset($this->oralDiet)) {
             $this->oralDiet->xmlSerialize(true, $sxe->addChild('oralDiet'));
         }
-        if (0 < count($this->supplement)) {
-            foreach ($this->supplement as $supplement) {
-                $supplement->xmlSerialize(true, $sxe->addChild('supplement'));
-            }
+        foreach ($this->supplement as $supplement) {
+            $supplement->xmlSerialize(true, $sxe->addChild('supplement'));
         }
         if (isset($this->enteralFormula)) {
             $this->enteralFormula->xmlSerialize(true, $sxe->addChild('enteralFormula'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

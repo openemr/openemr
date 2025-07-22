@@ -833,10 +833,8 @@ class FHIRAdverseEvent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->actuality)) {
             $this->actuality->xmlSerialize(true, $sxe->addChild('actuality'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->event)) {
             $this->event->xmlSerialize(true, $sxe->addChild('event'));
@@ -856,10 +854,8 @@ class FHIRAdverseEvent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->recordedDate)) {
             $this->recordedDate->xmlSerialize(true, $sxe->addChild('recordedDate'));
         }
-        if (0 < count($this->resultingCondition)) {
-            foreach ($this->resultingCondition as $resultingCondition) {
-                $resultingCondition->xmlSerialize(true, $sxe->addChild('resultingCondition'));
-            }
+        foreach ($this->resultingCondition as $resultingCondition) {
+            $resultingCondition->xmlSerialize(true, $sxe->addChild('resultingCondition'));
         }
         if (isset($this->location)) {
             $this->location->xmlSerialize(true, $sxe->addChild('location'));
@@ -876,30 +872,20 @@ class FHIRAdverseEvent extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->recorder)) {
             $this->recorder->xmlSerialize(true, $sxe->addChild('recorder'));
         }
-        if (0 < count($this->contributor)) {
-            foreach ($this->contributor as $contributor) {
-                $contributor->xmlSerialize(true, $sxe->addChild('contributor'));
-            }
+        foreach ($this->contributor as $contributor) {
+            $contributor->xmlSerialize(true, $sxe->addChild('contributor'));
         }
-        if (0 < count($this->suspectEntity)) {
-            foreach ($this->suspectEntity as $suspectEntity) {
-                $suspectEntity->xmlSerialize(true, $sxe->addChild('suspectEntity'));
-            }
+        foreach ($this->suspectEntity as $suspectEntity) {
+            $suspectEntity->xmlSerialize(true, $sxe->addChild('suspectEntity'));
         }
-        if (0 < count($this->subjectMedicalHistory)) {
-            foreach ($this->subjectMedicalHistory as $subjectMedicalHistory) {
-                $subjectMedicalHistory->xmlSerialize(true, $sxe->addChild('subjectMedicalHistory'));
-            }
+        foreach ($this->subjectMedicalHistory as $subjectMedicalHistory) {
+            $subjectMedicalHistory->xmlSerialize(true, $sxe->addChild('subjectMedicalHistory'));
         }
-        if (0 < count($this->referenceDocument)) {
-            foreach ($this->referenceDocument as $referenceDocument) {
-                $referenceDocument->xmlSerialize(true, $sxe->addChild('referenceDocument'));
-            }
+        foreach ($this->referenceDocument as $referenceDocument) {
+            $referenceDocument->xmlSerialize(true, $sxe->addChild('referenceDocument'));
         }
-        if (0 < count($this->study)) {
-            foreach ($this->study as $study) {
-                $study->xmlSerialize(true, $sxe->addChild('study'));
-            }
+        foreach ($this->study as $study) {
+            $study->xmlSerialize(true, $sxe->addChild('study'));
         }
         if ($returnSXE) {
             return $sxe;

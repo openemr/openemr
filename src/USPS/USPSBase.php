@@ -238,7 +238,7 @@ class USPSBase
    * Did we encounter an error?
    * @return boolean
    */
-    public function isError()
+    public function isError(): bool
     {
         $headers = $this->getHeaders();
         $response = $this->getArrayResponse();

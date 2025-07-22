@@ -20,7 +20,7 @@ class ClaimRevModuleSetup
     {
     }
 
-    public static function doesPartnerExists()
+    public static function doesPartnerExists(): bool
     {
         $x12Name = $GLOBALS['oe_claimrev_x12_partner_name'];
         $sql = "SELECT * FROM x12_partners WHERE name = ?";
@@ -33,7 +33,7 @@ class ClaimRevModuleSetup
         }
         return false;
     }
-    public static function couldSftpServiceCauseIssues()
+    public static function couldSftpServiceCauseIssues(): bool
     {
         $sftp = ClaimRevModuleSetup::getServiceRecord("X12_SFTP");
         if ($sftp != null) {

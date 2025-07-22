@@ -230,10 +230,8 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->summary)) {
             $this->summary->xmlSerialize(true, $sxe->addChild('summary'));
         }
-        if (0 < count($this->assessment)) {
-            foreach ($this->assessment as $assessment) {
-                $assessment->xmlSerialize(true, $sxe->addChild('assessment'));
-            }
+        foreach ($this->assessment as $assessment) {
+            $assessment->xmlSerialize(true, $sxe->addChild('assessment'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

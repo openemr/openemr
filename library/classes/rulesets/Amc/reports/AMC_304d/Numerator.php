@@ -16,7 +16,7 @@ class AMC_304d_Numerator implements AmcFilterIF
         return "AMC_304d Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Were sent an appropriate reminder during the EHR reporting period
         $result_query = sqlQuery("SELECT * FROM `patient_reminders` WHERE `pid`=? AND `date_sent`>=? AND `date_sent`<=?", array($patient->id,$beginDate,$endDate));

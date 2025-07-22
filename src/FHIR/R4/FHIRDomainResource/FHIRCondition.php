@@ -948,10 +948,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Condition xmlns="http://hl7.org/fhir"></Condition>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->clinicalStatus)) {
             $this->clinicalStatus->xmlSerialize(true, $sxe->addChild('clinicalStatus'));
@@ -959,10 +957,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->verificationStatus)) {
             $this->verificationStatus->xmlSerialize(true, $sxe->addChild('verificationStatus'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->severity)) {
             $this->severity->xmlSerialize(true, $sxe->addChild('severity'));
@@ -970,10 +966,8 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->bodySite)) {
-            foreach ($this->bodySite as $bodySite) {
-                $bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
-            }
+        foreach ($this->bodySite as $bodySite) {
+            $bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
         }
         if (isset($this->subject)) {
             $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
@@ -1020,20 +1014,14 @@ class FHIRCondition extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->asserter)) {
             $this->asserter->xmlSerialize(true, $sxe->addChild('asserter'));
         }
-        if (0 < count($this->stage)) {
-            foreach ($this->stage as $stage) {
-                $stage->xmlSerialize(true, $sxe->addChild('stage'));
-            }
+        foreach ($this->stage as $stage) {
+            $stage->xmlSerialize(true, $sxe->addChild('stage'));
         }
-        if (0 < count($this->evidence)) {
-            foreach ($this->evidence as $evidence) {
-                $evidence->xmlSerialize(true, $sxe->addChild('evidence'));
-            }
+        foreach ($this->evidence as $evidence) {
+            $evidence->xmlSerialize(true, $sxe->addChild('evidence'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

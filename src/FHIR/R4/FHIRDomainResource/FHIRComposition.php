@@ -667,10 +667,8 @@ class FHIRComposition extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->subject)) {
             $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
@@ -681,10 +679,8 @@ class FHIRComposition extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->date)) {
             $this->date->xmlSerialize(true, $sxe->addChild('date'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
         if (isset($this->title)) {
             $this->title->xmlSerialize(true, $sxe->addChild('title'));
@@ -692,28 +688,20 @@ class FHIRComposition extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->confidentiality)) {
             $this->confidentiality->xmlSerialize(true, $sxe->addChild('confidentiality'));
         }
-        if (0 < count($this->attester)) {
-            foreach ($this->attester as $attester) {
-                $attester->xmlSerialize(true, $sxe->addChild('attester'));
-            }
+        foreach ($this->attester as $attester) {
+            $attester->xmlSerialize(true, $sxe->addChild('attester'));
         }
         if (isset($this->custodian)) {
             $this->custodian->xmlSerialize(true, $sxe->addChild('custodian'));
         }
-        if (0 < count($this->relatesTo)) {
-            foreach ($this->relatesTo as $relatesTo) {
-                $relatesTo->xmlSerialize(true, $sxe->addChild('relatesTo'));
-            }
+        foreach ($this->relatesTo as $relatesTo) {
+            $relatesTo->xmlSerialize(true, $sxe->addChild('relatesTo'));
         }
-        if (0 < count($this->event)) {
-            foreach ($this->event as $event) {
-                $event->xmlSerialize(true, $sxe->addChild('event'));
-            }
+        foreach ($this->event as $event) {
+            $event->xmlSerialize(true, $sxe->addChild('event'));
         }
-        if (0 < count($this->section)) {
-            foreach ($this->section as $section) {
-                $section->xmlSerialize(true, $sxe->addChild('section'));
-            }
+        foreach ($this->section as $section) {
+            $section->xmlSerialize(true, $sxe->addChild('section'));
         }
         if ($returnSXE) {
             return $sxe;

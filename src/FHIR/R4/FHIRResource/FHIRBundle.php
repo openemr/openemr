@@ -378,15 +378,11 @@ class FHIRBundle extends FHIRResource implements \JsonSerializable
         if (isset($this->total)) {
             $this->total->xmlSerialize(true, $sxe->addChild('total'));
         }
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
-        if (0 < count($this->entry)) {
-            foreach ($this->entry as $entry) {
-                $entry->xmlSerialize(true, $sxe->addChild('entry'));
-            }
+        foreach ($this->entry as $entry) {
+            $entry->xmlSerialize(true, $sxe->addChild('entry'));
         }
         if (isset($this->signature)) {
             $this->signature->xmlSerialize(true, $sxe->addChild('signature'));

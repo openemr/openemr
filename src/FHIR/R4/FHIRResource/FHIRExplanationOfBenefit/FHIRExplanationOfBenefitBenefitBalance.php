@@ -408,10 +408,8 @@ class FHIRExplanationOfBenefitBenefitBalance extends FHIRBackboneElement impleme
         if (isset($this->term)) {
             $this->term->xmlSerialize(true, $sxe->addChild('term'));
         }
-        if (0 < count($this->financial)) {
-            foreach ($this->financial as $financial) {
-                $financial->xmlSerialize(true, $sxe->addChild('financial'));
-            }
+        foreach ($this->financial as $financial) {
+            $financial->xmlSerialize(true, $sxe->addChild('financial'));
         }
         if ($returnSXE) {
             return $sxe;

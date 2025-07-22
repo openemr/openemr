@@ -122,7 +122,7 @@ class AggregateCount
         return $population;
     }
 
-    public function is_cv()
+    public function is_cv(): bool
     {
         foreach ($this->populations as $population) {
             if ($population->type == 'MSRPOPL') {

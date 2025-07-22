@@ -338,10 +338,8 @@ class FHIRGraphDefinitionLink extends FHIRBackboneElement implements \JsonSerial
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if ($returnSXE) {
             return $sxe;

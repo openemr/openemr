@@ -1317,10 +1317,8 @@ class FHIRMedicationRequest extends FHIRDomainResource implements \JsonSerializa
             $sxe = new \SimpleXMLElement('<MedicationRequest xmlns="http://hl7.org/fhir"></MedicationRequest>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -1331,10 +1329,8 @@ class FHIRMedicationRequest extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->intent)) {
             $this->intent->xmlSerialize(true, $sxe->addChild('intent'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->priority)) {
             $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
@@ -1360,10 +1356,8 @@ class FHIRMedicationRequest extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->encounter)) {
             $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
         }
-        if (0 < count($this->supportingInformation)) {
-            foreach ($this->supportingInformation as $supportingInformation) {
-                $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
-            }
+        foreach ($this->supportingInformation as $supportingInformation) {
+            $supportingInformation->xmlSerialize(true, $sxe->addChild('supportingInformation'));
         }
         if (isset($this->authoredOn)) {
             $this->authoredOn->xmlSerialize(true, $sxe->addChild('authoredOn'));
@@ -1380,30 +1374,20 @@ class FHIRMedicationRequest extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->recorder)) {
             $this->recorder->xmlSerialize(true, $sxe->addChild('recorder'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->instantiatesCanonical)) {
-            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
-                $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
-            }
+        foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
+            $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
         }
-        if (0 < count($this->instantiatesUri)) {
-            foreach ($this->instantiatesUri as $instantiatesUri) {
-                $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
-            }
+        foreach ($this->instantiatesUri as $instantiatesUri) {
+            $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
         if (isset($this->groupIdentifier)) {
             $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
@@ -1411,20 +1395,14 @@ class FHIRMedicationRequest extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->courseOfTherapyType)) {
             $this->courseOfTherapyType->xmlSerialize(true, $sxe->addChild('courseOfTherapyType'));
         }
-        if (0 < count($this->insurance)) {
-            foreach ($this->insurance as $insurance) {
-                $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
-            }
+        foreach ($this->insurance as $insurance) {
+            $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->dosageInstruction)) {
-            foreach ($this->dosageInstruction as $dosageInstruction) {
-                $dosageInstruction->xmlSerialize(true, $sxe->addChild('dosageInstruction'));
-            }
+        foreach ($this->dosageInstruction as $dosageInstruction) {
+            $dosageInstruction->xmlSerialize(true, $sxe->addChild('dosageInstruction'));
         }
         if (isset($this->dispenseRequest)) {
             $this->dispenseRequest->xmlSerialize(true, $sxe->addChild('dispenseRequest'));
@@ -1435,15 +1413,11 @@ class FHIRMedicationRequest extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->priorPrescription)) {
             $this->priorPrescription->xmlSerialize(true, $sxe->addChild('priorPrescription'));
         }
-        if (0 < count($this->detectedIssue)) {
-            foreach ($this->detectedIssue as $detectedIssue) {
-                $detectedIssue->xmlSerialize(true, $sxe->addChild('detectedIssue'));
-            }
+        foreach ($this->detectedIssue as $detectedIssue) {
+            $detectedIssue->xmlSerialize(true, $sxe->addChild('detectedIssue'));
         }
-        if (0 < count($this->eventHistory)) {
-            foreach ($this->eventHistory as $eventHistory) {
-                $eventHistory->xmlSerialize(true, $sxe->addChild('eventHistory'));
-            }
+        foreach ($this->eventHistory as $eventHistory) {
+            $eventHistory->xmlSerialize(true, $sxe->addChild('eventHistory'));
         }
         if ($returnSXE) {
             return $sxe;

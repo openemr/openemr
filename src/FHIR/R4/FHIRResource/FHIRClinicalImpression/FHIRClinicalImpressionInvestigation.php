@@ -198,10 +198,8 @@ class FHIRClinicalImpressionInvestigation extends FHIRBackboneElement implements
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if ($returnSXE) {
             return $sxe;

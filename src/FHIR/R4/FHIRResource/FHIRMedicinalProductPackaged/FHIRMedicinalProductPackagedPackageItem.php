@@ -587,10 +587,8 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
             $sxe = new \SimpleXMLElement('<MedicinalProductPackagedPackageItem xmlns="http://hl7.org/fhir"></MedicinalProductPackagedPackageItem>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -598,48 +596,32 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
         }
-        if (0 < count($this->material)) {
-            foreach ($this->material as $material) {
-                $material->xmlSerialize(true, $sxe->addChild('material'));
-            }
+        foreach ($this->material as $material) {
+            $material->xmlSerialize(true, $sxe->addChild('material'));
         }
-        if (0 < count($this->alternateMaterial)) {
-            foreach ($this->alternateMaterial as $alternateMaterial) {
-                $alternateMaterial->xmlSerialize(true, $sxe->addChild('alternateMaterial'));
-            }
+        foreach ($this->alternateMaterial as $alternateMaterial) {
+            $alternateMaterial->xmlSerialize(true, $sxe->addChild('alternateMaterial'));
         }
-        if (0 < count($this->device)) {
-            foreach ($this->device as $device) {
-                $device->xmlSerialize(true, $sxe->addChild('device'));
-            }
+        foreach ($this->device as $device) {
+            $device->xmlSerialize(true, $sxe->addChild('device'));
         }
-        if (0 < count($this->manufacturedItem)) {
-            foreach ($this->manufacturedItem as $manufacturedItem) {
-                $manufacturedItem->xmlSerialize(true, $sxe->addChild('manufacturedItem'));
-            }
+        foreach ($this->manufacturedItem as $manufacturedItem) {
+            $manufacturedItem->xmlSerialize(true, $sxe->addChild('manufacturedItem'));
         }
-        if (0 < count($this->packageItem)) {
-            foreach ($this->packageItem as $packageItem) {
-                $packageItem->xmlSerialize(true, $sxe->addChild('packageItem'));
-            }
+        foreach ($this->packageItem as $packageItem) {
+            $packageItem->xmlSerialize(true, $sxe->addChild('packageItem'));
         }
         if (isset($this->physicalCharacteristics)) {
             $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
         }
-        if (0 < count($this->otherCharacteristics)) {
-            foreach ($this->otherCharacteristics as $otherCharacteristics) {
-                $otherCharacteristics->xmlSerialize(true, $sxe->addChild('otherCharacteristics'));
-            }
+        foreach ($this->otherCharacteristics as $otherCharacteristics) {
+            $otherCharacteristics->xmlSerialize(true, $sxe->addChild('otherCharacteristics'));
         }
-        if (0 < count($this->shelfLifeStorage)) {
-            foreach ($this->shelfLifeStorage as $shelfLifeStorage) {
-                $shelfLifeStorage->xmlSerialize(true, $sxe->addChild('shelfLifeStorage'));
-            }
+        foreach ($this->shelfLifeStorage as $shelfLifeStorage) {
+            $shelfLifeStorage->xmlSerialize(true, $sxe->addChild('shelfLifeStorage'));
         }
-        if (0 < count($this->manufacturer)) {
-            foreach ($this->manufacturer as $manufacturer) {
-                $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-            }
+        foreach ($this->manufacturer as $manufacturer) {
+            $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
         }
         if ($returnSXE) {
             return $sxe;

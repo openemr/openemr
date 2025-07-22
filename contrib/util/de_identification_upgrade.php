@@ -30,7 +30,7 @@ require_once('../../interface/globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-function tableExists_de($tblname)
+function tableExists_de($tblname): bool
 {
     $row = sqlQuery("SHOW TABLES LIKE '" . add_escape_custom($tblname) . "'");
     if (empty($row)) {

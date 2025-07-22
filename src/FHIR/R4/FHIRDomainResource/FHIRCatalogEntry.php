@@ -594,10 +594,8 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<CatalogEntry xmlns="http://hl7.org/fhir"></CatalogEntry>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -608,15 +606,11 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->referencedItem)) {
             $this->referencedItem->xmlSerialize(true, $sxe->addChild('referencedItem'));
         }
-        if (0 < count($this->additionalIdentifier)) {
-            foreach ($this->additionalIdentifier as $additionalIdentifier) {
-                $additionalIdentifier->xmlSerialize(true, $sxe->addChild('additionalIdentifier'));
-            }
+        foreach ($this->additionalIdentifier as $additionalIdentifier) {
+            $additionalIdentifier->xmlSerialize(true, $sxe->addChild('additionalIdentifier'));
         }
-        if (0 < count($this->classification)) {
-            foreach ($this->classification as $classification) {
-                $classification->xmlSerialize(true, $sxe->addChild('classification'));
-            }
+        foreach ($this->classification as $classification) {
+            $classification->xmlSerialize(true, $sxe->addChild('classification'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -630,20 +624,14 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->lastUpdated)) {
             $this->lastUpdated->xmlSerialize(true, $sxe->addChild('lastUpdated'));
         }
-        if (0 < count($this->additionalCharacteristic)) {
-            foreach ($this->additionalCharacteristic as $additionalCharacteristic) {
-                $additionalCharacteristic->xmlSerialize(true, $sxe->addChild('additionalCharacteristic'));
-            }
+        foreach ($this->additionalCharacteristic as $additionalCharacteristic) {
+            $additionalCharacteristic->xmlSerialize(true, $sxe->addChild('additionalCharacteristic'));
         }
-        if (0 < count($this->additionalClassification)) {
-            foreach ($this->additionalClassification as $additionalClassification) {
-                $additionalClassification->xmlSerialize(true, $sxe->addChild('additionalClassification'));
-            }
+        foreach ($this->additionalClassification as $additionalClassification) {
+            $additionalClassification->xmlSerialize(true, $sxe->addChild('additionalClassification'));
         }
-        if (0 < count($this->relatedEntry)) {
-            foreach ($this->relatedEntry as $relatedEntry) {
-                $relatedEntry->xmlSerialize(true, $sxe->addChild('relatedEntry'));
-            }
+        foreach ($this->relatedEntry as $relatedEntry) {
+            $relatedEntry->xmlSerialize(true, $sxe->addChild('relatedEntry'));
         }
         if ($returnSXE) {
             return $sxe;

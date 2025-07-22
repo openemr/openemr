@@ -713,10 +713,8 @@ class FHIRCoverage extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Coverage xmlns="http://hl7.org/fhir"></Coverage>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -745,15 +743,11 @@ class FHIRCoverage extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->payor)) {
-            foreach ($this->payor as $payor) {
-                $payor->xmlSerialize(true, $sxe->addChild('payor'));
-            }
+        foreach ($this->payor as $payor) {
+            $payor->xmlSerialize(true, $sxe->addChild('payor'));
         }
-        if (0 < count($this->class)) {
-            foreach ($this->class as $class) {
-                $class->xmlSerialize(true, $sxe->addChild('class'));
-            }
+        foreach ($this->class as $class) {
+            $class->xmlSerialize(true, $sxe->addChild('class'));
         }
         if (isset($this->order)) {
             $this->order->xmlSerialize(true, $sxe->addChild('order'));
@@ -761,18 +755,14 @@ class FHIRCoverage extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->network)) {
             $this->network->xmlSerialize(true, $sxe->addChild('network'));
         }
-        if (0 < count($this->costToBeneficiary)) {
-            foreach ($this->costToBeneficiary as $costToBeneficiary) {
-                $costToBeneficiary->xmlSerialize(true, $sxe->addChild('costToBeneficiary'));
-            }
+        foreach ($this->costToBeneficiary as $costToBeneficiary) {
+            $costToBeneficiary->xmlSerialize(true, $sxe->addChild('costToBeneficiary'));
         }
         if (isset($this->subrogation)) {
             $this->subrogation->xmlSerialize(true, $sxe->addChild('subrogation'));
         }
-        if (0 < count($this->contract)) {
-            foreach ($this->contract as $contract) {
-                $contract->xmlSerialize(true, $sxe->addChild('contract'));
-            }
+        foreach ($this->contract as $contract) {
+            $contract->xmlSerialize(true, $sxe->addChild('contract'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -496,15 +496,11 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<ContractOffer xmlns="http://hl7.org/fhir"></ContractOffer>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->party)) {
-            foreach ($this->party as $party) {
-                $party->xmlSerialize(true, $sxe->addChild('party'));
-            }
+        foreach ($this->party as $party) {
+            $party->xmlSerialize(true, $sxe->addChild('party'));
         }
         if (isset($this->topic)) {
             $this->topic->xmlSerialize(true, $sxe->addChild('topic'));
@@ -515,28 +511,20 @@ class FHIRContractOffer extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->decision)) {
             $this->decision->xmlSerialize(true, $sxe->addChild('decision'));
         }
-        if (0 < count($this->decisionMode)) {
-            foreach ($this->decisionMode as $decisionMode) {
-                $decisionMode->xmlSerialize(true, $sxe->addChild('decisionMode'));
-            }
+        foreach ($this->decisionMode as $decisionMode) {
+            $decisionMode->xmlSerialize(true, $sxe->addChild('decisionMode'));
         }
-        if (0 < count($this->answer)) {
-            foreach ($this->answer as $answer) {
-                $answer->xmlSerialize(true, $sxe->addChild('answer'));
-            }
+        foreach ($this->answer as $answer) {
+            $answer->xmlSerialize(true, $sxe->addChild('answer'));
         }
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->linkId)) {
-            foreach ($this->linkId as $linkId) {
-                $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
-            }
+        foreach ($this->linkId as $linkId) {
+            $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
         }
-        if (0 < count($this->securityLabelNumber)) {
-            foreach ($this->securityLabelNumber as $securityLabelNumber) {
-                $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
-            }
+        foreach ($this->securityLabelNumber as $securityLabelNumber) {
+            $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
         }
         if ($returnSXE) {
             return $sxe;

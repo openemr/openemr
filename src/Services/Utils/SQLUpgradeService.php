@@ -757,7 +757,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @return boolean           returns true if the sql table exists
      */
-    private function tableExists($tblname)
+    private function tableExists($tblname): bool
     {
         $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
         if (empty($row)) {
@@ -775,7 +775,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname Sql Column Name
      * @return boolean           returns true if the sql column exists
      */
-    private function columnExists($tblname, $colname)
+    private function columnExists($tblname, $colname): bool
     {
         $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
         if (empty($row)) {
@@ -965,7 +965,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $option_id Sql List Option ID
      * @return boolean           returns true if the list exists
      */
-    private function listExists($option_id)
+    private function listExists($option_id): bool
     {
         $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", array($option_id));
         if (empty($row)) {
@@ -1151,7 +1151,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $engine  has to be set to InnoDB 8-7-24
      * ADODB will fail if there was an error during conversion
      */
-    private function MigrateTableEngine($table, $engine)
+    private function MigrateTableEngine($table, $engine): bool
     {
         if ($engine != "InnoDB") {
             return false;

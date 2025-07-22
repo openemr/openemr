@@ -510,28 +510,20 @@ Work addresses are not typically entered in this property as they are usually ro
             $sxe = new \SimpleXMLElement('<Practitioner xmlns="http://hl7.org/fhir"></Practitioner>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
         }
-        if (0 < count($this->name)) {
-            foreach ($this->name as $name) {
-                $name->xmlSerialize(true, $sxe->addChild('name'));
-            }
+        foreach ($this->name as $name) {
+            $name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
-        if (0 < count($this->address)) {
-            foreach ($this->address as $address) {
-                $address->xmlSerialize(true, $sxe->addChild('address'));
-            }
+        foreach ($this->address as $address) {
+            $address->xmlSerialize(true, $sxe->addChild('address'));
         }
         if (isset($this->gender)) {
             $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
@@ -539,20 +531,14 @@ Work addresses are not typically entered in this property as they are usually ro
         if (isset($this->birthDate)) {
             $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
         }
-        if (0 < count($this->photo)) {
-            foreach ($this->photo as $photo) {
-                $photo->xmlSerialize(true, $sxe->addChild('photo'));
-            }
+        foreach ($this->photo as $photo) {
+            $photo->xmlSerialize(true, $sxe->addChild('photo'));
         }
-        if (0 < count($this->qualification)) {
-            foreach ($this->qualification as $qualification) {
-                $qualification->xmlSerialize(true, $sxe->addChild('qualification'));
-            }
+        foreach ($this->qualification as $qualification) {
+            $qualification->xmlSerialize(true, $sxe->addChild('qualification'));
         }
-        if (0 < count($this->communication)) {
-            foreach ($this->communication as $communication) {
-                $communication->xmlSerialize(true, $sxe->addChild('communication'));
-            }
+        foreach ($this->communication as $communication) {
+            $communication->xmlSerialize(true, $sxe->addChild('communication'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -383,20 +383,14 @@ class FHIRHumanName extends FHIRElement implements \JsonSerializable
         if (isset($this->family)) {
             $this->family->xmlSerialize(true, $sxe->addChild('family'));
         }
-        if (0 < count($this->given)) {
-            foreach ($this->given as $given) {
-                $given->xmlSerialize(true, $sxe->addChild('given'));
-            }
+        foreach ($this->given as $given) {
+            $given->xmlSerialize(true, $sxe->addChild('given'));
         }
-        if (0 < count($this->prefix)) {
-            foreach ($this->prefix as $prefix) {
-                $prefix->xmlSerialize(true, $sxe->addChild('prefix'));
-            }
+        foreach ($this->prefix as $prefix) {
+            $prefix->xmlSerialize(true, $sxe->addChild('prefix'));
         }
-        if (0 < count($this->suffix)) {
-            foreach ($this->suffix as $suffix) {
-                $suffix->xmlSerialize(true, $sxe->addChild('suffix'));
-            }
+        foreach ($this->suffix as $suffix) {
+            $suffix->xmlSerialize(true, $sxe->addChild('suffix'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));

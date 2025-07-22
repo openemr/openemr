@@ -167,7 +167,7 @@ class LogProperties
     /**
      * @throws Exception
      */
-    public function logSync($tasked = 'background')
+    public function logSync($tasked = 'background'): bool
     {
         $wenoLog = new WenoLogService();
         $provider_info['email'] = $this->weno_admin_email;

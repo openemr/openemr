@@ -233,10 +233,8 @@ class FHIRTaskRestriction extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->recipient)) {
-            foreach ($this->recipient as $recipient) {
-                $recipient->xmlSerialize(true, $sxe->addChild('recipient'));
-            }
+        foreach ($this->recipient as $recipient) {
+            $recipient->xmlSerialize(true, $sxe->addChild('recipient'));
         }
         if ($returnSXE) {
             return $sxe;

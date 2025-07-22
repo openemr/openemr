@@ -359,33 +359,23 @@ class FHIRInsurancePlanPlan extends FHIRBackboneElement implements \JsonSerializ
             $sxe = new \SimpleXMLElement('<InsurancePlanPlan xmlns="http://hl7.org/fhir"></InsurancePlanPlan>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->coverageArea)) {
-            foreach ($this->coverageArea as $coverageArea) {
-                $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
-            }
+        foreach ($this->coverageArea as $coverageArea) {
+            $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
         }
-        if (0 < count($this->network)) {
-            foreach ($this->network as $network) {
-                $network->xmlSerialize(true, $sxe->addChild('network'));
-            }
+        foreach ($this->network as $network) {
+            $network->xmlSerialize(true, $sxe->addChild('network'));
         }
-        if (0 < count($this->generalCost)) {
-            foreach ($this->generalCost as $generalCost) {
-                $generalCost->xmlSerialize(true, $sxe->addChild('generalCost'));
-            }
+        foreach ($this->generalCost as $generalCost) {
+            $generalCost->xmlSerialize(true, $sxe->addChild('generalCost'));
         }
-        if (0 < count($this->specificCost)) {
-            foreach ($this->specificCost as $specificCost) {
-                $specificCost->xmlSerialize(true, $sxe->addChild('specificCost'));
-            }
+        foreach ($this->specificCost as $specificCost) {
+            $specificCost->xmlSerialize(true, $sxe->addChild('specificCost'));
         }
         if ($returnSXE) {
             return $sxe;

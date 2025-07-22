@@ -12,7 +12,7 @@
  * @param string $compiled_content
  * @return true
  */
-function smarty_core_write_compiled_resource($params, &$smarty)
+function smarty_core_write_compiled_resource($params, &$smarty): bool
 {
     if(!@is_writable($smarty->compile_dir)) {
         // compile_dir not writable, see if it exists

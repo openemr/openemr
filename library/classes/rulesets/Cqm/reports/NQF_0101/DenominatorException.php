@@ -30,7 +30,7 @@ class NQF_0101_DenominatorException implements CqmFilterIF
         return "DenominatorException";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         //Risk Category Assessment not done: Medical Reasons and Risk Category Assessment: Patient Not Ambulatory with their identifying
         //SNOMEDCT(160685001) code to support a Denominator Exception in the measure when chosen for a patient.

@@ -364,18 +364,14 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
             $sxe = new \SimpleXMLElement('<PatientContact xmlns="http://hl7.org/fhir"></PatientContact>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->relationship)) {
-            foreach ($this->relationship as $relationship) {
-                $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-            }
+        foreach ($this->relationship as $relationship) {
+            $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if (isset($this->address)) {
             $this->address->xmlSerialize(true, $sxe->addChild('address'));

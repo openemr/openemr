@@ -373,10 +373,8 @@ class FHIRRiskEvidenceSynthesisRiskEstimate extends FHIRBackboneElement implemen
         if (isset($this->numeratorCount)) {
             $this->numeratorCount->xmlSerialize(true, $sxe->addChild('numeratorCount'));
         }
-        if (0 < count($this->precisionEstimate)) {
-            foreach ($this->precisionEstimate as $precisionEstimate) {
-                $precisionEstimate->xmlSerialize(true, $sxe->addChild('precisionEstimate'));
-            }
+        foreach ($this->precisionEstimate as $precisionEstimate) {
+            $precisionEstimate->xmlSerialize(true, $sxe->addChild('precisionEstimate'));
         }
         if ($returnSXE) {
             return $sxe;

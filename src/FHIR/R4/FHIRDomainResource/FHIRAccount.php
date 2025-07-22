@@ -512,10 +512,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Account xmlns="http://hl7.org/fhir"></Account>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -526,18 +524,14 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->subject)) {
-            foreach ($this->subject as $subject) {
-                $subject->xmlSerialize(true, $sxe->addChild('subject'));
-            }
+        foreach ($this->subject as $subject) {
+            $subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
         if (isset($this->servicePeriod)) {
             $this->servicePeriod->xmlSerialize(true, $sxe->addChild('servicePeriod'));
         }
-        if (0 < count($this->coverage)) {
-            foreach ($this->coverage as $coverage) {
-                $coverage->xmlSerialize(true, $sxe->addChild('coverage'));
-            }
+        foreach ($this->coverage as $coverage) {
+            $coverage->xmlSerialize(true, $sxe->addChild('coverage'));
         }
         if (isset($this->owner)) {
             $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
@@ -545,10 +539,8 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->guarantor)) {
-            foreach ($this->guarantor as $guarantor) {
-                $guarantor->xmlSerialize(true, $sxe->addChild('guarantor'));
-            }
+        foreach ($this->guarantor as $guarantor) {
+            $guarantor->xmlSerialize(true, $sxe->addChild('guarantor'));
         }
         if (isset($this->partOf)) {
             $this->partOf->xmlSerialize(true, $sxe->addChild('partOf'));

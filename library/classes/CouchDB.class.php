@@ -41,7 +41,7 @@ class CouchDB
         $this->dbase = $GLOBALS['couchdb_dbase'];
     }
 
-    function check_connection()
+    function check_connection(): bool
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
         $response = json_decode($resp);
@@ -52,7 +52,7 @@ class CouchDB
         }
     }
 
-    function createDB()
+    function createDB(): bool
     {
         $resp = $this->send("PUT", "/" . $this->dbase);
         return true;
@@ -83,7 +83,7 @@ class CouchDB
         return json_decode($resp);
     }
 
-    function DeleteDoc($docid, $revid)
+    function DeleteDoc($docid, $revid): bool
     {
         $resp = $this->send("DELETE", "/" . $this->dbase . "/" . $docid . "?rev=" . $revid);
         return true;

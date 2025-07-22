@@ -571,10 +571,8 @@ class FHIRRelatedPerson extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<RelatedPerson xmlns="http://hl7.org/fhir"></RelatedPerson>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
@@ -582,20 +580,14 @@ class FHIRRelatedPerson extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
         }
-        if (0 < count($this->relationship)) {
-            foreach ($this->relationship as $relationship) {
-                $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-            }
+        foreach ($this->relationship as $relationship) {
+            $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
         }
-        if (0 < count($this->name)) {
-            foreach ($this->name as $name) {
-                $name->xmlSerialize(true, $sxe->addChild('name'));
-            }
+        foreach ($this->name as $name) {
+            $name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if (isset($this->gender)) {
             $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
@@ -603,23 +595,17 @@ class FHIRRelatedPerson extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->birthDate)) {
             $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
         }
-        if (0 < count($this->address)) {
-            foreach ($this->address as $address) {
-                $address->xmlSerialize(true, $sxe->addChild('address'));
-            }
+        foreach ($this->address as $address) {
+            $address->xmlSerialize(true, $sxe->addChild('address'));
         }
-        if (0 < count($this->photo)) {
-            foreach ($this->photo as $photo) {
-                $photo->xmlSerialize(true, $sxe->addChild('photo'));
-            }
+        foreach ($this->photo as $photo) {
+            $photo->xmlSerialize(true, $sxe->addChild('photo'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->communication)) {
-            foreach ($this->communication as $communication) {
-                $communication->xmlSerialize(true, $sxe->addChild('communication'));
-            }
+        foreach ($this->communication as $communication) {
+            $communication->xmlSerialize(true, $sxe->addChild('communication'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -204,15 +204,11 @@ class FHIRMeasureReportStratifier extends FHIRBackboneElement implements \JsonSe
             $sxe = new \SimpleXMLElement('<MeasureReportStratifier xmlns="http://hl7.org/fhir"></MeasureReportStratifier>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->stratum)) {
-            foreach ($this->stratum as $stratum) {
-                $stratum->xmlSerialize(true, $sxe->addChild('stratum'));
-            }
+        foreach ($this->stratum as $stratum) {
+            $stratum->xmlSerialize(true, $sxe->addChild('stratum'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -50,7 +50,7 @@ class SpreadSheetService extends Spreadsheet
         $this->fields = $fields ?? [];
     }
 
-    public function buildSpreadsheet()
+    public function buildSpreadsheet(): bool
     {
 
         if (empty($this->arrayData)) {

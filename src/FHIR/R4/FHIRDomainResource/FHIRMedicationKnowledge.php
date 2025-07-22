@@ -978,86 +978,56 @@ class FHIRMedicationKnowledge extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->amount)) {
             $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
         }
-        if (0 < count($this->synonym)) {
-            foreach ($this->synonym as $synonym) {
-                $synonym->xmlSerialize(true, $sxe->addChild('synonym'));
-            }
+        foreach ($this->synonym as $synonym) {
+            $synonym->xmlSerialize(true, $sxe->addChild('synonym'));
         }
-        if (0 < count($this->relatedMedicationKnowledge)) {
-            foreach ($this->relatedMedicationKnowledge as $relatedMedicationKnowledge) {
-                $relatedMedicationKnowledge->xmlSerialize(true, $sxe->addChild('relatedMedicationKnowledge'));
-            }
+        foreach ($this->relatedMedicationKnowledge as $relatedMedicationKnowledge) {
+            $relatedMedicationKnowledge->xmlSerialize(true, $sxe->addChild('relatedMedicationKnowledge'));
         }
-        if (0 < count($this->associatedMedication)) {
-            foreach ($this->associatedMedication as $associatedMedication) {
-                $associatedMedication->xmlSerialize(true, $sxe->addChild('associatedMedication'));
-            }
+        foreach ($this->associatedMedication as $associatedMedication) {
+            $associatedMedication->xmlSerialize(true, $sxe->addChild('associatedMedication'));
         }
-        if (0 < count($this->productType)) {
-            foreach ($this->productType as $productType) {
-                $productType->xmlSerialize(true, $sxe->addChild('productType'));
-            }
+        foreach ($this->productType as $productType) {
+            $productType->xmlSerialize(true, $sxe->addChild('productType'));
         }
-        if (0 < count($this->monograph)) {
-            foreach ($this->monograph as $monograph) {
-                $monograph->xmlSerialize(true, $sxe->addChild('monograph'));
-            }
+        foreach ($this->monograph as $monograph) {
+            $monograph->xmlSerialize(true, $sxe->addChild('monograph'));
         }
-        if (0 < count($this->ingredient)) {
-            foreach ($this->ingredient as $ingredient) {
-                $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
-            }
+        foreach ($this->ingredient as $ingredient) {
+            $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
         }
         if (isset($this->preparationInstruction)) {
             $this->preparationInstruction->xmlSerialize(true, $sxe->addChild('preparationInstruction'));
         }
-        if (0 < count($this->intendedRoute)) {
-            foreach ($this->intendedRoute as $intendedRoute) {
-                $intendedRoute->xmlSerialize(true, $sxe->addChild('intendedRoute'));
-            }
+        foreach ($this->intendedRoute as $intendedRoute) {
+            $intendedRoute->xmlSerialize(true, $sxe->addChild('intendedRoute'));
         }
-        if (0 < count($this->cost)) {
-            foreach ($this->cost as $cost) {
-                $cost->xmlSerialize(true, $sxe->addChild('cost'));
-            }
+        foreach ($this->cost as $cost) {
+            $cost->xmlSerialize(true, $sxe->addChild('cost'));
         }
-        if (0 < count($this->monitoringProgram)) {
-            foreach ($this->monitoringProgram as $monitoringProgram) {
-                $monitoringProgram->xmlSerialize(true, $sxe->addChild('monitoringProgram'));
-            }
+        foreach ($this->monitoringProgram as $monitoringProgram) {
+            $monitoringProgram->xmlSerialize(true, $sxe->addChild('monitoringProgram'));
         }
-        if (0 < count($this->administrationGuidelines)) {
-            foreach ($this->administrationGuidelines as $administrationGuidelines) {
-                $administrationGuidelines->xmlSerialize(true, $sxe->addChild('administrationGuidelines'));
-            }
+        foreach ($this->administrationGuidelines as $administrationGuidelines) {
+            $administrationGuidelines->xmlSerialize(true, $sxe->addChild('administrationGuidelines'));
         }
-        if (0 < count($this->medicineClassification)) {
-            foreach ($this->medicineClassification as $medicineClassification) {
-                $medicineClassification->xmlSerialize(true, $sxe->addChild('medicineClassification'));
-            }
+        foreach ($this->medicineClassification as $medicineClassification) {
+            $medicineClassification->xmlSerialize(true, $sxe->addChild('medicineClassification'));
         }
         if (isset($this->packaging)) {
             $this->packaging->xmlSerialize(true, $sxe->addChild('packaging'));
         }
-        if (0 < count($this->drugCharacteristic)) {
-            foreach ($this->drugCharacteristic as $drugCharacteristic) {
-                $drugCharacteristic->xmlSerialize(true, $sxe->addChild('drugCharacteristic'));
-            }
+        foreach ($this->drugCharacteristic as $drugCharacteristic) {
+            $drugCharacteristic->xmlSerialize(true, $sxe->addChild('drugCharacteristic'));
         }
-        if (0 < count($this->contraindication)) {
-            foreach ($this->contraindication as $contraindication) {
-                $contraindication->xmlSerialize(true, $sxe->addChild('contraindication'));
-            }
+        foreach ($this->contraindication as $contraindication) {
+            $contraindication->xmlSerialize(true, $sxe->addChild('contraindication'));
         }
-        if (0 < count($this->regulatory)) {
-            foreach ($this->regulatory as $regulatory) {
-                $regulatory->xmlSerialize(true, $sxe->addChild('regulatory'));
-            }
+        foreach ($this->regulatory as $regulatory) {
+            $regulatory->xmlSerialize(true, $sxe->addChild('regulatory'));
         }
-        if (0 < count($this->kinetics)) {
-            foreach ($this->kinetics as $kinetics) {
-                $kinetics->xmlSerialize(true, $sxe->addChild('kinetics'));
-            }
+        foreach ($this->kinetics as $kinetics) {
+            $kinetics->xmlSerialize(true, $sxe->addChild('kinetics'));
         }
         if ($returnSXE) {
             return $sxe;

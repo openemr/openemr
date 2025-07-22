@@ -14,7 +14,7 @@ class NQF_0421_Exclusion implements CqmFilterIF
         return "Exclusion";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // Check for terminal illness within 6 months of encounter
         $dates = Helper::fetchEncounterDates(Encounter::ENC_OUTPATIENT, $patient, $beginDate, $endDate);

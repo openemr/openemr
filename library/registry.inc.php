@@ -83,7 +83,7 @@ function getRegistryEntryByDirectory($directory, $cols = "*")
     return sqlQuery($sql, $directory);
 }
 
-function installSQL($dir)
+function installSQL($dir): bool
 {
     $sqltext = $dir . "/table.sql";
     if ($sqlarray = @file($sqltext)) {
@@ -114,7 +114,7 @@ function installSQL($dir)
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered($directory, $state = 1)
+function isRegistered($directory, $state = 1): bool
 {
     $sql = "select id from registry where directory=? and state=?";
     $result = sqlQuery($sql, array($directory, $state));

@@ -462,10 +462,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<DeviceMetric xmlns="http://hl7.org/fhir"></DeviceMetric>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -491,10 +489,8 @@ class FHIRDeviceMetric extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->measurementPeriod)) {
             $this->measurementPeriod->xmlSerialize(true, $sxe->addChild('measurementPeriod'));
         }
-        if (0 < count($this->calibration)) {
-            foreach ($this->calibration as $calibration) {
-                $calibration->xmlSerialize(true, $sxe->addChild('calibration'));
-            }
+        foreach ($this->calibration as $calibration) {
+            $calibration->xmlSerialize(true, $sxe->addChild('calibration'));
         }
         if ($returnSXE) {
             return $sxe;

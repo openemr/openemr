@@ -440,10 +440,8 @@ class FHIRAuditEventEntity extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->lifecycle)) {
             $this->lifecycle->xmlSerialize(true, $sxe->addChild('lifecycle'));
         }
-        if (0 < count($this->securityLabel)) {
-            foreach ($this->securityLabel as $securityLabel) {
-                $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
-            }
+        foreach ($this->securityLabel as $securityLabel) {
+            $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
@@ -454,10 +452,8 @@ class FHIRAuditEventEntity extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->query)) {
             $this->query->xmlSerialize(true, $sxe->addChild('query'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if ($returnSXE) {
             return $sxe;

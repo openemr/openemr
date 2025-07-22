@@ -48,7 +48,7 @@ class Tree
         $this->load_tree();
     }
 
-    function should_translate_name()
+    function should_translate_name(): bool
     {
         return false;
     }
@@ -284,7 +284,7 @@ class Tree
     *   of the deleted nodes parent
     *   @param int $id id of the node you want to delete
     */
-    function delete_node($id)
+    function delete_node($id): bool
     {
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";

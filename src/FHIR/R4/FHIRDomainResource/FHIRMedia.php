@@ -899,20 +899,14 @@ class FHIRMedia extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Media xmlns="http://hl7.org/fhir"></Media>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -944,10 +938,8 @@ class FHIRMedia extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->operator)) {
             $this->operator->xmlSerialize(true, $sxe->addChild('operator'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
         if (isset($this->bodySite)) {
             $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
@@ -973,10 +965,8 @@ class FHIRMedia extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->content)) {
             $this->content->xmlSerialize(true, $sxe->addChild('content'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

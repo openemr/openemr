@@ -1197,10 +1197,8 @@ class FHIRTask extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Task xmlns="http://hl7.org/fhir"></Task>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->instantiatesCanonical)) {
             $this->instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
@@ -1208,18 +1206,14 @@ class FHIRTask extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->instantiatesUri)) {
             $this->instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
         if (isset($this->groupIdentifier)) {
             $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -1263,10 +1257,8 @@ class FHIRTask extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->requester)) {
             $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
         }
-        if (0 < count($this->performerType)) {
-            foreach ($this->performerType as $performerType) {
-                $performerType->xmlSerialize(true, $sxe->addChild('performerType'));
-            }
+        foreach ($this->performerType as $performerType) {
+            $performerType->xmlSerialize(true, $sxe->addChild('performerType'));
         }
         if (isset($this->owner)) {
             $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
@@ -1280,33 +1272,23 @@ class FHIRTask extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->reasonReference)) {
             $this->reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->insurance)) {
-            foreach ($this->insurance as $insurance) {
-                $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
-            }
+        foreach ($this->insurance as $insurance) {
+            $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->relevantHistory)) {
-            foreach ($this->relevantHistory as $relevantHistory) {
-                $relevantHistory->xmlSerialize(true, $sxe->addChild('relevantHistory'));
-            }
+        foreach ($this->relevantHistory as $relevantHistory) {
+            $relevantHistory->xmlSerialize(true, $sxe->addChild('relevantHistory'));
         }
         if (isset($this->restriction)) {
             $this->restriction->xmlSerialize(true, $sxe->addChild('restriction'));
         }
-        if (0 < count($this->input)) {
-            foreach ($this->input as $input) {
-                $input->xmlSerialize(true, $sxe->addChild('input'));
-            }
+        foreach ($this->input as $input) {
+            $input->xmlSerialize(true, $sxe->addChild('input'));
         }
-        if (0 < count($this->output)) {
-            foreach ($this->output as $output) {
-                $output->xmlSerialize(true, $sxe->addChild('output'));
-            }
+        foreach ($this->output as $output) {
+            $output->xmlSerialize(true, $sxe->addChild('output'));
         }
         if ($returnSXE) {
             return $sxe;

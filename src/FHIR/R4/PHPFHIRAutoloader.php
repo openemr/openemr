@@ -945,7 +945,7 @@ class PHPFHIRAutoloader
     /**
      * @return bool
      */
-    public static function unregister()
+    public static function unregister(): bool
     {
         if (self::$_registered) {
             if (spl_autoload_unregister(array(__CLASS__, 'loadClass'))) {

@@ -524,10 +524,8 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Provenance xmlns="http://hl7.org/fhir"></Provenance>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if (isset($this->occurredPeriod)) {
             $this->occurredPeriod->xmlSerialize(true, $sxe->addChild('occurredPeriod'));
@@ -538,36 +536,26 @@ class FHIRProvenance extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->recorded)) {
             $this->recorded->xmlSerialize(true, $sxe->addChild('recorded'));
         }
-        if (0 < count($this->policy)) {
-            foreach ($this->policy as $policy) {
-                $policy->xmlSerialize(true, $sxe->addChild('policy'));
-            }
+        foreach ($this->policy as $policy) {
+            $policy->xmlSerialize(true, $sxe->addChild('policy'));
         }
         if (isset($this->location)) {
             $this->location->xmlSerialize(true, $sxe->addChild('location'));
         }
-        if (0 < count($this->reason)) {
-            foreach ($this->reason as $reason) {
-                $reason->xmlSerialize(true, $sxe->addChild('reason'));
-            }
+        foreach ($this->reason as $reason) {
+            $reason->xmlSerialize(true, $sxe->addChild('reason'));
         }
         if (isset($this->activity)) {
             $this->activity->xmlSerialize(true, $sxe->addChild('activity'));
         }
-        if (0 < count($this->agent)) {
-            foreach ($this->agent as $agent) {
-                $agent->xmlSerialize(true, $sxe->addChild('agent'));
-            }
+        foreach ($this->agent as $agent) {
+            $agent->xmlSerialize(true, $sxe->addChild('agent'));
         }
-        if (0 < count($this->entity)) {
-            foreach ($this->entity as $entity) {
-                $entity->xmlSerialize(true, $sxe->addChild('entity'));
-            }
+        foreach ($this->entity as $entity) {
+            $entity->xmlSerialize(true, $sxe->addChild('entity'));
         }
-        if (0 < count($this->signature)) {
-            foreach ($this->signature as $signature) {
-                $signature->xmlSerialize(true, $sxe->addChild('signature'));
-            }
+        foreach ($this->signature as $signature) {
+            $signature->xmlSerialize(true, $sxe->addChild('signature'));
         }
         if ($returnSXE) {
             return $sxe;

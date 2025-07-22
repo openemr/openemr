@@ -198,10 +198,8 @@ class FHIRTerminologyCapabilitiesFilter extends FHIRBackboneElement implements \
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->op)) {
-            foreach ($this->op as $op) {
-                $op->xmlSerialize(true, $sxe->addChild('op'));
-            }
+        foreach ($this->op as $op) {
+            $op->xmlSerialize(true, $sxe->addChild('op'));
         }
         if ($returnSXE) {
             return $sxe;

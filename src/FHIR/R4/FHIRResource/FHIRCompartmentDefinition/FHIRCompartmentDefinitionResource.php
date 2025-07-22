@@ -230,10 +230,8 @@ class FHIRCompartmentDefinitionResource extends FHIRBackboneElement implements \
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->param)) {
-            foreach ($this->param as $param) {
-                $param->xmlSerialize(true, $sxe->addChild('param'));
-            }
+        foreach ($this->param as $param) {
+            $param->xmlSerialize(true, $sxe->addChild('param'));
         }
         if (isset($this->documentation)) {
             $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));

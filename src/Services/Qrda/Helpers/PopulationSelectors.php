@@ -12,7 +12,7 @@ namespace OpenEMR\Services\Qrda\Helpers;
 
 trait PopulationSelectors
 {
-    public function numerator()
+    public function numerator(): bool
     {
         // populations.find {|pop| pop.type == 'NUMER'}
         foreach ($this->populations as $population) {
@@ -23,7 +23,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function denominator()
+    public function denominator(): bool
     {
         // populations.find {|pop| pop.type == 'DENOM'}
         foreach ($this->populations as $population) {
@@ -34,7 +34,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function denominator_exceptions()
+    public function denominator_exceptions(): bool
     {
         // populations.find {|pop| pop.type == 'DENEXCEP'}
         foreach ($this->populations as $population) {
@@ -45,7 +45,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function denominator_exclusions()
+    public function denominator_exclusions(): bool
     {
         // populations.find {|pop| pop.type == 'DENEX'}
         foreach ($this->populations as $population) {

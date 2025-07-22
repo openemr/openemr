@@ -653,15 +653,11 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->recipient)) {
             $this->recipient->xmlSerialize(true, $sxe->addChild('recipient'));
         }
-        if (0 < count($this->linkId)) {
-            foreach ($this->linkId as $linkId) {
-                $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
-            }
+        foreach ($this->linkId as $linkId) {
+            $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
         }
-        if (0 < count($this->securityLabelNumber)) {
-            foreach ($this->securityLabelNumber as $securityLabelNumber) {
-                $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
-            }
+        foreach ($this->securityLabelNumber as $securityLabelNumber) {
+            $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
         }
         if ($returnSXE) {
             return $sxe;

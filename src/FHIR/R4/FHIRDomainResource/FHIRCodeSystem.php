@@ -1022,10 +1022,8 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -1048,23 +1046,17 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1096,20 +1088,14 @@ class FHIRCodeSystem extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->count)) {
             $this->count->xmlSerialize(true, $sxe->addChild('count'));
         }
-        if (0 < count($this->filter)) {
-            foreach ($this->filter as $filter) {
-                $filter->xmlSerialize(true, $sxe->addChild('filter'));
-            }
+        foreach ($this->filter as $filter) {
+            $filter->xmlSerialize(true, $sxe->addChild('filter'));
         }
-        if (0 < count($this->property)) {
-            foreach ($this->property as $property) {
-                $property->xmlSerialize(true, $sxe->addChild('property'));
-            }
+        foreach ($this->property as $property) {
+            $property->xmlSerialize(true, $sxe->addChild('property'));
         }
-        if (0 < count($this->concept)) {
-            foreach ($this->concept as $concept) {
-                $concept->xmlSerialize(true, $sxe->addChild('concept'));
-            }
+        foreach ($this->concept as $concept) {
+            $concept->xmlSerialize(true, $sxe->addChild('concept'));
         }
         if ($returnSXE) {
             return $sxe;

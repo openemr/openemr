@@ -56,21 +56,19 @@ class ListAuthorizations
         if (is_array($moduleAuths) && is_array($array_merger)) {
             $insertArray = array_diff($moduleAuths, $array_merger);
 
-            if (!empty($insertArray)) {
-                foreach ($insertArray as $auth) {
-                    $isinstalled = sqlQuery("SELECT 1 FROM `form_prior_auth` LIMIT 1");
-                    if ($isinstalled !== false) {
-                        $getinfo = sqlQuery("SELECT date_from, date_to FROM `form_prior_auth` WHERE `prior_auth_number` = ? ORDER BY `id` DESC LIMIT 1 ", [$auth]);
-                    }
-                    if (!empty($getinfo['date_from'])) {
-                        $saveInfoWithDate = "INSERT INTO `module_prior_authorizations` SET `id` = '', `pid` = ?, `auth_num` = ?, `start_date` = ?, `end_date` = ?";
-                        $bindArray = [$_SESSION['pid'], $auth, $getinfo['date_from'], $getinfo['date_to']];
-                        sqlStatement($saveInfoWithDate, $bindArray);
-                    } elseif (!empty($auth)) {
-                        $saveInfoWithDate = "INSERT INTO `module_prior_authorizations` SET `id` = '', `pid` = ?, `auth_num` = ?";
-                        $bindArray = [$_SESSION['pid'], $auth];
-                        sqlStatement($saveInfoWithDate, $bindArray);
-                    }
+            foreach ($insertArray as $auth) {
+                $isinstalled = sqlQuery("SELECT 1 FROM `form_prior_auth` LIMIT 1");
+                if ($isinstalled !== false) {
+                    $getinfo = sqlQuery("SELECT date_from, date_to FROM `form_prior_auth` WHERE `prior_auth_number` = ? ORDER BY `id` DESC LIMIT 1 ", [$auth]);
+                }
+                if (!empty($getinfo['date_from'])) {
+                    $saveInfoWithDate = "INSERT INTO `module_prior_authorizations` SET `id` = '', `pid` = ?, `auth_num` = ?, `start_date` = ?, `end_date` = ?";
+                    $bindArray = [$_SESSION['pid'], $auth, $getinfo['date_from'], $getinfo['date_to']];
+                    sqlStatement($saveInfoWithDate, $bindArray);
+                } elseif (!empty($auth)) {
+                    $saveInfoWithDate = "INSERT INTO `module_prior_authorizations` SET `id` = '', `pid` = ?, `auth_num` = ?";
+                    $bindArray = [$_SESSION['pid'], $auth];
+                    sqlStatement($saveInfoWithDate, $bindArray);
                 }
             }
         }

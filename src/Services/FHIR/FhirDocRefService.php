@@ -109,7 +109,7 @@ class FhirDocRefService
         return new TokenSearchField('type', [self::LOINC_CCD_CLINICAL_SUMMARY_OF_CARE]);
     }
 
-    private function isValidType(TokenSearchField $type)
+    private function isValidType(TokenSearchField $type): bool
     {
 
         if ($type->hasCodeValue(self::LOINC_CCD_CLINICAL_SUMMARY_OF_CARE)) {

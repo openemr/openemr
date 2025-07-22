@@ -1151,7 +1151,7 @@ protected function _loadfont($font)
 	return get_defined_vars();
 }
 
-protected function _isascii($s)
+protected function _isascii($s): bool
 {
 	// Test if string is ASCII
 	$nb = strlen($s);

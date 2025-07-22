@@ -291,10 +291,8 @@ class FHIRSpecimenProcessing extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->procedure)) {
             $this->procedure->xmlSerialize(true, $sxe->addChild('procedure'));
         }
-        if (0 < count($this->additive)) {
-            foreach ($this->additive as $additive) {
-                $additive->xmlSerialize(true, $sxe->addChild('additive'));
-            }
+        foreach ($this->additive as $additive) {
+            $additive->xmlSerialize(true, $sxe->addChild('additive'));
         }
         if (isset($this->timeDateTime)) {
             $this->timeDateTime->xmlSerialize(true, $sxe->addChild('timeDateTime'));

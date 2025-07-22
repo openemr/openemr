@@ -50,7 +50,7 @@ class RenderFormFieldHelper
      * @param string $mode The current state of the form field
      * @return boolean
      */
-    public static function shouldDisplayFormField($option, $mode)
+    public static function shouldDisplayFormField($option, $mode): bool
     {
         if ($option === self::SHOW_ALL) {
             return true;

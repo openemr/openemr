@@ -18,7 +18,7 @@
 
 //  $tpl_file, $cache_id, $compile_id, &$results
 
-function smarty_core_read_cache_file(&$params, &$smarty)
+function smarty_core_read_cache_file(&$params, &$smarty): bool
 {
     static  $content_cache = array();
 

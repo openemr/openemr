@@ -603,10 +603,8 @@ class FHIRVisionPrescriptionLensSpecification extends FHIRBackboneElement implem
         if (isset($this->axis)) {
             $this->axis->xmlSerialize(true, $sxe->addChild('axis'));
         }
-        if (0 < count($this->prism)) {
-            foreach ($this->prism as $prism) {
-                $prism->xmlSerialize(true, $sxe->addChild('prism'));
-            }
+        foreach ($this->prism as $prism) {
+            $prism->xmlSerialize(true, $sxe->addChild('prism'));
         }
         if (isset($this->add)) {
             $this->add->xmlSerialize(true, $sxe->addChild('add'));
@@ -629,10 +627,8 @@ class FHIRVisionPrescriptionLensSpecification extends FHIRBackboneElement implem
         if (isset($this->brand)) {
             $this->brand->xmlSerialize(true, $sxe->addChild('brand'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

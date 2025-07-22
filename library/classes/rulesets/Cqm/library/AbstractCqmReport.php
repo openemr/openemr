@@ -158,21 +158,17 @@ abstract class AbstractCqmReport implements RsReportIF
                 $pass_filt = $denominatorPatientPopulation;
                 $exclude_filt = $exclusionsPatientPopulation;
                 foreach ($numeratorPatientPopulations as $title => $pass_targ) {
-                    if (count($patExclArr) > 0) {
-                        foreach ($patExclArr as $patVal) {
-                            // If itemization is turned on, then record the "excluded" item
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 2, $patVal, $title);
-                            }
+                    foreach ($patExclArr as $patVal) {
+                        // If itemization is turned on, then record the "excluded" item
+                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 2, $patVal, $title);
                         }
                     }
 
-                    if (count($patExceptArr) > 0) {
-                        foreach ($patExceptArr as $patVal) {
-                            // If itemization is turned on, then record the "exception" item
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 4, $patVal, $title);
-                            }
+                    foreach ($patExceptArr as $patVal) {
+                        // If itemization is turned on, then record the "exception" item
+                        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 4, $patVal, $title);
                         }
                     }
 

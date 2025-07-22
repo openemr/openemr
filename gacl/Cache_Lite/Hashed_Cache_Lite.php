@@ -81,7 +81,7 @@ class Hashed_Cache_Lite extends Cache_Lite
 		}
 	}
 
-	function _remove_dir_structure($dir,$remove_dir = false)
+	function _remove_dir_structure($dir,$remove_dir = false): bool
 	{
 		if (in_array(substr($dir,-1),array(DIR_SEP,'/','\\'))) {
 			$dir = substr($dir,0,-1);

@@ -297,10 +297,8 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
         if (isset($this->dateDateTime)) {
             $this->dateDateTime->xmlSerialize(true, $sxe->addChild('dateDateTime'));
         }
-        if (0 < count($this->application)) {
-            foreach ($this->application as $application) {
-                $application->xmlSerialize(true, $sxe->addChild('application'));
-            }
+        foreach ($this->application as $application) {
+            $application->xmlSerialize(true, $sxe->addChild('application'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -233,10 +233,8 @@ class FHIRConceptMapElement extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->display)) {
             $this->display->xmlSerialize(true, $sxe->addChild('display'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if ($returnSXE) {
             return $sxe;

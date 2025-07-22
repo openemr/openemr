@@ -580,10 +580,8 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
             $sxe = new \SimpleXMLElement('<OrganizationAffiliation xmlns="http://hl7.org/fhir"></OrganizationAffiliation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
@@ -597,40 +595,26 @@ class FHIROrganizationAffiliation extends FHIRDomainResource implements \JsonSer
         if (isset($this->participatingOrganization)) {
             $this->participatingOrganization->xmlSerialize(true, $sxe->addChild('participatingOrganization'));
         }
-        if (0 < count($this->network)) {
-            foreach ($this->network as $network) {
-                $network->xmlSerialize(true, $sxe->addChild('network'));
-            }
+        foreach ($this->network as $network) {
+            $network->xmlSerialize(true, $sxe->addChild('network'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->specialty)) {
-            foreach ($this->specialty as $specialty) {
-                $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
-            }
+        foreach ($this->specialty as $specialty) {
+            $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
         }
-        if (0 < count($this->location)) {
-            foreach ($this->location as $location) {
-                $location->xmlSerialize(true, $sxe->addChild('location'));
-            }
+        foreach ($this->location as $location) {
+            $location->xmlSerialize(true, $sxe->addChild('location'));
         }
-        if (0 < count($this->healthcareService)) {
-            foreach ($this->healthcareService as $healthcareService) {
-                $healthcareService->xmlSerialize(true, $sxe->addChild('healthcareService'));
-            }
+        foreach ($this->healthcareService as $healthcareService) {
+            $healthcareService->xmlSerialize(true, $sxe->addChild('healthcareService'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
         if ($returnSXE) {
             return $sxe;

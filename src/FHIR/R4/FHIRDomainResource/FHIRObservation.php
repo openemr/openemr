@@ -1371,28 +1371,20 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Observation xmlns="http://hl7.org/fhir"></Observation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
@@ -1400,10 +1392,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->subject)) {
             $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
-        if (0 < count($this->focus)) {
-            foreach ($this->focus as $focus) {
-                $focus->xmlSerialize(true, $sxe->addChild('focus'));
-            }
+        foreach ($this->focus as $focus) {
+            $focus->xmlSerialize(true, $sxe->addChild('focus'));
         }
         if (isset($this->encounter)) {
             $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
@@ -1423,10 +1413,8 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->issued)) {
             $this->issued->xmlSerialize(true, $sxe->addChild('issued'));
         }
-        if (0 < count($this->performer)) {
-            foreach ($this->performer as $performer) {
-                $performer->xmlSerialize(true, $sxe->addChild('performer'));
-            }
+        foreach ($this->performer as $performer) {
+            $performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
         if (isset($this->valueQuantity)) {
             $this->valueQuantity->xmlSerialize(true, $sxe->addChild('valueQuantity'));
@@ -1464,15 +1452,11 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->dataAbsentReason)) {
             $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
         }
-        if (0 < count($this->interpretation)) {
-            foreach ($this->interpretation as $interpretation) {
-                $interpretation->xmlSerialize(true, $sxe->addChild('interpretation'));
-            }
+        foreach ($this->interpretation as $interpretation) {
+            $interpretation->xmlSerialize(true, $sxe->addChild('interpretation'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if (isset($this->bodySite)) {
             $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
@@ -1486,25 +1470,17 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->device)) {
             $this->device->xmlSerialize(true, $sxe->addChild('device'));
         }
-        if (0 < count($this->referenceRange)) {
-            foreach ($this->referenceRange as $referenceRange) {
-                $referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
-            }
+        foreach ($this->referenceRange as $referenceRange) {
+            $referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
         }
-        if (0 < count($this->hasMember)) {
-            foreach ($this->hasMember as $hasMember) {
-                $hasMember->xmlSerialize(true, $sxe->addChild('hasMember'));
-            }
+        foreach ($this->hasMember as $hasMember) {
+            $hasMember->xmlSerialize(true, $sxe->addChild('hasMember'));
         }
-        if (0 < count($this->derivedFrom)) {
-            foreach ($this->derivedFrom as $derivedFrom) {
-                $derivedFrom->xmlSerialize(true, $sxe->addChild('derivedFrom'));
-            }
+        foreach ($this->derivedFrom as $derivedFrom) {
+            $derivedFrom->xmlSerialize(true, $sxe->addChild('derivedFrom'));
         }
-        if (0 < count($this->component)) {
-            foreach ($this->component as $component) {
-                $component->xmlSerialize(true, $sxe->addChild('component'));
-            }
+        foreach ($this->component as $component) {
+            $component->xmlSerialize(true, $sxe->addChild('component'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -34,10 +34,8 @@ class MenuItems extends \ArrayObject
     public static function validateEntry($entry): void
     {
         if (is_array($entry)) {
-            if (count($entry) > 0) {
-                foreach ($entry as $item) {
-                    self::validateEntry($item);
-                }
+            foreach ($entry as $item) {
+                self::validateEntry($item);
             }
         } else {
             if (!($entry instanceof MenuItemInterface)) {

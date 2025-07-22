@@ -693,10 +693,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->masterIdentifier)) {
             $this->masterIdentifier->xmlSerialize(true, $sxe->addChild('masterIdentifier'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -707,10 +705,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->subject)) {
             $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
@@ -718,10 +714,8 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->date)) {
             $this->date->xmlSerialize(true, $sxe->addChild('date'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
         if (isset($this->authenticator)) {
             $this->authenticator->xmlSerialize(true, $sxe->addChild('authenticator'));
@@ -729,23 +723,17 @@ class FHIRDocumentReference extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->custodian)) {
             $this->custodian->xmlSerialize(true, $sxe->addChild('custodian'));
         }
-        if (0 < count($this->relatesTo)) {
-            foreach ($this->relatesTo as $relatesTo) {
-                $relatesTo->xmlSerialize(true, $sxe->addChild('relatesTo'));
-            }
+        foreach ($this->relatesTo as $relatesTo) {
+            $relatesTo->xmlSerialize(true, $sxe->addChild('relatesTo'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->securityLabel)) {
-            foreach ($this->securityLabel as $securityLabel) {
-                $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
-            }
+        foreach ($this->securityLabel as $securityLabel) {
+            $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
         }
-        if (0 < count($this->content)) {
-            foreach ($this->content as $content) {
-                $content->xmlSerialize(true, $sxe->addChild('content'));
-            }
+        foreach ($this->content as $content) {
+            $content->xmlSerialize(true, $sxe->addChild('content'));
         }
         if (isset($this->context)) {
             $this->context->xmlSerialize(true, $sxe->addChild('context'));

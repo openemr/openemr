@@ -195,10 +195,8 @@ class FHIRContractSubject extends FHIRBackboneElement implements \JsonSerializab
             $sxe = new \SimpleXMLElement('<ContractSubject xmlns="http://hl7.org/fhir"></ContractSubject>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->reference)) {
-            foreach ($this->reference as $reference) {
-                $reference->xmlSerialize(true, $sxe->addChild('reference'));
-            }
+        foreach ($this->reference as $reference) {
+            $reference->xmlSerialize(true, $sxe->addChild('reference'));
         }
         if (isset($this->role)) {
             $this->role->xmlSerialize(true, $sxe->addChild('role'));

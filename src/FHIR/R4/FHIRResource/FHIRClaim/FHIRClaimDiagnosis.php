@@ -326,10 +326,8 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->diagnosisReference)) {
             $this->diagnosisReference->xmlSerialize(true, $sxe->addChild('diagnosisReference'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->onAdmission)) {
             $this->onAdmission->xmlSerialize(true, $sxe->addChild('onAdmission'));

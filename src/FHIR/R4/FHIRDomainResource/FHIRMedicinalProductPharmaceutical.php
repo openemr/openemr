@@ -393,10 +393,8 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
             $sxe = new \SimpleXMLElement('<MedicinalProductPharmaceutical xmlns="http://hl7.org/fhir"></MedicinalProductPharmaceutical>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->administrableDoseForm)) {
             $this->administrableDoseForm->xmlSerialize(true, $sxe->addChild('administrableDoseForm'));
@@ -404,25 +402,17 @@ class FHIRMedicinalProductPharmaceutical extends FHIRDomainResource implements \
         if (isset($this->unitOfPresentation)) {
             $this->unitOfPresentation->xmlSerialize(true, $sxe->addChild('unitOfPresentation'));
         }
-        if (0 < count($this->ingredient)) {
-            foreach ($this->ingredient as $ingredient) {
-                $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
-            }
+        foreach ($this->ingredient as $ingredient) {
+            $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
         }
-        if (0 < count($this->device)) {
-            foreach ($this->device as $device) {
-                $device->xmlSerialize(true, $sxe->addChild('device'));
-            }
+        foreach ($this->device as $device) {
+            $device->xmlSerialize(true, $sxe->addChild('device'));
         }
-        if (0 < count($this->characteristics)) {
-            foreach ($this->characteristics as $characteristics) {
-                $characteristics->xmlSerialize(true, $sxe->addChild('characteristics'));
-            }
+        foreach ($this->characteristics as $characteristics) {
+            $characteristics->xmlSerialize(true, $sxe->addChild('characteristics'));
         }
-        if (0 < count($this->routeOfAdministration)) {
-            foreach ($this->routeOfAdministration as $routeOfAdministration) {
-                $routeOfAdministration->xmlSerialize(true, $sxe->addChild('routeOfAdministration'));
-            }
+        foreach ($this->routeOfAdministration as $routeOfAdministration) {
+            $routeOfAdministration->xmlSerialize(true, $sxe->addChild('routeOfAdministration'));
         }
         if ($returnSXE) {
             return $sxe;

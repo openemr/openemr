@@ -50,7 +50,7 @@ class Thumbnail
      * @param (string) path to file
      * @return (boolean)
      */
-    public function file_support_thumbnail($file)
+    public function file_support_thumbnail($file): bool
     {
 
         $info = getimagesize($file);

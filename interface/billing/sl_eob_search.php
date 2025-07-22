@@ -64,7 +64,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
-    function is_auth_portal($pid = 0)
+    function is_auth_portal($pid = 0): bool
     {
         if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", array($pid))) {
             if ($pData['allow_patient_portal'] != "YES") {
@@ -78,7 +78,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
         }
     }
 
-    function notify_portal($thispid, array $invoices, $template, $invid)
+    function notify_portal($thispid, array $invoices, $template, $invid): bool
     {
         $builddir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $thispid;
         if (!is_dir($builddir)) {
@@ -102,7 +102,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
         return true;
     }
 
-    function fixup_invoice($template, $ifile)
+    function fixup_invoice($template, $ifile): bool
     {
         $data = file_get_contents($template);
         if ($data == "") {
@@ -170,7 +170,7 @@ function era_callback(&$out): void
     }
 }
 
-function validEmail($email)
+function validEmail($email): bool
 {
     if (preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", $email)) {
         return true;
@@ -179,7 +179,7 @@ function validEmail($email)
     return false;
 }
 
-function emailLogin($patient_id, $message)
+function emailLogin($patient_id, $message): bool
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email'])) {

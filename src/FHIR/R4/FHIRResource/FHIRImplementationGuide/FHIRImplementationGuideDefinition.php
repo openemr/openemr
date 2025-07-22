@@ -318,28 +318,20 @@ class FHIRImplementationGuideDefinition extends FHIRBackboneElement implements \
             $sxe = new \SimpleXMLElement('<ImplementationGuideDefinition xmlns="http://hl7.org/fhir"></ImplementationGuideDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->grouping)) {
-            foreach ($this->grouping as $grouping) {
-                $grouping->xmlSerialize(true, $sxe->addChild('grouping'));
-            }
+        foreach ($this->grouping as $grouping) {
+            $grouping->xmlSerialize(true, $sxe->addChild('grouping'));
         }
-        if (0 < count($this->resource)) {
-            foreach ($this->resource as $resource) {
-                $resource->xmlSerialize(true, $sxe->addChild('resource'));
-            }
+        foreach ($this->resource as $resource) {
+            $resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
         if (isset($this->page)) {
             $this->page->xmlSerialize(true, $sxe->addChild('page'));
         }
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
-        if (0 < count($this->template)) {
-            foreach ($this->template as $template) {
-                $template->xmlSerialize(true, $sxe->addChild('template'));
-            }
+        foreach ($this->template as $template) {
+            $template->xmlSerialize(true, $sxe->addChild('template'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -521,10 +521,8 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Endpoint xmlns="http://hl7.org/fhir"></Endpoint>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -538,31 +536,23 @@ class FHIREndpoint extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->managingOrganization)) {
             $this->managingOrganization->xmlSerialize(true, $sxe->addChild('managingOrganization'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->payloadType)) {
-            foreach ($this->payloadType as $payloadType) {
-                $payloadType->xmlSerialize(true, $sxe->addChild('payloadType'));
-            }
+        foreach ($this->payloadType as $payloadType) {
+            $payloadType->xmlSerialize(true, $sxe->addChild('payloadType'));
         }
-        if (0 < count($this->payloadMimeType)) {
-            foreach ($this->payloadMimeType as $payloadMimeType) {
-                $payloadMimeType->xmlSerialize(true, $sxe->addChild('payloadMimeType'));
-            }
+        foreach ($this->payloadMimeType as $payloadMimeType) {
+            $payloadMimeType->xmlSerialize(true, $sxe->addChild('payloadMimeType'));
         }
         if (isset($this->address)) {
             $this->address->xmlSerialize(true, $sxe->addChild('address'));
         }
-        if (0 < count($this->header)) {
-            foreach ($this->header as $header) {
-                $header->xmlSerialize(true, $sxe->addChild('header'));
-            }
+        foreach ($this->header as $header) {
+            $header->xmlSerialize(true, $sxe->addChild('header'));
         }
         if ($returnSXE) {
             return $sxe;

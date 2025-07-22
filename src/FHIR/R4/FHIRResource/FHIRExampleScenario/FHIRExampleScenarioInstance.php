@@ -344,15 +344,11 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->version)) {
-            foreach ($this->version as $version) {
-                $version->xmlSerialize(true, $sxe->addChild('version'));
-            }
+        foreach ($this->version as $version) {
+            $version->xmlSerialize(true, $sxe->addChild('version'));
         }
-        if (0 < count($this->containedInstance)) {
-            foreach ($this->containedInstance as $containedInstance) {
-                $containedInstance->xmlSerialize(true, $sxe->addChild('containedInstance'));
-            }
+        foreach ($this->containedInstance as $containedInstance) {
+            $containedInstance->xmlSerialize(true, $sxe->addChild('containedInstance'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -167,7 +167,7 @@ class QueryUtils
      * @param $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
      * @return bool
      */
-    public static function existsTable($tableName)
+    public static function existsTable($tableName): bool
     {
 
         try {

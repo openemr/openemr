@@ -176,18 +176,16 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
     foreach ($displayCodeSets as $akey => $displayCodeSet) {
         echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
 
-        if ($displayCodeSet) {
-            foreach ($displayCodeSet as $code) {
-                $text = getCodeText($code);
-                echo "listBoxOptionSets[" .
-                    attr($akey) .
-                    "][listBoxOptionSets[" .
-                    attr($akey) .
-                    "].length] = new Option(" .
-                    js_escape($text) .
-                    ", " . js_escape($code) .
-                    ", false, false);\n";
-            }
+        foreach ($displayCodeSet as $code) {
+            $text = getCodeText($code);
+            echo "listBoxOptionSets[" .
+                attr($akey) .
+                "][listBoxOptionSets[" .
+                attr($akey) .
+                "].length] = new Option(" .
+                js_escape($text) .
+                ", " . js_escape($code) .
+                ", false, false);\n";
         }
     }
 
@@ -612,23 +610,19 @@ function getCodeText($code)
             $tmp_csv .= "," . collect_codetypes("clinical_term", "csv");
             $tmp = explode(",", $tmp_csv);
             if (!empty($irow['type']) && ($irow['type'] == 'allergy')) {
-                if ($tmp) {
-                    foreach ($tmp as $item) {
-                        $pos = strpos($url, $item);
-                        if ($pos === false) {
-                            $item = urlencode($item);
-                            $url .= ",$item";
-                        }
+                foreach ($tmp as $item) {
+                    $pos = strpos($url, $item);
+                    if ($pos === false) {
+                        $item = urlencode($item);
+                        $url .= ",$item";
                     }
                 }
             } elseif (!empty($irow['type']) && ($irow['type'] == 'medication')) {
-                if ($tmp) {
-                    foreach ($tmp as $item) {
-                        $pos = strpos($url, $item);
-                        if ($pos === false) {
-                            $item = urlencode($item);
-                            $url .= ",$item&default=$item";
-                        }
+                foreach ($tmp as $item) {
+                    $pos = strpos($url, $item);
+                    if ($pos === false) {
+                        $item = urlencode($item);
+                        $url .= ",$item&default=$item";
                     }
                 }
             }

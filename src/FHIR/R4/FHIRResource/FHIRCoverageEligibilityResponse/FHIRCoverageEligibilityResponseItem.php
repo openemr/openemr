@@ -603,10 +603,8 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
         if (isset($this->productOrService)) {
             $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
         }
-        if (0 < count($this->modifier)) {
-            foreach ($this->modifier as $modifier) {
-                $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-            }
+        foreach ($this->modifier as $modifier) {
+            $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
         }
         if (isset($this->provider)) {
             $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
@@ -629,18 +627,14 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
         if (isset($this->term)) {
             $this->term->xmlSerialize(true, $sxe->addChild('term'));
         }
-        if (0 < count($this->benefit)) {
-            foreach ($this->benefit as $benefit) {
-                $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
-            }
+        foreach ($this->benefit as $benefit) {
+            $benefit->xmlSerialize(true, $sxe->addChild('benefit'));
         }
         if (isset($this->authorizationRequired)) {
             $this->authorizationRequired->xmlSerialize(true, $sxe->addChild('authorizationRequired'));
         }
-        if (0 < count($this->authorizationSupporting)) {
-            foreach ($this->authorizationSupporting as $authorizationSupporting) {
-                $authorizationSupporting->xmlSerialize(true, $sxe->addChild('authorizationSupporting'));
-            }
+        foreach ($this->authorizationSupporting as $authorizationSupporting) {
+            $authorizationSupporting->xmlSerialize(true, $sxe->addChild('authorizationSupporting'));
         }
         if (isset($this->authorizationUrl)) {
             $this->authorizationUrl->xmlSerialize(true, $sxe->addChild('authorizationUrl'));

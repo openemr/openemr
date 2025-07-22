@@ -1050,25 +1050,17 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
         if (isset($this->sequence)) {
             $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
         }
-        if (0 < count($this->careTeamSequence)) {
-            foreach ($this->careTeamSequence as $careTeamSequence) {
-                $careTeamSequence->xmlSerialize(true, $sxe->addChild('careTeamSequence'));
-            }
+        foreach ($this->careTeamSequence as $careTeamSequence) {
+            $careTeamSequence->xmlSerialize(true, $sxe->addChild('careTeamSequence'));
         }
-        if (0 < count($this->diagnosisSequence)) {
-            foreach ($this->diagnosisSequence as $diagnosisSequence) {
-                $diagnosisSequence->xmlSerialize(true, $sxe->addChild('diagnosisSequence'));
-            }
+        foreach ($this->diagnosisSequence as $diagnosisSequence) {
+            $diagnosisSequence->xmlSerialize(true, $sxe->addChild('diagnosisSequence'));
         }
-        if (0 < count($this->procedureSequence)) {
-            foreach ($this->procedureSequence as $procedureSequence) {
-                $procedureSequence->xmlSerialize(true, $sxe->addChild('procedureSequence'));
-            }
+        foreach ($this->procedureSequence as $procedureSequence) {
+            $procedureSequence->xmlSerialize(true, $sxe->addChild('procedureSequence'));
         }
-        if (0 < count($this->informationSequence)) {
-            foreach ($this->informationSequence as $informationSequence) {
-                $informationSequence->xmlSerialize(true, $sxe->addChild('informationSequence'));
-            }
+        foreach ($this->informationSequence as $informationSequence) {
+            $informationSequence->xmlSerialize(true, $sxe->addChild('informationSequence'));
         }
         if (isset($this->revenue)) {
             $this->revenue->xmlSerialize(true, $sxe->addChild('revenue'));
@@ -1079,15 +1071,11 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
         if (isset($this->productOrService)) {
             $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
         }
-        if (0 < count($this->modifier)) {
-            foreach ($this->modifier as $modifier) {
-                $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-            }
+        foreach ($this->modifier as $modifier) {
+            $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
         }
-        if (0 < count($this->programCode)) {
-            foreach ($this->programCode as $programCode) {
-                $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
-            }
+        foreach ($this->programCode as $programCode) {
+            $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
         }
         if (isset($this->servicedDate)) {
             $this->servicedDate->xmlSerialize(true, $sxe->addChild('servicedDate'));
@@ -1116,38 +1104,26 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
         if (isset($this->net)) {
             $this->net->xmlSerialize(true, $sxe->addChild('net'));
         }
-        if (0 < count($this->udi)) {
-            foreach ($this->udi as $udi) {
-                $udi->xmlSerialize(true, $sxe->addChild('udi'));
-            }
+        foreach ($this->udi as $udi) {
+            $udi->xmlSerialize(true, $sxe->addChild('udi'));
         }
         if (isset($this->bodySite)) {
             $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
         }
-        if (0 < count($this->subSite)) {
-            foreach ($this->subSite as $subSite) {
-                $subSite->xmlSerialize(true, $sxe->addChild('subSite'));
-            }
+        foreach ($this->subSite as $subSite) {
+            $subSite->xmlSerialize(true, $sxe->addChild('subSite'));
         }
-        if (0 < count($this->encounter)) {
-            foreach ($this->encounter as $encounter) {
-                $encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-            }
+        foreach ($this->encounter as $encounter) {
+            $encounter->xmlSerialize(true, $sxe->addChild('encounter'));
         }
-        if (0 < count($this->noteNumber)) {
-            foreach ($this->noteNumber as $noteNumber) {
-                $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
-            }
+        foreach ($this->noteNumber as $noteNumber) {
+            $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
         }
-        if (0 < count($this->adjudication)) {
-            foreach ($this->adjudication as $adjudication) {
-                $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
-            }
+        foreach ($this->adjudication as $adjudication) {
+            $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if ($returnSXE) {
             return $sxe;

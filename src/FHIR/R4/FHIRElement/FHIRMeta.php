@@ -351,20 +351,14 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
         if (isset($this->source)) {
             $this->source->xmlSerialize(true, $sxe->addChild('source'));
         }
-        if (0 < count($this->profile)) {
-            foreach ($this->profile as $profile) {
-                $profile->xmlSerialize(true, $sxe->addChild('profile'));
-            }
+        foreach ($this->profile as $profile) {
+            $profile->xmlSerialize(true, $sxe->addChild('profile'));
         }
-        if (0 < count($this->security)) {
-            foreach ($this->security as $security) {
-                $security->xmlSerialize(true, $sxe->addChild('security'));
-            }
+        foreach ($this->security as $security) {
+            $security->xmlSerialize(true, $sxe->addChild('security'));
         }
-        if (0 < count($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $tag->xmlSerialize(true, $sxe->addChild('tag'));
-            }
+        foreach ($this->tag as $tag) {
+            $tag->xmlSerialize(true, $sxe->addChild('tag'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -781,30 +781,20 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<RequestGroup xmlns="http://hl7.org/fhir"></RequestGroup>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->instantiatesCanonical)) {
-            foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
-                $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
-            }
+        foreach ($this->instantiatesCanonical as $instantiatesCanonical) {
+            $instantiatesCanonical->xmlSerialize(true, $sxe->addChild('instantiatesCanonical'));
         }
-        if (0 < count($this->instantiatesUri)) {
-            foreach ($this->instantiatesUri as $instantiatesUri) {
-                $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
-            }
+        foreach ($this->instantiatesUri as $instantiatesUri) {
+            $instantiatesUri->xmlSerialize(true, $sxe->addChild('instantiatesUri'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->replaces)) {
-            foreach ($this->replaces as $replaces) {
-                $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
-            }
+        foreach ($this->replaces as $replaces) {
+            $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
         }
         if (isset($this->groupIdentifier)) {
             $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
@@ -833,25 +823,17 @@ class FHIRRequestGroup extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->author)) {
             $this->author->xmlSerialize(true, $sxe->addChild('author'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->action)) {
-            foreach ($this->action as $action) {
-                $action->xmlSerialize(true, $sxe->addChild('action'));
-            }
+        foreach ($this->action as $action) {
+            $action->xmlSerialize(true, $sxe->addChild('action'));
         }
         if ($returnSXE) {
             return $sxe;

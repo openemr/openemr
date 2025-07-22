@@ -121,7 +121,7 @@ class DocumentService extends BaseService
         return $fileResults;
     }
 
-    public function insertAtPath($pid, $path, $fileData)
+    public function insertAtPath($pid, $path, $fileData): bool
     {
         // Ensure filetype is allowed
         if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {

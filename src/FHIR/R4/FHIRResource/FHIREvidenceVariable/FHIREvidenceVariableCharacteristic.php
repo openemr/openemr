@@ -602,10 +602,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
         if (isset($this->definitionTriggerDefinition)) {
             $this->definitionTriggerDefinition->xmlSerialize(true, $sxe->addChild('definitionTriggerDefinition'));
         }
-        if (0 < count($this->usageContext)) {
-            foreach ($this->usageContext as $usageContext) {
-                $usageContext->xmlSerialize(true, $sxe->addChild('usageContext'));
-            }
+        foreach ($this->usageContext as $usageContext) {
+            $usageContext->xmlSerialize(true, $sxe->addChild('usageContext'));
         }
         if (isset($this->exclude)) {
             $this->exclude->xmlSerialize(true, $sxe->addChild('exclude'));

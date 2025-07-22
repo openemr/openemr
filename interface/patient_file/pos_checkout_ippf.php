@@ -1426,9 +1426,6 @@ function markTaxes($taxrates): void
 {
     global $taxes;
     $arates = explode(':', $taxrates);
-    if (empty($arates)) {
-        return;
-    }
     foreach ($arates as $value) {
         if (!empty($taxes[$value])) {
             $taxes[$value][2] = '1';

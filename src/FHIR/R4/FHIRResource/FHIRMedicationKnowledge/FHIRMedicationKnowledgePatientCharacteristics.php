@@ -227,10 +227,8 @@ class FHIRMedicationKnowledgePatientCharacteristics extends FHIRBackboneElement 
         if (isset($this->characteristicQuantity)) {
             $this->characteristicQuantity->xmlSerialize(true, $sxe->addChild('characteristicQuantity'));
         }
-        if (0 < count($this->value)) {
-            foreach ($this->value as $value) {
-                $value->xmlSerialize(true, $sxe->addChild('value'));
-            }
+        foreach ($this->value as $value) {
+            $value->xmlSerialize(true, $sxe->addChild('value'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -449,20 +449,14 @@ class FHIREncounterHospitalization extends FHIRBackboneElement implements \JsonS
         if (isset($this->reAdmission)) {
             $this->reAdmission->xmlSerialize(true, $sxe->addChild('reAdmission'));
         }
-        if (0 < count($this->dietPreference)) {
-            foreach ($this->dietPreference as $dietPreference) {
-                $dietPreference->xmlSerialize(true, $sxe->addChild('dietPreference'));
-            }
+        foreach ($this->dietPreference as $dietPreference) {
+            $dietPreference->xmlSerialize(true, $sxe->addChild('dietPreference'));
         }
-        if (0 < count($this->specialCourtesy)) {
-            foreach ($this->specialCourtesy as $specialCourtesy) {
-                $specialCourtesy->xmlSerialize(true, $sxe->addChild('specialCourtesy'));
-            }
+        foreach ($this->specialCourtesy as $specialCourtesy) {
+            $specialCourtesy->xmlSerialize(true, $sxe->addChild('specialCourtesy'));
         }
-        if (0 < count($this->specialArrangement)) {
-            foreach ($this->specialArrangement as $specialArrangement) {
-                $specialArrangement->xmlSerialize(true, $sxe->addChild('specialArrangement'));
-            }
+        foreach ($this->specialArrangement as $specialArrangement) {
+            $specialArrangement->xmlSerialize(true, $sxe->addChild('specialArrangement'));
         }
         if (isset($this->destination)) {
             $this->destination->xmlSerialize(true, $sxe->addChild('destination'));

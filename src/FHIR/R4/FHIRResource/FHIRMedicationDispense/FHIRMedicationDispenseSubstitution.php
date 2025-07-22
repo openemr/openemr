@@ -274,15 +274,11 @@ class FHIRMedicationDispenseSubstitution extends FHIRBackboneElement implements 
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->reason)) {
-            foreach ($this->reason as $reason) {
-                $reason->xmlSerialize(true, $sxe->addChild('reason'));
-            }
+        foreach ($this->reason as $reason) {
+            $reason->xmlSerialize(true, $sxe->addChild('reason'));
         }
-        if (0 < count($this->responsibleParty)) {
-            foreach ($this->responsibleParty as $responsibleParty) {
-                $responsibleParty->xmlSerialize(true, $sxe->addChild('responsibleParty'));
-            }
+        foreach ($this->responsibleParty as $responsibleParty) {
+            $responsibleParty->xmlSerialize(true, $sxe->addChild('responsibleParty'));
         }
         if ($returnSXE) {
             return $sxe;

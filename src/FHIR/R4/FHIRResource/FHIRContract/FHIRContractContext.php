@@ -230,10 +230,8 @@ class FHIRContractContext extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->reference)) {
             $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));

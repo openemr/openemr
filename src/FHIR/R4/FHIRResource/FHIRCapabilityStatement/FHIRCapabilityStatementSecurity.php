@@ -230,10 +230,8 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
         if (isset($this->cors)) {
             $this->cors->xmlSerialize(true, $sxe->addChild('cors'));
         }
-        if (0 < count($this->service)) {
-            foreach ($this->service as $service) {
-                $service->xmlSerialize(true, $sxe->addChild('service'));
-            }
+        foreach ($this->service as $service) {
+            $service->xmlSerialize(true, $sxe->addChild('service'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

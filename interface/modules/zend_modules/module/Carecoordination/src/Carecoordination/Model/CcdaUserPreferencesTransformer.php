@@ -73,16 +73,14 @@ class CcdaUserPreferencesTransformer
         $structuredBodies = $xpath->query($query);
 
         foreach ($structuredBodies as $body) {
-            if (!empty($sortedSections)) {
-                foreach ($sortedSections as $section) {
-                    $foundSectionNodes = $xpath->query("n1:component[n1:section/n1:templateId/@root = '" . $section . "']", $body);
-                    if ($foundSectionNodes !== false && $foundSectionNodes->length > 0) {
-                        foreach ($foundSectionNodes as $node) {
-                            // if our found node is already the first child we will just leave it alone and skip over.
-                            if ($node !== $body->firstChild) {
-                                // if firstChild is empty it will just append
-                                $body->insertBefore($node, $body->firstChild);
-                            }
+            foreach ($sortedSections as $section) {
+                $foundSectionNodes = $xpath->query("n1:component[n1:section/n1:templateId/@root = '" . $section . "']", $body);
+                if ($foundSectionNodes !== false && $foundSectionNodes->length > 0) {
+                    foreach ($foundSectionNodes as $node) {
+                        // if our found node is already the first child we will just leave it alone and skip over.
+                        if ($node !== $body->firstChild) {
+                            // if firstChild is empty it will just append
+                            $body->insertBefore($node, $body->firstChild);
                         }
                     }
                 }

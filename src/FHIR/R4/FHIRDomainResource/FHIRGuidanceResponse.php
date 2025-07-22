@@ -716,10 +716,8 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->requestIdentifier)) {
             $this->requestIdentifier->xmlSerialize(true, $sxe->addChild('requestIdentifier'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->moduleUri)) {
             $this->moduleUri->xmlSerialize(true, $sxe->addChild('moduleUri'));
@@ -745,25 +743,17 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->performer)) {
             $this->performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->evaluationMessage)) {
-            foreach ($this->evaluationMessage as $evaluationMessage) {
-                $evaluationMessage->xmlSerialize(true, $sxe->addChild('evaluationMessage'));
-            }
+        foreach ($this->evaluationMessage as $evaluationMessage) {
+            $evaluationMessage->xmlSerialize(true, $sxe->addChild('evaluationMessage'));
         }
         if (isset($this->outputParameters)) {
             $this->outputParameters->xmlSerialize(true, $sxe->addChild('outputParameters'));
@@ -771,10 +761,8 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->result)) {
             $this->result->xmlSerialize(true, $sxe->addChild('result'));
         }
-        if (0 < count($this->dataRequirement)) {
-            foreach ($this->dataRequirement as $dataRequirement) {
-                $dataRequirement->xmlSerialize(true, $sxe->addChild('dataRequirement'));
-            }
+        foreach ($this->dataRequirement as $dataRequirement) {
+            $dataRequirement->xmlSerialize(true, $sxe->addChild('dataRequirement'));
         }
         if ($returnSXE) {
             return $sxe;

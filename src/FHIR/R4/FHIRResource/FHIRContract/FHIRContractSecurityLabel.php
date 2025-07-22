@@ -277,23 +277,17 @@ class FHIRContractSecurityLabel extends FHIRBackboneElement implements \JsonSeri
             $sxe = new \SimpleXMLElement('<ContractSecurityLabel xmlns="http://hl7.org/fhir"></ContractSecurityLabel>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->number)) {
-            foreach ($this->number as $number) {
-                $number->xmlSerialize(true, $sxe->addChild('number'));
-            }
+        foreach ($this->number as $number) {
+            $number->xmlSerialize(true, $sxe->addChild('number'));
         }
         if (isset($this->classification)) {
             $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
-        if (0 < count($this->control)) {
-            foreach ($this->control as $control) {
-                $control->xmlSerialize(true, $sxe->addChild('control'));
-            }
+        foreach ($this->control as $control) {
+            $control->xmlSerialize(true, $sxe->addChild('control'));
         }
         if ($returnSXE) {
             return $sxe;

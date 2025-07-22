@@ -291,10 +291,8 @@ class FHIRAppointmentParticipant extends FHIRBackboneElement implements \JsonSer
             $sxe = new \SimpleXMLElement('<AppointmentParticipant xmlns="http://hl7.org/fhir"></AppointmentParticipant>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->actor)) {
             $this->actor->xmlSerialize(true, $sxe->addChild('actor'));

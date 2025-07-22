@@ -168,7 +168,7 @@ class TelehealthGlobalConfig
      * Checks if the core telehealth configuration settings are properly setup.
      * @return false|void
      */
-    public function isTelehealthCoreSettingsConfigured()
+    public function isTelehealthCoreSettingsConfigured(): bool
     {
         $config = $this->getGlobalSettingSectionConfiguration();
         $keys = array_keys($config);
@@ -206,7 +206,7 @@ class TelehealthGlobalConfig
      * Checks to determine if the mail server email notifications is setup properly
      * @return bool
      */
-    public function isEmailNotificationsConfigured()
+    public function isEmailNotificationsConfigured(): bool
     {
         $myMailerSetup = MyMailer::isConfigured();
         if ($myMailerSetup & !empty($this->getPatientReminderName())) {
@@ -215,7 +215,7 @@ class TelehealthGlobalConfig
         return false;
     }
 
-    private function isThirdPartyConfigurationSetup()
+    private function isThirdPartyConfigurationSetup(): bool
     {
         // check to make sure the dependent portal settings are setup correctly
         $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
@@ -450,7 +450,7 @@ class TelehealthGlobalConfig
         return $this->twig->render("comlink/admin/telehealth_footer_box.html.twig", $dataArray);
     }
 
-    private function isLocaleConfigured()
+    private function isLocaleConfigured(): bool
     {
         // timezone is not set in the $GLOBALS array oddly, not sure why, check against the database
         $record = QueryUtils::fetchRecords("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name=?", [self::LOCALE_TIMEZONE]);

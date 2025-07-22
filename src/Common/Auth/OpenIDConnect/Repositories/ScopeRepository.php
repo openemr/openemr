@@ -1033,7 +1033,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param array $scopes The scopes to be checked to see if we need manual approval
      * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
      */
-    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes)
+    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes): bool
     {
         // note eventually this method could have a db lookup to check against if admins want to vet this
         // possibly we could have an event dispatched here as well if we want someone to provide / extend that kind of functionality
@@ -1072,7 +1072,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $this->scopeArrayHasString($scopes, 'system/');
     }
 
-    private function scopeArrayHasString(array $scopes, $str)
+    private function scopeArrayHasString(array $scopes, $str): bool
     {
         foreach ($scopes as $scope) {
             if (strpos($scope, $str) !== false) {

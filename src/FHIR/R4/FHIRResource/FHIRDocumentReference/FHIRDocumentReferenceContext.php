@@ -373,15 +373,11 @@ class FHIRDocumentReferenceContext extends FHIRBackboneElement implements \JsonS
             $sxe = new \SimpleXMLElement('<DocumentReferenceContext xmlns="http://hl7.org/fhir"></DocumentReferenceContext>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->encounter)) {
-            foreach ($this->encounter as $encounter) {
-                $encounter->xmlSerialize(true, $sxe->addChild('encounter'));
-            }
+        foreach ($this->encounter as $encounter) {
+            $encounter->xmlSerialize(true, $sxe->addChild('encounter'));
         }
-        if (0 < count($this->event)) {
-            foreach ($this->event as $event) {
-                $event->xmlSerialize(true, $sxe->addChild('event'));
-            }
+        foreach ($this->event as $event) {
+            $event->xmlSerialize(true, $sxe->addChild('event'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
@@ -395,10 +391,8 @@ class FHIRDocumentReferenceContext extends FHIRBackboneElement implements \JsonS
         if (isset($this->sourcePatientInfo)) {
             $this->sourcePatientInfo->xmlSerialize(true, $sxe->addChild('sourcePatientInfo'));
         }
-        if (0 < count($this->related)) {
-            foreach ($this->related as $related) {
-                $related->xmlSerialize(true, $sxe->addChild('related'));
-            }
+        foreach ($this->related as $related) {
+            $related->xmlSerialize(true, $sxe->addChild('related'));
         }
         if ($returnSXE) {
             return $sxe;

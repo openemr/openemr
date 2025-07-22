@@ -9,7 +9,7 @@
 //
 class Immunizations
 {
-    public static function checkDtap(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkDtap(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));
         $dobPlus2Years = date('Y-m-d 00:00:00', strtotime('+2 year', strtotime($patient->dob)));
@@ -26,7 +26,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkIpv(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkIpv(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));
         $dobPlus2Years = date('Y-m-d 00:00:00', strtotime('+2 year', strtotime($patient->dob)));
@@ -43,7 +43,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkMmr(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkMmr(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $dobPlus1Year = date('Y-m-d 00:00:00', strtotime('+1 year', strtotime($patient->dob)));
         $dobPlus2Years = date('Y-m-d 00:00:00', strtotime('+2 year', strtotime($patient->dob)));
@@ -85,7 +85,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkHib(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkHib(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));
@@ -100,7 +100,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkHepB(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkHepB(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 3 );
         $dobPlus2Years = date('Y-m-d 00:00:00', strtotime('+2 year', strtotime($patient->dob)));
@@ -116,7 +116,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkVzv(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkVzv(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 1 );
         $dobPlus2Years = date('Y-m-d 00:00:00', strtotime('+2 year', strtotime($patient->dob)));
@@ -137,7 +137,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkPheumococcal(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkPheumococcal(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 4 );
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));
@@ -152,7 +152,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkHepA(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkHepA(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));
@@ -168,7 +168,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkRotavirus(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkRotavirus(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 4 );
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));
@@ -183,7 +183,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkInfluenza(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkInfluenza(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus180Days = date('Y-m-d 00:00:00', strtotime('+180 day', strtotime($patient->dob)));
@@ -204,7 +204,7 @@ class Immunizations
         return false;
     }
 
-    public static function checkRotavirus_2014(CqmPatient $patient, $beginDate, $endDate)
+    public static function checkRotavirus_2014(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $options = array( Medication::OPTION_COUNT => 2 );
         $dobPlus42Days = date('Y-m-d 00:00:00', strtotime('+42 day', strtotime($patient->dob)));

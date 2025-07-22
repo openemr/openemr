@@ -189,10 +189,8 @@ class FHIRElement implements \JsonSerializable
         if (null === $sxe) {
             $sxe = new \SimpleXMLElement('<Element xmlns="http://hl7.org/fhir"></Element>');
         }
-        if (0 < count($this->extension)) {
-            foreach ($this->extension as $extension) {
-                $extension->xmlSerialize(true, $sxe->addChild('extension'));
-            }
+        foreach ($this->extension as $extension) {
+            $extension->xmlSerialize(true, $sxe->addChild('extension'));
         }
         if (isset($this->id)) {
             $idElement = $sxe->addChild('id');

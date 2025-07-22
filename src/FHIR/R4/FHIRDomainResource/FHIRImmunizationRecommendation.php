@@ -302,10 +302,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
             $sxe = new \SimpleXMLElement('<ImmunizationRecommendation xmlns="http://hl7.org/fhir"></ImmunizationRecommendation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
@@ -316,10 +314,8 @@ class FHIRImmunizationRecommendation extends FHIRDomainResource implements \Json
         if (isset($this->authority)) {
             $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
         }
-        if (0 < count($this->recommendation)) {
-            foreach ($this->recommendation as $recommendation) {
-                $recommendation->xmlSerialize(true, $sxe->addChild('recommendation'));
-            }
+        foreach ($this->recommendation as $recommendation) {
+            $recommendation->xmlSerialize(true, $sxe->addChild('recommendation'));
         }
         if ($returnSXE) {
             return $sxe;

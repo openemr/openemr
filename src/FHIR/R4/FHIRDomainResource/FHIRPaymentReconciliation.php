@@ -631,10 +631,8 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
             $sxe = new \SimpleXMLElement('<PaymentReconciliation xmlns="http://hl7.org/fhir"></PaymentReconciliation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -669,18 +667,14 @@ class FHIRPaymentReconciliation extends FHIRDomainResource implements \JsonSeria
         if (isset($this->paymentIdentifier)) {
             $this->paymentIdentifier->xmlSerialize(true, $sxe->addChild('paymentIdentifier'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if (isset($this->formCode)) {
             $this->formCode->xmlSerialize(true, $sxe->addChild('formCode'));
         }
-        if (0 < count($this->processNote)) {
-            foreach ($this->processNote as $processNote) {
-                $processNote->xmlSerialize(true, $sxe->addChild('processNote'));
-            }
+        foreach ($this->processNote as $processNote) {
+            $processNote->xmlSerialize(true, $sxe->addChild('processNote'));
         }
         if ($returnSXE) {
             return $sxe;

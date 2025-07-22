@@ -268,10 +268,8 @@ class FHIRMeasureStratifier extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->criteria)) {
             $this->criteria->xmlSerialize(true, $sxe->addChild('criteria'));
         }
-        if (0 < count($this->component)) {
-            foreach ($this->component as $component) {
-                $component->xmlSerialize(true, $sxe->addChild('component'));
-            }
+        foreach ($this->component as $component) {
+            $component->xmlSerialize(true, $sxe->addChild('component'));
         }
         if ($returnSXE) {
             return $sxe;

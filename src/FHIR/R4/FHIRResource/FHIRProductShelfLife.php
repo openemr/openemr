@@ -270,10 +270,8 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->specialPrecautionsForStorage)) {
-            foreach ($this->specialPrecautionsForStorage as $specialPrecautionsForStorage) {
-                $specialPrecautionsForStorage->xmlSerialize(true, $sxe->addChild('specialPrecautionsForStorage'));
-            }
+        foreach ($this->specialPrecautionsForStorage as $specialPrecautionsForStorage) {
+            $specialPrecautionsForStorage->xmlSerialize(true, $sxe->addChild('specialPrecautionsForStorage'));
         }
         if ($returnSXE) {
             return $sxe;

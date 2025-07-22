@@ -198,10 +198,8 @@ class FHIRStructureMapDependent extends FHIRBackboneElement implements \JsonSeri
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->variable)) {
-            foreach ($this->variable as $variable) {
-                $variable->xmlSerialize(true, $sxe->addChild('variable'));
-            }
+        foreach ($this->variable as $variable) {
+            $variable->xmlSerialize(true, $sxe->addChild('variable'));
         }
         if ($returnSXE) {
             return $sxe;

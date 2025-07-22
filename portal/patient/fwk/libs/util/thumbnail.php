@@ -62,7 +62,7 @@ class thumbnail
      *          will send a jpg to the browser.
      * @return boolean true if the image could be created, false if not
      */
-    public function generate($sourceFilename, $maxWidth, $maxHeight, $targetFormatOrFilename = 'jpg', $useExactSize = false)
+    public function generate($sourceFilename, $maxWidth, $maxHeight, $targetFormatOrFilename = 'jpg', $useExactSize = false): bool
     {
         $size = getimagesize($sourceFilename); // 0 = width, 1 = height, 2 = type
 

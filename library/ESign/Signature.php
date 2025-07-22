@@ -127,7 +127,7 @@ class Signature implements SignatureIF
         return $this->datetime;
     }
 
-    public function isLock()
+    public function isLock(): bool
     {
         if ($this->isLock > 0) {
             return true;

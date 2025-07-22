@@ -1036,10 +1036,8 @@ class FHIRHealthcareService extends FHIRDomainResource implements \JsonSerializa
             $sxe = new \SimpleXMLElement('<HealthcareService xmlns="http://hl7.org/fhir"></HealthcareService>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
@@ -1047,25 +1045,17 @@ class FHIRHealthcareService extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->providedBy)) {
             $this->providedBy->xmlSerialize(true, $sxe->addChild('providedBy'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->specialty)) {
-            foreach ($this->specialty as $specialty) {
-                $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
-            }
+        foreach ($this->specialty as $specialty) {
+            $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
         }
-        if (0 < count($this->location)) {
-            foreach ($this->location as $location) {
-                $location->xmlSerialize(true, $sxe->addChild('location'));
-            }
+        foreach ($this->location as $location) {
+            $location->xmlSerialize(true, $sxe->addChild('location'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
@@ -1079,66 +1069,44 @@ class FHIRHealthcareService extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->photo)) {
             $this->photo->xmlSerialize(true, $sxe->addChild('photo'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
-        if (0 < count($this->coverageArea)) {
-            foreach ($this->coverageArea as $coverageArea) {
-                $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
-            }
+        foreach ($this->coverageArea as $coverageArea) {
+            $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
         }
-        if (0 < count($this->serviceProvisionCode)) {
-            foreach ($this->serviceProvisionCode as $serviceProvisionCode) {
-                $serviceProvisionCode->xmlSerialize(true, $sxe->addChild('serviceProvisionCode'));
-            }
+        foreach ($this->serviceProvisionCode as $serviceProvisionCode) {
+            $serviceProvisionCode->xmlSerialize(true, $sxe->addChild('serviceProvisionCode'));
         }
-        if (0 < count($this->eligibility)) {
-            foreach ($this->eligibility as $eligibility) {
-                $eligibility->xmlSerialize(true, $sxe->addChild('eligibility'));
-            }
+        foreach ($this->eligibility as $eligibility) {
+            $eligibility->xmlSerialize(true, $sxe->addChild('eligibility'));
         }
-        if (0 < count($this->program)) {
-            foreach ($this->program as $program) {
-                $program->xmlSerialize(true, $sxe->addChild('program'));
-            }
+        foreach ($this->program as $program) {
+            $program->xmlSerialize(true, $sxe->addChild('program'));
         }
-        if (0 < count($this->characteristic)) {
-            foreach ($this->characteristic as $characteristic) {
-                $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
-            }
+        foreach ($this->characteristic as $characteristic) {
+            $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
         }
-        if (0 < count($this->communication)) {
-            foreach ($this->communication as $communication) {
-                $communication->xmlSerialize(true, $sxe->addChild('communication'));
-            }
+        foreach ($this->communication as $communication) {
+            $communication->xmlSerialize(true, $sxe->addChild('communication'));
         }
-        if (0 < count($this->referralMethod)) {
-            foreach ($this->referralMethod as $referralMethod) {
-                $referralMethod->xmlSerialize(true, $sxe->addChild('referralMethod'));
-            }
+        foreach ($this->referralMethod as $referralMethod) {
+            $referralMethod->xmlSerialize(true, $sxe->addChild('referralMethod'));
         }
         if (isset($this->appointmentRequired)) {
             $this->appointmentRequired->xmlSerialize(true, $sxe->addChild('appointmentRequired'));
         }
-        if (0 < count($this->availableTime)) {
-            foreach ($this->availableTime as $availableTime) {
-                $availableTime->xmlSerialize(true, $sxe->addChild('availableTime'));
-            }
+        foreach ($this->availableTime as $availableTime) {
+            $availableTime->xmlSerialize(true, $sxe->addChild('availableTime'));
         }
-        if (0 < count($this->notAvailable)) {
-            foreach ($this->notAvailable as $notAvailable) {
-                $notAvailable->xmlSerialize(true, $sxe->addChild('notAvailable'));
-            }
+        foreach ($this->notAvailable as $notAvailable) {
+            $notAvailable->xmlSerialize(true, $sxe->addChild('notAvailable'));
         }
         if (isset($this->availabilityExceptions)) {
             $this->availabilityExceptions->xmlSerialize(true, $sxe->addChild('availabilityExceptions'));
         }
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
         if ($returnSXE) {
             return $sxe;

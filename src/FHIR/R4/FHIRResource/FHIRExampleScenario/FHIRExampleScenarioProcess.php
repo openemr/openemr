@@ -303,10 +303,8 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
         if (isset($this->postConditions)) {
             $this->postConditions->xmlSerialize(true, $sxe->addChild('postConditions'));
         }
-        if (0 < count($this->step)) {
-            foreach ($this->step as $step) {
-                $step->xmlSerialize(true, $sxe->addChild('step'));
-            }
+        foreach ($this->step as $step) {
+            $step->xmlSerialize(true, $sxe->addChild('step'));
         }
         if ($returnSXE) {
             return $sxe;

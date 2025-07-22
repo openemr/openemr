@@ -198,10 +198,8 @@ class FHIRMedicationKnowledgeRelatedMedicationKnowledge extends FHIRBackboneElem
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->reference)) {
-            foreach ($this->reference as $reference) {
-                $reference->xmlSerialize(true, $sxe->addChild('reference'));
-            }
+        foreach ($this->reference as $reference) {
+            $reference->xmlSerialize(true, $sxe->addChild('reference'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -819,7 +819,7 @@ class RuleManager
         }
     }
 
-    private function labelExists($listId, $optionId, $title)
+    private function labelExists($listId, $optionId, $title): bool
     {
         $result = sqlQuery("SELECT COUNT(*) AS CT FROM list_options WHERE list_id = ? AND option_id = ? AND title = ? AND activity = 1", array($listId, $optionId, $title));
         if ($result && $result['CT'] > 0) {

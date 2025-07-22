@@ -198,10 +198,8 @@ class FHIRMedicationKnowledgeMedicineClassification extends FHIRBackboneElement 
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->classification)) {
-            foreach ($this->classification as $classification) {
-                $classification->xmlSerialize(true, $sxe->addChild('classification'));
-            }
+        foreach ($this->classification as $classification) {
+            $classification->xmlSerialize(true, $sxe->addChild('classification'));
         }
         if ($returnSXE) {
             return $sxe;

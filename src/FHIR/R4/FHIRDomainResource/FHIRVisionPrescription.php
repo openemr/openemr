@@ -398,10 +398,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
             $sxe = new \SimpleXMLElement('<VisionPrescription xmlns="http://hl7.org/fhir"></VisionPrescription>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -421,10 +419,8 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->prescriber)) {
             $this->prescriber->xmlSerialize(true, $sxe->addChild('prescriber'));
         }
-        if (0 < count($this->lensSpecification)) {
-            foreach ($this->lensSpecification as $lensSpecification) {
-                $lensSpecification->xmlSerialize(true, $sxe->addChild('lensSpecification'));
-            }
+        foreach ($this->lensSpecification as $lensSpecification) {
+            $lensSpecification->xmlSerialize(true, $sxe->addChild('lensSpecification'));
         }
         if ($returnSXE) {
             return $sxe;

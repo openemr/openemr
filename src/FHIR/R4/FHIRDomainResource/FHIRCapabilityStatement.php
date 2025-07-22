@@ -1079,23 +1079,17 @@ class FHIRCapabilityStatement extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1106,15 +1100,11 @@ class FHIRCapabilityStatement extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->kind)) {
             $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
         }
-        if (0 < count($this->instantiates)) {
-            foreach ($this->instantiates as $instantiates) {
-                $instantiates->xmlSerialize(true, $sxe->addChild('instantiates'));
-            }
+        foreach ($this->instantiates as $instantiates) {
+            $instantiates->xmlSerialize(true, $sxe->addChild('instantiates'));
         }
-        if (0 < count($this->imports)) {
-            foreach ($this->imports as $imports) {
-                $imports->xmlSerialize(true, $sxe->addChild('imports'));
-            }
+        foreach ($this->imports as $imports) {
+            $imports->xmlSerialize(true, $sxe->addChild('imports'));
         }
         if (isset($this->software)) {
             $this->software->xmlSerialize(true, $sxe->addChild('software'));
@@ -1125,35 +1115,23 @@ class FHIRCapabilityStatement extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->fhirVersion)) {
             $this->fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
         }
-        if (0 < count($this->format)) {
-            foreach ($this->format as $format) {
-                $format->xmlSerialize(true, $sxe->addChild('format'));
-            }
+        foreach ($this->format as $format) {
+            $format->xmlSerialize(true, $sxe->addChild('format'));
         }
-        if (0 < count($this->patchFormat)) {
-            foreach ($this->patchFormat as $patchFormat) {
-                $patchFormat->xmlSerialize(true, $sxe->addChild('patchFormat'));
-            }
+        foreach ($this->patchFormat as $patchFormat) {
+            $patchFormat->xmlSerialize(true, $sxe->addChild('patchFormat'));
         }
-        if (0 < count($this->implementationGuide)) {
-            foreach ($this->implementationGuide as $implementationGuide) {
-                $implementationGuide->xmlSerialize(true, $sxe->addChild('implementationGuide'));
-            }
+        foreach ($this->implementationGuide as $implementationGuide) {
+            $implementationGuide->xmlSerialize(true, $sxe->addChild('implementationGuide'));
         }
-        if (0 < count($this->rest)) {
-            foreach ($this->rest as $rest) {
-                $rest->xmlSerialize(true, $sxe->addChild('rest'));
-            }
+        foreach ($this->rest as $rest) {
+            $rest->xmlSerialize(true, $sxe->addChild('rest'));
         }
-        if (0 < count($this->messaging)) {
-            foreach ($this->messaging as $messaging) {
-                $messaging->xmlSerialize(true, $sxe->addChild('messaging'));
-            }
+        foreach ($this->messaging as $messaging) {
+            $messaging->xmlSerialize(true, $sxe->addChild('messaging'));
         }
-        if (0 < count($this->document)) {
-            foreach ($this->document as $document) {
-                $document->xmlSerialize(true, $sxe->addChild('document'));
-            }
+        foreach ($this->document as $document) {
+            $document->xmlSerialize(true, $sxe->addChild('document'));
         }
         if ($returnSXE) {
             return $sxe;

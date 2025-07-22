@@ -384,23 +384,17 @@ class FHIRMedicinalProductManufactured extends FHIRDomainResource implements \Js
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
         }
-        if (0 < count($this->manufacturer)) {
-            foreach ($this->manufacturer as $manufacturer) {
-                $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-            }
+        foreach ($this->manufacturer as $manufacturer) {
+            $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
         }
-        if (0 < count($this->ingredient)) {
-            foreach ($this->ingredient as $ingredient) {
-                $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
-            }
+        foreach ($this->ingredient as $ingredient) {
+            $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
         }
         if (isset($this->physicalCharacteristics)) {
             $this->physicalCharacteristics->xmlSerialize(true, $sxe->addChild('physicalCharacteristics'));
         }
-        if (0 < count($this->otherCharacteristics)) {
-            foreach ($this->otherCharacteristics as $otherCharacteristics) {
-                $otherCharacteristics->xmlSerialize(true, $sxe->addChild('otherCharacteristics'));
-            }
+        foreach ($this->otherCharacteristics as $otherCharacteristics) {
+            $otherCharacteristics->xmlSerialize(true, $sxe->addChild('otherCharacteristics'));
         }
         if ($returnSXE) {
             return $sxe;

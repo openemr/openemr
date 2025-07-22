@@ -163,10 +163,8 @@ class FHIRStructureDefinitionSnapshot extends FHIRBackboneElement implements \Js
             $sxe = new \SimpleXMLElement('<StructureDefinitionSnapshot xmlns="http://hl7.org/fhir"></StructureDefinitionSnapshot>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->element)) {
-            foreach ($this->element as $element) {
-                $element->xmlSerialize(true, $sxe->addChild('element'));
-            }
+        foreach ($this->element as $element) {
+            $element->xmlSerialize(true, $sxe->addChild('element'));
         }
         if ($returnSXE) {
             return $sxe;

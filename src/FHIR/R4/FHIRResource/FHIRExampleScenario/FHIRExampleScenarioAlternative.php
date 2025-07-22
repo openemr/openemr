@@ -233,10 +233,8 @@ class FHIRExampleScenarioAlternative extends FHIRBackboneElement implements \Jso
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->step)) {
-            foreach ($this->step as $step) {
-                $step->xmlSerialize(true, $sxe->addChild('step'));
-            }
+        foreach ($this->step as $step) {
+            $step->xmlSerialize(true, $sxe->addChild('step'));
         }
         if ($returnSXE) {
             return $sxe;

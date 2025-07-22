@@ -394,10 +394,8 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
         if (isset($this->timingDateTime)) {
             $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
         }
-        if (0 < count($this->data)) {
-            foreach ($this->data as $data) {
-                $data->xmlSerialize(true, $sxe->addChild('data'));
-            }
+        foreach ($this->data as $data) {
+            $data->xmlSerialize(true, $sxe->addChild('data'));
         }
         if (isset($this->condition)) {
             $this->condition->xmlSerialize(true, $sxe->addChild('condition'));

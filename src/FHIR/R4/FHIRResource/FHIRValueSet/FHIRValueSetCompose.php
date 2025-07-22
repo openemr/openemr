@@ -274,15 +274,11 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->inactive)) {
             $this->inactive->xmlSerialize(true, $sxe->addChild('inactive'));
         }
-        if (0 < count($this->include)) {
-            foreach ($this->include as $include) {
-                $include->xmlSerialize(true, $sxe->addChild('include'));
-            }
+        foreach ($this->include as $include) {
+            $include->xmlSerialize(true, $sxe->addChild('include'));
         }
-        if (0 < count($this->exclude)) {
-            foreach ($this->exclude as $exclude) {
-                $exclude->xmlSerialize(true, $sxe->addChild('exclude'));
-            }
+        foreach ($this->exclude as $exclude) {
+            $exclude->xmlSerialize(true, $sxe->addChild('exclude'));
         }
         if ($returnSXE) {
             return $sxe;

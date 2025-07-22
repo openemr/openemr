@@ -798,7 +798,7 @@ function fetchRecurrences($pid)
     return $result_data;
 }
 
-function ends_in_a_week($end_date)
+function ends_in_a_week($end_date): bool
 {
     $timestamp_in_a_week = strtotime('+7 day');
     $timestamp_end_date = strtotime($end_date);
@@ -810,7 +810,7 @@ function ends_in_a_week($end_date)
 }
 
 //Checks if recurrence is current (didn't end yet).
-function recurrence_is_current($end_date)
+function recurrence_is_current($end_date): bool
 {
     $end_date_timestamp = strtotime($end_date);
     $current_timestamp = time();

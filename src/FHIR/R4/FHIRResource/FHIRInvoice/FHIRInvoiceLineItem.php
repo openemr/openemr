@@ -262,10 +262,8 @@ class FHIRInvoiceLineItem extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->chargeItemCodeableConcept)) {
             $this->chargeItemCodeableConcept->xmlSerialize(true, $sxe->addChild('chargeItemCodeableConcept'));
         }
-        if (0 < count($this->priceComponent)) {
-            foreach ($this->priceComponent as $priceComponent) {
-                $priceComponent->xmlSerialize(true, $sxe->addChild('priceComponent'));
-            }
+        foreach ($this->priceComponent as $priceComponent) {
+            $priceComponent->xmlSerialize(true, $sxe->addChild('priceComponent'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -233,10 +233,8 @@ class FHIRProvenanceEntity extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->what)) {
             $this->what->xmlSerialize(true, $sxe->addChild('what'));
         }
-        if (0 < count($this->agent)) {
-            foreach ($this->agent as $agent) {
-                $agent->xmlSerialize(true, $sxe->addChild('agent'));
-            }
+        foreach ($this->agent as $agent) {
+            $agent->xmlSerialize(true, $sxe->addChild('agent'));
         }
         if ($returnSXE) {
             return $sxe;

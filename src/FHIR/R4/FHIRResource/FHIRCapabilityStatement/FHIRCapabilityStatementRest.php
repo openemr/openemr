@@ -432,30 +432,20 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
         if (isset($this->security)) {
             $this->security->xmlSerialize(true, $sxe->addChild('security'));
         }
-        if (0 < count($this->resource)) {
-            foreach ($this->resource as $resource) {
-                $resource->xmlSerialize(true, $sxe->addChild('resource'));
-            }
+        foreach ($this->resource as $resource) {
+            $resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
-        if (0 < count($this->interaction)) {
-            foreach ($this->interaction as $interaction) {
-                $interaction->xmlSerialize(true, $sxe->addChild('interaction'));
-            }
+        foreach ($this->interaction as $interaction) {
+            $interaction->xmlSerialize(true, $sxe->addChild('interaction'));
         }
-        if (0 < count($this->searchParam)) {
-            foreach ($this->searchParam as $searchParam) {
-                $searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
-            }
+        foreach ($this->searchParam as $searchParam) {
+            $searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
         }
-        if (0 < count($this->operation)) {
-            foreach ($this->operation as $operation) {
-                $operation->xmlSerialize(true, $sxe->addChild('operation'));
-            }
+        foreach ($this->operation as $operation) {
+            $operation->xmlSerialize(true, $sxe->addChild('operation'));
         }
-        if (0 < count($this->compartment)) {
-            foreach ($this->compartment as $compartment) {
-                $compartment->xmlSerialize(true, $sxe->addChild('compartment'));
-            }
+        foreach ($this->compartment as $compartment) {
+            $compartment->xmlSerialize(true, $sxe->addChild('compartment'));
         }
         if ($returnSXE) {
             return $sxe;

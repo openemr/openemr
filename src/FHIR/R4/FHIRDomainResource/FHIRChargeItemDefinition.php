@@ -953,10 +953,8 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -964,20 +962,14 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
         if (isset($this->title)) {
             $this->title->xmlSerialize(true, $sxe->addChild('title'));
         }
-        if (0 < count($this->derivedFromUri)) {
-            foreach ($this->derivedFromUri as $derivedFromUri) {
-                $derivedFromUri->xmlSerialize(true, $sxe->addChild('derivedFromUri'));
-            }
+        foreach ($this->derivedFromUri as $derivedFromUri) {
+            $derivedFromUri->xmlSerialize(true, $sxe->addChild('derivedFromUri'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
-        if (0 < count($this->replaces)) {
-            foreach ($this->replaces as $replaces) {
-                $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
-            }
+        foreach ($this->replaces as $replaces) {
+            $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -991,23 +983,17 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
@@ -1024,20 +1010,14 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->instance)) {
-            foreach ($this->instance as $instance) {
-                $instance->xmlSerialize(true, $sxe->addChild('instance'));
-            }
+        foreach ($this->instance as $instance) {
+            $instance->xmlSerialize(true, $sxe->addChild('instance'));
         }
-        if (0 < count($this->applicability)) {
-            foreach ($this->applicability as $applicability) {
-                $applicability->xmlSerialize(true, $sxe->addChild('applicability'));
-            }
+        foreach ($this->applicability as $applicability) {
+            $applicability->xmlSerialize(true, $sxe->addChild('applicability'));
         }
-        if (0 < count($this->propertyGroup)) {
-            foreach ($this->propertyGroup as $propertyGroup) {
-                $propertyGroup->xmlSerialize(true, $sxe->addChild('propertyGroup'));
-            }
+        foreach ($this->propertyGroup as $propertyGroup) {
+            $propertyGroup->xmlSerialize(true, $sxe->addChild('propertyGroup'));
         }
         if ($returnSXE) {
             return $sxe;

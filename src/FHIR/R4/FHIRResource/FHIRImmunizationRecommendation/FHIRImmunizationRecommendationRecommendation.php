@@ -612,31 +612,23 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
             $sxe = new \SimpleXMLElement('<ImmunizationRecommendationRecommendation xmlns="http://hl7.org/fhir"></ImmunizationRecommendationRecommendation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->vaccineCode)) {
-            foreach ($this->vaccineCode as $vaccineCode) {
-                $vaccineCode->xmlSerialize(true, $sxe->addChild('vaccineCode'));
-            }
+        foreach ($this->vaccineCode as $vaccineCode) {
+            $vaccineCode->xmlSerialize(true, $sxe->addChild('vaccineCode'));
         }
         if (isset($this->targetDisease)) {
             $this->targetDisease->xmlSerialize(true, $sxe->addChild('targetDisease'));
         }
-        if (0 < count($this->contraindicatedVaccineCode)) {
-            foreach ($this->contraindicatedVaccineCode as $contraindicatedVaccineCode) {
-                $contraindicatedVaccineCode->xmlSerialize(true, $sxe->addChild('contraindicatedVaccineCode'));
-            }
+        foreach ($this->contraindicatedVaccineCode as $contraindicatedVaccineCode) {
+            $contraindicatedVaccineCode->xmlSerialize(true, $sxe->addChild('contraindicatedVaccineCode'));
         }
         if (isset($this->forecastStatus)) {
             $this->forecastStatus->xmlSerialize(true, $sxe->addChild('forecastStatus'));
         }
-        if (0 < count($this->forecastReason)) {
-            foreach ($this->forecastReason as $forecastReason) {
-                $forecastReason->xmlSerialize(true, $sxe->addChild('forecastReason'));
-            }
+        foreach ($this->forecastReason as $forecastReason) {
+            $forecastReason->xmlSerialize(true, $sxe->addChild('forecastReason'));
         }
-        if (0 < count($this->dateCriterion)) {
-            foreach ($this->dateCriterion as $dateCriterion) {
-                $dateCriterion->xmlSerialize(true, $sxe->addChild('dateCriterion'));
-            }
+        foreach ($this->dateCriterion as $dateCriterion) {
+            $dateCriterion->xmlSerialize(true, $sxe->addChild('dateCriterion'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
@@ -656,15 +648,11 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
         if (isset($this->seriesDosesString)) {
             $this->seriesDosesString->xmlSerialize(true, $sxe->addChild('seriesDosesString'));
         }
-        if (0 < count($this->supportingImmunization)) {
-            foreach ($this->supportingImmunization as $supportingImmunization) {
-                $supportingImmunization->xmlSerialize(true, $sxe->addChild('supportingImmunization'));
-            }
+        foreach ($this->supportingImmunization as $supportingImmunization) {
+            $supportingImmunization->xmlSerialize(true, $sxe->addChild('supportingImmunization'));
         }
-        if (0 < count($this->supportingPatientInformation)) {
-            foreach ($this->supportingPatientInformation as $supportingPatientInformation) {
-                $supportingPatientInformation->xmlSerialize(true, $sxe->addChild('supportingPatientInformation'));
-            }
+        foreach ($this->supportingPatientInformation as $supportingPatientInformation) {
+            $supportingPatientInformation->xmlSerialize(true, $sxe->addChild('supportingPatientInformation'));
         }
         if ($returnSXE) {
             return $sxe;

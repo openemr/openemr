@@ -28,7 +28,7 @@ class AMC_314g_1_2_22_Numerator implements AmcFilterIF
         return "AMC_314g_1_2_22 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         $encQry = "SELECT * FROM forms f " .
                   "INNER JOIN form_encounter fe ON f.encounter = fe.encounter " .

@@ -869,38 +869,26 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
             $sxe = new \SimpleXMLElement('<ClaimResponseAddItem xmlns="http://hl7.org/fhir"></ClaimResponseAddItem>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->itemSequence)) {
-            foreach ($this->itemSequence as $itemSequence) {
-                $itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
-            }
+        foreach ($this->itemSequence as $itemSequence) {
+            $itemSequence->xmlSerialize(true, $sxe->addChild('itemSequence'));
         }
-        if (0 < count($this->detailSequence)) {
-            foreach ($this->detailSequence as $detailSequence) {
-                $detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
-            }
+        foreach ($this->detailSequence as $detailSequence) {
+            $detailSequence->xmlSerialize(true, $sxe->addChild('detailSequence'));
         }
-        if (0 < count($this->subdetailSequence)) {
-            foreach ($this->subdetailSequence as $subdetailSequence) {
-                $subdetailSequence->xmlSerialize(true, $sxe->addChild('subdetailSequence'));
-            }
+        foreach ($this->subdetailSequence as $subdetailSequence) {
+            $subdetailSequence->xmlSerialize(true, $sxe->addChild('subdetailSequence'));
         }
-        if (0 < count($this->provider)) {
-            foreach ($this->provider as $provider) {
-                $provider->xmlSerialize(true, $sxe->addChild('provider'));
-            }
+        foreach ($this->provider as $provider) {
+            $provider->xmlSerialize(true, $sxe->addChild('provider'));
         }
         if (isset($this->productOrService)) {
             $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
         }
-        if (0 < count($this->modifier)) {
-            foreach ($this->modifier as $modifier) {
-                $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-            }
+        foreach ($this->modifier as $modifier) {
+            $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
         }
-        if (0 < count($this->programCode)) {
-            foreach ($this->programCode as $programCode) {
-                $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
-            }
+        foreach ($this->programCode as $programCode) {
+            $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
         }
         if (isset($this->servicedDate)) {
             $this->servicedDate->xmlSerialize(true, $sxe->addChild('servicedDate'));
@@ -932,25 +920,17 @@ class FHIRClaimResponseAddItem extends FHIRBackboneElement implements \JsonSeria
         if (isset($this->bodySite)) {
             $this->bodySite->xmlSerialize(true, $sxe->addChild('bodySite'));
         }
-        if (0 < count($this->subSite)) {
-            foreach ($this->subSite as $subSite) {
-                $subSite->xmlSerialize(true, $sxe->addChild('subSite'));
-            }
+        foreach ($this->subSite as $subSite) {
+            $subSite->xmlSerialize(true, $sxe->addChild('subSite'));
         }
-        if (0 < count($this->noteNumber)) {
-            foreach ($this->noteNumber as $noteNumber) {
-                $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
-            }
+        foreach ($this->noteNumber as $noteNumber) {
+            $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
         }
-        if (0 < count($this->adjudication)) {
-            foreach ($this->adjudication as $adjudication) {
-                $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
-            }
+        foreach ($this->adjudication as $adjudication) {
+            $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if ($returnSXE) {
             return $sxe;

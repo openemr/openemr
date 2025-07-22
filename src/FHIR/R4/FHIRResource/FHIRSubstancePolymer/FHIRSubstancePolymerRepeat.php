@@ -268,10 +268,8 @@ class FHIRSubstancePolymerRepeat extends FHIRBackboneElement implements \JsonSer
         if (isset($this->repeatUnitAmountType)) {
             $this->repeatUnitAmountType->xmlSerialize(true, $sxe->addChild('repeatUnitAmountType'));
         }
-        if (0 < count($this->repeatUnit)) {
-            foreach ($this->repeatUnit as $repeatUnit) {
-                $repeatUnit->xmlSerialize(true, $sxe->addChild('repeatUnit'));
-            }
+        foreach ($this->repeatUnit as $repeatUnit) {
+            $repeatUnit->xmlSerialize(true, $sxe->addChild('repeatUnit'));
         }
         if ($returnSXE) {
             return $sxe;

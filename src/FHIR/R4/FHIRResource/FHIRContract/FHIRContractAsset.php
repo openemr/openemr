@@ -704,69 +704,47 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->scope)) {
             $this->scope->xmlSerialize(true, $sxe->addChild('scope'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->typeReference)) {
-            foreach ($this->typeReference as $typeReference) {
-                $typeReference->xmlSerialize(true, $sxe->addChild('typeReference'));
-            }
+        foreach ($this->typeReference as $typeReference) {
+            $typeReference->xmlSerialize(true, $sxe->addChild('typeReference'));
         }
-        if (0 < count($this->subtype)) {
-            foreach ($this->subtype as $subtype) {
-                $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
-            }
+        foreach ($this->subtype as $subtype) {
+            $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
         }
         if (isset($this->relationship)) {
             $this->relationship->xmlSerialize(true, $sxe->addChild('relationship'));
         }
-        if (0 < count($this->context)) {
-            foreach ($this->context as $context) {
-                $context->xmlSerialize(true, $sxe->addChild('context'));
-            }
+        foreach ($this->context as $context) {
+            $context->xmlSerialize(true, $sxe->addChild('context'));
         }
         if (isset($this->condition)) {
             $this->condition->xmlSerialize(true, $sxe->addChild('condition'));
         }
-        if (0 < count($this->periodType)) {
-            foreach ($this->periodType as $periodType) {
-                $periodType->xmlSerialize(true, $sxe->addChild('periodType'));
-            }
+        foreach ($this->periodType as $periodType) {
+            $periodType->xmlSerialize(true, $sxe->addChild('periodType'));
         }
-        if (0 < count($this->period)) {
-            foreach ($this->period as $period) {
-                $period->xmlSerialize(true, $sxe->addChild('period'));
-            }
+        foreach ($this->period as $period) {
+            $period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->usePeriod)) {
-            foreach ($this->usePeriod as $usePeriod) {
-                $usePeriod->xmlSerialize(true, $sxe->addChild('usePeriod'));
-            }
+        foreach ($this->usePeriod as $usePeriod) {
+            $usePeriod->xmlSerialize(true, $sxe->addChild('usePeriod'));
         }
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->linkId)) {
-            foreach ($this->linkId as $linkId) {
-                $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
-            }
+        foreach ($this->linkId as $linkId) {
+            $linkId->xmlSerialize(true, $sxe->addChild('linkId'));
         }
-        if (0 < count($this->answer)) {
-            foreach ($this->answer as $answer) {
-                $answer->xmlSerialize(true, $sxe->addChild('answer'));
-            }
+        foreach ($this->answer as $answer) {
+            $answer->xmlSerialize(true, $sxe->addChild('answer'));
         }
-        if (0 < count($this->securityLabelNumber)) {
-            foreach ($this->securityLabelNumber as $securityLabelNumber) {
-                $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
-            }
+        foreach ($this->securityLabelNumber as $securityLabelNumber) {
+            $securityLabelNumber->xmlSerialize(true, $sxe->addChild('securityLabelNumber'));
         }
-        if (0 < count($this->valuedItem)) {
-            foreach ($this->valuedItem as $valuedItem) {
-                $valuedItem->xmlSerialize(true, $sxe->addChild('valuedItem'));
-            }
+        foreach ($this->valuedItem as $valuedItem) {
+            $valuedItem->xmlSerialize(true, $sxe->addChild('valuedItem'));
         }
         if ($returnSXE) {
             return $sxe;

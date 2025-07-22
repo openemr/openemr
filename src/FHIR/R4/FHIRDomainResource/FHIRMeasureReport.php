@@ -503,10 +503,8 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<MeasureReport xmlns="http://hl7.org/fhir"></MeasureReport>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -532,15 +530,11 @@ class FHIRMeasureReport extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->improvementNotation)) {
             $this->improvementNotation->xmlSerialize(true, $sxe->addChild('improvementNotation'));
         }
-        if (0 < count($this->group)) {
-            foreach ($this->group as $group) {
-                $group->xmlSerialize(true, $sxe->addChild('group'));
-            }
+        foreach ($this->group as $group) {
+            $group->xmlSerialize(true, $sxe->addChild('group'));
         }
-        if (0 < count($this->evaluatedResource)) {
-            foreach ($this->evaluatedResource as $evaluatedResource) {
-                $evaluatedResource->xmlSerialize(true, $sxe->addChild('evaluatedResource'));
-            }
+        foreach ($this->evaluatedResource as $evaluatedResource) {
+            $evaluatedResource->xmlSerialize(true, $sxe->addChild('evaluatedResource'));
         }
         if ($returnSXE) {
             return $sxe;

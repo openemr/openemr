@@ -471,10 +471,8 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Group xmlns="http://hl7.org/fhir"></Group>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
@@ -497,15 +495,11 @@ class FHIRGroup extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->managingEntity)) {
             $this->managingEntity->xmlSerialize(true, $sxe->addChild('managingEntity'));
         }
-        if (0 < count($this->characteristic)) {
-            foreach ($this->characteristic as $characteristic) {
-                $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
-            }
+        foreach ($this->characteristic as $characteristic) {
+            $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
         }
-        if (0 < count($this->member)) {
-            foreach ($this->member as $member) {
-                $member->xmlSerialize(true, $sxe->addChild('member'));
-            }
+        foreach ($this->member as $member) {
+            $member->xmlSerialize(true, $sxe->addChild('member'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -1136,10 +1136,8 @@ class FHIRImmunization extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Immunization xmlns="http://hl7.org/fhir"></Immunization>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -1192,56 +1190,38 @@ class FHIRImmunization extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->doseQuantity)) {
             $this->doseQuantity->xmlSerialize(true, $sxe->addChild('doseQuantity'));
         }
-        if (0 < count($this->performer)) {
-            foreach ($this->performer as $performer) {
-                $performer->xmlSerialize(true, $sxe->addChild('performer'));
-            }
+        foreach ($this->performer as $performer) {
+            $performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
         if (isset($this->isSubpotent)) {
             $this->isSubpotent->xmlSerialize(true, $sxe->addChild('isSubpotent'));
         }
-        if (0 < count($this->subpotentReason)) {
-            foreach ($this->subpotentReason as $subpotentReason) {
-                $subpotentReason->xmlSerialize(true, $sxe->addChild('subpotentReason'));
-            }
+        foreach ($this->subpotentReason as $subpotentReason) {
+            $subpotentReason->xmlSerialize(true, $sxe->addChild('subpotentReason'));
         }
-        if (0 < count($this->education)) {
-            foreach ($this->education as $education) {
-                $education->xmlSerialize(true, $sxe->addChild('education'));
-            }
+        foreach ($this->education as $education) {
+            $education->xmlSerialize(true, $sxe->addChild('education'));
         }
-        if (0 < count($this->programEligibility)) {
-            foreach ($this->programEligibility as $programEligibility) {
-                $programEligibility->xmlSerialize(true, $sxe->addChild('programEligibility'));
-            }
+        foreach ($this->programEligibility as $programEligibility) {
+            $programEligibility->xmlSerialize(true, $sxe->addChild('programEligibility'));
         }
         if (isset($this->fundingSource)) {
             $this->fundingSource->xmlSerialize(true, $sxe->addChild('fundingSource'));
         }
-        if (0 < count($this->reaction)) {
-            foreach ($this->reaction as $reaction) {
-                $reaction->xmlSerialize(true, $sxe->addChild('reaction'));
-            }
+        foreach ($this->reaction as $reaction) {
+            $reaction->xmlSerialize(true, $sxe->addChild('reaction'));
         }
-        if (0 < count($this->protocolApplied)) {
-            foreach ($this->protocolApplied as $protocolApplied) {
-                $protocolApplied->xmlSerialize(true, $sxe->addChild('protocolApplied'));
-            }
+        foreach ($this->protocolApplied as $protocolApplied) {
+            $protocolApplied->xmlSerialize(true, $sxe->addChild('protocolApplied'));
         }
         if ($returnSXE) {
             return $sxe;

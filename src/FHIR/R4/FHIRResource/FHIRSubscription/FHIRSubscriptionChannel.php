@@ -268,10 +268,8 @@ class FHIRSubscriptionChannel extends FHIRBackboneElement implements \JsonSerial
         if (isset($this->payload)) {
             $this->payload->xmlSerialize(true, $sxe->addChild('payload'));
         }
-        if (0 < count($this->header)) {
-            foreach ($this->header as $header) {
-                $header->xmlSerialize(true, $sxe->addChild('header'));
-            }
+        foreach ($this->header as $header) {
+            $header->xmlSerialize(true, $sxe->addChild('header'));
         }
         if ($returnSXE) {
             return $sxe;

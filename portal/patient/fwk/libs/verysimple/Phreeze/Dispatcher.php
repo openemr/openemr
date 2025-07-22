@@ -80,7 +80,7 @@ class Dispatcher
      * @param
      *          IRouter (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */
-    static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null)
+    static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null): bool
     {
         if ($router == null) {
             require_once('GenericRouter.php');

@@ -36,7 +36,7 @@ function maybe_csv_quote($string)
     return $string;
 }
 
-function need_csv_quote($string)
+function need_csv_quote($string): bool
 {
     if (
         strpos($string, ',') === false

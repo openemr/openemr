@@ -434,10 +434,8 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
         if (isset($this->minimumVolumeString)) {
             $this->minimumVolumeString->xmlSerialize(true, $sxe->addChild('minimumVolumeString'));
         }
-        if (0 < count($this->additive)) {
-            foreach ($this->additive as $additive) {
-                $additive->xmlSerialize(true, $sxe->addChild('additive'));
-            }
+        foreach ($this->additive as $additive) {
+            $additive->xmlSerialize(true, $sxe->addChild('additive'));
         }
         if (isset($this->preparation)) {
             $this->preparation->xmlSerialize(true, $sxe->addChild('preparation'));

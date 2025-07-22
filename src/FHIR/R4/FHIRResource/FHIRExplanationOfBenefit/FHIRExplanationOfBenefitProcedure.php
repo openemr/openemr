@@ -329,10 +329,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
         if (isset($this->sequence)) {
             $this->sequence->xmlSerialize(true, $sxe->addChild('sequence'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->date)) {
             $this->date->xmlSerialize(true, $sxe->addChild('date'));
@@ -343,10 +341,8 @@ class FHIRExplanationOfBenefitProcedure extends FHIRBackboneElement implements \
         if (isset($this->procedureReference)) {
             $this->procedureReference->xmlSerialize(true, $sxe->addChild('procedureReference'));
         }
-        if (0 < count($this->udi)) {
-            foreach ($this->udi as $udi) {
-                $udi->xmlSerialize(true, $sxe->addChild('udi'));
-            }
+        foreach ($this->udi as $udi) {
+            $udi->xmlSerialize(true, $sxe->addChild('udi'));
         }
         if ($returnSXE) {
             return $sxe;

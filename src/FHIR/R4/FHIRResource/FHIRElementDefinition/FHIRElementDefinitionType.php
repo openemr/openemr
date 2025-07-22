@@ -313,20 +313,14 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->profile)) {
-            foreach ($this->profile as $profile) {
-                $profile->xmlSerialize(true, $sxe->addChild('profile'));
-            }
+        foreach ($this->profile as $profile) {
+            $profile->xmlSerialize(true, $sxe->addChild('profile'));
         }
-        if (0 < count($this->targetProfile)) {
-            foreach ($this->targetProfile as $targetProfile) {
-                $targetProfile->xmlSerialize(true, $sxe->addChild('targetProfile'));
-            }
+        foreach ($this->targetProfile as $targetProfile) {
+            $targetProfile->xmlSerialize(true, $sxe->addChild('targetProfile'));
         }
-        if (0 < count($this->aggregation)) {
-            foreach ($this->aggregation as $aggregation) {
-                $aggregation->xmlSerialize(true, $sxe->addChild('aggregation'));
-            }
+        foreach ($this->aggregation as $aggregation) {
+            $aggregation->xmlSerialize(true, $sxe->addChild('aggregation'));
         }
         if (isset($this->versioning)) {
             $this->versioning->xmlSerialize(true, $sxe->addChild('versioning'));

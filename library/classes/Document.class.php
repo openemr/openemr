@@ -292,7 +292,7 @@ class Document extends ORDataObject
         return false;
     }
 
-    public function can_patient_access($pid)
+    public function can_patient_access($pid): bool
     {
         $foreignId = $this->get_foreign_id();
         // TODO: if any information blocking rule checks were to be applied, they can be done here
@@ -311,7 +311,7 @@ class Document extends ORDataObject
      *                              If no user is provided it checks against the currently logged in user
      * @return bool True if the passed in user or current user can access this document, false otherwise.
      */
-    public function can_access($username = null)
+    public function can_access($username = null): bool
     {
         $categories = $this->get_categories();
 
@@ -866,7 +866,7 @@ class Document extends ORDataObject
     // This just moves some code that used to be in C_Document.class.php,
     // changing it as little as possible since I'm not set up to test it.
     //
-    function change_patient($new_patient_id)
+    function change_patient($new_patient_id): bool
     {
         // Set the new patient.
         $this->set_foreign_id($new_patient_id);

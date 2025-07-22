@@ -4994,12 +4994,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     usort($times_OU, "cmp");
 
     for ($a = 0; $a < count($date_OU); $a++) {
-        if (!empty($GONIO_date)) {
-            foreach ($GONIO_date as $GONIO) {
-                if ($date_OU[$a] == $GONIO) {
-                    $GONIO_values[$a] = "1";
-                    break;
-                }
+        foreach ($GONIO_date as $GONIO) {
+            if ($date_OU[$a] == $GONIO) {
+                $GONIO_values[$a] = "1";
+                break;
             }
         }
 
@@ -6374,7 +6372,7 @@ function display_refractive_data($encounter_data): void
  * @param bool $strict
  * @return bool*
  */
-function in_array_r($needle, $haystack, $strict = false)
+function in_array_r($needle, $haystack, $strict = false): bool
 {
     if (empty($haystack)) {
         return false;

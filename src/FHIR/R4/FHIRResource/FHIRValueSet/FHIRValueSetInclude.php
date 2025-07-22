@@ -315,20 +315,14 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
         }
-        if (0 < count($this->concept)) {
-            foreach ($this->concept as $concept) {
-                $concept->xmlSerialize(true, $sxe->addChild('concept'));
-            }
+        foreach ($this->concept as $concept) {
+            $concept->xmlSerialize(true, $sxe->addChild('concept'));
         }
-        if (0 < count($this->filter)) {
-            foreach ($this->filter as $filter) {
-                $filter->xmlSerialize(true, $sxe->addChild('filter'));
-            }
+        foreach ($this->filter as $filter) {
+            $filter->xmlSerialize(true, $sxe->addChild('filter'));
         }
-        if (0 < count($this->valueSet)) {
-            foreach ($this->valueSet as $valueSet) {
-                $valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
-            }
+        foreach ($this->valueSet as $valueSet) {
+            $valueSet->xmlSerialize(true, $sxe->addChild('valueSet'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -653,26 +653,20 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<InsurancePlan xmlns="http://hl7.org/fhir"></InsurancePlan>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->alias)) {
-            foreach ($this->alias as $alias) {
-                $alias->xmlSerialize(true, $sxe->addChild('alias'));
-            }
+        foreach ($this->alias as $alias) {
+            $alias->xmlSerialize(true, $sxe->addChild('alias'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
@@ -683,35 +677,23 @@ class FHIRInsurancePlan extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->administeredBy)) {
             $this->administeredBy->xmlSerialize(true, $sxe->addChild('administeredBy'));
         }
-        if (0 < count($this->coverageArea)) {
-            foreach ($this->coverageArea as $coverageArea) {
-                $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
-            }
+        foreach ($this->coverageArea as $coverageArea) {
+            $coverageArea->xmlSerialize(true, $sxe->addChild('coverageArea'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
-        if (0 < count($this->endpoint)) {
-            foreach ($this->endpoint as $endpoint) {
-                $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
-            }
+        foreach ($this->endpoint as $endpoint) {
+            $endpoint->xmlSerialize(true, $sxe->addChild('endpoint'));
         }
-        if (0 < count($this->network)) {
-            foreach ($this->network as $network) {
-                $network->xmlSerialize(true, $sxe->addChild('network'));
-            }
+        foreach ($this->network as $network) {
+            $network->xmlSerialize(true, $sxe->addChild('network'));
         }
-        if (0 < count($this->coverage)) {
-            foreach ($this->coverage as $coverage) {
-                $coverage->xmlSerialize(true, $sxe->addChild('coverage'));
-            }
+        foreach ($this->coverage as $coverage) {
+            $coverage->xmlSerialize(true, $sxe->addChild('coverage'));
         }
-        if (0 < count($this->plan)) {
-            foreach ($this->plan as $plan) {
-                $plan->xmlSerialize(true, $sxe->addChild('plan'));
-            }
+        foreach ($this->plan as $plan) {
+            $plan->xmlSerialize(true, $sxe->addChild('plan'));
         }
         if ($returnSXE) {
             return $sxe;

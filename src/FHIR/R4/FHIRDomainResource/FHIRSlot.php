@@ -512,25 +512,17 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Slot xmlns="http://hl7.org/fhir"></Slot>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->serviceCategory)) {
-            foreach ($this->serviceCategory as $serviceCategory) {
-                $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
-            }
+        foreach ($this->serviceCategory as $serviceCategory) {
+            $serviceCategory->xmlSerialize(true, $sxe->addChild('serviceCategory'));
         }
-        if (0 < count($this->serviceType)) {
-            foreach ($this->serviceType as $serviceType) {
-                $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
-            }
+        foreach ($this->serviceType as $serviceType) {
+            $serviceType->xmlSerialize(true, $sxe->addChild('serviceType'));
         }
-        if (0 < count($this->specialty)) {
-            foreach ($this->specialty as $specialty) {
-                $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
-            }
+        foreach ($this->specialty as $specialty) {
+            $specialty->xmlSerialize(true, $sxe->addChild('specialty'));
         }
         if (isset($this->appointmentType)) {
             $this->appointmentType->xmlSerialize(true, $sxe->addChild('appointmentType'));

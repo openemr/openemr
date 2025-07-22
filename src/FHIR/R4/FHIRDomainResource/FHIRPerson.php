@@ -489,20 +489,14 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Person xmlns="http://hl7.org/fhir"></Person>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->name)) {
-            foreach ($this->name as $name) {
-                $name->xmlSerialize(true, $sxe->addChild('name'));
-            }
+        foreach ($this->name as $name) {
+            $name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->telecom)) {
-            foreach ($this->telecom as $telecom) {
-                $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
-            }
+        foreach ($this->telecom as $telecom) {
+            $telecom->xmlSerialize(true, $sxe->addChild('telecom'));
         }
         if (isset($this->gender)) {
             $this->gender->xmlSerialize(true, $sxe->addChild('gender'));
@@ -510,10 +504,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->birthDate)) {
             $this->birthDate->xmlSerialize(true, $sxe->addChild('birthDate'));
         }
-        if (0 < count($this->address)) {
-            foreach ($this->address as $address) {
-                $address->xmlSerialize(true, $sxe->addChild('address'));
-            }
+        foreach ($this->address as $address) {
+            $address->xmlSerialize(true, $sxe->addChild('address'));
         }
         if (isset($this->photo)) {
             $this->photo->xmlSerialize(true, $sxe->addChild('photo'));
@@ -524,10 +516,8 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
         }
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -592,28 +592,20 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->securityLabel)) {
-            foreach ($this->securityLabel as $securityLabel) {
-                $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
-            }
+        foreach ($this->securityLabel as $securityLabel) {
+            $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
         }
         if (isset($this->offer)) {
             $this->offer->xmlSerialize(true, $sxe->addChild('offer'));
         }
-        if (0 < count($this->asset)) {
-            foreach ($this->asset as $asset) {
-                $asset->xmlSerialize(true, $sxe->addChild('asset'));
-            }
+        foreach ($this->asset as $asset) {
+            $asset->xmlSerialize(true, $sxe->addChild('asset'));
         }
-        if (0 < count($this->action)) {
-            foreach ($this->action as $action) {
-                $action->xmlSerialize(true, $sxe->addChild('action'));
-            }
+        foreach ($this->action as $action) {
+            $action->xmlSerialize(true, $sxe->addChild('action'));
         }
-        if (0 < count($this->group)) {
-            foreach ($this->group as $group) {
-                $group->xmlSerialize(true, $sxe->addChild('group'));
-            }
+        foreach ($this->group as $group) {
+            $group->xmlSerialize(true, $sxe->addChild('group'));
         }
         if ($returnSXE) {
             return $sxe;

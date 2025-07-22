@@ -603,10 +603,8 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Specimen xmlns="http://hl7.org/fhir"></Specimen>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->accessionIdentifier)) {
             $this->accessionIdentifier->xmlSerialize(true, $sxe->addChild('accessionIdentifier'));
@@ -623,38 +621,26 @@ class FHIRSpecimen extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->receivedTime)) {
             $this->receivedTime->xmlSerialize(true, $sxe->addChild('receivedTime'));
         }
-        if (0 < count($this->parent)) {
-            foreach ($this->parent as $parent) {
-                $parent->xmlSerialize(true, $sxe->addChild('parent'));
-            }
+        foreach ($this->parent as $parent) {
+            $parent->xmlSerialize(true, $sxe->addChild('parent'));
         }
-        if (0 < count($this->request)) {
-            foreach ($this->request as $request) {
-                $request->xmlSerialize(true, $sxe->addChild('request'));
-            }
+        foreach ($this->request as $request) {
+            $request->xmlSerialize(true, $sxe->addChild('request'));
         }
         if (isset($this->collection)) {
             $this->collection->xmlSerialize(true, $sxe->addChild('collection'));
         }
-        if (0 < count($this->processing)) {
-            foreach ($this->processing as $processing) {
-                $processing->xmlSerialize(true, $sxe->addChild('processing'));
-            }
+        foreach ($this->processing as $processing) {
+            $processing->xmlSerialize(true, $sxe->addChild('processing'));
         }
-        if (0 < count($this->container)) {
-            foreach ($this->container as $container) {
-                $container->xmlSerialize(true, $sxe->addChild('container'));
-            }
+        foreach ($this->container as $container) {
+            $container->xmlSerialize(true, $sxe->addChild('container'));
         }
-        if (0 < count($this->condition)) {
-            foreach ($this->condition as $condition) {
-                $condition->xmlSerialize(true, $sxe->addChild('condition'));
-            }
+        foreach ($this->condition as $condition) {
+            $condition->xmlSerialize(true, $sxe->addChild('condition'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

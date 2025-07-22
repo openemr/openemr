@@ -233,10 +233,8 @@ class FHIRContractSigner extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->party)) {
             $this->party->xmlSerialize(true, $sxe->addChild('party'));
         }
-        if (0 < count($this->signature)) {
-            foreach ($this->signature as $signature) {
-                $signature->xmlSerialize(true, $sxe->addChild('signature'));
-            }
+        foreach ($this->signature as $signature) {
+            $signature->xmlSerialize(true, $sxe->addChild('signature'));
         }
         if ($returnSXE) {
             return $sxe;

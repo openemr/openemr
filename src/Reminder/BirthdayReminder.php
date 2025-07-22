@@ -38,7 +38,7 @@ class BirthdayReminder
         $res = sqlStatement($sql, array($this->pid, $this->user_id, $date));
     }
 
-    public function isDisplayBirthdayAlert()
+    public function isDisplayBirthdayAlert(): bool
     {
         //Collect dob and if deceased for the patient
         $sql = "SELECT `DOB` FROM `patient_data` WHERE `pid` = ?";
@@ -83,7 +83,7 @@ class BirthdayReminder
         return false;
     }
 
-    private function isBirthdayAlertOff()
+    private function isBirthdayAlertOff(): bool
     {
         $sql = "SELECT `turned_off_on` FROM `patient_birthday_alert` WHERE pid = ? AND user_id = ?";
         $res = sqlQuery($sql, array($this->pid, $this->user_id));

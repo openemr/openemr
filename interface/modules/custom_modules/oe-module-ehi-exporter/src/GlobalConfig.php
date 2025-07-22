@@ -35,7 +35,7 @@ class GlobalConfig
      * Returns true if all of the settings have been configured.  Otherwise it returns false.
      * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
         $keys = [];
         foreach ($keys as $key) {

@@ -724,20 +724,14 @@ class FHIRTimingRepeat extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->periodUnit)) {
             $this->periodUnit->xmlSerialize(true, $sxe->addChild('periodUnit'));
         }
-        if (0 < count($this->dayOfWeek)) {
-            foreach ($this->dayOfWeek as $dayOfWeek) {
-                $dayOfWeek->xmlSerialize(true, $sxe->addChild('dayOfWeek'));
-            }
+        foreach ($this->dayOfWeek as $dayOfWeek) {
+            $dayOfWeek->xmlSerialize(true, $sxe->addChild('dayOfWeek'));
         }
-        if (0 < count($this->timeOfDay)) {
-            foreach ($this->timeOfDay as $timeOfDay) {
-                $timeOfDay->xmlSerialize(true, $sxe->addChild('timeOfDay'));
-            }
+        foreach ($this->timeOfDay as $timeOfDay) {
+            $timeOfDay->xmlSerialize(true, $sxe->addChild('timeOfDay'));
         }
-        if (0 < count($this->when)) {
-            foreach ($this->when as $when) {
-                $when->xmlSerialize(true, $sxe->addChild('when'));
-            }
+        foreach ($this->when as $when) {
+            $when->xmlSerialize(true, $sxe->addChild('when'));
         }
         if (isset($this->offset)) {
             $this->offset->xmlSerialize(true, $sxe->addChild('offset'));

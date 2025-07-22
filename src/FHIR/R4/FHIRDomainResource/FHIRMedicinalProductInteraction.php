@@ -366,18 +366,14 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
             $sxe = new \SimpleXMLElement('<MedicinalProductInteraction xmlns="http://hl7.org/fhir"></MedicinalProductInteraction>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->subject)) {
-            foreach ($this->subject as $subject) {
-                $subject->xmlSerialize(true, $sxe->addChild('subject'));
-            }
+        foreach ($this->subject as $subject) {
+            $subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->interactant)) {
-            foreach ($this->interactant as $interactant) {
-                $interactant->xmlSerialize(true, $sxe->addChild('interactant'));
-            }
+        foreach ($this->interactant as $interactant) {
+            $interactant->xmlSerialize(true, $sxe->addChild('interactant'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

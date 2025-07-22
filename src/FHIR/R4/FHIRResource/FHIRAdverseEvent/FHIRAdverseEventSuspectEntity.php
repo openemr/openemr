@@ -198,10 +198,8 @@ class FHIRAdverseEventSuspectEntity extends FHIRBackboneElement implements \Json
         if (isset($this->instance)) {
             $this->instance->xmlSerialize(true, $sxe->addChild('instance'));
         }
-        if (0 < count($this->causality)) {
-            foreach ($this->causality as $causality) {
-                $causality->xmlSerialize(true, $sxe->addChild('causality'));
-            }
+        foreach ($this->causality as $causality) {
+            $causality->xmlSerialize(true, $sxe->addChild('causality'));
         }
         if ($returnSXE) {
             return $sxe;

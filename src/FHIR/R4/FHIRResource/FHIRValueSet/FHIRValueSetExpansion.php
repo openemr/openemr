@@ -344,15 +344,11 @@ class FHIRValueSetExpansion extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->offset)) {
             $this->offset->xmlSerialize(true, $sxe->addChild('offset'));
         }
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
-        if (0 < count($this->contains)) {
-            foreach ($this->contains as $contains) {
-                $contains->xmlSerialize(true, $sxe->addChild('contains'));
-            }
+        foreach ($this->contains as $contains) {
+            $contains->xmlSerialize(true, $sxe->addChild('contains'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -358,25 +358,17 @@ class FHIRSubstancePolymer extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->geometry)) {
             $this->geometry->xmlSerialize(true, $sxe->addChild('geometry'));
         }
-        if (0 < count($this->copolymerConnectivity)) {
-            foreach ($this->copolymerConnectivity as $copolymerConnectivity) {
-                $copolymerConnectivity->xmlSerialize(true, $sxe->addChild('copolymerConnectivity'));
-            }
+        foreach ($this->copolymerConnectivity as $copolymerConnectivity) {
+            $copolymerConnectivity->xmlSerialize(true, $sxe->addChild('copolymerConnectivity'));
         }
-        if (0 < count($this->modification)) {
-            foreach ($this->modification as $modification) {
-                $modification->xmlSerialize(true, $sxe->addChild('modification'));
-            }
+        foreach ($this->modification as $modification) {
+            $modification->xmlSerialize(true, $sxe->addChild('modification'));
         }
-        if (0 < count($this->monomerSet)) {
-            foreach ($this->monomerSet as $monomerSet) {
-                $monomerSet->xmlSerialize(true, $sxe->addChild('monomerSet'));
-            }
+        foreach ($this->monomerSet as $monomerSet) {
+            $monomerSet->xmlSerialize(true, $sxe->addChild('monomerSet'));
         }
-        if (0 < count($this->repeat)) {
-            foreach ($this->repeat as $repeat) {
-                $repeat->xmlSerialize(true, $sxe->addChild('repeat'));
-            }
+        foreach ($this->repeat as $repeat) {
+            $repeat->xmlSerialize(true, $sxe->addChild('repeat'));
         }
         if ($returnSXE) {
             return $sxe;

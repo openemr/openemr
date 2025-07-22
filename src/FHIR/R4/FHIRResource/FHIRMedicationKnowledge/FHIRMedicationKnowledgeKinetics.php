@@ -236,15 +236,11 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
             $sxe = new \SimpleXMLElement('<MedicationKnowledgeKinetics xmlns="http://hl7.org/fhir"></MedicationKnowledgeKinetics>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->areaUnderCurve)) {
-            foreach ($this->areaUnderCurve as $areaUnderCurve) {
-                $areaUnderCurve->xmlSerialize(true, $sxe->addChild('areaUnderCurve'));
-            }
+        foreach ($this->areaUnderCurve as $areaUnderCurve) {
+            $areaUnderCurve->xmlSerialize(true, $sxe->addChild('areaUnderCurve'));
         }
-        if (0 < count($this->lethalDose50)) {
-            foreach ($this->lethalDose50 as $lethalDose50) {
-                $lethalDose50->xmlSerialize(true, $sxe->addChild('lethalDose50'));
-            }
+        foreach ($this->lethalDose50 as $lethalDose50) {
+            $lethalDose50->xmlSerialize(true, $sxe->addChild('lethalDose50'));
         }
         if (isset($this->halfLifePeriod)) {
             $this->halfLifePeriod->xmlSerialize(true, $sxe->addChild('halfLifePeriod'));

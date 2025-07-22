@@ -56,14 +56,14 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
     }
 
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         // we have no category definitions right now for patient
         return false;
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // we don't support searching by code
         return false;

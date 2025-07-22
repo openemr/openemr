@@ -666,18 +666,14 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
             $sxe = new \SimpleXMLElement('<CoverageEligibilityResponse xmlns="http://hl7.org/fhir"></CoverageEligibilityResponse>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->purpose)) {
-            foreach ($this->purpose as $purpose) {
-                $purpose->xmlSerialize(true, $sxe->addChild('purpose'));
-            }
+        foreach ($this->purpose as $purpose) {
+            $purpose->xmlSerialize(true, $sxe->addChild('purpose'));
         }
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
@@ -706,10 +702,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
         if (isset($this->insurer)) {
             $this->insurer->xmlSerialize(true, $sxe->addChild('insurer'));
         }
-        if (0 < count($this->insurance)) {
-            foreach ($this->insurance as $insurance) {
-                $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
-            }
+        foreach ($this->insurance as $insurance) {
+            $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
         }
         if (isset($this->preAuthRef)) {
             $this->preAuthRef->xmlSerialize(true, $sxe->addChild('preAuthRef'));
@@ -717,10 +711,8 @@ class FHIRCoverageEligibilityResponse extends FHIRDomainResource implements \Jso
         if (isset($this->form)) {
             $this->form->xmlSerialize(true, $sxe->addChild('form'));
         }
-        if (0 < count($this->error)) {
-            foreach ($this->error as $error) {
-                $error->xmlSerialize(true, $sxe->addChild('error'));
-            }
+        foreach ($this->error as $error) {
+            $error->xmlSerialize(true, $sxe->addChild('error'));
         }
         if ($returnSXE) {
             return $sxe;

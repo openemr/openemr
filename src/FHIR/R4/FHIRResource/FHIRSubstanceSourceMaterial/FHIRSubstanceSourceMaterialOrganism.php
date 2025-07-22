@@ -402,10 +402,8 @@ class FHIRSubstanceSourceMaterialOrganism extends FHIRBackboneElement implements
         if (isset($this->intraspecificDescription)) {
             $this->intraspecificDescription->xmlSerialize(true, $sxe->addChild('intraspecificDescription'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
         if (isset($this->hybrid)) {
             $this->hybrid->xmlSerialize(true, $sxe->addChild('hybrid'));

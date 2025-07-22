@@ -620,18 +620,14 @@ class FHIRCompartmentDefinition extends FHIRDomainResource implements \JsonSeria
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -642,10 +638,8 @@ class FHIRCompartmentDefinition extends FHIRDomainResource implements \JsonSeria
         if (isset($this->search)) {
             $this->search->xmlSerialize(true, $sxe->addChild('search'));
         }
-        if (0 < count($this->resource)) {
-            foreach ($this->resource as $resource) {
-                $resource->xmlSerialize(true, $sxe->addChild('resource'));
-            }
+        foreach ($this->resource as $resource) {
+            $resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
         if ($returnSXE) {
             return $sxe;

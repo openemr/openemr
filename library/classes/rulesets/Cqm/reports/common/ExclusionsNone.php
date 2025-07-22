@@ -14,7 +14,7 @@ class ExclusionsNone implements CqmFilterIF
         return "Exclusions: None";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         return false;
     }

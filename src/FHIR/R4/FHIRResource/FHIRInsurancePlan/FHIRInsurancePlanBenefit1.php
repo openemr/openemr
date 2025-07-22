@@ -198,10 +198,8 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->cost)) {
-            foreach ($this->cost as $cost) {
-                $cost->xmlSerialize(true, $sxe->addChild('cost'));
-            }
+        foreach ($this->cost as $cost) {
+            $cost->xmlSerialize(true, $sxe->addChild('cost'));
         }
         if ($returnSXE) {
             return $sxe;

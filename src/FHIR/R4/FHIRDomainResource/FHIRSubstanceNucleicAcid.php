@@ -305,10 +305,8 @@ class FHIRSubstanceNucleicAcid extends FHIRDomainResource implements \JsonSerial
         if (isset($this->oligoNucleotideType)) {
             $this->oligoNucleotideType->xmlSerialize(true, $sxe->addChild('oligoNucleotideType'));
         }
-        if (0 < count($this->subunit)) {
-            foreach ($this->subunit as $subunit) {
-                $subunit->xmlSerialize(true, $sxe->addChild('subunit'));
-            }
+        foreach ($this->subunit as $subunit) {
+            $subunit->xmlSerialize(true, $sxe->addChild('subunit'));
         }
         if ($returnSXE) {
             return $sxe;

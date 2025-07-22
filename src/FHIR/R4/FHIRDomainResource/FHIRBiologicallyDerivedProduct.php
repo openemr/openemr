@@ -522,10 +522,8 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
             $sxe = new \SimpleXMLElement('<BiologicallyDerivedProduct xmlns="http://hl7.org/fhir"></BiologicallyDerivedProduct>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->productCategory)) {
             $this->productCategory->xmlSerialize(true, $sxe->addChild('productCategory'));
@@ -536,34 +534,26 @@ class FHIRBiologicallyDerivedProduct extends FHIRDomainResource implements \Json
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->request)) {
-            foreach ($this->request as $request) {
-                $request->xmlSerialize(true, $sxe->addChild('request'));
-            }
+        foreach ($this->request as $request) {
+            $request->xmlSerialize(true, $sxe->addChild('request'));
         }
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
         }
-        if (0 < count($this->parent)) {
-            foreach ($this->parent as $parent) {
-                $parent->xmlSerialize(true, $sxe->addChild('parent'));
-            }
+        foreach ($this->parent as $parent) {
+            $parent->xmlSerialize(true, $sxe->addChild('parent'));
         }
         if (isset($this->collection)) {
             $this->collection->xmlSerialize(true, $sxe->addChild('collection'));
         }
-        if (0 < count($this->processing)) {
-            foreach ($this->processing as $processing) {
-                $processing->xmlSerialize(true, $sxe->addChild('processing'));
-            }
+        foreach ($this->processing as $processing) {
+            $processing->xmlSerialize(true, $sxe->addChild('processing'));
         }
         if (isset($this->manipulation)) {
             $this->manipulation->xmlSerialize(true, $sxe->addChild('manipulation'));
         }
-        if (0 < count($this->storage)) {
-            foreach ($this->storage as $storage) {
-                $storage->xmlSerialize(true, $sxe->addChild('storage'));
-            }
+        foreach ($this->storage as $storage) {
+            $storage->xmlSerialize(true, $sxe->addChild('storage'));
         }
         if ($returnSXE) {
             return $sxe;

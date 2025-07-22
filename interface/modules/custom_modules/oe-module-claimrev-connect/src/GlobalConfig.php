@@ -54,7 +54,7 @@ class GlobalConfig
      *
      * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
         // $keys = [self::CONFIG_OPTION_TEXT, self::CONFIG_OPTION_ENCRYPTED];
         // foreach ($keys as $key) {

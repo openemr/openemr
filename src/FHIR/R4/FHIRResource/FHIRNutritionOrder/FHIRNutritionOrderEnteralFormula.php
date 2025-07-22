@@ -437,10 +437,8 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
         if (isset($this->routeofAdministration)) {
             $this->routeofAdministration->xmlSerialize(true, $sxe->addChild('routeofAdministration'));
         }
-        if (0 < count($this->administration)) {
-            foreach ($this->administration as $administration) {
-                $administration->xmlSerialize(true, $sxe->addChild('administration'));
-            }
+        foreach ($this->administration as $administration) {
+            $administration->xmlSerialize(true, $sxe->addChild('administration'));
         }
         if (isset($this->maxVolumeToDeliver)) {
             $this->maxVolumeToDeliver->xmlSerialize(true, $sxe->addChild('maxVolumeToDeliver'));

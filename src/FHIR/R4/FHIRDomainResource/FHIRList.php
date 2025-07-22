@@ -567,10 +567,8 @@ class FHIRList extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<List xmlns="http://hl7.org/fhir"></List>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -599,15 +597,11 @@ class FHIRList extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->orderedBy)) {
             $this->orderedBy->xmlSerialize(true, $sxe->addChild('orderedBy'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->entry)) {
-            foreach ($this->entry as $entry) {
-                $entry->xmlSerialize(true, $sxe->addChild('entry'));
-            }
+        foreach ($this->entry as $entry) {
+            $entry->xmlSerialize(true, $sxe->addChild('entry'));
         }
         if (isset($this->emptyReason)) {
             $this->emptyReason->xmlSerialize(true, $sxe->addChild('emptyReason'));

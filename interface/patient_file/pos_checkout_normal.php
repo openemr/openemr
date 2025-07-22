@@ -548,9 +548,6 @@ function generate_receipt($patient_id, $encounter = 0): void
     {
         global $taxes;
         $arates = explode(':', $taxrates);
-        if (empty($arates)) {
-            return;
-        }
         foreach ($arates as $value) {
             if (!empty($taxes[$value])) {
                 $taxes[$value][2] = '1';

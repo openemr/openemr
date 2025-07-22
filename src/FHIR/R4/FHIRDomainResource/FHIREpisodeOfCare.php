@@ -571,28 +571,20 @@ class FHIREpisodeOfCare extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<EpisodeOfCare xmlns="http://hl7.org/fhir"></EpisodeOfCare>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->statusHistory)) {
-            foreach ($this->statusHistory as $statusHistory) {
-                $statusHistory->xmlSerialize(true, $sxe->addChild('statusHistory'));
-            }
+        foreach ($this->statusHistory as $statusHistory) {
+            $statusHistory->xmlSerialize(true, $sxe->addChild('statusHistory'));
         }
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->diagnosis)) {
-            foreach ($this->diagnosis as $diagnosis) {
-                $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
-            }
+        foreach ($this->diagnosis as $diagnosis) {
+            $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
         }
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
@@ -603,23 +595,17 @@ class FHIREpisodeOfCare extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->referralRequest)) {
-            foreach ($this->referralRequest as $referralRequest) {
-                $referralRequest->xmlSerialize(true, $sxe->addChild('referralRequest'));
-            }
+        foreach ($this->referralRequest as $referralRequest) {
+            $referralRequest->xmlSerialize(true, $sxe->addChild('referralRequest'));
         }
         if (isset($this->careManager)) {
             $this->careManager->xmlSerialize(true, $sxe->addChild('careManager'));
         }
-        if (0 < count($this->team)) {
-            foreach ($this->team as $team) {
-                $team->xmlSerialize(true, $sxe->addChild('team'));
-            }
+        foreach ($this->team as $team) {
+            $team->xmlSerialize(true, $sxe->addChild('team'));
         }
-        if (0 < count($this->account)) {
-            foreach ($this->account as $account) {
-                $account->xmlSerialize(true, $sxe->addChild('account'));
-            }
+        foreach ($this->account as $account) {
+            $account->xmlSerialize(true, $sxe->addChild('account'));
         }
         if ($returnSXE) {
             return $sxe;

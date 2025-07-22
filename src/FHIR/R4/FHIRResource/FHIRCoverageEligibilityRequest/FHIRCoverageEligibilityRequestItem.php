@@ -478,10 +478,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
             $sxe = new \SimpleXMLElement('<CoverageEligibilityRequestItem xmlns="http://hl7.org/fhir"></CoverageEligibilityRequestItem>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->supportingInfoSequence)) {
-            foreach ($this->supportingInfoSequence as $supportingInfoSequence) {
-                $supportingInfoSequence->xmlSerialize(true, $sxe->addChild('supportingInfoSequence'));
-            }
+        foreach ($this->supportingInfoSequence as $supportingInfoSequence) {
+            $supportingInfoSequence->xmlSerialize(true, $sxe->addChild('supportingInfoSequence'));
         }
         if (isset($this->category)) {
             $this->category->xmlSerialize(true, $sxe->addChild('category'));
@@ -489,10 +487,8 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
         if (isset($this->productOrService)) {
             $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
         }
-        if (0 < count($this->modifier)) {
-            foreach ($this->modifier as $modifier) {
-                $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-            }
+        foreach ($this->modifier as $modifier) {
+            $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
         }
         if (isset($this->provider)) {
             $this->provider->xmlSerialize(true, $sxe->addChild('provider'));
@@ -506,15 +502,11 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
         if (isset($this->facility)) {
             $this->facility->xmlSerialize(true, $sxe->addChild('facility'));
         }
-        if (0 < count($this->diagnosis)) {
-            foreach ($this->diagnosis as $diagnosis) {
-                $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
-            }
+        foreach ($this->diagnosis as $diagnosis) {
+            $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if ($returnSXE) {
             return $sxe;

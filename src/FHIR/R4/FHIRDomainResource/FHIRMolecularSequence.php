@@ -690,10 +690,8 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
             $sxe = new \SimpleXMLElement('<MolecularSequence xmlns="http://hl7.org/fhir"></MolecularSequence>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -719,36 +717,26 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
         if (isset($this->referenceSeq)) {
             $this->referenceSeq->xmlSerialize(true, $sxe->addChild('referenceSeq'));
         }
-        if (0 < count($this->variant)) {
-            foreach ($this->variant as $variant) {
-                $variant->xmlSerialize(true, $sxe->addChild('variant'));
-            }
+        foreach ($this->variant as $variant) {
+            $variant->xmlSerialize(true, $sxe->addChild('variant'));
         }
         if (isset($this->observedSeq)) {
             $this->observedSeq->xmlSerialize(true, $sxe->addChild('observedSeq'));
         }
-        if (0 < count($this->quality)) {
-            foreach ($this->quality as $quality) {
-                $quality->xmlSerialize(true, $sxe->addChild('quality'));
-            }
+        foreach ($this->quality as $quality) {
+            $quality->xmlSerialize(true, $sxe->addChild('quality'));
         }
         if (isset($this->readCoverage)) {
             $this->readCoverage->xmlSerialize(true, $sxe->addChild('readCoverage'));
         }
-        if (0 < count($this->repository)) {
-            foreach ($this->repository as $repository) {
-                $repository->xmlSerialize(true, $sxe->addChild('repository'));
-            }
+        foreach ($this->repository as $repository) {
+            $repository->xmlSerialize(true, $sxe->addChild('repository'));
         }
-        if (0 < count($this->pointer)) {
-            foreach ($this->pointer as $pointer) {
-                $pointer->xmlSerialize(true, $sxe->addChild('pointer'));
-            }
+        foreach ($this->pointer as $pointer) {
+            $pointer->xmlSerialize(true, $sxe->addChild('pointer'));
         }
-        if (0 < count($this->structureVariant)) {
-            foreach ($this->structureVariant as $structureVariant) {
-                $structureVariant->xmlSerialize(true, $sxe->addChild('structureVariant'));
-            }
+        foreach ($this->structureVariant as $structureVariant) {
+            $structureVariant->xmlSerialize(true, $sxe->addChild('structureVariant'));
         }
         if ($returnSXE) {
             return $sxe;

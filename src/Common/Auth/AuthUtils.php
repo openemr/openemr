@@ -139,7 +139,7 @@ class AuthUtils
      * @param $email    - used when a email address is required
      * @return boolean  returns true if the password for the given user is correct, false otherwise.
      */
-    private function confirmPatientPassword($username, &$password, $email = '')
+    private function confirmPatientPassword($username, &$password, $email = ''): bool
     {
         // Set variables for log
         $event = 'portalapi';
@@ -268,7 +268,7 @@ class AuthUtils
      * @return boolean  returns true if the password for the given user is correct, false otherwise.
      * @throws SodiumException
      */
-    private function confirmUserPassword($username, &$password)
+    private function confirmUserPassword($username, &$password): bool
     {
         // Set variables for log
         if ($this->loginAuth) {
@@ -511,7 +511,7 @@ class AuthUtils
      * @param $new_username    The username for a new user
      * @return boolean              Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
-    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null)
+    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null): bool
     {
         // Collect ip address for log
         $ip = collectIpAddresses();
@@ -838,7 +838,7 @@ class AuthUtils
     /**
      * @return bool
      */
-    public static function authCheckSession()
+    public static function authCheckSession(): bool
     {
         if ((!empty($_SESSION['authUserID'])) && (!empty($_SESSION['authUser'])) && (!empty($_SESSION['authPass']))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
@@ -869,7 +869,7 @@ class AuthUtils
      * @param $user
      * @return bool
      */
-    public static function useActiveDirectory($user = '')
+    public static function useActiveDirectory($user = ''): bool
     {
         if (empty($GLOBALS['gbl_ldap_enabled'])) {
             return false;
@@ -893,7 +893,7 @@ class AuthUtils
      * @param $pass
      * @return bool
      */
-    private function activeDirectoryValidation($user, &$pass)
+    private function activeDirectoryValidation($user, &$pass): bool
     {
         // Make sure the connection is not anonymous.
         if ($pass === '' || preg_match('/^\0/', $pass) || !preg_match('/^[\w.-]+$/', $user)) {
@@ -1016,7 +1016,7 @@ class AuthUtils
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return boolean      is the password long enough?
      */
-    private function testMinimumPasswordLength(&$pwd)
+    private function testMinimumPasswordLength(&$pwd): bool
     {
         if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
             if (strlen($pwd) < $GLOBALS['gbl_minimum_password_length']) {
@@ -1043,7 +1043,7 @@ class AuthUtils
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return boolean      is the password short enough?
      */
-    private function testMaximumPasswordLength(&$pwd)
+    private function testMaximumPasswordLength(&$pwd): bool
     {
         if ((!empty($GLOBALS['gbl_maximum_password_length'])) && (check_integer($GLOBALS['gbl_maximum_password_length']))) {
             if (strlen($pwd) > $GLOBALS['gbl_maximum_password_length']) {
@@ -1061,7 +1061,7 @@ class AuthUtils
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return boolean      is the password strong enough?
      */
-    private function testPasswordStrength(&$pwd)
+    private function testPasswordStrength(&$pwd): bool
     {
         if ($GLOBALS['secure_password']) {
             $features = 0;
@@ -1085,7 +1085,7 @@ class AuthUtils
      * @param $user
      * @return bool
      */
-    private function checkPasswordNotExpired($user)
+    private function checkPasswordNotExpired($user): bool
     {
         if (($GLOBALS['password_expiration_days'] == 0) || self::useActiveDirectory($user)) {
             // skip the check if turned off or using active directory for login
@@ -1446,7 +1446,7 @@ class AuthUtils
      * @param $token
      * @return bool
      */
-    public static function verifyGoogleSignIn($token)
+    public static function verifyGoogleSignIn($token): bool
     {
         $event = 'login';
         $beginLog = 'Google Failure';

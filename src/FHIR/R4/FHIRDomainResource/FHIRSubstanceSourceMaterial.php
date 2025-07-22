@@ -609,41 +609,29 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
         if (isset($this->organismName)) {
             $this->organismName->xmlSerialize(true, $sxe->addChild('organismName'));
         }
-        if (0 < count($this->parentSubstanceId)) {
-            foreach ($this->parentSubstanceId as $parentSubstanceId) {
-                $parentSubstanceId->xmlSerialize(true, $sxe->addChild('parentSubstanceId'));
-            }
+        foreach ($this->parentSubstanceId as $parentSubstanceId) {
+            $parentSubstanceId->xmlSerialize(true, $sxe->addChild('parentSubstanceId'));
         }
-        if (0 < count($this->parentSubstanceName)) {
-            foreach ($this->parentSubstanceName as $parentSubstanceName) {
-                $parentSubstanceName->xmlSerialize(true, $sxe->addChild('parentSubstanceName'));
-            }
+        foreach ($this->parentSubstanceName as $parentSubstanceName) {
+            $parentSubstanceName->xmlSerialize(true, $sxe->addChild('parentSubstanceName'));
         }
-        if (0 < count($this->countryOfOrigin)) {
-            foreach ($this->countryOfOrigin as $countryOfOrigin) {
-                $countryOfOrigin->xmlSerialize(true, $sxe->addChild('countryOfOrigin'));
-            }
+        foreach ($this->countryOfOrigin as $countryOfOrigin) {
+            $countryOfOrigin->xmlSerialize(true, $sxe->addChild('countryOfOrigin'));
         }
-        if (0 < count($this->geographicalLocation)) {
-            foreach ($this->geographicalLocation as $geographicalLocation) {
-                $geographicalLocation->xmlSerialize(true, $sxe->addChild('geographicalLocation'));
-            }
+        foreach ($this->geographicalLocation as $geographicalLocation) {
+            $geographicalLocation->xmlSerialize(true, $sxe->addChild('geographicalLocation'));
         }
         if (isset($this->developmentStage)) {
             $this->developmentStage->xmlSerialize(true, $sxe->addChild('developmentStage'));
         }
-        if (0 < count($this->fractionDescription)) {
-            foreach ($this->fractionDescription as $fractionDescription) {
-                $fractionDescription->xmlSerialize(true, $sxe->addChild('fractionDescription'));
-            }
+        foreach ($this->fractionDescription as $fractionDescription) {
+            $fractionDescription->xmlSerialize(true, $sxe->addChild('fractionDescription'));
         }
         if (isset($this->organism)) {
             $this->organism->xmlSerialize(true, $sxe->addChild('organism'));
         }
-        if (0 < count($this->partDescription)) {
-            foreach ($this->partDescription as $partDescription) {
-                $partDescription->xmlSerialize(true, $sxe->addChild('partDescription'));
-            }
+        foreach ($this->partDescription as $partDescription) {
+            $partDescription->xmlSerialize(true, $sxe->addChild('partDescription'));
         }
         if ($returnSXE) {
             return $sxe;

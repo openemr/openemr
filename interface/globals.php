@@ -375,11 +375,9 @@ if (!empty($glrow)) {
         $gl_name  = $glrow['gl_name'];
         $gl_value = $glrow['gl_value'];
       // Adjust for user specific settings
-        if (!empty($gl_user)) {
-            foreach ($gl_user as $setting) {
-                if ($gl_name == $setting['setting_label']) {
-                    $gl_value = $setting['setting_value'];
-                }
+        foreach ($gl_user as $setting) {
+            if ($gl_name == $setting['setting_label']) {
+                $gl_value = $setting['setting_value'];
             }
         }
 

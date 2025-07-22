@@ -165,7 +165,7 @@ class ApplicationTable extends AbstractTableGateway
      *                     $param String  $section_identifier ACL Section id
      * @return boolean
      */
-    public function zAclCheck($user_id, $section_identifier)
+    public function zAclCheck($user_id, $section_identifier): bool
     {
         $sql_user_acl = " SELECT
                                 COUNT(allowed) AS count

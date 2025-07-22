@@ -329,10 +329,8 @@ class FHIRBundleEntry extends FHIRBackboneElement implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<BundleEntry xmlns="http://hl7.org/fhir"></BundleEntry>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
         if (isset($this->fullUrl)) {
             $this->fullUrl->xmlSerialize(true, $sxe->addChild('fullUrl'));

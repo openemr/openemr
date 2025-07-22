@@ -475,10 +475,8 @@ class FHIRCompositionSection extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
         if (isset($this->focus)) {
             $this->focus->xmlSerialize(true, $sxe->addChild('focus'));
@@ -492,18 +490,14 @@ class FHIRCompositionSection extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->orderedBy)) {
             $this->orderedBy->xmlSerialize(true, $sxe->addChild('orderedBy'));
         }
-        if (0 < count($this->entry)) {
-            foreach ($this->entry as $entry) {
-                $entry->xmlSerialize(true, $sxe->addChild('entry'));
-            }
+        foreach ($this->entry as $entry) {
+            $entry->xmlSerialize(true, $sxe->addChild('entry'));
         }
         if (isset($this->emptyReason)) {
             $this->emptyReason->xmlSerialize(true, $sxe->addChild('emptyReason'));
         }
-        if (0 < count($this->section)) {
-            foreach ($this->section as $section) {
-                $section->xmlSerialize(true, $sxe->addChild('section'));
-            }
+        foreach ($this->section as $section) {
+            $section->xmlSerialize(true, $sxe->addChild('section'));
         }
         if ($returnSXE) {
             return $sxe;

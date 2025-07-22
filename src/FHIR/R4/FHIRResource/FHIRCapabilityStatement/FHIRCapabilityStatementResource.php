@@ -735,18 +735,14 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
         if (isset($this->profile)) {
             $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
         }
-        if (0 < count($this->supportedProfile)) {
-            foreach ($this->supportedProfile as $supportedProfile) {
-                $supportedProfile->xmlSerialize(true, $sxe->addChild('supportedProfile'));
-            }
+        foreach ($this->supportedProfile as $supportedProfile) {
+            $supportedProfile->xmlSerialize(true, $sxe->addChild('supportedProfile'));
         }
         if (isset($this->documentation)) {
             $this->documentation->xmlSerialize(true, $sxe->addChild('documentation'));
         }
-        if (0 < count($this->interaction)) {
-            foreach ($this->interaction as $interaction) {
-                $interaction->xmlSerialize(true, $sxe->addChild('interaction'));
-            }
+        foreach ($this->interaction as $interaction) {
+            $interaction->xmlSerialize(true, $sxe->addChild('interaction'));
         }
         if (isset($this->versioning)) {
             $this->versioning->xmlSerialize(true, $sxe->addChild('versioning'));
@@ -769,30 +765,20 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
         if (isset($this->conditionalDelete)) {
             $this->conditionalDelete->xmlSerialize(true, $sxe->addChild('conditionalDelete'));
         }
-        if (0 < count($this->referencePolicy)) {
-            foreach ($this->referencePolicy as $referencePolicy) {
-                $referencePolicy->xmlSerialize(true, $sxe->addChild('referencePolicy'));
-            }
+        foreach ($this->referencePolicy as $referencePolicy) {
+            $referencePolicy->xmlSerialize(true, $sxe->addChild('referencePolicy'));
         }
-        if (0 < count($this->searchInclude)) {
-            foreach ($this->searchInclude as $searchInclude) {
-                $searchInclude->xmlSerialize(true, $sxe->addChild('searchInclude'));
-            }
+        foreach ($this->searchInclude as $searchInclude) {
+            $searchInclude->xmlSerialize(true, $sxe->addChild('searchInclude'));
         }
-        if (0 < count($this->searchRevInclude)) {
-            foreach ($this->searchRevInclude as $searchRevInclude) {
-                $searchRevInclude->xmlSerialize(true, $sxe->addChild('searchRevInclude'));
-            }
+        foreach ($this->searchRevInclude as $searchRevInclude) {
+            $searchRevInclude->xmlSerialize(true, $sxe->addChild('searchRevInclude'));
         }
-        if (0 < count($this->searchParam)) {
-            foreach ($this->searchParam as $searchParam) {
-                $searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
-            }
+        foreach ($this->searchParam as $searchParam) {
+            $searchParam->xmlSerialize(true, $sxe->addChild('searchParam'));
         }
-        if (0 < count($this->operation)) {
-            foreach ($this->operation as $operation) {
-                $operation->xmlSerialize(true, $sxe->addChild('operation'));
-            }
+        foreach ($this->operation as $operation) {
+            $operation->xmlSerialize(true, $sxe->addChild('operation'));
         }
         if ($returnSXE) {
             return $sxe;

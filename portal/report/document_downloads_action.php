@@ -99,7 +99,7 @@ readfile($tmp . "/" . $pid . '.zip');
 recursive_remove_directory($tmp . "/" . $pid);
 unlink($tmp . "/" . $pid . '.zip');
 
-function recursive_remove_directory($directory, $empty = false)
+function recursive_remove_directory($directory, $empty = false): bool
 {
     if (substr($directory, -1) == '/') {
         $directory = substr($directory, 0, -1);

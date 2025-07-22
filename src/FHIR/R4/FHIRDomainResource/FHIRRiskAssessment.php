@@ -748,10 +748,8 @@ class FHIRRiskAssessment extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<RiskAssessment xmlns="http://hl7.org/fhir"></RiskAssessment>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->basedOn)) {
             $this->basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
@@ -786,33 +784,23 @@ class FHIRRiskAssessment extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->performer)) {
             $this->performer->xmlSerialize(true, $sxe->addChild('performer'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->basis)) {
-            foreach ($this->basis as $basis) {
-                $basis->xmlSerialize(true, $sxe->addChild('basis'));
-            }
+        foreach ($this->basis as $basis) {
+            $basis->xmlSerialize(true, $sxe->addChild('basis'));
         }
-        if (0 < count($this->prediction)) {
-            foreach ($this->prediction as $prediction) {
-                $prediction->xmlSerialize(true, $sxe->addChild('prediction'));
-            }
+        foreach ($this->prediction as $prediction) {
+            $prediction->xmlSerialize(true, $sxe->addChild('prediction'));
         }
         if (isset($this->mitigation)) {
             $this->mitigation->xmlSerialize(true, $sxe->addChild('mitigation'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

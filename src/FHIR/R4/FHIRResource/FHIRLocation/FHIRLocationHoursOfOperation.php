@@ -259,10 +259,8 @@ class FHIRLocationHoursOfOperation extends FHIRBackboneElement implements \JsonS
             $sxe = new \SimpleXMLElement('<LocationHoursOfOperation xmlns="http://hl7.org/fhir"></LocationHoursOfOperation>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->daysOfWeek)) {
-            foreach ($this->daysOfWeek as $daysOfWeek) {
-                $daysOfWeek->xmlSerialize(true, $sxe->addChild('daysOfWeek'));
-            }
+        foreach ($this->daysOfWeek as $daysOfWeek) {
+            $daysOfWeek->xmlSerialize(true, $sxe->addChild('daysOfWeek'));
         }
         if (isset($this->allDay)) {
             $this->allDay->xmlSerialize(true, $sxe->addChild('allDay'));

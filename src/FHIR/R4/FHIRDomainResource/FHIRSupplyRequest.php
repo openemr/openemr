@@ -730,10 +730,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<SupplyRequest xmlns="http://hl7.org/fhir"></SupplyRequest>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -753,10 +751,8 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
         }
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
         if (isset($this->occurrenceDateTime)) {
             $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
@@ -773,20 +769,14 @@ class FHIRSupplyRequest extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->requester)) {
             $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
         }
-        if (0 < count($this->supplier)) {
-            foreach ($this->supplier as $supplier) {
-                $supplier->xmlSerialize(true, $sxe->addChild('supplier'));
-            }
+        foreach ($this->supplier as $supplier) {
+            $supplier->xmlSerialize(true, $sxe->addChild('supplier'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
         if (isset($this->deliverFrom)) {
             $this->deliverFrom->xmlSerialize(true, $sxe->addChild('deliverFrom'));

@@ -1000,23 +1000,17 @@ class FHIRTestScript extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1024,41 +1018,29 @@ class FHIRTestScript extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
         }
-        if (0 < count($this->origin)) {
-            foreach ($this->origin as $origin) {
-                $origin->xmlSerialize(true, $sxe->addChild('origin'));
-            }
+        foreach ($this->origin as $origin) {
+            $origin->xmlSerialize(true, $sxe->addChild('origin'));
         }
-        if (0 < count($this->destination)) {
-            foreach ($this->destination as $destination) {
-                $destination->xmlSerialize(true, $sxe->addChild('destination'));
-            }
+        foreach ($this->destination as $destination) {
+            $destination->xmlSerialize(true, $sxe->addChild('destination'));
         }
         if (isset($this->metadata)) {
             $this->metadata->xmlSerialize(true, $sxe->addChild('metadata'));
         }
-        if (0 < count($this->fixture)) {
-            foreach ($this->fixture as $fixture) {
-                $fixture->xmlSerialize(true, $sxe->addChild('fixture'));
-            }
+        foreach ($this->fixture as $fixture) {
+            $fixture->xmlSerialize(true, $sxe->addChild('fixture'));
         }
-        if (0 < count($this->profile)) {
-            foreach ($this->profile as $profile) {
-                $profile->xmlSerialize(true, $sxe->addChild('profile'));
-            }
+        foreach ($this->profile as $profile) {
+            $profile->xmlSerialize(true, $sxe->addChild('profile'));
         }
-        if (0 < count($this->variable)) {
-            foreach ($this->variable as $variable) {
-                $variable->xmlSerialize(true, $sxe->addChild('variable'));
-            }
+        foreach ($this->variable as $variable) {
+            $variable->xmlSerialize(true, $sxe->addChild('variable'));
         }
         if (isset($this->setup)) {
             $this->setup->xmlSerialize(true, $sxe->addChild('setup'));
         }
-        if (0 < count($this->test)) {
-            foreach ($this->test as $test) {
-                $test->xmlSerialize(true, $sxe->addChild('test'));
-            }
+        foreach ($this->test as $test) {
+            $test->xmlSerialize(true, $sxe->addChild('test'));
         }
         if (isset($this->teardown)) {
             $this->teardown->xmlSerialize(true, $sxe->addChild('teardown'));

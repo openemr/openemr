@@ -343,15 +343,11 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
         if (isset($this->allergenicIndicator)) {
             $this->allergenicIndicator->xmlSerialize(true, $sxe->addChild('allergenicIndicator'));
         }
-        if (0 < count($this->manufacturer)) {
-            foreach ($this->manufacturer as $manufacturer) {
-                $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
-            }
+        foreach ($this->manufacturer as $manufacturer) {
+            $manufacturer->xmlSerialize(true, $sxe->addChild('manufacturer'));
         }
-        if (0 < count($this->specifiedSubstance)) {
-            foreach ($this->specifiedSubstance as $specifiedSubstance) {
-                $specifiedSubstance->xmlSerialize(true, $sxe->addChild('specifiedSubstance'));
-            }
+        foreach ($this->specifiedSubstance as $specifiedSubstance) {
+            $specifiedSubstance->xmlSerialize(true, $sxe->addChild('specifiedSubstance'));
         }
         if (isset($this->substance)) {
             $this->substance->xmlSerialize(true, $sxe->addChild('substance'));

@@ -485,7 +485,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckInStatus($option)
+    public static function isCheckInStatus($option): bool
     {
         $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
@@ -501,7 +501,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckOutStatus($option)
+    public static function isCheckOutStatus($option): bool
     {
         $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
@@ -512,7 +512,7 @@ class AppointmentService extends BaseService
         return(true);
     }
 
-    public function isPendingStatus($option)
+    public function isPendingStatus($option): bool
     {
         // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
         if ($option == '^') {
@@ -537,7 +537,7 @@ class AppointmentService extends BaseService
      * @param $status_option_id The status to check if its a valid appointment status
      * @return bool True if its valid, false otherwise
      */
-    public function isValidAppointmentStatus($status_option_id)
+    public function isValidAppointmentStatus($status_option_id): bool
     {
         $listService = new ListService();
         $option = $listService->getListOption('apptstat', $status_option_id);

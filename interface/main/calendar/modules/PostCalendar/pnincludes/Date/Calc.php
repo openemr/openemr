@@ -62,7 +62,7 @@ class Date_Calc
      * @return boolean true/false
      */
 
-    static function isValidDate($day, $month, $year)
+    static function isValidDate($day, $month, $year): bool
     {
 
         if (empty($year) || empty($month) || empty($day)) {
@@ -127,7 +127,7 @@ class Date_Calc
      * @return boolean true/false
      */
 
-    static function isFutureDate($day, $month, $year)
+    static function isFutureDate($day, $month, $year): bool
     {
         $this_year = Date_Calc::dateNow("%Y");
         $this_month = Date_Calc::dateNow("%m");
@@ -161,7 +161,7 @@ class Date_Calc
      * @return boolean true/false
      */
 
-    static function isPastDate($day, $month, $year)
+    static function isPastDate($day, $month, $year): bool
     {
         $this_year = Date_Calc::dateNow("%Y");
         $this_month = Date_Calc::dateNow("%m");

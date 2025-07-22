@@ -953,20 +953,14 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
             $sxe = new \SimpleXMLElement('<CommunicationRequest xmlns="http://hl7.org/fhir"></CommunicationRequest>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->replaces)) {
-            foreach ($this->replaces as $replaces) {
-                $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
-            }
+        foreach ($this->replaces as $replaces) {
+            $replaces->xmlSerialize(true, $sxe->addChild('replaces'));
         }
         if (isset($this->groupIdentifier)) {
             $this->groupIdentifier->xmlSerialize(true, $sxe->addChild('groupIdentifier'));
@@ -977,10 +971,8 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
         if (isset($this->statusReason)) {
             $this->statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->priority)) {
             $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
@@ -988,26 +980,20 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
         if (isset($this->doNotPerform)) {
             $this->doNotPerform->xmlSerialize(true, $sxe->addChild('doNotPerform'));
         }
-        if (0 < count($this->medium)) {
-            foreach ($this->medium as $medium) {
-                $medium->xmlSerialize(true, $sxe->addChild('medium'));
-            }
+        foreach ($this->medium as $medium) {
+            $medium->xmlSerialize(true, $sxe->addChild('medium'));
         }
         if (isset($this->subject)) {
             $this->subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
-        if (0 < count($this->about)) {
-            foreach ($this->about as $about) {
-                $about->xmlSerialize(true, $sxe->addChild('about'));
-            }
+        foreach ($this->about as $about) {
+            $about->xmlSerialize(true, $sxe->addChild('about'));
         }
         if (isset($this->encounter)) {
             $this->encounter->xmlSerialize(true, $sxe->addChild('encounter'));
         }
-        if (0 < count($this->payload)) {
-            foreach ($this->payload as $payload) {
-                $payload->xmlSerialize(true, $sxe->addChild('payload'));
-            }
+        foreach ($this->payload as $payload) {
+            $payload->xmlSerialize(true, $sxe->addChild('payload'));
         }
         if (isset($this->occurrenceDateTime)) {
             $this->occurrenceDateTime->xmlSerialize(true, $sxe->addChild('occurrenceDateTime'));
@@ -1021,28 +1007,20 @@ class FHIRCommunicationRequest extends FHIRDomainResource implements \JsonSerial
         if (isset($this->requester)) {
             $this->requester->xmlSerialize(true, $sxe->addChild('requester'));
         }
-        if (0 < count($this->recipient)) {
-            foreach ($this->recipient as $recipient) {
-                $recipient->xmlSerialize(true, $sxe->addChild('recipient'));
-            }
+        foreach ($this->recipient as $recipient) {
+            $recipient->xmlSerialize(true, $sxe->addChild('recipient'));
         }
         if (isset($this->sender)) {
             $this->sender->xmlSerialize(true, $sxe->addChild('sender'));
         }
-        if (0 < count($this->reasonCode)) {
-            foreach ($this->reasonCode as $reasonCode) {
-                $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
-            }
+        foreach ($this->reasonCode as $reasonCode) {
+            $reasonCode->xmlSerialize(true, $sxe->addChild('reasonCode'));
         }
-        if (0 < count($this->reasonReference)) {
-            foreach ($this->reasonReference as $reasonReference) {
-                $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
-            }
+        foreach ($this->reasonReference as $reasonReference) {
+            $reasonReference->xmlSerialize(true, $sxe->addChild('reasonReference'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

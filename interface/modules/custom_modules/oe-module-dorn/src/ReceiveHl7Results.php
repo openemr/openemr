@@ -57,12 +57,12 @@ class ReceiveHl7Results
 
 
         $sql = "SELECT pp.name, pp.npi, pp.protocol, pp.remote_host, pp.send_fac_id, pp.recv_fac_id,
-                pp.recv_app_id,pp.DorP, pp.direction, r.* 
+                pp.recv_app_id,pp.DorP, pp.direction, r.*
                 FROM mod_dorn_routes r
                 INNER JOIN procedure_providers pp ON
                     r.ppid = pp.ppid
-                WHERE lab_guid = ? 
-                AND lab_account_number = ? 
+                WHERE lab_guid = ?
+                AND lab_account_number = ?
                 LIMIT 1;";
         $record = sqlQuery($sql, [$result->labGuid, $result->accountNumber]);
 
@@ -991,7 +991,7 @@ class ReceiveHl7Results
      * @param  array $seg MSH seg identifying a provider.
      * @return mixed        TRUE, or FALSE if no match.
      */
-    private function matchLab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
+    private function matchLab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = ''): bool
     {
         if (empty($hl7)) {
             return false;

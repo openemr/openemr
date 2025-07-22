@@ -236,18 +236,14 @@ class FHIRCompositionEvent extends FHIRBackboneElement implements \JsonSerializa
             $sxe = new \SimpleXMLElement('<CompositionEvent xmlns="http://hl7.org/fhir"></CompositionEvent>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->detail)) {
-            foreach ($this->detail as $detail) {
-                $detail->xmlSerialize(true, $sxe->addChild('detail'));
-            }
+        foreach ($this->detail as $detail) {
+            $detail->xmlSerialize(true, $sxe->addChild('detail'));
         }
         if ($returnSXE) {
             return $sxe;

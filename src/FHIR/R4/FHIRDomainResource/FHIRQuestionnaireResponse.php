@@ -506,15 +506,11 @@ class FHIRQuestionnaireResponse extends FHIRDomainResource implements \JsonSeria
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
         if (isset($this->questionnaire)) {
             $this->questionnaire->xmlSerialize(true, $sxe->addChild('questionnaire'));
@@ -537,10 +533,8 @@ class FHIRQuestionnaireResponse extends FHIRDomainResource implements \JsonSeria
         if (isset($this->source)) {
             $this->source->xmlSerialize(true, $sxe->addChild('source'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if ($returnSXE) {
             return $sxe;

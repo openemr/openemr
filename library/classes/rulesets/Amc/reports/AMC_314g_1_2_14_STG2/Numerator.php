@@ -29,7 +29,7 @@ class AMC_314g_1_2_14_STG2_Numerator implements AmcFilterIF
         return "AMC_314g_1_2_14_STG2 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Need to meet following criteria:
         //  -Offsite patient portal is turned on.

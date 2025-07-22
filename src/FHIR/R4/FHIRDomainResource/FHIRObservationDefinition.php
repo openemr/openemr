@@ -576,23 +576,17 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
             $sxe = new \SimpleXMLElement('<ObservationDefinition xmlns="http://hl7.org/fhir"></ObservationDefinition>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->permittedDataType)) {
-            foreach ($this->permittedDataType as $permittedDataType) {
-                $permittedDataType->xmlSerialize(true, $sxe->addChild('permittedDataType'));
-            }
+        foreach ($this->permittedDataType as $permittedDataType) {
+            $permittedDataType->xmlSerialize(true, $sxe->addChild('permittedDataType'));
         }
         if (isset($this->multipleResultsAllowed)) {
             $this->multipleResultsAllowed->xmlSerialize(true, $sxe->addChild('multipleResultsAllowed'));
@@ -606,10 +600,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
         if (isset($this->quantitativeDetails)) {
             $this->quantitativeDetails->xmlSerialize(true, $sxe->addChild('quantitativeDetails'));
         }
-        if (0 < count($this->qualifiedInterval)) {
-            foreach ($this->qualifiedInterval as $qualifiedInterval) {
-                $qualifiedInterval->xmlSerialize(true, $sxe->addChild('qualifiedInterval'));
-            }
+        foreach ($this->qualifiedInterval as $qualifiedInterval) {
+            $qualifiedInterval->xmlSerialize(true, $sxe->addChild('qualifiedInterval'));
         }
         if (isset($this->validCodedValueSet)) {
             $this->validCodedValueSet->xmlSerialize(true, $sxe->addChild('validCodedValueSet'));

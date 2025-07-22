@@ -398,10 +398,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Medication xmlns="http://hl7.org/fhir"></Medication>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
@@ -418,10 +416,8 @@ class FHIRMedication extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->amount)) {
             $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
         }
-        if (0 < count($this->ingredient)) {
-            foreach ($this->ingredient as $ingredient) {
-                $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
-            }
+        foreach ($this->ingredient as $ingredient) {
+            $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
         }
         if (isset($this->batch)) {
             $this->batch->xmlSerialize(true, $sxe->addChild('batch'));

@@ -617,15 +617,11 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
             $sxe = new \SimpleXMLElement('<VerificationResult xmlns="http://hl7.org/fhir"></VerificationResult>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
-        if (0 < count($this->targetLocation)) {
-            foreach ($this->targetLocation as $targetLocation) {
-                $targetLocation->xmlSerialize(true, $sxe->addChild('targetLocation'));
-            }
+        foreach ($this->targetLocation as $targetLocation) {
+            $targetLocation->xmlSerialize(true, $sxe->addChild('targetLocation'));
         }
         if (isset($this->need)) {
             $this->need->xmlSerialize(true, $sxe->addChild('need'));
@@ -639,10 +635,8 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->validationType)) {
             $this->validationType->xmlSerialize(true, $sxe->addChild('validationType'));
         }
-        if (0 < count($this->validationProcess)) {
-            foreach ($this->validationProcess as $validationProcess) {
-                $validationProcess->xmlSerialize(true, $sxe->addChild('validationProcess'));
-            }
+        foreach ($this->validationProcess as $validationProcess) {
+            $validationProcess->xmlSerialize(true, $sxe->addChild('validationProcess'));
         }
         if (isset($this->frequency)) {
             $this->frequency->xmlSerialize(true, $sxe->addChild('frequency'));
@@ -656,18 +650,14 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->failureAction)) {
             $this->failureAction->xmlSerialize(true, $sxe->addChild('failureAction'));
         }
-        if (0 < count($this->primarySource)) {
-            foreach ($this->primarySource as $primarySource) {
-                $primarySource->xmlSerialize(true, $sxe->addChild('primarySource'));
-            }
+        foreach ($this->primarySource as $primarySource) {
+            $primarySource->xmlSerialize(true, $sxe->addChild('primarySource'));
         }
         if (isset($this->attestation)) {
             $this->attestation->xmlSerialize(true, $sxe->addChild('attestation'));
         }
-        if (0 < count($this->validator)) {
-            foreach ($this->validator as $validator) {
-                $validator->xmlSerialize(true, $sxe->addChild('validator'));
-            }
+        foreach ($this->validator as $validator) {
+            $validator->xmlSerialize(true, $sxe->addChild('validator'));
         }
         if ($returnSXE) {
             return $sxe;

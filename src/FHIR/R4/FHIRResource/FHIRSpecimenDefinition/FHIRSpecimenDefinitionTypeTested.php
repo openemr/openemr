@@ -414,15 +414,11 @@ class FHIRSpecimenDefinitionTypeTested extends FHIRBackboneElement implements \J
         if (isset($this->retentionTime)) {
             $this->retentionTime->xmlSerialize(true, $sxe->addChild('retentionTime'));
         }
-        if (0 < count($this->rejectionCriterion)) {
-            foreach ($this->rejectionCriterion as $rejectionCriterion) {
-                $rejectionCriterion->xmlSerialize(true, $sxe->addChild('rejectionCriterion'));
-            }
+        foreach ($this->rejectionCriterion as $rejectionCriterion) {
+            $rejectionCriterion->xmlSerialize(true, $sxe->addChild('rejectionCriterion'));
         }
-        if (0 < count($this->handling)) {
-            foreach ($this->handling as $handling) {
-                $handling->xmlSerialize(true, $sxe->addChild('handling'));
-            }
+        foreach ($this->handling as $handling) {
+            $handling->xmlSerialize(true, $sxe->addChild('handling'));
         }
         if ($returnSXE) {
             return $sxe;

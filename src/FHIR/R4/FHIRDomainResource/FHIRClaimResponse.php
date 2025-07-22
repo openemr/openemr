@@ -1069,10 +1069,8 @@ class FHIRClaimResponse extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<ClaimResponse xmlns="http://hl7.org/fhir"></ClaimResponse>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -1116,25 +1114,17 @@ class FHIRClaimResponse extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->payeeType)) {
             $this->payeeType->xmlSerialize(true, $sxe->addChild('payeeType'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
-        if (0 < count($this->addItem)) {
-            foreach ($this->addItem as $addItem) {
-                $addItem->xmlSerialize(true, $sxe->addChild('addItem'));
-            }
+        foreach ($this->addItem as $addItem) {
+            $addItem->xmlSerialize(true, $sxe->addChild('addItem'));
         }
-        if (0 < count($this->adjudication)) {
-            foreach ($this->adjudication as $adjudication) {
-                $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
-            }
+        foreach ($this->adjudication as $adjudication) {
+            $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
         }
-        if (0 < count($this->total)) {
-            foreach ($this->total as $total) {
-                $total->xmlSerialize(true, $sxe->addChild('total'));
-            }
+        foreach ($this->total as $total) {
+            $total->xmlSerialize(true, $sxe->addChild('total'));
         }
         if (isset($this->payment)) {
             $this->payment->xmlSerialize(true, $sxe->addChild('payment'));
@@ -1148,25 +1138,17 @@ class FHIRClaimResponse extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->form)) {
             $this->form->xmlSerialize(true, $sxe->addChild('form'));
         }
-        if (0 < count($this->processNote)) {
-            foreach ($this->processNote as $processNote) {
-                $processNote->xmlSerialize(true, $sxe->addChild('processNote'));
-            }
+        foreach ($this->processNote as $processNote) {
+            $processNote->xmlSerialize(true, $sxe->addChild('processNote'));
         }
-        if (0 < count($this->communicationRequest)) {
-            foreach ($this->communicationRequest as $communicationRequest) {
-                $communicationRequest->xmlSerialize(true, $sxe->addChild('communicationRequest'));
-            }
+        foreach ($this->communicationRequest as $communicationRequest) {
+            $communicationRequest->xmlSerialize(true, $sxe->addChild('communicationRequest'));
         }
-        if (0 < count($this->insurance)) {
-            foreach ($this->insurance as $insurance) {
-                $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
-            }
+        foreach ($this->insurance as $insurance) {
+            $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
         }
-        if (0 < count($this->error)) {
-            foreach ($this->error as $error) {
-                $error->xmlSerialize(true, $sxe->addChild('error'));
-            }
+        foreach ($this->error as $error) {
+            $error->xmlSerialize(true, $sxe->addChild('error'));
         }
         if ($returnSXE) {
             return $sxe;

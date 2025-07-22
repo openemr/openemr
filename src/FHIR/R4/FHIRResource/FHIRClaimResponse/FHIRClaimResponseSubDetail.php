@@ -239,15 +239,11 @@ class FHIRClaimResponseSubDetail extends FHIRBackboneElement implements \JsonSer
         if (isset($this->subDetailSequence)) {
             $this->subDetailSequence->xmlSerialize(true, $sxe->addChild('subDetailSequence'));
         }
-        if (0 < count($this->noteNumber)) {
-            foreach ($this->noteNumber as $noteNumber) {
-                $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
-            }
+        foreach ($this->noteNumber as $noteNumber) {
+            $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
         }
-        if (0 < count($this->adjudication)) {
-            foreach ($this->adjudication as $adjudication) {
-                $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
-            }
+        foreach ($this->adjudication as $adjudication) {
+            $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -384,18 +384,14 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Substance xmlns="http://hl7.org/fhir"></Substance>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
@@ -403,15 +399,11 @@ class FHIRSubstance extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->instance)) {
-            foreach ($this->instance as $instance) {
-                $instance->xmlSerialize(true, $sxe->addChild('instance'));
-            }
+        foreach ($this->instance as $instance) {
+            $instance->xmlSerialize(true, $sxe->addChild('instance'));
         }
-        if (0 < count($this->ingredient)) {
-            foreach ($this->ingredient as $ingredient) {
-                $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
-            }
+        foreach ($this->ingredient as $ingredient) {
+            $ingredient->xmlSerialize(true, $sxe->addChild('ingredient'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -871,10 +871,8 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
             $sxe = new \SimpleXMLElement('<ClinicalImpression xmlns="http://hl7.org/fhir"></ClinicalImpression>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -909,48 +907,32 @@ class FHIRClinicalImpression extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->previous)) {
             $this->previous->xmlSerialize(true, $sxe->addChild('previous'));
         }
-        if (0 < count($this->problem)) {
-            foreach ($this->problem as $problem) {
-                $problem->xmlSerialize(true, $sxe->addChild('problem'));
-            }
+        foreach ($this->problem as $problem) {
+            $problem->xmlSerialize(true, $sxe->addChild('problem'));
         }
-        if (0 < count($this->investigation)) {
-            foreach ($this->investigation as $investigation) {
-                $investigation->xmlSerialize(true, $sxe->addChild('investigation'));
-            }
+        foreach ($this->investigation as $investigation) {
+            $investigation->xmlSerialize(true, $sxe->addChild('investigation'));
         }
-        if (0 < count($this->protocol)) {
-            foreach ($this->protocol as $protocol) {
-                $protocol->xmlSerialize(true, $sxe->addChild('protocol'));
-            }
+        foreach ($this->protocol as $protocol) {
+            $protocol->xmlSerialize(true, $sxe->addChild('protocol'));
         }
         if (isset($this->summary)) {
             $this->summary->xmlSerialize(true, $sxe->addChild('summary'));
         }
-        if (0 < count($this->finding)) {
-            foreach ($this->finding as $finding) {
-                $finding->xmlSerialize(true, $sxe->addChild('finding'));
-            }
+        foreach ($this->finding as $finding) {
+            $finding->xmlSerialize(true, $sxe->addChild('finding'));
         }
-        if (0 < count($this->prognosisCodeableConcept)) {
-            foreach ($this->prognosisCodeableConcept as $prognosisCodeableConcept) {
-                $prognosisCodeableConcept->xmlSerialize(true, $sxe->addChild('prognosisCodeableConcept'));
-            }
+        foreach ($this->prognosisCodeableConcept as $prognosisCodeableConcept) {
+            $prognosisCodeableConcept->xmlSerialize(true, $sxe->addChild('prognosisCodeableConcept'));
         }
-        if (0 < count($this->prognosisReference)) {
-            foreach ($this->prognosisReference as $prognosisReference) {
-                $prognosisReference->xmlSerialize(true, $sxe->addChild('prognosisReference'));
-            }
+        foreach ($this->prognosisReference as $prognosisReference) {
+            $prognosisReference->xmlSerialize(true, $sxe->addChild('prognosisReference'));
         }
-        if (0 < count($this->supportingInfo)) {
-            foreach ($this->supportingInfo as $supportingInfo) {
-                $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
-            }
+        foreach ($this->supportingInfo as $supportingInfo) {
+            $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

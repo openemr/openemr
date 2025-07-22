@@ -349,23 +349,17 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->typeCollected)) {
             $this->typeCollected->xmlSerialize(true, $sxe->addChild('typeCollected'));
         }
-        if (0 < count($this->patientPreparation)) {
-            foreach ($this->patientPreparation as $patientPreparation) {
-                $patientPreparation->xmlSerialize(true, $sxe->addChild('patientPreparation'));
-            }
+        foreach ($this->patientPreparation as $patientPreparation) {
+            $patientPreparation->xmlSerialize(true, $sxe->addChild('patientPreparation'));
         }
         if (isset($this->timeAspect)) {
             $this->timeAspect->xmlSerialize(true, $sxe->addChild('timeAspect'));
         }
-        if (0 < count($this->collection)) {
-            foreach ($this->collection as $collection) {
-                $collection->xmlSerialize(true, $sxe->addChild('collection'));
-            }
+        foreach ($this->collection as $collection) {
+            $collection->xmlSerialize(true, $sxe->addChild('collection'));
         }
-        if (0 < count($this->typeTested)) {
-            foreach ($this->typeTested as $typeTested) {
-                $typeTested->xmlSerialize(true, $sxe->addChild('typeTested'));
-            }
+        foreach ($this->typeTested as $typeTested) {
+            $typeTested->xmlSerialize(true, $sxe->addChild('typeTested'));
         }
         if ($returnSXE) {
             return $sxe;

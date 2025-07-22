@@ -233,10 +233,8 @@ class FHIRImplementationGuidePage1 extends FHIRBackboneElement implements \JsonS
         if (isset($this->title)) {
             $this->title->xmlSerialize(true, $sxe->addChild('title'));
         }
-        if (0 < count($this->anchor)) {
-            foreach ($this->anchor as $anchor) {
-                $anchor->xmlSerialize(true, $sxe->addChild('anchor'));
-            }
+        foreach ($this->anchor as $anchor) {
+            $anchor->xmlSerialize(true, $sxe->addChild('anchor'));
         }
         if ($returnSXE) {
             return $sxe;

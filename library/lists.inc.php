@@ -108,13 +108,13 @@ function addList($pid, $type, $title, $comments, $activity = "1")
     return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", array($pid, $type, $title, $activity, $comments, $_SESSION['authUser'], $_SESSION['authProvider']));
 }
 
-function disappearList($id)
+function disappearList($id): bool
 {
     sqlStatement("update lists set activity = '0' where id=?", array($id));
     return true;
 }
 
-function reappearList($id)
+function reappearList($id): bool
 {
     sqlStatement("update lists set activity = '1' where id=?", array($id));
     return true;

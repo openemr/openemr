@@ -552,48 +552,32 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));
         }
-        if (0 < count($this->actor)) {
-            foreach ($this->actor as $actor) {
-                $actor->xmlSerialize(true, $sxe->addChild('actor'));
-            }
+        foreach ($this->actor as $actor) {
+            $actor->xmlSerialize(true, $sxe->addChild('actor'));
         }
-        if (0 < count($this->action)) {
-            foreach ($this->action as $action) {
-                $action->xmlSerialize(true, $sxe->addChild('action'));
-            }
+        foreach ($this->action as $action) {
+            $action->xmlSerialize(true, $sxe->addChild('action'));
         }
-        if (0 < count($this->securityLabel)) {
-            foreach ($this->securityLabel as $securityLabel) {
-                $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
-            }
+        foreach ($this->securityLabel as $securityLabel) {
+            $securityLabel->xmlSerialize(true, $sxe->addChild('securityLabel'));
         }
-        if (0 < count($this->purpose)) {
-            foreach ($this->purpose as $purpose) {
-                $purpose->xmlSerialize(true, $sxe->addChild('purpose'));
-            }
+        foreach ($this->purpose as $purpose) {
+            $purpose->xmlSerialize(true, $sxe->addChild('purpose'));
         }
-        if (0 < count($this->class)) {
-            foreach ($this->class as $class) {
-                $class->xmlSerialize(true, $sxe->addChild('class'));
-            }
+        foreach ($this->class as $class) {
+            $class->xmlSerialize(true, $sxe->addChild('class'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
         if (isset($this->dataPeriod)) {
             $this->dataPeriod->xmlSerialize(true, $sxe->addChild('dataPeriod'));
         }
-        if (0 < count($this->data)) {
-            foreach ($this->data as $data) {
-                $data->xmlSerialize(true, $sxe->addChild('data'));
-            }
+        foreach ($this->data as $data) {
+            $data->xmlSerialize(true, $sxe->addChild('data'));
         }
-        if (0 < count($this->provision)) {
-            foreach ($this->provision as $provision) {
-                $provision->xmlSerialize(true, $sxe->addChild('provision'));
-            }
+        foreach ($this->provision as $provision) {
+            $provision->xmlSerialize(true, $sxe->addChild('provision'));
         }
         if ($returnSXE) {
             return $sxe;

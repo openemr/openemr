@@ -274,15 +274,11 @@ class FHIRSubstanceReferenceInformationClassification extends FHIRBackboneElemen
         if (isset($this->classification)) {
             $this->classification->xmlSerialize(true, $sxe->addChild('classification'));
         }
-        if (0 < count($this->subtype)) {
-            foreach ($this->subtype as $subtype) {
-                $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
-            }
+        foreach ($this->subtype as $subtype) {
+            $subtype->xmlSerialize(true, $sxe->addChild('subtype'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -309,15 +309,11 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
         if (isset($this->profile)) {
             $this->profile->xmlSerialize(true, $sxe->addChild('profile'));
         }
-        if (0 < count($this->compartment)) {
-            foreach ($this->compartment as $compartment) {
-                $compartment->xmlSerialize(true, $sxe->addChild('compartment'));
-            }
+        foreach ($this->compartment as $compartment) {
+            $compartment->xmlSerialize(true, $sxe->addChild('compartment'));
         }
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
         if ($returnSXE) {
             return $sxe;

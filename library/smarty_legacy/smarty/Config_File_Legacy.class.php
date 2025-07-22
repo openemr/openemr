@@ -229,7 +229,7 @@ class Config_File_Legacy {
      * @param boolean $prepend_path whether current config path should be
      *                              prepended to the filename
      */
-    function load_file($file_name, $prepend_path = true)
+    function load_file($file_name, $prepend_path = true): bool
     {
         if ($prepend_path && $this->_config_path != "")
             $config_file = $this->_config_path . $file_name;
@@ -256,7 +256,7 @@ class Config_File_Legacy {
      * @param string $config_file file name of the related contents
      * @param string $contents the file-contents to parse
      */
-    function set_file_contents($config_file, $contents)
+    function set_file_contents($config_file, $contents): bool
     {
         $this->_config_data[$config_file] = $this->parse_contents($contents);
         return true;

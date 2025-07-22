@@ -262,10 +262,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->usage)) {
-            foreach ($this->usage as $usage) {
-                $usage->xmlSerialize(true, $sxe->addChild('usage'));
-            }
+        foreach ($this->usage as $usage) {
+            $usage->xmlSerialize(true, $sxe->addChild('usage'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

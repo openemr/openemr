@@ -293,10 +293,8 @@ class FHIRBasic extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Basic xmlns="http://hl7.org/fhir"></Basic>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

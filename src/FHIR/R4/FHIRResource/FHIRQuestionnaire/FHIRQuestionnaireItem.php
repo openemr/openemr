@@ -709,10 +709,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->definition)) {
             $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
         if (isset($this->prefix)) {
             $this->prefix->xmlSerialize(true, $sxe->addChild('prefix'));
@@ -723,10 +721,8 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->enableWhen)) {
-            foreach ($this->enableWhen as $enableWhen) {
-                $enableWhen->xmlSerialize(true, $sxe->addChild('enableWhen'));
-            }
+        foreach ($this->enableWhen as $enableWhen) {
+            $enableWhen->xmlSerialize(true, $sxe->addChild('enableWhen'));
         }
         if (isset($this->enableBehavior)) {
             $this->enableBehavior->xmlSerialize(true, $sxe->addChild('enableBehavior'));
@@ -746,20 +742,14 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->answerValueSet)) {
             $this->answerValueSet->xmlSerialize(true, $sxe->addChild('answerValueSet'));
         }
-        if (0 < count($this->answerOption)) {
-            foreach ($this->answerOption as $answerOption) {
-                $answerOption->xmlSerialize(true, $sxe->addChild('answerOption'));
-            }
+        foreach ($this->answerOption as $answerOption) {
+            $answerOption->xmlSerialize(true, $sxe->addChild('answerOption'));
         }
-        if (0 < count($this->initial)) {
-            foreach ($this->initial as $initial) {
-                $initial->xmlSerialize(true, $sxe->addChild('initial'));
-            }
+        foreach ($this->initial as $initial) {
+            $initial->xmlSerialize(true, $sxe->addChild('initial'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if ($returnSXE) {
             return $sxe;

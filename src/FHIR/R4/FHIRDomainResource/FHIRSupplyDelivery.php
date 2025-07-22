@@ -567,20 +567,14 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<SupplyDelivery xmlns="http://hl7.org/fhir"></SupplyDelivery>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
-        if (0 < count($this->basedOn)) {
-            foreach ($this->basedOn as $basedOn) {
-                $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
-            }
+        foreach ($this->basedOn as $basedOn) {
+            $basedOn->xmlSerialize(true, $sxe->addChild('basedOn'));
         }
-        if (0 < count($this->partOf)) {
-            foreach ($this->partOf as $partOf) {
-                $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
-            }
+        foreach ($this->partOf as $partOf) {
+            $partOf->xmlSerialize(true, $sxe->addChild('partOf'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -609,10 +603,8 @@ class FHIRSupplyDelivery extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->destination)) {
             $this->destination->xmlSerialize(true, $sxe->addChild('destination'));
         }
-        if (0 < count($this->receiver)) {
-            foreach ($this->receiver as $receiver) {
-                $receiver->xmlSerialize(true, $sxe->addChild('receiver'));
-            }
+        foreach ($this->receiver as $receiver) {
+            $receiver->xmlSerialize(true, $sxe->addChild('receiver'));
         }
         if ($returnSXE) {
             return $sxe;

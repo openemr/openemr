@@ -138,7 +138,7 @@ class MfaUtils
      * Check code from TOTP application or device
      * @return bool
      */
-    private function checkTOTP($token)
+    private function checkTOTP($token): bool
     {
         $registrationSecret = false;
         if (!empty($this->var1TOTP)) {

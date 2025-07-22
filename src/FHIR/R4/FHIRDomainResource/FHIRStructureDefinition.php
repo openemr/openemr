@@ -1063,10 +1063,8 @@ class FHIRStructureDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -1089,23 +1087,17 @@ class FHIRStructureDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1113,18 +1105,14 @@ class FHIRStructureDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
         }
-        if (0 < count($this->keyword)) {
-            foreach ($this->keyword as $keyword) {
-                $keyword->xmlSerialize(true, $sxe->addChild('keyword'));
-            }
+        foreach ($this->keyword as $keyword) {
+            $keyword->xmlSerialize(true, $sxe->addChild('keyword'));
         }
         if (isset($this->fhirVersion)) {
             $this->fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
         }
-        if (0 < count($this->mapping)) {
-            foreach ($this->mapping as $mapping) {
-                $mapping->xmlSerialize(true, $sxe->addChild('mapping'));
-            }
+        foreach ($this->mapping as $mapping) {
+            $mapping->xmlSerialize(true, $sxe->addChild('mapping'));
         }
         if (isset($this->kind)) {
             $this->kind->xmlSerialize(true, $sxe->addChild('kind'));
@@ -1132,15 +1120,11 @@ class FHIRStructureDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->abstract)) {
             $this->abstract->xmlSerialize(true, $sxe->addChild('abstract'));
         }
-        if (0 < count($this->context)) {
-            foreach ($this->context as $context) {
-                $context->xmlSerialize(true, $sxe->addChild('context'));
-            }
+        foreach ($this->context as $context) {
+            $context->xmlSerialize(true, $sxe->addChild('context'));
         }
-        if (0 < count($this->contextInvariant)) {
-            foreach ($this->contextInvariant as $contextInvariant) {
-                $contextInvariant->xmlSerialize(true, $sxe->addChild('contextInvariant'));
-            }
+        foreach ($this->contextInvariant as $contextInvariant) {
+            $contextInvariant->xmlSerialize(true, $sxe->addChild('contextInvariant'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

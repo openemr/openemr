@@ -137,7 +137,7 @@ class DecisionSupportInterventionService extends BaseService
     {
         $this->updateDSIAttributes($dsiServiceId, self::LIST_ID_EVIDENCE_DSI, $userId, $attributes);
     }
-    private function updateDSIAttributes($dsiServiceId, $listId, $userId, $attributes)
+    private function updateDSIAttributes($dsiServiceId, $listId, $userId, $attributes): bool
     {
         $inTransaction = false;
         try {

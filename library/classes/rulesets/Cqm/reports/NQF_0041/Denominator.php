@@ -14,7 +14,7 @@ class NQF_0041_Denominator implements CqmFilterIF
         return "NQF 0041 Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $periodPlus89Days = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime($beginDate)));
         $periodMinus92Days = date('Y-m-d 00:00:00', strtotime('-92 day', strtotime($endDate)));

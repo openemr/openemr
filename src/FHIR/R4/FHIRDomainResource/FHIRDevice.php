@@ -1046,26 +1046,20 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Device xmlns="http://hl7.org/fhir"></Device>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->definition)) {
             $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
         }
-        if (0 < count($this->udiCarrier)) {
-            foreach ($this->udiCarrier as $udiCarrier) {
-                $udiCarrier->xmlSerialize(true, $sxe->addChild('udiCarrier'));
-            }
+        foreach ($this->udiCarrier as $udiCarrier) {
+            $udiCarrier->xmlSerialize(true, $sxe->addChild('udiCarrier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
         }
-        if (0 < count($this->statusReason)) {
-            foreach ($this->statusReason as $statusReason) {
-                $statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
-            }
+        foreach ($this->statusReason as $statusReason) {
+            $statusReason->xmlSerialize(true, $sxe->addChild('statusReason'));
         }
         if (isset($this->distinctIdentifier)) {
             $this->distinctIdentifier->xmlSerialize(true, $sxe->addChild('distinctIdentifier'));
@@ -1085,10 +1079,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->serialNumber)) {
             $this->serialNumber->xmlSerialize(true, $sxe->addChild('serialNumber'));
         }
-        if (0 < count($this->deviceName)) {
-            foreach ($this->deviceName as $deviceName) {
-                $deviceName->xmlSerialize(true, $sxe->addChild('deviceName'));
-            }
+        foreach ($this->deviceName as $deviceName) {
+            $deviceName->xmlSerialize(true, $sxe->addChild('deviceName'));
         }
         if (isset($this->modelNumber)) {
             $this->modelNumber->xmlSerialize(true, $sxe->addChild('modelNumber'));
@@ -1099,20 +1091,14 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->specialization)) {
-            foreach ($this->specialization as $specialization) {
-                $specialization->xmlSerialize(true, $sxe->addChild('specialization'));
-            }
+        foreach ($this->specialization as $specialization) {
+            $specialization->xmlSerialize(true, $sxe->addChild('specialization'));
         }
-        if (0 < count($this->version)) {
-            foreach ($this->version as $version) {
-                $version->xmlSerialize(true, $sxe->addChild('version'));
-            }
+        foreach ($this->version as $version) {
+            $version->xmlSerialize(true, $sxe->addChild('version'));
         }
-        if (0 < count($this->property)) {
-            foreach ($this->property as $property) {
-                $property->xmlSerialize(true, $sxe->addChild('property'));
-            }
+        foreach ($this->property as $property) {
+            $property->xmlSerialize(true, $sxe->addChild('property'));
         }
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));
@@ -1120,10 +1106,8 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->owner)) {
             $this->owner->xmlSerialize(true, $sxe->addChild('owner'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->location)) {
             $this->location->xmlSerialize(true, $sxe->addChild('location'));
@@ -1131,15 +1115,11 @@ class FHIRDevice extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->safety)) {
-            foreach ($this->safety as $safety) {
-                $safety->xmlSerialize(true, $sxe->addChild('safety'));
-            }
+        foreach ($this->safety as $safety) {
+            $safety->xmlSerialize(true, $sxe->addChild('safety'));
         }
         if (isset($this->parent)) {
             $this->parent->xmlSerialize(true, $sxe->addChild('parent'));

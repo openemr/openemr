@@ -708,10 +708,8 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
         if (isset($this->params)) {
             $this->params->xmlSerialize(true, $sxe->addChild('params'));
         }
-        if (0 < count($this->requestHeader)) {
-            foreach ($this->requestHeader as $requestHeader) {
-                $requestHeader->xmlSerialize(true, $sxe->addChild('requestHeader'));
-            }
+        foreach ($this->requestHeader as $requestHeader) {
+            $requestHeader->xmlSerialize(true, $sxe->addChild('requestHeader'));
         }
         if (isset($this->requestId)) {
             $this->requestId->xmlSerialize(true, $sxe->addChild('requestId'));

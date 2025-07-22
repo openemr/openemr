@@ -1309,10 +1309,8 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -1332,28 +1330,20 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
@@ -1367,35 +1357,23 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
         if (isset($this->effectivePeriod)) {
             $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
         }
-        if (0 < count($this->topic)) {
-            foreach ($this->topic as $topic) {
-                $topic->xmlSerialize(true, $sxe->addChild('topic'));
-            }
+        foreach ($this->topic as $topic) {
+            $topic->xmlSerialize(true, $sxe->addChild('topic'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
-        if (0 < count($this->editor)) {
-            foreach ($this->editor as $editor) {
-                $editor->xmlSerialize(true, $sxe->addChild('editor'));
-            }
+        foreach ($this->editor as $editor) {
+            $editor->xmlSerialize(true, $sxe->addChild('editor'));
         }
-        if (0 < count($this->reviewer)) {
-            foreach ($this->reviewer as $reviewer) {
-                $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
-            }
+        foreach ($this->reviewer as $reviewer) {
+            $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
         }
-        if (0 < count($this->endorser)) {
-            foreach ($this->endorser as $endorser) {
-                $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
-            }
+        foreach ($this->endorser as $endorser) {
+            $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
         }
-        if (0 < count($this->relatedArtifact)) {
-            foreach ($this->relatedArtifact as $relatedArtifact) {
-                $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
-            }
+        foreach ($this->relatedArtifact as $relatedArtifact) {
+            $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
         }
         if (isset($this->synthesisType)) {
             $this->synthesisType->xmlSerialize(true, $sxe->addChild('synthesisType'));
@@ -1418,20 +1396,14 @@ class FHIREffectEvidenceSynthesis extends FHIRDomainResource implements \JsonSer
         if (isset($this->sampleSize)) {
             $this->sampleSize->xmlSerialize(true, $sxe->addChild('sampleSize'));
         }
-        if (0 < count($this->resultsByExposure)) {
-            foreach ($this->resultsByExposure as $resultsByExposure) {
-                $resultsByExposure->xmlSerialize(true, $sxe->addChild('resultsByExposure'));
-            }
+        foreach ($this->resultsByExposure as $resultsByExposure) {
+            $resultsByExposure->xmlSerialize(true, $sxe->addChild('resultsByExposure'));
         }
-        if (0 < count($this->effectEstimate)) {
-            foreach ($this->effectEstimate as $effectEstimate) {
-                $effectEstimate->xmlSerialize(true, $sxe->addChild('effectEstimate'));
-            }
+        foreach ($this->effectEstimate as $effectEstimate) {
+            $effectEstimate->xmlSerialize(true, $sxe->addChild('effectEstimate'));
         }
-        if (0 < count($this->certainty)) {
-            foreach ($this->certainty as $certainty) {
-                $certainty->xmlSerialize(true, $sxe->addChild('certainty'));
-            }
+        foreach ($this->certainty as $certainty) {
+            $certainty->xmlSerialize(true, $sxe->addChild('certainty'));
         }
         if ($returnSXE) {
             return $sxe;

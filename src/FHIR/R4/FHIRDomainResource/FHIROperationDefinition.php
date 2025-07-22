@@ -1037,23 +1037,17 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1070,10 +1064,8 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->base)) {
             $this->base->xmlSerialize(true, $sxe->addChild('base'));
         }
-        if (0 < count($this->resource)) {
-            foreach ($this->resource as $resource) {
-                $resource->xmlSerialize(true, $sxe->addChild('resource'));
-            }
+        foreach ($this->resource as $resource) {
+            $resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
         if (isset($this->system)) {
             $this->system->xmlSerialize(true, $sxe->addChild('system'));
@@ -1090,15 +1082,11 @@ class FHIROperationDefinition extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->outputProfile)) {
             $this->outputProfile->xmlSerialize(true, $sxe->addChild('outputProfile'));
         }
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
-        if (0 < count($this->overload)) {
-            foreach ($this->overload as $overload) {
-                $overload->xmlSerialize(true, $sxe->addChild('overload'));
-            }
+        foreach ($this->overload as $overload) {
+            $overload->xmlSerialize(true, $sxe->addChild('overload'));
         }
         if ($returnSXE) {
             return $sxe;

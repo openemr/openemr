@@ -262,10 +262,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
             $sxe = new \SimpleXMLElement('<MedicationKnowledgeAdministrationGuidelines xmlns="http://hl7.org/fhir"></MedicationKnowledgeAdministrationGuidelines>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->dosage)) {
-            foreach ($this->dosage as $dosage) {
-                $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
-            }
+        foreach ($this->dosage as $dosage) {
+            $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
         }
         if (isset($this->indicationCodeableConcept)) {
             $this->indicationCodeableConcept->xmlSerialize(true, $sxe->addChild('indicationCodeableConcept'));
@@ -273,10 +271,8 @@ class FHIRMedicationKnowledgeAdministrationGuidelines extends FHIRBackboneElemen
         if (isset($this->indicationReference)) {
             $this->indicationReference->xmlSerialize(true, $sxe->addChild('indicationReference'));
         }
-        if (0 < count($this->patientCharacteristics)) {
-            foreach ($this->patientCharacteristics as $patientCharacteristics) {
-                $patientCharacteristics->xmlSerialize(true, $sxe->addChild('patientCharacteristics'));
-            }
+        foreach ($this->patientCharacteristics as $patientCharacteristics) {
+            $patientCharacteristics->xmlSerialize(true, $sxe->addChild('patientCharacteristics'));
         }
         if ($returnSXE) {
             return $sxe;

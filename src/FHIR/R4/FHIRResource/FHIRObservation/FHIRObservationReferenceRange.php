@@ -332,10 +332,8 @@ class FHIRObservationReferenceRange extends FHIRBackboneElement implements \Json
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->appliesTo)) {
-            foreach ($this->appliesTo as $appliesTo) {
-                $appliesTo->xmlSerialize(true, $sxe->addChild('appliesTo'));
-            }
+        foreach ($this->appliesTo as $appliesTo) {
+            $appliesTo->xmlSerialize(true, $sxe->addChild('appliesTo'));
         }
         if (isset($this->age)) {
             $this->age->xmlSerialize(true, $sxe->addChild('age'));

@@ -276,15 +276,11 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
         if (isset($this->numberOfSubunits)) {
             $this->numberOfSubunits->xmlSerialize(true, $sxe->addChild('numberOfSubunits'));
         }
-        if (0 < count($this->disulfideLinkage)) {
-            foreach ($this->disulfideLinkage as $disulfideLinkage) {
-                $disulfideLinkage->xmlSerialize(true, $sxe->addChild('disulfideLinkage'));
-            }
+        foreach ($this->disulfideLinkage as $disulfideLinkage) {
+            $disulfideLinkage->xmlSerialize(true, $sxe->addChild('disulfideLinkage'));
         }
-        if (0 < count($this->subunit)) {
-            foreach ($this->subunit as $subunit) {
-                $subunit->xmlSerialize(true, $sxe->addChild('subunit'));
-            }
+        foreach ($this->subunit as $subunit) {
+            $subunit->xmlSerialize(true, $sxe->addChild('subunit'));
         }
         if ($returnSXE) {
             return $sxe;

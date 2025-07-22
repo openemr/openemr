@@ -195,10 +195,8 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
             $sxe = new \SimpleXMLElement('<OperationDefinitionOverload xmlns="http://hl7.org/fhir"></OperationDefinitionOverload>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->parameterName)) {
-            foreach ($this->parameterName as $parameterName) {
-                $parameterName->xmlSerialize(true, $sxe->addChild('parameterName'));
-            }
+        foreach ($this->parameterName as $parameterName) {
+            $parameterName->xmlSerialize(true, $sxe->addChild('parameterName'));
         }
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));

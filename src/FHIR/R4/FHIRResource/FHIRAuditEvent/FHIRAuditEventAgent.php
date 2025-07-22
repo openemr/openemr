@@ -504,10 +504,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->role)) {
-            foreach ($this->role as $role) {
-                $role->xmlSerialize(true, $sxe->addChild('role'));
-            }
+        foreach ($this->role as $role) {
+            $role->xmlSerialize(true, $sxe->addChild('role'));
         }
         if (isset($this->who)) {
             $this->who->xmlSerialize(true, $sxe->addChild('who'));
@@ -524,10 +522,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->location)) {
             $this->location->xmlSerialize(true, $sxe->addChild('location'));
         }
-        if (0 < count($this->policy)) {
-            foreach ($this->policy as $policy) {
-                $policy->xmlSerialize(true, $sxe->addChild('policy'));
-            }
+        foreach ($this->policy as $policy) {
+            $policy->xmlSerialize(true, $sxe->addChild('policy'));
         }
         if (isset($this->media)) {
             $this->media->xmlSerialize(true, $sxe->addChild('media'));
@@ -535,10 +531,8 @@ class FHIRAuditEventAgent extends FHIRBackboneElement implements \JsonSerializab
         if (isset($this->network)) {
             $this->network->xmlSerialize(true, $sxe->addChild('network'));
         }
-        if (0 < count($this->purposeOfUse)) {
-            foreach ($this->purposeOfUse as $purposeOfUse) {
-                $purposeOfUse->xmlSerialize(true, $sxe->addChild('purposeOfUse'));
-            }
+        foreach ($this->purposeOfUse as $purposeOfUse) {
+            $purposeOfUse->xmlSerialize(true, $sxe->addChild('purposeOfUse'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -1093,7 +1093,7 @@ class AuthorizationController
     /**
      * @param ScopeEntityInterface[] $scopes
      */
-    private function shouldIncludeRefreshTokenForScopes(array $scopes)
+    private function shouldIncludeRefreshTokenForScopes(array $scopes): bool
     {
         foreach ($scopes as $scope) {
             if ($scope->getIdentifier() == self::OFFLINE_ACCESS_SCOPE) {
@@ -1536,7 +1536,7 @@ class AuthorizationController
         $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, self::GRANT_TYPE_PASSWORD);
     }
 
-    private function shouldSkipAuthorizationFlow(AuthorizationRequest $authRequest)
+    private function shouldSkipAuthorizationFlow(AuthorizationRequest $authRequest): bool
     {
         $skip = false;
         $client = $authRequest->getClient();

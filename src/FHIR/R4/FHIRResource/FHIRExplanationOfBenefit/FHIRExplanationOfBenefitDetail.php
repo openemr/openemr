@@ -636,15 +636,11 @@ class FHIRExplanationOfBenefitDetail extends FHIRBackboneElement implements \Jso
         if (isset($this->productOrService)) {
             $this->productOrService->xmlSerialize(true, $sxe->addChild('productOrService'));
         }
-        if (0 < count($this->modifier)) {
-            foreach ($this->modifier as $modifier) {
-                $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-            }
+        foreach ($this->modifier as $modifier) {
+            $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
         }
-        if (0 < count($this->programCode)) {
-            foreach ($this->programCode as $programCode) {
-                $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
-            }
+        foreach ($this->programCode as $programCode) {
+            $programCode->xmlSerialize(true, $sxe->addChild('programCode'));
         }
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));
@@ -658,25 +654,17 @@ class FHIRExplanationOfBenefitDetail extends FHIRBackboneElement implements \Jso
         if (isset($this->net)) {
             $this->net->xmlSerialize(true, $sxe->addChild('net'));
         }
-        if (0 < count($this->udi)) {
-            foreach ($this->udi as $udi) {
-                $udi->xmlSerialize(true, $sxe->addChild('udi'));
-            }
+        foreach ($this->udi as $udi) {
+            $udi->xmlSerialize(true, $sxe->addChild('udi'));
         }
-        if (0 < count($this->noteNumber)) {
-            foreach ($this->noteNumber as $noteNumber) {
-                $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
-            }
+        foreach ($this->noteNumber as $noteNumber) {
+            $noteNumber->xmlSerialize(true, $sxe->addChild('noteNumber'));
         }
-        if (0 < count($this->adjudication)) {
-            foreach ($this->adjudication as $adjudication) {
-                $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
-            }
+        foreach ($this->adjudication as $adjudication) {
+            $adjudication->xmlSerialize(true, $sxe->addChild('adjudication'));
         }
-        if (0 < count($this->subDetail)) {
-            foreach ($this->subDetail as $subDetail) {
-                $subDetail->xmlSerialize(true, $sxe->addChild('subDetail'));
-            }
+        foreach ($this->subDetail as $subDetail) {
+            $subDetail->xmlSerialize(true, $sxe->addChild('subDetail'));
         }
         if ($returnSXE) {
             return $sxe;

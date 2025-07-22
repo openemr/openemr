@@ -379,15 +379,11 @@ class FHIRMedicinalProductIngredientStrength extends FHIRBackboneElement impleme
         if (isset($this->measurementPoint)) {
             $this->measurementPoint->xmlSerialize(true, $sxe->addChild('measurementPoint'));
         }
-        if (0 < count($this->country)) {
-            foreach ($this->country as $country) {
-                $country->xmlSerialize(true, $sxe->addChild('country'));
-            }
+        foreach ($this->country as $country) {
+            $country->xmlSerialize(true, $sxe->addChild('country'));
         }
-        if (0 < count($this->referenceStrength)) {
-            foreach ($this->referenceStrength as $referenceStrength) {
-                $referenceStrength->xmlSerialize(true, $sxe->addChild('referenceStrength'));
-            }
+        foreach ($this->referenceStrength as $referenceStrength) {
+            $referenceStrength->xmlSerialize(true, $sxe->addChild('referenceStrength'));
         }
         if ($returnSXE) {
             return $sxe;

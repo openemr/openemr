@@ -198,10 +198,8 @@ class FHIRMedicationKnowledgeDosage extends FHIRBackboneElement implements \Json
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->dosage)) {
-            foreach ($this->dosage as $dosage) {
-                $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
-            }
+        foreach ($this->dosage as $dosage) {
+            $dosage->xmlSerialize(true, $sxe->addChild('dosage'));
         }
         if ($returnSXE) {
             return $sxe;

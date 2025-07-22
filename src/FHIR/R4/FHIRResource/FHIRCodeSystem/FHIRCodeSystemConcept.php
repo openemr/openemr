@@ -350,20 +350,14 @@ class FHIRCodeSystemConcept extends FHIRBackboneElement implements \JsonSerializ
         if (isset($this->definition)) {
             $this->definition->xmlSerialize(true, $sxe->addChild('definition'));
         }
-        if (0 < count($this->designation)) {
-            foreach ($this->designation as $designation) {
-                $designation->xmlSerialize(true, $sxe->addChild('designation'));
-            }
+        foreach ($this->designation as $designation) {
+            $designation->xmlSerialize(true, $sxe->addChild('designation'));
         }
-        if (0 < count($this->property)) {
-            foreach ($this->property as $property) {
-                $property->xmlSerialize(true, $sxe->addChild('property'));
-            }
+        foreach ($this->property as $property) {
+            $property->xmlSerialize(true, $sxe->addChild('property'));
         }
-        if (0 < count($this->concept)) {
-            foreach ($this->concept as $concept) {
-                $concept->xmlSerialize(true, $sxe->addChild('concept'));
-            }
+        foreach ($this->concept as $concept) {
+            $concept->xmlSerialize(true, $sxe->addChild('concept'));
         }
         if ($returnSXE) {
             return $sxe;

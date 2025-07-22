@@ -373,18 +373,14 @@ class FHIRTestScriptCapability extends FHIRBackboneElement implements \JsonSeria
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->origin)) {
-            foreach ($this->origin as $origin) {
-                $origin->xmlSerialize(true, $sxe->addChild('origin'));
-            }
+        foreach ($this->origin as $origin) {
+            $origin->xmlSerialize(true, $sxe->addChild('origin'));
         }
         if (isset($this->destination)) {
             $this->destination->xmlSerialize(true, $sxe->addChild('destination'));
         }
-        if (0 < count($this->link)) {
-            foreach ($this->link as $link) {
-                $link->xmlSerialize(true, $sxe->addChild('link'));
-            }
+        foreach ($this->link as $link) {
+            $link->xmlSerialize(true, $sxe->addChild('link'));
         }
         if (isset($this->capabilities)) {
             $this->capabilities->xmlSerialize(true, $sxe->addChild('capabilities'));

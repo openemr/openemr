@@ -300,18 +300,14 @@ class FHIRMedicinalProductAuthorizationJurisdictionalAuthorization extends FHIRB
             $sxe = new \SimpleXMLElement('<MedicinalProductAuthorizationJurisdictionalAuthorization xmlns="http://hl7.org/fhir"></MedicinalProductAuthorizationJurisdictionalAuthorization>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->country)) {
             $this->country->xmlSerialize(true, $sxe->addChild('country'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->legalStatusOfSupply)) {
             $this->legalStatusOfSupply->xmlSerialize(true, $sxe->addChild('legalStatusOfSupply'));

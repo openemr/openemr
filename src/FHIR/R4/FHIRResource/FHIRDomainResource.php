@@ -297,20 +297,14 @@ Modifier extensions SHALL NOT change the meaning of any elements on Resource or 
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->contained)) {
-            foreach ($this->contained as $contained) {
-                $contained->xmlSerialize(true, $sxe->addChild('contained'));
-            }
+        foreach ($this->contained as $contained) {
+            $contained->xmlSerialize(true, $sxe->addChild('contained'));
         }
-        if (0 < count($this->extension)) {
-            foreach ($this->extension as $extension) {
-                $extension->xmlSerialize(true, $sxe->addChild('extension'));
-            }
+        foreach ($this->extension as $extension) {
+            $extension->xmlSerialize(true, $sxe->addChild('extension'));
         }
-        if (0 < count($this->modifierExtension)) {
-            foreach ($this->modifierExtension as $modifierExtension) {
-                $modifierExtension->xmlSerialize(true, $sxe->addChild('modifierExtension'));
-            }
+        foreach ($this->modifierExtension as $modifierExtension) {
+            $modifierExtension->xmlSerialize(true, $sxe->addChild('modifierExtension'));
         }
         if ($returnSXE) {
             return $sxe;

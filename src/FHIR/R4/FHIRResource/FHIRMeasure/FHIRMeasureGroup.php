@@ -274,15 +274,11 @@ class FHIRMeasureGroup extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->population)) {
-            foreach ($this->population as $population) {
-                $population->xmlSerialize(true, $sxe->addChild('population'));
-            }
+        foreach ($this->population as $population) {
+            $population->xmlSerialize(true, $sxe->addChild('population'));
         }
-        if (0 < count($this->stratifier)) {
-            foreach ($this->stratifier as $stratifier) {
-                $stratifier->xmlSerialize(true, $sxe->addChild('stratifier'));
-            }
+        foreach ($this->stratifier as $stratifier) {
+            $stratifier->xmlSerialize(true, $sxe->addChild('stratifier'));
         }
         if ($returnSXE) {
             return $sxe;

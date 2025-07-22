@@ -43,7 +43,7 @@ class Holidays_Controller
      * @param $files
      * @return bool
      */
-    public function upload_csv($files)
+    public function upload_csv($files): bool
     {
         if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR)) {
             if (!mkdir($GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR . "/", 0700)) {
@@ -67,7 +67,7 @@ class Holidays_Controller
      * Trys to reach the file (csv) and sends the rows to the storage to import the holidays to the calendar external table
      * @return bool
      */
-    public function import_holidays_from_csv()
+    public function import_holidays_from_csv(): bool
     {
         $file = $this->get_file_csv_data();
         if (empty($file)) {
@@ -95,7 +95,7 @@ class Holidays_Controller
     /**
      * Gets all the holidays and send the result to create the events for the calendar
      */
-    public function create_holiday_event()
+    public function create_holiday_event(): bool
     {
         $holidays = $this->storage->get_holidays();
         $events = $this->storage->create_events($holidays);
@@ -119,7 +119,7 @@ class Holidays_Controller
      * Return true if the date is a holiday/closed
      * @param $date
      */
-    public static function is_holiday($date)
+    public static function is_holiday($date): bool
     {
         $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);

@@ -1326,10 +1326,8 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -1364,28 +1362,20 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->comment)) {
-            foreach ($this->comment as $comment) {
-                $comment->xmlSerialize(true, $sxe->addChild('comment'));
-            }
+        foreach ($this->comment as $comment) {
+            $comment->xmlSerialize(true, $sxe->addChild('comment'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1405,40 +1395,26 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
         if (isset($this->effectivePeriod)) {
             $this->effectivePeriod->xmlSerialize(true, $sxe->addChild('effectivePeriod'));
         }
-        if (0 < count($this->topic)) {
-            foreach ($this->topic as $topic) {
-                $topic->xmlSerialize(true, $sxe->addChild('topic'));
-            }
+        foreach ($this->topic as $topic) {
+            $topic->xmlSerialize(true, $sxe->addChild('topic'));
         }
-        if (0 < count($this->author)) {
-            foreach ($this->author as $author) {
-                $author->xmlSerialize(true, $sxe->addChild('author'));
-            }
+        foreach ($this->author as $author) {
+            $author->xmlSerialize(true, $sxe->addChild('author'));
         }
-        if (0 < count($this->editor)) {
-            foreach ($this->editor as $editor) {
-                $editor->xmlSerialize(true, $sxe->addChild('editor'));
-            }
+        foreach ($this->editor as $editor) {
+            $editor->xmlSerialize(true, $sxe->addChild('editor'));
         }
-        if (0 < count($this->reviewer)) {
-            foreach ($this->reviewer as $reviewer) {
-                $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
-            }
+        foreach ($this->reviewer as $reviewer) {
+            $reviewer->xmlSerialize(true, $sxe->addChild('reviewer'));
         }
-        if (0 < count($this->endorser)) {
-            foreach ($this->endorser as $endorser) {
-                $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
-            }
+        foreach ($this->endorser as $endorser) {
+            $endorser->xmlSerialize(true, $sxe->addChild('endorser'));
         }
-        if (0 < count($this->relatedArtifact)) {
-            foreach ($this->relatedArtifact as $relatedArtifact) {
-                $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
-            }
+        foreach ($this->relatedArtifact as $relatedArtifact) {
+            $relatedArtifact->xmlSerialize(true, $sxe->addChild('relatedArtifact'));
         }
-        if (0 < count($this->library)) {
-            foreach ($this->library as $library) {
-                $library->xmlSerialize(true, $sxe->addChild('library'));
-            }
+        foreach ($this->library as $library) {
+            $library->xmlSerialize(true, $sxe->addChild('library'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -1446,10 +1422,8 @@ class FHIRResearchElementDefinition extends FHIRDomainResource implements \JsonS
         if (isset($this->variableType)) {
             $this->variableType->xmlSerialize(true, $sxe->addChild('variableType'));
         }
-        if (0 < count($this->characteristic)) {
-            foreach ($this->characteristic as $characteristic) {
-                $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
-            }
+        foreach ($this->characteristic as $characteristic) {
+            $characteristic->xmlSerialize(true, $sxe->addChild('characteristic'));
         }
         if ($returnSXE) {
             return $sxe;

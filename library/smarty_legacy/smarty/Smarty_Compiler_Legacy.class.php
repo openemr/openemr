@@ -608,7 +608,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * @param string $output
      * @return boolean
      */
-    function _compile_compiler_tag($tag_command, $tag_args, &$output)
+    function _compile_compiler_tag($tag_command, $tag_args, &$output): bool
     {
         $found = false;
         $have_function = true;
@@ -677,7 +677,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * @param string $output
      * @return boolean
      */
-    function _compile_block_tag($tag_command, $tag_args, $tag_modifier, &$output)
+    function _compile_block_tag($tag_command, $tag_args, $tag_modifier, &$output): bool
     {
         if (substr($tag_command, 0, 1) == '/') {
             $start_tag = false;
@@ -773,7 +773,7 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      * @param string $tag_modifier
      * @return string
      */
-    function _compile_custom_tag($tag_command, $tag_args, $tag_modifier, &$output)
+    function _compile_custom_tag($tag_command, $tag_args, $tag_modifier, &$output): bool
     {
         $found = false;
         $have_function = true;

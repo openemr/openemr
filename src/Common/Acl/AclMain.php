@@ -245,7 +245,7 @@ class AclMain
      * $param String $section_identifier ACL Section id
      * @return boolean
      */
-    public static function zhAclCheck($user_id, $section_identifier)
+    public static function zhAclCheck($user_id, $section_identifier): bool
     {
         $sql_user_acl = " SELECT
                         COUNT(allowed) AS count
@@ -317,7 +317,7 @@ class AclMain
     // Permissions check for an ACO in "section|aco" format.
     // Note $return_value may be an array of return values.
     //
-    public static function aclCheckAcoSpec($aco_spec, $user = '', $return_value = '')
+    public static function aclCheckAcoSpec($aco_spec, $user = '', $return_value = ''): bool
     {
         if (empty($aco_spec)) {
             return true;

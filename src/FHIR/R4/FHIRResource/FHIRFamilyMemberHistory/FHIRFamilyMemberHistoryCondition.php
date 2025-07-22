@@ -396,10 +396,8 @@ class FHIRFamilyMemberHistoryCondition extends FHIRBackboneElement implements \J
         if (isset($this->onsetString)) {
             $this->onsetString->xmlSerialize(true, $sxe->addChild('onsetString'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

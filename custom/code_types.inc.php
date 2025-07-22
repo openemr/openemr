@@ -224,7 +224,7 @@ $ct_external_options = $externalCodesEvent->getExternalCodeData();
 /**
  *  Checks to see if using spanish snomed
  */
-function isSnomedSpanish()
+function isSnomedSpanish(): bool
 {
     // See if most recent SNOMED entry is International:Spanish
     $sql = sqlQuery("SELECT `revision_version` FROM `standardized_tables_track` WHERE `name` = 'SNOMED' ORDER BY `id` DESC");
@@ -239,7 +239,7 @@ function isSnomedSpanish()
  *
  * @return boolean
  */
-function fees_are_used()
+function fees_are_used(): bool
 {
     global $code_types;
     foreach ($code_types as $value) {
@@ -258,7 +258,7 @@ function fees_are_used()
  * @param  boolean $fee_sheet Will ignore code types that are not shown in the fee sheet
  * @return boolean
  */
-function modifiers_are_used($fee_sheet = false)
+function modifiers_are_used($fee_sheet = false): bool
 {
     global $code_types;
     foreach ($code_types as $value) {
@@ -279,7 +279,7 @@ function modifiers_are_used($fee_sheet = false)
  *
  * @return boolean
  */
-function justifiers_are_used()
+function justifiers_are_used(): bool
 {
     global $code_types;
     foreach ($code_types as $value) {
@@ -296,7 +296,7 @@ function justifiers_are_used()
  *
  * @return boolean
  */
-function related_codes_are_used()
+function related_codes_are_used(): bool
 {
     global $code_types;
     foreach ($code_types as $value) {
@@ -344,7 +344,7 @@ function check_is_code_type_justify($key)
  * @param   array    $filter (array of elements that can include 'active','fee','rel','nofs','diag','claim','proc','term','problem')
  * @return  boolean
  */
-function check_code_set_filters($key, $filters = array())
+function check_code_set_filters($key, $filters = array()): bool
 {
     global $code_types;
 

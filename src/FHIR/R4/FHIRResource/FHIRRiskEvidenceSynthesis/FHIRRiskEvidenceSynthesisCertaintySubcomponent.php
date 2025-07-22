@@ -239,15 +239,11 @@ class FHIRRiskEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneElement
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->rating)) {
-            foreach ($this->rating as $rating) {
-                $rating->xmlSerialize(true, $sxe->addChild('rating'));
-            }
+        foreach ($this->rating as $rating) {
+            $rating->xmlSerialize(true, $sxe->addChild('rating'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

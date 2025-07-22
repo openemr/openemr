@@ -941,25 +941,17 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->priority)) {
             $this->priority->xmlSerialize(true, $sxe->addChild('priority'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->documentation)) {
-            foreach ($this->documentation as $documentation) {
-                $documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-            }
+        foreach ($this->documentation as $documentation) {
+            $documentation->xmlSerialize(true, $sxe->addChild('documentation'));
         }
-        if (0 < count($this->condition)) {
-            foreach ($this->condition as $condition) {
-                $condition->xmlSerialize(true, $sxe->addChild('condition'));
-            }
+        foreach ($this->condition as $condition) {
+            $condition->xmlSerialize(true, $sxe->addChild('condition'));
         }
-        if (0 < count($this->relatedAction)) {
-            foreach ($this->relatedAction as $relatedAction) {
-                $relatedAction->xmlSerialize(true, $sxe->addChild('relatedAction'));
-            }
+        foreach ($this->relatedAction as $relatedAction) {
+            $relatedAction->xmlSerialize(true, $sxe->addChild('relatedAction'));
         }
         if (isset($this->timingDateTime)) {
             $this->timingDateTime->xmlSerialize(true, $sxe->addChild('timingDateTime'));
@@ -979,10 +971,8 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->timingTiming)) {
             $this->timingTiming->xmlSerialize(true, $sxe->addChild('timingTiming'));
         }
-        if (0 < count($this->participant)) {
-            foreach ($this->participant as $participant) {
-                $participant->xmlSerialize(true, $sxe->addChild('participant'));
-            }
+        foreach ($this->participant as $participant) {
+            $participant->xmlSerialize(true, $sxe->addChild('participant'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -1005,10 +995,8 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->resource)) {
             $this->resource->xmlSerialize(true, $sxe->addChild('resource'));
         }
-        if (0 < count($this->action)) {
-            foreach ($this->action as $action) {
-                $action->xmlSerialize(true, $sxe->addChild('action'));
-            }
+        foreach ($this->action as $action) {
+            $action->xmlSerialize(true, $sxe->addChild('action'));
         }
         if ($returnSXE) {
             return $sxe;

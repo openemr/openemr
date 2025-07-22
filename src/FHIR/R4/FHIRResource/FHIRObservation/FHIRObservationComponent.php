@@ -626,15 +626,11 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
         if (isset($this->dataAbsentReason)) {
             $this->dataAbsentReason->xmlSerialize(true, $sxe->addChild('dataAbsentReason'));
         }
-        if (0 < count($this->interpretation)) {
-            foreach ($this->interpretation as $interpretation) {
-                $interpretation->xmlSerialize(true, $sxe->addChild('interpretation'));
-            }
+        foreach ($this->interpretation as $interpretation) {
+            $interpretation->xmlSerialize(true, $sxe->addChild('interpretation'));
         }
-        if (0 < count($this->referenceRange)) {
-            foreach ($this->referenceRange as $referenceRange) {
-                $referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
-            }
+        foreach ($this->referenceRange as $referenceRange) {
+            $referenceRange->xmlSerialize(true, $sxe->addChild('referenceRange'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -398,10 +398,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
             $sxe = new \SimpleXMLElement('<AppointmentResponse xmlns="http://hl7.org/fhir"></AppointmentResponse>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->appointment)) {
             $this->appointment->xmlSerialize(true, $sxe->addChild('appointment'));
@@ -412,10 +410,8 @@ class FHIRAppointmentResponse extends FHIRDomainResource implements \JsonSeriali
         if (isset($this->end)) {
             $this->end->xmlSerialize(true, $sxe->addChild('end'));
         }
-        if (0 < count($this->participantType)) {
-            foreach ($this->participantType as $participantType) {
-                $participantType->xmlSerialize(true, $sxe->addChild('participantType'));
-            }
+        foreach ($this->participantType as $participantType) {
+            $participantType->xmlSerialize(true, $sxe->addChild('participantType'));
         }
         if (isset($this->actor)) {
             $this->actor->xmlSerialize(true, $sxe->addChild('actor'));

@@ -549,40 +549,26 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
         if (isset($this->preferred)) {
             $this->preferred->xmlSerialize(true, $sxe->addChild('preferred'));
         }
-        if (0 < count($this->language)) {
-            foreach ($this->language as $language) {
-                $language->xmlSerialize(true, $sxe->addChild('language'));
-            }
+        foreach ($this->language as $language) {
+            $language->xmlSerialize(true, $sxe->addChild('language'));
         }
-        if (0 < count($this->domain)) {
-            foreach ($this->domain as $domain) {
-                $domain->xmlSerialize(true, $sxe->addChild('domain'));
-            }
+        foreach ($this->domain as $domain) {
+            $domain->xmlSerialize(true, $sxe->addChild('domain'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
-        if (0 < count($this->synonym)) {
-            foreach ($this->synonym as $synonym) {
-                $synonym->xmlSerialize(true, $sxe->addChild('synonym'));
-            }
+        foreach ($this->synonym as $synonym) {
+            $synonym->xmlSerialize(true, $sxe->addChild('synonym'));
         }
-        if (0 < count($this->translation)) {
-            foreach ($this->translation as $translation) {
-                $translation->xmlSerialize(true, $sxe->addChild('translation'));
-            }
+        foreach ($this->translation as $translation) {
+            $translation->xmlSerialize(true, $sxe->addChild('translation'));
         }
-        if (0 < count($this->official)) {
-            foreach ($this->official as $official) {
-                $official->xmlSerialize(true, $sxe->addChild('official'));
-            }
+        foreach ($this->official as $official) {
+            $official->xmlSerialize(true, $sxe->addChild('official'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
         if ($returnSXE) {
             return $sxe;

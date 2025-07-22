@@ -349,10 +349,8 @@ class FHIRImmunizationProtocolApplied extends FHIRBackboneElement implements \Js
         if (isset($this->authority)) {
             $this->authority->xmlSerialize(true, $sxe->addChild('authority'));
         }
-        if (0 < count($this->targetDisease)) {
-            foreach ($this->targetDisease as $targetDisease) {
-                $targetDisease->xmlSerialize(true, $sxe->addChild('targetDisease'));
-            }
+        foreach ($this->targetDisease as $targetDisease) {
+            $targetDisease->xmlSerialize(true, $sxe->addChild('targetDisease'));
         }
         if (isset($this->doseNumberPositiveInt)) {
             $this->doseNumberPositiveInt->xmlSerialize(true, $sxe->addChild('doseNumberPositiveInt'));

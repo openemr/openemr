@@ -61,7 +61,7 @@ class ClaimRevApi
         return $token;
     }
 
-    public static function uploadClaimFile($ediContents, $fileName, $token)
+    public static function uploadClaimFile($ediContents, $fileName, $token): bool
     {
         $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();

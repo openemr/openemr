@@ -50,7 +50,7 @@ if (!$userMode) {
     }
 }
 
-function checkCreateCDB()
+function checkCreateCDB(): bool
 {
     $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");

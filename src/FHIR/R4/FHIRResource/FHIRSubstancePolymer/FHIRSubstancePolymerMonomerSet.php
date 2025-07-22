@@ -198,10 +198,8 @@ class FHIRSubstancePolymerMonomerSet extends FHIRBackboneElement implements \Jso
         if (isset($this->ratioType)) {
             $this->ratioType->xmlSerialize(true, $sxe->addChild('ratioType'));
         }
-        if (0 < count($this->startingMaterial)) {
-            foreach ($this->startingMaterial as $startingMaterial) {
-                $startingMaterial->xmlSerialize(true, $sxe->addChild('startingMaterial'));
-            }
+        foreach ($this->startingMaterial as $startingMaterial) {
+            $startingMaterial->xmlSerialize(true, $sxe->addChild('startingMaterial'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -1060,10 +1060,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Claim xmlns="http://hl7.org/fhir"></Claim>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->status)) {
             $this->status->xmlSerialize(true, $sxe->addChild('status'));
@@ -1101,10 +1099,8 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->fundsReserve)) {
             $this->fundsReserve->xmlSerialize(true, $sxe->addChild('fundsReserve'));
         }
-        if (0 < count($this->related)) {
-            foreach ($this->related as $related) {
-                $related->xmlSerialize(true, $sxe->addChild('related'));
-            }
+        foreach ($this->related as $related) {
+            $related->xmlSerialize(true, $sxe->addChild('related'));
         }
         if (isset($this->prescription)) {
             $this->prescription->xmlSerialize(true, $sxe->addChild('prescription'));
@@ -1121,38 +1117,26 @@ class FHIRClaim extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->facility)) {
             $this->facility->xmlSerialize(true, $sxe->addChild('facility'));
         }
-        if (0 < count($this->careTeam)) {
-            foreach ($this->careTeam as $careTeam) {
-                $careTeam->xmlSerialize(true, $sxe->addChild('careTeam'));
-            }
+        foreach ($this->careTeam as $careTeam) {
+            $careTeam->xmlSerialize(true, $sxe->addChild('careTeam'));
         }
-        if (0 < count($this->supportingInfo)) {
-            foreach ($this->supportingInfo as $supportingInfo) {
-                $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
-            }
+        foreach ($this->supportingInfo as $supportingInfo) {
+            $supportingInfo->xmlSerialize(true, $sxe->addChild('supportingInfo'));
         }
-        if (0 < count($this->diagnosis)) {
-            foreach ($this->diagnosis as $diagnosis) {
-                $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
-            }
+        foreach ($this->diagnosis as $diagnosis) {
+            $diagnosis->xmlSerialize(true, $sxe->addChild('diagnosis'));
         }
-        if (0 < count($this->procedure)) {
-            foreach ($this->procedure as $procedure) {
-                $procedure->xmlSerialize(true, $sxe->addChild('procedure'));
-            }
+        foreach ($this->procedure as $procedure) {
+            $procedure->xmlSerialize(true, $sxe->addChild('procedure'));
         }
-        if (0 < count($this->insurance)) {
-            foreach ($this->insurance as $insurance) {
-                $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
-            }
+        foreach ($this->insurance as $insurance) {
+            $insurance->xmlSerialize(true, $sxe->addChild('insurance'));
         }
         if (isset($this->accident)) {
             $this->accident->xmlSerialize(true, $sxe->addChild('accident'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if (isset($this->total)) {
             $this->total->xmlSerialize(true, $sxe->addChild('total'));

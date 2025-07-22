@@ -359,30 +359,20 @@ class FHIRNutritionOrderOralDiet extends FHIRBackboneElement implements \JsonSer
             $sxe = new \SimpleXMLElement('<NutritionOrderOralDiet xmlns="http://hl7.org/fhir"></NutritionOrderOralDiet>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->schedule)) {
-            foreach ($this->schedule as $schedule) {
-                $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
-            }
+        foreach ($this->schedule as $schedule) {
+            $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
         }
-        if (0 < count($this->nutrient)) {
-            foreach ($this->nutrient as $nutrient) {
-                $nutrient->xmlSerialize(true, $sxe->addChild('nutrient'));
-            }
+        foreach ($this->nutrient as $nutrient) {
+            $nutrient->xmlSerialize(true, $sxe->addChild('nutrient'));
         }
-        if (0 < count($this->texture)) {
-            foreach ($this->texture as $texture) {
-                $texture->xmlSerialize(true, $sxe->addChild('texture'));
-            }
+        foreach ($this->texture as $texture) {
+            $texture->xmlSerialize(true, $sxe->addChild('texture'));
         }
-        if (0 < count($this->fluidConsistencyType)) {
-            foreach ($this->fluidConsistencyType as $fluidConsistencyType) {
-                $fluidConsistencyType->xmlSerialize(true, $sxe->addChild('fluidConsistencyType'));
-            }
+        foreach ($this->fluidConsistencyType as $fluidConsistencyType) {
+            $fluidConsistencyType->xmlSerialize(true, $sxe->addChild('fluidConsistencyType'));
         }
         if (isset($this->instruction)) {
             $this->instruction->xmlSerialize(true, $sxe->addChild('instruction'));

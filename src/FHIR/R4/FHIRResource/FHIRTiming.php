@@ -229,10 +229,8 @@ class FHIRTiming extends FHIRBackboneElement implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Timing xmlns="http://hl7.org/fhir"></Timing>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->event)) {
-            foreach ($this->event as $event) {
-                $event->xmlSerialize(true, $sxe->addChild('event'));
-            }
+        foreach ($this->event as $event) {
+            $event->xmlSerialize(true, $sxe->addChild('event'));
         }
         if (isset($this->repeat)) {
             $this->repeat->xmlSerialize(true, $sxe->addChild('repeat'));

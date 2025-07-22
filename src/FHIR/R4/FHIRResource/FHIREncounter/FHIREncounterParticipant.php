@@ -227,10 +227,8 @@ class FHIREncounterParticipant extends FHIRBackboneElement implements \JsonSeria
             $sxe = new \SimpleXMLElement('<EncounterParticipant xmlns="http://hl7.org/fhir"></EncounterParticipant>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->type)) {
-            foreach ($this->type as $type) {
-                $type->xmlSerialize(true, $sxe->addChild('type'));
-            }
+        foreach ($this->type as $type) {
+            $type->xmlSerialize(true, $sxe->addChild('type'));
         }
         if (isset($this->period)) {
             $this->period->xmlSerialize(true, $sxe->addChild('period'));

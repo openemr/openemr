@@ -235,10 +235,8 @@ class FHIRLinkage extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->author)) {
             $this->author->xmlSerialize(true, $sxe->addChild('author'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -259,10 +259,8 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
             $sxe = new \SimpleXMLElement('<CareTeamParticipant xmlns="http://hl7.org/fhir"></CareTeamParticipant>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->role)) {
-            foreach ($this->role as $role) {
-                $role->xmlSerialize(true, $sxe->addChild('role'));
-            }
+        foreach ($this->role as $role) {
+            $role->xmlSerialize(true, $sxe->addChild('role'));
         }
         if (isset($this->member)) {
             $this->member->xmlSerialize(true, $sxe->addChild('member'));

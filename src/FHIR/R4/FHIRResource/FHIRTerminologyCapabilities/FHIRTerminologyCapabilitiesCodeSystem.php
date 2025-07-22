@@ -230,10 +230,8 @@ class FHIRTerminologyCapabilitiesCodeSystem extends FHIRBackboneElement implemen
         if (isset($this->uri)) {
             $this->uri->xmlSerialize(true, $sxe->addChild('uri'));
         }
-        if (0 < count($this->version)) {
-            foreach ($this->version as $version) {
-                $version->xmlSerialize(true, $sxe->addChild('version'));
-            }
+        foreach ($this->version as $version) {
+            $version->xmlSerialize(true, $sxe->addChild('version'));
         }
         if (isset($this->subsumption)) {
             $this->subsumption->xmlSerialize(true, $sxe->addChild('subsumption'));

@@ -239,15 +239,11 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
         if (isset($this->productName)) {
             $this->productName->xmlSerialize(true, $sxe->addChild('productName'));
         }
-        if (0 < count($this->namePart)) {
-            foreach ($this->namePart as $namePart) {
-                $namePart->xmlSerialize(true, $sxe->addChild('namePart'));
-            }
+        foreach ($this->namePart as $namePart) {
+            $namePart->xmlSerialize(true, $sxe->addChild('namePart'));
         }
-        if (0 < count($this->countryLanguage)) {
-            foreach ($this->countryLanguage as $countryLanguage) {
-                $countryLanguage->xmlSerialize(true, $sxe->addChild('countryLanguage'));
-            }
+        foreach ($this->countryLanguage as $countryLanguage) {
+            $countryLanguage->xmlSerialize(true, $sxe->addChild('countryLanguage'));
         }
         if ($returnSXE) {
             return $sxe;

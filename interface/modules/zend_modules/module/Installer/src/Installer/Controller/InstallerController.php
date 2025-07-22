@@ -125,17 +125,15 @@ class InstallerController extends AbstractActionController
             }
         }
         // do not show registered modules in the unregistered list
-        if (count($allModules) > 0) {
-            foreach ($allModules as $modules) {
-                $key = array_search($modules->modDirectory, $inDirLaminas);
-                if ($key !== false) {
-                    unset($inDirLaminas[$key]);
-                    continue;
-                }
-                $key = array_search($modules->modDirectory, $inDirCustom);
-                if ($key !== false) {
-                    unset($inDirCustom[$key]);
-                }
+        foreach ($allModules as $modules) {
+            $key = array_search($modules->modDirectory, $inDirLaminas);
+            if ($key !== false) {
+                unset($inDirLaminas[$key]);
+                continue;
+            }
+            $key = array_search($modules->modDirectory, $inDirCustom);
+            if ($key !== false) {
+                unset($inDirCustom[$key]);
             }
         }
         foreach ($inDirLaminas as $file_name) {
@@ -629,13 +627,11 @@ class InstallerController extends AbstractActionController
         if (!empty($mod->sql_version) && $mod->sqlRun == 1) {
             $versions = $this->getFilesForUpgrade($mod->modDirectory, $sqldir) ?: [];
 
-            if (count($versions) > 0) {
-                foreach ($versions as $version => $sfname) {
-                    if (version_compare($version, $mod->sql_version) < 0) {
-                        continue;
-                    }
-                    $mod->sql_action = "upgrade";
+            foreach ($versions as $version => $sfname) {
+                if (version_compare($version, $mod->sql_version) < 0) {
+                    continue;
                 }
+                $mod->sql_action = "upgrade";
             }
         }
         return $mod;
@@ -693,7 +689,7 @@ class InstallerController extends AbstractActionController
      * @param string $modId
      * @return bool
      */
-    public function InstallModuleSQL($modId = '')
+    public function InstallModuleSQL($modId = ''): bool
     {
         $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         $dirModule = $registryEntry->modDirectory;

@@ -414,15 +414,11 @@ class FHIRValueSetContains extends FHIRBackboneElement implements \JsonSerializa
         if (isset($this->display)) {
             $this->display->xmlSerialize(true, $sxe->addChild('display'));
         }
-        if (0 < count($this->designation)) {
-            foreach ($this->designation as $designation) {
-                $designation->xmlSerialize(true, $sxe->addChild('designation'));
-            }
+        foreach ($this->designation as $designation) {
+            $designation->xmlSerialize(true, $sxe->addChild('designation'));
         }
-        if (0 < count($this->contains)) {
-            foreach ($this->contains as $contains) {
-                $contains->xmlSerialize(true, $sxe->addChild('contains'));
-            }
+        foreach ($this->contains as $contains) {
+            $contains->xmlSerialize(true, $sxe->addChild('contains'));
         }
         if ($returnSXE) {
             return $sxe;

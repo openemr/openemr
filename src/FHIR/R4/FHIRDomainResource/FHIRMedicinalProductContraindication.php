@@ -393,10 +393,8 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
             $sxe = new \SimpleXMLElement('<MedicinalProductContraindication xmlns="http://hl7.org/fhir"></MedicinalProductContraindication>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->subject)) {
-            foreach ($this->subject as $subject) {
-                $subject->xmlSerialize(true, $sxe->addChild('subject'));
-            }
+        foreach ($this->subject as $subject) {
+            $subject->xmlSerialize(true, $sxe->addChild('subject'));
         }
         if (isset($this->disease)) {
             $this->disease->xmlSerialize(true, $sxe->addChild('disease'));
@@ -404,25 +402,17 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
         if (isset($this->diseaseStatus)) {
             $this->diseaseStatus->xmlSerialize(true, $sxe->addChild('diseaseStatus'));
         }
-        if (0 < count($this->comorbidity)) {
-            foreach ($this->comorbidity as $comorbidity) {
-                $comorbidity->xmlSerialize(true, $sxe->addChild('comorbidity'));
-            }
+        foreach ($this->comorbidity as $comorbidity) {
+            $comorbidity->xmlSerialize(true, $sxe->addChild('comorbidity'));
         }
-        if (0 < count($this->therapeuticIndication)) {
-            foreach ($this->therapeuticIndication as $therapeuticIndication) {
-                $therapeuticIndication->xmlSerialize(true, $sxe->addChild('therapeuticIndication'));
-            }
+        foreach ($this->therapeuticIndication as $therapeuticIndication) {
+            $therapeuticIndication->xmlSerialize(true, $sxe->addChild('therapeuticIndication'));
         }
-        if (0 < count($this->otherTherapy)) {
-            foreach ($this->otherTherapy as $otherTherapy) {
-                $otherTherapy->xmlSerialize(true, $sxe->addChild('otherTherapy'));
-            }
+        foreach ($this->otherTherapy as $otherTherapy) {
+            $otherTherapy->xmlSerialize(true, $sxe->addChild('otherTherapy'));
         }
-        if (0 < count($this->population)) {
-            foreach ($this->population as $population) {
-                $population->xmlSerialize(true, $sxe->addChild('population'));
-            }
+        foreach ($this->population as $population) {
+            $population->xmlSerialize(true, $sxe->addChild('population'));
         }
         if ($returnSXE) {
             return $sxe;

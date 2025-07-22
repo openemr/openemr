@@ -259,10 +259,8 @@ class FHIRHealthcareServiceAvailableTime extends FHIRBackboneElement implements 
             $sxe = new \SimpleXMLElement('<HealthcareServiceAvailableTime xmlns="http://hl7.org/fhir"></HealthcareServiceAvailableTime>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->daysOfWeek)) {
-            foreach ($this->daysOfWeek as $daysOfWeek) {
-                $daysOfWeek->xmlSerialize(true, $sxe->addChild('daysOfWeek'));
-            }
+        foreach ($this->daysOfWeek as $daysOfWeek) {
+            $daysOfWeek->xmlSerialize(true, $sxe->addChild('daysOfWeek'));
         }
         if (isset($this->allDay)) {
             $this->allDay->xmlSerialize(true, $sxe->addChild('allDay'));

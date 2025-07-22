@@ -245,20 +245,14 @@ class FHIRRiskEvidenceSynthesisCertainty extends FHIRBackboneElement implements 
             $sxe = new \SimpleXMLElement('<RiskEvidenceSynthesisCertainty xmlns="http://hl7.org/fhir"></RiskEvidenceSynthesisCertainty>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->rating)) {
-            foreach ($this->rating as $rating) {
-                $rating->xmlSerialize(true, $sxe->addChild('rating'));
-            }
+        foreach ($this->rating as $rating) {
+            $rating->xmlSerialize(true, $sxe->addChild('rating'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->certaintySubcomponent)) {
-            foreach ($this->certaintySubcomponent as $certaintySubcomponent) {
-                $certaintySubcomponent->xmlSerialize(true, $sxe->addChild('certaintySubcomponent'));
-            }
+        foreach ($this->certaintySubcomponent as $certaintySubcomponent) {
+            $certaintySubcomponent->xmlSerialize(true, $sxe->addChild('certaintySubcomponent'));
         }
         if ($returnSXE) {
             return $sxe;

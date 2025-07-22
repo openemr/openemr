@@ -257,7 +257,7 @@ class RulesPlanMappingEventHandlers
         return $plan_id;
     }
 
-    public static function isPlanActive($plan_id)
+    public static function isPlanActive($plan_id): bool
     {
         $sql_st = "SELECT `normal_flag` " .
             "FROM `clinical_plans` " .

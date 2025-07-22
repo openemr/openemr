@@ -532,7 +532,7 @@ function csv_setup()
  * @param  none
  * @return bool
  */
-function csv_clear_tmpdir()
+function csv_clear_tmpdir(): bool
 {
     //
     $tmpdir = csv_edih_tmpdir();

@@ -367,10 +367,8 @@ class FHIRAllergyIntoleranceReaction extends FHIRBackboneElement implements \Jso
         if (isset($this->substance)) {
             $this->substance->xmlSerialize(true, $sxe->addChild('substance'));
         }
-        if (0 < count($this->manifestation)) {
-            foreach ($this->manifestation as $manifestation) {
-                $manifestation->xmlSerialize(true, $sxe->addChild('manifestation'));
-            }
+        foreach ($this->manifestation as $manifestation) {
+            $manifestation->xmlSerialize(true, $sxe->addChild('manifestation'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
@@ -384,10 +382,8 @@ class FHIRAllergyIntoleranceReaction extends FHIRBackboneElement implements \Jso
         if (isset($this->exposureRoute)) {
             $this->exposureRoute->xmlSerialize(true, $sxe->addChild('exposureRoute'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
         if ($returnSXE) {
             return $sxe;

@@ -309,15 +309,11 @@ class FHIRQuestionnaireResponseItem extends FHIRBackboneElement implements \Json
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->answer)) {
-            foreach ($this->answer as $answer) {
-                $answer->xmlSerialize(true, $sxe->addChild('answer'));
-            }
+        foreach ($this->answer as $answer) {
+            $answer->xmlSerialize(true, $sxe->addChild('answer'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if ($returnSXE) {
             return $sxe;

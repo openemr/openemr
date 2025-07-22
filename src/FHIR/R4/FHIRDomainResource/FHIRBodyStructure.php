@@ -407,10 +407,8 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<BodyStructure xmlns="http://hl7.org/fhir"></BodyStructure>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->active)) {
             $this->active->xmlSerialize(true, $sxe->addChild('active'));
@@ -421,18 +419,14 @@ class FHIRBodyStructure extends FHIRDomainResource implements \JsonSerializable
         if (isset($this->location)) {
             $this->location->xmlSerialize(true, $sxe->addChild('location'));
         }
-        if (0 < count($this->locationQualifier)) {
-            foreach ($this->locationQualifier as $locationQualifier) {
-                $locationQualifier->xmlSerialize(true, $sxe->addChild('locationQualifier'));
-            }
+        foreach ($this->locationQualifier as $locationQualifier) {
+            $locationQualifier->xmlSerialize(true, $sxe->addChild('locationQualifier'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->image)) {
-            foreach ($this->image as $image) {
-                $image->xmlSerialize(true, $sxe->addChild('image'));
-            }
+        foreach ($this->image as $image) {
+            $image->xmlSerialize(true, $sxe->addChild('image'));
         }
         if (isset($this->patient)) {
             $this->patient->xmlSerialize(true, $sxe->addChild('patient'));

@@ -352,10 +352,8 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
         if (isset($this->reference)) {
             $this->reference->xmlSerialize(true, $sxe->addChild('reference'));
         }
-        if (0 < count($this->fhirVersion)) {
-            foreach ($this->fhirVersion as $fhirVersion) {
-                $fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
-            }
+        foreach ($this->fhirVersion as $fhirVersion) {
+            $fhirVersion->xmlSerialize(true, $sxe->addChild('fhirVersion'));
         }
         if (isset($this->name)) {
             $this->name->xmlSerialize(true, $sxe->addChild('name'));

@@ -268,10 +268,8 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
         if (isset($this->benefitPeriod)) {
             $this->benefitPeriod->xmlSerialize(true, $sxe->addChild('benefitPeriod'));
         }
-        if (0 < count($this->item)) {
-            foreach ($this->item as $item) {
-                $item->xmlSerialize(true, $sxe->addChild('item'));
-            }
+        foreach ($this->item as $item) {
+            $item->xmlSerialize(true, $sxe->addChild('item'));
         }
         if ($returnSXE) {
             return $sxe;

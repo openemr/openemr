@@ -309,15 +309,11 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
         if (isset($this->amount)) {
             $this->amount->xmlSerialize(true, $sxe->addChild('amount'));
         }
-        if (0 < count($this->degreeOfPolymerisation)) {
-            foreach ($this->degreeOfPolymerisation as $degreeOfPolymerisation) {
-                $degreeOfPolymerisation->xmlSerialize(true, $sxe->addChild('degreeOfPolymerisation'));
-            }
+        foreach ($this->degreeOfPolymerisation as $degreeOfPolymerisation) {
+            $degreeOfPolymerisation->xmlSerialize(true, $sxe->addChild('degreeOfPolymerisation'));
         }
-        if (0 < count($this->structuralRepresentation)) {
-            foreach ($this->structuralRepresentation as $structuralRepresentation) {
-                $structuralRepresentation->xmlSerialize(true, $sxe->addChild('structuralRepresentation'));
-            }
+        foreach ($this->structuralRepresentation as $structuralRepresentation) {
+            $structuralRepresentation->xmlSerialize(true, $sxe->addChild('structuralRepresentation'));
         }
         if ($returnSXE) {
             return $sxe;

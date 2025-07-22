@@ -785,10 +785,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
             $sxe = new \SimpleXMLElement('<AllergyIntolerance xmlns="http://hl7.org/fhir"></AllergyIntolerance>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->clinicalStatus)) {
             $this->clinicalStatus->xmlSerialize(true, $sxe->addChild('clinicalStatus'));
@@ -799,10 +797,8 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
         }
-        if (0 < count($this->category)) {
-            foreach ($this->category as $category) {
-                $category->xmlSerialize(true, $sxe->addChild('category'));
-            }
+        foreach ($this->category as $category) {
+            $category->xmlSerialize(true, $sxe->addChild('category'));
         }
         if (isset($this->criticality)) {
             $this->criticality->xmlSerialize(true, $sxe->addChild('criticality'));
@@ -843,15 +839,11 @@ class FHIRAllergyIntolerance extends FHIRDomainResource implements \JsonSerializ
         if (isset($this->lastOccurrence)) {
             $this->lastOccurrence->xmlSerialize(true, $sxe->addChild('lastOccurrence'));
         }
-        if (0 < count($this->note)) {
-            foreach ($this->note as $note) {
-                $note->xmlSerialize(true, $sxe->addChild('note'));
-            }
+        foreach ($this->note as $note) {
+            $note->xmlSerialize(true, $sxe->addChild('note'));
         }
-        if (0 < count($this->reaction)) {
-            foreach ($this->reaction as $reaction) {
-                $reaction->xmlSerialize(true, $sxe->addChild('reaction'));
-            }
+        foreach ($this->reaction as $reaction) {
+            $reaction->xmlSerialize(true, $sxe->addChild('reaction'));
         }
         if ($returnSXE) {
             return $sxe;

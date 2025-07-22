@@ -558,19 +558,19 @@ function authorizePnote($id, $authorized = "1"): void
     sqlQuery("UPDATE pnotes SET authorized = ? , update_by = ?, update_date = NOW() WHERE id = ?", array ($authorized, $_SESSION['authUserID'], $id));
 }
 
-function disappearPnote($id)
+function disappearPnote($id): bool
 {
     sqlStatement("UPDATE pnotes SET activity = '0', message_status = 'Done', update_by = ?, update_date = NOW()  WHERE id=?", array($_SESSION['authUserID'], $id));
     return true;
 }
 
-function reappearPnote($id)
+function reappearPnote($id): bool
 {
     sqlStatement("UPDATE pnotes SET activity = '1', message_status = IF(message_status='Done','New',message_status), update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
     return true;
 }
 
-function deletePnote($id)
+function deletePnote($id): bool
 {
     $assigned = getAssignedToById($id);
     if (!checkPortalAuthUser($_SESSION['authUser']) && $assigned == 'portal-user') {

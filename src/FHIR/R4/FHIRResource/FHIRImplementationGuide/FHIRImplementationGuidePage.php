@@ -297,10 +297,8 @@ class FHIRImplementationGuidePage extends FHIRBackboneElement implements \JsonSe
         if (isset($this->generation)) {
             $this->generation->xmlSerialize(true, $sxe->addChild('generation'));
         }
-        if (0 < count($this->page)) {
-            foreach ($this->page as $page) {
-                $page->xmlSerialize(true, $sxe->addChild('page'));
-            }
+        foreach ($this->page as $page) {
+            $page->xmlSerialize(true, $sxe->addChild('page'));
         }
         if ($returnSXE) {
             return $sxe;

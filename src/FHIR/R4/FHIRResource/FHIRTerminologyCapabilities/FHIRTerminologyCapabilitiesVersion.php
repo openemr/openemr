@@ -350,20 +350,14 @@ class FHIRTerminologyCapabilitiesVersion extends FHIRBackboneElement implements 
         if (isset($this->compositional)) {
             $this->compositional->xmlSerialize(true, $sxe->addChild('compositional'));
         }
-        if (0 < count($this->language)) {
-            foreach ($this->language as $language) {
-                $language->xmlSerialize(true, $sxe->addChild('language'));
-            }
+        foreach ($this->language as $language) {
+            $language->xmlSerialize(true, $sxe->addChild('language'));
         }
-        if (0 < count($this->filter)) {
-            foreach ($this->filter as $filter) {
-                $filter->xmlSerialize(true, $sxe->addChild('filter'));
-            }
+        foreach ($this->filter as $filter) {
+            $filter->xmlSerialize(true, $sxe->addChild('filter'));
         }
-        if (0 < count($this->property)) {
-            foreach ($this->property as $property) {
-                $property->xmlSerialize(true, $sxe->addChild('property'));
-            }
+        foreach ($this->property as $property) {
+            $property->xmlSerialize(true, $sxe->addChild('property'));
         }
         if ($returnSXE) {
             return $sxe;

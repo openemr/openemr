@@ -810,23 +810,17 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->source)) {
-            foreach ($this->source as $source) {
-                $source->xmlSerialize(true, $sxe->addChild('source'));
-            }
+        foreach ($this->source as $source) {
+            $source->xmlSerialize(true, $sxe->addChild('source'));
         }
         if (isset($this->comment)) {
             $this->comment->xmlSerialize(true, $sxe->addChild('comment'));
         }
-        if (0 < count($this->moiety)) {
-            foreach ($this->moiety as $moiety) {
-                $moiety->xmlSerialize(true, $sxe->addChild('moiety'));
-            }
+        foreach ($this->moiety as $moiety) {
+            $moiety->xmlSerialize(true, $sxe->addChild('moiety'));
         }
-        if (0 < count($this->property)) {
-            foreach ($this->property as $property) {
-                $property->xmlSerialize(true, $sxe->addChild('property'));
-            }
+        foreach ($this->property as $property) {
+            $property->xmlSerialize(true, $sxe->addChild('property'));
         }
         if (isset($this->referenceInformation)) {
             $this->referenceInformation->xmlSerialize(true, $sxe->addChild('referenceInformation'));
@@ -834,25 +828,17 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
         if (isset($this->structure)) {
             $this->structure->xmlSerialize(true, $sxe->addChild('structure'));
         }
-        if (0 < count($this->code)) {
-            foreach ($this->code as $code) {
-                $code->xmlSerialize(true, $sxe->addChild('code'));
-            }
+        foreach ($this->code as $code) {
+            $code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->name)) {
-            foreach ($this->name as $name) {
-                $name->xmlSerialize(true, $sxe->addChild('name'));
-            }
+        foreach ($this->name as $name) {
+            $name->xmlSerialize(true, $sxe->addChild('name'));
         }
-        if (0 < count($this->molecularWeight)) {
-            foreach ($this->molecularWeight as $molecularWeight) {
-                $molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
-            }
+        foreach ($this->molecularWeight as $molecularWeight) {
+            $molecularWeight->xmlSerialize(true, $sxe->addChild('molecularWeight'));
         }
-        if (0 < count($this->relationship)) {
-            foreach ($this->relationship as $relationship) {
-                $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
-            }
+        foreach ($this->relationship as $relationship) {
+            $relationship->xmlSerialize(true, $sxe->addChild('relationship'));
         }
         if (isset($this->nucleicAcid)) {
             $this->nucleicAcid->xmlSerialize(true, $sxe->addChild('nucleicAcid'));

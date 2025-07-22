@@ -297,10 +297,8 @@ class FHIRNutritionOrderSupplement extends FHIRBackboneElement implements \JsonS
         if (isset($this->productName)) {
             $this->productName->xmlSerialize(true, $sxe->addChild('productName'));
         }
-        if (0 < count($this->schedule)) {
-            foreach ($this->schedule as $schedule) {
-                $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
-            }
+        foreach ($this->schedule as $schedule) {
+            $schedule->xmlSerialize(true, $sxe->addChild('schedule'));
         }
         if (isset($this->quantity)) {
             $this->quantity->xmlSerialize(true, $sxe->addChild('quantity'));

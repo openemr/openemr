@@ -31,7 +31,7 @@ class AMC_314g_1_2_14_Denominator implements AmcFilterIF
         return "AMC_314g_1_2_14 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Seen by the EP
         //  (basically needs an encounter within the report dates)

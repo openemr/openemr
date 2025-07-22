@@ -95,7 +95,7 @@ class WenoLogService
         return ['is_error' => true, 'type' => $type, 'messageText' => trim($message), 'messageHtml' => trim($content_html)];
     }
 
-    public function validateTable()
+    public function validateTable(): bool
     {
         $isIt = sqlQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'weno_download_log' AND COLUMN_NAME = 'data_in_context'");
         if (empty($isIt)) {

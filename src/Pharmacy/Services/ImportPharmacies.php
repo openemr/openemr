@@ -129,7 +129,7 @@ class ImportPharmacies
      * @return bool
      *
      */
-    private function entryCheck($npi)
+    private function entryCheck($npi): bool
     {
         $sql = "SELECT count(*) AS num FROM pharmacies WHERE npi = ?";
         $query = sqlQuery($sql, [$npi]);

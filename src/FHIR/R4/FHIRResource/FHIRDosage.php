@@ -590,10 +590,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->text)) {
             $this->text->xmlSerialize(true, $sxe->addChild('text'));
         }
-        if (0 < count($this->additionalInstruction)) {
-            foreach ($this->additionalInstruction as $additionalInstruction) {
-                $additionalInstruction->xmlSerialize(true, $sxe->addChild('additionalInstruction'));
-            }
+        foreach ($this->additionalInstruction as $additionalInstruction) {
+            $additionalInstruction->xmlSerialize(true, $sxe->addChild('additionalInstruction'));
         }
         if (isset($this->patientInstruction)) {
             $this->patientInstruction->xmlSerialize(true, $sxe->addChild('patientInstruction'));
@@ -616,10 +614,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
         if (isset($this->method)) {
             $this->method->xmlSerialize(true, $sxe->addChild('method'));
         }
-        if (0 < count($this->doseAndRate)) {
-            foreach ($this->doseAndRate as $doseAndRate) {
-                $doseAndRate->xmlSerialize(true, $sxe->addChild('doseAndRate'));
-            }
+        foreach ($this->doseAndRate as $doseAndRate) {
+            $doseAndRate->xmlSerialize(true, $sxe->addChild('doseAndRate'));
         }
         if (isset($this->maxDosePerPeriod)) {
             $this->maxDosePerPeriod->xmlSerialize(true, $sxe->addChild('maxDosePerPeriod'));

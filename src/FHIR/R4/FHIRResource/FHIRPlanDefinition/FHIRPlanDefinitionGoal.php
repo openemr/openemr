@@ -385,20 +385,14 @@ class FHIRPlanDefinitionGoal extends FHIRBackboneElement implements \JsonSeriali
         if (isset($this->start)) {
             $this->start->xmlSerialize(true, $sxe->addChild('start'));
         }
-        if (0 < count($this->addresses)) {
-            foreach ($this->addresses as $addresses) {
-                $addresses->xmlSerialize(true, $sxe->addChild('addresses'));
-            }
+        foreach ($this->addresses as $addresses) {
+            $addresses->xmlSerialize(true, $sxe->addChild('addresses'));
         }
-        if (0 < count($this->documentation)) {
-            foreach ($this->documentation as $documentation) {
-                $documentation->xmlSerialize(true, $sxe->addChild('documentation'));
-            }
+        foreach ($this->documentation as $documentation) {
+            $documentation->xmlSerialize(true, $sxe->addChild('documentation'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if ($returnSXE) {
             return $sxe;

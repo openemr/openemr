@@ -233,10 +233,8 @@ class FHIRTestScriptTest extends FHIRBackboneElement implements \JsonSerializabl
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->action)) {
-            foreach ($this->action as $action) {
-                $action->xmlSerialize(true, $sxe->addChild('action'));
-            }
+        foreach ($this->action as $action) {
+            $action->xmlSerialize(true, $sxe->addChild('action'));
         }
         if ($returnSXE) {
             return $sxe;

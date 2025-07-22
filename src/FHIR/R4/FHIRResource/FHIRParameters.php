@@ -165,10 +165,8 @@ class FHIRParameters extends FHIRResource implements \JsonSerializable
             $sxe = new \SimpleXMLElement('<Parameters xmlns="http://hl7.org/fhir"></Parameters>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->parameter)) {
-            foreach ($this->parameter as $parameter) {
-                $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
-            }
+        foreach ($this->parameter as $parameter) {
+            $parameter->xmlSerialize(true, $sxe->addChild('parameter'));
         }
         if ($returnSXE) {
             return $sxe;

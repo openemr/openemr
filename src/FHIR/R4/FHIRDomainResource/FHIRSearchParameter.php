@@ -1061,23 +1061,17 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
@@ -1085,10 +1079,8 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));
         }
-        if (0 < count($this->base)) {
-            foreach ($this->base as $base) {
-                $base->xmlSerialize(true, $sxe->addChild('base'));
-            }
+        foreach ($this->base as $base) {
+            $base->xmlSerialize(true, $sxe->addChild('base'));
         }
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));
@@ -1102,10 +1094,8 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->xpathUsage)) {
             $this->xpathUsage->xmlSerialize(true, $sxe->addChild('xpathUsage'));
         }
-        if (0 < count($this->target)) {
-            foreach ($this->target as $target) {
-                $target->xmlSerialize(true, $sxe->addChild('target'));
-            }
+        foreach ($this->target as $target) {
+            $target->xmlSerialize(true, $sxe->addChild('target'));
         }
         if (isset($this->multipleOr)) {
             $this->multipleOr->xmlSerialize(true, $sxe->addChild('multipleOr'));
@@ -1113,25 +1103,17 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->multipleAnd)) {
             $this->multipleAnd->xmlSerialize(true, $sxe->addChild('multipleAnd'));
         }
-        if (0 < count($this->comparator)) {
-            foreach ($this->comparator as $comparator) {
-                $comparator->xmlSerialize(true, $sxe->addChild('comparator'));
-            }
+        foreach ($this->comparator as $comparator) {
+            $comparator->xmlSerialize(true, $sxe->addChild('comparator'));
         }
-        if (0 < count($this->modifier)) {
-            foreach ($this->modifier as $modifier) {
-                $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
-            }
+        foreach ($this->modifier as $modifier) {
+            $modifier->xmlSerialize(true, $sxe->addChild('modifier'));
         }
-        if (0 < count($this->chain)) {
-            foreach ($this->chain as $chain) {
-                $chain->xmlSerialize(true, $sxe->addChild('chain'));
-            }
+        foreach ($this->chain as $chain) {
+            $chain->xmlSerialize(true, $sxe->addChild('chain'));
         }
-        if (0 < count($this->component)) {
-            foreach ($this->component as $component) {
-                $component->xmlSerialize(true, $sxe->addChild('component'));
-            }
+        foreach ($this->component as $component) {
+            $component->xmlSerialize(true, $sxe->addChild('component'));
         }
         if ($returnSXE) {
             return $sxe;

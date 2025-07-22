@@ -743,10 +743,8 @@ class FHIRExampleScenario extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->url)) {
             $this->url->xmlSerialize(true, $sxe->addChild('url'));
         }
-        if (0 < count($this->identifier)) {
-            foreach ($this->identifier as $identifier) {
-                $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
-            }
+        foreach ($this->identifier as $identifier) {
+            $identifier->xmlSerialize(true, $sxe->addChild('identifier'));
         }
         if (isset($this->version)) {
             $this->version->xmlSerialize(true, $sxe->addChild('version'));
@@ -766,20 +764,14 @@ class FHIRExampleScenario extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->publisher)) {
             $this->publisher->xmlSerialize(true, $sxe->addChild('publisher'));
         }
-        if (0 < count($this->contact)) {
-            foreach ($this->contact as $contact) {
-                $contact->xmlSerialize(true, $sxe->addChild('contact'));
-            }
+        foreach ($this->contact as $contact) {
+            $contact->xmlSerialize(true, $sxe->addChild('contact'));
         }
-        if (0 < count($this->useContext)) {
-            foreach ($this->useContext as $useContext) {
-                $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
-            }
+        foreach ($this->useContext as $useContext) {
+            $useContext->xmlSerialize(true, $sxe->addChild('useContext'));
         }
-        if (0 < count($this->jurisdiction)) {
-            foreach ($this->jurisdiction as $jurisdiction) {
-                $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
-            }
+        foreach ($this->jurisdiction as $jurisdiction) {
+            $jurisdiction->xmlSerialize(true, $sxe->addChild('jurisdiction'));
         }
         if (isset($this->copyright)) {
             $this->copyright->xmlSerialize(true, $sxe->addChild('copyright'));
@@ -787,25 +779,17 @@ class FHIRExampleScenario extends FHIRDomainResource implements \JsonSerializabl
         if (isset($this->purpose)) {
             $this->purpose->xmlSerialize(true, $sxe->addChild('purpose'));
         }
-        if (0 < count($this->actor)) {
-            foreach ($this->actor as $actor) {
-                $actor->xmlSerialize(true, $sxe->addChild('actor'));
-            }
+        foreach ($this->actor as $actor) {
+            $actor->xmlSerialize(true, $sxe->addChild('actor'));
         }
-        if (0 < count($this->instance)) {
-            foreach ($this->instance as $instance) {
-                $instance->xmlSerialize(true, $sxe->addChild('instance'));
-            }
+        foreach ($this->instance as $instance) {
+            $instance->xmlSerialize(true, $sxe->addChild('instance'));
         }
-        if (0 < count($this->process)) {
-            foreach ($this->process as $process) {
-                $process->xmlSerialize(true, $sxe->addChild('process'));
-            }
+        foreach ($this->process as $process) {
+            $process->xmlSerialize(true, $sxe->addChild('process'));
         }
-        if (0 < count($this->workflow)) {
-            foreach ($this->workflow as $workflow) {
-                $workflow->xmlSerialize(true, $sxe->addChild('workflow'));
-            }
+        foreach ($this->workflow as $workflow) {
+            $workflow->xmlSerialize(true, $sxe->addChild('workflow'));
         }
         if ($returnSXE) {
             return $sxe;

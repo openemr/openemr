@@ -154,7 +154,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return !empty($table_records);
     }
 
-    private function shouldUpdateCPT4Mappings()
+    private function shouldUpdateCPT4Mappings(): bool
     {
         if (!$this->is_code_type_active('CPT4')) {
             // no codes installed so we aren't updating anything.
@@ -180,7 +180,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function shouldUpdateSNOMEDMappings()
+    private function shouldUpdateSNOMEDMappings(): bool
     {
         if ($this->shouldUpdateListWithSnomedCodes(self::SNOMED_ENCOUNTER_TYPE_MAPPINGS, self::LIST_ID_ENCOUNTER_TYPES)) {
             return true;
@@ -198,7 +198,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function shouldUpdateListWithSnomedCodes($mappings, $list_id)
+    private function shouldUpdateListWithSnomedCodes($mappings, $list_id): bool
     {
         foreach ($mappings as $option_id => $code_id) {
             $sql = "SELECT codes FROM list_options WHERE list_id=? AND option_id=?";

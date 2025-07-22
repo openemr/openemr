@@ -260,10 +260,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
             $sxe = new \SimpleXMLElement('<ElementDefinitionSlicing xmlns="http://hl7.org/fhir"></ElementDefinitionSlicing>');
         }
         parent::xmlSerialize(true, $sxe);
-        if (0 < count($this->discriminator)) {
-            foreach ($this->discriminator as $discriminator) {
-                $discriminator->xmlSerialize(true, $sxe->addChild('discriminator'));
-            }
+        foreach ($this->discriminator as $discriminator) {
+            $discriminator->xmlSerialize(true, $sxe->addChild('discriminator'));
         }
         if (isset($this->description)) {
             $this->description->xmlSerialize(true, $sxe->addChild('description'));

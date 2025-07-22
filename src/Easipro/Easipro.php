@@ -84,7 +84,7 @@ class Easipro
     }
 
     // Request assessment and send notification
-    public static function requestAssessment($patient_id, $user_id, $form_oid, $form_name, $expiration, $assessment_oid, $status)
+    public static function requestAssessment($patient_id, $user_id, $form_oid, $form_name, $expiration, $assessment_oid, $status): bool
     {
         // store request
         sqlStatement(
@@ -131,7 +131,7 @@ class Easipro
     }
 
     // Record assessment result and send notification
-    public static function recordResult($patient_id, $score, $assessment_oid, $std_err)
+    public static function recordResult($patient_id, $score, $assessment_oid, $std_err): bool
     {
         // process score
         $score = ((float) $score) * 10 + 50;
