@@ -63,6 +63,30 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-composer-
 
+    - name: Install npm package
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Cache node modules
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: NPM CI
+      run: npm ci
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
