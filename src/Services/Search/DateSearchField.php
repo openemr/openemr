@@ -38,7 +38,7 @@ class DateSearchField extends BasicSearchField
     // This line is licensed under the MIT license and was last accessed on April 20th 2021
     // This line was updated on July 6th 2023 to support the fractional seconds (represented in milliseconds) component of the ISO8601 standard
     // per the https://build.fhir.org/search.html#date parameter format yyyy-mm-ddThh:mm:ss.ssss[Z|(+|-)hh:mm]
-    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(\.\d{1,4})?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
+    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(\.\d{1,9})?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
 
     // php's DATE_ATOM does not handle milliseconds so we have to add them in manually
     public const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
@@ -134,7 +134,7 @@ class DateSearchField extends BasicSearchField
         // spec requires that we fill in missing values with the lowest bounds of missing parameters.
 
         if (preg_match(self::COMPARATOR_MATCH, $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
-            throw new \InvalidArgumentException("Date format invalid must match ISO8610 format and values SHALL be populated from left to right");
+            throw new \InvalidArgumentException("Date format invalid must match ISO8601 format and values SHALL be populated from left to right");
         }
         if (empty($matches[self::COMPARATOR_INDEX_YEAR])) {
             throw new \InvalidArgumentException("Date format requires the year to be specified");
