@@ -1,6 +1,9 @@
 name: Rector PHP Analysis
 
 on:
+  push:
+    branches:
+    - master
   pull_request:
     branches:
     - master
@@ -9,7 +12,6 @@ jobs:
   rector:
     name: Rector PHP Analysis
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -19,7 +21,6 @@ jobs:
       with:
         php-version: '8.4'
         coverage: none
-        tools: composer:v2
 
     - name: Get composer cache directory
       id: composer-cache

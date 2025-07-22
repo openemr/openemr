@@ -17,15 +17,27 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        coverage: none
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
     - name: Composer Cache
       uses: actions/cache@v4
       with:
-        path: /tmp/composer-cache
+        path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
     - name: Composer Install
-      uses: php-actions/composer@v6
-      with:
-        php_extensions: gd soap zip
+      run: composer install --prefer-dist --no-progress
     - name: PHPStan Diagnose
       if: ${{ env.ACTIONS_STEP_DEBUG == 'true' }}
       uses: php-actions/phpstan@v3
