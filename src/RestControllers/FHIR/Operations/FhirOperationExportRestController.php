@@ -533,7 +533,7 @@ class FhirOperationExportRestController
             }
         }
         if (empty($approvedResources)) {
-            throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does grant access to any supported system resources');
+            throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does not grant access to any supported system resources');
         }
         return $approvedResources;
     }
