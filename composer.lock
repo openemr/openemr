@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e2164fe723ef2bcf51e9bea7a0c48f5",
+    "content-hash": "238bb7b5f50437554d62b33e348aca71",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -10751,22 +10751,23 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "8.4.1",
+            "version": "8.6.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "637358562caf326883f2ad0ed77c487bc6f2cdc9"
+                "url": "https://github.com/twilio/twilio-php",
+                "reference": "4a914d4fcbab9ee6b7ea84f8df171022f208fdf5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/637358562caf326883f2ad0ed77c487bc6f2cdc9",
-                "reference": "637358562caf326883f2ad0ed77c487bc6f2cdc9",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/4a914d4fcbab9ee6b7ea84f8df171022f208fdf5",
+                "reference": "4a914d4fcbab9ee6b7ea84f8df171022f208fdf5",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.1.0"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
                 "guzzlehttp/guzzle": "^6.3 || ^7.0",
                 "phpunit/phpunit": ">=7.0 < 10"
             },
@@ -10796,11 +10797,7 @@
                 "sms",
                 "twilio"
             ],
-            "support": {
-                "issues": "https://github.com/twilio/twilio-php/issues",
-                "source": "https://github.com/twilio/twilio-php/tree/8.4.1"
-            },
-            "time": "2025-03-20T10:30:10+00:00"
+            "time": "2025-07-10T11:52:59+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
