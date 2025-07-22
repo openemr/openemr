@@ -9,4 +9,9 @@ if (php_sapi_name() !== 'cli') {
 
 $_GET['site'] = 'default';
 $ignoreAuth = true;
+
+// Reduce logging level during tests to prevent memory issues
+// SystemLogger uses this global to determine log level
+$GLOBALS['system_error_logging'] = 'WARNING';
+
 require_once(__DIR__ . "/../interface/globals.php");

@@ -33,6 +33,7 @@ jobs:
         dirs=( "${dirs[@]#ci/}" )
         # Everything inside this for loop that goes to stdout ends up
         # in the github output, so it must be valid json.
+        i=0
         for docker_dir in "${dirs[@]}"; do
             IFS=: read -r database db < <(yq '.services.mysql.image' "ci/${docker_dir}/docker-compose.yml")
             IFS=_ read -r webserver php _ <<< "${docker_dir}"
@@ -58,18 +59,35 @@ jobs:
                     exit 1
                     ;;
             esac
+            # Test the null encryption strategy on the first iteration
+            if (( i++ == 0 )); then
+                encryption_strategy=null
+            else
+                encryption_strategy=cryptogen
+            fi
             printf '{
-                "docker_dir": "%s",
                 "database": "%s",
+                "database_template": "%s",
                 "db": "%s",
+                "docker_dir": "%s",
                 "e2e_enabled": "%s",
+                "encryption_strategy": "%s",
                 "openemr_dir": "%s",
                 "php": "%s",
+                "selenium_template": "%s",
                 "webserver": "%s",
-                "webserver_template": "%s",
-                "database_template": "%s",
-                "selenium_template": "%s"
-            }\n' "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver" "$webserver_template" "$database_template" "$selenium_template"
+                "webserver_template": "%s"
+            }\n' "$database" \
+                 "$database_template" \
+                 "$db" \
+                 "$docker_dir" \
+                 "$e2e_enabled" \
+                 "$encryption_strategy" \
+                 "$openemr_dir" \
+                 "$php" \
+                 "$selenium_template" \
+                 "$webserver" \
+                 "$webserver_template"
         done | {
             printf 'configurations='
             jq -cs .
@@ -85,10 +103,11 @@ jobs:
       matrix:
         configurations: ${{ fromJson(needs.collect.outputs.configurations) }}
     env:
+      COMPOSE_FILE: "ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
       DOCKER_DIR: ${{ matrix.configurations.docker_dir }}
       ENABLE_COVERAGE: ${{ matrix.configurations.docker_dir == 'apache_84_114' && 'true' || 'false' }}
+      ENCRYPTION_STRATEGY: ${{ matrix.configurations.encryption_strategy }}
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
-      COMPOSE_FILE: "ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
     - uses: actions/checkout@v4
     - name: Install PHP
