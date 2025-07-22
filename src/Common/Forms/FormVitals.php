@@ -482,17 +482,17 @@ class FormVitals extends ORDataObject
         }
     }
 
-    public function persist()
+    public function persist(): bool
     {
         if (empty($this->uuid)) {
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
-        parent::persist();
 
         foreach ($this->_vitals_details as $item) {
             $item->set_form_id($this->get_id());
             $item->persist();
         }
+        return parent::persist();
     }
 
     public function populate_array($results)

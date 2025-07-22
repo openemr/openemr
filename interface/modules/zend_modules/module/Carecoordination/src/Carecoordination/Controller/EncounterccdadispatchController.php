@@ -284,15 +284,6 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
                 exit;
             }
-            if (empty($downloadccda)) {
-                $practice_filename = "CCDA_{$this->patient_id}.xml";
-                header("Cache-Control: public");
-                header("Content-Description: File Transfer");
-                header("Content-Disposition: attachment; filename=" . $practice_filename);
-                header("Content-Type: application/download");
-                header("Content-Transfer-Encoding: binary");
-                echo $content;
-            }
             exit;
         } catch (Exception $e) {
             die($e->getMessage());

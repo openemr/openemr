@@ -1651,9 +1651,4 @@ class FormROS extends ORDataObject
         $string = "\n" . "ID: " . $this->id . "\n";
         return $html ? nl2br($string) : $string;
     }
-
-    function persist()
-    {
-        parent::persist();
-    }
-}   // end of Form
+}

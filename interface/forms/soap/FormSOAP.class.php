@@ -171,8 +171,8 @@ class FormSOAP extends ORDataObject
         }
     }
 
-    function persist()
+    function persist(): bool
     {
-        parent::persist();
+        return parent::persist();
     }
-}   // end of Form
+}

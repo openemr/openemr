@@ -12952,10 +12952,6 @@ parameters:
     identifier: arguments.count
     count: 2
     path: interface/patient_file/pos_checkout_ippf.php
-  - message: '#^Variable \$arates in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 2
-    path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Variable \$contraception_billing_code might not be defined\.$#'
     identifier: variable.undefined
     count: 3
@@ -12994,10 +12990,6 @@ parameters:
     path: interface/patient_file/pos_checkout_ippf.php
   - message: '#^Variable \$amount might not be defined\.$#'
     identifier: variable.undefined
-    count: 1
-    path: interface/patient_file/pos_checkout_normal.php
-  - message: '#^Variable \$arates in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
     count: 1
     path: interface/patient_file/pos_checkout_normal.php
   - message: '#^Variable \$encounter might not be defined\.$#'

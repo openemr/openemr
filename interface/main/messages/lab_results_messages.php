@@ -29,6 +29,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = ""): void
 
     // Get all active users.
     $rez = sqlStatement("select id, username from users where username != '' AND active = '1' $where", $sqlBindArray);
+    $result = array();
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $result[$iter] = $row;
     }

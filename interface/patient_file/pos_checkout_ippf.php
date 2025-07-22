@@ -1267,10 +1267,7 @@ function write_form_line(
     $taxnumrates = '';
     $arates = explode(':', $taxrates);
     foreach ($taxes as $taxid => $taxarr) {
-        $rate = $taxarr[1];
-        if (empty($arates) || !in_array($taxid, $arates)) {
-            $rate = 0;
-        }
+        $rate = in_array($taxid, $arates) ? $taxarr[1] : 0;
         $taxnumrates .= $rate . ':';
     }
 

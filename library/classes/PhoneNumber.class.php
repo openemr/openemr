@@ -203,12 +203,11 @@ class PhoneNumber extends ORDataObject
         return $html ? nl2br($string) : $string;
     }
 
-    function persist($fid = "")
+    function persist($fid = ""): bool
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
-
-        parent::persist();
+        return parent::persist();
     }
 }

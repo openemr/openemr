@@ -134,7 +134,7 @@ class Hashed_Cache_Lite extends Cache_Lite
 	* @return boolean true if no problem
 	* @access public
 	*/
-	function clean($group = false)
+	function clean($group = false): bool
 	{
 		if ($group) {
 			$motif = $this->_cacheDir.$group.'/';

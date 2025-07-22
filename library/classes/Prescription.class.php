@@ -209,15 +209,13 @@ class Prescription extends ORDataObject
         }
     }
 
-    function persist()
+    function persist(): bool
     {
         $this->date_modified = date("Y-m-d H:i:s");
         if ($this->id == "") {
             $this->date_added = date("Y-m-d H:i:s");
         }
-
-        if (parent::persist()) {
-        }
+        return parent::persist();
     }
 
     function populate()

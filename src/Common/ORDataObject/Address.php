@@ -201,13 +201,13 @@ class Address extends ORDataObject implements \JsonSerializable
     {
         return $this->country;
     }
-    function persist($fid = "")
+    function persist($fid = ""): bool
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
 
-        parent::persist();
+        return parent::persist();
     }
 
     public function toArray(): array

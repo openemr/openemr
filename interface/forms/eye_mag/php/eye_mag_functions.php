@@ -4843,7 +4843,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     }
 
     $i = 0;
-        //if there are no priors, this is the first visit, display a generic splash screen.
+    $GONIO_date = array();
+    // if there are no priors, this is the first visit, display a generic splash screen.
     if ((array)$priors) {
         foreach ($priors as $visit) {
             //we need to build the lists - dates_OU,times_OU,gonio_OU,OCT_OU,VF_OU,ODIOP,OSIOP,IOPTARGETS
@@ -4979,7 +4980,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): void
     $list = array();
     $arrs[] = $OCT_date ?? '';
     $arrs[] = $VF_date ?? '';
-    $arrs[] = $GONIO_date ?? '';
     $arrs[] = $VISITS_date ?? '';
 
     foreach ($arrs as $arr) {

@@ -323,13 +323,13 @@ class InsuranceCompany extends ORDataObject
         $this->phone_numbers = PhoneNumber::factory_phone_numbers($this->id);
     }
 
-    public function persist()
+    public function persist(): bool
     {
-        parent::persist();
         $this->address->persist($this->id);
         foreach ($this->phone_numbers as $phone) {
             $phone->persist($this->id);
         }
+        return parent::persist();
     }
 
     public function insurance_companies_factory()

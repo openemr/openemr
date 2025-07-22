@@ -128,24 +128,6 @@ abstract class AbstractClickmapModel extends ORDataObject
      */
     abstract function getCode();
 
-    /**
-     * @brief Fill in this object's members with the contents from the database representing the stored form.
-     */
-    function populate()
-    {
-        /* Run our parent's implementation. */
-        parent::populate();
-    }
-
-    /**
-     * @brief Store the current structure members representing the form into the database.
-     */
-    function persist()
-    {
-        /* Run our parent's implementation. */
-        parent::persist();
-    }
-
     /* The rest of this object consists of set_ and get_ pairs, for setting and getting the value of variables that are members of this object. */
 
     function get_id()

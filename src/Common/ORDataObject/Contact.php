@@ -56,7 +56,7 @@ class Contact extends ORDataObject
         $this->setContactIdIfExist();
     }
 
-    public function persist()
+    public function persist(): bool
     {
         if (empty($this->id)) {
             $this->setContactIdIfExist();
