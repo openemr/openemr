@@ -18,6 +18,7 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // also a handy place to add utility methods
@@ -334,13 +335,11 @@ class RestConfig
             }
             if (!in_array($scope, $GLOBALS['oauth_scopes'])) {
                 (new SystemLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => $GLOBALS['oauth_scopes']]);
-                http_response_code(401);
-                exit;
+                throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
             }
         } else {
             (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
-            http_response_code(401);
-            exit;
+            throw new HttpException(Response::HTTP_UNAUTHORIZED,'Unauthorized Access');
         }
     }
 
@@ -367,55 +366,6 @@ class RestConfig
     public static function is_api_request($resource): bool
     {
         return stripos(strtolower($resource), "/api/") !== false;
-    }
-
-    public static function skipApiAuth($resource): bool
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            // we don't authenticate OPTIONS requests
-            return true;
-        }
-
-        // ensure 1) sane site and 2) ensure the site exists on filesystem before even considering for skip api auth
-        if (empty(self::$SITE) || preg_match('/[^A-Za-z0-9\\-.]/', self::$SITE) || !file_exists(__DIR__ . '/sites/' . self::$SITE)) {
-            error_log("OpenEMR Error - api site error, so forced exit");
-            http_response_code(400);
-            exit();
-        }
-        // let the capability statement for FHIR or the SMART-on-FHIR through
-        $resource = str_replace('/' . self::$SITE, '', $resource);
-        if (
-            // TODO: @adunsulag we need to centralize our auth skipping logic... as we have this duplicated in HttpRestRouteHandler
-            // however, at the point of this method we don't have the resource identified and haven't gone through our parsing
-            // routine to handle that logic...
-            $resource === ("/fhir/metadata") ||
-            $resource === ("/fhir/.well-known/smart-configuration") ||
-            // skip list and single instance routes
-            0 === strpos("/fhir/OperationDefinition", $resource)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static function emitResponse($response, $build = false): void
-    {
-        if (headers_sent()) {
-            throw new RuntimeException('Headers already sent.');
-        }
-        $statusLine = sprintf(
-            'HTTP/%s %s %s',
-            $response->getProtocolVersion(),
-            $response->getStatusCode(),
-            $response->getReasonPhrase()
-        );
-        header($statusLine, true);
-        foreach ($response->getHeaders() as $name => $values) {
-            $responseHeader = sprintf('%s: %s', $name, $response->getHeaderLine($name));
-            header($responseHeader, false);
-        }
-        echo $response->getBody();
     }
 
     /**

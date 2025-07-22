@@ -31,6 +31,11 @@ class ViewRendererListener implements EventSubscriberInterface
             $event->setResponse($httpFoundationFactory->createResponse($result));
             return;
         }
+        if ($result instanceof Response) {
+            // If the controller result is already a Symfony Response, we can just set it directly.
+            $event->setResponse($result);
+            return;
+        }
 
         // TODO: @adunsulag we could add in logic for things like ndjson, xml, etc here.
         switch ($event->getRequest()->getContentTypeFormat()) {

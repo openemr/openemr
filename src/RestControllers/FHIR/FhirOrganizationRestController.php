@@ -2,6 +2,8 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
@@ -14,6 +16,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * FHIR Organization Service
@@ -27,6 +30,8 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirOrganizationRestController
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * @var FhirOrganizationService
      */
@@ -41,6 +46,13 @@ class FhirOrganizationRestController
         $this->fhirValidationService = new FhirValidationService();
     }
 
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->fhirOrganizationService->setSystemLogger($systemLogger);
+        $this->systemLogger = $systemLogger;
+    }
+
+
     /**
      * Queries for FHIR organization resources using various search parameters.
      * Search parameters include:
@@ -52,7 +64,7 @@ class FhirOrganizationRestController
      * - name
      * - phone (work)
      * - telecom (email, phone)
-     * @return FHIR bundle with query results, if found
+     * @return Response The http response object containing the FHIR bundle with query results, if found
      */
     public function getAll($searchParams)
     {

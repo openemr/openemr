@@ -1431,7 +1431,7 @@ return array(
     "POST /api/patient/:puuid/encounter" => function ($puuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "auth_a");
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new EncounterRestController($request->getSession()))->post($puuid, $data);
+        $return = (new EncounterRestController($request->getSession()))->post($puuid, $data, $request);
 
         return $return;
     },

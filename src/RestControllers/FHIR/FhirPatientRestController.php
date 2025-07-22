@@ -12,6 +12,8 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
@@ -25,6 +27,8 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirPatientRestController
 {
+    use SystemLoggerAwareTrait;
+
     private $fhirPatientService;
     private $fhirService;
     private $fhirValidate;
@@ -34,6 +38,12 @@ class FhirPatientRestController
         $this->fhirService = new FhirResourcesService();
         $this->fhirPatientService = new FhirPatientService();
         $this->fhirValidate = new FhirValidationService();
+    }
+
+    public function setSystemLogger(SystemLogger $systemLogger): void
+    {
+        $this->fhirPatientService->setSystemLogger($systemLogger);
+        $this->systemLogger = $systemLogger;
     }
 
     /**

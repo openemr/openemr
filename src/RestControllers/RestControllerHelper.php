@@ -34,6 +34,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class RestControllerHelper
@@ -149,25 +150,24 @@ class RestControllerHelper
     /**
      * Configures the HTTP status code and payload returned within a response.
      *
-     * @param  $serviceResult
-     * @param  $customRespPayload
-     * @param  $idealStatusCode
-     * @return null
+     * @param $serviceResult
+     * @param $customRespPayload
+     * @param int $idealStatusCode
+     * @return Response
      */
-    public static function responseHandler($serviceResult, $customRespPayload, $idealStatusCode)
+    public static function responseHandler($serviceResult, $customRespPayload = null, int $idealStatusCode = Response::HTTP_OK)
     {
         if ($serviceResult) {
-            http_response_code($idealStatusCode);
-
             if ($customRespPayload) {
-                return $customRespPayload;
+                $response = self::getResponseForPayload($customRespPayload);
+            } else {
+                $response = self::getResponseForPayload($serviceResult);
             }
-            return $serviceResult;
+            $response->setStatusCode($idealStatusCode);
+        } else {
+            $response = new Response('', Response::HTTP_NOT_FOUND);
         }
-
-        // if no result is present return a 404 with a null response
-        http_response_code(404);
-        return null;
+        return $response;
     }
 
     public static function validationHandler($validationResult)
@@ -309,32 +309,29 @@ class RestControllerHelper
      *
      * The response body has a normal Fhir Resource json:
      *
-     * @param  $processingResult  - The service processing result.
-     * @param  $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
-     * @return array|mixed
+     * @param        $processingResult  - The service processing result.
+     * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
+     * @return Response
      */
-    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode)
+    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode) : Response
     {
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
-            http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            return new JsonResponse($httpResponseBody, Response::HTTP_BAD_REQUEST);
         } elseif (count($processingResult->getData()) <= 0) {
-            http_response_code(404);
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
+            return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
-            http_response_code(500);
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
         } else {
-            http_response_code($successStatusCode);
             $dataResult = $processingResult->getData();
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
-            $httpResponseBody = $dataResult[0];
+            return new JsonResponse($dataResult[0], $successStatusCode);
         }
-
-        return $httpResponseBody;
     }
 
     public function setSearchParams($resource, FHIRCapabilityStatementResource $capResource, $service)
@@ -549,6 +546,30 @@ class RestControllerHelper
         }
         return $restItem;
     }
+
+
+    /**
+     * Given a payload, returns a JsonResponse or Response object based on the type of the payload.  If the payload type is not supported,
+     * a TypeError is thrown.
+     * @param $payload The payload to convert into a response.
+     * @throws \TypeError if the payload is not a supported type
+     * @return JsonResponse|Response
+     */
+    private static function getResponseForPayload($payload)
+    {
+        if ($payload instanceof \JsonSerializable || is_array($payload) || is_numeric($payload)) {
+            $response = new JsonResponse($payload);
+        } else if ($payload instanceof \Stringable || is_string($payload)) {
+            $response = new Response((string)$payload, Response::HTTP_OK, ['Content-Type' => 'text/html']);
+        } else {
+            throw new \TypeError(sprintf(
+                'RestControllerHelper::getResponseForPayload() expects a string, array, numeric, or JsonSerializable object, %s given.',
+                get_debug_type($payload)
+            ));
+        }
+        return $response;
+    }
+
 
     /**
      * Given a resource we've pulled from our rest route definitions figure out the type from our valueset

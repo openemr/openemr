@@ -2,9 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use Laminas\Form\Element\Search;
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -32,6 +30,7 @@ use OpenEMR\Validators\ProcessingResult;
 abstract class FhirServiceBase implements IResourceSearchableService, IResourceReadableService, IResourceCreatableService, IResourceUpdateableService
 {
     use ResourceServiceSearchTrait;
+    use SystemLoggerAwareTrait;
 
     /**
      * Maps FHIR Resource search parameters to OpenEMR parameters
@@ -208,7 +207,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
         try {
             $oeSearchParameters = $this->createOpenEMRSearchParameters($fhirSearchParameters, $puuidBind);
 
-            (new SystemLogger())->debug("FhirServiceBase->getAll() Created search parameters ", ['searchParameters' => array_keys($oeSearchParameters)]);
+            $this->getSystemLogger()->debug("FhirServiceBase->getAll() Created search parameters ", ['searchParameters' => array_keys($oeSearchParameters)]);
             // gives a ton of information but this can be helpful in debugging this stuff.
 //            array_walk($oeSearchParameters, function ($v) {
 //                echo $v;
@@ -235,13 +234,13 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
                         if ($provenanceResource) {
                             $fhirSearchResult->addData($provenanceResource);
                         } else {
-                            (new SystemLogger())->debug(get_class($this) . ":getAll() did not return a provenance record when requested");
+                            $this->getSystemLogger()->debug(get_class($this) . ":getAll() did not return a provenance record when requested");
                         }
                     }
                 }
             }
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = $this->getSystemLogger();
             $systemLogger->error(get_class($this) . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here

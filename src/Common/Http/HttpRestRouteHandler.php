@@ -145,7 +145,7 @@ class HttpRestRouteHandler
                 $resource = "*"; // for our permission check
             }
         } else {
-            $permission = $restRequest->getRequestMethod() === "GET" ? "read" : "write";
+            $permission = $restRequest->getMethod() === "GET" ? "read" : "write";
         }
         $restApiSecurityCheckEvent = new RestApiSecurityCheckEvent($restRequest);
         $restApiSecurityCheckEvent->setRestRequest($restRequest);
