@@ -814,8 +814,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function hasFhirApiScopes()
     {
-        $requestScopeString = $this->getRequestScopes();
-        $sessionScopeString = $this->getSessionScopes();
+        $requestScopeString = $this->getRequestScopes() ?? '';
+        $sessionScopeString = $this->getSessionScopes() ?? '';
 
         $isFhir = preg_match('(fhirUser|api:fhir)', $requestScopeString)
             || preg_match('(fhirUser|api:fhir)', $sessionScopeString);
@@ -828,8 +828,9 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function hasStandardApiScopes()
     {
-        $requestScopeString = $this->getRequestScopes();
-        $sessionScopeString = $this->getSessionScopes();
+        // if either of these are empty then we need to set them to strings so that we can do the preg_match
+        $requestScopeString = $this->getRequestScopes() ?? '';
+        $sessionScopeString = $this->getSessionScopes() ?? '';
         $isApi = preg_match('(api:oemr|api:port)', $requestScopeString)
             || preg_match('(api:oemr|api:port)', $sessionScopeString);
 
