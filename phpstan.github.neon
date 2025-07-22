@@ -11960,10 +11960,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php
-  - message: '#^Variable \$downloadccda in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php
   - message: '#^Variable \$result might not be defined\.$#'
     identifier: variable.undefined
     count: 1
