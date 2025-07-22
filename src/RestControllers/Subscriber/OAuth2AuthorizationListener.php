@@ -110,6 +110,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         $logger->debug("oauth2 request received", ["endpoint" => $request->getRequestPathWithoutSite()]);
 
         $authServer = new AuthorizationController($session, $kernel);
+        $authServer->setSystemLogger($logger);
 
 
         $end_point = $request->getRequestPathWithoutSite();

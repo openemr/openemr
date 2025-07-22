@@ -54,6 +54,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -84,6 +85,7 @@ use WpOrg\Requests\Exception\Http;
 class AuthorizationController
 {
     use CryptTrait;
+    use SystemLoggerAwareTrait;
 
     public const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
 
@@ -177,19 +179,6 @@ class AuthorizationController
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
         $this->trustedUserService = new TrustedUserService();
-    }
-
-    public function getSystemLogger(): SystemLogger
-    {
-        if (!isset($this->logger)) {
-            $this->logger = new SystemLogger();
-        }
-        return $this->logger;
-    }
-
-    public function setSystemLogger(SystemLogger $logger): void
-    {
-        $this->logger = $logger;
     }
 
     private function getSmartAuthController(): SMARTAuthorizationController
@@ -292,7 +281,7 @@ class AuthorizationController
                 'dsi_type' => array_values(DecisionSupportInterventionService::DSI_TYPES),
                 'dsi_source_attributes' => [] // do we care to report errors on source attributes for the values we support? they won't save if we don't have it in the system
             );
-            $clientRepository = new ClientRepository();
+            $clientRepository = $this->getClientRepository();
             $client_id = $clientRepository->generateClientId();
             $reg_token = $clientRepository->generateRegistrationAccessToken();
             $reg_client_uri_path = $clientRepository->generateRegistrationClientUriPath();
@@ -425,7 +414,7 @@ class AuthorizationController
         if (empty($requestScopes)) {
             return;
         }
-        $this->logger->debug(
+        $this->getSystemLogger()->debug(
             "AuthorizationController->validateScopesAgainstServerApprovedScopes() - Validating scopes",
             ['scopeString' => $scopeString]
         );
@@ -779,7 +768,7 @@ class AuthorizationController
             );
         }
 
-        $clientService = new ClientRepository();
+        $clientService = $this->getClientRepository();
         $client = $clientService->getClientEntity($clientId);
 
         $patientRoleSupport = (!empty($this->globalsBag->get('rest_portal_api', null)) || !empty($this->globalsBag->get('rest_fhir_api', null)));
@@ -915,11 +904,12 @@ class AuthorizationController
 
     public function getClientRepository(): ClientRepository
     {
-        if (isset($this->clientRepository)) {
-            return $this->clientRepository;
-        } else {
-            return new ClientRepository();
+        if (!isset($this->clientRepository)) {
+            $clientRepository = new ClientRepository();
+            $clientRepository->setSystemLogger($this->getSystemLogger());
+            $this->clientRepository = $clientRepository;
         }
+        return $this->clientRepository;
     }
 
     public function getScopeRepository(HttpRestRequest $request, SessionInterface $session): ScopeRepository
@@ -928,7 +918,7 @@ class AuthorizationController
             return $this->scopeRepository;
         } else {
             $scopeRepository = new ScopeRepository($request, $session);
-            $scopeRepository->setLogger($this->logger);
+            $scopeRepository->setLogger($this->getSystemLogger());
             return $scopeRepository;
         }
     }

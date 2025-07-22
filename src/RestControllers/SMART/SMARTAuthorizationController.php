@@ -390,6 +390,7 @@ class SMARTAuthorizationController
     {
         if (!isset($this->clientRepository)) {
             $this->clientRepository = new ClientRepository();
+            $this->clientRepository->setSystemLogger($this->logger);
         }
         return $this->clientRepository;
     }
