@@ -146,13 +146,11 @@ class OemrUI
 
 
     /**
-    * Returns the page heading based on the options passed into the constructor.
-    *
-    * @var bool $render If true, will echo the results from within this function
-    * @return string The Twig-rendered html content, suitable for simply echo'ing
-    *
-    */
-    public function pageHeading(bool $render = false): null|string
+     * Returns the page heading based on the options passed into the constructor.
+     *
+     * @return string The Twig-rendered html content, suitable for simply echo'ing
+     */
+    public function pageHeading(): string
     {
         /**
          * @var PageHeadingRenderEvent
@@ -165,12 +163,7 @@ class OemrUI
         ];
 
         $html = $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $vars);
-
-        if ($render) {
-            echo $html;
-        } else {
-            return $html;
-        }
+        return $html;
     }
 
     /**

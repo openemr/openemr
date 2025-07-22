@@ -47,20 +47,20 @@ class PredisSessionHandler implements SessionHandlerInterface
         $this->logger->debug("PredisSessionHandler instance destructed");
     }
 
-    public function open($savePath, $sessionName)
+    public function open(string $savePath, string $sessionName): bool
     {
         // No action necessary
         return true;
     }
 
-    public function close()
+    public function close(): bool
     {
         $this->releaseLock();
         $this->logger->debug("PredisSessionHandler closed session");
         return true;
     }
 
-    public function read($sessionId)
+    public function read(string $sessionId): string|false
     {
         $this->currentSessionId = $sessionId;
         $sessionKey = "session:$sessionId";
@@ -88,7 +88,7 @@ class PredisSessionHandler implements SessionHandlerInterface
         return $data ? $data : '';
     }
 
-    public function write($sessionId, $data)
+    public function write(string $sessionId, string $data): bool
     {
         $this->currentSessionId = $sessionId;
         $sessionKey = "session:$sessionId";
@@ -97,7 +97,7 @@ class PredisSessionHandler implements SessionHandlerInterface
         return true;
     }
 
-    public function destroy($sessionId)
+    public function destroy(string $sessionId): bool
     {
         $sessionKey = "session:$sessionId";
         $lockKey = "lock:$sessionId";
@@ -106,7 +106,8 @@ class PredisSessionHandler implements SessionHandlerInterface
         return true;
     }
 
-    public function gc($maxLifetime)
+    #[\ReturnTypeWillChange]
+    public function gc(int $maxLifetime)
     {
         // Redis handles expiration automatically
         return true;
