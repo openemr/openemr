@@ -38,6 +38,14 @@ jobs:
           ${{ runner.os }}-composer-
     - name: Composer Install
       run: composer install --prefer-dist --no-progress
+    - name: PHPStan Cache
+      # https://phpstan.org/user-guide/result-cache
+      uses: actions/cache@v4
+      with:
+        path: tmp-phpstan # same as in phpstan.neon
+        key: "phpstan-result-cache-${{ github.run_id }}"
+        restore-keys: |
+          phpstan-result-cache-
     - name: PHPStan Diagnose
       if: ${{ env.ACTIONS_STEP_DEBUG == 'true' }}
       uses: php-actions/phpstan@v3
