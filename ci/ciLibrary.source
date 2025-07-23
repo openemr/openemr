@@ -88,7 +88,7 @@ main_build() {
     actions_chmod -R 0777 .
     local composer_home
     composer_home=$(composer --no-interaction config --global --absolute home) 2> /dev/null
-    composer install
+    composer install --prefer-dist --no-progress
     npm ci
     npm run build
     composer global require phing/phing

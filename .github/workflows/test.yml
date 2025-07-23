@@ -15,7 +15,8 @@ jobs:
   collect:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
     - name: Collect Docker Dirs
       id: docker-dirs
       ##
@@ -90,17 +91,49 @@ jobs:
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
       COMPOSE_FILE: "ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
-    - uses: actions/checkout@v4
-    - name: Install PHP
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.configurations.php }}
     - name: Report PHP Version
       run: php -v
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+    - name: Composer Cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
     - name: Install npm package
       uses: actions/setup-node@v4
       with:
         node-version: '22'
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache node modules
+      # Use explicit restore and save actions to control
+      # precisely when in the workflow the cache is
+      # restored and saved.
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
     - name: Main build
       run: |
         . ci/ciLibrary.source
@@ -110,6 +143,16 @@ jobs:
       run: |
         . ci/ciLibrary.source
         ccda_build
+    - name: Save node cache
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    - name: Save composer cache
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     - name: Docker Compose Config Output
       run: |
         . ci/ciLibrary.source
