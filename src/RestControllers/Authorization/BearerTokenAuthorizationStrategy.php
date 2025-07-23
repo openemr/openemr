@@ -218,7 +218,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             throw new HttpException(403, "User role does not have permission to access this resource.");
         }
 
-        $this->setupSessionForUserRole($userRole, $user, $request);
+        $this->setupSessionForUserRole($userRole, $userId, $user, $request);
         $request->attributes->set('userId', $userId);
         $request->attributes->set('user', $user);
         $request->attributes->set('userRole', $userRole);
@@ -233,12 +233,12 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     }
 
 
-    private function setupSessionForUserRole(string $userRole, array $user, HttpRestRequest $request): void
+    private function setupSessionForUserRole(string $userRole, string $userUuid, array $user, HttpRestRequest $request): void
     {
         $session = $request->getSession();
 
         // Set user ID in the session
-        $session->set('userId', $user['uuid']);
+        $session->set('userId', $userUuid);
 
         // Set user role in the session
         $session->set('userRole', $userRole);
@@ -372,14 +372,19 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return true;
     }
 
+    public static function is_api_request($resource): bool
+    {
+        return stripos(strtolower($resource), "/api/") !== false;
+    }
+
     public static function is_portal_request($resource): bool
     {
         return stripos(strtolower($resource), "/portal/") !== false;
     }
 
-    public static function is_api_request($resource): bool
+    public static function is_fhir_request($resource): bool
     {
-        return stripos(strtolower($resource), "/api/") !== false;
+        return stripos(strtolower($resource), "/fhir/") !== false;
     }
 
     public function setUserService(UserService $userService)

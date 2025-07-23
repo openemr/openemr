@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
 use OpenEMR\RestControllers\Subscriber\CORSListener;
 use OpenEMR\RestControllers\Subscriber\OAuth2AuthorizationListener;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class ApiApplication
 {
+    use SystemLoggerAwareTrait;
+
     /**
      * Send the response directly to the client.
      */
@@ -101,7 +104,7 @@ class ApiApplication
         // handle conversion of controller response objects to request responses (json, text, etc).
         $eventDispatcher->addSubscriber(new ViewRendererListener());
 
-        $controllerResolver = new ControllerResolver();
+        $controllerResolver = new ControllerResolver($this->getSystemLogger());
         $argumentResolver = new ArgumentResolver();
         $handleAllThrowables = true; // set to true to handle all exceptions in the ExceptionHandlerListener
         $kernel = new OEHttpKernel($eventDispatcher, $controllerResolver, new RequestStack(), $argumentResolver, $handleAllThrowables);

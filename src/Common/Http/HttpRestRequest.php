@@ -548,7 +548,9 @@ class HttpRestRequest extends Request implements \Stringable
 
     public function setRequestPath(string $requestPath)
     {
-        throw new \RuntimeException("Feature not implemented yet");
+        // TODO: @adunsulag is there a better way to do this?
+        $this->pathInfo = $requestPath;
+        $this->server->set('PATH_INFO', $requestPath);
     }
 
     public function getRequestPathWithoutSite()

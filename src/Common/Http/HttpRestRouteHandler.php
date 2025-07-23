@@ -37,9 +37,9 @@ class HttpRestRouteHandler
     {
         $logger = $this->logger;
 
-        $logger->error(
+        $logger->debug(
             "HttpRestRouteHandler::dispatch() start request",
-            ['resource' => $dispatchRestRequest->getResource(), 'method' => $dispatchRestRequest->getRequestMethod()
+            ['resource' => $dispatchRestRequest->getResource(), 'method' => $dispatchRestRequest->getMethod()
                 , 'user' => $dispatchRestRequest->getRequestUserUUID(), 'role' => $dispatchRestRequest->getRequestUserRole()
                 , 'client' => $dispatchRestRequest->getClientId(), 'apiType' => $dispatchRestRequest->getApiType()
                 , 'route' => $dispatchRestRequest->getRequestPathWithoutSite()
@@ -48,7 +48,7 @@ class HttpRestRouteHandler
         );
 
         $dispatchRestRequestPath = $dispatchRestRequest->getRequestPathWithoutSite();
-        $dispatchRestRequestMethod = $dispatchRestRequest->getRequestMethod();
+        $dispatchRestRequestMethod = $dispatchRestRequest->getMethod();
 
         try {
             // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
@@ -126,7 +126,7 @@ class HttpRestRouteHandler
         if (empty($restRequest->getRequestUserRole())) {
             $this->logger->error("HttpRestRouteHandler::checkSecurity() - no user role set for request", [
                 'resource' => $restRequest->getResource(),
-                'method' => $restRequest->getRequestMethod(),
+                'method' => $restRequest->getMethod(),
                 'user' => $restRequest->getRequestUserUUID(),
                 'client' => $restRequest->getClientId(),
                 'apiType' => $restRequest->getApiType(),
