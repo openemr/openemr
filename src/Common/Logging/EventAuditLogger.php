@@ -347,26 +347,15 @@ MSG;
      */
     protected function determineRFC3881EventActionCode($event)
     {
-        switch (substr($event, -7)) {
-        case '-create':
-            return self::EVENT_ACTION_CODE_CREATE;
-                break;
-        case '-insert':
-            return self::EVENT_ACTION_CODE_INSERT;
-                break;
-        case '-select':
-            return self::EVENT_ACTION_CODE_SELECT;
-                break;
-        case '-update':
-            return self::EVENT_ACTION_CODE_UPDATE;
-                break;
-        case '-delete':
-            return self::EVENT_ACTION_CODE_DELETE;
-                break;
-        default:
-            return self::EVENT_ACTION_CODE_EXECUTE;
-                break;
-        }
+        $eventActionMap = [
+            '-create' => self::EVENT_ACTION_CODE_CREATE,
+            '-insert' => self::EVENT_ACTION_CODE_INSERT,
+            '-select' => self::EVENT_ACTION_CODE_SELECT,
+            '-update' => self::EVENT_ACTION_CODE_UPDATE,
+            '-delete' => self::EVENT_ACTION_CODE_DELETE,
+        ];
+        $eventSuffix = substr($event, -7);
+        return $eventActionMap[$eventSuffix] ?? self::EVENT_ACTION_CODE_EXECUTE;
     }
 
     /**
