@@ -78,12 +78,16 @@ if ($_POST['form_save_permissions'] ?? null) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
+
     // Get all active users
     $users_query = "SELECT id, username FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";
     $users_result = sqlStatement($users_query);
 
     $services = ['fax', 'sms', 'email', 'voice'];
     $primary_user_id = $_POST['primary_user'] ?? null;
+
+    // Handle primary user reset (when value is "0" or empty)
+    $reset_primary = ($primary_user_id === '0' || $primary_user_id === '' || $primary_user_id === null);
 
     while ($user = sqlFetchArray($users_result)) {
         $user_id = $user['id'];
@@ -123,9 +127,16 @@ if ($_POST['form_save_permissions'] ?? null) {
             sqlStatement($insert_primary_query, [$user_id, $use_primary_label, $use_primary_value]);
         }
 
-        // Handle Primary user designation
-        $is_primary_value = ($primary_user_id == $user_id) ? '1' : '0';
+        // Handle Primary user designation with reset capability
         $primary_label = "module_faxsms_primary_user";
+
+        if ($reset_primary) {
+            // Reset: Set all users to '0' (no primary user)
+            $is_primary_value = '0';
+        } else {
+            // Normal operation: Set selected user to '1', others to '0'
+            $is_primary_value = ($primary_user_id == $user_id) ? '1' : '0';
+        }
 
         $existing_primary_user_query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
         $existing_primary_user_result = sqlQuery($existing_primary_user_query, [$user_id, $primary_label]);
@@ -140,13 +151,16 @@ if ($_POST['form_save_permissions'] ?? null) {
     }
 
     $permissions_saved = true;
+
+    // Set appropriate success message based on action
+    if ($reset_primary) {
+        $permissions_message = xlt("User permissions saved and primary user designation cleared successfully!");
+        $permissions_message_type = "warning"; // Use warning color for reset action
+    } else {
+        $permissions_message = xlt("User permissions have been saved successfully!");
+        $permissions_message_type = "success";
+    }
 }
-
-// Function to get user permission
-
-// Function to get use primary setting
-
-// Function to get primary user
 
 // Get all active users for the form
 $users_query = "SELECT id, username, fname, lname, authorized FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL ORDER BY lname, fname";
@@ -314,7 +328,9 @@ $vendors = $boot->getVendorGlobals();
     <div class="w-100 container-xl">
         <div class="form-group m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
-            <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
+            <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
+                <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
+            <?php } ?>
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS"); ?><span class="caret"></span></button>
             <?php }
@@ -332,13 +348,44 @@ $vendors = $boot->getVendorGlobals();
                 <input type="checkbox" class="checkbox" name="dialog" id="dialog" value="1">
             </span>
         </div>
-        <!-- TODO refactor this to have vendor list a global array for future vendor additions -->
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="form-group">
-                    <div class="title text-center"><?php echo xlt("Available Modules"); ?></div>
-                    <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
+                    <?php if (isset($permissions_saved) && $permissions_saved) { ?>
+                    <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
+                        <strong>
+                            <?php if ($permissions_message_type === 'warning') { ?>
+                                <i class="fa fa-exclamation-triangle"></i>
+                            <?php } else { ?>
+                                <i class="fa fa-check-circle"></i>
+                            <?php } ?>
+                        </strong>
+                        <?php echo text($permissions_message ?? xlt("User permissions have been saved successfully!")); ?>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <?php } ?>
+                    <?php if (empty($current_primary_user) || $current_primary_user == $_SESSION['authUserID']) { ?>
+                        <?php if (!empty($current_primary_user)) { ?>
+                    <div class="alert alert-success text-center" role="alert">
+                        <i class="fa fa-user-check"></i>
+                            <?php echo xlt("You are the current primary user. You can manage all settings."); ?>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <?php } else { ?>
+                    <div class="alert alert-warning text-center" role="alert">
+                        <i class="fa fa-user-times"></i>
+                            <?php echo xlt("No primary user set. Any authorized user can manage settings."); ?>
+                        <br><small><?php echo xlt("Consider setting a primary user for better security control."); ?></small>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <?php } ?>
                     <div class="row col form-group">
                         <label for="editingUser" class="form-inline"><?php echo xlt("Editing Service Credentials for User"); ?></label>
                         <div class="ml-2" title="User to setup credentials.">
@@ -361,6 +408,10 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
+                    <?php } ?>
+
+                    <div class="title text-center"><?php echo xlt("Available Modules"); ?></div>
+                    <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
                     <hr>
                     <div class="clearfix"></div>
                     <div class="row form-group">
@@ -419,6 +470,7 @@ $vendors = $boot->getVendorGlobals();
                     </div>
                 </div>
             </form>
+
             <form class="form w-100" id="form_action" method="POST" action="setup_services.php">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
@@ -520,11 +572,13 @@ $vendors = $boot->getVendorGlobals();
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-success text-center" role="alert">
                             <?php echo xlt("User permissions have been saved successfully!"); ?>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
                     <?php } ?>
-
                     <hr>
-
+                    <!-- User Permissions Table Section -->
                     <div class="table-responsive">
                         <table class="table table-striped table-hover table-sm">
                             <thead class="thead-dark">
@@ -560,6 +614,16 @@ $vendors = $boot->getVendorGlobals();
                                     <?php echo xlt("Primary User"); ?>
                                     <br>
                                     <small class="text-muted"><?php echo xlt("(One Only)"); ?></small>
+                                    <br>
+                                    <input type="radio"
+                                        name="primary_user"
+                                        value="0"
+                                        id="reset_primary_user"
+                                        title="<?php echo xla('Clear primary user selection'); ?>"
+                                        style="accent-color: #dc3545;">
+                                    <label for="reset_primary_user" class="small text-danger" title="<?php echo xla('Clear primary user selection'); ?>">
+                                        <?php echo xlt("Reset"); ?>
+                                    </label>
                                 </th>
                                 <th class="text-center">
                                     <?php echo xlt("All Services"); ?>
