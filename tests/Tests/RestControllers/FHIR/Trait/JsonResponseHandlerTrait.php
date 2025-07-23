@@ -4,9 +4,10 @@ namespace OpenEMR\Tests\RestControllers\FHIR\Trait;
 
 use Symfony\Component\HttpFoundation\Response;
 
-trait JsonResponseHandlerTrait {
-
-    protected function getJsonContents(Response $response) {
+trait JsonResponseHandlerTrait
+{
+    protected function getJsonContents(Response $response)
+    {
         $contents = $response->getContent();
         $this->assertNotEmpty($contents, "Response body should not be empty");
         $decodedContents = json_decode($contents, true);

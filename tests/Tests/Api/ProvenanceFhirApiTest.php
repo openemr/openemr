@@ -8,7 +8,8 @@ use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProvenanceFhirApiTest extends TestCase {
+class ProvenanceFhirApiTest extends TestCase
+{
     use JsonResponseHandlerTrait;
 
     private ApiTestClient $testClient;

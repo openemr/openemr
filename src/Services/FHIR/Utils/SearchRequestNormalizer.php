@@ -6,8 +6,8 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
-class SearchRequestNormalizer {
-
+class SearchRequestNormalizer
+{
     use SystemLoggerAwareTrait;
 
     public function __construct(SystemLogger $logger)
@@ -57,7 +57,8 @@ class SearchRequestNormalizer {
         $normalizedRequest->server->set('QUERY_STRING', http_build_query($queryVars));
         $normalizedRequest->server->set('REQUEST_METHOD', 'GET');
         $normalizedRequest->server->set('PATH_INFO', $requestPath);
-        $this->getSystemLogger()->debug("SearchRequestNormalizer::normalizeSearchRequest() normalized request",
+        $this->getSystemLogger()->debug(
+            "SearchRequestNormalizer::normalizeSearchRequest() normalized request",
             ['resource' => $normalizedRequest->getResource(), 'method' => $normalizedRequest->getMethod()
                 , 'user' => $normalizedRequest->getRequestUserUUID(), 'role' => $normalizedRequest->getRequestUserRole()
                 , 'client' => $normalizedRequest->getClientId(), 'apiType' => $normalizedRequest->getApiType()

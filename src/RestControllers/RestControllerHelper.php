@@ -313,7 +313,7 @@ class RestControllerHelper
      * @param        $successStatusCode - The HTTP status code to return for a successful operation that completes without error.
      * @return Response
      */
-    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode) : Response
+    public static function handleFhirProcessingResult(ProcessingResult $processingResult, $successStatusCode): Response
     {
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {

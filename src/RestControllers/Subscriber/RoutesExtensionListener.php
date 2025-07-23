@@ -22,13 +22,13 @@ class RoutesExtensionListener implements EventSubscriberInterface
 {
     use SystemLoggerAwareTrait;
 
-    public static function getSubscribedEvents() : array
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [['onKernelRequest', 40]]
         ];
     }
-    public function onKernelRequest(RequestEvent $event) : void
+    public function onKernelRequest(RequestEvent $event): void
     {
         if ($event->hasResponse()) {
             // If the event already has a response, we do not need to process it further.
@@ -65,7 +65,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
         }
     }
 
-    private function processFhirRequest(HttpRestRequest $request, OEHttpKernel $kernel) : ?ResponseInterface
+    private function processFhirRequest(HttpRestRequest $request, OEHttpKernel $kernel): ?ResponseInterface
     {
         $finder = new FhirRouteFinder($kernel);
         $routes = $finder->find($request);
@@ -76,14 +76,14 @@ class RoutesExtensionListener implements EventSubscriberInterface
         return $this->dispatch($kernel, $routes, $request);
     }
 
-    private function processStandardRequest(HttpRestRequest $request, OEHttpKernel $kernel) : ?ResponseInterface
+    private function processStandardRequest(HttpRestRequest $request, OEHttpKernel $kernel): ?ResponseInterface
     {
         $finder = new StandardRouteFinder($kernel);
         $routes = $finder->find($request);
         return $this->dispatch($kernel, $routes, $request);
     }
 
-    private function processPatientPortalRequest(HttpRestRequest $request, OEHttpKernel $kernel) : ?ResponseInterface
+    private function processPatientPortalRequest(HttpRestRequest $request, OEHttpKernel $kernel): ?ResponseInterface
     {
         $finder = new PortalRouteFinder($kernel);
         $patientRoutes = $finder->find($request);

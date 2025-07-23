@@ -37,7 +37,7 @@ class HttpRestRouteHandler
         $this->globalsBag = $this->kernel->getGlobalsBag();
     }
 
-    public function dispatch(array $routes, HttpRestRequest $dispatchRestRequest) : ?ResponseInterface
+    public function dispatch(array $routes, HttpRestRequest $dispatchRestRequest): ?ResponseInterface
     {
         $logger = $this->logger;
 
@@ -51,13 +51,9 @@ class HttpRestRouteHandler
             ]
         );
 
-        $logger->debug("HttpRestRouteHandler::dispatch() route_dump", [
-            'routes' => array_keys($routes)
-        ]);
-
         $dispatchRestRequestPath = $dispatchRestRequest->getRequestPathWithoutSite();
         $dispatchRestRequestMethod = $dispatchRestRequest->getMethod();
-        $logger->debug("Attempting to find route that matches " . $dispatchRestRequestMethod .  " " . $dispatchRestRequestPath);
+
         try {
             // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
             foreach ($routes as $routePath => $routeCallback) {
@@ -140,7 +136,7 @@ class HttpRestRouteHandler
      * @return ResponseInterface|null
      * @throws AccessDeniedException
      */
-    public function checkSecurity(OEHttpKernel $kernel, HttpRestRequest $restRequest) : ?ResponseInterface
+    public function checkSecurity(OEHttpKernel $kernel, HttpRestRequest $restRequest): ?ResponseInterface
     {
         if (empty($restRequest->getRequestUserRole())) {
             $this->logger->error("HttpRestRouteHandler::checkSecurity() - no user role set for request", [

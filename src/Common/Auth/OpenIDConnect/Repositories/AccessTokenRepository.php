@@ -155,7 +155,8 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
     }
 
-    private function getBuilderForAccessToken() : SMARTSessionTokenContextBuilder {
+    private function getBuilderForAccessToken(): SMARTSessionTokenContextBuilder
+    {
         if (empty($this->builder)) {
             // TODO: @adunsulag replace the $_SESSION with a session service that can be injected
             $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);

@@ -12,8 +12,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class HttpRestRouteHandlerTest extends TestCase {
-
+class HttpRestRouteHandlerTest extends TestCase
+{
     public function testCheckSecurityWithNoRequestUserRole()
     {
         $this->markTestIncomplete("This test is incomplete and needs to be implemented properly.");
@@ -58,7 +58,7 @@ class HttpRestRouteHandlerTest extends TestCase {
         $restRouteHandler = new HttpRestRouteHandler($kernel);
         $controller =  function (HttpRestRequest $request) {};
         $updatedRequest = $restRouteHandler->dispatch([
-            'GET /' . $resource . '-2' => function() {}
+            'GET /' . $resource . '-2' => function () {}
             ,'GET /' . $resource => $controller
         ], $request);
         $this->assertEquals($controller, $updatedRequest->attributes->get("_controller"), "Controller should be set correctly for the route");

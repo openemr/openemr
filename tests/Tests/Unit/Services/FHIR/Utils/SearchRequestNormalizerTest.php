@@ -9,8 +9,8 @@ use OpenEMR\Services\FHIR\Utils\SearchRequestNormalizer;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-class SearchRequestNormalizerTest extends TestCase {
-
+class SearchRequestNormalizerTest extends TestCase
+{
     public function testNormalizeSearchRequest()
     {
         $normalizer = new SearchRequestNormalizer(new SystemLogger(Level::Emergency));
@@ -68,6 +68,5 @@ class SearchRequestNormalizerTest extends TestCase {
         $this->assertEquals($session, $normalizedRequest->getSession());
         $this->assertEquals('default', $normalizedRequest->getRequestSite());
         $this->assertEquals('/fhir/Patient', $normalizedRequest->getRequestPathWithoutSite());
-
     }
 }

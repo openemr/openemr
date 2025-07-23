@@ -5,9 +5,10 @@ namespace OpenEMR\Tests\RestControllers\FHIR\Trait;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use Symfony\Component\HttpFoundation\Response;
 
-trait FhirResponseAssertionTrait {
-
-    public function assertFhirBundleResponse(Response $response, int $expectedStatusCode, string $expectedResourceType): void {
+trait FhirResponseAssertionTrait
+{
+    public function assertFhirBundleResponse(Response $response, int $expectedStatusCode, string $expectedResourceType): void
+    {
         $this->assertEquals($expectedStatusCode, $response->getStatusCode(), "Unexpected HTTP status code");
 
         $contents = $this->getJsonContents($response);

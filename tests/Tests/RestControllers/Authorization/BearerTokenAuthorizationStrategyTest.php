@@ -93,13 +93,15 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $jwt = $token->toString(); // The string representation of the object is a JWT string
     }
 
-    private function getTestClientEntityForUser(string $userUuid): ClientEntity {
+    private function getTestClientEntityForUser(string $userUuid): ClientEntity
+    {
         $testClient = new ClientEntity();
         $testClient->setIdentifier(self::TEST_CLIENT_ID);
         $testClient->setUserId($userUuid);
         return $testClient;
     }
-    private function getAccessTokenForUser(string $tokenId, string $userUuid, ClientEntity $testClient) : AccessTokenEntity {
+    private function getAccessTokenForUser(string $tokenId, string $userUuid, ClientEntity $testClient): AccessTokenEntity
+    {
         $accessToken = new AccessTokenEntity();
         $accessToken->setIdentifier($tokenId);
         $accessToken->setPrivateKey(new CryptKey(self::KEY_PATH_PRIVATE));
@@ -109,7 +111,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         return $accessToken;
     }
 
-    private function getAuthorizeHttpRestRequestForUrlAndToken(AccessTokenEntity $accessToken, string $uri) : HttpRestRequest {
+    private function getAuthorizeHttpRestRequestForUrlAndToken(AccessTokenEntity $accessToken, string $uri): HttpRestRequest
+    {
         $request = new HttpRestRequest([], [], [], [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $accessToken, // Simulating a request with a valid token
             'HTTP_ACCEPT' => 'application/json',
@@ -124,7 +127,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         return $request;
     }
 
-    private function getMockAccessTokenRepository(AccessTokenEntity $accessToken, $scopes) : AccessTokenRepository {
+    private function getMockAccessTokenRepository(AccessTokenEntity $accessToken, $scopes): AccessTokenRepository
+    {
         foreach ($scopes as $scope) {
             $entity = new ScopeEntity();
             $entity->setIdentifier($scope);
@@ -137,7 +141,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
             ->willReturn(date("Y-m-d H:i:s", strtotime("+1 hour"))); // Simulating a valid token expiration time
         return $accessTokenRepository;
     }
-    private function getMockUserServiceForUser(array $user) : UserService {
+    private function getMockUserServiceForUser(array $user): UserService
+    {
         $mockUserService = $this->createMock(UserService::class);
         $mockUserService->expects($this->once())
             ->method('getAuthGroupForUser')

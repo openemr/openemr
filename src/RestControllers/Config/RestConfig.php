@@ -339,7 +339,7 @@ class RestConfig
             }
         } else {
             (new SystemLogger())->error("RestConfig::scope_check global scope array is empty");
-            throw new HttpException(Response::HTTP_UNAUTHORIZED,'Unauthorized Access');
+            throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized Access');
         }
     }
 
