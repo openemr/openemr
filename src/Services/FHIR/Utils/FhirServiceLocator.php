@@ -21,18 +21,18 @@ use OpenEMR\Services\FHIR\IFhirExportableResourceService;
 class FhirServiceLocator
 {
     /**
-     * @var $restConfig
+     * @var $routes The FHIR routes that are registered in the system.  This is used to find the FHIR resources service classes.
      */
-    private $restConfig;
+    private array $routes;
 
     /**
      * FhirExportServiceLocator constructor.
-     * @param \RestConfig $restConfig
+     * @param array $routes
      * $type is the FQDN of a class or interface... IE type should resolve to the ::class property of a class or interface
      */
-    public function __construct($restConfig)
+    public function __construct($routes = [])
     {
-        $this->restConfig = $restConfig;
+        $this->routes = $routes;
     }
 
     /**
@@ -48,8 +48,7 @@ class FhirServiceLocator
 
         $resourceRegistry = [];
         $restHelper = new RestControllerHelper();
-        $restConfig = $this->restConfig;
-        $restCapability = $restHelper->getCapabilityRESTObject($restConfig::$FHIR_ROUTE_MAP);
+        $restCapability = $restHelper->getCapabilityRESTObject($this->routes);
         $resources = $restCapability->getResource();
         foreach ($resources as $resource) {
             $resourceName = $resource->getType()->getValue();

@@ -42,8 +42,6 @@ class SearchRequestNormalizer {
         if (!empty($postParams)) {
             foreach ($postParams as $key => $value) {
                 if (isset($queryVars[$key])) {
-                    //                    var_dump("key exists in query vars: $key");
-                    //                    var_dump("attempting to add value to query vars: $value");
                     $queryVars[$key] = is_array($queryVars[$key]) ? $queryVars[$key] : [$queryVars[$key]];
                     $queryVars[$key][] = $value;
                 } else {

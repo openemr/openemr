@@ -30,6 +30,7 @@ use OpenIDConnectServer\IdTokenResponse;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
 class IdTokenSMARTResponse extends IdTokenResponse
@@ -65,13 +66,14 @@ class IdTokenSMARTResponse extends IdTokenResponse
     private $twig;
 
     public function __construct(
+        SessionInterface $session,
         IdentityProviderInterface $identityProvider,
         ClaimExtractor $claimExtractor,
         Environment $twig
     ) {
         $this->isAuthorizationGrant = false;
         $this->logger = new SystemLogger();
-        $this->contextBuilder = new SMARTSessionTokenContextBuilder($_SESSION, $twig);
+        $this->contextBuilder = new SMARTSessionTokenContextBuilder($session, $twig);
         $this->twig = $twig;
         parent::__construct($identityProvider, $claimExtractor);
     }

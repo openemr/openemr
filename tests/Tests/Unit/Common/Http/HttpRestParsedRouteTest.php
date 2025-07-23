@@ -27,6 +27,13 @@ class HttpRestParsedRouteTest extends TestCase
         $this->assertEquals("Patient", $parsedRoute->getResource());
     }
 
+    public function testIsValidResourceWithGroupExportOperation() : void {
+        $request = '/fhir/Group/99999999-511f-4f6d-bc97-b65a78cf1996/$export';
+        $definition = 'GET /fhir/Group/:id/$export';
+        $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
+        $this->assertTrue($parsedRoute->isValid(), "route should match definition for Group export operation");
+    }
+
     public function testGetResourceWithOperation(): void
     {
         $request = '/fhir/Patient/$export';

@@ -17,10 +17,11 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use Psr\Http\Message\ResponseInterface;
-use Exception;
+use Throwable;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -28,12 +29,15 @@ class HttpRestRouteHandler
 {
     private SystemLogger $logger;
 
+    private OEGlobalsBag $globalsBag;
+
     public function __construct(private readonly OEHttpKernel $kernel)
     {
         $this->logger = $kernel->getSystemLogger();
+        $this->globalsBag = $this->kernel->getGlobalsBag();
     }
 
-    public function dispatch(array $routes, HttpRestRequest $dispatchRestRequest): HttpRestRequest
+    public function dispatch(array $routes, HttpRestRequest $dispatchRestRequest) : ?ResponseInterface
     {
         $logger = $this->logger;
 
@@ -47,9 +51,13 @@ class HttpRestRouteHandler
             ]
         );
 
+        $logger->debug("HttpRestRouteHandler::dispatch() route_dump", [
+            'routes' => array_keys($routes)
+        ]);
+
         $dispatchRestRequestPath = $dispatchRestRequest->getRequestPathWithoutSite();
         $dispatchRestRequestMethod = $dispatchRestRequest->getMethod();
-
+        $logger->debug("Attempting to find route that matches " . $dispatchRestRequestMethod .  " " . $dispatchRestRequestPath);
         try {
             // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
             foreach ($routes as $routePath => $routeCallback) {
@@ -68,6 +76,8 @@ class HttpRestRouteHandler
                     }
 
                     // make sure our scopes pass the security checks
+                    // TODO: Would it be better to throw a security exception here instead of returning a custom response?
+                    // this will allow us to handle the response in the kernel view event
                     $response = $this->checkSecurity($this->kernel, $dispatchRestRequest);
                     if ($response instanceof ResponseInterface) {
                         // if the response is a ResponseInterface then we need to set it on the event
@@ -75,21 +85,23 @@ class HttpRestRouteHandler
                         return $response;
                     }
                     $logger->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
-                    $hasRoute = true;
 
                     // now grab our url parameters and issue the controller callback for the route
 
                     // call the function and use array unpacking to make this faster
 
                     // the controller result can be a Response object but if its not then it gets handled in the kernel view event
+                    // TODO: @adunsulag if we can figure out how to change this out to use the ArgumentResolver then we can
+                    // remove this code and just use the controller callback directly.
                     $routeControllerParameters = $parsedRoute->getRouteParams();
                     $routeControllerParameters[] = $dispatchRestRequest; // add in the request object to everything
+                    $routeControllerParameters[] = $this->globalsBag; // add in the globals bag to everything if they need it
 
                     // set the _controller attribute for the kernel to handle, gives other listeners a chance to modify things as needed
                     $dispatchRestRequest->attributes->set("_controller", function () use ($routeCallback, $routeControllerParameters) {
                         return $routeCallback(...$routeControllerParameters);
                     });
-                    return $dispatchRestRequest;
+                    return null; // return null to let the kernel handle the response
                 }
             }
             throw new HttpException(Response::HTTP_NOT_FOUND, "Route not found");
@@ -106,7 +118,7 @@ class HttpRestRouteHandler
                 ]
             );
             throw new HttpException(Response::HTTP_UNAUTHORIZED, "Unauthorized", $exception);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $logger->errorLogCaller(
                 $exception->getMessage(),
                 [
@@ -121,7 +133,14 @@ class HttpRestRouteHandler
         }
     }
 
-    public function checkSecurity(OEHttpKernel $kernel, HttpRestRequest $restRequest)
+    /**
+     * Check the security for the request and return a response if the security check fails.
+     * @param OEHttpKernel $kernel
+     * @param HttpRestRequest $restRequest
+     * @return ResponseInterface|null
+     * @throws AccessDeniedException
+     */
+    public function checkSecurity(OEHttpKernel $kernel, HttpRestRequest $restRequest) : ?ResponseInterface
     {
         if (empty($restRequest->getRequestUserRole())) {
             $this->logger->error("HttpRestRouteHandler::checkSecurity() - no user role set for request", [
@@ -155,9 +174,6 @@ class HttpRestRouteHandler
         // preferred approach is to throw an AccessDeniedException if the security check fails
         // however, we also allow for a response to be set on the event for custom security message rendering
         $checkedRestApiSecurityCheckEvent = $kernel->getEventDispatcher()->dispatch($restApiSecurityCheckEvent, RestApiSecurityCheckEvent::EVENT_HANDLE);
-        if (!$checkedRestApiSecurityCheckEvent instanceof RestApiSecurityCheckEvent) {
-            throw new \RuntimeException("Invalid event object returned as part of dispatch");
-        }
         if ($checkedRestApiSecurityCheckEvent->hasSecurityCheckFailedResponse()) {
             return $checkedRestApiSecurityCheckEvent->getSecurityCheckFailedResponse();
         }

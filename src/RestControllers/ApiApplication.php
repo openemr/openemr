@@ -105,6 +105,9 @@ class ApiApplication
         $eventDispatcher->addSubscriber(new ViewRendererListener());
 
         $controllerResolver = new ControllerResolver($this->getSystemLogger());
+        // TODO: @adunsulag we aren't really leveraging the ArgumentResolver yet, but we can use it to resolve controller arguments
+        // if we want to use the ArgumentResolver to resolve controller arguments, we can do so here, we'd want to setup our
+        // service container to handle the arguments and inject them into the controller
         $argumentResolver = new ArgumentResolver();
         $handleAllThrowables = true; // set to true to handle all exceptions in the ExceptionHandlerListener
         $kernel = new OEHttpKernel($eventDispatcher, $controllerResolver, new RequestStack(), $argumentResolver, $handleAllThrowables);

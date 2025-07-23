@@ -173,7 +173,7 @@ class SiteSetupListener implements EventSubscriberInterface
                 $oauth2KeyConfig->configKeyPairs();
             }
             if ($event->getRequest() instanceof HttpRestRequest) {
-                $event->getRequest()->setApiBaseFullUrl($serverConfig->getFhirUrl());
+                $event->getRequest()->setApiBaseFullUrl($serverConfig->getBaseApiUrl());
             }
         } catch (\OAuth2KeyException $e) {
             throw new HttpException(500, $e->getMessage(), $e);

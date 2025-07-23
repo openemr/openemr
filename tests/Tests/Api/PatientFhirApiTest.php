@@ -8,7 +8,7 @@ use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class PatientFhirTest extends TestCase {
+class PatientFhirApiTest extends TestCase {
     use JsonResponseHandlerTrait;
 
     private ApiTestClient $testClient;

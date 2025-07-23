@@ -639,7 +639,7 @@ class AuthorizationController
 
         // OpenID Connect Response Type
         $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() creating server");
-        $responseType = new IdTokenSMARTResponse(new IdentityRepository(), new ClaimExtractor($customClaim), $this->getTwig());
+        $responseType = new IdTokenSMARTResponse($this->session, new IdentityRepository(), new ClaimExtractor($customClaim), $this->getTwig());
 
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';

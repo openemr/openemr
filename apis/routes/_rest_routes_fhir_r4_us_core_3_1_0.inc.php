@@ -19,6 +19,7 @@
  */
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
@@ -2397,9 +2398,9 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
+    'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $fhirExportService = new FhirOperationExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request, $globalsBag);
         $exportParams = $request->getQueryParams();
         $exportParams['groupId'] = $groupId;
         $return = $fhirExportService->processExport(
@@ -4333,9 +4334,9 @@ return array(
      *  )
      */
     // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
-    'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
+    'GET /fhir/Patient/$export' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $fhirExportService = new FhirOperationExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request, $globalsBag);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'Patient',
@@ -6159,9 +6160,9 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/$export' => function (HttpRestRequest $request) {
+    'GET /fhir/$export' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $fhirExportService = new FhirOperationExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request, $globalsBag);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'System',
@@ -6196,12 +6197,12 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
+    'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $jobUuidString = $request->getQueryParam('job');
         // if we were truly async we would return 202 here to say we are in progress with a JSON response
         // since OpenEMR data is so small we just return the JSON from the database
-        $fhirExportService = new FhirOperationExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request, $globalsBag);
         $return = $fhirExportService->processExportStatusRequestForJob($jobUuidString);
 
         return $return;
@@ -6227,10 +6228,10 @@ return array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
+    'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         RestConfig::request_authorization_check($request, "admin", "users");
         $job = $request->getQueryParam('job');
-        $fhirExportService = new FhirOperationExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request, $globalsBag);
         $return = $fhirExportService->processDeleteExportForJob($job);
 
         return $return;

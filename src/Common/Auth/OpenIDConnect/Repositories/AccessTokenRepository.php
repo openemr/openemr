@@ -38,7 +38,6 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function __construct()
     {
-        $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);
         $this->contextForNewTokens = null;
     }
 
@@ -156,6 +155,14 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
     }
 
+    private function getBuilderForAccessToken() : SMARTSessionTokenContextBuilder {
+        if (empty($this->builder)) {
+            // TODO: @adunsulag replace the $_SESSION with a session service that can be injected
+            $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);
+        }
+        return $this->builder;
+    }
+
     /**
      * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
      * context saved in the repositoryor will build a new context from the passed in scopes.
@@ -165,9 +172,9 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     private function getContextForNewAccessTokens($scopes)
     {
         if (!empty($this->contextForNewTokens)) {
-            $context = $this->builder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
+            $context = $this->getBuilderForAccessToken()->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
         } else {
-            $context = $this->builder->getContextForScopes($scopes) ?? [];
+            $context = $this->getBuilderForAccessToken()->getContextForScopes($scopes) ?? [];
         }
         return $context;
     }
