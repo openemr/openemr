@@ -57,10 +57,10 @@ class HttpRestRouteHandlerTest extends TestCase
         $request->setResource($resource);
         $restRouteHandler = new HttpRestRouteHandler($kernel);
         $controller =  function (HttpRestRequest $request) {};
-        $updatedRequest = $restRouteHandler->dispatch([
+        $restRouteHandler->dispatch([
             'GET /' . $resource . '-2' => function () {}
             ,'GET /' . $resource => $controller
         ], $request);
-        $this->assertEquals($controller, $updatedRequest->attributes->get("_controller"), "Controller should be set correctly for the route");
+        $this->assertEquals($controller, $request->attributes->get("_controller"), "Controller should be set correctly for the route");
     }
 }
