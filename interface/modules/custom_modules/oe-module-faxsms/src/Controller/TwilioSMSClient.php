@@ -302,7 +302,7 @@ class TwilioSMSClient extends AppDispatch
      */
     function sendFax(): string|bool
     {
-        // TODO: Implement sendFax() method.
+        return false;
     }
 
     /**
@@ -318,6 +318,6 @@ class TwilioSMSClient extends AppDispatch
      */
     function sendEmail(): mixed
     {
-        // TODO: Implement sendEmail() method.
+        return false;
     }
 }

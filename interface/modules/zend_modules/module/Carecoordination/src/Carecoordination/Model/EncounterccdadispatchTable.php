@@ -57,7 +57,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchFiltered = false;
     private $encounterFilterList = [];
 
-    public function __construct()
+    public function __construct($dbAdapter)
     {
     }
 

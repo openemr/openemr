@@ -153,6 +153,7 @@ if ($_POST['form_save_permissions'] ?? null) {
     $permissions_saved = true;
 
     // Set appropriate success message based on action
+    $permissions_message_type = '';
     if ($reset_primary) {
         $permissions_message = xlt("User permissions saved and primary user designation cleared successfully!");
         $permissions_message_type = "warning"; // Use warning color for reset action
