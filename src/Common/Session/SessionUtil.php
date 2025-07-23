@@ -78,6 +78,8 @@ class SessionUtil
 
     public const OAUTH_WEBROOT = '/oauth2/';
 
+    public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
+
     private static $gc_maxlifetime = 14400;
     private static $use_strict_mode = true;
     private static $use_cookies = true;

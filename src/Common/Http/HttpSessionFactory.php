@@ -2,10 +2,11 @@
 
 namespace OpenEMR\Common\Http;
 
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\Predis\SentinelUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\SessionFactory;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorageFactory;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorageFact
 
 class HttpSessionFactory implements SessionFactoryInterface
 {
+    use SystemLoggerAwareTrait;
+
     public const SESSION_TYPE_OAUTH = 'oauth';
     public const SESSION_TYPE_API = 'api';
 
@@ -64,7 +67,7 @@ class HttpSessionFactory implements SessionFactoryInterface
                 'name' => SessionUtil::OAUTH_SESSION_ID,
                 'cookie_httponly' => true,
                 'cookie_path' => ((!empty($this->web_root)) ? $this->web_root . SessionUtil::OAUTH_WEBROOT : SessionUtil::OAUTH_WEBROOT),
-                'gc_maxlifetime' => 14400, // 4 hours
+                'gc_maxlifetime' => SessionUtil::DEFAULT_GC_MAXLIFETIME, // 4 hours
                 'use_strict_mode' => true,
                 'use_cookies' => true,
                 'use_only_cookies' => true
@@ -76,7 +79,7 @@ class HttpSessionFactory implements SessionFactoryInterface
                 'name' => SessionUtil::API_SESSION_ID,
                 'cookie_httponly' => true,
                 'cookie_path' => ((!empty($this->web_root)) ? $this->web_root . SessionUtil::API_WEBROOT : SessionUtil::API_WEBROOT),
-                'gc_maxlifetime' => 14400, // 4 hours
+                'gc_maxlifetime' => SessionUtil::DEFAULT_GC_MAXLIFETIME, // 4 hours
                 'use_strict_mode' => true,
                 'use_cookies' => true,
                 'use_only_cookies' => true
@@ -90,7 +93,7 @@ class HttpSessionFactory implements SessionFactoryInterface
                 'name' => SessionUtil::CORE_SESSION_ID,
                 'cookie_httponly' => false,
                 'cookie_path' => ((!empty($this->web_root)) ? $this->web_root . '/' : '/'),
-                'gc_maxlifetime' => 14400, // 4 hours
+                'gc_maxlifetime' => SessionUtil::DEFAULT_GC_MAXLIFETIME, // 4 hours
                 'use_strict_mode' => true,
                 'use_cookies' => true,
                 'use_only_cookies' => true
@@ -106,17 +109,35 @@ class HttpSessionFactory implements SessionFactoryInterface
                 'sid_length' => 48
             ], $settings);
         }
+        $sessionHandler = $this->getSessionHandlerInterface($settings);
         if ($this->useBridge) {
             // Use the existing session bridge if it exists
-            $sessionStorageFactory = new PhpBridgeSessionStorageFactory();
+            $sessionStorageFactory = new PhpBridgeSessionStorageFactory($sessionHandler);
         } else {
-            $sessionStorageFactory = new NativeSessionStorageFactory($settings);
+            $sessionStorageFactory = new NativeSessionStorageFactory($settings, $sessionHandler);
         }
         $storage = $sessionStorageFactory->createStorage($this->request);
         $session = new Session($storage, new AttributeBag($sessionKey));
         $session->start();
         $this->populateSessionFromGlobals($session);
         return $session;
+    }
+    private function getSessionHandlerInterface(array $settings): ?\SessionHandlerInterface
+    {
+        $sessionHandler = null;
+        if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
+            $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
+            try {
+                $sessionHandler = (new SentinelUtil($settings['gc_maxlifetime']))->configure();
+            }
+            catch (\Exception $e) {
+                // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
+                $this->getSystemLogger()->error("SessionUtil: failed to configure predis sentinel session storage: " . $e->getMessage()
+                , ['trace' => $e->getTraceAsString()]);
+                throw new \RuntimeException("Failed to configure predis sentinel session storage: " . $e->getMessage());
+            }
+        }
+        return $sessionHandler;
     }
 
     private function populateSessionFromGlobals(SessionInterface $session): void
