@@ -60,9 +60,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
                 $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated api_log_option set to 1, skipping log and request");
                 // Do not log the response and requestBody
                 $logResponse = '';
-            }
-            // If the response is a Symfony Response, we can get the content directly
-            else if ($this->shouldLogResponse($response)) {
+            } else if ($this->shouldLogResponse($response)) {
+                // If the response is a Symfony Response, we can get the content directly
                 $logResponse = $response->getContent();
             } else {
                 $logResponse = '';

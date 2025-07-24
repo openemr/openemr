@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\RestControllers\Config\RestConfig;
-
 /**
  * Routes
  * (All REST routes)
@@ -20,6 +18,8 @@ use OpenEMR\RestControllers\Config\RestConfig;
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\RestControllers\Config\RestConfig;
 
 /**
  *  @OA\Info(title="OpenEMR API", version="7.0.4")
