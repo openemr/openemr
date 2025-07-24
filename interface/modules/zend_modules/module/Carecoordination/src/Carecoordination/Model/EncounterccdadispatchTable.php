@@ -60,7 +60,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function __construct($dbAdapter)
     {
         // No specific table - you'll specify tables in individual queries
-        parent::__construct(null, $dbAdapter);
+        parent::__construct('', $dbAdapter);
     }
 
     /**
