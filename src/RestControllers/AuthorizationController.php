@@ -18,7 +18,6 @@ use DateInterval;
 use DateTimeImmutable;
 use Exception;
 use GuzzleHttp\Client;
-use Lcobucci\JWT\ValidationData;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
@@ -53,7 +52,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
@@ -74,13 +72,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
-use WpOrg\Requests\Exception\Http;
 
 class AuthorizationController
 {
@@ -96,39 +92,39 @@ class AuthorizationController
     // https://hl7.org/fhir/uv/bulkdata/authorization/index.html#issuing-access-tokens Spec states 5 min max
     public const GRANT_TYPE_ACCESS_CODE_TTL = "PT300S"; // 5 minutes
 
-    public $authBaseUrl;
-    public $authBaseFullUrl;
-    public $siteId;
-    private $privateKey;
-    private $passphrase;
-    private $publicKey;
-    private $oaEncryptionKey;
-    private $grantType;
-    private $providerForm;
-    private $authRequestSerial;
-    private $cryptoGen;
-    private $userId;
+    public string $authBaseUrl;
+    public string $authBaseFullUrl;
+    public string $siteId;
+    private string $privateKey;
+    private string $passphrase;
+    private string $publicKey;
+    private string $oaEncryptionKey;
+    private string $grantType;
+    private bool $providerForm;
+    private string $authRequestSerial;
+    private CryptoGen $cryptoGen;
+    private int|string $userId;
 
     /**
      * @var SMARTAuthorizationController
      */
-    private $smartAuthController;
+    private SMARTAuthorizationController $smartAuthController;
 
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * Handles CRUD operations for OAUTH2 Trusted Users
      * @var TrustedUserService
      */
-    private $trustedUserService;
+    private TrustedUserService $trustedUserService;
 
     /**
      * @var Environment
      */
-    private $twig;
+    private Environment $twig;
 
     /**
      * @var DecisionSupportInterventionService
@@ -152,17 +148,23 @@ class AuthorizationController
 
     private OEHttpKernel $kernel;
 
+    /**
+     * @param SessionInterface $session
+     * @param OEHttpKernel $kernel
+     * @param bool $providerForm
+     * @throws OAuthServerException
+     */
     public function __construct(
         SessionInterface $session,
         OEHttpKernel $kernel,
-        $providerForm = true
+        bool $providerForm = true
     ) {
         $this->session = $session;
         $this->kernel = $kernel;
         $globalsBag = $kernel->getGlobalsBag();
         $this->webroot = $globalsBag->get('webroot', '');
         $this->globalsBag = $globalsBag;
-        $this->siteId = $session->get('site_id', null);
+        $this->siteId = $session->get('site_id');
         if (empty($this->siteId)) {
             // should never reach this but just in case
             throw OAuthServerException::serverError("OpenEMR error - unable to collect site id, so forced exit");
@@ -211,9 +213,13 @@ class AuthorizationController
         return $this->twig;
     }
 
+    /**
+     * @param SessionInterface $session
+     * @return void
+     * @throws OAuthServerException
+     */
     private function configKeyPairs(SessionInterface $session): void
     {
-        $response = $this->createServerResponse();
         try {
             $oauth2KeyConfig = new OAuth2KeyConfig($this->globalsBag->get('OE_SITE_DIR'));
             $oauth2KeyConfig->configKeyPairs();
@@ -241,7 +247,7 @@ class AuthorizationController
             foreach ($request_headers as $header => $value) {
                 $headers[strtolower($header)] = $value[0];
             }
-            if (!$headers['content-type'] || strpos($headers['content-type'], 'application/json') !== 0) {
+            if (!$headers['content-type'] || !str_starts_with($headers['content-type'], 'application/json')) {
                 throw new OAuthServerException('Unexpected content type', 0, 'invalid_client_metadata');
             }
             $json = file_get_contents('php://input');
@@ -302,15 +308,15 @@ class AuthorizationController
 
                 // don't allow system scopes without a jwk or jwks_uri value
                 if (
-                    strpos($data['scope'], 'system/') !== false
+                    str_contains($data['scope'], 'system/')
                     && empty($data['jwks']) && empty($data['jwks_uri'])
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
             // don't allow user, system scopes, and offline_access for public apps
             } elseif (
-                strpos($data['scope'], 'system/') !== false
-                || strpos($data['scope'], 'user/') !== false
+                str_contains($data['scope'], 'system/')
+                || str_contains($data['scope'], 'user/')
             ) {
                 throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
@@ -355,7 +361,7 @@ class AuthorizationController
                 $params['dsi_type'] = $dsiTypeName;
 
                 $clientSaved = true;
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
                 if ($clientSaved) {
@@ -363,7 +369,7 @@ class AuthorizationController
                 } else {
                     try {
                         $this->rollbackTransaction();
-                    } catch (\Exception $exception) {
+                    } catch (Exception $exception) {
                         $this->getSystemLogger()->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
                     }
                 }
@@ -406,14 +412,12 @@ class AuthorizationController
 
     /**
      * Verifies that the scope string only has approved scopes for the system.
-     * @param $scopeString the space separated scope string
+     * @param $scopeString string the space separated scope string
+     * @throws OAuthServerException
      */
-    private function validateScopesAgainstServerApprovedScopes(HttpRestRequest $request, $scopeString)
+    private function validateScopesAgainstServerApprovedScopes(HttpRestRequest $request, $scopeString): void
     {
         $requestScopes = explode(" ", $scopeString);
-        if (empty($requestScopes)) {
-            return;
-        }
         $this->getSystemLogger()->debug(
             "AuthorizationController->validateScopesAgainstServerApprovedScopes() - Validating scopes",
             ['scopeString' => $scopeString]
@@ -451,30 +455,10 @@ class AuthorizationController
         return HttpUtils::base64url_encode($data);
     }
 
-    public function base64url_decode($token)
+    public function base64url_decode($token): string
     {
         $b64 = strtr($token, '-_', '+/');
         return base64_decode($b64);
-    }
-
-    public function emitResponse(ResponseInterface $response): void
-    {
-        if (headers_sent()) {
-            throw new RuntimeException('Headers already sent.');
-        }
-        $statusLine = sprintf(
-            'HTTP/%s %s %s',
-            $response->getProtocolVersion(),
-            $response->getStatusCode(),
-            $response->getReasonPhrase()
-        );
-        header($statusLine, true);
-        foreach ($response->getHeaders() as $name => $values) {
-            $responseHeader = sprintf('%s: %s', $name, $response->getHeaderLine($name));
-            header($responseHeader, false);
-        }
-        // send it along.
-        echo $response->getBody();
     }
 
     public function clientRegisteredDetails(HttpRestRequest $request): ResponseInterface
@@ -584,12 +568,17 @@ class AuthorizationController
                     return $this->processAuthorizeFlowForLaunch($authRequest, $httpRequest, $response, $userUuid);
                 } // otherwise we will proceed with the authorization flow for people to login
             }
+
             // If needed, serialize into a users session
             if ($this->providerForm) {
-                $this->serializeUserSession($authRequest, $request, $session);
+                $this->serializeUserSession($authRequest, $httpRequest, $session);
                 $logger->debug("AuthorizationController->oauthAuthorizationFlow() redirecting to provider form");
                 $psrFactory = new Psr17Factory();
                 return $psrFactory->createResponse(Response::HTTP_TEMPORARY_REDIRECT)->withHeader("Location", $this->authBaseUrl . "/provider/login");
+            } else {
+                throw OAuthServerException::serverError(
+                    "OpenEMR error - unable to process authorization request, provider form is not enabled"
+                );
             }
         } catch (OAuthServerException $exception) {
             $logger->error(
@@ -601,6 +590,7 @@ class AuthorizationController
                     , 'errorType' => $exception->getErrorType()]
             );
             $httpRequest->getSession()->invalidate();
+            return $exception->generateHttpResponse($response);
         } catch (Exception $exception) {
             $logger->error("AuthorizationController->oauthAuthorizationFlow() Exception message: " . $exception->getMessage());
             $httpRequest->getSession()->invalidate();
@@ -608,7 +598,6 @@ class AuthorizationController
             $body->write($exception->getMessage());
             return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
         }
-        return $exception->generateHttpResponse($response);
     }
 
     /**
@@ -724,7 +713,7 @@ class AuthorizationController
         return $authServer;
     }
 
-    private function serializeUserSession($authRequest, ServerRequestInterface $httpRequest, SessionInterface $session): void
+    private function serializeUserSession($authRequest, HttpRestRequest $httpRequest, SessionInterface $session): void
     {
         $launchParam = isset($httpRequest->getQueryParams()['launch']) ? $httpRequest->getQueryParams()['launch'] : null;
         // keeping somewhat granular
@@ -931,7 +920,7 @@ class AuthorizationController
     public function getUuidUserAccount($userId): UuidUserAccount
     {
         if (isset($this->uuidUserFactory)) {
-            return $this->uuidUserFactory($userId);
+            return call_user_func($this->uuidUserFactory, [$userId]);
         } else {
             return new UuidUserAccount($userId);
         }
@@ -958,8 +947,6 @@ class AuthorizationController
             }
         }
         $offline_access_date = (new DateTimeImmutable())->add(new \DateInterval("P3M"))->format("Y-m-d");
-
-
         $claims = $request->getSession()->get('claims', []);
 
         $clientRepository = $this->getClientRepository();
@@ -972,20 +959,8 @@ class AuthorizationController
         $uuidToUser = $this->getUuidUserAccount($session->get('user_id', ''));
         $userRole = $uuidToUser->getUserRole();
         $userAccount = $uuidToUser->getUserAccount();
-
-
-        $oauthLogin = $oauthLogin ?? null;
-        $offline_requested = $offline_requested ?? false;
-        $scopes = $scopes ?? [];
         $scopeString = $scopeString ?? "";
-        $offline_access_date = $offline_access_date ?? "";
         $userRole = $userRole ?? UuidUserAccount::USER_ROLE_PATIENT;
-        $clientName = $clientName ?? "";
-
-        if ($oauthLogin !== true) {
-            throw new HttpException(Response::HTTP_UNAUTHORIZED, "Error. Not authorized");
-        }
-
         $scopesByResource = [];
         $otherScopes = [];
         $scopeDescriptions = [];
@@ -1043,7 +1018,7 @@ class AuthorizationController
             ,'claims' => $updatedClaims
             ,'userAccount' => $userAccount
             ,'offlineRequested' => true == $offline_requested
-            ,'offline_access_date' => $offline_access_date ?? ""
+            ,'offline_access_date' => $offline_access_date
         ];
         return $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
     }
@@ -1129,7 +1104,7 @@ class AuthorizationController
             $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
             $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session), $include_refresh_token);
             $user = new UserEntity();
-            $user->setIdentifier($this->session->set('user_id'));
+            $user->setIdentifier($this->session->get('user_id'));
             $authRequest->setUser($user);
             $authRequest->setAuthorizationApproved(true);
             $result = $server->completeAuthorizationRequest($authRequest, $response);
@@ -1408,6 +1383,7 @@ class AuthorizationController
             ['token_type_hint' => $token_hint, 'client_id' => $clientId]
         );
 
+        $result = array('active' => false);
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
             // so regardless of client type(private/public) we need client for client app type and secret.
@@ -1615,7 +1591,8 @@ class AuthorizationController
     /**
      * Given a password grant response, save the trusted user information to the database so password grant users
      * can proceed.
-     * @param ServerResponseInterface $result
+     * @param HttpRestRequest $result
+     * @param ResponseInterface $result
      */
     private function saveTrustedUserForPasswordGrant(HttpRestRequest $request, ResponseInterface $result)
     {
@@ -1668,7 +1645,7 @@ class AuthorizationController
             //  We can't rely on the session cookie from the launch endpoint because of third party browser blocking
             // we don't want to deal with storing the user information in the launch token as we don't want to have to
             // deal with the security implications of the launch token being hijacked/MITM.
-            return $this->getSmartAuthController()->dispatchRoute(SMARTAuthorizationController::EHR_SMART_LAUNCH_AUTOSUBMIT);
+            return $this->getSmartAuthController()->dispatchRoute(SMARTAuthorizationController::EHR_SMART_LAUNCH_AUTOSUBMIT, $request);
         }
         $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit set, processing authorization flow.");
         // if we have come back from an autosubmit we are going to check to see if we are logged in
@@ -1685,7 +1662,7 @@ class AuthorizationController
         $server = $this->getAuthorizationServer($this->getScopeRepository($request, $this->session), $include_refresh_token);
 
         // make sure we get our serialized session data
-        $this->serializeUserSession($authRequest, $request);
+        $this->serializeUserSession($authRequest, $request, $session);
         $apiSession = $this->session->all();
         $user = new UserEntity();
         $user->setIdentifier($userUuid);

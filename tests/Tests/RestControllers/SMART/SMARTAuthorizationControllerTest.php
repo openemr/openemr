@@ -18,6 +18,7 @@ use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\LogoService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -235,6 +236,10 @@ class SMARTAuthorizationControllerTest extends TestCase
         $session->set("scopes", "");
         $logger = new SystemLogger(self::LOG_LEVEL);
         $kernel = $this->createMock(OEHttpKernel::class);
+        $kernel->method("getSystemLogger")
+            ->willReturn($logger);
+        $kernel->method("getEventDispatcher")
+            ->willReturn($this->createMock(EventDispatcherInterface::class));
 
         $controller = new SMARTAuthorizationController(
             $session,

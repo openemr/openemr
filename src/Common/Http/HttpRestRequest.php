@@ -204,14 +204,6 @@ class HttpRestRequest extends Request implements \Stringable
     }
 
     /**
-     * @return \RestConfig
-     */
-    public function getRestConfig(): \RestConfig
-    {
-        return $this->restConfig;
-    }
-
-    /**
      * Return the Request URI (matches the $_SERVER['REQUEST_URI'])
      * changing the request uri, resets all of the populated methods that derive from the URI as we can't determine
      * what they are, these have to be manually reset
@@ -637,18 +629,6 @@ class HttpRestRequest extends Request implements \Stringable
     {
         $clonedRequest = clone $this;
         $clonedRequest->content = $body;
-        return $clonedRequest;
-    }
-
-    public function getRequestTarget(): string
-    {
-        return $this->innerServerRequest->getRequestTarget();
-    }
-
-    public function withRequestTarget($requestTarget)
-    {
-        $clonedRequest = clone $this;
-        // TODO: @adunsulag not sure how to implement this.
         return $clonedRequest;
     }
 

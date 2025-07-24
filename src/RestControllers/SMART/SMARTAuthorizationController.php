@@ -13,6 +13,7 @@ namespace OpenEMR\RestControllers\SMART;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RedirectUriValidators\RedirectUriValidator;
+use Exception;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -26,7 +27,8 @@ use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\PatientService;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -38,35 +40,35 @@ class SMARTAuthorizationController
     /**
      * @var SystemLogger
      */
-    private $logger;
+    private SystemLogger $logger;
 
     /**
      * The base URL of the oauth2 url
      * @var string
      */
-    private $authBaseFullURL;
+    private string $authBaseFullURL;
 
     /**
      * The oauth2 endpoint url to send to once smart authorization is complete.
      * @var string
      */
-    private $smartFinalRedirectURL;
+    private string $smartFinalRedirectURL;
 
     /**
      * The directory that the oauth template files can be included from
      * @var string
      */
-    private $oauthTemplateDir;
+    private string $oauthTemplateDir;
 
     /**
      * @var Environment The twig template engine
      */
-    private $twig;
+    private Environment $twig;
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     private SessionInterface $session;
 
@@ -95,11 +97,21 @@ class SMARTAuthorizationController
     /**
      * SMARTAuthorizationController constructor.
      * TODO: @adunsulag this constructor has a lot of parameters, we should look at refactoring this to use a configuration object or reduce the scope of what this class does.
+     * @param SessionInterface $session The session interface to use for storing session data.
+     * @param OEHttpKernel $kernel The OpenEMR kernel to use for getting the system logger and event dispatcher.
      * @param $authBaseFullURL
-     * @param $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
-     */
-    public function __construct(SessionInterface $session, OEHttpKernel $kernel, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir, Environment $twig)
-    {
+     * @param $smartFinalRedirectURL string The URL that should be redirected to once all SMART authorizations are complete.
+     * @param $oauthTemplateDir string The directory that the oauth template files can be included from.
+     * @param Environment $twig The twig template engine to use for rendering pages.
+ */
+    public function __construct(
+        SessionInterface $session,
+        OEHttpKernel $kernel,
+        $authBaseFullURL,
+        string $smartFinalRedirectURL,
+        string $oauthTemplateDir,
+        Environment $twig
+    ) {
         $this->session = $session;
         $this->logger = $kernel->getSystemLogger();
         $this->authBaseFullURL = $authBaseFullURL;
@@ -128,7 +140,7 @@ class SMARTAuthorizationController
      * @param $end_point string the route url
      * @return bool true if the route should be handled by this controller, false otherwise
      */
-    public function isValidRoute($end_point)
+    public function isValidRoute(string $end_point): bool
     {
         if (false !== stripos($end_point, self::PATIENT_SELECT_PATH)) {
             return true;
@@ -147,10 +159,10 @@ class SMARTAuthorizationController
 
     /**
      * Handles the route endpoint and terminates the process upon completion.
-     * @param $end_point
-     * @param HttpRestRequest $request
+     * @param string $end_point The route endpoint that was requested, which should be one of the SMART oauth2 endpoints.
+     * @param HttpRestRequest $request The request object containing the query parameters and other request data.
      */
-    public function dispatchRoute($end_point, HttpRestRequest $request): ResponseInterface
+    public function dispatchRoute(string $end_point, HttpRestRequest $request): ResponseInterface
     {
 
         // order here matters
@@ -163,7 +175,7 @@ class SMARTAuthorizationController
         } else if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
             return $this->ehrLaunchAutoSubmit($request);
         } else if (false !== stripos($end_point, self::SMART_STYLE_URL)) {
-            return $this->smartAppStyles($request);
+            return $this->smartAppStyles();
         } else {
             $this->logger->error("SMARTAuthorizationController->dispatchRoute() called with invalid route. verify isValidRoute configured properly", ['end_point' => $end_point]);
             return (new Psr17Factory())->createResponse()
@@ -173,7 +185,7 @@ class SMARTAuthorizationController
         }
     }
 
-    public function ehrLaunchAutoSubmit(HttpRestRequest $request)
+    public function ehrLaunchAutoSubmit(HttpRestRequest $request): ResponseInterface
     {
         // grab the server query string and let's go back to our authorize endpoint
         $endpoint = $this->authBaseFullURL . "/authorize?autosubmit=1&" . http_build_query($request->query->all());
@@ -188,12 +200,12 @@ class SMARTAuthorizationController
      * endpoints.
      * @return bool
      */
-    public function needSMARTAuthorization()
+    public function needSMARTAuthorization(): bool
     {
-        if (empty($this->session->get('puuid')) && strpos($this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE) !== false) {
+        if (empty($this->session->get('puuid')) && str_contains($this->session->get('scopes'), SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE)) {
             $this->logger->debug(
                 "AuthorizationController->userLogin() SMART app request for patient context ",
-                ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid', null)]
+                ['scopes' => $this->session->get('scopes', ''), 'puuid' => $this->session->get('puuid')]
             );
             return true;
         }
@@ -204,7 +216,7 @@ class SMARTAuthorizationController
      * Returns the first SMART oauth2 authorization path to start the SMART flow.
      * @return string
      */
-    public function getSmartAuthorizationPath()
+    public function getSmartAuthorizationPath(): string
     {
         // we can extend this to be a bunch of things based on any additional authorization contexts we need
         // to support things like encounter selection, etc, but for now we only support patient selector launch
@@ -216,7 +228,7 @@ class SMARTAuthorizationController
      */
     public function patientSelectConfirm(HttpRestRequest $request): ResponseInterface
     {
-        $user_uuid = $this->session->get('user_id', null);
+        $user_uuid = $this->session->get('user_id');
         if (!isset($user_uuid)) {
             $this->logger->error("SMARTAuthorizationController->patientSelect() Unauthorized call, user has not authenticated");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized call');
@@ -229,10 +241,11 @@ class SMARTAuthorizationController
 
         // set our patient information up in our pid so we can handle our code property...
         try {
-            $patient_id = $request->request->get('patient_id', null); // this patient_id is actually a uuid.. wierd
+            $patient_id = $request->request->get('patient_id'); // this patient_id is actually a uuid.. wierd
             $searchController = $this->getPatientContextSearchController();
             // throws access denied if user doesn't have access
-            $foundPatient = $searchController->getPatientForUser($patient_id, $user_uuid);
+            // TODO: @adunsulag we should rename this method if it throws an AccessDeniedException
+            $searchController->getPatientForUser($patient_id, $user_uuid);
             // put PID in session
             $this->session->set('puuid', $patient_id);
 
@@ -249,7 +262,7 @@ class SMARTAuthorizationController
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             // error occurred, no patients found just display the screen with an error message
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
             $errorMessage = "There was a server error in loading patients.  Contact your system administrator for assistance";
@@ -275,7 +288,6 @@ class SMARTAuthorizationController
 
         $hasMore = false;
         $patients = [];
-        $oauthLogin = true;
         //  handle our patient selected piece, populate the session and now present the authorize piece
         $redirect = $this->authBaseFullURL . self::PATIENT_SELECT_CONFIRM_ENDPOINT;
         $searchAction = $this->authBaseFullURL . self::PATIENT_SELECT_PATH;
@@ -313,7 +325,7 @@ class SMARTAuthorizationController
             $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             return $error->generateHttpResponse($response);
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             // error occurred, no patients found just display the screen with an error message
             $error_message = "There was a server error in loading patients.  Contact your system administrator for assistance";
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
@@ -334,12 +346,12 @@ class SMARTAuthorizationController
         }
     }
 
-    private function getTwig()
+    private function getTwig(): Environment
     {
         return $this->twig;
     }
 
-    private function renderTwigPage($pageName, $template, $templateVars)
+    private function renderTwigPage($pageName, $template, $templateVars): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
@@ -352,7 +364,7 @@ class SMARTAuthorizationController
                 ->withStatus(Response::HTTP_OK)
                 ->withHeader('Content-Type', 'text/html; charset=UTF-8')
                 ->withBody((new Psr17Factory())->createStream($twig->render($template, $vars)));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return (new Psr17Factory())->createResponse()
                 ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
@@ -361,7 +373,7 @@ class SMARTAuthorizationController
         }
     }
 
-    private function renderTwigJson($pageName, $template, $templateVars, $defaultTemplate = null)
+    private function renderTwigJson($pageName, $template, $templateVars, $defaultTemplate = null): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
@@ -374,11 +386,13 @@ class SMARTAuthorizationController
                 $templates[] = $defaultTemplate;
             }
             $resolvedTemplate = $twig->resolveTemplate($templates);
-            return new JsonResponse($resolvedTemplate->render($vars));
-        } catch (\Exception $e) {
+            $response = new JsonResponse($resolvedTemplate->render($vars));
+        } catch (Exception $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return new JsonResponse($twig->render("error/general_http_error.json.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $response = new JsonResponse($twig->render("error/general_http_error.json.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+        $psrFactory = new PsrHttpFactory();
+        return $psrFactory->createResponse($response);
     }
 
     public function setClientRepository(ClientRepository $repository): void
@@ -397,9 +411,9 @@ class SMARTAuthorizationController
 
     /**
      * Returns the client redirect URI to send error responses back.
-     * @return string|null
+     * @return string
      */
-    private function getClientRedirectURI()
+    private function getClientRedirectURI(): string
     {
         $client_id = $this->session->get('client_id');
         $repo = $this->getClientRepository();
@@ -422,12 +436,12 @@ class SMARTAuthorizationController
         return $uri;
     }
 
-    public function smartAppStyles(HttpRestRequest $request)
+    public function smartAppStyles(): ResponseInterface
     {
         $cssTheme = $this->globalsBag->get('css_header');
         $baseCssTheme = basename($cssTheme);
         $parts = explode(".", $baseCssTheme);
-        $coreTheme = $parts[0] ?? "style_light";
+        $coreTheme = !empty($parts[0]) ? $parts[0] : "style_light";
         $logoService = $this->getLogoService();
         // do we want to expose each of the logos?  These really need to be cached instead of hitting FS each time...
         $primaryLogo = $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . $logoService->getLogo("core/login/primary");
