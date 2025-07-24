@@ -52,7 +52,6 @@ jobs:
         restore-keys: |
           phpstan-result-cache-
     - name: PHPStan Diagnose
-      if: ${{ env.ACTIONS_STEP_DEBUG == 'true' }}
       uses: php-actions/phpstan@v3
       with:
         command: diagnose
