@@ -681,8 +681,9 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * @param $start
-     * @param $end
+     * @param      $start
+     * @param      $end
+     * @param bool $pollForNew
      * @return array
      */
     public function fetchFaxQueue($start, $end, $pollForNew = false): array

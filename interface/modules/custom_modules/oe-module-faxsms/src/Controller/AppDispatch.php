@@ -53,7 +53,6 @@ abstract class AppDispatch
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
         $this->crypto = new CryptoGen();
-        //$this->credentials = $this->getCredentials();
         $this->dispatchActions();
         $this->render();
     }
@@ -416,10 +415,18 @@ abstract class AppDispatch
         }
 
         $vendor = self::getModuleVendor();
-        $this->authUser = (int)$this->getSession('authUserID') ?? 0;
+        $this->authUser = (int)$this->getSession('authUserID');
+        $use = BootstrapService::usePrimaryAccount($this->authUser);
         if (!($GLOBALS['oerestrict_users'] ?? null)) {
-            $this->authUser = 0; // This makes it global and shared to all users.
+            $this->authUser = 0;
         }
+        if ($use) {
+            $this->authUser = BootstrapService::getPrimaryUser();
+        }
+        if ((int)$this->getSession('editingUser') > 0) {
+            $this->authUser = (int)$this->getSession('editingUser');
+        }
+
         // encrypt for safety.
         $content = $this->crypto->encryptStandard(json_encode($setup));
         if (empty($vendor) || empty($setup)) {
@@ -534,6 +541,10 @@ abstract class AppDispatch
         if ($use) {
             $this->authUser = BootstrapService::getPrimaryUser();
         }
+        if ((int)$this->getSession('editingUser') > 0) {
+            $this->authUser = (int)$this->getSession('editingUser');
+        }
+
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
 
         if (empty($credentials)) {
@@ -542,12 +553,12 @@ abstract class AppDispatch
                 'extension' => '',
                 'password' => '',
                 'account' => '',
-                'phone' => '',
+                'phone' => '+1',
                 'appKey' => '',
                 'appSecret' => '',
                 'server' => '',
                 'portal' => '',
-                'smsNumber' => '',
+                'smsNumber' => '+1',
                 'production' => '',
                 'redirect_url' => '',
                 'smsHours' => "50",

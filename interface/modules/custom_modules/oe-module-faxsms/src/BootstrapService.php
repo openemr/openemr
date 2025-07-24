@@ -169,9 +169,8 @@ class BootstrapService
 
     public static function getPrimaryUser()
     {
-        $setting_label = "module_faxsms_primary_user";
-        $query = "SELECT setting_user FROM user_settings WHERE setting_label = ? AND setting_value = '1'";
-        $result = sqlQuery($query, [$setting_label]);
+        $query = "SELECT setting_user FROM user_settings WHERE setting_label = 'module_faxsms_primary_user' AND setting_value = '1' LIMIT 1";
+        $result = sqlQuery($query);
         return $result ? $result['setting_user'] : '0';
     }
 }
