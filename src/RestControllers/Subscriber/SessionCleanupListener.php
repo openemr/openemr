@@ -2,15 +2,13 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
-use OpenEMR\Common\Session\SessionUtil;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class SessionCleanupListener implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents() : array
     {
         return [
             KernelEvents::TERMINATE => 'onRequestTerminated',
@@ -28,7 +26,7 @@ class SessionCleanupListener implements EventSubscriberInterface
         // if we still have an active session, we close it, just to mimic the behavior of the original dispatch.php
 
         if ($session->isStarted()) {
-            if (!empty($session)) {
+            if (!empty($session->all())) {
                 $session->save();
             }
         }

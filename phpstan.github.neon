@@ -17448,14 +17448,10 @@ parameters:
     identifier: empty.variable
     count: 1
     path: src/Common/Http/HttpRestParsedRoute.php
-  - message: '#^Variable \$_GET on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
+  - message: '#^Non\-static access to static property OpenEMR\\Common\\Http\\oeHttp\:\:\$client\.$#'
+    identifier: staticProperty.nonStaticAccess
     count: 1
-    path: src/Common/Http/HttpRestRequest.php
-  - message: '#^Variable \$requestUri on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/Common/Http/HttpRestRequest.php
+    path: src/Common/Http/oeHttpRequest.php
   - message: '#^Variable \$test in isset\(\) always exists and is not nullable\.$#'
     identifier: isset.variable
     count: 1
@@ -17644,42 +17640,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/Pharmacy/Services/ImportPharmacies.php
-  - message: '#^Variable \$clientName on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$oauthLogin on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$offline_access_date on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 2
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$offline_requested on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$requestScopes in empty\(\) always exists and is not falsy\.$#'
-    identifier: empty.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$result might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$scopeString on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Variable \$scopes on left side of \?\? always exists and is not nullable\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/RestControllers/AuthorizationController.php
-  - message: '#^Constructor of class OpenEMR\\RestControllers\\FHIR\\FhirDocumentRestController has an unused parameter \$request\.$#'
-    identifier: constructor.unusedParameter
-    count: 1
-    path: src/RestControllers/FHIR/FhirDocumentRestController.php
   - message: '#^Access to an undefined property OpenEMR\\RestControllers\\FHIR\\FhirImmunizationRestController\:\:\$fhirValidate\.$#'
     identifier: property.notFound
     count: 1
@@ -17704,10 +17664,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php
-  - message: '#^Method OpenEMR\\RestControllers\\SMART\\SMARTAuthorizationController\:\:patientSelect\(\) should return string\|false but return statement is missing\.$#'
-    identifier: return.missing
-    count: 1
-    path: src/RestControllers/SMART/SMARTAuthorizationController.php
   - message: '#^Call to an undefined static method OpenEMR\\Common\\Http\\oeHttp\:\:get\(\)\.$#'
     identifier: staticMethod.notFound
     count: 1

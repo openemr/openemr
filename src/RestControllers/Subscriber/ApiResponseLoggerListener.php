@@ -4,35 +4,40 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiResponseLoggerListener implements EventSubscriberInterface
 {
+    use SystemLoggerAwareTrait;
+
     private EventAuditLogger $eventAuditLogger;
 
-    public function setEventAuditLogger(EventAuditLogger $eventAuditLogger)
+    public function setEventAuditLogger(EventAuditLogger $eventAuditLogger): void
     {
         $this->eventAuditLogger = $eventAuditLogger;
     }
-    public function getEventAuditLogger()
+    public function getEventAuditLogger(): EventAuditLogger
     {
         if (!isset($this->eventAuditLogger)) {
             $this->eventAuditLogger = EventAuditLogger::instance();
         }
         return $this->eventAuditLogger;
     }
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::TERMINATE => 'onRequestTerminated',
         ];
     }
 
-    public function onRequestTerminated(TerminateEvent $event)
+    public function onRequestTerminated(TerminateEvent $event): void
     {
         $response = $event->getResponse();
         $request = $event->getRequest();
@@ -40,8 +45,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             return; // only handle HttpRestRequest
         }
         $session = $request->getSession();
-        $globalsBag = $event->getKernel() instanceof OEHttpKernel ? $event->getKernel()->getGlobalsBag() : new OEGlobalsBag([]);
-        $logResponse = $response;
+        $kernel = $event->getKernel();
+        $globalsBag = $kernel instanceof OEHttpKernel ? $kernel->getGlobalsBag() : new OEGlobalsBag([]);
 
         // only log when using standard api calls (skip when using local api calls from within OpenEMR)
         //  and when api log option is set
@@ -49,27 +54,20 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
             !$request->isLocalApi() &&
             // we don't log unit test pieces.
             !$request->attributes->has("skipResponseLogging") &&
-            $globalsBag->getInt('api_log_option', 0) > 0
+            $globalsBag->getInt('api_log_option') > 0
         ) {
-            if ($globalsBag->getInt('api_log_option', 0) == 1) {
+            if ($globalsBag->getInt('api_log_option') == 1) {
+                $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated api_log_option set to 1, skipping log and request");
                 // Do not log the response and requestBody
                 $logResponse = '';
-                $requestBody = '';
             }
-            if ($response instanceof ResponseInterface) {
-                if ($this->shouldLogResponse($response)) {
-                    $body = $response->getBody();
-                    $logResponse = $body->getContents();
-                    $body->rewind();
-                } else {
-                    $logResponse = 'Content not application/json - Skip binary data';
-                }
+            // If the response is a Symfony Response, we can get the content directly
+            else if ($this->shouldLogResponse($response)) {
+                $logResponse = $response->getContent();
             } else {
-                $logResponse = (!empty($logResponse)) ? json_encode($response) : '';
+                $logResponse = '';
+                $this->getSystemLogger()->debug("ApiResponseLoggerListener::onRequestTerminated skipping log of response, not a json response");
             }
-
-            // convert pertinent elements to json
-            $requestBody = (!empty($requestBody)) ? json_encode($requestBody) : '';
 
             // prepare values and call the log function
             $event = 'api';
@@ -84,7 +82,8 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
                 'method' => $method,
                 'request' => $request->getResource() ?? '',
                 'request_url' => $url,
-                'request_body' => $requestBody,
+                // note due to the way responses are handled now, the request_body and response are going to be the same
+                'request_body' => $logResponse,
                 'response' => $logResponse
             ];
             if ($patientId === 0) {
@@ -110,18 +109,18 @@ class ApiResponseLoggerListener implements EventSubscriberInterface
     /**
      * Checks if we should log the response interface (we don't want to log binary documents or anything like that)
      * We only log requests with a content-type of any form of json fhir+application/json or application/json
-     * @param ResponseInterface $response
+     * @param Response $response
      * @return bool If the request should be logged, false otherwise
      */
-    private function shouldLogResponse(ResponseInterface $response)
+    private function shouldLogResponse(Response $response): bool
     {
-        if ($response->hasHeader("Content-Type")) {
-            $contentType = $response->getHeaderLine("Content-Type");
-            if ($contentType === 'application/json') {
+        // If the response is a Symfony Response, we can check the content type directly
+        if ($response->headers->has('Content-Type')) {
+            $contentType = $response->headers->get('Content-Type');
+            if (in_array($contentType, ['application/json', 'application/fhir+json'])) {
                 return true;
             }
         }
-
         return false;
     }
 }

@@ -13,63 +13,34 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
-use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\RestControllers\RestControllerHelper;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use InvalidArgumentException;
+
+use function in_array;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    use SystemLoggerAwareTrait;
 
-    private $validationScopes;
+    private array $validationScopes;
 
     /**
-     * @var
+     * @var string
      */
-    private $requestScopes;
+    private string $requestScopes;
 
     /**
      * Session string containing the scopes populated in the current session.
      * @var string
      */
-    private $sessionScopes;
-
-    /**
-     * @var \RestConfig
-     */
-    private $restConfig;
-
-    /**
-     * Array(string => callback) Where the string is the route and the callback is the route handler
-     * @var array
-     */
-    private $fhirRouteMap = [];
-
-    /**
-     * Array(string => callback) Where the string is the route and the callback is the route handler
-     * @var array
-     */
-    private $routeMap = [];
-
-    /**
-     * Array(string => callback) Where the string is the route and the callback is the route handler
-     * @var array
-     */
-    private $portalRouteMap = [];
+    private string $sessionScopes;
 
     /**
      * @var ServerConfig
@@ -80,6 +51,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @var string[] The array of scopes that are supported by the FHIR server.
      */
     private array $fhirScopesList;
+
+    private ?SessionInterface $session = null;
 
     /**
      * ScopeRepository constructor.
@@ -98,18 +71,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         } else {
             $this->sessionScopes = '';
         }
-    }
-
-    public function setLogger(SystemLogger $logger): void
-    {
-        $this->logger = $logger;
-    }
-    public function getLogger(): SystemLogger
-    {
-        if (!isset($this->logger)) {
-            $this->logger = new SystemLogger();
-        }
-        return $this->logger;
+        $this->session = $session;
     }
 
     public function setServerConfig(ServerConfig $config): void
@@ -126,71 +88,23 @@ class ScopeRepository implements ScopeRepositoryInterface
     }
 
     /**
-     * @return array
-     */
-    public function getFhirRouteMap(): array
-    {
-        return $this->fhirRouteMap;
-    }
-
-    /**
-     * @param array $fhirRouteMap
-     */
-    public function setFhirRouteMap(array $fhirRouteMap): void
-    {
-        $this->fhirRouteMap = $fhirRouteMap;
-    }
-
-    /**
-     * @return array
-     */
-    public function getStandardRouteMap(): array
-    {
-        return $this->routeMap;
-    }
-
-    /**
-     * @param array $routeMap
-     */
-    public function setStandardRouteMap(array $routeMap): void
-    {
-        $this->routeMap = $routeMap;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPortalRouteMap(): array
-    {
-        return $this->portalRouteMap;
-    }
-
-    /**
-     * @param array $portalRouteMap
-     */
-    public function setPortalRouteMap(array $portalRouteMap): void
-    {
-        $this->portalRouteMap = $portalRouteMap;
-    }
-
-    /**
      * @param string $identifier
      * @return ScopeEntity|null
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntity
     {
         if (empty($this->validationScopes)) {
-            $this->getLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
+            $this->getSystemLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() attempting to build validation scopes");
             $this->validationScopes = $this->buildScopeValidatorArray();
         }
 
         if (array_key_exists($identifier, $this->validationScopes) === false && stripos($identifier, 'site:') === false) {
-            $this->getLogger()->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
+            $this->getSystemLogger()->error("ScopeRepository->getScopeEntityByIdentifier() request access to invalid scope", [
                 "scope" => $identifier
                 , 'validationScopes' => array_keys($this->validationScopes)]);
             return null;
         }
-        $this->getLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
+        $this->getSystemLogger()->debug("ScopeRepository->getScopeEntityByIdentifier() scope requested exists in system", ["identifier" => $identifier]);
 
         $scope = new ScopeEntity();
         $scope->setIdentifier($identifier);
@@ -214,17 +128,17 @@ class ScopeRepository implements ScopeRepositoryInterface
             $clientScopes = $clientEntity->getScopes();
             foreach ($scopes as $scope) {
                 $scopeListNames[] = $scope->getIdentifier();
-                if (\in_array($scope->getIdentifier(), $clientScopes)) {
+                if (in_array($scope->getIdentifier(), $clientScopes)) {
                     $finalizedScopes[] = $scope;
                     $finalizedScopeNames[] = $scope->getIdentifier();
                 }
             }
         } else {
-            $this->getLogger()->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
+            $this->getSystemLogger()->error("client entity was not an instance of ClientEntity and scopes could not be retrieved");
         }
 
         // If a nonce is passed in, add a nonce scope for id token nonce claim
-        if (!empty($_SESSION['nonce'])) {
+        if (!empty($this->session) && !empty($this->session->get('nonce'))) {
             $scope = new ScopeEntity();
             $scope->setIdentifier('nonce');
             $finalizedScopes[] = $scope;
@@ -236,7 +150,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $finalizedScopeNames[] = $siteScope->getIdentifier();
         $finalizedScopes[] = $siteScope;
 
-            $this->getLogger()->debug(
+            $this->getSystemLogger()->debug(
                 "ScopeRepository->finalizeScopes() scopes finalized ",
                 ['finalizedScopes' => $finalizedScopeNames, 'clientScopes' => $clientScopes
                 ,
@@ -259,11 +173,11 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $scope;
     }
 
-    public function setRequestScopes($scopes)
+    public function setRequestScopes($scopes): void
     {
         if (!is_string($scopes)) {
-            $this->getLogger()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
-            throw new \InvalidArgumentException("Invalid scope parameter set");
+            $this->getSystemLogger()->error("Attempted to set request scopes to something other than a string", ['scopes' => $scopes]);
+            throw new InvalidArgumentException("Invalid scope parameter set");
         }
 
         $this->requestScopes = $scopes;
@@ -351,7 +265,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $requiredSmart;
     }
 
-    public function fhirScopesV1()
+    public function fhirScopesV1(): array
     {
         $permitted = [
 //            "patient/Account.read",
@@ -457,7 +371,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         return $permitted;
     }
 
-    public function fhirScopesV2()
+    public function fhirScopesV2(): array
     {
         $resources = [
             'AllergyIntolerance',
@@ -489,10 +403,10 @@ class ScopeRepository implements ScopeRepositoryInterface
         $systemEnabled = $this->getServerConfig()->areSystemScopesEnabled();
         foreach ($resources as $resource) {
             // we'll ignore write for now
-            $scopes[] = "patient/{$resource}.rs";
-            $scopes[] = "user/{$resource}.rs";
+            $scopes[] = "patient/$resource.rs";
+            $scopes[] = "user/$resource.rs";
             if ($systemEnabled) {
-                $scopes[] = "system/{$resource}.rs";
+                $scopes[] = "system/$resource.rs";
             }
         }
         // now add the restrictions
@@ -515,10 +429,10 @@ class ScopeRepository implements ScopeRepositoryInterface
         ];
         foreach ($restrictedScopes as $resource => $restrictions) {
             foreach ($restrictions as $restriction) {
-                $scopes[] = "patient/{$resource}.rs?{$restriction}";
-                $scopes[] = "user/{$resource}.rs?{$restriction}";
+                $scopes[] = "patient/$resource.rs?$restriction";
+                $scopes[] = "user/$resource.rs?$restriction";
                 if ($systemEnabled) {
-                    $scopes[] = "system/{$resource}.rs?{$restriction}";
+                    $scopes[] = "system/$resource.rs?$restriction";
                 }
             }
         }
@@ -754,12 +668,11 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Method will qualify current scopes based on active FHIR resources.
      * Allowed permissions are validated from the default scopes and client role.
      *
-     * @param string $role
      * @return array
      */
     public function getCurrentSmartScopes(): array
     {
-        $this->getLogger()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
+        $this->getSystemLogger()->debug("ScopeRepository->getCurrentSmartScopes() setting up smart scopes");
 
         $scopesSupported = $this->fhirScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
@@ -768,9 +681,10 @@ class ScopeRepository implements ScopeRepositoryInterface
         // we need to make sure the 'site:' and any other server context vars are permitted
         $serverScopes = $this->getServerScopes();
         $scopesSupported = array_keys(array_merge($fhir, $oidc, $serverScopes, $scopes_dict));
-        $this->getLogger()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
+        $this->getSystemLogger()->debug("ScopeRepository->getCurrentSmartScopes() scopes supported ", ["scopes" => $scopesSupported]);
 
         $scopesEvent = new RestApiScopeEvent();
+        $scopesEvent->setSystemScopesEnabled($this->getServerConfig()->areSystemScopesEnabled());
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
         $scopesSupportedList = $scopesSupported;
         $scopesEvent->setScopes($scopesSupportedList);
@@ -786,7 +700,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function getCurrentStandardScopes(): array
     {
-        $this->getLogger()->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
+        $this->getSystemLogger()->debug("ScopeRepository->getCurrentStandardScopes() setting up standard api scopes");
         $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         $scopesSupported = $this->apiScopes();
         asort($scopesSupported);
@@ -812,7 +726,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Returns true if the session or request has a fhir api scope in it
      * @return bool
      */
-    public function hasFhirApiScopes()
+    public function hasFhirApiScopes(): bool
     {
         $requestScopeString = $this->getRequestScopes() ?? '';
         $sessionScopeString = $this->getSessionScopes() ?? '';
@@ -826,7 +740,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Returns true if the session or request has a standard or portal api scope in it
      * @return bool
      */
-    public function hasStandardApiScopes()
+    public function hasStandardApiScopes(): bool
     {
         // if either of these are empty then we need to set them to strings so that we can do the preg_match
         $requestScopeString = $this->getRequestScopes() ?? '';
@@ -843,7 +757,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         $requestScopeString = $this->getRequestScopes();
         $isFhir = $this->hasFhirApiScopes();
         $isApi = $this->hasStandardApiScopes();
-        $this->getLogger()->debug(
+        $this->getSystemLogger()->debug(
             "ScopeRepository->buildScopeValidatorArray() ",
             ["requestScopeString" => $requestScopeString, 'isStandardApi' => $isApi, 'isFhirApi' => $isFhir]
         );
@@ -900,12 +814,12 @@ class ScopeRepository implements ScopeRepositoryInterface
         $context = reset($parts);
         $resourcePerm = $parts[1] ?? "";
         $resourcePermParts = explode(".", $resourcePerm);
-        $resource = $resourcePermParts[0] ?? "";
+        $resource = $resourcePermParts[0];
         $permission = $resourcePermParts[1] ?? "";
 
         if (!empty($resource)) {
             $isReadPermission = $permission == "read";
-            if (strpos($permission, "$") !== false) {
+            if (str_contains($permission, "$")) {
                 return $this->lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission);
             } else {
                 return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
@@ -924,16 +838,20 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $description .= " " . xl("for a patient that the user has access to");
             } else if ($context == "system") {
                 $description .= " " . xl("for a patient that exists in the system");
-            };
+            }
         }
         return $description;
     }
 
-    private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission)
+    /**
+     * @param $resource
+     * @param $context
+     * @param $isPatient
+     * @param $isReadPermission
+     * @return string
+     */
+    private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission): string
     {
-
-        $scopesByResource[$resource] = $scopesByResource[$resource] ?? ['permissions' => []];
-
         $description = $isReadPermission ? xl("Read Access: View, search and access") : xl("Write Access: Create or modify");
         $description .= " ";
         switch ($resource) {
@@ -1021,7 +939,7 @@ class ScopeRepository implements ScopeRepositoryInterface
      * @param array $scopes The scopes to be checked to see if we need manual approval
      * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
      */
-    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes)
+    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes): bool
     {
         // note eventually this method could have a db lookup to check against if admins want to vet this
         // possibly we could have an event dispatched here as well if we want someone to provide / extend that kind of functionality
@@ -1029,7 +947,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         // if a public app requests the launch scope we also do not let them through unless they've been manually
         // authorized by an administrator user.
         if (!$is_confidential_client) {
-            if (array_search("launch", $scopes) !== false) {
+            if (in_array("launch", $scopes)) {
                 return true;
             }
         }
@@ -1051,19 +969,34 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
         return false;
     }
-    private function hasUserScopes(array $scopes)
+
+    /**
+     * @param array $scopes
+     * @return bool
+     */
+    private function hasUserScopes(array $scopes): bool
     {
         return $this->scopeArrayHasString($scopes, 'user/');
     }
-    private function hasSystemScopes(array $scopes)
+
+    /**
+     * @param array $scopes
+     * @return bool
+     */
+    private function hasSystemScopes(array $scopes): bool
     {
         return $this->scopeArrayHasString($scopes, 'system/');
     }
 
-    private function scopeArrayHasString(array $scopes, $str)
+    /**
+     * @param array $scopes
+     * @param $str
+     * @return bool
+     */
+    private function scopeArrayHasString(array $scopes, $str): bool
     {
         foreach ($scopes as $scope) {
-            if (strpos($scope, $str) !== false) {
+            if (str_contains($scope, $str)) {
                 return true;
             }
         }

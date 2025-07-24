@@ -95,8 +95,14 @@ class SiteSetupListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event)
     {
+        $request = $event->getRequest();
+        if (!($request instanceof HttpRestRequest)) {
+            // we only want to process this if the request is an HttpRestRequest
+            return;
+        }
+
         // we need to identify the site id for the request
-        $pathInfo = $event->getRequest()->getPathInfo();
+        $pathInfo = $request->getPathInfo();
         $siteId = self::getValidSiteFromPath($pathInfo);
         if (empty($siteId)) {
             // TODO: @adunsulag do we need to do a 401 when its an oauth2 request?
@@ -104,36 +110,34 @@ class SiteSetupListener implements EventSubscriberInterface
             error_log("OpenEMR Error - api site error, so forced exit " . "siteId: $siteId, pathInfo: $pathInfo");
             throw new HttpException(Response::HTTP_BAD_REQUEST, "OpenEMR Error: api site error, so forced exit.  Please ensure that the site is set up correctly in the OpenEMR configuration.");
         }
-        $event->getRequest()->attributes->set('siteId', $siteId);
+        $request->attributes->set('siteId', $siteId);
         $webroot = self::getWebroot();
-        $event->getRequest()->attributes->set('webroot', $webroot);
+        $request->attributes->set('webroot', $webroot);
 
         // set the site
         $_GET['site'] = $siteId; // for legacy purposes
-        $isOauth2Request = $this->checkForOauth2Request($event->getRequest());
-        if ($event->getRequest() instanceof HttpRestRequest) {
-            // TODO: @adunsulag couldn't this just be stored in the attributes instead of subclass checking this?
-            $event->getRequest()->setRequestSite($siteId);
-        }
+        $isOauth2Request = $this->checkForOauth2Request($request);
+        // TODO: @adunsulag couldn't this just be stored in the attributes instead of subclass checking this?
+        $request->setRequestSite($siteId);
         // make sure the API keys are setup.  It would be better if this was all pre-generated at the time of installation
         // but we'll do this for now until we can set that up
         // TODO: figure out a way to generate oauth keys at time of installation
 
-        if ($event->getRequest()->headers->get('APICSRFTOKEN')) {
+        if ($request->headers->get('APICSRFTOKEN')) {
             $ignoreAuth = false;
         } else {
             $ignoreAuth = true;
             // Will start the api OpenEMR session/cookie, if its oauth2 it uses a different session cookie
             $sessionFactory = new HttpSessionFactory(
-                $event->getRequest(),
+                $request,
                 $webroot,
                 $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API
             );
             if ($isOauth2Request) {
-                $event->getRequest()->attributes->set('is_oauth2_request', true);
+                $request->attributes->set('is_oauth2_request', true);
             }
             $session = $sessionFactory->createSession();
-            $event->getRequest()->setSession($session);
+            $request->setSession($session);
             $session->set('site_id', $siteId); // set the site id in the session
         }
 
@@ -153,16 +157,16 @@ class SiteSetupListener implements EventSubscriberInterface
             $event->getKernel()->setSystemLogger(new SystemLogger());
         }
         // need to do a bridge session
-        if ($event->getRequest()->headers->get('APICSRFTOKEN')) {
+        if ($request->headers->get('APICSRFTOKEN')) {
             // setup the existing session bridge for local api requests
             $sessionFactory = new HttpSessionFactory(
-                $event->getRequest(),
+                $request,
                 $webroot,
                 HttpSessionFactory::SESSION_TYPE_CORE
             );
             $sessionFactory->setUseExistingSessionBridge(true);
             $session = $sessionFactory->createSession();
-            $event->getRequest()->setSession($session);
+            $request->setSession($session);
         }
         // need to make sure the keys are always created
         try {
@@ -172,19 +176,14 @@ class SiteSetupListener implements EventSubscriberInterface
                 $oauth2KeyConfig = new OAuth2KeyConfig($GLOBALS['OE_SITE_DIR']);
                 $oauth2KeyConfig->configKeyPairs();
             }
-            if ($event->getRequest() instanceof HttpRestRequest) {
-                $event->getRequest()->setApiBaseFullUrl($serverConfig->getBaseApiUrl());
-            }
-        } catch (\OAuth2KeyException $e) {
+            $request->setApiBaseFullUrl($serverConfig->getBaseApiUrl());
+        } catch (OAuth2KeyException $e) {
             throw new HttpException(500, $e->getMessage(), $e);
         }
     }
 
-    private function checkForOauth2Request(Request $request): bool
+    private function checkForOauth2Request(HttpRestRequest $request): bool
     {
-        if (!($request instanceof HttpRestRequest)) {
-            return false;
-        }
         $path = $request->getBasePath();
         return str_ends_with($path, "/oauth2/");
     }

@@ -11,26 +11,22 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-
-use function collectIpAddresses;
+use LogicException;
 
 class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 {
+    use SystemLoggerAwareTrait;
+
     private AccessTokenRepository $accessTokenRepository;
 
     private TrustedUserService $trustedUserService;
-
-    private SystemLogger $logger;
-
 
     /**
      * @var callable|null
@@ -44,28 +40,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     public function __construct(?SystemLogger $logger = null)
     {
         if ($logger) {
-            $this->setLogger($logger);
-        } else {
-            $this->logger = new SystemLogger();
+            $this->setSystemLogger($logger);
         }
-    }
-
-    public function setLogger(SystemLogger $logger): void
-    {
-        // This method is intended to set the logger for the authorization strategy.
-        // Implementation details would depend on the specific requirements of the application.
-        $this->logger = $logger;
-    }
-
-    public function getLogger(): SystemLogger
-    {
-        // This method is intended to return the logger for the authorization strategy.
-        // Implementation details would depend on the specific requirements of the application.
-        if (!isset($this->logger)) {
-            // If the logger is not set, we can initialize it here.
-            $this->logger = new SystemLogger();
-        }
-        return $this->logger;
     }
 
     public function getTrustedUserService(): TrustedUserService
@@ -152,6 +128,11 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return true; // This strategy should process all requests, but you can add conditions if needed.
     }
 
+    /**
+     * @param HttpRestRequest $request
+     * @return bool
+     * @throws OAuthServerException
+     */
     public function authorizeRequest(HttpRestRequest $request): bool
     {
         // verify the access token
@@ -167,14 +148,14 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $tokenId = $attributes['oauth_access_token_id'];
         // ensure user uuid and token id are populated
         if (empty($userId) || empty($tokenId)) {
-            $this->getLogger()->error("OpenEMR Error - userid or tokenid not available, so forced exit", ['attributes' => $attributes]);
+            $this->getSystemLogger()->error("OpenEMR Error - userid or tokenid not available, so forced exit", ['attributes' => $attributes]);
             throw new HttpException(400, "OpenEMR Error: userid or tokenid not available, so forced exit. Please ensure that the access token is valid and contains the necessary attributes.");
         }
         // now verify the token has not been revoked in the database
         if ($repository->isAccessTokenRevokedInDatabase($tokenId)) {
             throw OAuthServerException::accessDenied('Access token has been revoked');
         }
-        $this->logger->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
+        $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
         // verify that user tokens haven't been revoked
         // this is done by verifying the user is trusted with active auth session.
@@ -183,7 +164,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             // TODO: @adunsulag need to verify this logic
             // user is not logged on to server with an active session.
             // too me this is easier than revoking tokens or using phantom tokens.
-            $this->logger->debug(
+            $this->getSystemLogger()->debug(
                 "invalid Trusted User.  Refresh Token revoked or logged out",
                 ['clientId' => $clientId, 'userId' => $userId]
             );
@@ -193,7 +174,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         // TODO: @adunsulag this seems redundant since the access token should already be verified on the expiration date
         // we should look at removing this and see if it causes any issues
         if (!$this->authenticateUserToken($request, $tokenId, $clientId, $userId)) {
-            $this->logger->error("dispatch.php api call with invalid token");
+            $this->getSystemLogger()->error("dispatch.php api call with invalid token");
             throw new UnauthorizedHttpException("Bearer", "OpenEMR Error: API call failed due to invalid token or expired token.");
         }
         $uuidToUser = $this->getUuidUserAccountFactory()($userId);
@@ -201,7 +182,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $userRole = $uuidToUser->getUserRole();
         if (empty($user)) {
             // unable to identify the users user role
-            $this->logger->error("OpenEMR Error - api user account could not be identified, so forced exit", [
+            $this->getSystemLogger()->error("OpenEMR Error - api user account could not be identified, so forced exit", [
                 'userId' => $userId,
                 'userRole' => $uuidToUser->getUserRole()]);
             // TODO: @adunsulag shouldn't this be 500? if token is valid but user isn't found, seems like a system error as it never should happen
@@ -209,7 +190,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         }
         if (empty($userRole)) {
             // unable to identify the users user role
-            $this->logger->error("OpenEMR Error - api user role for user could not be identified, so forced exit");
+            $this->getSystemLogger()->error("OpenEMR Error - api user role for user could not be identified, so forced exit");
             // TODO: @adunsulag shouldn't this be 500? if token is valid but user role isn't found, seems like a system error as it never should happen
             throw new HttpException(400);
         }
@@ -250,13 +231,13 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $session->set('authProvider', $authProvider);
             if (empty($session->get('authUser')) || empty($session->get('authUserID')) || empty($session->get('authProvider'))) {
                 // this should never happen
-                $this->logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
+                $this->getSystemLogger()->error("OpenEMR Error: api failed because unable to set critical users session variables");
                 throw new HttpException(401);
             }
-            $this->logger->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
+            $this->getSystemLogger()->debug("dispatch.php request setup for user role", ['authUserID' => $user['id'], 'authUser' => $user['username']]);
         } elseif ($userRole == 'patient') {
             $session->set('pid', $user['pid'] ?? null);
-            $this->logger->debug("dispatch.php request setup for patient role", ['patient' => $session->get('pid')]);
+            $this->getSystemLogger()->debug("dispatch.php request setup for patient role", ['patient' => $session->get('pid')]);
         } elseif ($userRole === 'system') {
             $session->set('authUser', $user["username"] ?? null);
             $session->set('authUserID', $user["id"] ?? null);
@@ -266,7 +247,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 || $session->get('authUser') != \OpenEMR\Services\UserService::SYSTEM_USER_USERNAME
                 || empty($session->get('authUserID'))
             ) {
-                $this->logger->error("OpenEMR Error: api failed because unable to set critical users session variables");
+                $this->getSystemLogger()->error("OpenEMR Error: api failed because unable to set critical users session variables");
                 throw new HttpException(401);
             }
         }
@@ -317,17 +298,17 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
             $raw = $server->validateAuthenticatedRequest($psrRequest);
         } catch (OAuthServerException $exception) {
-            $this->getLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
+            $this->getSystemLogger()->error("RestConfig->verifyAccessToken() OAuthServerException", ["message" => $exception->getMessage()]);
             throw new HttpException(401, $exception->getMessage(), $exception);
         } catch (\Exception $exception) {
             if ($exception instanceof LogicException) {
-                $this->getLogger()->error(
+                $this->getSystemLogger()->error(
                     "BearerTokenAuthorizationStrategy::verifyAccessToken() LogicException, likely oauth2 public key is missing, corrupted, or misconfigured",
                     ["message" => $exception->getMessage()]
                 );
                 throw new HttpException(500, "Server Error", $exception);
             } else {
-                $this->getLogger()->error(
+                $this->getSystemLogger()->error(
                     "BearerTokenAuthorizationStrategy::verifyAccessToken() Exception",
                     ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
                 );
@@ -350,7 +331,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             (self::is_api_request($resource) && !in_array('api:oemr', $oauthScopes)) ||
             (self::is_portal_request($resource) && !in_array('api:port', $oauthScopes))
         ) {
-            $this->getLogger()->errorLogCaller("api call with token that does not cover the requested route");
+            $this->getSystemLogger()->errorLogCaller("api call with token that does not cover the requested route");
             throw new HttpException(403, "OpenEMR Error: API call failed due to insufficient permissions for the requested resource.");
         }
         // ensure user role has access to the resource
@@ -358,15 +339,15 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         //   users has access to oemr and fhir
         //   patient has access to port and fhir
         if ($userRole == 'users' && (self::is_api_request($resource) || self::is_fhir_request($resource))) {
-            $this->getLogger()->debug("dispatch.php valid role and user has access to api/fhir resource", ['resource' => $resource]);
+            $this->getSystemLogger()->debug("dispatch.php valid role and user has access to api/fhir resource", ['resource' => $resource]);
             // good to go
         } elseif ($userRole == 'patient' && (self::is_portal_request($resource) || self::is_fhir_request($resource))) {
-            $this->getLogger()->debug("dispatch.php valid role and patient has access portal resource", ['resource' => $resource]);
+            $this->getSystemLogger()->debug("dispatch.php valid role and patient has access portal resource", ['resource' => $resource]);
             // good to go
         } elseif ($userRole === 'system' && (self::is_fhir_request($resource))) {
-            $this->getLogger()->debug("dispatch.php valid role and system has access to api/fhir resource", ['resource' => $resource]);
+            $this->getSystemLogger()->debug("dispatch.php valid role and system has access to api/fhir resource", ['resource' => $resource]);
         } else {
-            $this->getLogger()->error("OpenEMR Error: api failed because user role does not have access to the resource", ['resource' => $resource, 'userRole' => $userRole]);
+            $this->getSystemLogger()->error("OpenEMR Error: api failed because user role does not have access to the resource", ['resource' => $resource, 'userRole' => $userRole]);
             throw new HttpException(403, "OpenEMR Error: API call failed due to insufficient permissions for the requested resource.");
         }
         return true;

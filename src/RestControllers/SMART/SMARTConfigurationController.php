@@ -20,6 +20,11 @@ use OpenEMR\FHIR\SMART\Capability;
 
 class SMARTConfigurationController
 {
+    /**
+     * @var ServerConfig
+     */
+    private ServerConfig $serverConfig;
+
     public function __construct()
     {
         $this->serverConfig = new ServerConfig();

@@ -32,29 +32,6 @@ class ScopeRepositoryTest extends TestCase
             ->willReturn(true);
         $this->scopeRepository = new ScopeRepository();
         $this->scopeRepository->setServerConfig($mock);
-
-        $noopCallback = function (): void { };
-        $standardResources = ['facility, patient'];
-        $fhirResources = ['Patient', 'Observation'];
-        $portalResources = ['patient', 'patient/encounter'];
-
-        $fhirRoutes = $this->makeRoutes('fhir', $fhirResources, $noopCallback);
-        // add in some operations and see if we can test this works properly
-        $fhirRoutes['Get /fhir/Group/:id/$export'] = $noopCallback;
-
-        $this->scopeRepository->setFhirRouteMap($fhirRoutes);
-        $this->scopeRepository->setStandardRouteMap($this->makeRoutes('api', $standardResources, $noopCallback));
-        $this->scopeRepository->setPortalRouteMap($this->makeRoutes('portal', $portalResources, $noopCallback));
-    }
-
-    private function makeRoutes($routePrefix, $resources, $callback)
-    {
-        $routes = [];
-        foreach ($resources as $resource) {
-            $routes['GET /' . $routePrefix . '/' . $resource] = $callback;
-            $routes['GET /' . $routePrefix . '/' . $resource . '/:id'] = $callback;
-        }
-        return $routes;
     }
 
     public function testHasFhirApiScopes(): void

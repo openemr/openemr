@@ -168,7 +168,7 @@ $globalsBag->set('restRequest', $restRequest);
 $globalsBag->set('OE_SITES_BASE', $globalsBag->get('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? null));
 $globalsBag->set('debug_ssl_mysql_connection', $globalsBag->get('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? null));
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
-$globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal ?? null);
+$globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
 if (session_status() === PHP_SESSION_NONE) {
     //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock

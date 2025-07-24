@@ -3,15 +3,16 @@
 namespace OpenEMR\RestControllers\Subscriber;
 
 // TODO: Would it be better to call these route guards?
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
+use OpenEMR\RestControllers\Authorization\OAuth2DiscoveryController;
+use OpenEMR\RestControllers\Authorization\OAuth2PublicJsonWebKeyController;
 use OpenEMR\RestControllers\AuthorizationController;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,13 +24,11 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 {
     private SystemLogger $logger;
 
-    private string $webroot;
-
     public function __construct()
     {
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [['onKernelRequest', 50]]
@@ -63,14 +62,20 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         return $httpFoundationFactory->createResponse($response);
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    /**
+     * @param RequestEvent $event
+     * @return RequestEvent
+     * @throws OAuthServerException
+     */
+    public function onKernelRequest(RequestEvent $event): RequestEvent
     {
-        if (!$event->getKernel() instanceof OEHttpKernel) {
-            return; // we only want to process this if the kernel is an OEHttpKernel
+        $kernel = $event->getKernel();
+        if (!$kernel instanceof OEHttpKernel) {
+            return $event; // we only want to process this if the kernel is an OEHttpKernel
         }
         // only if this is an oauth2 request are we going to process it.
         if (!$event->hasResponse() && $this->shouldProcessRequest($event->getRequest())) {
-            $response = $this->authorizeRequest($event->getRequest(), $event->getKernel());
+            $response = $this->authorizeRequest($event->getRequest(), $kernel);
             $event->setResponse($response);
         }
         return $event;
@@ -78,13 +83,13 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 
     /**
      * @param Request $request
+     * @param OEHttpKernel $kernel
      * @return Response
-     * @throws \League\OAuth2\Server\Exception\OAuthServerException
+     * @throws OAuthServerException
      */
     public function authorizeRequest(Request $request, OEHttpKernel $kernel): Response
     {
         $globalsBag = $kernel->getGlobalsBag();
-        $dispatcher = $kernel->getEventDispatcher();
         $logger = $this->getLogger();
         if (!($request instanceof HttpRestRequest)) {
             throw new HttpException(500, "OpenEMR Error: OAuth2AuthorizationStrategy requires HttpRestRequest");
@@ -92,8 +97,8 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         $session = $request->getSession();
         // exit if api is not turned on
         if (
-            empty($globalsBag->get('rest_api', null)) && empty($globalsBag->get('rest_fhir_api', null))
-            && empty($globalsBag->get('rest_portal_api', null))
+            empty($globalsBag->get('rest_api')) && empty($globalsBag->get('rest_fhir_api'))
+            && empty($globalsBag->get('rest_portal_api'))
         ) {
             $logger->debug("api disabled exiting call");
             $session->invalidate();
@@ -103,8 +108,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
 
         // set up csrf
         //  used to prevent csrf in the 2 different types of submissions by oauth2/provider/login.php
-        $this->logger->error("session is ", $session->all());
-        if (empty($session->get('csrf_private_key', null))) {
+        if (empty($session->get('csrf_private_key'))) {
             CsrfUtils::setupCsrfKey($session);
         }
         $logger->debug("oauth2 request received", ["endpoint" => $request->getRequestPathWithoutSite()]);
@@ -120,11 +124,12 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         }
 
         if (false !== stripos($end_point, '/openid-configuration')) {
-            $oauthdisc = true;
-            $base_url = $authServer->authBaseFullUrl;
-            // TODO: @adunsulag refactor this
-            require_once("provider/.well-known/discovery.php");
-            exit;
+            $oauth2DiscoverController = new OAuth2DiscoveryController(
+                $authServer->getScopeRepository($request, $request->getSession()),
+                $globalsBag,
+                $authServer->authBaseFullUrl
+            );
+            return $oauth2DiscoverController->getDiscoveryResponse($request);
         }
 
         if (false !== stripos($end_point, '/authorize')) {
@@ -138,10 +143,8 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
         }
 
         if (false !== stripos($end_point, '/jwk')) {
-            $oauthjwk = true;
-            // TODO: @adunsulag refactor this
-            require_once(__DIR__ . "/provider/jwk.php");
-            exit;
+            $oauth2JWKController = new OAuth2PublicJsonWebKeyController($authServer->getPublicKeyLocation());
+            return $oauth2JWKController->getJsonWebKeyResponse($request);
         }
 
         if (false !== stripos($end_point, '/login')) {
@@ -176,5 +179,6 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
             // session is destroyed within below function
             return $this->convertPsrResponse($authServer->tokenIntrospection($request));
         }
+        return new Response('', Response::HTTP_NOT_FOUND);
     }
 }

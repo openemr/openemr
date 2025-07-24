@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
+// TODO: Rename this to LocalApiAuthorizationStrategy
 class LocalApiAuthorizationController implements IAuthorizationStrategy
 {
     /**
