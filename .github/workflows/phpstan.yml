@@ -14,13 +14,17 @@ permissions:
 jobs:
   phpstan:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4'
+        php-version: ${{ matrix.php-version }}
         coverage: none
     - name: Get composer cache directory
       id: composer-cache
@@ -33,8 +37,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
           ${{ runner.os }}-composer-
     - name: Composer Install
       run: composer install --prefer-dist --no-progress

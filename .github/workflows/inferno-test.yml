@@ -36,6 +36,11 @@ jobs:
     name: Inferno Certification Test
     timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
     if: needs.check_secret.outputs.has_inferno_pat == 'true'
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
+        node-version: ['22']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -45,7 +50,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4'
+        php-version: ${{ matrix.php-version }}
 
     - name: Get composer cache directory
       id: composer-cache
@@ -59,14 +64,15 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
           ${{ runner.os }}-composer-
 
     - name: Install npm package
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: ${{ matrix.node-version }}
 
     - name: Get NPM Cache Directory
       id: npm-cache-dir
@@ -80,8 +86,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ steps.npm-cache-dir.outputs.dir }}
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
           ${{ runner.os }}-node-
 
     - name: NPM CI
