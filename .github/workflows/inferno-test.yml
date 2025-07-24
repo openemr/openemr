@@ -1,100 +1,139 @@
 name: Inferno Certification Test
 
 on:
-    push:
-        branches: [ master ]
-    pull_request:
-        branches: [ master ]
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
-    check_secret:
-        runs-on: ubuntu-24.04
-        name: Check Required Secret
-        outputs:
-            has_inferno_pat: ${{ steps.check.outputs.has_inferno_pat }}
-        steps:
-            - name: Check if INFERNO_PAT is available
-              id: check
-              run: |
-                  if [ -z "${{ secrets.INFERNO_PAT }}" ]; then
-                      echo "::warning::INFERNO_PAT secret is not set. Inferno certification tests will be skipped."
-                      echo "To run these tests, please set the INFERNO_PAT secret in your repository settings."
-                      echo "has_inferno_pat=false" >> $GITHUB_OUTPUT
-                  else
-                      echo "INFERNO_PAT secret is available. Proceeding with tests."
-                      echo "has_inferno_pat=true" >> $GITHUB_OUTPUT
-                  fi
+  check_secret:
+    runs-on: ubuntu-24.04
+    name: Check Required Secret
+    outputs:
+      has_inferno_pat: ${{ steps.check.outputs.has_inferno_pat }}
+    steps:
+    - name: Check if INFERNO_PAT is available
+      id: check
+      run: |
+        if [[ -n '${{ secrets.INFERNO_PAT }}' ]]; then
+          echo 'INFERNO_PAT secret is available. Proceeding with tests.'
+          echo 'has_inferno_pat=true' >> "$GITHUB_OUTPUT"
+        else
+          echo '::warning::INFERNO_PAT secret is not set. Inferno certification tests will be skipped.'
+          echo 'To run these tests, please set the INFERNO_PAT secret in your repository settings.'
+          echo 'has_inferno_pat=false' >> "$GITHUB_OUTPUT"
+        fi
 
-    inferno_certification_test:
-        needs: check_secret
-        runs-on: ubuntu-24.04
-        name: Inferno Certification Test
-        timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
-        if: needs.check_secret.outputs.has_inferno_pat == 'true'
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  submodules: 'recursive'
-                  token: ${{ secrets.INFERNO_PAT }}
+  inferno_certification_test:
+    needs: check_secret
+    runs-on: ubuntu-24.04
+    name: Inferno Certification Test
+    timeout-minutes: 180  # 3 hours timeout due to potential terminology downloads
+    if: needs.check_secret.outputs.has_inferno_pat == 'true'
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
+        node-version: ['22']
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        token: ${{ secrets.INFERNO_PAT }}
 
-            - name: Install PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: '8.4'
-                  extensions: mbstring, xml, ctype, json, tokenizer, openssl, pdo, pdo_mysql
+    - name: Install PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
 
-            - name: Install npm package
-              uses: actions/setup-node@v4
-              with:
-                  node-version: '22'
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> "$GITHUB_OUTPUT"
 
-            - name: Cache Composer dependencies
-              uses: actions/cache@v4
-              with:
-                  path: ~/.composer/cache/files
-                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-composer-
+    - name: Composer Cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
 
-            - name: Cache node modules
-              uses: actions/cache@v4
-              with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+    - name: Composer Install
+      run: composer install --prefer-dist --no-progress
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+    - name: Save composer cache
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
 
-            - name: Log Docker info
-              run: |
-                  docker --version
-                  docker compose version
+    - name: Install npm package
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
 
-            - name: Make run.sh executable
-              run: chmod +x ci/inferno/run.sh
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
 
-            - name: Install OpenEMR-cmd
-              run: |
-                mkdir ~/bin
-                curl -L https://raw.githubusercontent.com/openemr/openemr-devops/master/utilities/openemr-cmd/openemr-cmd > ~/bin/openemr-cmd
-                chmod +x ~/bin/openemr-cmd
-                # add the command to default path so will be found and run.sh can still be used locally
+    - name: Cache node modules
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+          ${{ runner.os }}-node-
 
-            - name: Run Inferno Certification Tests
-              working-directory: ci/inferno
-              run: |
-                  set -e
-                  echo "Starting Inferno certification test suite..."
-                  ./run.sh
-                  echo "Inferno certification tests completed successfully"
+    - name: NPM CI
+      run: npm ci
 
-            - name: Cleanup Docker resources
-              if: always()
-              run: |
-                  docker compose -f ci/inferno/compose.yml down -v || true
-                  docker system prune -f || true
+    - name: Save node cache
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log Docker info
+      run: |
+        docker --version
+        docker compose version
+
+    - name: Install OpenEMR-cmd
+      run: |
+        mkdir -p "$HOME/bin"
+        curl -sSfL https://raw.githubusercontent.com/openemr/openemr-devops/master/utilities/openemr-cmd/openemr-cmd > "$HOME/bin/openemr-cmd"
+        chmod +x "$HOME/bin/openemr-cmd"
+        # add the command to default path so will be found and run.sh can still be used locally
+
+    - name: Run Inferno Certification Tests
+      working-directory: ci/inferno
+      shell: bash
+      run: |
+        echo 'Starting Inferno certification test suite…'
+        ./run.sh
+        echo 'Inferno certification tests completed successfully'
+
+    - name: Cleanup Docker resources
+      if: always()
+      run: |
+        docker compose -f ci/inferno/compose.yml down --volumes --remove-orphans || true
+        docker system prune -f || true

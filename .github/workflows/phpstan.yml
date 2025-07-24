@@ -14,18 +14,43 @@ permissions:
 jobs:
   phpstan:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.4']
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        coverage: none
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
     - name: Composer Cache
       uses: actions/cache@v4
       with:
-        path: /tmp/composer-cache
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.php-version }}-
+          ${{ runner.os }}-composer-
     - name: Composer Install
-      uses: php-actions/composer@v6
+      run: composer install --prefer-dist --no-progress
+    - name: PHPStan Cache
+      # https://phpstan.org/user-guide/result-cache
+      uses: actions/cache@v4
       with:
-        php_extensions: gd soap zip
+        path: tmp-phpstan # same as in phpstan.neon
+        key: "phpstan-result-cache-${{ github.run_id }}"
+        restore-keys: |
+          phpstan-result-cache-
     - name: PHPStan Diagnose
       if: ${{ env.ACTIONS_STEP_DEBUG == 'true' }}
       uses: php-actions/phpstan@v3

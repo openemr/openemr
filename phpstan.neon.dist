@@ -3,6 +3,8 @@ includes:
 
 parameters:
   level: 1
+  # Set tmpDir explicitly so we know what it is
+  tmpDir: tmp-phpstan
   paths:
   - Documentation
   - _rest_config.php

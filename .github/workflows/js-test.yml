@@ -2,9 +2,11 @@ name: JS Unit Test
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
 
 permissions:
   contents: read
@@ -14,24 +16,33 @@ jobs:
   js_unit_test:
     runs-on: ubuntu-24.04
     name: JS Unit Test
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        node-version: ['22']
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install npm package
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: npm install
-        run: npm ci
-
-      - name: Run Unit Tests
-        run: npm run test:js
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install npm package
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache node modules
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+          ${{ runner.os }}-node-
+    - name: NPM CI
+      run: npm ci
+    - name: Run Unit Tests
+      run: npm run test:js

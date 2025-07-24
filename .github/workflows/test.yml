@@ -15,7 +15,8 @@ jobs:
   collect:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
     - name: Collect Docker Dirs
       id: docker-dirs
       ##
@@ -29,6 +30,10 @@ jobs:
           echo 'No docker-compose.yml files found in ci subdirectories.' >&2
           exit 1
         fi
+        node_version=22
+        # Avoid trying to save the cache in duplicate for every matrix element.
+        declare -A seen_composer_cache_keys
+        declare -A seen_npm_cache_keys
         dirs=( "${dirs[@]%/docker-compose.yml}" )
         dirs=( "${dirs[@]#ci/}" )
         # Everything inside this for loop that goes to stdout ends up
@@ -46,6 +51,19 @@ jobs:
             [[ $docker_dir = *_no-e2e ]] && e2e_enabled=false || e2e_enabled=true
 
             printf -v php '%d.%d' "${php::1}" "${php:1}"
+            if [[ -z ${seen_composer_cache_keys[$php]} ]]; then
+                seen_composer_cache_keys[$php]=true
+                save_composer_cache=true
+            else
+                save_composer_cache=false
+            fi
+            if [[ -z ${seen_npm_cache_keys[$node_version]} ]]; then
+                seen_npm_cache_keys[$node_version]=true
+                save_node_cache=true
+            else
+                save_node_cache=false
+            fi
+
             case "$webserver" in
                 apache)
                     openemr_dir=/var/www/localhost/htdocs/openemr
@@ -58,18 +76,36 @@ jobs:
                     exit 1
                     ;;
             esac
+            # Determine if this job should save caches (only first job with each version)
+            [[ $docker_dir = apache_84_114 ]] && save_cache=true || save_cache="false"
+
             printf '{
-                "docker_dir": "%s",
                 "database": "%s",
+                "database_template": "%s",
                 "db": "%s",
+                "docker_dir": "%s",
                 "e2e_enabled": "%s",
+                "node_version": "%s",
                 "openemr_dir": "%s",
                 "php": "%s",
+                "save_composer_cache": "%s",
+                "save_node_cache": "%s",
+                "selenium_template": "%s",
                 "webserver": "%s",
-                "webserver_template": "%s",
-                "database_template": "%s",
-                "selenium_template": "%s"
-            }\n' "$docker_dir" "$database" "$db" "$e2e_enabled" "$openemr_dir" "$php" "$webserver" "$webserver_template" "$database_template" "$selenium_template"
+                "webserver_template": "%s"
+            }\n' "$database" \
+                 "$database_template" \
+                 "$db" \
+                 "$docker_dir" \
+                 "$e2e_enabled" \
+                 "$node_version" \
+                 "$openemr_dir" \
+                 "$php" \
+                 "$save_composer_cache" \
+                 "$save_node_cache" \
+                 "$selenium_template" \
+                 "$webserver" \
+                 "$webserver_template"
         done | {
             printf 'configurations='
             jq -cs .
@@ -90,17 +126,51 @@ jobs:
       OPENEMR_DIR: ${{ matrix.configurations.openemr_dir }}
       COMPOSE_FILE: "ci/${{ matrix.configurations.selenium_template }}:ci/${{ matrix.configurations.webserver_template }}:ci/${{ matrix.configurations.database_template }}:ci/${{ matrix.configurations.docker_dir }}/docker-compose.yml"
     steps:
-    - uses: actions/checkout@v4
-    - name: Install PHP
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.configurations.php }}
     - name: Report PHP Version
       run: php -v
+    - name: Get composer cache directory
+      id: composer-cache
+      run: |
+        {
+          printf 'dir='
+          composer config cache-files-dir
+        } >> $GITHUB_OUTPUT
+    - name: Composer Cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-${{ matrix.configurations.php }}-
+          ${{ runner.os }}-composer-
     - name: Install npm package
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: ${{ matrix.configurations.node_version }}
+    - name: Get NPM Cache Directory
+      id: npm-cache-dir
+      run: |
+        {
+          printf 'dir='
+          npm config get cache
+        } >> "$GITHUB_OUTPUT"
+    - name: Cache node modules
+      # Use explicit restore and save actions to control
+      # precisely when in the workflow the cache is
+      # restored and saved.
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-
+          ${{ runner.os }}-node-
     - name: Main build
       run: |
         . ci/ciLibrary.source
@@ -110,6 +180,18 @@ jobs:
       run: |
         . ci/ciLibrary.source
         ccda_build
+    - name: Save node cache
+      if: ${{ matrix.configurations.save_node_cache == 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.npm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ matrix.configurations.node_version }}-${{ hashFiles('**/package-lock.json') }}
+    - name: Save composer cache
+      if: ${{ matrix.configurations.save_composer_cache == 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ matrix.configurations.php }}-${{ hashFiles('**/composer.lock') }}
     - name: Docker Compose Config Output
       run: |
         . ci/ciLibrary.source
