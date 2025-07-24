@@ -697,7 +697,7 @@ MSG;
     /**
      * Record the patient disclosures.
      *
-     * @param $dates    - The date when the disclosures are sent to the thrid party.
+     * @param $dates    - The date when the disclosures are sent to the third party.
      * @param $event    - The type of the disclosure.
      * @param $pid      - The id of the patient for whom the disclosures are recorded.
      * @param $comment  - The recipient name and description of the disclosure.
@@ -715,7 +715,7 @@ MSG;
     }
 
     /**
-     * Edit the disclosures that is recorded.
+     * Edit the disclosure record that is stored in the audit log.
      *
      * @param $dates  - The date when the disclosures are sent to the thrid party.
      * @param $event  - The type of the disclosure.
