@@ -5,6 +5,7 @@ namespace OpenEMR\RestControllers\Config;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
+use LogicException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -300,9 +301,9 @@ class RestConfig
         return null;
     }
 
-    public static function request_authorization_check(HttpRestRequest $request, $section, $value, $aclPermission = '')
+    public static function request_authorization_check(HttpRestRequest $request, $section, $value, $aclPermission = '') : void
     {
-        return self::authorization_check($section, $value, $request->getSession()->get("authUser"), $aclPermission);
+        self::authorization_check($section, $value, $request->getSession()->get("authUser"), $aclPermission);
     }
 
     public static function authorization_check($section, $value, $user = '', $aclPermission = ''): void

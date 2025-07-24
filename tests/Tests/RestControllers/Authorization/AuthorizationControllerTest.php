@@ -2,10 +2,7 @@
 
 namespace OpenEMR\Tests\RestControllers\Authorization;
 
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Monolog\Level;
-use Nyholm\Psr7\Stream;
-use OAuthException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Core\Kernel;
@@ -16,12 +13,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\AuthorizationController;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\FileBag;
-use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ServerBag;
-use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
@@ -31,16 +23,6 @@ class AuthorizationControllerTest extends TestCase
     private function getMockRequest(): HttpRestRequest
     {
         return HttpRestRequest::create('/test');
-//        $request = $this->createMock(HttpRestRequest::class);
-//        $request->request = new InputBag();
-//        $request->server = new ServerBag();
-//        $request->headers = new HeaderBag();
-//        $request->files = new FileBag();
-//        $request->cookies = new InputBag();
-//        $request->query = new InputBag();
-//        $request->attributes = new AttributeBag();
-//        $request->method('getContent')->willReturn(Stream::create(''));
-//        return $request;
     }
     private function getMockSessionForRequest(HttpRestRequest $request): SessionInterface
     {
@@ -51,6 +33,13 @@ class AuthorizationControllerTest extends TestCase
         $session->set("site_id", "default");
         return $session;
     }
+
+    /**
+     * @param HttpRestRequest $request
+     * @return AuthorizationController
+     * @throws \League\OAuth2\Server\Exception\OAuthServerException
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function getDefaultAuthorizationControllerForRequest(HttpRestRequest $request): AuthorizationController
     {
         $request = $this->getMockRequest();
@@ -79,6 +68,7 @@ class AuthorizationControllerTest extends TestCase
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), "Expected 400 Bad Request response");
     }
+
     public function testOauthAuthorizationFlowMissingClientId()
     {
         $request = $this->getMockRequest();

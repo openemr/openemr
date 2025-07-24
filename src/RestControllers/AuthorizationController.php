@@ -1799,11 +1799,6 @@ class AuthorizationController
             $clientEntity->setName($client['client_name']);
             $clientEntity->setDSIType($dsiType);
             $service = $dsiService->getServiceForClient($clientEntity, false);
-            if (empty($service)) {
-                $this->getSystemLogger()->errorLogCaller("DSI service attributes not found for client when they should exist", ['client_id' => $client['client_id']]);
-                $params['dsi_source_attributes'] = [];
-                return;
-            }
             $fields = $service->getFields();
             $dsiSourceAttributes = [];
             foreach ($fields as $field) {

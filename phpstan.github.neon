@@ -17396,10 +17396,6 @@ parameters:
     identifier: nullCoalesce.variable
     count: 2
     path: src/Common/Auth/OpenIDConnect/Repositories/RefreshTokenRepository.php
-  - message: '#^Variable \$scopesByResource on left side of \?\? is never defined\.$#'
-    identifier: nullCoalesce.variable
-    count: 1
-    path: src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php
   - message: '#^Variable \$userIdBinary in empty\(\) always exists and is not falsy\.$#'
     identifier: empty.variable
     count: 2
