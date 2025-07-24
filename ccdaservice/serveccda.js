@@ -3,40 +3,44 @@
  * @link      http://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+/* Refactored CCDA server using async xml2js instead of xmljson */
 
 "use strict";
 
 const enableDebug = false;
 
-const net = require('net');
+const net = require("net");
 const server = net.createServer();
-const to_json = require('xmljson').to_json;
-const bbg = require(__dirname + '/oe-blue-button-generate');
-const fs = require('fs');
-const { DataStack } = require('./data-stack/data-stack');
-const { cleanCode } = require('./utils/clean-code/clean-code');
-const { safeTrim } = require('./utils/safe-trim/safe-trim');
-const { headReplace } = require('./utils/head-replace/head-replace');
-const { fDate, templateDate } = require('./utils/date/date');
-const { countEntities } = require('./utils/count-entities/count-entities');
-const { populateTimezones } = require('./utils/timezones/timezones');
+const xml2js = require("xml2js");
+const xmlParser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
+const bbg = require(__dirname + "/oe-blue-button-generate");
+const fs = require("fs");
+const { DataStack } = require("./data-stack/data-stack");
+const { cleanCode } = require("./utils/clean-code/clean-code");
+const { safeTrim } = require("./utils/safe-trim/safe-trim");
+const { headReplace } = require("./utils/head-replace/head-replace");
+const { fDate, templateDate } = require("./utils/date/date");
+const { countEntities } = require("./utils/count-entities/count-entities");
+const { populateTimezones } = require("./utils/timezones/timezones");
 const {
     getNpiFacility,
     populateDemographics,
-} = require('./utils/demographics/populate-demographics');
-const { populateProvider } = require('./utils/providers/providers');
+} = require("./utils/demographics/populate-demographics");
+const { populateProvider } = require("./utils/providers/providers");
 
-var conn = ''; // make our connection scope global to script
-var oidFacility = "";
-var all = "";
-var npiProvider = "";
-var npiFacility = "";
-var webRoot = "";
-var authorDateTime = '';
-var documentLocation = '';
+let conn = "";
+let oidFacility = "";
+let all = "";
+let npiProvider = "";
+let npiFacility = "";
+let webRoot = "";
+let authorDateTime = "";
+let documentLocation = "";
+
 
 function populateProviders(all) {
     let providerArray = [];
@@ -3011,8 +3015,8 @@ function processConnection(connection) {
     //console.log('server remote address ', remoteAddress);
     let xml_complete = "";
 
-    function eventData(xml) {
-        xml_complete = xml.toString();
+    async function eventData(xml) {
+        let xml_complete = xml.toString();
         // ensure we have an array start and end
         if (xml_complete.match(/^<CCDA/g) && xml_complete.match(/<\/CCDA>$/g)) {
             let doc = "";
@@ -3020,14 +3024,11 @@ function processConnection(connection) {
             /* eslint-disable-next-line no-control-regex */
             xml_complete = xml_complete.replace(/(\u000b\u001c)/gm, "").trim();
             xml_complete = xml_complete.replace(/\t\s+/g, " ").trim();
+            xml_complete = xml_complete.replace(/\n/g, "\r\n");
+
             // convert xml data set for document to json array
-            to_json(xml_complete, function (error, data) {
-                if (error) {
-                    console.log(
-                        "toJson error: " + error + "Len: " + xml_complete.length
-                    );
-                    return "ERROR: Failed json build";
-                }
+            try {
+                const data = await xmlParser.parseStringPromise(xml_complete);
                 let unstructured = "";
                 let isUnstruturedData = !!data.CCDA.patient_files;
                 // extract unstructured documents file component templates. One per file.
@@ -3063,21 +3064,24 @@ function processConnection(connection) {
                     // combine the two documents to send back all at once.
                     doc += unstructured;
                 }
-            });
-            // send results back to eagerly awaiting CCM for disposal.
-            doc = doc
-                .toString()
+                // send results back to eagerly awaiting CCM for disposal.
+                doc = doc.toString()
                 /* eslint-disable-next-line no-control-regex */
                 .replace(/(\u000b\u001c|\r)/gm, "")
                 .trim();
-            let chunk = "";
-            let numChunks = Math.ceil(doc.length / 1024);
-            for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
-                chunk = doc.substring(o, o + 1024);
-                conn.write(chunk);
+                let chunk = "";
+                let numChunks = Math.ceil(doc.length / 1024);
+                for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
+                    chunk = doc.substring(o, o + 1024);
+                    conn.write(chunk);
+                }
+                conn.write(String.fromCharCode(28) + "\r\r" + "");
+                conn.end();
+            } catch (error) {
+                console.log("XML parsing error:", error);
+                conn.write("ERROR: Failed json build");
+                conn.end();
             }
-            conn.write(String.fromCharCode(28) + "\r\r" + "");
-            conn.end();
         }
     }
 
