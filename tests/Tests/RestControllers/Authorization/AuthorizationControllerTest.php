@@ -8,7 +8,6 @@ use Nyholm\Psr7\Stream;
 use OAuthException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -31,16 +30,17 @@ class AuthorizationControllerTest extends TestCase
 {
     private function getMockRequest(): HttpRestRequest
     {
-        $request = $this->createMock(HttpRestRequest::class);
-        $request->request = new InputBag();
-        $request->server = new ServerBag();
-        $request->headers = new HeaderBag();
-        $request->files = new FileBag();
-        $request->cookies = new InputBag();
-        $request->query = new InputBag();
-        $request->attributes = new AttributeBag();
-        $request->method('getContent')->willReturn(Stream::create(''));
-        return $request;
+        return HttpRestRequest::create('/test');
+//        $request = $this->createMock(HttpRestRequest::class);
+//        $request->request = new InputBag();
+//        $request->server = new ServerBag();
+//        $request->headers = new HeaderBag();
+//        $request->files = new FileBag();
+//        $request->cookies = new InputBag();
+//        $request->query = new InputBag();
+//        $request->attributes = new AttributeBag();
+//        $request->method('getContent')->willReturn(Stream::create(''));
+//        return $request;
     }
     private function getMockSessionForRequest(HttpRestRequest $request): SessionInterface
     {
@@ -55,6 +55,7 @@ class AuthorizationControllerTest extends TestCase
     {
         $request = $this->getMockRequest();
         $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
         $coreKernel = $this->createMock(Kernel::class);
         $coreKernel->method('getEventDispatcher')
             ->willReturn(new EventDispatcher());
@@ -72,6 +73,8 @@ class AuthorizationControllerTest extends TestCase
     public function testOauthAuthorizationFlowMissingResponseType()
     {
         $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
         $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), "Expected 400 Bad Request response");
@@ -79,6 +82,8 @@ class AuthorizationControllerTest extends TestCase
     public function testOauthAuthorizationFlowMissingClientId()
     {
         $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
         $request->query->set('response_type', 'code');
         $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
         $response = $authorizationController->oauthAuthorizationFlow($request);
@@ -88,6 +93,8 @@ class AuthorizationControllerTest extends TestCase
     public function testOauthAuthorizationFlowWithInvalidClientId()
     {
         $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
         $request->query->set('response_type', 'code');
         $request->query->set('client_id', 'test_client_id');
         $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
@@ -99,6 +106,8 @@ class AuthorizationControllerTest extends TestCase
         $clientId = 'test_client_id';
         $redirect_uri = 'https://example.com/fhir';
         $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
         $request->query->set('response_type', 'code');
         $request->query->set('client_id', $clientId);
         $request->query->set('redirect_uri', $redirect_uri);
