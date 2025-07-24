@@ -704,16 +704,14 @@ MSG;
     }
 
     /**
-     * Edit the disclosures that is recorded.
+     * Edit the disclosure record that is stored in the audit log.
      *
-     * @param $dates - The date when the disclosures are sent to the thrid party.
-     * @param $event - The type of the disclosure.
-     *               param $comment - The
-     *               recipient and the description
-     *               of the disclosure are
-     *               appended. $logeventid    -
-     *               The id of the record which is
-     *               to be edited.
+     * @param string $dates The date when the disclosure was sent to the third party
+     * @param string $event The type of disclosure event
+     * @param string $recipient The recipient of the disclosure
+     * @param string $description The description of the disclosure
+     * @param int $disclosure_id The ID of the disclosure record to be updated
+     * @return void
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
