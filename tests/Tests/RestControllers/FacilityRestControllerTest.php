@@ -7,8 +7,6 @@ use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FacilityRestControllerTest
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -78,9 +76,6 @@ class FacilityRestControllerTest extends TestCase
         $this->fixtureManager->removeFixtures();
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
     public function testPostInvalidData(): void
     {
         unset($this->facilityData["name"]);
@@ -91,9 +86,6 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::post with valid data
-     */
     public function testPost(): void
     {
         $actualResult = $this->facilityController->post($this->facilityData);
@@ -107,9 +99,6 @@ class FacilityRestControllerTest extends TestCase
         $this->assertGreaterThan(0, $facilityPid);
     }
 
-    /**
-     * @cover ::patch with invalid data
-     */
     public function testPatchInvalidData(): void
     {
         $actualResult = $this->facilityController->post($this->facilityData);
@@ -126,9 +115,6 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
     public function testPatch(): void
     {
         $actualResult = $this->facilityController->post($this->facilityData);
@@ -149,9 +135,6 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals($this->facilityData["email"], $updatedFacility["email"]);
     }
 
-    /**
-     * @cover ::getOne with an invalid uuid
-     */
     public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->facilityController->getOne("not-a-uuid");
@@ -161,9 +144,6 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals([], $actualResult["data"]);
     }
 
-    /**
-     * @cover ::getOne with a valid uuid
-     */
     public function testGetOne(): void
     {
         // create a record
@@ -175,9 +155,6 @@ class FacilityRestControllerTest extends TestCase
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
-    /**
-     * @cover ::getAll
-     */
     public function testGetAll(): void
     {
         $this->fixtureManager->installFacilityFixtures();

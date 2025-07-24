@@ -22,7 +22,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Condition Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirConditionService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>

@@ -3,7 +3,6 @@
 /**
  * FHIR Procedure Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirProcedureService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>

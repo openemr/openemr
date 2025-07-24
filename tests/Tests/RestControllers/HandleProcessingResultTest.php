@@ -6,9 +6,6 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Validators\ProcessingResult;
 
-/**
- * @coverDefault RestControllerHelper::handleProcessingResult
- */
 class HandleProcessingResultTest extends TestCase
 {
     private $processingResult;

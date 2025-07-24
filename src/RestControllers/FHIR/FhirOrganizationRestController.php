@@ -19,7 +19,6 @@ require_once(__DIR__ . '/../../../_rest_config.php');
 /**
  * FHIR Organization Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirOrganizationService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>

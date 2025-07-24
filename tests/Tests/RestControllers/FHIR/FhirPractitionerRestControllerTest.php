@@ -7,8 +7,6 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\FHIR\FhirPractitionerRestController
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -40,9 +38,6 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * @cover ::post with valid data
-     */
     public function testPost(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
@@ -50,9 +45,6 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertNotEmpty($actualResult['uuid']);
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
     public function testInvalidPost(): void
     {
         unset($this->fhirFixture['name']);
@@ -62,9 +54,6 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
     public function testPatch(): void
     {
         $actualResult = $this->fhirPractitionerController->post($this->fhirFixture);
@@ -77,9 +66,6 @@ class FhirPractitionerRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    /**
-     * @cover ::patch with valid data
-     */
     public function testInvalidPatch(): void
     {
         $this->fhirPractitionerController->post($this->fhirFixture);

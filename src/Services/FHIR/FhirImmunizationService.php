@@ -27,7 +27,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Immunization Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirImmunizationService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>

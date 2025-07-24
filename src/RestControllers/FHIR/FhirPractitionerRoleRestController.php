@@ -11,7 +11,6 @@ require_once(__DIR__ . '/../../../_rest_config.php');
 /**
  * FHIR PractitionerRole Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirPractitionerRoleService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>

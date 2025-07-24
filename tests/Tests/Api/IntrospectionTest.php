@@ -7,13 +7,12 @@ use OpenEMR\Tests\Api\ApiTestClient;
 
 /**
  * Capability FHIR Endpoint Test Cases.
- * @coversDefaultClass OpenEMR\Tests\Api\ApiTestClient
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 class IntrospectionTest extends TestCase
 {

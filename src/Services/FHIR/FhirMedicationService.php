@@ -20,7 +20,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Medication Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirMedicationService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>
