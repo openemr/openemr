@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\RestControllers\Config\RestConfig;
 /**
  * Routes
  * (All REST routes)
