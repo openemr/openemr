@@ -40,8 +40,11 @@ class PatientFhirApiTest extends TestCase
 
     public function testGetBy_id(): void
     {
+        error_log("Saving FHIR Patient fixture: " . var_export($this->fhirFixture, true));
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
+        $this->assertEquals(Response::HTTP_CREATED, $actualResult->getStatusCode(), "FHIR Patient post should have returned a 201 Created response");
         $contents = $this->getJsonContents($actualResult);
+        error_log("Patient post contents: " . var_export($contents, true));
         $fhirId = $contents['uuid'];
 
         $actualResult = $this->testClient->get("/apis/default/fhir/Patient", ['_id' => $fhirId]);
