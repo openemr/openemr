@@ -88,11 +88,14 @@
         },
         "allow-plugins": {
             "openemr/oe-module-installer-plugin": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true
         }
     },
     "require-dev": {
+        "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/php-code-coverage": "^11.0",
         "phpunit/phpunit": "11.*",
         "rector/rector": "^2.1",
