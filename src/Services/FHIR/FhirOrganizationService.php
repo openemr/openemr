@@ -152,6 +152,11 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
         return $this->facilityService->insert($fhirResource);
     }
 
+    /**
+     * @param $fhirResourceId string
+     * @param $fhirResource FHIROrganization
+     * @return ProcessingResult
+     */
     public function update($fhirResourceId, $fhirResource): ProcessingResult
     {
 

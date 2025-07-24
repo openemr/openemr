@@ -21,6 +21,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Supports REST interactions with the FHIR patient resource
@@ -48,7 +49,7 @@ class FhirPatientRestController
 
     /**
      * Creates a new FHIR patient resource
-     * @param $fhirJson The FHIR patient resource
+     * @param $fhirJson array The FHIR patient resource
      * @returns 201 if the resource is created, 400 if the resource is invalid
      */
     public function post($fhirJson)
@@ -66,11 +67,11 @@ class FhirPatientRestController
 
     /**
      * Updates an existing FHIR patient resource
-     * @param $fhirId The FHIR patient resource id (uuid)
-     * @param $fhirJson The updated FHIR patient resource (complete resource)
+     * @param string $fhirId The FHIR patient resource id (uuid)
+     * @param array $fhirJson The updated FHIR patient resource (complete resource)
      * @returns 200 if the resource is created, 400 if the resource is invalid
      */
-    public function put($fhirId, $fhirJson)
+    public function put(string $fhirId, array $fhirJson)
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
@@ -84,10 +85,10 @@ class FhirPatientRestController
 
     /**
      * Queries for a single FHIR patient resource by FHIR id
-     * @param $fhirId The FHIR patient resource id (uuid)
-     * @returns 200 if the operation completes successfully
+     * @param string $fhirId The FHIR patient resource id (uuid)
+     * @returns Response 200 if the operation completes successfully
      */
-    public function getOne($fhirId)
+    public function getOne(string $fhirId) : Response
     {
         $processingResult = $this->fhirPatientService->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
@@ -109,9 +110,9 @@ class FhirPatientRestController
      * - phone (home, business, cell)
      * - telecom (email, phone)
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return Response FHIR bundle with query results, if found
      */
-    public function getAll($searchParams, $puuidBind = null)
+    public function getAll(array $searchParams, ?string $puuidBind = null) : Response
     {
         $processingResult = $this->fhirPatientService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();
@@ -124,7 +125,6 @@ class FhirPatientRestController
             array_push($bundleEntries, $fhirBundleEntry);
         }
         $bundleSearchResult = $this->fhirService->createBundle('Patient', $bundleEntries, false);
-        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
-        return $searchResponseBody;
+        return RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
     }
 }
