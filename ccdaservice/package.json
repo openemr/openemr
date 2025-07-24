@@ -15,6 +15,6 @@
         "oe-cqm-service": "6.0.0",
         "oe-schematron-service": "1.1.1",
         "uuid": "11.1.0",
-        "xmljson": "0.2.0"
+        "xml2js": "0.6.2"
     }
 }
