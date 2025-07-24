@@ -68,6 +68,9 @@ class ClientEntity implements ClientEntityInterface
     const DSI_TYPE_EVIDENCE = 1;
     const DSI_TYPE_PREDICTIVE = 2;
 
+    protected string $identityProvider;
+    protected ?string $googleClientId;
+    protected ?string $googleClientSecret;
 
     public function __construct()
     {
@@ -75,6 +78,39 @@ class ClientEntity implements ClientEntityInterface
         $this->skipEHRLaunchAuthorizationFlow = false;
         $this->isEnabled = false;
         $this->dsiType = self::DSI_TYPE_NONE;
+        $this->identityProvider = 'local';
+        $this->googleClientId = null;
+        $this->googleClientSecret = null;
+    }
+
+    public function getIdentityProvider(): string
+    {
+        return $this->identityProvider;
+    }
+
+    public function setIdentityProvider(string $identityProvider): void
+    {
+        $this->identityProvider = $identityProvider;
+    }
+
+    public function getGoogleClientId(): ?string
+    {
+        return $this->googleClientId;
+    }
+
+    public function setGoogleClientId(?string $googleClientId): void
+    {
+        $this->googleClientId = $googleClientId;
+    }
+
+    public function getGoogleClientSecret(): ?string
+    {
+        return $this->googleClientSecret;
+    }
+
+    public function setGoogleClientSecret(?string $googleClientSecret): void
+    {
+        $this->googleClientSecret = $googleClientSecret;
     }
 
     public function setDSIType($type)

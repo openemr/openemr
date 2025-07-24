@@ -266,6 +266,9 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setRegistrationDate($client_record['register_date']);
         $client->setSkipEHRLaunchAuthorizationFlow($client_record['skip_ehr_launch_authorization_flow'] == "1");
         $client->setDSIType(intval($client_record['dsi_type'] ?? 0));
+        $client->setIdentityProvider($client_record['identity_provider'] ?? 'local');
+        $client->setGoogleClientId($client_record['google_client_id']);
+        $client->setGoogleClientSecret($this->cryptoGen->decryptStandard($client_record['google_client_secret']));
         return $client;
     }
 
@@ -290,6 +293,30 @@ class ClientRepository implements ClientRepositoryInterface
         if ($res === false) {
             // TODO: adunsulag is there a better exception to throw here in OpenEMR than runtime?
             throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
+        }
+        return true;
+    }
+
+    public function persist(ClientEntity $client)
+    {
+        $googleClientSecret = $client->getGoogleClientSecret();
+        if (!empty($googleClientSecret)) {
+            $googleClientSecret = $this->cryptoGen->encryptStandard($googleClientSecret);
+        } else {
+            $existingClient = $this->getClientEntity($client->getIdentifier());
+            $googleClientSecret = $existingClient->getGoogleClientSecret();
+        }
+
+        $sql = "UPDATE `oauth_clients` SET `identity_provider` = ?, `google_client_id` = ?, `google_client_secret` = ? WHERE `client_id` = ?";
+        $params = [
+            $client->getIdentityProvider(),
+            $client->getGoogleClientId(),
+            $googleClientSecret,
+            $client->getIdentifier()
+        ];
+        $res = sqlStatement($sql, $params);
+        if ($res === false) {
+            throw new \RuntimeException("Failed to save oauth_clients. Check logs for sql error");
         }
         return true;
     }

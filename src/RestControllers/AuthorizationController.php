@@ -540,6 +540,11 @@ class AuthorizationController
             // Validate the HTTP request and return an AuthorizationRequest object.
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
             $authRequest = $server->validateAuthorizationRequest($request);
+            $client = $authRequest->getClient();
+            if ($client->getIdentityProvider() === 'google') {
+                $this->redirectToGoogle($authRequest);
+                return;
+            }
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() auth request validated, csrf,scopes,client_id setup");
             $_SESSION['csrf'] = $authRequest->getState();
             $_SESSION['scopes'] = $request->getQueryParams()['scope'];
@@ -577,6 +582,204 @@ class AuthorizationController
             $body->write($exception->getMessage());
             $this->emitResponse($response->withStatus(500)->withBody($body));
         }
+    }
+
+    public function redirectToGoogle(AuthorizationRequest $authRequest): void
+    {
+        $client = $authRequest->getClient();
+        $this->logger->info(
+            "Redirecting to Google for GCIP authentication",
+            [
+                'client_id' => $client->getIdentifier(),
+            ]
+        );
+        $clientId = $client->getGoogleClientId();
+        $redirectUri = $this->authBaseFullUrl . '/callback/google';
+        $scope = implode(' ', array_map(fn($s) => $s->getIdentifier(), $authRequest->getScopes()));
+        $state = $authRequest->getState();
+        $nonce = $_SESSION['nonce'] ?? RandomGenUtils::produceRandomString(32);
+
+        $_SESSION['authRequestSerial'] = json_encode([
+            'outer' => [
+                'grantTypeId' => $authRequest->getGrantTypeId(),
+                'authorizationApproved' => false,
+                'redirectUri' => $authRequest->getRedirectUri(),
+                'state' => $authRequest->getState(),
+                'codeChallenge' => $authRequest->getCodeChallenge(),
+                'codeChallengeMethod' => $authRequest->getCodeChallengeMethod(),
+            ],
+            'scopes' => array_map(fn($s) => $s->getIdentifier(), $authRequest->getScopes()),
+            'client' => [
+                'name' => $client->getName(),
+                'redirectUri' => $client->getRedirectUri(),
+                'identifier' => $client->getIdentifier(),
+                'isConfidential' => $client->isConfidential(),
+            ],
+            'nonce' => $nonce,
+        ], JSON_THROW_ON_ERROR);
+
+        $authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' .
+            'response_type=code&' .
+            'client_id=' . urlencode($clientId) . '&' .
+            'redirect_uri=' . urlencode($redirectUri) . '&' .
+            'scope=' . urlencode($scope) . '&' .
+            'state=' . urlencode($state) . '&' .
+            'nonce=' . urlencode($nonce) . '&' .
+            'access_type=offline&prompt=consent';
+
+        header('Location: ' . $authUrl, true, 302);
+        exit;
+    }
+
+    public function handleGoogleCallback(): void
+    {
+        $response = $this->createServerResponse();
+        $request = $this->createServerRequest();
+
+        $code = $request->getQueryParams()['code'] ?? null;
+        $state = $request->getQueryParams()['state'] ?? null;
+
+        if (empty($code) || empty($state)) {
+            throw new OAuthServerException('Missing authorization code or state', 0, 'invalid_request', 400);
+        }
+
+        $authRequestData = json_decode($_SESSION['authRequestSerial'] ?? '', true);
+        if (empty($authRequestData) || $authRequestData['outer']['state'] !== $state) {
+            $this->logger->error(
+                "Invalid state parameter in GCIP callback",
+                [
+                    'state' => $state,
+                    'expected_state' => $authRequestData['outer']['state'] ?? null,
+                ]
+            );
+            throw new OAuthServerException('Invalid state parameter', 0, 'invalid_request', 400);
+        }
+
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($authRequestData['client']['identifier']);
+
+        if (empty($client) || $client->getIdentityProvider() !== 'google') {
+            $this->logger->error(
+                "Invalid client or identity provider for GCIP callback",
+                [
+                    'client_id' => $authRequestData['client']['identifier'],
+                    'identity_provider' => $client->getIdentityProvider() ?? null,
+                ]
+            );
+            throw new OAuthServerException('Invalid client or identity provider', 0, 'invalid_client', 400);
+        }
+
+        $tokenUrl = 'https://oauth2.googleapis.com/token';
+        $redirectUri = $this->authBaseFullUrl . '/callback/google';
+
+        $httpClient = new Client();
+        try {
+            $tokenResponse = $httpClient->post($tokenUrl, [
+                'form_params' => [
+                    'code' => $code,
+                    'client_id' => $client->getGoogleClientId(),
+                    'client_secret' => $client->getGoogleClientSecret(),
+                    'redirect_uri' => $redirectUri,
+                    'grant_type' => 'authorization_code',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error(
+                "Failed to exchange authorization code for access token",
+                [
+                    'client_id' => $client->getIdentifier(),
+                    'exception' => $e->getMessage(),
+                ]
+            );
+            throw new OAuthServerException('Failed to exchange authorization code for access token', 0, 'invalid_grant', 400);
+        }
+
+        $tokenData = json_decode($tokenResponse->getBody()->__toString(), true);
+
+        $idToken = $tokenData['id_token'] ?? null;
+        if (empty($idToken)) {
+            $this->logger->error(
+                "Missing ID token in GCIP callback",
+                [
+                    'client_id' => $client->getIdentifier(),
+                ]
+            );
+            throw new OAuthServerException('Missing ID token', 0, 'invalid_request', 400);
+        }
+
+        // Validate ID token (simplified for brevity, a real implementation would use a JWT library)
+        $idTokenParts = explode('.', $idToken);
+        $idTokenPayload = json_decode(base64_decode($idTokenParts[1]), true);
+
+        if ($idTokenPayload['aud'] !== $client->getGoogleClientId() || $idTokenPayload['nonce'] !== $authRequestData['nonce']) {
+            $this->logger->error(
+                "Invalid ID token in GCIP callback",
+                [
+                    'client_id' => $client->getIdentifier(),
+                    'audience' => $idTokenPayload['aud'],
+                    'expected_audience' => $client->getGoogleClientId(),
+                    'nonce' => $idTokenPayload['nonce'],
+                    'expected_nonce' => $authRequestData['nonce'],
+                ]
+            );
+            throw new OAuthServerException('Invalid ID token', 0, 'invalid_token', 400);
+        }
+
+        $userEmail = $idTokenPayload['email'] ?? null;
+        if (empty($userEmail)) {
+            $this->logger->error(
+                "User email not found in ID token",
+                [
+                    'client_id' => $client->getIdentifier(),
+                ]
+            );
+            throw new OAuthServerException('User email not found in ID token', 0, 'invalid_token', 400);
+        }
+
+        // Authenticate or provision user in OpenEMR
+        $userRepository = new UserRepository();
+        $user = $userRepository->getUserEntityByEmail($userEmail);
+
+        if (empty($user)) {
+            // User does not exist, provision new user
+            // In a real scenario, you might want to create a more robust user provisioning process
+            // For now, we'll just create a basic user with the email as username
+            $newUserId = $userRepository->createUser($userEmail, $idTokenPayload['given_name'] ?? '', $idTokenPayload['family_name'] ?? '');
+            $user = $userRepository->getUserEntityByIdentifier($newUserId);
+            $this->logger->info(
+                "New user provisioned via GCIP",
+                [
+                    'user_id' => $user->getIdentifier(),
+                    'email' => $userEmail,
+                ]
+            );
+        }
+
+        $this->logger->info(
+            "User successfully authenticated via GCIP",
+            [
+                'user_id' => $user->getIdentifier(),
+                'client_id' => $client->getIdentifier(),
+            ]
+        );
+
+        // Reconstruct AuthorizationRequest and complete the flow
+        $authRequest = new AuthorizationRequest();
+        $authRequest->setGrantTypeId($authRequestData['outer']['grantTypeId']);
+        $authRequest->setClient($client);
+        $authRequest->setScopes(array_map(fn($s) => (new ScopeEntity())->setIdentifier($s), $authRequestData['scopes']));
+        $authRequest->setAuthorizationApproved(true);
+        $authRequest->setRedirectUri($authRequestData['outer']['redirectUri']);
+        $authRequest->setState($authRequestData['outer']['state']);
+        $authRequest->setCodeChallenge($authRequestData['outer']['codeChallenge']);
+        $authRequest->setCodeChallengeMethod($authRequestData['outer']['codeChallengeMethod']);
+        $authRequest->setUser($user);
+
+        $server = $this->getAuthorizationServer();
+        $result = $server->completeAuthorizationRequest($authRequest, $response);
+
+        SessionUtil::oauthSessionCookieDestroy();
+        $this->emitResponse($result);
     }
 
     /**
