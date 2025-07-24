@@ -88,7 +88,7 @@ class FhirPatientRestController
      * @param string $fhirId The FHIR patient resource id (uuid)
      * @returns Response 200 if the operation completes successfully
      */
-    public function getOne(string $fhirId) : Response
+    public function getOne(string $fhirId): Response
     {
         $processingResult = $this->fhirPatientService->getOne($fhirId);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
@@ -112,7 +112,7 @@ class FhirPatientRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return Response FHIR bundle with query results, if found
      */
-    public function getAll(array $searchParams, ?string $puuidBind = null) : Response
+    public function getAll(array $searchParams, ?string $puuidBind = null): Response
     {
         $processingResult = $this->fhirPatientService->getAll($searchParams, $puuidBind);
         $bundleEntries = array();

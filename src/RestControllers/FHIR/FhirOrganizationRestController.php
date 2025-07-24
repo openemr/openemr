@@ -61,7 +61,7 @@ class FhirOrganizationRestController
      * - telecom (email, phone)
      * @return Response The http response object containing the FHIR bundle with query results, if found
      */
-    public function getAll($searchParams) : Response
+    public function getAll($searchParams): Response
     {
         $processingResult = $this->fhirOrganizationService->getAll($searchParams);
         $bundleEntries = array();
@@ -85,7 +85,7 @@ class FhirOrganizationRestController
      * @param $puuidBind string|null Optional to restrict visibility of the organization to the one with this puuid.
      * @returns Response 200 if the operation completes successfully
      */
-    public function getOne(string $fhirId, ?string $puuidBind = null) : Response
+    public function getOne(string $fhirId, ?string $puuidBind = null): Response
     {
         $processingResult = $this->fhirOrganizationService->getOne($fhirId, $puuidBind);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
@@ -96,7 +96,7 @@ class FhirOrganizationRestController
      * @param $fhirJson array The FHIR organization resource
      * @returns Response 201 if the resource is created, 400 if the resource is invalid
      */
-    public function post(array $fhirJson) : Response
+    public function post(array $fhirJson): Response
     {
         $fhirValidationService = $this->fhirValidationService->validate($fhirJson);
         if (!empty($fhirValidationService)) {
@@ -114,7 +114,7 @@ class FhirOrganizationRestController
      * @param $fhirJson array The updated FHIR organization resource (complete resource)
      * @returns Response 200 if the resource is created, 400 if the resource is invalid
      */
-    public function patch(string $fhirId, array $fhirJson) : Response
+    public function patch(string $fhirId, array $fhirJson): Response
     {
         $fhirValidationService = $this->fhirValidationService->validate($fhirJson);
         if (!empty($fhirValidationService)) {
@@ -126,7 +126,7 @@ class FhirOrganizationRestController
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
-    private function createOrganizationFromJSON($fhirJson) : FHIROrganization
+    private function createOrganizationFromJSON($fhirJson): FHIROrganization
     {
         return FhirOrganizationSerializer::deserialize($fhirJson);
     }

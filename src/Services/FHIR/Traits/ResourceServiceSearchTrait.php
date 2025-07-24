@@ -26,7 +26,7 @@ trait ResourceServiceSearchTrait
      */
     private FHIRSearchFieldFactory $searchFieldFactory;
 
-    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory) : void
+    public function setSearchFieldFactory(FHIRSearchFieldFactory $factory): void
     {
         $this->searchFieldFactory = $factory;
     }
@@ -46,7 +46,7 @@ trait ResourceServiceSearchTrait
      * @param string|null $puuidBind The patient unique id if searching in a patient context
      * @return ISearchField[] where the keys are the search fields.
      */
-    protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null) : array
+    protected function createOpenEMRSearchParameters(array $fhirSearchParameters, ?string $puuidBind = null): array
     {
         $oeSearchParameters = array();
 
@@ -99,7 +99,7 @@ trait ResourceServiceSearchTrait
         return $oeSearchParameters;
     }
 
-    private function createSortParameter($sort) : array
+    private function createSortParameter($sort): array
     {
         $newSortOrder = [];
         $sortFields = explode(',', $sort);
@@ -122,7 +122,7 @@ trait ResourceServiceSearchTrait
         return $newSortOrder;
     }
 
-    protected function createSearchParameterForField($fhirSearchField, $searchValue) : ISearchField
+    protected function createSearchParameterForField($fhirSearchField, $searchValue): ISearchField
     {
         $searchFactory = $this->getSearchFieldFactory();
         if ($searchFactory->hasSearchField($fhirSearchField)) {
