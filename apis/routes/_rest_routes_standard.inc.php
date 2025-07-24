@@ -6330,7 +6330,7 @@ return array(
      *  )
      */
     "PUT /api/patient/:puuid/insurance/:insuranceUuid" => function ($puuid, $insuranceUuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "demo", '', 'write');
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new InsuranceRestController())->put($puuid, $insuranceUuid, $data);
 
@@ -6374,7 +6374,7 @@ return array(
      *  )
      */
     "POST /api/patient/:puuid/insurance" => function ($puuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "patients", "demo", '', ['write','addonly']);
+        RestConfig::request_authorization_check($request, "patients", "demo", ['write','addonly']);
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new InsuranceRestController())->post($puuid, $data);
 

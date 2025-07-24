@@ -56,18 +56,6 @@ parameters:
     identifier: variable.undefined
     count: 2
     path: admin.php
-  - message: '#^Variable \$attributes might not be defined\.$#'
-    identifier: variable.undefined
-    count: 2
-    path: apis/dispatch.php
-  - message: '#^Variable \$clientId might not be defined\.$#'
-    identifier: variable.undefined
-    count: 1
-    path: apis/dispatch.php
-  - message: '#^Variable \$userId might not be defined\.$#'
-    identifier: variable.undefined
-    count: 4
-    path: apis/dispatch.php
   - message: '#^Variable \$pid might not be defined\.$#'
     identifier: variable.undefined
     count: 4

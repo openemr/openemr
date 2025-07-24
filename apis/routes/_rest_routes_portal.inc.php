@@ -18,6 +18,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\RestControllers\PatientRestController;
+use OpenEMR\RestControllers\EncounterRestController;
+use OpenEMR\RestControllers\AppointmentRestController;
+use OpenEMR\Common\Http\HttpRestRequest;
+
 // Note that the portal (api) route is only for patient role
 //  (there is a mechanism in place to ensure only patient role can access the portal (api) route)
 return array(
@@ -67,7 +72,7 @@ return array(
      *  )
      */
     "GET /portal/patient/encounter" => function (HttpRestRequest $request) {
-        $return = (new EncounterRestController())->getAll($request->getPatientUUIDString());
+        $return = (new EncounterRestController($request->getSession()))->getAll($request->getPatientUUIDString());
         return $return;
     },
 
@@ -101,7 +106,7 @@ return array(
      *  )
      */
     "GET /portal/patient/encounter/:euuid" => function ($euuid, HttpRestRequest $request) {
-        $return = (new EncounterRestController())->getOne($request->getPatientUUIDString(), $euuid);
+        $return = (new EncounterRestController($request->getSession()))->getOne($request->getPatientUUIDString(), $euuid);
         return $return;
     },
 
