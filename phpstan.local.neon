@@ -11836,10 +11836,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php
-  - message: '#^Class Application\\Model\\ApplicationTable constructor invoked with 1 parameter, 0 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: interface/modules/zend_modules/module/Application/config/module.config.php
   - message: '#^Class Application\\Model\\SendtoTable does not have a constructor and must be instantiated without any parameters\.$#'
     identifier: new.noConstructor
     count: 1

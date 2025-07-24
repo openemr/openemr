@@ -155,7 +155,7 @@ return array(
                 return new CarecoordinationTable();
             },
             EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
-                    return new EncounterccdadispatchTable();
+                return new EncounterccdadispatchTable($container->get(\Laminas\Db\Adapter\Adapter::class));
             },
             EncountermanagerTable::class =>  function (ContainerInterface $container, $requestedName) {
                     return new EncountermanagerTable();

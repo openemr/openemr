@@ -57,8 +57,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchFiltered = false;
     private $encounterFilterList = [];
 
-    public function __construct()
+    public function __construct($dbAdapter)
     {
+        // No specific table - you'll specify tables in individual queries
+        parent::__construct(null, $dbAdapter);
     }
 
     /**
