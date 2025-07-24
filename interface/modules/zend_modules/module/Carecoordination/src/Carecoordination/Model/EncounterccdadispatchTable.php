@@ -59,6 +59,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
     public function __construct($dbAdapter)
     {
+        // Explicitly mark as unused to satisfy PHPStan
+        unset($dbAdapter);
     }
 
     /**

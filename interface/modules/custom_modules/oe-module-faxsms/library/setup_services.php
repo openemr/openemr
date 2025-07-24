@@ -153,7 +153,6 @@ if ($_POST['form_save_permissions'] ?? null) {
     $permissions_saved = true;
 
     // Set appropriate success message based on action
-    $permissions_message_type = '';
     if ($reset_primary) {
         $permissions_message = xlt("User permissions saved and primary user designation cleared successfully!");
         $permissions_message_type = "warning"; // Use warning color for reset action
@@ -356,7 +355,7 @@ $vendors = $boot->getVendorGlobals();
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                     <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
                         <strong>
-                            <?php if ($permissions_message_type === 'warning') { ?>
+                            <?php if (($permissions_message_type ?? '') === 'warning') { ?>
                                 <i class="fa fa-exclamation-triangle"></i>
                             <?php } else { ?>
                                 <i class="fa fa-check-circle"></i>
@@ -479,11 +478,11 @@ $vendors = $boot->getVendorGlobals();
                         $showFlag = false; ?></legend>
                     <div id="helpCard" class="help-card card" style="display: none;">
                         <div class="card-header text-center"><h5><?php echo xlt('Managing Background Services Help'); ?></h5></div>
-                        <div class="card-body"><?php echo nl2br(text('Select a background service to manage.  
+                        <div class="card-body"><?php echo nl2br(text('Select a background service to manage.
                         You may specify an required interval in hours when creating the task. The default is 24 hours
-                        Use the action buttons to create the task, enable or disable its execution, or delete it. 
-                        When Create is used the task is created but disabled. 
-                        If Enable is selected, the task is created if not already installed and enabled as a step saver. 
+                        Use the action buttons to create the task, enable or disable its execution, or delete it.
+                        When Create is used the task is created but disabled.
+                        If Enable is selected, the task is created if not already installed and enabled as a step saver.
                         Whichever one is used, Create or Enable, and the task already exists, it will be updated with the execute interval input value and enabled if Enable or the task last state if Create.
                         Whenever a new service task is created and enabled, the task will run initial notifications within 2 minutes so, be prepared.')); ?></div>
                     </div>
