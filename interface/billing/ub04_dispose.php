@@ -97,7 +97,7 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form'): void
     }
 }
 
-function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin, ?string $action = null, &$log)
+function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin = "", ?string $action = null, &$log = null)
 {
     global $srcdir, $isAuthorized;
 
