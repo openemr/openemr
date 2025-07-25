@@ -16,14 +16,8 @@ use OpenEMR\Validators\Rules\ListOptionRule;
 use Particle\Validator\MessageStack;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass OpenEMR\Validators\Rules\ListOptionRule
- */
 class ListOptionRuleTest extends TestCase
 {
-    /**
-     * @covers ::validate
-     */
     public function testValidateWithValidOptionId(): void
     {
         // test with a valid list id

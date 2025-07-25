@@ -25,7 +25,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Observation Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirObservationService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>

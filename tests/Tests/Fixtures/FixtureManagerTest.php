@@ -6,8 +6,6 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
 /**
- * @coversDefaultClass \OpenEMR\Tests\Fixtures\FixtureManager
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -102,9 +100,6 @@ class FixtureManagerTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::getPatientFixtures
-     */
     public function testGetPatientFixtures(): void
     {
         $patientFixtures = $this->fixtureManager->getPatientFixtures();
@@ -116,19 +111,12 @@ class FixtureManagerTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::getSinglePatientFixture
-     */
     public function testGetPatientFixture(): void
     {
         $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->assertPatientFields($patientFixture);
     }
 
-    /**
-     * @covers ::installPatientFixtures
-     * @covers ::removePatientFixtures
-     */
     public function testInstallAndRemovePatientFixtures(): void
     {
         $actualCount = $this->fixtureManager->installPatientFixtures();
@@ -143,9 +131,6 @@ class FixtureManagerTest extends TestCase
         $this->assertEquals(0, $recordCount);
     }
 
-    /**
-     * @covers ::getFhirPatientFixtures
-     */
     public function testGetFhirPatientFixtures(): void
     {
         $fhirPatientFixtures = $this->fixtureManager->getFhirPatientFixtures();

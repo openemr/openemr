@@ -22,7 +22,6 @@ use OpenEMR\Validators\ProcessingResult;
 /**
  * FHIR Coverage Service
  *
- * @coversDefaultClass OpenEMR\Services\FHIR\FhirCoverageService
  * @package            OpenEMR
  * @link               http://www.open-emr.org
  * @author             Vishnu Yarmaneni <vardhanvishnu@gmail.com>

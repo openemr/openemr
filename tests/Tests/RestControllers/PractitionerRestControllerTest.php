@@ -7,8 +7,6 @@ use OpenEMR\RestControllers\PractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\RestControllers\PractitionerRestController
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
@@ -74,9 +72,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->fixtureManager->removePractitionerFixtures();
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
     public function testPostInvalidData(): void
     {
         unset($this->practitionerData["fname"]);
@@ -87,9 +82,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::post with valid data
-     */
     public function testPost(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
@@ -103,9 +95,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertGreaterThan(0, $practitionerPid);
     }
 
-    /**
-     * @cover ::put with invalid data
-     */
     public function testPutInvalidData(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
@@ -122,9 +111,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals(0, count($actualResult["data"]));
     }
 
-    /**
-     * @cover ::put with valid data
-     */
     public function testPut(): void
     {
         $actualResult = $this->practitionerController->post($this->practitionerData);
@@ -145,9 +131,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals($this->practitionerData["email"], $updatedPractitioner["email"]);
     }
 
-    /**
-     * @cover ::getOne with an invalid uuid
-     */
     public function testGetOneInvalidUuid(): void
     {
         $actualResult = $this->practitionerController->getOne("not-a-uuid");
@@ -157,9 +140,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals([], $actualResult["data"]);
     }
 
-    /**
-     * @cover ::getOne with a valid uuid
-     */
     public function testGetOne(): void
     {
         // create a record
@@ -171,9 +151,6 @@ class PractitionerRestControllerTest extends TestCase
         $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
-    /**
-     * @cover ::getAll
-     */
     public function testGetAll(): void
     {
         $this->fixtureManager->installPractitionerFixtures();

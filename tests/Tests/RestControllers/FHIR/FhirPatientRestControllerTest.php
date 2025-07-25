@@ -6,10 +6,6 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
-/**
- * @coversDefaultClass \OpenEMR\RestControllers\FHIR\FhirPatientRestController
- */
-
 class FhirPatientRestControllerTest extends TestCase
 {
     private $fhirPatientController;
@@ -32,9 +28,6 @@ class FhirPatientRestControllerTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
     }
 
-    /**
-     * @cover ::post with valid data
-     */
     public function testPost(): void
     {
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
@@ -42,9 +35,6 @@ class FhirPatientRestControllerTest extends TestCase
         $this->assertNotEmpty($actualResult['uuid']);
     }
 
-    /**
-     * @cover ::post with invalid data
-     */
     public function testInvalidPost(): void
     {
         unset($this->fhirFixture['name']);
@@ -54,9 +44,6 @@ class FhirPatientRestControllerTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult['validationErrors']));
     }
 
-    /**
-     * @cover ::put with valid data
-     */
     public function testPut(): void
     {
         $actualResult = $this->fhirPatientController->post($this->fhirFixture);
@@ -69,9 +56,6 @@ class FhirPatientRestControllerTest extends TestCase
         $this->assertEquals($fhirId, $actualResult->getId());
     }
 
-    /**
-     * @cover ::put with valid data
-     */
     public function testInvalidPut(): void
     {
         $this->fhirPatientController->post($this->fhirFixture);
