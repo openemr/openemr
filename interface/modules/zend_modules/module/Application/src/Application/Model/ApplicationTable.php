@@ -30,7 +30,7 @@ class ApplicationTable extends AbstractTableGateway
      *
      * @param Adapter $adapter
      */
-    public function __construct(Adapter $adapter = null)
+    public function __construct(?Adapter $adapter = null)
     {
         if ($adapter === null) {
             // Fallback to static adapter if none provided

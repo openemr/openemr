@@ -25,7 +25,7 @@ class TelemetryService
     protected SystemLogger $logger;
 
 
-    public function __construct(TelemetryRepository $repository = null, VersionService $versionService = null, SystemLogger $logger = null)
+    public function __construct(?TelemetryRepository $repository = null, ?VersionService $versionService = null, ?SystemLogger $logger = null)
     {
         if (!($versionService instanceof VersionService) || !($repository instanceof TelemetryRepository)) {
             $repository = new TelemetryRepository();

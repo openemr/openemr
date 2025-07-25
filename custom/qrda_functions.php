@@ -224,7 +224,7 @@ function allActiveMedsPat($patient_id, $from_date, $to_date)
     return $medArr;
 }
 
-function allProcPat(string $proc_type = null, $patient_id, $from_date, $to_date)
+function allProcPat(?string $proc_type = null, $patient_id, $from_date, $to_date)
 {
     if (!$proc_type) {
         $proc_type = "Procedure";
