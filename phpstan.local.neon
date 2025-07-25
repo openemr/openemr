@@ -14076,10 +14076,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: interface/reports/non_reported.php
-  - message: '#^Deprecated in PHP 8\.0\: Required parameter \$effectiveInsurances follows optional parameter \$unassigned\.$#'
-    identifier: parameter.requiredAfterOptional
-    count: 1
-    path: interface/reports/pat_ledger.php
   - message: '#^Variable \$effectiveInsurances might not be defined\.$#'
     identifier: variable.undefined
     count: 2
@@ -17248,14 +17244,6 @@ parameters:
     identifier: variable.undefined
     count: 1
     path: portal/report/document_downloads_action.php
-  - message: '#^Function PrintCreditDetail invoked with 2 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 2
-    path: portal/report/pat_ledger.php
-  - message: '#^Function PrintCreditDetail invoked with 3 parameters, 4 required\.$#'
-    identifier: arguments.count
-    count: 1
-    path: portal/report/pat_ledger.php
   - message: '#^Variable \$adj_amt might not be defined\.$#'
     identifier: variable.undefined
     count: 1
