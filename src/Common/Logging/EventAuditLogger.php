@@ -149,11 +149,11 @@ MSG;
      * @param $user
      * @param $groupname
      * @param $success
-     * @param string    $comments
-     * @param null      $patient_id
-     * @param string    $log_from
-     * @param string    $menu_item
-     * @param int       $ccda_doc_id
+     * @param string $comments
+     * @param null   $patient_id
+     * @param string $log_from
+     * @param string $menu_item
+     * @param int    $ccda_doc_id
      */
     public function newEvent(
         $event,
@@ -176,6 +176,7 @@ MSG;
             $sqlMenuItems = "SELECT * FROM patient_portal_menu";
 
             $resMenuItems = sqlStatement($sqlMenuItems);
+            $menuItems = array();
             for ($iter = 0; $rowMenuItem = sqlFetchArray($resMenuItems); $iter++) {
                 $menuItems[$rowMenuItem['patient_portal_menu_id']] = $rowMenuItem['menu_name'];
             }
@@ -344,28 +345,17 @@ MSG;
      * @param  $event
      * @return string
      */
-    private function determineRFC3881EventActionCode($event)
+    protected function determineRFC3881EventActionCode($event)
     {
-        switch (substr($event, -7)) {
-            case '-create':
-                return self::EVENT_ACTION_CODE_CREATE;
-                break;
-            case '-insert':
-                return self::EVENT_ACTION_CODE_INSERT;
-                break;
-            case '-select':
-                return self::EVENT_ACTION_CODE_SELECT;
-                break;
-            case '-update':
-                return self::EVENT_ACTION_CODE_UPDATE;
-                break;
-            case '-delete':
-                return self::EVENT_ACTION_CODE_DELETE;
-                break;
-            default:
-                return self::EVENT_ACTION_CODE_EXECUTE;
-                break;
-        }
+        $eventActionMap = [
+            '-create' => self::EVENT_ACTION_CODE_CREATE,
+            '-insert' => self::EVENT_ACTION_CODE_INSERT,
+            '-select' => self::EVENT_ACTION_CODE_SELECT,
+            '-update' => self::EVENT_ACTION_CODE_UPDATE,
+            '-delete' => self::EVENT_ACTION_CODE_DELETE,
+        ];
+        $eventSuffix = substr($event, -7);
+        return $eventActionMap[$eventSuffix] ?? self::EVENT_ACTION_CODE_EXECUTE;
     }
 
     /**
@@ -375,7 +365,7 @@ MSG;
      *
      * @param $event
      */
-    private function determineRFC3881EventIdDisplayName($event)
+    protected function determineRFC3881EventIdDisplayName($event)
     {
 
         $eventIdDisplayName = $event;
@@ -410,7 +400,7 @@ MSG;
      * @param  $comments
      * @return string
      */
-    private function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
+    protected function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
@@ -451,7 +441,7 @@ MSG;
      * @param  $cafile
      * @return bool|resource
      */
-    private function createTlsConn($host, $port, $localcert, $cafile)
+    protected function createTlsConn($host, $port, $localcert, $cafile)
     {
         $sslopts = array();
         if ($cafile !== null && $cafile != "") {
@@ -525,7 +515,7 @@ MSG;
      *
      * @param $statement
      * @param $outcome
-     * @param null      $binds
+     * @param null $binds
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
@@ -696,10 +686,10 @@ MSG;
     /**
      * Record the patient disclosures.
      *
-     * @param $dates    - The date when the disclosures are sent to the thrid party.
-     * @param $event    - The type of the disclosure.
-     * @param $pid      - The id of the patient for whom the disclosures are recorded.
-     * @param $comment  - The recipient name and description of the disclosure.
+     * @param $dates   - The date when the disclosures are sent to the thrid party.
+     * @param $event   - The type of the disclosure.
+     * @param $pid     - The id of the patient for whom the disclosures are recorded.
+     * @param $comment - The recipient name and description of the disclosure.
      * @uname - The username who is recording the disclosure.
      */
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
@@ -714,12 +704,14 @@ MSG;
     }
 
     /**
-     * Edit the disclosures that is recorded.
+     * Edit the disclosure record that is stored in the audit log.
      *
-     * @param $dates  - The date when the disclosures are sent to the thrid party.
-     * @param $event  - The type of the disclosure.
-     * param $comment - The recipient and the description of the disclosure are appended.
-     * $logeventid    - The id of the record which is to be edited.
+     * @param string $dates The date when the disclosure was sent to the third party
+     * @param string $event The type of disclosure event
+     * @param string $recipient The recipient of the disclosure
+     * @param string $description The description of the disclosure
+     * @param int $disclosure_id The ID of the disclosure record to be updated
+     * @return void
      */
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
@@ -891,7 +883,7 @@ MSG;
      * @param  $table
      * @return string
      */
-    private function eventCategoryFinder($sql, $event, $table)
+    protected function eventCategoryFinder($sql, $event, $table)
     {
         if ($event == 'delete') {
             if (strpos($sql, "lists:") === 0) {
@@ -960,7 +952,7 @@ MSG;
     // Goal of this function is to increase performance in logging engine to check
     //  if a user is a breakglass user (in this case, will log all activities if the
     //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
-    private function isBreakglassUser($user)
+    protected function isBreakglassUser($user)
     {
         // return false if $user is empty
         if (empty($user)) {
